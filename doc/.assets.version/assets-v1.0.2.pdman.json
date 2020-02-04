@@ -1,0 +1,893 @@
+{
+  "modules": [
+    {
+      "name": "assets",
+      "chnname": "资产",
+      "entities": [
+        {
+          "title": "booth",
+          "chnname": "摊位 ",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "chnname": "id",
+              "remark": "",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true,
+              "defaultValue": ""
+            },
+            {
+              "name": "name",
+              "type": "DefaultString",
+              "chnname": "摊位名称",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "number",
+              "type": "Integer",
+              "chnname": "数量",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "unit",
+              "type": "Integer",
+              "chnname": "单位",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "area",
+              "type": "Integer",
+              "chnname": "区域",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "type",
+              "type": "Integer",
+              "chnname": "摊位类型",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "department_id",
+              "type": "Integer",
+              "chnname": "所属部门",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "parent",
+              "type": "BigInt",
+              "chnname": "父摊位",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "remarks",
+              "type": "DefaultString",
+              "chnname": "备注",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "status",
+              "type": "Integer",
+              "remark": "",
+              "chnname": "状态"
+            },
+            {
+              "name": "creator_id",
+              "type": "BigInt",
+              "chnname": "创建人",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "chnname": "创建时间",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "modify_time",
+              "type": "DateTime",
+              "chnname": "更新时间",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ]
+        },
+        {
+          "title": "category",
+          "chnname": "品类 ",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "chnname": "id",
+              "remark": "",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "name",
+              "type": "DefaultString",
+              "chnname": "品类名称",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "pingying",
+              "type": "DefaultString",
+              "chnname": "拼音",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "py_initials",
+              "type": "DefaultString",
+              "chnname": "拼音缩写",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "status",
+              "type": "DefaultString",
+              "chnname": "状态",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "parent",
+              "type": "BigInt",
+              "chnname": "父品类",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "path",
+              "type": "DefaultString",
+              "chnname": "路劲",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "code",
+              "type": "DefaultString",
+              "chnname": "编码",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "creator_id",
+              "type": "BigInt",
+              "chnname": "创建人",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "chnname": "创建时间",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "modify_time",
+              "type": "DateTime",
+              "chnname": "更新时间",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ]
+        },
+        {
+          "title": "district",
+          "chnname": "区域 ",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "chnname": "id",
+              "remark": "",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true,
+              "defaultValue": ""
+            },
+            {
+              "name": "creator_id",
+              "type": "BigInt",
+              "chnname": "创建人",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "chnname": "创建时间",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "modify_time",
+              "type": "DateTime",
+              "chnname": "更新时间",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "name",
+              "type": "DefaultString",
+              "chnname": "区域名称",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "remarks",
+              "type": "DefaultString",
+              "chnname": "备注",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "department_id",
+              "type": "BigInt",
+              "chnname": "部门",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "market_id",
+              "type": "BigInt",
+              "chnname": "市场",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "parent_id",
+              "type": "BigInt",
+              "chnname": "父区域",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "sort",
+              "type": "DefaultString",
+              "chnname": "排序",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "number",
+              "type": "DefaultString",
+              "chnname": "编号",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ]
+        },
+        {
+          "title": "print_template",
+          "chnname": "打印模板 ",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "chnname": "id",
+              "remark": "",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true,
+              "defaultValue": ""
+            },
+            {
+              "name": "name",
+              "type": "DefaultString",
+              "chnname": "模板名称",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "content",
+              "type": "LongText",
+              "chnname": "模板内容",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "market_id",
+              "type": "BigInt",
+              "chnname": "市场",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "creator_id",
+              "type": "BigInt",
+              "chnname": "创建人",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "chnname": "创建时间",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "modify_time",
+              "type": "DateTime",
+              "chnname": "更新时间",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ]
+        }
+      ],
+      "graphCanvas": {
+        "nodes": [],
+        "edges": []
+      },
+      "associations": []
+    }
+  ],
+  "message": "调整字段顺序",
+  "version": "v1.0.2",
+  "changes": [
+    {
+      "type": "field",
+      "name": "booth.name.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "booth.number.type",
+      "opt": "update",
+      "changeData": "INT_10=>Integer"
+    },
+    {
+      "type": "field",
+      "name": "booth.unit.type",
+      "opt": "update",
+      "changeData": "INT_10=>Integer"
+    },
+    {
+      "type": "field",
+      "name": "booth.area.type",
+      "opt": "update",
+      "changeData": "INT_10=>Integer"
+    },
+    {
+      "type": "field",
+      "name": "booth.type.type",
+      "opt": "update",
+      "changeData": "INT_10=>Integer"
+    },
+    {
+      "type": "field",
+      "name": "booth.department_id.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>Integer"
+    },
+    {
+      "type": "field",
+      "name": "booth.parent.type",
+      "opt": "update",
+      "changeData": "INT_10=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "booth.remarks.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "booth.status",
+      "opt": "add"
+    },
+    {
+      "type": "field",
+      "name": "booth.creator_id.type",
+      "opt": "update",
+      "changeData": "BIGINT_19=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "booth.create_time.type",
+      "opt": "update",
+      "changeData": "DATETIME=>DateTime"
+    },
+    {
+      "type": "field",
+      "name": "booth.modify_time.type",
+      "opt": "update",
+      "changeData": "DATETIME=>DateTime"
+    },
+    {
+      "type": "field",
+      "name": "category.id.type",
+      "opt": "update",
+      "changeData": "BIGINT_19=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "category.name.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "category.pingying.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "category.py_initials.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "category.status.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "category.parent.type",
+      "opt": "update",
+      "changeData": "INT_10=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "category.path.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "category.code.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "category.creator_id.type",
+      "opt": "update",
+      "changeData": "BIGINT_19=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "category.create_time.type",
+      "opt": "update",
+      "changeData": "DATETIME=>DateTime"
+    },
+    {
+      "type": "field",
+      "name": "category.modify_time.type",
+      "opt": "update",
+      "changeData": "DATETIME=>DateTime"
+    },
+    {
+      "type": "field",
+      "name": "district.id.type",
+      "opt": "update",
+      "changeData": "BIGINT_19=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "district.creator_id.type",
+      "opt": "update",
+      "changeData": "BIGINT_19=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "district.create_time.type",
+      "opt": "update",
+      "changeData": "DATETIME=>DateTime"
+    },
+    {
+      "type": "field",
+      "name": "district.modify_time.type",
+      "opt": "update",
+      "changeData": "DATETIME=>DateTime"
+    },
+    {
+      "type": "field",
+      "name": "district.name.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "district.remarks.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "district.department_id.type",
+      "opt": "update",
+      "changeData": "INT_10=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "district.market_id.type",
+      "opt": "update",
+      "changeData": "INT_10=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "district.parent_id.type",
+      "opt": "update",
+      "changeData": "INT_10=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "district.sort.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "district.number.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "print_template.id.type",
+      "opt": "update",
+      "changeData": "BIGINT_19=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "print_template.name.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>DefaultString"
+    },
+    {
+      "type": "field",
+      "name": "print_template.content.type",
+      "opt": "update",
+      "changeData": "TEXT=>LongText"
+    },
+    {
+      "type": "field",
+      "name": "print_template.market_id.type",
+      "opt": "update",
+      "changeData": "INT_10=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "print_template.creator_id.type",
+      "opt": "update",
+      "changeData": "VARCHAR_32=>BigInt"
+    },
+    {
+      "type": "field",
+      "name": "print_template.create_time.type",
+      "opt": "update",
+      "changeData": "DATETIME=>DateTime"
+    },
+    {
+      "type": "field",
+      "name": "print_template.modify_time.type",
+      "opt": "update",
+      "changeData": "DATETIME=>DateTime"
+    }
+  ],
+  "date": "2020/2/4 11:46:20"
+}
