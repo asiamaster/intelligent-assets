@@ -3,7 +3,7 @@
     <!--<include resource="org/springframework/boot/logging/logback/base.xml"/>-->
 
     <!-- 文件输出格式 -->
-    <property name="PATTERN" value="[customer-dev]%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
+    <property name="PATTERN" value="[ia-dev]%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
 
     <!-- 开发环境 -->
     <springProfile name="dev">
@@ -13,7 +13,7 @@
             </encoder>
         </appender>
         <logger name="org.springframework.web" level="INFO"/>
-        <logger name="com.dili.customer" level="DEBUG"/>
+        <logger name="com.dili.ia" level="DEBUG"/>
 
     </springProfile>
 
@@ -21,7 +21,7 @@
     <springProfile name="test">
         <appender name="appender" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
-                <pattern>[customer-test]%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n</pattern>
+                <pattern>[ia-test]%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n</pattern>
             </encoder>
         </appender>
         <!-- 每天产生一个文件 -->
@@ -40,7 +40,7 @@
             </layout>
         </appender>
         <logger name="org.springframework.web" level="INFO"/>
-        <logger name="com.dili.customer" level="INFO"/>
+        <logger name="com.dili.ia" level="INFO"/>
     </springProfile>
 
     <root level="info">

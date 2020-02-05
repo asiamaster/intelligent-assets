@@ -1,10 +1,10 @@
-package com.dili.intelligentassets;
+package com.dili.ia;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class IntelligentAssetsApplicationTests {
+class IAApplicationTests {
 
 	@Test
 	void contextLoads() {

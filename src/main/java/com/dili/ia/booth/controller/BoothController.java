@@ -1,4 +1,4 @@
-package com.dili.intelligentassets.booth.controller;
+package com.dili.ia.booth.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
