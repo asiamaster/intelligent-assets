@@ -93,10 +93,10 @@
                     <th data-field="customerName" data-sortable="true" data-align="center">
                         客户名称
                     </th>
-                    <th data-field="customerCellphone" data-sortable="true" data-align="center">
+                    <th data-field="customerCellphone" data-sortable="true" data-align="center" data-visible="false">
                         联系电话
                     </th>
-                    <th data-field="leaseTerm" data-sortable="true" data-align="center">
+                    <th data-field="leaseTerm" data-sortable="true" data-align="center" data-visible="false">
                         租赁期限
                     </th>
                     <th data-field="startTime" data-sortable="true" data-align="center" data-provider="dateProvider">
@@ -105,7 +105,7 @@
                     <th data-field="endTime" data-sortable="true" data-align="center" data-provider="dateProvider">
                         结束日期
                     </th>
-                    <th data-field="leaseOrderState" data-sortable="true" data-align="center" data-provider="leaseOrderStateProvider">
+                    <th data-field="state" data-sortable="true" data-align="center" data-provider="leaseOrderStateProvider">
                         业务状态
                     </th>
                     <th data-field="payState" data-sortable="true" data-align="center" data-provider="payStateProvider">
@@ -114,19 +114,13 @@
                     <th data-field="totalAmount" data-sortable="true" data-align="center">
                         合计金额
                     </th>
-                    <th data-field="depositDeduction" data-sortable="true" data-align="center">
+                    <th data-field="depositDeduction" data-sortable="true" data-align="center" data-visible="false">
                         保证金抵扣
                     </th>
-                    <th data-field="earnestDeduction" data-sortable="true" data-align="center">
+                    <th data-field="earnestDeduction" data-sortable="true" data-align="center" data-visible="false">
                         定金抵扣
                     </th>
-                    <th data-field="transferDeduction" data-sortable="true" data-align="center">
-                        转抵扣
-                    </th>
-                    <th data-field="transferDeduction" data-sortable="true" data-align="center">
-                        实付金额
-                    </th>
-                    <th data-field="transferDeduction" data-sortable="true" data-align="center">
+                    <th data-field="transferDeduction" data-sortable="true" data-align="center" data-visible="false">
                         转抵扣
                     </th>
                     <th data-field="payAmount" data-sortable="true" data-align="center">
@@ -138,10 +132,10 @@
                     <th data-field="paidAmount" data-sortable="true" data-align="center">
                         待付金额
                     </th>
-                    <th data-field="creator" data-sortable="true" data-align="center">
+                    <th data-field="creator" data-sortable="true" data-align="center"  data-visible="false" data-visible="false">
                         创建人
                     </th>
-                    <th data-field="createTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
+                    <th data-field="createTime" data-sortable="true" data-align="center" data-provider="datetimeProvider" data-visible="false">
                         创建时间
                     </th>
                 </tr>

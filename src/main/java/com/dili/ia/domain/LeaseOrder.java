@@ -93,16 +93,16 @@ public interface LeaseOrder extends IBaseDomain {
     @Column(name = "`lease_term`")
     @FieldDef(label="租赁形式")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getLeaseTerm();
+    Integer getLeaseTerm();
 
-    void setLeaseTerm(Boolean leaseTerm);
+    void setLeaseTerm(Integer leaseTerm);
 
     @Column(name = "`engage`")
     @FieldDef(label="engage")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getEngage();
+    Integer getEngage();
 
-    void setEngage(Boolean engage);
+    void setEngage(Integer engage);
 
     @Column(name = "`category_id`")
     @FieldDef(label="品类id")
@@ -135,16 +135,16 @@ public interface LeaseOrder extends IBaseDomain {
     @Column(name = "`state`")
     @FieldDef(label="状态")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getState();
+    Integer getState();
 
-    void setState(Boolean state);
+    void setState(Integer state);
 
     @Column(name = "`pay_state`")
     @FieldDef(label="payState")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getPayState();
+    Integer getPayState();
 
-    void setPayState(Boolean payState);
+    void setPayState(Integer payState);
 
     @Column(name = "`total_amount`")
     @FieldDef(label="金额")
@@ -247,9 +247,9 @@ public interface LeaseOrder extends IBaseDomain {
     @Column(name = "`is_delete`")
     @FieldDef(label="isDelete")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getIsDelete();
+    Integer getIsDelete();
 
-    void setIsDelete(Boolean isDelete);
+    void setIsDelete(Integer isDelete);
 
     @Column(name = "`market_id`")
     @FieldDef(label="marketId")

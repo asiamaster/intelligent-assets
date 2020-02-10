@@ -15,7 +15,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
 @MapperScan(basePackages = {"com.dili.uap.dao", "com.dili.ia.mapper", "com.dili.ss.dao"})
-@ComponentScan(basePackages={"com.dili.ss", "com.dili.ia", "com.dili.uap.sdk"})
+@ComponentScan(basePackages={"com.dili.ss", "com.dili.ia"})
 @EnableDiscoveryClient
 @EnableFeignClients
 @DTOScan(value={"com.dili.ss", "com.dili.ia.domain"})
