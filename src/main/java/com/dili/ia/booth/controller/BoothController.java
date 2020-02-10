@@ -14,8 +14,17 @@ public class BoothController {
      * test
      * @return
      */
-    @RequestMapping
+    @RequestMapping("/list")
     public String test(){
         return "booth/list";
+    }
+
+    /**
+     * add
+     * @return
+     */
+    @RequestMapping("/add")
+    public String add(){
+        return "booth/add";
     }
 }
