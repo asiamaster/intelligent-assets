@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.ia.mapper.LeaseOrderMapper">
+  <resultMap id="BaseResultMap" type="com.dili.ia.domain.LeaseOrder">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="customer_id" jdbcType="BIGINT" property="customerId" />
+    <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
+    <result column="customer_cellphone" jdbcType="VARCHAR" property="customerCellphone" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="contract_no" jdbcType="VARCHAR" property="contractNo" />
+    <result column="lease_term" jdbcType="BIT" property="leaseTerm" />
+    <result column="engage" jdbcType="BIT" property="engage" />
+    <result column="category_id" jdbcType="BIGINT" property="categoryId" />
+    <result column="category_name" jdbcType="VARCHAR" property="categoryName" />
+    <result column="department_id" jdbcType="BIGINT" property="departmentId" />
+    <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
+    <result column="state" jdbcType="BIT" property="state" />
+    <result column="pay_state" jdbcType="BIT" property="payState" />
+    <result column="total_amount" jdbcType="BIGINT" property="totalAmount" />
+    <result column="deposit_deduction" jdbcType="BIGINT" property="depositDeduction" />
+    <result column="earnest_deduction" jdbcType="BIGINT" property="earnestDeduction" />
+    <result column="transfer_deduction" jdbcType="BIGINT" property="transferDeduction" />
+    <result column="pay_amount" jdbcType="BIGINT" property="payAmount" />
+    <result column="paid_amount" jdbcType="BIGINT" property="paidAmount" />
+    <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="withdraw_operator_id" jdbcType="BIGINT" property="withdrawOperatorId" />
+    <result column="withdraw_operator" jdbcType="VARCHAR" property="withdrawOperator" />
+    <result column="canceler_id" jdbcType="BIGINT" property="cancelerId" />
+    <result column="canceler" jdbcType="VARCHAR" property="canceler" />
+    <result column="notes" jdbcType="VARCHAR" property="notes" />
+    <result column="refund_amount" jdbcType="BIGINT" property="refundAmount" />
+    <result column="is_delete" jdbcType="BIT" property="isDelete" />
+    <result column="market_id" jdbcType="BIGINT" property="marketId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, code, create_time, modify_time, customer_id, customer_name, customer_cellphone, 
+    start_time, end_time, contract_no, lease_term, engage, category_id, category_name, 
+    department_id, department_name, state, pay_state, total_amount, deposit_deduction, 
+    earnest_deduction, transfer_deduction, pay_amount, paid_amount, creator_id, creator, 
+    withdraw_operator_id, withdraw_operator, canceler_id, canceler, notes, refund_amount, 
+    is_delete, market_id
+  </sql>
+  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from lease_order
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <update id="updateBy" parameterType="com.dili.ia.domain.LeaseOrder">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update lease_order
+    <set>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="customerId != null">
+        customer_id = #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="customerName != null">
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerCellphone != null">
+        customer_cellphone = #{customerCellphone,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null">
+        start_time = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="contractNo != null">
+        contract_no = #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="leaseTerm != null">
+        lease_term = #{leaseTerm,jdbcType=BIT},
+      </if>
+      <if test="engage != null">
+        engage = #{engage,jdbcType=BIT},
+      </if>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=BIGINT},
+      </if>
+      <if test="categoryName != null">
+        category_name = #{categoryName,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentId != null">
+        department_id = #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentName != null">
+        department_name = #{departmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=BIT},
+      </if>
+      <if test="payState != null">
+        pay_state = #{payState,jdbcType=BIT},
+      </if>
+      <if test="totalAmount != null">
+        total_amount = #{totalAmount,jdbcType=BIGINT},
+      </if>
+      <if test="depositDeduction != null">
+        deposit_deduction = #{depositDeduction,jdbcType=BIGINT},
+      </if>
+      <if test="earnestDeduction != null">
+        earnest_deduction = #{earnestDeduction,jdbcType=BIGINT},
+      </if>
+      <if test="transferDeduction != null">
+        transfer_deduction = #{transferDeduction,jdbcType=BIGINT},
+      </if>
+      <if test="payAmount != null">
+        pay_amount = #{payAmount,jdbcType=BIGINT},
+      </if>
+      <if test="paidAmount != null">
+        paid_amount = #{paidAmount,jdbcType=BIGINT},
+      </if>
+      <if test="creatorId != null">
+        creator_id = #{creatorId,jdbcType=BIGINT},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="withdrawOperatorId != null">
+        withdraw_operator_id = #{withdrawOperatorId,jdbcType=BIGINT},
+      </if>
+      <if test="withdrawOperator != null">
+        withdraw_operator = #{withdrawOperator,jdbcType=VARCHAR},
+      </if>
+      <if test="cancelerId != null">
+        canceler_id = #{cancelerId,jdbcType=BIGINT},
+      </if>
+      <if test="canceler != null">
+        canceler = #{canceler,jdbcType=VARCHAR},
+      </if>
+      <if test="notes != null">
+        notes = #{notes,jdbcType=VARCHAR},
+      </if>
+      <if test="refundAmount != null">
+        refund_amount = #{refundAmount,jdbcType=BIGINT},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=BIT},
+      </if>
+      <if test="marketId != null">
+        market_id = #{marketId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
