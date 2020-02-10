@@ -60,7 +60,7 @@
             },
             {
               "name": "type",
-              "type": "Integer",
+              "type": "tinyint",
               "chnname": "摊位类型",
               "remark": "",
               "pk": false,
@@ -79,7 +79,13 @@
               "defaultValue": ""
             },
             {
-              "name": "parent",
+              "name": "market_id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "市场"
+            },
+            {
+              "name": "parent_id",
               "type": "BigInt",
               "chnname": "父摊位",
               "remark": "",
@@ -89,7 +95,7 @@
               "defaultValue": ""
             },
             {
-              "name": "remarks",
+              "name": "notes",
               "type": "DefaultString",
               "chnname": "备注",
               "remark": "",
@@ -99,10 +105,28 @@
               "defaultValue": ""
             },
             {
-              "name": "status",
+              "name": "state",
               "type": "Integer",
               "remark": "",
               "chnname": "状态"
+            },
+            {
+              "name": "is_delete",
+              "type": "Integer",
+              "remark": "",
+              "chnname": "是否删除"
+            },
+            {
+              "name": "split_notes",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "拆分备注"
+            },
+            {
+              "name": "sort",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "排序"
             },
             {
               "name": "creator_id",
@@ -199,7 +223,7 @@
             },
             {
               "name": "name",
-              "type": "DefaultString",
+              "type": "IdOrKey",
               "chnname": "品类名称",
               "remark": "",
               "pk": false,
@@ -228,8 +252,8 @@
               "defaultValue": ""
             },
             {
-              "name": "status",
-              "type": "DefaultString",
+              "name": "is_delete",
+              "type": "Integer",
               "chnname": "状态",
               "remark": "",
               "pk": false,
@@ -401,7 +425,7 @@
               "defaultValue": ""
             },
             {
-              "name": "remarks",
+              "name": "notes",
               "type": "DefaultString",
               "chnname": "备注",
               "remark": "",
@@ -419,6 +443,12 @@
               "notNull": false,
               "autoIncrement": false,
               "defaultValue": ""
+            },
+            {
+              "name": "owner",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "负责人"
             },
             {
               "name": "market_id",
@@ -634,7 +664,56 @@
         }
       ],
       "graphCanvas": {
-        "nodes": [],
+        "nodes": [
+          {
+            "shape": "table",
+            "title": "category",
+            "moduleName": false,
+            "x": -93.78777900780928,
+            "y": -46.206624951997256,
+            "id": "b819210b",
+            "size": [
+              295.1985977823682,
+              330.0172084866174
+            ]
+          },
+          {
+            "shape": "table",
+            "title": "district",
+            "moduleName": false,
+            "x": 54.7402601865909,
+            "y": 30.582533322565,
+            "id": "e442483f",
+            "size": [
+              486.2518083237477,
+              388.53889193749285
+            ]
+          },
+          {
+            "shape": "table",
+            "title": "booth",
+            "moduleName": false,
+            "x": 70,
+            "y": 100,
+            "id": "0826b071",
+            "size": [
+              355.2581652164797,
+              392.70421999795553
+            ]
+          },
+          {
+            "shape": "table",
+            "title": "print_template",
+            "moduleName": false,
+            "x": 500,
+            "y": -50,
+            "id": "b4b2fb94",
+            "size": [
+              218.98330721149625,
+              292.50407434250343
+            ]
+          }
+        ],
         "edges": []
       },
       "associations": []
@@ -1038,6 +1117,27 @@
           },
           "PostgreSQL": {
             "type": "CHAR(1)"
+          }
+        }
+      },
+      {
+        "name": "小整型",
+        "code": "tinyint",
+        "apply": {
+          "JAVA": {
+            "type": "Integer"
+          },
+          "MYSQL": {
+            "type": "tinyint"
+          },
+          "ORACLE": {
+            "type": "tinyint"
+          },
+          "SQLServer": {
+            "type": "tinyint"
+          },
+          "PostgreSQL": {
+            "type": "tinyint"
           }
         }
       }

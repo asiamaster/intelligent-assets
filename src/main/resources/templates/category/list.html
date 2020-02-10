@@ -1,0 +1,172 @@
+<#bs4Body>
+<div class="main-container">
+    <div class="cur-position">
+        当前位置：
+        基础信息管理&nbsp;&gt;
+        品类管理&nbsp;&gt;
+        <a href="javascript:loadTable();">基本信息</a>
+    </div>
+    <!-- form-inline start  -->
+    <div class="form-search">
+        <form class="form-inline" role="form">
+            <input type="text" style="display: none"/>
+            <div class="form-group">
+                <label class="text-justify">状态：</label>
+                <select id="category_status" class="form-control input-sm">
+                    <option value="">全部</option>
+                    <option value="1">已启用</option>
+                    <option value="2">已禁用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="sr-only">品类名称/品类代码：</label>
+                <input id="category_text" type="text" class="form-control input-sm input-control len224" placeholder="品类名称/品类代码">
+            </div>
+            <div class="form-group">
+                <a href="javascript:;" onclick="queryClickHandler();return false;" class="btn-greyweak btn-sm">查询</a>&nbsp;&nbsp;
+            </div>
+        </form>
+        <div class="form-newadd">
+            <button class="btn-main2 btn-newadd btn-sm" id="addButton" disabled="disabled" onclick="addClickHandler();return false;">新增</button>
+            &nbsp;　　&nbsp;
+        </div>
+    </div>
+    <!-- form-inline end  -->
+
+    <!-- treeView1 start -->
+    <div id="treeView1" class="pull-left ztree"></div>
+    <!-- treeView1 end -->
+
+    <!-- table-showlist start -->
+    <div id="tablelist" class="table-showlist">
+
+    </div>
+    <input type="hidden" id="parentId"/>
+    <!-- table-showlist end -->
+</div>
+
+<link rel="stylesheet" href="${contextPath}/ztree/css/zTreeStyle.css" />
+<script type="text/javascript" src="${contextPath}/ztree/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript" src="${contextPath}/ztree/js/jquery.ztree.excheck-3.5.js"></script>
+<script type="text/javascript" src="${contextPath}/ztree/js/jquery.ztree.exedit-3.5.js"></script>
+<script type="text/javascript" src="${contextPath}/ztree/js/jquery.ztree.exhide-3.5.js"></script>
+<script type="text/javascript">
+    jQuery(function($){
+        loadTree();
+    });
+    //加载树
+    var settings={
+        callback:{
+            onClick:treeClickHandler
+        },
+        data:{
+            simpleData: {
+                enable: true,
+                pIdKey:"parent",
+                rootPId:0
+            }
+        },
+        view:{
+            showIcon:false,
+            txtSelectedEnable:true
+        }
+    };
+    function loadTree(){
+        $.ajax({
+            type:"GET",
+            dataType:"json",
+            url:'',
+            success:function (data) {
+                if(data.code != '0'){
+                    tips("提示",data.msg);
+                    return;
+                }
+                $.fn.zTree.init($("#treeView1"),settings,data.obj);
+            },
+            error:function(){
+                tips("提示","加载品类树失败");
+            }
+        });
+    }
+
+    function addTreeNode(tid,node,isSilent){
+        var treeObj=$.fn.zTree.getZTreeObj("treeView1");
+        if(treeObj){
+            var parentNode=treeObj.getNodeByParam("id",tid);
+            treeObj.addNodes(parentNode,node,isSilent);
+        }
+    }
+    function updateTreeNode(data){
+        var treeObj=$.fn.zTree.getZTreeObj("treeView1");
+        if(treeObj){
+            var node=treeObj.getNodeByParam("id",data.id);
+            node.name=data.name;
+            treeObj.updateNode(node);
+        }
+    }
+    function removeTreeNode(tid){
+        var treeObj=$.fn.zTree.getZTreeObj("treeView1");
+        if(treeObj){
+            var parentNode=treeObj.getNodeByParam("id",tid);
+            treeObj.removeNode(parentNode, false);
+        }
+    }
+    var tableurl;
+    var status;
+    var text;
+    var isQuery=true;
+    function loadTable(){
+        if(isQuery){
+            loadTree();
+            if(status){
+                $("#category_status option[value="+status+"]")[0].selected="selected";
+            }
+            $("#category_text").val(text);
+        }
+        if(tableurl){
+            $("#tablelist").load(tableurl);
+        }
+    }
+    //树单击事件 加载列表
+    function treeClickHandler(e, treeId, treeNode){
+        var path=treeNode.path;
+        var pid=treeNode.id;
+        var arr=path.split(",");
+        if(arr.length>=3){
+            $("#parentId").attr("value","");
+            $("#addButton").attr("disabled","disabled");
+        }else{
+            $("#parentId").val(pid);
+            $("#addButton").removeAttr("disabled");
+        }
+        $("#category_status option[value='']")[0].selected="selected";
+        $("#category_text").val("");
+        tableurl=''+'?parent='+pid;
+        isQuery=false;
+        loadTable();
+    }
+    function tips(title,msg){
+    alert(msg);
+    }
+
+    function queryClickHandler(){
+        status=$("#category_status").val();
+        text=$("#category_text").val();
+        $("#parentId").attr("value","");
+        $("#addButton").attr("disabled","disabled");
+        tableurl=''+'?status='+status+'&keyword='+text;
+        isQuery=true;
+        loadTable();
+        loadTree();
+    }
+    function addClickHandler(){
+        var pid=$("#parentId").val();
+        if(!pid){
+            tips("提示","请先选择上级品类");
+            return;
+        }
+        popDialogConfirm.title = '新增品类信息';
+        popDialogShow.show(popDialogConfirm,''+'?parent='+pid);
+    }
+</script>
+</#bs4Body>
