@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.ia.mapper.EarnestOrderDetailMapper">
+  <resultMap id="BaseResultMap" type="com.dili.ia.domain.EarnestOrderDetail">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="earnest_order_id" jdbcType="BIGINT" property="earnestOrderId" />
+    <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
+    <result column="assets_name" jdbcType="VARCHAR" property="assetsName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, create_time, modify_time, earnest_order_id, assets_id, assets_name
+  </sql>
+  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from earnest_order_detail
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <update id="updateBy" parameterType="com.dili.ia.domain.EarnestOrderDetail">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update earnest_order_detail
+    <set>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="earnestOrderId != null">
+        earnest_order_id = #{earnestOrderId,jdbcType=BIGINT},
+      </if>
+      <if test="assetsId != null">
+        assets_id = #{assetsId,jdbcType=BIGINT},
+      </if>
+      <if test="assetsName != null">
+        assets_name = #{assetsName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

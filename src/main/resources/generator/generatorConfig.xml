@@ -88,19 +88,34 @@
 <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
 <!--        </table>-->
         <!-- 生成指定表模型 -->
-        <table domainObjectName="LeaseOrder" tableName="lease_order">
+<!--        <table domainObjectName="LeaseOrder" tableName="lease_order">-->
+<!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
+<!--        </table>-->
+<!--        <table domainObjectName="LeaseOrderItem" tableName="lease_order_item">-->
+<!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
+<!--        </table>-->
+<!--        <table domainObjectName="PaymentBill" tableName="payment_bill">-->
+<!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
+<!--        </table>-->
+<!--        <table domainObjectName="RefundBill" tableName="refund_bill">-->
+<!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
+<!--        </table>-->
+<!--        <table domainObjectName="TransferDeductionItem" tableName="transfer_deduction_item">-->
+<!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
+<!--        </table>-->
+        <table domainObjectName="CustomerAccount" tableName="customer_account">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
-        <table domainObjectName="LeaseOrderItem" tableName="lease_order_item">
+        <table domainObjectName="EarnestOrder" tableName="earnest_order">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
-        <table domainObjectName="PaymentBill" tableName="payment_bill">
+        <table domainObjectName="EarnestOrderDetail" tableName="earnest_order_detail">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
-        <table domainObjectName="RefundBill" tableName="refund_bill">
+        <table domainObjectName="EarnestTransferOrder" tableName="earnest_transfer_order">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
-        <table domainObjectName="TransferDeductionItem" tableName="transfer_deduction_item">
+        <table domainObjectName="TransactionDetails" tableName="transaction_details">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
     </context>
