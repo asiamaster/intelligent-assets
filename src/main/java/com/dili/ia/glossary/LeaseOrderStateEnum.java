@@ -17,7 +17,7 @@ public enum LeaseOrderStateEnum {
     EFFECTIVE(5, "已生效"),
     RENTED_OUT(6, "已停租"),
     REFUNDED(7, "已退款"),
-    EXPIRED(8, "已停租"),
+    EXPIRED(8, "已过期"),
     ;
 
     private String name;
