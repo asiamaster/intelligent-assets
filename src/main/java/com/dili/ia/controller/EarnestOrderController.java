@@ -53,6 +53,36 @@ public class EarnestOrderController {
     }
 
     /**
+     * 跳转到EarnestOrder页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到EarnestOrder页面")
+    @RequestMapping(value="/add.html", method = RequestMethod.GET)
+    public String add(ModelMap modelMap) {
+        return "earnestOrder/add";
+    }
+    /**
+     * 跳转到EarnestOrder页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到EarnestOrder页面")
+    @RequestMapping(value="/update.html", method = RequestMethod.GET)
+    public String viewUpdate(ModelMap modelMap) {
+        return "earnestOrder/update";
+    }
+    /**
+     * 跳转到EarnestOrder页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到EarnestOrder页面")
+    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    public String view(ModelMap modelMap) {
+        return "earnestOrder/view";
+    }
+    /**
      * 新增EarnestOrder
      * @param earnestOrder
      * @return BaseOutput
