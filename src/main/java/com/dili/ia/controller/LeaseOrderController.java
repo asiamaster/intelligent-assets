@@ -1,13 +1,20 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.LeaseOrder;
+import com.dili.ia.domain.LeaseOrderItem;
+import com.dili.ia.domain.dto.LeaseOrderListDto;
+import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -25,6 +32,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class LeaseOrderController {
     @Autowired
     LeaseOrderService leaseOrderService;
+    @Autowired
+    LeaseOrderItemService leaseOrderItemService;
 
     /**
      * 跳转到LeaseOrder页面
@@ -48,7 +57,12 @@ public class LeaseOrderController {
 		@ApiImplicitParam(name="LeaseOrder", paramType="form", value = "LeaseOrder的form信息", required = false, dataType = "string")
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(LeaseOrder leaseOrder) throws Exception {
+    public @ResponseBody String listPage(LeaseOrderListDto leaseOrder) throws Exception {
+        if (StringUtils.isNotBlank(leaseOrder.getStallName())) {
+            LeaseOrderItem leaseOrderItemCondition = DTOUtils.newDTO(LeaseOrderItem.class);
+            leaseOrderItemCondition.setStallName(leaseOrder.getStallName());
+            leaseOrder.setIds(leaseOrderItemService.list(leaseOrderItemCondition).stream().map(LeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
+        }
         return leaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
     }
 
