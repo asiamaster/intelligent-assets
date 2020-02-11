@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 退款单
- * This file was generated on 2020-02-10 12:31:39.
+ * This file was generated on 2020-02-11 15:54:49.
  */
 @Table(name = "`refund_bill`")
 public interface RefundBill extends IBaseDomain {
@@ -28,7 +28,7 @@ public interface RefundBill extends IBaseDomain {
     void setId(Long id);
 
     @Column(name = "`code`")
-    @FieldDef(label="code", maxLength = 20)
+    @FieldDef(label="编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
@@ -49,84 +49,84 @@ public interface RefundBill extends IBaseDomain {
     void setModifyTime(Date modifyTime);
 
     @Column(name = "`biz_type`")
-    @FieldDef(label="bizType")
+    @FieldDef(label="业务类型")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getBizType();
+    Integer getBizType();
 
-    void setBizType(Boolean bizType);
+    void setBizType(Integer bizType);
+
+    @Column(name = "`order_item_id`")
+    @FieldDef(label="订单项ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getOrderItemId();
+
+    void setOrderItemId(Long orderItemId);
 
     @Column(name = "`order_item_code`")
-    @FieldDef(label="orderItemCode", maxLength = 20)
+    @FieldDef(label="订单项编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getOrderItemCode();
 
     void setOrderItemCode(String orderItemCode);
 
     @Column(name = "`order_id`")
-    @FieldDef(label="orderId")
+    @FieldDef(label="订单ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getOrderId();
 
     void setOrderId(Long orderId);
 
     @Column(name = "`order_code`")
-    @FieldDef(label="orderCode", maxLength = 20)
+    @FieldDef(label="订单编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getOrderCode();
 
     void setOrderCode(String orderCode);
 
-    @Column(name = "`order_item_id`")
-    @FieldDef(label="orderItemId")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getOrderItemId();
-
-    void setOrderItemId(Long orderItemId);
-
     @Column(name = "`customer_id`")
-    @FieldDef(label="customerId")
+    @FieldDef(label="客户ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCustomerId();
 
     void setCustomerId(Long customerId);
 
     @Column(name = "`customer_name`")
-    @FieldDef(label="customerName", maxLength = 20)
+    @FieldDef(label="客户编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCustomerName();
 
     void setCustomerName(String customerName);
 
     @Column(name = "`certificate_number`")
-    @FieldDef(label="certificateNumber", maxLength = 40)
+    @FieldDef(label="证件号", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCertificateNumber();
 
     void setCertificateNumber(String certificateNumber);
 
     @Column(name = "`customer_cellphone`")
-    @FieldDef(label="customerCellphone", maxLength = 20)
+    @FieldDef(label="客户手机号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCustomerCellphone();
 
     void setCustomerCellphone(String customerCellphone);
 
     @Column(name = "`refund_operator_id`")
-    @FieldDef(label="操作员(经办人)")
+    @FieldDef(label="退款操作人 ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getRefundOperatorId();
 
     void setRefundOperatorId(Long refundOperatorId);
 
     @Column(name = "`refund_operator_name`")
-    @FieldDef(label="refundOperatorName", maxLength = 20)
+    @FieldDef(label="退款操作人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getRefundOperatorName();
 
     void setRefundOperatorName(String refundOperatorName);
 
     @Column(name = "`state`")
-    @FieldDef(label="状态")
+    @FieldDef(label="状态（1：已创建 2：已取消 3：已提交 4：已退款）")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getState();
 
@@ -147,112 +147,112 @@ public interface RefundBill extends IBaseDomain {
     void setSubmitTime(Date submitTime);
 
     @Column(name = "`settlement_code`")
-    @FieldDef(label="settlementCode", maxLength = 20)
+    @FieldDef(label="结算编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getSettlementCode();
 
     void setSettlementCode(String settlementCode);
 
     @Column(name = "`refund_type`")
-    @FieldDef(label="refundType")
+    @FieldDef(label="退款方式")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getRefundType();
+    Integer getRefundType();
 
-    void setRefundType(Boolean refundType);
+    void setRefundType(Integer refundType);
 
     @Column(name = "`bank`")
-    @FieldDef(label="bank", maxLength = 50)
+    @FieldDef(label="开户行", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getBank();
 
     void setBank(String bank);
 
     @Column(name = "`bank_card_no`")
-    @FieldDef(label="bankCardNo", maxLength = 20)
+    @FieldDef(label="银行卡号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getBankCardNo();
 
     void setBankCardNo(String bankCardNo);
 
     @Column(name = "`creator_id`")
-    @FieldDef(label="creatorId")
+    @FieldDef(label="创建人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCreatorId();
 
     void setCreatorId(Long creatorId);
 
     @Column(name = "`creator`")
-    @FieldDef(label="creator", maxLength = 20)
+    @FieldDef(label="创建人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCreator();
 
     void setCreator(String creator);
 
     @Column(name = "`submitter_id`")
-    @FieldDef(label="submitterId")
+    @FieldDef(label="提交人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getSubmitterId();
 
     void setSubmitterId(Long submitterId);
 
     @Column(name = "`submitter`")
-    @FieldDef(label="submitter", maxLength = 20)
+    @FieldDef(label="提交人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getSubmitter();
 
     void setSubmitter(String submitter);
 
     @Column(name = "`payee_id`")
-    @FieldDef(label="payeeId")
+    @FieldDef(label="收款人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getPayeeId();
 
     void setPayeeId(Long payeeId);
 
     @Column(name = "`payee`")
-    @FieldDef(label="payee", maxLength = 20)
+    @FieldDef(label="收款人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayee();
 
     void setPayee(String payee);
 
     @Column(name = "`canceler_id`")
-    @FieldDef(label="cancelerId")
+    @FieldDef(label="取消人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCancelerId();
 
     void setCancelerId(Long cancelerId);
 
     @Column(name = "`canceler`")
-    @FieldDef(label="canceler", maxLength = 20)
+    @FieldDef(label="取消人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCanceler();
 
     void setCanceler(String canceler);
 
     @Column(name = "`refund_reason`")
-    @FieldDef(label="refundReason", maxLength = 80)
+    @FieldDef(label="退款原因", maxLength = 80)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getRefundReason();
 
     void setRefundReason(String refundReason);
 
     @Column(name = "`is_delete`")
-    @FieldDef(label="isDelete")
+    @FieldDef(label="是否删除")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getIsDelete();
+    Integer getIsDelete();
 
-    void setIsDelete(Boolean isDelete);
+    void setIsDelete(Integer isDelete);
 
     @Column(name = "`license_state`")
     @FieldDef(label="营业执照状态")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getLicenseState();
+    Integer getLicenseState();
 
-    void setLicenseState(Boolean licenseState);
+    void setLicenseState(Integer licenseState);
 
     @Column(name = "`market_id`")
-    @FieldDef(label="marketId")
+    @FieldDef(label="市场ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getMarketId();
 

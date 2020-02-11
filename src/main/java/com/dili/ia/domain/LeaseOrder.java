@@ -13,8 +13,8 @@ import javax.persistence.Id;
 
 /**
  * 由MyBatis Generator工具自动生成
- * 租赁订单
- * This file was generated on 2020-02-10 12:31:39.
+ * 租赁期限
+ * This file was generated on 2020-02-11 15:54:49.
  */
 @Table(name = "`lease_order`")
 public interface LeaseOrder extends IBaseDomain {
@@ -98,7 +98,7 @@ public interface LeaseOrder extends IBaseDomain {
     void setLeaseTerm(Integer leaseTerm);
 
     @Column(name = "`engage`")
-    @FieldDef(label="engage")
+    @FieldDef(label="经营范围")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getEngage();
 
@@ -126,21 +126,21 @@ public interface LeaseOrder extends IBaseDomain {
     void setDepartmentId(Long departmentId);
 
     @Column(name = "`department_name`")
-    @FieldDef(label="departmentName", maxLength = 50)
+    @FieldDef(label="部门名称", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getDepartmentName();
 
     void setDepartmentName(String departmentName);
 
     @Column(name = "`state`")
-    @FieldDef(label="状态")
+    @FieldDef(label="状态（1：已创建 2：已取消 3：已提交 4：未生效 5：已生效 6：已停租 7：已退款 8：已过期）")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getState();
 
     void setState(Integer state);
 
     @Column(name = "`pay_state`")
-    @FieldDef(label="payState")
+    @FieldDef(label="支付状态（1：未交清 2：已交清）")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getPayState();
 
@@ -154,81 +154,88 @@ public interface LeaseOrder extends IBaseDomain {
     void setTotalAmount(Long totalAmount);
 
     @Column(name = "`deposit_deduction`")
-    @FieldDef(label="depositDeduction")
+    @FieldDef(label="保证金")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getDepositDeduction();
 
     void setDepositDeduction(Long depositDeduction);
 
     @Column(name = "`earnest_deduction`")
-    @FieldDef(label="earnestDeduction")
+    @FieldDef(label="定金")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getEarnestDeduction();
 
     void setEarnestDeduction(Long earnestDeduction);
 
     @Column(name = "`transfer_deduction`")
-    @FieldDef(label="transferDeduction")
+    @FieldDef(label="转低金额")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getTransferDeduction();
 
     void setTransferDeduction(Long transferDeduction);
 
     @Column(name = "`pay_amount`")
-    @FieldDef(label="payAmount")
+    @FieldDef(label="实付金额")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getPayAmount();
 
     void setPayAmount(Long payAmount);
 
     @Column(name = "`paid_amount`")
-    @FieldDef(label="paidAmount")
+    @FieldDef(label="已付金额")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getPaidAmount();
 
     void setPaidAmount(Long paidAmount);
 
     @Column(name = "`creator_id`")
-    @FieldDef(label="操作员ID")
+    @FieldDef(label="创建人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCreatorId();
 
     void setCreatorId(Long creatorId);
 
     @Column(name = "`creator`")
-    @FieldDef(label="creator", maxLength = 20)
+    @FieldDef(label="创建人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCreator();
 
     void setCreator(String creator);
 
     @Column(name = "`withdraw_operator_id`")
-    @FieldDef(label="withdrawOperatorId")
+    @FieldDef(label="撤回人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getWithdrawOperatorId();
 
     void setWithdrawOperatorId(Long withdrawOperatorId);
 
     @Column(name = "`withdraw_operator`")
-    @FieldDef(label="withdrawOperator", maxLength = 20)
+    @FieldDef(label="撤回人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getWithdrawOperator();
 
     void setWithdrawOperator(String withdrawOperator);
 
     @Column(name = "`canceler_id`")
-    @FieldDef(label="cancelerId")
+    @FieldDef(label="取消人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCancelerId();
 
     void setCancelerId(Long cancelerId);
 
     @Column(name = "`canceler`")
-    @FieldDef(label="canceler", maxLength = 20)
+    @FieldDef(label="取消人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCanceler();
 
     void setCanceler(String canceler);
+
+    @Column(name = "`wait_amount`")
+    @FieldDef(label="待付金额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getWaitAmount();
+
+    void setWaitAmount(Long waitAmount);
 
     @Column(name = "`notes`")
     @FieldDef(label="备注", maxLength = 250)
@@ -238,21 +245,21 @@ public interface LeaseOrder extends IBaseDomain {
     void setNotes(String notes);
 
     @Column(name = "`refund_amount`")
-    @FieldDef(label="refundAmount")
+    @FieldDef(label="退款金额")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getRefundAmount();
 
     void setRefundAmount(Long refundAmount);
 
     @Column(name = "`is_delete`")
-    @FieldDef(label="isDelete")
+    @FieldDef(label="是否删除")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getIsDelete();
 
     void setIsDelete(Integer isDelete);
 
     @Column(name = "`market_id`")
-    @FieldDef(label="marketId")
+    @FieldDef(label="市场")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getMarketId();
 

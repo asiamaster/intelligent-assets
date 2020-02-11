@@ -35,6 +35,7 @@
     <result column="withdraw_operator" jdbcType="VARCHAR" property="withdrawOperator" />
     <result column="canceler_id" jdbcType="BIGINT" property="cancelerId" />
     <result column="canceler" jdbcType="VARCHAR" property="canceler" />
+    <result column="wait_amount" jdbcType="BIGINT" property="waitAmount" />
     <result column="notes" jdbcType="VARCHAR" property="notes" />
     <result column="refund_amount" jdbcType="BIGINT" property="refundAmount" />
     <result column="is_delete" jdbcType="BIT" property="isDelete" />
@@ -48,8 +49,8 @@
     start_time, end_time, contract_no, lease_term, engage, category_id, category_name, 
     department_id, department_name, state, pay_state, total_amount, deposit_deduction, 
     earnest_deduction, transfer_deduction, pay_amount, paid_amount, creator_id, creator, 
-    withdraw_operator_id, withdraw_operator, canceler_id, canceler, notes, refund_amount, 
-    is_delete, market_id
+    withdraw_operator_id, withdraw_operator, canceler_id, canceler, wait_amount, notes, 
+    refund_amount, is_delete, market_id
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -152,6 +153,9 @@
       </if>
       <if test="canceler != null">
         canceler = #{canceler,jdbcType=VARCHAR},
+      </if>
+      <if test="waitAmount != null">
+        wait_amount = #{waitAmount,jdbcType=BIGINT},
       </if>
       <if test="notes != null">
         notes = #{notes,jdbcType=VARCHAR},

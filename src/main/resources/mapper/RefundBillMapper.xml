@@ -10,10 +10,10 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="biz_type" jdbcType="BIT" property="bizType" />
+    <result column="order_item_id" jdbcType="BIGINT" property="orderItemId" />
     <result column="order_item_code" jdbcType="VARCHAR" property="orderItemCode" />
     <result column="order_id" jdbcType="BIGINT" property="orderId" />
     <result column="order_code" jdbcType="VARCHAR" property="orderCode" />
-    <result column="order_item_id" jdbcType="BIGINT" property="orderItemId" />
     <result column="customer_id" jdbcType="BIGINT" property="customerId" />
     <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
     <result column="certificate_number" jdbcType="VARCHAR" property="certificateNumber" />
@@ -44,12 +44,11 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, code, create_time, modify_time, biz_type, order_item_code, order_id, order_code, 
-    order_item_id, customer_id, customer_name, certificate_number, customer_cellphone, 
-    refund_operator_id, refund_operator_name, state, total_refund_amount, submit_time, 
-    settlement_code, refund_type, bank, bank_card_no, creator_id, creator, submitter_id, 
-    submitter, payee_id, payee, canceler_id, canceler, refund_reason, is_delete, license_state, 
-    market_id
+    id, code, create_time, modify_time, biz_type, order_item_id, order_item_code, order_id, 
+    order_code, customer_id, customer_name, certificate_number, customer_cellphone, refund_operator_id, 
+    refund_operator_name, state, total_refund_amount, submit_time, settlement_code, refund_type, 
+    bank, bank_card_no, creator_id, creator, submitter_id, submitter, payee_id, payee, 
+    canceler_id, canceler, refund_reason, is_delete, license_state, market_id
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -78,6 +77,9 @@
       <if test="bizType != null">
         biz_type = #{bizType,jdbcType=BIT},
       </if>
+      <if test="orderItemId != null">
+        order_item_id = #{orderItemId,jdbcType=BIGINT},
+      </if>
       <if test="orderItemCode != null">
         order_item_code = #{orderItemCode,jdbcType=VARCHAR},
       </if>
@@ -86,9 +88,6 @@
       </if>
       <if test="orderCode != null">
         order_code = #{orderCode,jdbcType=VARCHAR},
-      </if>
-      <if test="orderItemId != null">
-        order_item_id = #{orderItemId,jdbcType=BIGINT},
       </if>
       <if test="customerId != null">
         customer_id = #{customerId,jdbcType=BIGINT},

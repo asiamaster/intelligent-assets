@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 缴费单
- * This file was generated on 2020-02-10 12:31:39.
+ * This file was generated on 2020-02-11 15:54:49.
  */
 @Table(name = "`payment_bill`")
 public interface PaymentBill extends IBaseDomain {
@@ -41,33 +41,33 @@ public interface PaymentBill extends IBaseDomain {
 
     void setModifyTime(Date modifyTime);
 
-    @Column(name = "`lease_order_id`")
-    @FieldDef(label="leaseOrderId")
+    @Column(name = "`business_id`")
+    @FieldDef(label="业务单ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getLeaseOrderId();
+    Long getBusinessId();
 
-    void setLeaseOrderId(Long leaseOrderId);
+    void setBusinessId(Long businessId);
 
-    @Column(name = "`order_code`")
-    @FieldDef(label="租赁", maxLength = 20)
+    @Column(name = "`business_code`")
+    @FieldDef(label="业务单编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getOrderCode();
+    String getBusinessCode();
 
-    void setOrderCode(String orderCode);
+    void setBusinessCode(String businessCode);
 
     @Column(name = "`biz_type`")
-    @FieldDef(label="bizType")
+    @FieldDef(label="业务类型")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getBizType();
+    Integer getBizType();
 
-    void setBizType(Boolean bizType);
+    void setBizType(Integer bizType);
 
     @Column(name = "`state`")
     @FieldDef(label="状态")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getState();
+    Integer getState();
 
-    void setState(Boolean state);
+    void setState(Integer state);
 
     @Column(name = "`amount`")
     @FieldDef(label="金额")
@@ -77,42 +77,42 @@ public interface PaymentBill extends IBaseDomain {
     void setAmount(Long amount);
 
     @Column(name = "`creator_id`")
-    @FieldDef(label="creatorId")
+    @FieldDef(label="创建人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCreatorId();
 
     void setCreatorId(Long creatorId);
 
     @Column(name = "`creator`")
-    @FieldDef(label="creator", maxLength = 20)
+    @FieldDef(label="创建人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCreator();
 
     void setCreator(String creator);
 
     @Column(name = "`submitter_id`")
-    @FieldDef(label="submitterId")
+    @FieldDef(label="提交人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getSubmitterId();
 
     void setSubmitterId(Long submitterId);
 
     @Column(name = "`submitter`")
-    @FieldDef(label="submitter", maxLength = 20)
+    @FieldDef(label="提交人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getSubmitter();
 
     void setSubmitter(String submitter);
 
     @Column(name = "`payed_time`")
-    @FieldDef(label="payedTime")
+    @FieldDef(label="支付时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getPayedTime();
 
     void setPayedTime(Date payedTime);
 
     @Column(name = "`settlement_code`")
-    @FieldDef(label="settlementCode", maxLength = 20)
+    @FieldDef(label="结算编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getSettlementCode();
 
