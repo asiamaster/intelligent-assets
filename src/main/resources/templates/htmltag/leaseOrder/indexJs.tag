@@ -7,8 +7,8 @@
      ***/
 
     /*********************变量定义区 begin*************/
-    //行索引计数器
-    //如 let itemIndex = 0;
+        //行索引计数器
+        //如 let itemIndex = 0;
     let _grid = $('#grid');
     let _form = $('#_form');
     let _modal = $('#_modal');
@@ -65,7 +65,7 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-        
+
         //table选择模式是单选时可用
         let selectedRow = rows[0];
         let msg = (enable || 'true' == enable) ? '确定要启用该货站吗？' : '确定要禁用该货站吗？';
@@ -162,6 +162,21 @@
         return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
     }
 
+    /**
+     * table参数组装
+     * 可修改queryParams向服务器发送其余的参数
+     * @param params
+     */
+    function subQueryParams(params) {
+        let temp = {
+            rows: params.limit,   //页面大小
+            page: ((params.offset / params.limit) + 1) || 1, //页码
+            sort: params.sort,
+            order: params.order
+        }
+        return temp;
+    }
+
     /*****************************************函数区 end**************************************/
 
     /*****************************************自定义事件区 begin************************************/
@@ -183,13 +198,8 @@
     _grid.on('expand-row.bs.table', function (e,index, row, $detail){
         var cur_table = $detail.html(template('subTable',{})).find('table');
         $(cur_table).bootstrapTable();
-        $(cur_table).bootstrapTable('refreshOptions', {url: '/leaseOrder/listPage.action'});
+        $(cur_table).bootstrapTable('refreshOptions', {url: '/leaseOrderItem/listPage.action?leaseOrderId='+row.id});
     });
-
-    _grid.on('dbl-click-row.bs.table', function (e,index, row, $detail){
-        bs4pop.alert('1231')
-    });
-
 
     /*****************************************自定义事件区 end**************************************/
 </script>
