@@ -121,9 +121,9 @@ public interface LeaseOrderItem extends IBaseDomain {
     @Column(name = "`state`")
     @FieldDef(label="状态")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getState();
+    Integer getState();
 
-    void setState(Boolean state);
+    void setState(Integer state);
 
     @Column(name = "`district_id`")
     @FieldDef(label="区域id")
@@ -149,9 +149,9 @@ public interface LeaseOrderItem extends IBaseDomain {
     @Column(name = "`deposit_amount_flag`")
     @FieldDef(label="1:未转抵 2：已转抵")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getDepositAmountFlag();
+    Integer getDepositAmountFlag();
 
-    void setDepositAmountFlag(Boolean depositAmountFlag);
+    void setDepositAmountFlag(Integer depositAmountFlag);
 
     @Column(name = "`deposit_amount_source_code`")
     @FieldDef(label="depositAmountSourceCode", maxLength = 20)

@@ -174,7 +174,7 @@
             sort: params.sort,
             order: params.order
         }
-        return temp;
+        return $.extend(temp, bui.util.bindGridMeta2Form('subGrid'));
     }
 
     /*****************************************函数区 end**************************************/

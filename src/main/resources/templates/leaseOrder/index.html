@@ -251,42 +251,53 @@
 </#bs4Body>
 <#leaseOrder_indexJs />
 <script id="subTable" type="text/html">
-    <div id="toolbar1" class="btn-group ml-3" role="group" aria-label="Toolbar with button groups">
-        <button id="btn_stop_rent" type="button" class="btn btn-primary" onclick="doEnableHandler(false)"><i class="fa fa-stop"></i> 停租</button>
-        <button id="btn_item_refund_apply" type="button" class="btn btn-primary" onclick=""><i class="fa fa-reply"></i> 退款申请</button>
+    <div class="pl-3 pr-3">
+        <div id="toolbar1" class="btn-group" role="group" aria-label="Toolbar with button groups">
+            <button id="btn_item_refund_apply" type="button" class="btn btn-primary" onclick=""><i
+                    class="fa fa-reply"></i> 退款申请
+            </button>
+            <button id="btn_stop_rent" type="button" class="btn btn-primary" onclick="doEnableHandler(false)"><i
+                    class="fa fa-stop"></i> 停租
+            </button>
+        </div>
+        <table id="subGrid" data-toggle="table" data-title="客户列表" class="table" data-toolbar="#toolbar1"
+               data-pagination="false" data-page-number="1" data-page-size="10"
+               data-query-params="subQueryParams" data-method="POST"
+               data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+               data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
+               data-sort-order="desc" data-icons="bui.variable.icons"
+               data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
+               data-buttons-class="primary"
+        >
+            <thead>
+            <tr>
+                <th data-checkbox="true"></th>
+                <th data-field="stallName" data-sortable="true" data-align="center">
+                    摊位编号
+                </th>
+                <th data-field="districtName" data-sortable="true" data-align="center">
+                    区域
+                </th>
+                <th data-field="number" data-sortable="true" data-align="center">
+                    数量
+                </th>
+                <th data-field="unitName" data-sortable="true" data-align="center">
+                    单位
+                </th>
+                <th data-field="rentAmount" data-sortable="true" data-align="center">
+                    租金
+                </th>
+                <th data-field="manageAmount" data-sortable="true" data-align="center">
+                    物业管理费
+                </th>
+                <th data-field="depositRefundAmount" data-sortable="true" data-align="center">
+                    保证金
+                </th>
+                <th data-field="state" data-sortable="true" data-align="center" data-provider="leaseOrderStateProvider">
+                    状态
+                </th>
+            </tr>
+            </thead>
+        </table>
     </div>
-    <table id="subGrid" data-toggle="table" data-title="客户列表" class="table ml-3"  data-toolbar="#toolbar1" data-pagination="false" data-page-number="1" data-page-size="10"
-           data-query-params="subQueryParams" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
-           data-click-to-select="true"  data-checkbox-header="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"  data-icons="bui.variable.icons"
-    >
-        <thead>
-        <tr>
-            <th data-checkbox="true"></th>
-            <th data-field="stallName" data-sortable="true" data-align="center">
-                摊位编号
-            </th>
-            <th data-field="districtName" data-sortable="true" data-align="center">
-                区域
-            </th>
-            <th data-field="number" data-sortable="true" data-align="center">
-                数量
-            </th>
-            <th data-field="unitName" data-sortable="true" data-align="center">
-                单位
-            </th>
-            <th data-field="rentAmount" data-sortable="true" data-align="center">
-                租金
-            </th>
-            <th data-field="manageAmount" data-sortable="true" data-align="center">
-                物业管理费
-            </th>
-            <th data-field="depositRefundAmount" data-sortable="true" data-align="center">
-                保证金
-            </th>
-            <th data-field="state" data-sortable="true" data-align="center" data-provider="leaseOrderStateProvider">
-                状态
-            </th>
-        </tr>
-        </thead>
-    </table>
 </script>
