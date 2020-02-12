@@ -16,4 +16,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     public EarnestOrderMapper getActualDao() {
         return (EarnestOrderMapper)getDao();
     }
+
+    @Override
+    public Boolean checkCustomerExist(Long customerId, Long marketId) {
+        return null;
+    }
 }
