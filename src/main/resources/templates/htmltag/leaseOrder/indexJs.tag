@@ -219,13 +219,13 @@
     });
 
     //选中行事件
-    _grid.on('check.bs.table', function (e,row, $element){
-        //     let newIndex = $element.parents('tr').data('index');
-        //     if(currentSelectRowIndex !== newIndex ){
-        //         _grid.bootstrapTable('collapseRow', currentSelectRowIndex);
-        //         _grid.bootstrapTable('expandRow', newIndex);
-        //         currentSelectRowIndex = newIndex;
-        //     }
+    _grid.on('check.bs.table', function (e, row, $element) {
+        // let newIndex = $element.parents('tr').data('index');
+        // if (currentSelectRowIndex !== newIndex) {
+        //     _grid.bootstrapTable('collapseRow', currentSelectRowIndex);
+        //     _grid.bootstrapTable('expandRow', newIndex);
+        //     currentSelectRowIndex = newIndex;
+        // }
 
         let state = row.$_state;
         if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CREATED.getCode()}) {
@@ -256,7 +256,7 @@
             $('#btn_submit').attr('disabled', true);
             $('#btn_withdraw').attr('disabled', true);
             $('#btn_supplement').attr('disabled', true);
-            if(row.waitAmount == 0 ){
+            if (row.waitAmount == 0) {
                 $('#btn_refund_apply').attr('disabled', true);
             }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
