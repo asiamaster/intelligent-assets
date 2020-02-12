@@ -1,0 +1,85 @@
+<#bs4Body>
+
+<div class="container-fluid">
+    <form id="addForm" role="form" novalidate>
+        <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true" aria-controls="customerInfo">
+            客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
+        </div>
+        <div class="row row-cols-3" id="customerInfo">
+            <div class="form-group col">
+                <label for="" class="">客户名称<i class="red">*</i></label>
+                <input type="text" class="form-control" name="" required/>
+            </div>
+            <div class="form-group col">
+                <label for="" class="">证件号码<i class="red">*</i></label>
+                <input type="text" class="form-control" name=""/>
+            </div>
+            <div class="form-group col">
+                <label for="" class="">联系电话<i class="red">*</i></label>
+                <input type="text" class="form-control" name=""/>
+            </div>
+            <div class="form-group col">
+                <label for="" class="">对应摊位</label>
+                <select id="" name="" class="form-control"></select>
+            </div>
+        </div>
+        <div class="breadcrumb" data-toggle="collapse" data-target="#otherInfo"
+             aria-controls="otherInfo">
+            补充信息
+        </div>
+        <div class="row row-cols-3 collapse show" id="otherInfo">
+            <div class="form-group col col">
+                <label for="">开始日期</label>
+                <input type="text" class="form-control laydatetime" id="" placeholder="">
+            </div>
+            <div class="form-group col col">
+                <label for="">结束日期</label>
+                <input type="text" class="form-control laydatetime" id="" placeholder="">
+            </div>
+            <div class="form-group col">
+                <label for="" class="">业务所属部门</label>
+                <select id="" name="" class="form-control"></select>
+                <#bcomboProvider _id="" _provider="" _value=""/>
+            </div>
+        </div>
+        <div class="breadcrumb" data-toggle="collapse" data-target="#moneyInfo"
+             aria-controls="moneyInfo">
+            金额信息
+        </div>
+        <div class="row  row-cols-3 collapse show" id="moneyInfo">
+            <div class="form-group col">
+                <label for="" class="">合计金额</label>
+                <input type="text" class="form-control" name=""/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-8">
+                <label for="">备注</label>
+                <textarea class="form-control" id="" rows="1"  maxlength="50"></textarea>
+            </div>
+        </div>
+        <div class="text-right">
+            <button type="button" class="btn btn-secondary p-l-2 p-r-2" id="cancel">取消</button>
+            <button type="button" class="btn btn-primary p-l-2 p-r-2" id="formSubmit">保存</button>
+        </div>
+    </form>
+</div>
+
+</#bs4Body>
+
+<script>
+
+    $('#formSubmit').on('click', function(e) {
+        if (!$('#addForm').valid()) {
+            return false;
+        }
+    });
+
+
+    $('#getCustomer').on('click', function(e){
+        alert('ss');
+        e.stopPropagation();
+    })
+
+</script>
+

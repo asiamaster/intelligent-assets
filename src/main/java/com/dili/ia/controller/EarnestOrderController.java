@@ -60,6 +60,7 @@ public class EarnestOrderController {
     @ApiOperation("跳转到EarnestOrder页面")
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap) {
+
         return "earnestOrder/add";
     }
     /**
