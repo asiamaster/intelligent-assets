@@ -1,0 +1,127 @@
+<table class="table table-bordered table-hover table-condensed">
+    <tr>
+        <th>品类名称</th>
+        <th>品类代码</th>
+        <th>拼音全写</th>
+        <th>拼音简写</th>
+        <th>状态</th>
+        <th>操作</th>
+    </tr>
+    <% for(o in obj) { %>
+    <tr>
+        <td>${o.name!}</td>
+        <td>${o.code!}</td>
+        <td>${o.pingying!}</td>
+        <td>${o.pyInitials!}</td>
+        <td>
+            <% if(o.state==1){ %>
+            已启用
+            <% } %>
+            <% else if(o.state==2){ %>
+            已禁用
+            <% }%>
+        </td>
+        <td>
+            <a href="javascript:;" onclick="tableUpdateClickHandler(${o.id});return false;">修改</a>
+            <a href="javascript:;"
+               onclick="tableDeleteClickHandler(${o.id},'${o.name}','${o.code}');return false;">删除</a>
+            <a href="javascript:;" onclick="tableFreezeClickHandler(${o.id},'$o.code');return false;">禁用</a>
+            <a href="javascript:;" onclick="tableUnFreezeClickHandler(${o.id},'$o.code');return false;">启用</a>
+        </td>
+    </tr>
+    <% } %>
+</table>
+
+<script type="text/javascript">
+    function tableUpdateClickHandler(id) {
+        $("#editModal").modal();
+
+        $('#editModal .modal-body').load("/category/editView?id=" + id);
+    }
+
+    function tableDeleteClickHandler(id, name, code) {
+        var msg = '删除后，其下关联的子品类将一并删除！确定' + '<span class="red">删除</span>品类<span class="red">' + name + '</span>' + '？';
+
+        bs4pop.confirm(msg, {title: "确认提示"}, function (sure) {
+            if (sure) {
+                $.ajax({
+                    type: "POST",
+                    url: '/category/batchUpdate',
+                    dataType: "json",
+                    data: {
+                        'id': id,
+                        'value': 3
+                    },
+                    success: function (data) {
+                        if (data.code != '200') {
+                            tips("提示", data.message);
+                            return;
+                        }
+                        loadTable();
+                        removeTreeNode(id);
+                        tips("提示", "删除品类成功!");
+                    },
+                    error: function () {
+                        tips("提示", "删除品类失败!");
+                    }
+                });
+            }
+        });
+    }
+
+    function tableFreezeClickHandler(id, code) {
+        var msg = '该操作将禁用所有子品类,请确定?';
+        bs4pop.confirm(msg, {title: "确认提示"}, function (sure) {
+            if (sure) {
+                $.ajax({
+                    type: "POST",
+                    url: '/category/batchUpdate',
+                    dataType: "json",
+                    data: {
+                        'id': id,
+                        'value': 2
+                    },
+                    success: function (data) {
+                        if (data.code != '200') {
+                            tips("提示", data.message);
+                            return;
+                        }
+                        loadTable();
+                        tips("提示", "禁用品类成功!");
+                    },
+                    error: function () {
+                        tips("提示", "禁用品类失败!");
+                    }
+                });
+            }
+        });
+    }
+
+    function tableUnFreezeClickHandler(id, code) {
+        var msg = '该操作将启用所有子品类,请确定?';
+        bs4pop.confirm(msg, {title: "确认提示"}, function (sure) {
+            if (sure) {
+                $.ajax({
+                    type: "POST",
+                    url: '/category/batchUpdate',
+                    dataType: "json",
+                    data: {
+                        'id': id,
+                        'value': 1
+                    },
+                    success: function (data) {
+                        if (data.code != '200') {
+                            tips("提示", data.message);
+                            return;
+                        }
+                        loadTable();
+                        tips("提示", "启用品类成功!");
+                    },
+                    error: function () {
+                        tips("提示", "启用品类失败!");
+                    }
+                });
+            }
+        });
+    }
+</script>

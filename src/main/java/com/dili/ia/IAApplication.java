@@ -2,6 +2,7 @@ package com.dili.ia;
 
 
 import com.dili.ss.dto.DTOScan;
+import com.dili.ss.retrofitful.annotation.RestfulScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -16,6 +17,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 @SpringBootApplication
 @MapperScan(basePackages = {"com.dili.uap.dao", "com.dili.ia.mapper", "com.dili.ss.dao"})
 @ComponentScan(basePackages={"com.dili.ss", "com.dili.ia"})
+@RestfulScan({"com.dili.ia.rpc"})
 @EnableDiscoveryClient
 @EnableFeignClients
 @DTOScan(value={"com.dili.ss", "com.dili.ia.domain"})
