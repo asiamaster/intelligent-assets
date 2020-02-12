@@ -202,6 +202,7 @@
         $(cur_table).bootstrapTable('refreshOptions', {url: '/leaseOrderItem/listPage.action?leaseOrderId='+row.id});
         //选中行事件
         $(cur_table).on('check.bs.table', function (e,row, $element){
+            e.stopPropagation();
             let state = row.$_state;
             if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
                 || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}) {
@@ -219,74 +220,69 @@
 
     //选中行事件
     _grid.on('check.bs.table', function (e,row, $element){
-        //解决插件漏洞 父表选中事件，子表也会跟着执行，排除子表选中事件执行
-        // if($($element.parents('table')[0]).attr('id') == 'grid'){
         //     let newIndex = $element.parents('tr').data('index');
         //     if(currentSelectRowIndex !== newIndex ){
         //         _grid.bootstrapTable('collapseRow', currentSelectRowIndex);
         //         _grid.bootstrapTable('expandRow', newIndex);
         //         currentSelectRowIndex = newIndex;
         //     }
-        // }
 
-        if($($element.parents('table')[0]).attr('id') == 'grid'){
-            let state = row.$_state;
-            if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CREATED.getCode()}) {
-                $('#toolbar button').attr('disabled', false);
-                $('#btn_withdraw').attr('disabled', true);
-                $('#btn_renew').attr('disabled', true);
-                $('#btn_refund_apply').attr('disabled', true);
-            } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()}) {
-                $('#toolbar button').attr('disabled', false);
-                $('#btn_edit').attr('disabled', true);
-                $('#btn_cancel').attr('disabled', true);
-                $('#btn_submit').attr('disabled', true);
-                $('#btn_withdraw').attr('disabled', true);
-                $('#btn_supplement').attr('disabled', true);
-                $('#btn_renew').attr('disabled', true);
-                $('#btn_refund_apply').attr('disabled', true);
-            } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.SUBMITTED.getCode()}) {
-                $('#toolbar button').attr('disabled', false);
-                $('#btn_edit').attr('disabled', true);
-                $('#btn_cancel').attr('disabled', true);
-                $('#btn_renew').attr('disabled', true);
-                $('#btn_refund_apply').attr('disabled', true);
-            } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
-                || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}) {
-                $('#toolbar button').attr('disabled', false);
-                $('#btn_edit').attr('disabled', true);
-                $('#btn_cancel').attr('disabled', true);
-                $('#btn_submit').attr('disabled', true);
-                $('#btn_withdraw').attr('disabled', true);
-                $('#btn_supplement').attr('disabled', true);
-                if(row.waitAmount == 0 ){
-                    $('#btn_refund_apply').attr('disabled', true);
-                }
-            } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
-                $('#toolbar button').attr('disabled', false);
-                $('#btn_edit').attr('disabled', true);
-                $('#btn_cancel').attr('disabled', true);
-                $('#btn_submit').attr('disabled', true);
-                $('#btn_withdraw').attr('disabled', true);
-                $('#btn_supplement').attr('disabled', true);
-                $('#btn_refund_apply').attr('disabled', true);
-            } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.REFUNDED.getCode()}) {
-                $('#toolbar button').attr('disabled', false);
-                $('#btn_edit').attr('disabled', true);
-                $('#btn_cancel').attr('disabled', true);
-                $('#btn_submit').attr('disabled', true);
-                $('#btn_withdraw').attr('disabled', true);
-                $('#btn_supplement').attr('disabled', true);
-                $('#btn_refund_apply').attr('disabled', true);
-            } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()}) {
-                $('#toolbar button').attr('disabled', false);
-                $('#btn_edit').attr('disabled', true);
-                $('#btn_cancel').attr('disabled', true);
-                $('#btn_submit').attr('disabled', true);
-                $('#btn_withdraw').attr('disabled', true);
-                $('#btn_supplement').attr('disabled', true);
+        let state = row.$_state;
+        if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CREATED.getCode()}) {
+            $('#toolbar button').attr('disabled', false);
+            $('#btn_withdraw').attr('disabled', true);
+            $('#btn_renew').attr('disabled', true);
+            $('#btn_refund_apply').attr('disabled', true);
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()}) {
+            $('#toolbar button').attr('disabled', false);
+            $('#btn_edit').attr('disabled', true);
+            $('#btn_cancel').attr('disabled', true);
+            $('#btn_submit').attr('disabled', true);
+            $('#btn_withdraw').attr('disabled', true);
+            $('#btn_supplement').attr('disabled', true);
+            $('#btn_renew').attr('disabled', true);
+            $('#btn_refund_apply').attr('disabled', true);
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.SUBMITTED.getCode()}) {
+            $('#toolbar button').attr('disabled', false);
+            $('#btn_edit').attr('disabled', true);
+            $('#btn_cancel').attr('disabled', true);
+            $('#btn_renew').attr('disabled', true);
+            $('#btn_refund_apply').attr('disabled', true);
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
+            || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}) {
+            $('#toolbar button').attr('disabled', false);
+            $('#btn_edit').attr('disabled', true);
+            $('#btn_cancel').attr('disabled', true);
+            $('#btn_submit').attr('disabled', true);
+            $('#btn_withdraw').attr('disabled', true);
+            $('#btn_supplement').attr('disabled', true);
+            if(row.waitAmount == 0 ){
                 $('#btn_refund_apply').attr('disabled', true);
             }
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
+            $('#toolbar button').attr('disabled', false);
+            $('#btn_edit').attr('disabled', true);
+            $('#btn_cancel').attr('disabled', true);
+            $('#btn_submit').attr('disabled', true);
+            $('#btn_withdraw').attr('disabled', true);
+            $('#btn_supplement').attr('disabled', true);
+            $('#btn_refund_apply').attr('disabled', true);
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.REFUNDED.getCode()}) {
+            $('#toolbar button').attr('disabled', false);
+            $('#btn_edit').attr('disabled', true);
+            $('#btn_cancel').attr('disabled', true);
+            $('#btn_submit').attr('disabled', true);
+            $('#btn_withdraw').attr('disabled', true);
+            $('#btn_supplement').attr('disabled', true);
+            $('#btn_refund_apply').attr('disabled', true);
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()}) {
+            $('#toolbar button').attr('disabled', false);
+            $('#btn_edit').attr('disabled', true);
+            $('#btn_cancel').attr('disabled', true);
+            $('#btn_submit').attr('disabled', true);
+            $('#btn_withdraw').attr('disabled', true);
+            $('#btn_supplement').attr('disabled', true);
+            $('#btn_refund_apply').attr('disabled', true);
         }
     });
     /*****************************************自定义事件区 end**************************************/
