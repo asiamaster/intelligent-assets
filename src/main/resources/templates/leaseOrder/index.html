@@ -79,7 +79,7 @@
                 <button id="btn_withdraw" type="button" class="btn btn-primary" onclick=""><i class="fa fa-undo"></i> 撤回</button>
                 <button id="btn_supplement" type="button" class="btn btn-primary" onclick=""><i class="fa fa-paint-brush"></i> 补录</button>
                 <button id="btn_renew" type="button" class="btn btn-primary" onclick=""><i class="fa fa-plug"></i> 续租</button>
-                <button id="btn_order_refund_apply" type="button" class="btn btn-primary" onclick=""><i class="fa fa-reply"></i> 退款申请</button>
+                <button id="btn_refund_apply" type="button" class="btn btn-primary" onclick=""><i class="fa fa-reply"></i> 退款申请</button>
             </div>
             <table id="grid" data-toggle="table" data-title="租赁单列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="10"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
@@ -88,7 +88,10 @@
             >
                 <thead>
                 <tr>
-                    <th data-radio="true"></th>
+                    <th data-checkbox="true"></th>
+                    <th data-field="id" data-sortable="true" data-align="center" data-width-unit="%">
+                        ID
+                    </th>
                     <th data-field="code" data-sortable="true" data-align="center" data-width-unit="%">
                         业务单号
                     </th>
@@ -134,7 +137,7 @@
                     <th data-field="paidAmount" data-sortable="true" data-align="center">
                         已付金额
                     </th>
-                    <th data-field="paidAmount" data-sortable="true" data-align="center">
+                    <th data-field="waitAmount" data-sortable="true" data-align="center">
                         待付金额
                     </th>
                     <th data-field="creator" data-sortable="true" data-align="center" data-visible="false">
@@ -252,26 +255,26 @@
 <#leaseOrder_indexJs />
 <script id="subTable" type="text/html">
     <div class="px-3 pb-3">
-        <div id="toolbar1" class="btn-group" role="group" aria-label="Toolbar with button groups">
-            <button id="btn_item_refund_apply" type="button" class="btn btn-primary" onclick=""><i
+        <div id="toolbar{{index}}" class="btn-group" role="group" aria-label="Toolbar with button groups">
+            <button id="btn_refund_apply{{index}}" type="button" class="btn btn-primary" onclick=""><i
                     class="fa fa-reply"></i> 退款申请
             </button>
-            <button id="btn_stop_rent" type="button" class="btn btn-primary" onclick="doEnableHandler(false)"><i
+            <button id="btn_stop_rent{{index}}" type="button" class="btn btn-primary" onclick="doEnableHandler(false)"><i
                     class="fa fa-stop"></i> 停租
             </button>
         </div>
-        <table id="subGrid" data-toggle="table" data-title="客户列表" class="table" data-toolbar="#toolbar1"
+        <table id="subGrid{{index}}" data-id="subGrid{{index}}" data-toggle="table" data-title="客户列表" class="table" data-toolbar="#toolbar{{index}}"
                data-pagination="false" data-page-number="1" data-page-size="10"
                data-query-params="subQueryParams" data-method="POST"
                data-content-type="application/x-www-form-urlencoded" data-single-select="true"
                data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
                data-sort-order="desc" data-icons="bui.variable.icons"
-               data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
+               data-show-refresh="true" data-show-fullscreen="true"
                data-buttons-class="primary"
         >
             <thead>
             <tr>
-                <th data-radio="true"></th>
+                <th data-checkbox="true"></th>
                 <th data-field="stallName" data-sortable="true" data-align="center">
                     摊位编号
                 </th>
