@@ -146,6 +146,7 @@
      */
     function queryDataHandler() {
         currentSelectRowIndex = undefined;
+        $('#toolbar button').attr('disabled', false);
         _grid.bootstrapTable('refreshOptions', {url: '/leaseOrder/listPage.action'});
     }
 
