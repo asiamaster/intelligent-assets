@@ -58,6 +58,17 @@ public class LeaseOrderController {
     }
 
     /**
+     * 跳转到LeaseOrder新增页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到LeaseOrder退款申请页面")
+    @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
+    public String refundApply(ModelMap modelMap) {
+        return "leaseOrder/refundApply";
+    }
+
+    /**
      * 分页查询LeaseOrder，返回easyui分页信息
      * @param leaseOrder
      * @return String
