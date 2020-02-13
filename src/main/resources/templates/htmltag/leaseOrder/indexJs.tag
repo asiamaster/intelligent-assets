@@ -145,6 +145,7 @@
      * 查询处理
      */
     function queryDataHandler() {
+        currentSelectRowIndex = undefined;
         _grid.bootstrapTable('refreshOptions', {url: '/leaseOrder/listPage.action'});
     }
 
@@ -193,9 +194,12 @@
     //展开事件
     _grid.on('expand-row.bs.table', function (e,index, row, $detail){
         //展开选中行
-        // _grid.bootstrapTable('collapseRow', currentSelectRowIndex);
-        // _grid.bootstrapTable('check',index);
-        // currentSelectRowIndex = index;
+        // if(currentSelectRowIndex != index){
+        //     _grid.bootstrapTable('collapseRow', currentSelectRowIndex);
+        //     currentSelectRowIndex = index;
+        //     _grid.bootstrapTable('check',index);
+        // }
+
 
         var cur_table = $detail.html(template('subTable',{index})).find('table');
         $(cur_table).bootstrapTable();
@@ -216,6 +220,11 @@
                 $('#toolbar'+index+' button').attr('disabled', true);
             }
         });
+    });
+
+    //选中行事件
+    _grid.on('uncheck.bs.table', function (e, row, $element) {
+        currentSelectRowIndex = undefined;
     });
 
     //选中行事件
