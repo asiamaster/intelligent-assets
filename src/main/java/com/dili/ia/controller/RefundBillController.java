@@ -38,6 +38,28 @@ public class RefundBillController {
     }
 
     /**
+     * 跳转到RefundBill修改页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到RefundBill页面")
+    @RequestMapping(value="/modify.html", method = RequestMethod.GET)
+    public String modify(ModelMap modelMap) {
+        return "refundBill/modify";
+    }
+
+    /**
+     * 跳转到RefundBill查看页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到RefundBill查看页面")
+    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    public String view(ModelMap modelMap) {
+        return "refundBill/view";
+    }
+
+    /**
      * 分页查询RefundBill，返回easyui分页信息
      * @param refundBill
      * @return String
