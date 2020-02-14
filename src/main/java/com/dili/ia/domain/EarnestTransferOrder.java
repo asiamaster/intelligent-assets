@@ -13,8 +13,8 @@ import javax.persistence.Id;
 
 /**
  * 由MyBatis Generator工具自动生成
- * ����ת������ҵ��
- * This file was generated on 2020-02-10 17:43:44.
+ * 定金转移主的业务单
+ * This file was generated on 2020-02-14 10:18:23.
  */
 @Table(name = "`earnest_transfer_order`")
 public interface EarnestTransferOrder extends IBaseDomain {
@@ -28,119 +28,119 @@ public interface EarnestTransferOrder extends IBaseDomain {
     void setId(Long id);
 
     @Column(name = "`create_time`")
-    @FieldDef(label="����ʱ��")
+    @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getCreateTime();
 
     void setCreateTime(Date createTime);
 
     @Column(name = "`modify_time`")
-    @FieldDef(label="�޸�ʱ��")
+    @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getModifyTime();
 
     void setModifyTime(Date modifyTime);
 
     @Column(name = "`state`")
-    @FieldDef(label="״̬")
+    @FieldDef(label="状态")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getState();
 
     void setState(Integer state);
 
     @Column(name = "`amount`")
-    @FieldDef(label="ת�ƽ��")
+    @FieldDef(label="转移金额")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getAmount();
 
     void setAmount(Long amount);
 
     @Column(name = "`payer_id`")
-    @FieldDef(label="ת�����ͻ�ID")
+    @FieldDef(label="转出方客户ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getPayerId();
 
     void setPayerId(Long payerId);
 
     @Column(name = "`payer_certificate_number`")
-    @FieldDef(label="ת�����ͻ�֤������", maxLength = 40)
+    @FieldDef(label="转出方客户证件号码", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayerCertificateNumber();
 
     void setPayerCertificateNumber(String payerCertificateNumber);
 
     @Column(name = "`payer_name`")
-    @FieldDef(label="ת�����ͻ�����", maxLength = 20)
+    @FieldDef(label="转出方客户名称", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayerName();
 
     void setPayerName(String payerName);
 
     @Column(name = "`payer_cellphone`")
-    @FieldDef(label="ת�����ͻ��绰", maxLength = 20)
+    @FieldDef(label="转出方客户电话", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayerCellphone();
 
     void setPayerCellphone(String payerCellphone);
 
     @Column(name = "`creator_id`")
-    @FieldDef(label="��������ԱID")
+    @FieldDef(label="创建操作员ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCreatorId();
 
     void setCreatorId(Long creatorId);
 
     @Column(name = "`creator`")
-    @FieldDef(label="��������Ա����", maxLength = 20)
+    @FieldDef(label="创建操作员名称", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCreator();
 
     void setCreator(String creator);
 
     @Column(name = "`transfer_reason`")
-    @FieldDef(label="����ת��ԭ��", maxLength = 250)
+    @FieldDef(label="定金转移原因", maxLength = 250)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getTransferReason();
 
     void setTransferReason(String transferReason);
 
     @Column(name = "`payee_id`")
-    @FieldDef(label="ת�뷽�ͻ�ID")
+    @FieldDef(label="转入方客户ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getPayeeId();
 
     void setPayeeId(Long payeeId);
 
     @Column(name = "`payee_name`")
-    @FieldDef(label="ת�뷽�ͻ�����", maxLength = 20)
+    @FieldDef(label="转入方客户名称", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayeeName();
 
     void setPayeeName(String payeeName);
 
     @Column(name = "`payee_certificate_number`")
-    @FieldDef(label="ת�뷽�ͻ�֤������", maxLength = 40)
+    @FieldDef(label="转入方客户证件号码", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayeeCertificateNumber();
 
     void setPayeeCertificateNumber(String payeeCertificateNumber);
 
     @Column(name = "`payee_cellphone`")
-    @FieldDef(label="ת�뷽�ͻ��绰", maxLength = 20)
+    @FieldDef(label="转入方客户电话", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayeeCellphone();
 
     void setPayeeCellphone(String payeeCellphone);
 
     @Column(name = "`payer_transaction_details_code`")
-    @FieldDef(label="ת�����Ķ���ת����ˮ��", maxLength = 20)
+    @FieldDef(label="转出方的定金转出流水号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayerTransactionDetailsCode();
 
     void setPayerTransactionDetailsCode(String payerTransactionDetailsCode);
 
     @Column(name = "`payee_transaction_code`")
-    @FieldDef(label="ת�뷽�Ķ���ת����ˮ��", maxLength = 20)
+    @FieldDef(label="转入方的定金转入流水号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayeeTransactionCode();
 

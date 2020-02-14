@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-02-10 17:43:43.
+ * This file was generated on 2020-02-14 10:18:23.
  */
 @Api("/earnestOrder")
 @Controller
@@ -52,37 +52,6 @@ public class EarnestOrderController {
         return earnestOrderService.listEasyuiPageByExample(earnestOrder, true).toString();
     }
 
-    /**
-     * 跳转到EarnestOrder页面
-     * @param modelMap
-     * @return String
-     */
-    @ApiOperation("跳转到EarnestOrder页面")
-    @RequestMapping(value="/add.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap) {
-
-        return "earnestOrder/add";
-    }
-    /**
-     * 跳转到EarnestOrder页面
-     * @param modelMap
-     * @return String
-     */
-    @ApiOperation("跳转到EarnestOrder页面")
-    @RequestMapping(value="/update.html", method = RequestMethod.GET)
-    public String viewUpdate(ModelMap modelMap) {
-        return "earnestOrder/update";
-    }
-    /**
-     * 跳转到EarnestOrder页面
-     * @param modelMap
-     * @return String
-     */
-    @ApiOperation("跳转到EarnestOrder页面")
-    @RequestMapping(value="/view.html", method = RequestMethod.GET)
-    public String view(ModelMap modelMap) {
-        return "earnestOrder/view";
-    }
     /**
      * 新增EarnestOrder
      * @param earnestOrder
