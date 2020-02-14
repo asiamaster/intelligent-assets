@@ -13,8 +13,8 @@ import javax.persistence.Id;
 
 /**
  * 由MyBatis Generator工具自动生成
- * �����ҵ��
- * This file was generated on 2020-02-10 17:43:43.
+ * 定金的业务单
+ * This file was generated on 2020-02-14 10:18:23.
  */
 @Table(name = "`earnest_order`")
 public interface EarnestOrder extends IBaseDomain {
@@ -28,35 +28,35 @@ public interface EarnestOrder extends IBaseDomain {
     void setId(Long id);
 
     @Column(name = "`create_time`")
-    @FieldDef(label="����ʱ��")
+    @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getCreateTime();
 
     void setCreateTime(Date createTime);
 
     @Column(name = "`modify_time`")
-    @FieldDef(label="�޸�ʱ��")
+    @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getModifyTime();
 
     void setModifyTime(Date modifyTime);
 
     @Column(name = "`customer_id`")
-    @FieldDef(label="�ͻ�ID")
+    @FieldDef(label="客户ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCustomerId();
 
     void setCustomerId(Long customerId);
 
     @Column(name = "`customer_name`")
-    @FieldDef(label="�ͻ�����", maxLength = 20)
+    @FieldDef(label="客户名称", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCustomerName();
 
     void setCustomerName(String customerName);
 
     @Column(name = "`customer_cellphone`")
-    @FieldDef(label="�ͻ��绰", maxLength = 20)
+    @FieldDef(label="客户电话", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCustomerCellphone();
 
@@ -70,14 +70,14 @@ public interface EarnestOrder extends IBaseDomain {
     void setCustomerCertificateNumber(String customerCertificateNumber);
 
     @Column(name = "`start_time`")
-    @FieldDef(label="��ʼʱ��")
+    @FieldDef(label="开始时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getStartTime();
 
     void setStartTime(Date startTime);
 
     @Column(name = "`end_time`")
-    @FieldDef(label="��ֹʱ��")
+    @FieldDef(label="截止时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getEndTime();
 
@@ -98,42 +98,42 @@ public interface EarnestOrder extends IBaseDomain {
     void setDepartmentName(String departmentName);
 
     @Column(name = "`state`")
-    @FieldDef(label="״̬")
+    @FieldDef(label="状态")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getState();
 
     void setState(Integer state);
 
     @Column(name = "`assets_type`")
-    @FieldDef(label="�ʲ����ͣ�����̯λ����⣬��Ԣ��")
+    @FieldDef(label="资产类型，包含摊位，冷库，公寓等")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getAssetsType();
 
     void setAssetsType(Long assetsType);
 
     @Column(name = "`amount`")
-    @FieldDef(label="���")
+    @FieldDef(label="金额")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getAmount();
 
     void setAmount(Long amount);
 
     @Column(name = "`code`")
-    @FieldDef(label="����ҵ�?��", maxLength = 20)
+    @FieldDef(label="定金业务单编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
     void setCode(String code);
 
     @Column(name = "`creator_id`")
-    @FieldDef(label="��������ԱID")
+    @FieldDef(label="创建操作员ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCreatorId();
 
     void setCreatorId(Long creatorId);
 
     @Column(name = "`creator`")
-    @FieldDef(label="��������Ա����", maxLength = 20)
+    @FieldDef(label="创建操作员名称", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCreator();
 
@@ -154,14 +154,14 @@ public interface EarnestOrder extends IBaseDomain {
     void setSubmitter(String submitter);
 
     @Column(name = "`sub_date`")
-    @FieldDef(label="�ύʱ��")
+    @FieldDef(label="提交时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getSubDate();
 
     void setSubDate(Date subDate);
 
     @Column(name = "`notes`")
-    @FieldDef(label="��ע", maxLength = 250)
+    @FieldDef(label="备注", maxLength = 250)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getNotes();
 

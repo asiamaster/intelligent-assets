@@ -13,8 +13,8 @@ import javax.persistence.Id;
 
 /**
  * 由MyBatis Generator工具自动生成
- * ��ϸ��ˮ
- * This file was generated on 2020-02-10 17:43:44.
+ * 明细流水
+ * This file was generated on 2020-02-14 10:18:23.
  */
 @Table(name = "`transaction_details`")
 public interface TransactionDetails extends IBaseDomain {
@@ -28,119 +28,119 @@ public interface TransactionDetails extends IBaseDomain {
     void setId(Long id);
 
     @Column(name = "`create_time`")
-    @FieldDef(label="����ʱ��")
+    @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getCreateTime();
 
     void setCreateTime(Date createTime);
 
     @Column(name = "`modify_time`")
-    @FieldDef(label="�޸�ʱ��")
+    @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getModifyTime();
 
     void setModifyTime(Date modifyTime);
 
     @Column(name = "`code`")
-    @FieldDef(label="������ˮ��", maxLength = 20)
+    @FieldDef(label="交易流水号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
     void setCode(String code);
 
     @Column(name = "`scene_type`")
-    @FieldDef(label="ת�룬ת�����ֿ����ѣ����ᣬ�ɷѣ��˿�")
+    @FieldDef(label="转入，转出，抵扣消费，冻结，缴费，退款")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getSceneType();
 
     void setSceneType(Integer sceneType);
 
     @Column(name = "`item_type`")
-    @FieldDef(label="���?�֤��ת��")
+    @FieldDef(label="定金，保证金，转抵")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getItemType();
 
     void setItemType(Integer itemType);
 
     @Column(name = "`biz_type`")
-    @FieldDef(label="̯λ���ޣ��������ȵ�")
+    @FieldDef(label="摊位租赁，定金管理等等")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getBizType();
 
     void setBizType(Integer bizType);
 
     @Column(name = "`order_id`")
-    @FieldDef(label="��������ID")
+    @FieldDef(label="发生订单ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getOrderId();
 
     void setOrderId(Long orderId);
 
     @Column(name = "`order_code`")
-    @FieldDef(label="��������ҵ�?��", maxLength = 20)
+    @FieldDef(label="发生订单业务单编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getOrderCode();
 
     void setOrderCode(String orderCode);
 
     @Column(name = "`customer_id`")
-    @FieldDef(label="�������׵Ŀͻ�ID")
+    @FieldDef(label="发生交易的客户ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCustomerId();
 
     void setCustomerId(Long customerId);
 
     @Column(name = "`customer_name`")
-    @FieldDef(label="�������׵Ŀͻ�����", maxLength = 20)
+    @FieldDef(label="发生交易的客户名称", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCustomerName();
 
     void setCustomerName(String customerName);
 
     @Column(name = "`certificate_number`")
-    @FieldDef(label="�������׵Ŀͻ�֤����", maxLength = 40)
+    @FieldDef(label="发生交易的客户证件号", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCertificateNumber();
 
     void setCertificateNumber(String certificateNumber);
 
     @Column(name = "`customer_cellphone`")
-    @FieldDef(label="�������׵Ŀͻ��绰", maxLength = 20)
+    @FieldDef(label="发生交易的客户电话", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCustomerCellphone();
 
     void setCustomerCellphone(String customerCellphone);
 
     @Column(name = "`amount`")
-    @FieldDef(label="������Ϊ����֧��Ϊ��")
+    @FieldDef(label="金额，收入为正，支付为负")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getAmount();
 
     void setAmount(Long amount);
 
     @Column(name = "`creator_id`")
-    @FieldDef(label="������ID")
+    @FieldDef(label="创建人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCreatorId();
 
     void setCreatorId(Long creatorId);
 
     @Column(name = "`creator`")
-    @FieldDef(label="����������", maxLength = 20)
+    @FieldDef(label="创建人名称", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCreator();
 
     void setCreator(String creator);
 
     @Column(name = "`notes`")
-    @FieldDef(label="�����¼��", maxLength = 250)
+    @FieldDef(label="详情记录，", maxLength = 250)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getNotes();
 
     void setNotes(String notes);
 
     @Column(name = "`market_id`")
-    @FieldDef(label="�г�ID")
+    @FieldDef(label="市场ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getMarketId();
 
