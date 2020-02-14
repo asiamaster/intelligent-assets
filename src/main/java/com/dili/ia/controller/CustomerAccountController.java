@@ -36,6 +36,26 @@ public class CustomerAccountController {
     public String index(ModelMap modelMap) {
         return "customerAccount/index";
     }
+    /**
+     * 跳转到CustomerAccount页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到CustomerAccount页面")
+    @RequestMapping(value="/refund.html", method = RequestMethod.GET)
+    public String refund(ModelMap modelMap) {
+        return "customerAccount/refund";
+    }
+    /**
+     * 跳转到CustomerAccount页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到CustomerAccount页面")
+    @RequestMapping(value="/earnestTransfer.html", method = RequestMethod.GET)
+    public String earnestTransfer(ModelMap modelMap) {
+        return "customerAccount/earnestTransfer";
+    }
 
     /**
      * 分页查询CustomerAccount，返回easyui分页信息
