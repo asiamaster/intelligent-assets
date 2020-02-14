@@ -31,9 +31,18 @@
      * 打开新增窗口
      */
     function openInsertHandler() {
-        _modal.modal('show');
-        _modal.find('.modal-title').text('货站新增');
+        // _modal.modal('show');
+        // _modal.find('.modal-title').text('货站新增');
 
+        let dia = bs4pop.dialog({
+            title: '新增摊位出租',
+            content: '/leaseOrder/preSave.html',
+            isIframe : true,
+            closeBtn: true,
+            width: '80%',
+            height : '95%',
+            btns: []
+        });
     }
 
     /**

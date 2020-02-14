@@ -7,13 +7,14 @@
                 客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
             </div>
             <div class="row row-cols-4" id="customerInfo">
+                <input type="hidden" name="customerId">
                 <div class="form-group col">
                     <label for="" class="">客户名称</label>
-                    <input type="text" class="form-control" name="" required />
+                    <input type="text" class="form-control" name="customerName" required />
                 </div>
                 <div class="form-group col">
                     <label for="" class="">证件号码</label>
-                    <input type="text" class="form-control" name="" />
+                    <input type="text" class="form-control" name="cardNo" />
                 </div>
                 <div class="form-group col">
                     <label for="" class="">联系电话</label>
@@ -24,30 +25,20 @@
                 aria-controls="boothInfo">
                 摊位信息
             </div>
-            <div id="boothInfo">
-                <div class="row row-cols-5 boothcard">
-                    <div class="form-group col">
-                        <label for="" class="">摊位编号</label>
-                        <input type="text" class="form-control" name="" required />
-                    </div>
-                    <div class="form-group col">
-                        <label for="" class="">租金</label>
-                        <input type="text" class="form-control" name="" />
-                    </div>
-                    <div class="form-group col">
-                        <label for="" class="">物业管理费</label>
-                        <input type="text" class="form-control" name="" />
-                    </div>
-                    <div class="form-group col align-items-end">
-                        <label for="" class="">保证金</label>
-                        <input type="text" class="form-control" name="" />
-                    </div>
-                    <div class="col align-items-end">
-                           <i class="fa fa-plus-square fa-lg text-primary px-3 boothPlus"
-                              aria-hidden="true"></i>
-                           <i class="fa fa-minus-square fa-lg text-primary boothMinus" aria-hidden="true"></i>
-                    </div>
-                </div>
+            <div id="boothInfo1">
+                <table class="table table-bordered table-hover table-striped" id="stallTable">
+                    <thead>
+                    <tr>
+                        <th class="text-center align-middle" style="width: 5%"><a id="addStall" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus fa-lg"></i></a></th>
+                        <th style="width: 25%;font-weight:normal; ">摊位编号</th>
+                        <th style="width: 25%;font-weight:normal; ">租金</th>
+                        <th style="width: 22%;font-weight:normal; ">物业管理费</th>
+                        <th style="width: 23%;font-weight:normal; ">保证金</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
 
             </div>
             <div class="breadcrumb" data-toggle="collapse" data-target="#leaseInfo" aria-expanded="true"
@@ -148,32 +139,25 @@
 
 </#bs4Body>
 
-<script  id="boothTemp"  type="text/html">
-    <div class="row row-cols-5 boothcard">
-        <div class="form-group col">
-            <label for="" class="">摊位编号</label>
-            <input type="text" class="form-control" name="" required />
-        </div>
-        <div class="form-group col">
-            <label for="" class="">租金</label>
-            <input type="text" class="form-control" name="" />
-        </div>
-        <div class="form-group col">
-            <label for="" class="">物业管理费</label>
-            <input type="text" class="form-control" name="" />
-        </div>
-        <div class="form-group col align-items-end">
-            <label for="" class="">保证金</label>
-            <input type="text" class="form-control" name="" />
-        </div>
-        <div class="col align-items-end">
-            <i class="fa fa-plus-square fa-lg text-primary px-3 boothPlus" aria-hidden="true"></i>
-            <i class="fa fa-minus-square fa-lg text-primary boothMinus" aria-hidden="true"></i>
-        </div>
-    </div>
+<script  id="stallItem"  type="text/html">
+    <tr data-index="{{index}}">
+        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus fa-lg"></i></a></td>
+        <td style="padding: .25rem!important;">
+            <input type="text" class="form-control isSelected" id="stallName_{{index}}" name="stallName_{{index}}" value="{{stallName}}" required />
+            <input type="hidden" name="customerId_{{index}}" id="stallId_{{index}}"  value="{{stallId}}"/>
+        </td>
+        <td style="padding: .25rem!important;"><input type="text" id="rentAmount_{{index}}" name="rentAmount_{{index}}" class="form-control"></td>
+        <td style="padding: .25rem!important;"><input type="text" id="manageAmount_{{index}}" name="manageAmount_{{index}}" class="form-control"></td>
+        <td style="padding: .25rem!important;"><input type="text" id="depositAmount_{{index}}" name="depositAmount_{{index}}" class="form-control"></td>
+    </tr>
 </script>
 
 <script>
+    //行索引计数器
+    let itemIndex = 0;
+    $(function () {
+        addStallItem();
+    });
 
     $('#formSubmit').on('click', function (e) {
         if (!$('#addForm').valid()) {
@@ -181,24 +165,24 @@
         }
     });
 
-
     $('#getCustomer').on('click', function (e) {
-        alert('ss');
         e.stopPropagation();
     })
 
 
+    function addStallItem(){
+        $('#stallTable tbody').append(template('stallItem',{index:++itemIndex}))
+    }
 
-
-    $('#boothInfo').on('click', '.boothPlus',  function(){
-        $('#boothInfo').append(template('boothTemp'))
+    $('#addStall').on('click', function(){
+        addStallItem();
     })
 
-    $('#boothInfo').on('click', '.boothMinus',  function(){
-        if($('.boothcard').length > 1) {
-            $(this).parents('.boothcard').remove()
+    //删除行事件
+    $(document).on('click', '.item-del', function () {
+        if ($('#stallTable tr').length > 2) {
+            $(this).closest('tr').remove();
         }
-
-    })
+    });
 
 </script>
