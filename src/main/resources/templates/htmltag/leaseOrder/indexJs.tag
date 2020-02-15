@@ -41,7 +41,17 @@
             closeBtn: true,
             width: '80%',
             height : '95%',
-            btns: []
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick(e, $iframe) {
+                        alert($iframe[0].contentWindow.itemIndex)
+                    }
+                },
+                {
+                    label: '取消', className: 'btn-default', onClick(e, $iframe) {
+                    }
+                }
+            ]
         });
     }
 
