@@ -6,6 +6,16 @@
      *
      ***/
 
+
+    //时间范围
+    lay('.laydatetime').each(function() {
+        laydate.render({
+            elem : this
+            ,trigger : 'click'
+            ,range: true
+        });
+    });
+
     /*********************变量定义区 begin*************/
     //行索引计数器
     //如 let itemIndex = 0;

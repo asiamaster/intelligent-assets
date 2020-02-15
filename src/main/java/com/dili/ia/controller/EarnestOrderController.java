@@ -7,7 +7,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -36,6 +35,38 @@ public class EarnestOrderController {
     public String index(ModelMap modelMap) {
         return "earnestOrder/index";
     }
+
+    /**
+     * 跳转到EarnestOrder页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到EarnestOrder页面")
+    @RequestMapping(value="/add.html", method = RequestMethod.GET)
+    public String add(ModelMap modelMap) {
+        return "earnestOrder/add";
+    }
+    /**
+     * 跳转到EarnestOrder页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到EarnestOrder页面")
+    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    public String view(ModelMap modelMap) {
+        return "earnestOrder/view";
+    }
+    /**
+     * 跳转到EarnestOrder页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到EarnestOrder页面")
+    @RequestMapping(value="/update.html", method = RequestMethod.GET)
+    public String update(ModelMap modelMap) {
+        return "earnestOrder/update";
+    }
+
 
     /**
      * 分页查询EarnestOrder，返回easyui分页信息
