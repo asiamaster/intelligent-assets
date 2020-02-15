@@ -15,9 +15,10 @@ import java.time.LocalDateTime;
 企业客户没有性别和民族和certificate_time，但有certificate_rang
  * This file was generated on 2020-01-09 17:36:22.
  */
-@Getter
-@Setter
-public class Customer extends BaseDomain {
+public class Customer extends BaseDomain implements Cloneable {
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     private Long id;
 
@@ -177,4 +178,253 @@ public class Customer extends BaseDomain {
      */
     private Integer state;
 
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getCertificateNumber() {
+        return certificateNumber;
+    }
+
+    public void setCertificateNumber(String certificateNumber) {
+        this.certificateNumber = certificateNumber;
+    }
+
+    public String getCertificateType() {
+        return certificateType;
+    }
+
+    public void setCertificateType(String certificateType) {
+        this.certificateType = certificateType;
+    }
+
+    public String getCertificateRange() {
+        return certificateRange;
+    }
+
+    public void setCertificateRange(String certificateRange) {
+        this.certificateRange = certificateRange;
+    }
+
+    public String getCertificateAddr() {
+        return certificateAddr;
+    }
+
+    public void setCertificateAddr(String certificateAddr) {
+        this.certificateAddr = certificateAddr;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public LocalDate getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
+    }
+
+    public Integer getGender() {
+        return gender;
+    }
+
+    public void setGender(Integer gender) {
+        this.gender = gender;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public String getCellphone() {
+        return cellphone;
+    }
+
+    public void setCellphone(String cellphone) {
+        this.cellphone = cellphone;
+    }
+
+    public String getContactsPhone() {
+        return contactsPhone;
+    }
+
+    public void setContactsPhone(String contactsPhone) {
+        this.contactsPhone = contactsPhone;
+    }
+
+    public String getOrganizationType() {
+        return organizationType;
+    }
+
+    public void setOrganizationType(String organizationType) {
+        this.organizationType = organizationType;
+    }
+
+    public String getSourceSystem() {
+        return sourceSystem;
+    }
+
+    public void setSourceSystem(String sourceSystem) {
+        this.sourceSystem = sourceSystem;
+    }
+
+    public String getProfession() {
+        return profession;
+    }
+
+    public void setProfession(String profession) {
+        this.profession = profession;
+    }
+
+    public String getOperatingArea() {
+        return operatingArea;
+    }
+
+    public void setOperatingArea(String operatingArea) {
+        this.operatingArea = operatingArea;
+    }
+
+    public String getOperatingLng() {
+        return operatingLng;
+    }
+
+    public void setOperatingLng(String operatingLng) {
+        this.operatingLng = operatingLng;
+    }
+
+    public String getOperatingLat() {
+        return operatingLat;
+    }
+
+    public void setOperatingLat(String operatingLat) {
+        this.operatingLat = operatingLat;
+    }
+
+    public String getOtherTitle() {
+        return otherTitle;
+    }
+
+    public void setOtherTitle(String otherTitle) {
+        this.otherTitle = otherTitle;
+    }
+
+    public String getMainCategory() {
+        return mainCategory;
+    }
+
+    public void setMainCategory(String mainCategory) {
+        this.mainCategory = mainCategory;
+    }
+
+    public Long getRegisteredCapital() {
+        return registeredCapital;
+    }
+
+    public void setRegisteredCapital(Long registeredCapital) {
+        this.registeredCapital = registeredCapital;
+    }
+
+    public String getEmployeeNumber() {
+        return employeeNumber;
+    }
+
+    public void setEmployeeNumber(String employeeNumber) {
+        this.employeeNumber = employeeNumber;
+    }
+
+    public String getCorporationCertificateType() {
+        return corporationCertificateType;
+    }
+
+    public void setCorporationCertificateType(String corporationCertificateType) {
+        this.corporationCertificateType = corporationCertificateType;
+    }
+
+    public String getCorporationCertificateNumber() {
+        return corporationCertificateNumber;
+    }
+
+    public void setCorporationCertificateNumber(String corporationCertificateNumber) {
+        this.corporationCertificateNumber = corporationCertificateNumber;
+    }
+
+    public String getCorporationName() {
+        return corporationName;
+    }
+
+    public void setCorporationName(String corporationName) {
+        this.corporationName = corporationName;
+    }
+
+    public Integer getIsCellphoneValid() {
+        return isCellphoneValid;
+    }
+
+    public void setIsCellphoneValid(Integer isCellphoneValid) {
+        this.isCellphoneValid = isCellphoneValid;
+    }
+
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getModifyTime() {
+        return modifyTime;
+    }
+
+    public void setModifyTime(LocalDateTime modifyTime) {
+        this.modifyTime = modifyTime;
+    }
+
+    public Integer getIsDelete() {
+        return isDelete;
+    }
+
+    public void setIsDelete(Integer isDelete) {
+        this.isDelete = isDelete;
+    }
+
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
+    }
 }

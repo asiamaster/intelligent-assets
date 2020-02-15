@@ -62,6 +62,13 @@ public interface LeaseOrder extends IBaseDomain {
 
     void setCustomerName(String customerName);
 
+    @Column(name = "`certificate_number`")
+    @FieldDef(label="证件号", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getCertificateNumber();
+
+    void setCertificateNumber(String certificateNumber);
+
     @Column(name = "`customer_cellphone`")
     @FieldDef(label="客户电话", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
