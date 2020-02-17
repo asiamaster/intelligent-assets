@@ -29,7 +29,7 @@
                 $('#_certificateNumber').val(suggestion.certificateNumber);
                 $('#customerCellphone').val(suggestion.cellphone);
             }
-        }
+        };
         var certificateNumberAutoCompleteOption = {
             width : 350,
             serviceUrl: '/customer/list.action',
@@ -50,7 +50,7 @@
                 $('#customerId').val(suggestion.id);
                 $('#customerCellphone').val(suggestion.cellphone);
             }
-        }
+        };
 
     /*********************变量定义区 end***************/
 
@@ -62,6 +62,27 @@
     /******************************驱动执行区 end****************************/
 
     /*****************************************函数区 begin************************************/
+
+    //HTML反转义
+    function HTMLDecode(str)
+    {
+        var s = "";
+        if (str.length == 0) return "";
+        s = str.replace(/&amp;/g, "&");
+        s = s.replace(/&lt;/g, "<");
+        s = s.replace(/&gt;/g, ">");
+        s = s.replace(/&nbsp;/g, " ");
+        s = s.replace(/&#39;/g, "\'");
+        s = s.replace(/&quot;/g, "\"");
+        s = s.replace(/<br\/>/g, "\n");
+        return s;
+    }
+
+    //获取table Index
+    function getIndex(str) {
+        return str.split('_')[1];
+    }
+
     /**
      * 读身份证卡
      * @return {IDCardNo:'5116021989...'}
@@ -71,30 +92,11 @@
         return eval('(' + callbackObj.readIDCard() + ')');
     }
 
-    function queryUser(user) {
-        $.ajax({
-            type: "POST",
-            url: "/customer/list.action",
-            data: user,
-            dataType: "json",
-            success: function (data) {
-                $('#customerName').val(data[0].name);
-                $('#customerId').val(data[0].id);
-                $('#certificateNumber').val(data[0].certificateNumber);
-                $('#_certificateNumber').val(data[0].certificateNumber);
-                $('#customerCellphone').val(data[0].cellphone);
-            },
-            error: function (a, b, c) {
-                bs4pop.alert('远程访问失败', {type: 'error'});
-            }
-        });
-    }
-
     /**
      * 添加摊位
      * */
     function addStallItem(){
-        $('#stallTable tbody').append(template('stallItem',{index:++itemIndex}))
+        $('#stallTable tbody').append(HTMLDecode(template('stallItem',{index:++itemIndex})))
     }
 
     /*****************************************函数区 end**************************************/
@@ -110,13 +112,24 @@
     $('#getCustomer').on('click', function (e) {
         e.stopPropagation();
         let user = reader();
-        if(user){
-            queryUser({certificateNumber : user.IDCardNo});
-        }else{
-            queryUser();
-        }
-    })
+        $.ajax({
+            type: "POST",
+            url: "/customer/list.action",
+            // data: {certificateNumber : user.IDCardNo},
+            dataType: "json",
+            success: function (data) {
+                $('#customerName').val(data[0].name);
+                $('#customerId').val(data[0].id);
+                $('#certificateNumber').val(data[0].certificateNumber);
+                $('#_certificateNumber').val(data[0].certificateNumber);
+                $('#customerCellphone').val(data[0].cellphone);
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
 
+    })
 
     $('#addStall').on('click', function(){
         addStallItem();
