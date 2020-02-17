@@ -17,7 +17,7 @@
     <result column="department_id" jdbcType="BIGINT" property="departmentId" />
     <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
     <result column="state" jdbcType="INTEGER" property="state" />
-    <result column="assets_type" jdbcType="BIGINT" property="assetsType" />
+    <result column="assets_type" jdbcType="INTEGER" property="assetsType" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
     <result column="code" jdbcType="VARCHAR" property="code" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
@@ -103,7 +103,7 @@
         state = #{state,jdbcType=INTEGER},
       </if>
       <if test="assetsType != null">
-        assets_type = #{assetsType,jdbcType=BIGINT},
+        assets_type = #{assetsType,jdbcType=INTEGER},
       </if>
       <if test="amount != null">
         amount = #{amount,jdbcType=BIGINT},
