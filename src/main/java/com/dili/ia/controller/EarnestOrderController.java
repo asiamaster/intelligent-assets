@@ -38,6 +38,8 @@ public class EarnestOrderController {
     @ApiOperation("跳转到EarnestOrder页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
+        SessionContext sessionContext = SessionContext.getSessionContext();
+        List<Map> typeDataAuthes = sessionContext.dataAuth(DataAuthType.DEPARTMENT.getCode());
         return "earnestOrder/index";
     }
 
