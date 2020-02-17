@@ -8,19 +8,19 @@
         <div class="row row-cols-3" id="customerInfo">
             <div class="form-group col">
                 <label for="" class="">客户名称<i class="red">*</i></label>
-                <input type="text" class="form-control" name="" required/>
+                <input type="text" class="form-control" name="customerName" required/>
             </div>
             <div class="form-group col">
                 <label for="" class="">证件号码<i class="red">*</i></label>
-                <input type="text" class="form-control" name=""/>
+                <input type="text" class="form-control" name="customerCertificateNumber"/>
             </div>
             <div class="form-group col">
                 <label for="" class="">联系电话<i class="red">*</i></label>
-                <input type="text" class="form-control" name=""/>
+                <input type="text" class="form-control" name="customerCellphone"/>
             </div>
             <div class="form-group col">
                 <label for="" class="">对应摊位</label>
-                <select id="" name="" class="form-control"></select>
+                <select id="" name="assetsId" class="form-control"></select>
             </div>
         </div>
         <div class="breadcrumb" data-toggle="collapse" data-target="#otherInfo"
@@ -30,15 +30,15 @@
         <div class="row row-cols-3 collapse show" id="otherInfo">
             <div class="form-group col col">
                 <label for="">开始日期</label>
-                <input type="text" class="form-control laydatetime" id="" placeholder="">
+                <input type="text" name="startTime" class="form-control laydatetime" id="startTime" placeholder="">
             </div>
             <div class="form-group col col">
                 <label for="">结束日期</label>
-                <input type="text" class="form-control laydatetime" id="" placeholder="">
+                <input type="text" name="endTime" class="form-control laydatetime" id="endTime" placeholder="">
             </div>
             <div class="form-group col">
                 <label for="" class="">业务所属部门</label>
-                <select id="" name="" class="form-control"></select>
+                <select id="" name="departmentId" class="form-control"></select>
                 <#bcomboProvider _id="" _provider="" _value=""/>
             </div>
         </div>
@@ -49,13 +49,13 @@
         <div class="row  row-cols-3 collapse show" id="moneyInfo">
             <div class="form-group col">
                 <label for="" class="">合计金额</label>
-                <input type="text" class="form-control" name=""/>
+                <input type="text" class="form-control" name="amount"/>
             </div>
         </div>
         <div class="row">
             <div class="form-group col-8">
                 <label for="">备注</label>
-                <textarea class="form-control" id="" rows="1"  maxlength="50"></textarea>
+                <textarea class="form-control" name="notes" id="" rows="1"  maxlength="50"></textarea>
             </div>
         </div>
         <div class="text-right">

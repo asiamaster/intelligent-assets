@@ -3,6 +3,8 @@ package com.dili.ia.controller;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.service.EarnestOrderService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.glossary.DataAuthType;
+import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -13,6 +15,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -33,6 +38,8 @@ public class EarnestOrderController {
     @ApiOperation("跳转到EarnestOrder页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
+        SessionContext sessionContext = SessionContext.getSessionContext();
+        List<Map> typeDataAuthes = sessionContext.dataAuth(DataAuthType.DEPARTMENT.getCode());
         return "earnestOrder/index";
     }
 
@@ -44,6 +51,8 @@ public class EarnestOrderController {
     @ApiOperation("跳转到EarnestOrder页面")
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap) {
+        SessionContext sessionContext = SessionContext.getSessionContext();
+        List<Map> typeDataAuthes = sessionContext.dataAuth(DataAuthType.DEPARTMENT.getCode());
         return "earnestOrder/add";
     }
     /**

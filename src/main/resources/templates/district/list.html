@@ -1,0 +1,221 @@
+<#bs4Body>
+<div class="main-container">
+    <div class="cur-position">
+        当前位置：基础信息管理&nbsp;&gt;
+        <a href="javascript:location.reload();">区域管理</a>
+    </div>
+    <!-- form-inline start  -->
+    <div class="form-search">
+        <form class="form-inline" role="form" id="d-form">
+            <div class="form-group">
+                <label class="text-justify">部门：</label>
+                <select name="departmentId" class="form-control input-sm">
+                    <option value="">全部</option>
+                    #foreach($dep in $queryDeps)
+                        <option value="$!dep.name"  #if($query.departmentId == $!dep.name) selected="selected" #end>$!{dep.value}</option>
+                    #end
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="text-justify">级别：</label>
+                <select  name="parentId" class="form-control input-sm">
+                    <option value="-1" #if($query.parentId == -1) selected="selected" #end >一级</option>
+                    <option value="-2" #if($query.parentId ==-2) selected="selected" #end >二级</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="sr-only">区域名称：</label>
+                <input type="text" name="keyword" class="form-control input-sm input-control inputlong" value="$!{query.keyword}"  placeholder="区域名称">
+            </div>
+            <div class="form-group">
+                <a  href="#javascript:void();" class="btn-greyweak btn-sm" id="btn-search">查询</a>&nbsp;&nbsp;
+
+            </div>
+        </form>
+        <div class="form-newadd">
+            #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#add").toString()))
+            <button class="btn-main2 btn-newadd btn-sm">新增一级区域</button>
+            #end
+        </div>
+    </div>
+    <!-- form-inline end  -->
+
+
+    <!-- table-showlist start -->
+    <div class="table-showlist">
+        <table class="table table-bordered table-hover table-condensed">
+            <tbody><tr>
+            
+                <th>区域名称</th>
+                <th>编号</th>
+                <th>区域级别</th>
+                <th>部门</th>
+                <th>备注</th>
+                <th>操作</th>
+            </tr>
+            <tr>
+                #foreach($district in $districts.datas)
+                <tr bind-id="$!district.id">
+                    <td>
+                        #if($!district.children)
+                            <span class="glyphicon glyphicon-plus"></span>&nbsp;
+                        #else
+                            <span class="glyphicon">&nbsp;</span>&nbsp;
+                        #end
+                        $!district.name
+                    </td>
+                    <td>
+                        $!district.number
+                    </td>
+                    <td>
+                        #if($district.parentId == 0) 一级#else 二级 #end
+                    </td>
+                    <td>
+                        #foreach($dep in $deps)
+                                    		#if($district.departmentId == $!dep.id)$!{dep.name} #end
+										#end
+                    </td>
+                    <td>
+                        $!district.remarks
+                    </td>
+
+                    <td>
+
+                        #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#split").toString()))
+                            #if($district.parentId==0)
+                                <a href="javascript:;" class="table-split" did="$!district.id">划分</a>
+                            #end
+                        #end
+                        #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#modify").toString()))
+                            <a href="javascript:;" class="table-modify" did="$!district.id">修改</a>
+                        #end
+                        #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#delete").toString()))
+                            <a href="javascript:;" class="table-delete" pid ="$!district.parentId" dname="$!district.name">删除</a>
+                        #end
+                    </td>
+                </tr>
+                    #if($!district.children)
+                        #foreach($children in $!district.children)
+                        <tr bind-id="$!children.id" style="display: none" class="tr-twolevel ch-show$!district.id">
+                            <td>
+                                <span class="glyphicon">&nbsp;</span>&nbsp;
+                                $!district.name$!children.name
+                            </td>
+                            <td>
+                        $!children.number
+                    </td>
+                            <td>
+                                二级
+                            </td>
+                            <td>
+                                #foreach($dep in $deps)
+                                    		#if($children.departmentId == $!dep.id)$!{dep.name} #end
+										#end
+                            </td>
+                            <td>
+                                $!children.remarks
+                            </td>
+
+                            <td>
+                                #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#modify").toString()))
+                                <a href="javascript:;" class="table-modify" did="$!children.id">修改</a>
+                                #end
+                                #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#delete").toString()))
+                                <a href="javascript:;" class="table-delete" pid ="$!children.parentId" dname="$!district.name$!children.name">删除</a>
+                                #end
+                            </td>
+                        </tr>
+                        #end
+                    #end
+                #end
+
+            </tr>
+
+            </tbody></table>
+    </div>
+    <!-- table-showlist end -->
+    <!-- 翻页 start  -->
+    #showPage_v2($!districts $!homeModule.getTarget("/district/list").addQueryData("departmentId",$query.departmentId).addQueryData("parentId",$query.parentId).addQueryData("name",$query.name).addQueryData("pageSize",$!{query.pageSize}))
+
+    <!-- 翻页 end  -->
+</div>
+#parse("/customer/tip_js.vm")
+<script>
+    $('#btn-search').click(function(){
+        $('#d-form').submit();
+    });
+    $("input[name='keyword']").blur(function(){
+        $(this).val($(this).val().trim());
+    });
+    $('.glyphicon').click(function(){
+        var self = $(this);
+        var id = self.closest('tr').attr('bind-id');
+        if(self.hasClass("glyphicon-plus")){
+            self.removeClass("glyphicon-plus").addClass("glyphicon-minus");
+            $(".ch-show"+id).show();
+        }else{
+            self.removeClass("glyphicon-minus").addClass("glyphicon-plus");
+            $(".ch-show"+id).hide();
+        }
+    });
+    /*  -------弹框：新增，查看，修改，复制，拆分，删除，----- */
+    /* 新增 数据到表格 */
+    $('.form-newadd .btn-newadd').click(function(){
+        popDialogConfirm.size = BootstrapDialog.SIZE_NORMAL;
+        popDialogConfirm.title = '新增一级区域';
+        popDialogShow.show(popDialogConfirm, '/district/preSave');
+    });
+
+    /*表格中数据操作*/
+
+    // 修改
+    $('.table-modify').click(function(){
+        popDialogConfirm.size = BootstrapDialog.SIZE_NORMAL;
+        var id = $(this).attr("did");
+        popDialogConfirm.title = '修改区域';
+        popDialogShow.show(popDialogConfirm, '/district/edit?id='+id);
+
+    });
+    // 拆分
+    $('.table-split').click(function(){
+        var id = $(this).attr("did");
+        popDialogConfirm.size = BootstrapDialog.SIZE_WIDE;
+        popDialogConfirm.title = '划分区域';
+        popDialogShow.show(popDialogConfirm, '/district/division?id='+id);
+    });
+
+    // 删除
+    $('.table-delete').click(function(){
+        var dname = $(this).attr("dname");
+        var tip ="确定删除区域"+dname +"？";
+        if($(this).attr('pid')==0){
+            tip = "删除后，其下关联的二级区域将一并删除！确定删除区域"+dname +"？";
+        }
+        var id = $(this).closest('tr').attr('bind-id');
+        popDialogDelete.message =tip;
+        popDialogDelete.callback=function(ok){
+            if(ok){
+                $.ajax({
+                    type : 'post',
+                    url : '/district/del',
+                    data : {id : id},
+                    dataType : 'json',
+                    success : function(ret){
+                        if(ret.code!='success'){
+                            tips("提示",ret.result);
+                        }else{
+                            TLOG.component.operateLog(TLOG.operates.del,"区域信息管理","【区域名称】："+dname);
+                            tips("提示","删除成功",true,'/district/list');
+                        }
+                        //window.location.href="/customer/list";
+                    },
+
+                });
+
+            }
+        };
+        popDialogShow.confirm(popDialogDelete);
+    });
+
+</script>
+</#bs4Body>
