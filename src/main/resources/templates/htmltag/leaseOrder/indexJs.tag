@@ -13,6 +13,7 @@
     let _form = $('#_form');
     let _modal = $('#_modal');
     let currentSelectRowIndex;
+    var dia;
 
     /*********************变量定义区 end***************/
 
@@ -34,25 +35,20 @@
         // _modal.modal('show');
         // _modal.find('.modal-title').text('货站新增');
 
-        let dia = bs4pop.dialog({
+       dia = bs4pop.dialog({
             title: '新增摊位出租',
             content: '/leaseOrder/preSave.html',
             isIframe : true,
             closeBtn: true,
+            backdrop : 'static',
             width: '80%',
             height : '95%',
-            btns: [
-                {
-                    label: '确定', className: 'btn-primary', onClick(e, $iframe) {
-                        alert($iframe[0].contentWindow.itemIndex)
-                    }
-                },
-                {
-                    label: '取消', className: 'btn-default', onClick(e, $iframe) {
-                    }
-                }
-            ]
+            btns: []
         });
+    }
+
+    function closeModal() {
+        parent.dia.hide();
     }
 
     /**
@@ -203,13 +199,13 @@
 
     /*****************************************自定义事件区 begin************************************/
     //表单弹框关闭事件
-    _modal.on('hidden.bs.modal', function () {
-        _form[0].reset();
-        //重置表单验证到初始状态
-        $(this).find('input,select,textarea').removeClass('is-invalid is-valid');
-        $(this).find('input,select,textarea').removeAttr('disabled readonly');
-        $(this).find('.invalid-feedback').css('display','none');
-    });
+    // _modal.on('hidden.bs.modal', function () {
+    //     _form[0].reset();
+    //     //重置表单验证到初始状态
+    //     $(this).find('input,select,textarea').removeClass('is-invalid is-valid');
+    //     $(this).find('input,select,textarea').removeAttr('disabled readonly');
+    //     $(this).find('.invalid-feedback').css('display','none');
+    // });
 
     //展开事件
     _grid.on('expand-row.bs.table', function (e,index, row, $detail){

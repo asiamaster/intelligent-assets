@@ -78,11 +78,11 @@
             data: user,
             dataType: "json",
             success: function (data) {
-                if (data.code == "200") {
-
-                } else {
-                    bs4pop.alert(data.result, {type: 'error'});
-                }
+                $('#customerName').val(data[0].name);
+                $('#customerId').val(data[0].id);
+                $('#certificateNumber').val(data[0].certificateNumber);
+                $('#_certificateNumber').val(data[0].certificateNumber);
+                $('#customerCellphone').val(data[0].cellphone);
             },
             error: function (a, b, c) {
                 bs4pop.alert('远程访问失败', {type: 'error'});
@@ -104,13 +104,16 @@
         if (!$('#addForm').valid()) {
             return false;
         }
+        parent.dia.hide();
     });
 
     $('#getCustomer').on('click', function (e) {
         e.stopPropagation();
         let user = reader();
         if(user){
-
+            queryUser({certificateNumber : user.IDCardNo});
+        }else{
+            queryUser();
         }
     })
 
