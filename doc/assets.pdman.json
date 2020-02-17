@@ -40,7 +40,7 @@
             },
             {
               "name": "unit",
-              "type": "Integer",
+              "type": "DefaultString",
               "chnname": "单位",
               "remark": "",
               "pk": false,
@@ -490,6 +490,16 @@
               "name": "number",
               "type": "DefaultString",
               "chnname": "编号",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "is_delete",
+              "type": "tinyint",
+              "chnname": "状态",
               "remark": "",
               "pk": false,
               "notNull": false,

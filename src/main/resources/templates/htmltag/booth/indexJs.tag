@@ -8,17 +8,17 @@
 
 
     //时间范围
-    lay('.laydatetime').each(function() {
+    lay('.laydatetime').each(function () {
         laydate.render({
-            elem : this
-            ,trigger : 'click'
-            ,range: true
+            elem: this
+            , trigger: 'click'
+            , range: true
         });
     });
 
     /*********************变量定义区 begin*************/
-    //行索引计数器
-    //如 let itemIndex = 0;
+        //行索引计数器
+        //如 let itemIndex = 0;
     let _grid = $('#grid');
     let _form = $('#_form');
     let _modal = $('#_modal');
@@ -40,7 +40,9 @@
      * 打开新增窗口
      */
     function openInsertHandler() {
-        _modal.modal('show');
+        $("#_modal").modal();
+
+        $('#_modal .modal-body').load("/booth/add");
         _modal.find('.modal-title').text('摊位新增');
 
     }
@@ -61,7 +63,7 @@
         let formData = $.extend({}, rows[0]);
         formData = bui.util.addKeyStartWith(bui.util.getOriginalData(formData), "_");
         bui.util.loadFormData(formData);
-        $('#_account').prop('disabled',true);
+        $('#_account').prop('disabled', true);
     }
 
     /**
@@ -75,31 +77,31 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-        
+
         //table选择模式是单选时可用
         let selectedRow = rows[0];
         let msg = (enable || 'true' == enable) ? '确定要启用该摊位吗？' : '确定要禁用该摊位吗？';
 
         bs4pop.confirm(msg, undefined, function (sure) {
-            if(sure){
+            if (sure) {
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
                     url: "${contextPath}/booth/doEnable.action",
                     data: {id: selectedRow.id, enable: enable},
-                    processData:true,
+                    processData: true,
                     dataType: "json",
-                    async : true,
-                    success : function(data) {
+                    async: true,
+                    success: function (data) {
                         bui.loading.hide();
-                        if(data.success){
+                        if (data.success) {
                             _grid.bootstrapTable('refresh');
                             _modal.modal('hide');
-                        }else{
+                        } else {
                             bs4pop.alert(data.result, {type: 'error'});
                         }
                     },
-                    error : function() {
+                    error: function () {
                         bui.loading.hide();
                         bs4pop.alert('远程访问失败', {type: 'error'});
                     }
@@ -113,12 +115,13 @@
      *  保存及更新表单数据
      */
     function saveOrUpdateHandler() {
-        if (_form.validate().form() != true) {
+        var form = $("#_form");
+        if (form.validate().form() != true) {
             return false;
         }
 
         bui.loading.show('努力提交中，请稍候。。。');
-        let _formData = bui.util.removeKeyStartWith(_form.serializeObject(), "_");
+        let _formData = bui.util.removeKeyStartWith(form.serializeObject(), "_");
         let _url = null;
         //没有id就新增
         if (_formData.id == null || _formData.id == "") {
@@ -181,30 +184,18 @@
         //重置表单验证到初始状态
         $(this).find('input,select,textarea').removeClass('is-invalid is-valid');
         $(this).find('input,select,textarea').removeAttr('disabled readonly');
-        $(this).find('.invalid-feedback').css('display','none');
+        $(this).find('.invalid-feedback').css('display', 'none');
     });
 
     //行点击事件
     _grid.on('click-row.bs.table', function (e, row, $element, field) {
         var state = row.$_state;
-        if (state == ${@com.dili.demo.glossary.EnabledStateEnum.DISABLED.getCode()}) {
-            //当用户状态为 禁用，可操作 启用
-            $('#btn_enable').attr('disabled', false);
-            $('#btn_disabled').attr('disabled', true);
-        } else if (state == ${@com.dili.demo.glossary.EnabledStateEnum.ENABLED.getCode()}) {
-            //当用户状态为正常时，则只能操作 禁用
-            $('#btn_enable').attr('disabled', true);
-            $('#btn_disabled').attr('disabled', false);
-        } else {
-            //其它情况，按钮不可用
-            $('#btn_enable').attr('disabled', true);
-            $('#btn_disabled').attr('disabled', true);
-        }
+
     });
 
 
-    _grid.on('expand-row.bs.table', function (e,index, row, $detail){
-        var cur_table = $detail.html(template('subTable',{})).find('table');
+    _grid.on('expand-row.bs.table', function (e, index, row, $detail) {
+        var cur_table = $detail.html(template('subTable', {})).find('table');
         $(cur_table).bootstrapTable();
         $(cur_table).bootstrapTable('refreshOptions', {url: '/booth/listPage.action'});
     });

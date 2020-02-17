@@ -1,0 +1,90 @@
+#set($layout = "/layout/empty.vm")
+<form class="form-horizontal col-sm-12 form-onecol" id="modifyForm" role="form"  targetId="$!{obj.id}">
+    <table class="col-sm-12">
+        <tbody><tr class="row">
+            <td class="form-group">
+                <label class="col-sm-2 text-justify">区域级别</label>
+                <div class="col-sm-6">
+                    <input name="id"  value="$!{obj.id}" type="hidden" />
+                    <input name="parentId"  value="$!{obj.parentId}" type="hidden" />
+                    <input type="text" name="level" class="form-control input-sm" value="#if($!{obj.parentId}==0)一级#else二级 #end" disabled="">
+                </div>
+            </td>
+        </tr>
+         <tr class="row">
+            <td class="form-group">
+                <label class="col-sm-2 text-justify" tlog>编号</label>
+                <div class="col-sm-6">
+                    <input type="text" name="number" class="form-control input-sm isInt" value="$!{obj.number}" maxlength="3" tlog>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="row">
+            <td class="form-group">
+                <label class="col-sm-2 text-justify" tlog>区域名称∗</label>
+                <div class="col-sm-6">
+                    <input type="text" name="name" class="form-control input-sm" required="" value="$!{obj.name}" maxlength="20" tlog>
+                </div>
+            </td>
+        </tr>
+        <tr class="row">
+            <td class="form-group">
+                <label class="col-sm-2 text-justify" tlog>部门∗</label>
+                <div class="col-sm-6">
+                    #if($!{obj.parentId}==0)
+                        <select name="departmentId" class="form-control input-sm" required="" tlog>
+                            #foreach($dep in $deps)
+                                <option value="$!dep.name"  #if($obj.departmentId == $!dep.name) selected="selected" #end>$!{dep.value}</option>
+                            #end
+                        </select>
+                    #else
+                    <select  class="form-control input-sm"  disabled="" tlog>
+                        <option >
+                        #foreach($dep in $deps)
+                        #if($obj.departmentId == $!dep.name)$!{dep.value} #end
+                        #end
+                        </option>
+                    </select>
+                    #end
+                </div>
+            </td>
+        </tr>
+        <tr class="row fullline">
+            <td class="form-group">
+                <label class="col-sm-2 pull-left text-justify" tlog>备注</label>
+                <div class="col-sm-6">
+                    <textarea class="form-control" name="remarks" cols="30" rows="3" maxlength="25" tlog>$!{obj.remarks}</textarea>
+                </div>
+            </td>
+        </tr>
+
+        </tbody></table>
+</form>
+#parse("/customer/tip_js.vm")
+<script>
+    // 通过验证修改成功后-反馈信息弹框
+    $("#modifyForm").validate();
+    var popDialogObj = popDialogOk($("#modifyForm"));
+    popDialogObj.button().click( function() {
+        if( $("#modifyForm").validate().form() == true){
+            $.ajax({
+                type : 'post',
+                url : '/district/save',
+                data : $('#modifyForm').serialize(),
+                dataType : 'json',
+                success : function(ret){
+                    if(ret.code!='success'){
+                        tips("提示",ret.result);
+                    }else{
+                        TLOG.component.editNewData($("#modifyForm"));
+                        popDialogObj.closeDialog();
+                        tips("提示","修改成功",true,'/district/list');
+                    }
+                }
+            });
+            //popDialogObj.closeDialog();
+        }
+    })
+    TLOG.component.editOldData($("#modifyForm"),"区域信息管理");
+</script>
