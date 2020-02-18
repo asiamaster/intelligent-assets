@@ -1,7 +1,7 @@
 <#bs4Body>
 
 <div class="container-fluid">
-    <form id="addForm" role="form" novalidate>
+    <form id="addForm" role="form" action="/earnestOrder/insert.action" novalidate>
         <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true" aria-controls="customerInfo">
             客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
         </div>
@@ -70,9 +70,11 @@
 <script>
 
     $('#formSubmit').on('click', function(e) {
-        if (!$('#addForm').valid()) {
-            return false;
-        }
+        // if (!$('#addForm').valid()) {
+        //     return false;
+        // }
+
+        $('#addForm').submit();
     });
 
 

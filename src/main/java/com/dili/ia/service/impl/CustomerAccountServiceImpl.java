@@ -4,6 +4,7 @@ import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.mapper.CustomerAccountMapper;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.dto.DTOUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,5 +16,26 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     public CustomerAccountMapper getActualDao() {
         return (CustomerAccountMapper)getDao();
+    }
+
+    @Override
+    public Boolean checkCustomerAccountExist(Long customerId, Long marketId) {
+        CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
+        customerAccount.setCustomerId(customerId);
+        customerAccount.setMarketId(marketId);
+        CustomerAccount selectOne = getActualDao().selectOne(customerAccount);
+        if (null != selectOne){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public CustomerAccount getCustomerAccountByCustomerId(Long customerId, Long marketId) {
+        CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
+        customerAccount.setCustomerId(customerId);
+        customerAccount.setMarketId(marketId);
+        CustomerAccount selectOne = getActualDao().selectOne(customerAccount);
+       return selectOne;
     }
 }

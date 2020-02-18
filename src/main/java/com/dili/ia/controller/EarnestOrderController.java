@@ -103,7 +103,9 @@ public class EarnestOrderController {
 	})
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput insert(EarnestOrder earnestOrder) {
-        earnestOrderService.insertSelective(earnestOrder);
+//        earnestOrderService.insertSelective(earnestOrder);
+
+        earnestOrderService.addEarnestOrder(earnestOrder);
         return BaseOutput.success("新增成功");
     }
 

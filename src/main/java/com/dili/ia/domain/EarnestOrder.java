@@ -107,9 +107,9 @@ public interface EarnestOrder extends IBaseDomain {
     @Column(name = "`assets_type`")
     @FieldDef(label="资产类型，包含摊位，冷库，公寓等")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getAssetsType();
+    Integer getAssetsType();
 
-    void setAssetsType(Long assetsType);
+    void setAssetsType(Integer assetsType);
 
     @Column(name = "`amount`")
     @FieldDef(label="金额")
