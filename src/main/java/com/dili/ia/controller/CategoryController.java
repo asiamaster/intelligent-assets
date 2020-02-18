@@ -105,9 +105,9 @@ public class CategoryController {
 
         if (input.getParent() != null && input.getParent() != 0) {
             CategoryDTO c = categoryRpc.get(input.getParent()).getData();
-            if (c.getState() != 3) {
+           /* if (c.getState() != 3) {
                 results.add(c);
-            }
+            }*/
         }
         Map<String, Object> map = new HashMap<>();
         List<CategoryDTO> list = categoryRpc.list(input).getData();

@@ -47,16 +47,18 @@
             </div>
             <div class="row row-cols-4" id="leaseInfo">
                 <div class="form-group col">
-                    <label for="" class="">经营范围</label>
-                    <select  name="" class="form-control"></select>
+                    <label for="engageCode">经营范围</label>
+                    <select id="engageCode" name="engageCode" class="form-control"></select>
+                    <#bcomboProvider _id="engageCode" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"lease_term", required:true}'/>
                 </div>
                 <div class="form-group col">
                     <label for="" class="">经营品类</label>
                     <input type="text" class="form-control" name="" />
                 </div>
                 <div class="form-group col">
-                    <label for="" class="">租赁期限</label>
-                    <input type="text" class="form-control" name="" />
+                    <label for="leaseTermCode" class="">租赁期限</label>
+                    <select id="leaseTermCode" name="leaseTermCode" class="form-control"></select>
+                    <#bcomboProvider _id="leaseTermCode" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"engage", required:true}'/>
                 </div>
                 <div class="form-group col">
                     <label for="" class="">租赁天数</label>
