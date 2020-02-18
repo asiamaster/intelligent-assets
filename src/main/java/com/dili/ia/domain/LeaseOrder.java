@@ -97,19 +97,33 @@ public interface LeaseOrder extends IBaseDomain {
 
     void setContractNo(String contractNo);
 
-    @Column(name = "`lease_term`")
+    @Column(name = "`lease_term_code`")
     @FieldDef(label="租赁形式")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Integer getLeaseTerm();
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getLeaseTermCode();
 
-    void setLeaseTerm(Integer leaseTerm);
+    void setLeaseTermCode(String leaseTermCode);
 
-    @Column(name = "`engage`")
-    @FieldDef(label="经营范围")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Integer getEngage();
+    @Column(name = "`lease_term_name`")
+    @FieldDef(label="租赁形式")
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getLeaseTermName();
 
-    void setEngage(Integer engage);
+    void setLeaseTermName(String leaseTermName);
+
+    @Column(name = "`engage_code`")
+    @FieldDef(label="经营范围code")
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getEngageCode();
+
+    void setEngageCode(String engageCode);
+
+    @Column(name = "`engage_name`")
+    @FieldDef(label="经营范围名称")
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getEngageName();
+
+    void setEngageName(String engageName);
 
     @Column(name = "`category_id`")
     @FieldDef(label="品类id")
