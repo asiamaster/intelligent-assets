@@ -49,7 +49,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             customerAccount.setCustomerId(earnestOrder.getCustomerId());
             customerAccount.setCustomerCellphone(earnestOrder.getCustomerCellphone());
             customerAccount.setCustomerCertificateNumber(earnestOrder.getCustomerCertificateNumber());
-            customerAccount.setCustomerName(customerAccount.getCustomerName());
+            customerAccount.setCustomerName(earnestOrder.getCustomerName());
             customerAccount.setEarnestBalance(earnestOrder.getAmount());
             customerAccount.setEarnestAvailableBalance(earnestOrder.getAmount());
             customerAccount.setEarnestFrozenAmount(0L);
