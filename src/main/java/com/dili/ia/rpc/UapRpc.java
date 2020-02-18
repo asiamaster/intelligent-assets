@@ -3,6 +3,7 @@ package com.dili.ia.rpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.retrofitful.annotation.POST;
 import com.dili.ss.retrofitful.annotation.Restful;
+import com.dili.ss.retrofitful.annotation.VOBody;
 import com.dili.ss.retrofitful.annotation.VOField;
 import com.dili.uap.sdk.domain.DataDictionaryValue;
 import com.dili.uap.sdk.domain.SystemConfig;
@@ -15,5 +16,5 @@ public interface UapRpc {
     BaseOutput<SystemConfig> getByCode(@VOField("code") String code);
 
     @POST("/dataDictionaryApi/list.api")
-    BaseOutput<List<DataDictionaryValue>> listDataDictionaryValue(@VOField("ddCode") String ddCode);
+    BaseOutput<List<DataDictionaryValue>> listDataDictionaryValue(@VOBody DataDictionaryValue dataDictionaryValue);
 }

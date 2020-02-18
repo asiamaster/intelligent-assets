@@ -2,6 +2,7 @@ package com.dili.ia.provider;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dili.ia.rpc.UapRpc;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
@@ -34,7 +35,9 @@ public class DataDictionaryValueProvider extends BatchDisplayTextProviderAdaptor
             return Lists.newArrayList();
         }
         String code = JSONObject.parseObject(queryParams.toString()).getString(DD_CODE_KEY);
-        List<DataDictionaryValue> list = uapRpc.listDataDictionaryValue(code).getData();
+        DataDictionaryValue query = DTOUtils.newDTO(DataDictionaryValue.class);
+        query.setDdCode(code);
+        List<DataDictionaryValue> list = uapRpc.listDataDictionaryValue(query).getData();
         if (CollectionUtils.isEmpty(list)) {
             return null;
         }
@@ -56,7 +59,9 @@ public class DataDictionaryValueProvider extends BatchDisplayTextProviderAdaptor
         }
 
         String code = JSONObject.parseObject(queryParams.toString()).getString(DD_CODE_KEY);
-        return uapRpc.listDataDictionaryValue(code).getData();
+        DataDictionaryValue query = DTOUtils.newDTO(DataDictionaryValue.class);
+        query.setDdCode(code);
+        return uapRpc.listDataDictionaryValue(query).getData();
     }
 
     @Override

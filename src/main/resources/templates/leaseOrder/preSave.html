@@ -52,8 +52,8 @@
                     <#bcomboProvider _id="engageCode" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"lease_term", required:true}'/>
                 </div>
                 <div class="form-group col">
-                    <label for="" class="">经营品类</label>
-                    <input type="text" class="form-control" name="" />
+                    <label for="categoryName" class="">经营品类</label>
+                    <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _placeholder="" _validatorMethod="isSelected" _provider="categoryProvider" _option="width:250"/>
                 </div>
                 <div class="form-group col">
                     <label for="leaseTermCode" class="">租赁期限</label>
