@@ -15,12 +15,12 @@ import org.springframework.web.client.RestTemplate;
 import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
+@EnableDiscoveryClient
+@EnableFeignClients
 @MapperScan(basePackages = { "com.dili.ia.mapper", "com.dili.ss.dao"})
 @ComponentScan(basePackages={"com.dili.ss", "com.dili.ia", "com.dili.uap.sdk"})
 @RestfulScan({"com.dili.ia.rpc","com.dili.uap.sdk.rpc"})
-@EnableDiscoveryClient
-@EnableFeignClients
-@DTOScan(value={"com.dili.ss", "com.dili.ia.domain"})
+@DTOScan(value={"com.dili.ss", "com.dili.ia.domain", "com.dili.uap.sdk.domain"})
 public class IAApplication  extends SpringBootServletInitializer {
 
 	@LoadBalanced
@@ -32,5 +32,6 @@ public class IAApplication  extends SpringBootServletInitializer {
 	public static void main(String[] args) {
 		SpringApplication.run(IAApplication.class, args);
 	}
+
 
 }

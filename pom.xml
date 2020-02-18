@@ -16,7 +16,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>13</java.version>
-		<sharp-sword.version>3.6.3-SNAPSHOT</sharp-sword.version>
 		<!--  MyBatis Generator  -->
 		<!--  Java接口和实体类  -->
 		<targetJavaProject>${basedir}/src/main/java</targetJavaProject>
@@ -30,26 +29,8 @@
 		<targetXMLPackage>mapper</targetXMLPackage>
 	</properties>
 
-	<profiles>
-		<profile>
-			<id>dev</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<build.profile.id>dev</build.profile.id>
-			</properties>
-		</profile>
-		<profile>
-			<id>test</id>
-			<properties>
-				<build.profile.id>test</build.profile.id>
-			</properties>
-		</profile>
-	</profiles>
-
 	<build>
-		<finalName>customer</finalName>
+		<finalName>ia</finalName>
 		<!-- 资源文件过滤 -->
 		<resources>
 			<resource>
@@ -106,11 +87,7 @@
 	</build>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.dili</groupId>
-			<artifactId>ss-beetl</artifactId>
-			<version>${sharp-sword.version}</version>
-		</dependency>
+
 		<dependency>
 			<groupId>com.dili</groupId>
 			<artifactId>ss-processor</artifactId>
@@ -166,19 +143,23 @@
 			<artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
 			<version>2.1.1.RELEASE</version>
 		</dependency>
-
+<!--		<dependency>-->
+<!--			<groupId>org.springframework</groupId>-->
+<!--			<artifactId>springloaded</artifactId>-->
+<!--			<version>1.2.8.RELEASE</version>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework/springloaded -->
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-devtools</artifactId>-->
+<!--			<scope>runtime</scope>-->
+<!--			<optional>true</optional>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

@@ -11,18 +11,9 @@ import java.util.List;
 
 @Restful("${uap.contextPath}")
 public interface UapRpc {
-
     @POST("/systemConfigApi/getByCode.api")
-    BaseOutput<SystemConfig> getByCode(@VOField("code") String code) ;
+    BaseOutput<SystemConfig> getByCode(@VOField("code") String code);
 
     @POST("/dataDictionaryApi/list.api")
-    BaseOutput<List<DataDictionaryValue>> listDataDictionaryValue(@VOField("ddCode") String ddCode) ;
-
-//    /**
-//     * 获取优惠券编号
-//     * @return
-//     */
-//    @POST("/bizNumberApi/getCouponCode.api")
-//    BaseOutput<String> getCouponCode();
-
+    BaseOutput<List<DataDictionaryValue>> listDataDictionaryValue(@VOField("ddCode") String ddCode);
 }
