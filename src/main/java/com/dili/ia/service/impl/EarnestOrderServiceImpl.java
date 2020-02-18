@@ -8,6 +8,7 @@ import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.EarnestOrderService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -67,5 +68,20 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             customerAccountService.update(ca);
         }
         return 0;
+    }
+
+    @Override
+    public BaseOutput updateEarnestOrder(Long earnestOrderId) {
+        return null;
+    }
+
+    @Override
+    public BaseOutput submitEarnestOrder(Long earnestOrderId) {
+        return null;
+    }
+
+    @Override
+    public BaseOutput withdrawEarnestOrder(Long earnestOrderId) {
+        return null;
     }
 }
