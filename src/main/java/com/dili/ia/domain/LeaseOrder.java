@@ -90,6 +90,13 @@ public interface LeaseOrder extends IBaseDomain {
 
     void setEndTime(Date endTime);
 
+    @Column(name = "`days`")
+    @FieldDef(label="天数")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Integer getDays();
+
+    void setDays(Integer days);
+
     @Column(name = "`contract_no`")
     @FieldDef(label="合同编号", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)

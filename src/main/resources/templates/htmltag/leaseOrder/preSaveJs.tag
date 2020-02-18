@@ -57,6 +57,27 @@
 
     /******************************驱动执行区 begin***************************/
     $(function () {
+        laydate.render({
+            elem: '#startTime',
+            type: 'date',
+            theme: '#007bff',
+            done: function(value, date){
+                startTimeChangeHandler();
+                $("#saveForm").validate().element($("#startTime"));
+                $("#saveForm").validate().element($("#days"));
+            }
+        });
+        laydate.render({
+            elem: '#endTime',
+            type: 'date',
+            theme: '#007bff',
+            done: function(value, date){
+                endTimeChangeHandler();
+                $("#saveForm").validate().element($("#endTime"));
+                $("#saveForm").validate().element($("#days"));
+            }
+        });
+
         addStallItem();
     });
     /******************************驱动执行区 end****************************/
@@ -99,11 +120,77 @@
         $('#stallTable tbody').append(HTMLDecode(template('stallItem',{index:++itemIndex})))
     }
 
+    /**
+     * 开始日期值改变处理Handler
+     * */
+    function startTimeChangeHandler(){
+        let days = $('#days').val();
+        let startTime = $('#startTime').val();
+        let endTime = $('#endTime').val();
+        if(!checkDate(startTime)){
+            $('#days').val('');
+            return;
+        }
+        if(startTime){
+            //开始结束日期变更优先计算天数
+            if(endTime){
+                $('#days').val(moment(endTime).diff(moment(startTime),'days') + 1);
+                return;
+            }
+
+            if(days){
+                $('#endTime').val(moment(startTime).add(days-1,"days").format("YYYY-MM-DD"));
+                return;
+            }
+        }else{
+            if(endTime && days){
+                $('#startTime').val(moment(endTime).subtract(days-1,"days").format("YYYY-MM-DD"));
+            }
+        }
+    }
+
+    /**
+     * 结束日期值改变处理Handler
+     * */
+    function endTimeChangeHandler(){
+        let days = $('#days').val();
+        let startTime = $('#startTime').val();
+        let endTime = $('#endTime').val();
+        if(!checkDate(endTime)){
+            $('#days').val('');
+            return;
+        }
+        if(endTime){
+            //开始结束日期变更优先计算天数
+            if(startTime){
+                $('#days').val(moment(endTime).diff(moment(startTime),'days') + 1);
+                return;
+            }
+            if(days){
+                $('#startTime').val(moment(endTime).subtract(days-1,"days").format("YYYY-MM-DD"));
+                return;
+            }
+        }else{
+            if(startTime && days){
+                $('#endTime').val(moment(startTime).add(days-1,"days").format("YYYY-MM-DD"));
+            }
+        }
+    }
+
+    function checkDate(dateStr) {
+        var a = /^(\d{4})-(\d{2})-(\d{2})$/
+        if (!a.test(dateStr)) {
+            return false
+        } else {
+            return true;
+        }
+    }
+
     /*****************************************函数区 end**************************************/
 
     /*****************************************自定义事件区 begin************************************/
     $('#formSubmit').on('click', function (e) {
-        if (!$('#addForm').valid()) {
+        if (!$('#saveForm').valid()) {
             return false;
         }
         parent.dia.hide();
@@ -141,5 +228,45 @@
             $(this).closest('tr').remove();
         }
     });
+
+
+    /**
+     * 天数input事件
+     * */
+    $('#days').on('input',function () {
+        let days = $('#days').val();
+        let startTime = $('#startTime').val();
+        let endTime = $('#endTime').val();
+        if(days){
+            //天数变更优先计算结束日期
+            if(startTime){
+                $('#endTime').val(moment(startTime).add(days-1,"days").format("YYYY-MM-DD"));
+                $("#saveForm").validate().element($("#endTime"));
+                return;
+            }
+
+            if(endTime){
+                $('#startTime').val(moment(endTime).subtract(days-1,"days").format("YYYY-MM-DD"));
+                $("#saveForm").validate().element($("#startTime"));
+                return;
+            }
+        }
+    });
+
+
+    /**
+     * 开始日期input事件
+     * */
+    $('#startTime').on('input',function () {
+        startTimeChangeHandler();
+    });
+
+    /**
+     * 结束日期input事件
+     * */
+    $('#endTime').on('input',function () {
+        endTimeChangeHandler();
+    });
+
     /*****************************************自定义事件区 end**************************************/
 </script>

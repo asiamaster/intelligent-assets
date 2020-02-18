@@ -1,7 +1,7 @@
 <#bs4Body>
 
     <div class="container-fluid">
-        <form id="addForm" role="form" novalidate>
+        <form id="saveForm" role="form" novalidate>
             <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                 aria-controls="customerInfo">
                 客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
@@ -61,16 +61,16 @@
                     <#bcomboProvider _id="leaseTermCode" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"engage", required:true}'/>
                 </div>
                 <div class="form-group col">
-                    <label for="" class="">租赁天数</label>
-                    <input type="text" class="form-control" name="" />
+                    <label for="days" class="">租赁天数</label>
+                    <input type="number" class="form-control" id="days" name="days" required/>
                 </div>
                 <div class="form-group col col">
-                    <label for="">开始日期</label>
-                    <input type="text" class="form-control date"  placeholder="">
+                    <label for="startTime">开始日期</label>
+                    <input type="text" id="startTime" name="startTime" class="form-control" value="2020-02-07"  required>
                 </div>
                 <div class="form-group col col">
-                    <label for="">结束日期</label>
-                    <input type="text" class="form-control date"  placeholder="">
+                    <label for="endTime">结束日期</label>
+                    <input type="text" id="endTime" name="endTime" class="form-control"  required>
                 </div>
                 <div class="form-group col">
                     <label for="" class="">合同编号</label>
