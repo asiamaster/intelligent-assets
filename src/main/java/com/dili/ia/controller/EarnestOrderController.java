@@ -89,6 +89,7 @@ public class EarnestOrderController {
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(EarnestOrder earnestOrder) throws Exception {
+
         return earnestOrderService.listEasyuiPageByExample(earnestOrder, true).toString();
     }
 

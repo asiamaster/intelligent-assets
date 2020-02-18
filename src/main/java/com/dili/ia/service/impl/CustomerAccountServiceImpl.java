@@ -6,6 +6,10 @@ import com.dili.ia.service.CustomerAccountService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.dto.DTOUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -20,11 +24,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     @Override
     public Boolean checkCustomerAccountExist(Long customerId, Long marketId) {
-        CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
-        customerAccount.setCustomerId(customerId);
-        customerAccount.setMarketId(marketId);
-        CustomerAccount selectOne = getActualDao().selectOne(customerAccount);
-        if (null != selectOne){
+       CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+        if (null != ca){
             return true;
         }
         return false;
@@ -35,7 +36,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
         customerAccount.setCustomerId(customerId);
         customerAccount.setMarketId(marketId);
-        CustomerAccount selectOne = getActualDao().selectOne(customerAccount);
-       return selectOne;
+        List<CustomerAccount> list = getActualDao().select(customerAccount);
+        if (CollectionUtils.isEmpty(list) || list.size() > 1){
+            //@TODO异常提醒处理
+            return null;
+        }
+       return list.get(0);
     }
 }
