@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 定金的业务单
- * This file was generated on 2020-02-19 17:29:54.
+ * This file was generated on 2020-02-19 17:41:16.
  */
 @Table(name = "`earnest_order`")
 public interface EarnestOrder extends IBaseDomain {
@@ -188,17 +188,17 @@ public interface EarnestOrder extends IBaseDomain {
 
     void setCancelerId(Long cancelerId);
 
+    @Column(name = "`canceler`")
+    @FieldDef(label="canceler", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getCanceler();
+
+    void setCanceler(String canceler);
+
     @Column(name = "`market_id`")
     @FieldDef(label="marketId")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getMarketId();
 
     void setMarketId(Long marketId);
-
-    @Column(name = "`canceler`")
-    @FieldDef(label="canceler")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    byte[] getCanceler();
-
-    void setCanceler(byte[] canceler);
 }
