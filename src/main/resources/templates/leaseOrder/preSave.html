@@ -62,15 +62,15 @@
                 </div>
                 <div class="form-group col">
                     <label for="days" class="">租赁天数</label>
-                    <input type="number" class="form-control" id="days" name="days" required/>
+                    <input type="number" class="form-control" id="days" name="days" oninput="daysChangeHandler()" required/>
                 </div>
                 <div class="form-group col col">
                     <label for="startTime">开始日期</label>
-                    <input type="text" id="startTime" name="startTime" class="form-control" value="2020-02-07"  required>
+                    <input type="text" id="startTime" name="startTime" class="form-control" oninput="startTimeChangeHandler()"  required>
                 </div>
                 <div class="form-group col col">
                     <label for="endTime">结束日期</label>
-                    <input type="text" id="endTime" name="endTime" class="form-control"  required>
+                    <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()"  required>
                 </div>
                 <div class="form-group col">
                     <label for="" class="">合同编号</label>

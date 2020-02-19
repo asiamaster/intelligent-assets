@@ -121,13 +121,38 @@
     }
 
     /**
+     * 天数改变处理Handler
+     * 三者相互联动；三者都有值情况，修改天数，变结束；修改开始或者结束，都变天数
+     * */
+    function daysChangeHandler(){
+        let days = $('#days').val();
+        let startTime = $('#startTime').val();
+        let endTime = $('#endTime').val();
+        if(days){
+            //天数变更优先计算结束日期
+            if(startTime){
+                $('#endTime').val(moment(startTime).add(days-1,"days").format("YYYY-MM-DD"));
+                $("#saveForm").validate().element($("#endTime"));
+                return;
+            }
+
+            if(endTime){
+                $('#startTime').val(moment(endTime).subtract(days-1,"days").format("YYYY-MM-DD"));
+                $("#saveForm").validate().element($("#startTime"));
+                return;
+            }
+        }
+    }
+
+    /**
      * 开始日期值改变处理Handler
+     * 三者相互联动；三者都有值情况，修改天数，变结束；修改开始或者结束，都变天数
      * */
     function startTimeChangeHandler(){
         let days = $('#days').val();
         let startTime = $('#startTime').val();
         let endTime = $('#endTime').val();
-        if(!checkDate(startTime)){
+        if(startTime && !moment(startTime,"YYYY-MM-DD",true).isValid()){
             $('#days').val('');
             return;
         }
@@ -151,12 +176,13 @@
 
     /**
      * 结束日期值改变处理Handler
+     * 三者相互联动；三者都有值情况，修改天数，变结束；修改开始或者结束，都变天数
      * */
     function endTimeChangeHandler(){
         let days = $('#days').val();
         let startTime = $('#startTime').val();
         let endTime = $('#endTime').val();
-        if(!checkDate(endTime)){
+        if(endTime && !moment(endTime,"YYYY-MM-DD",true).isValid()){
             $('#days').val('');
             return;
         }
@@ -174,15 +200,6 @@
             if(startTime && days){
                 $('#endTime').val(moment(startTime).add(days-1,"days").format("YYYY-MM-DD"));
             }
-        }
-    }
-
-    function checkDate(dateStr) {
-        var a = /^(\d{4})-(\d{2})-(\d{2})$/
-        if (!a.test(dateStr)) {
-            return false
-        } else {
-            return true;
         }
     }
 
@@ -227,45 +244,6 @@
         if ($('#stallTable tr').length > 2) {
             $(this).closest('tr').remove();
         }
-    });
-
-
-    /**
-     * 天数input事件
-     * */
-    $('#days').on('input',function () {
-        let days = $('#days').val();
-        let startTime = $('#startTime').val();
-        let endTime = $('#endTime').val();
-        if(days){
-            //天数变更优先计算结束日期
-            if(startTime){
-                $('#endTime').val(moment(startTime).add(days-1,"days").format("YYYY-MM-DD"));
-                $("#saveForm").validate().element($("#endTime"));
-                return;
-            }
-
-            if(endTime){
-                $('#startTime').val(moment(endTime).subtract(days-1,"days").format("YYYY-MM-DD"));
-                $("#saveForm").validate().element($("#startTime"));
-                return;
-            }
-        }
-    });
-
-
-    /**
-     * 开始日期input事件
-     * */
-    $('#startTime').on('input',function () {
-        startTimeChangeHandler();
-    });
-
-    /**
-     * 结束日期input事件
-     * */
-    $('#endTime').on('input',function () {
-        endTimeChangeHandler();
     });
 
     /*****************************************自定义事件区 end**************************************/
