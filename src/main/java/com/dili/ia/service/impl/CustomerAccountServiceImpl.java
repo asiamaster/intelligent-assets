@@ -43,4 +43,64 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
        return list.get(0);
     }
+
+    @Override
+    public void addEarnestFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void subtractEarnestFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void subtractEarnestAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void addEarnestAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void subtractEarnestBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void addEarnestBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void addTransferFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void subtractTransferFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void addTransferAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void subtractTransferAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void addTransferBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
+
+    @Override
+    public void subtractTransferBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
+
+    }
 }
