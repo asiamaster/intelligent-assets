@@ -160,6 +160,7 @@
             //开始结束日期变更优先计算天数
             if(endTime){
                 $('#days').val(moment(endTime).diff(moment(startTime),'days') + 1);
+                $("#saveForm").validate().element($("#days"));
                 return;
             }
 
