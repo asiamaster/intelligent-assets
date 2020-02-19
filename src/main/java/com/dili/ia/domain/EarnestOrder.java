@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 定金的业务单
- * This file was generated on 2020-02-14 10:18:23.
+ * This file was generated on 2020-02-19 17:29:54.
  */
 @Table(name = "`earnest_order`")
 public interface EarnestOrder extends IBaseDomain {
@@ -119,7 +119,7 @@ public interface EarnestOrder extends IBaseDomain {
     void setAmount(Long amount);
 
     @Column(name = "`code`")
-    @FieldDef(label="定金业务单编号", maxLength = 20)
+    @FieldDef(label="定金业务单编号", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
@@ -167,26 +167,26 @@ public interface EarnestOrder extends IBaseDomain {
 
     void setNotes(String notes);
 
+    @Column(name = "`withdraw_operator_id`")
+    @FieldDef(label="withdrawOperatorId")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getWithdrawOperatorId();
+
+    void setWithdrawOperatorId(Long withdrawOperatorId);
+
+    @Column(name = "`withdraw_operator`")
+    @FieldDef(label="withdrawOperator", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getWithdrawOperator();
+
+    void setWithdrawOperator(String withdrawOperator);
+
     @Column(name = "`canceler_id`")
     @FieldDef(label="cancelerId")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCancelerId();
 
     void setCancelerId(Long cancelerId);
-
-    @Column(name = "`canceler`")
-    @FieldDef(label="canceler", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getCanceler();
-
-    void setCanceler(String canceler);
-
-    @Column(name = "`delete_id`")
-    @FieldDef(label="deleteId")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getDeleteId();
-
-    void setDeleteId(Long deleteId);
 
     @Column(name = "`market_id`")
     @FieldDef(label="marketId")
@@ -195,10 +195,10 @@ public interface EarnestOrder extends IBaseDomain {
 
     void setMarketId(Long marketId);
 
-    @Column(name = "`delete_name`")
-    @FieldDef(label="deleteName")
+    @Column(name = "`canceler`")
+    @FieldDef(label="canceler")
     @EditMode(editor = FieldEditor.Text, required = false)
-    byte[] getDeleteName();
+    byte[] getCanceler();
 
-    void setDeleteName(byte[] deleteName);
+    void setCanceler(byte[] canceler);
 }

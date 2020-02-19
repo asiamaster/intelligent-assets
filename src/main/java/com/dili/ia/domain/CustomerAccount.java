@@ -15,7 +15,7 @@ import javax.persistence.Id;
  * 由MyBatis Generator工具自动生成
  * 客户余额管理,包含定金，转抵金额。定金可用来源于定金缴费，别人转移。
 转抵金额只来源于租赁退款
- * This file was generated on 2020-02-14 10:18:23.
+ * This file was generated on 2020-02-19 17:29:54.
  */
 @Table(name = "`customer_account`")
 public interface CustomerAccount extends IBaseDomain {
