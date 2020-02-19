@@ -1,7 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.CategoryDTO;
-import com.dili.ia.rpc.CategoryRpc;
+import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.util.PinyinUtil;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class CategoryController {
 
     @Autowired
-    private CategoryRpc categoryRpc;
+    private AssetsRpc assetsRpc;
 
     /**
      * 跳转到品类列表页
@@ -43,7 +43,7 @@ public class CategoryController {
         // 品类未选择或者选择根品类时，添加页面不显示上级品类字段
         if (pid != null && pid != 0) {
             map.put("pid", pid);
-            CategoryDTO data = categoryRpc.get(pid).getData();
+            CategoryDTO data = assetsRpc.get(pid).getData();
             map.put("parentName", data.getName());
         }
         return "category/add";
@@ -54,7 +54,7 @@ public class CategoryController {
      */
     @RequestMapping("editView")
     public String toEdit(Long id, ModelMap map) {
-        map.put("obj", categoryRpc.get(id).getData());
+        map.put("obj", assetsRpc.get(id).getData());
         return "category/edit";
     }
 
@@ -81,7 +81,7 @@ public class CategoryController {
     @RequestMapping(value = "/getTree")
     @ResponseBody
     public BaseOutput<List<CategoryDTO>> getTree(CategoryDTO input) {
-        return categoryRpc.list(input);
+        return assetsRpc.list(input);
     }
 
     /**
@@ -90,7 +90,7 @@ public class CategoryController {
     @RequestMapping(value = "/save")
     @ResponseBody
     public BaseOutput save(CategoryDTO input) {
-        return categoryRpc.save(input);
+        return assetsRpc.save(input);
     }
 
     /**
@@ -104,13 +104,13 @@ public class CategoryController {
         List<CategoryDTO> results = new ArrayList<>();
 
         if (input.getParent() != null && input.getParent() != 0) {
-            CategoryDTO c = categoryRpc.get(input.getParent()).getData();
-           /* if (c.getState() != 3) {
+            CategoryDTO c = assetsRpc.get(input.getParent()).getData();
+            if (c.getState() != 3) {
                 results.add(c);
-            }*/
+            }
         }
         Map<String, Object> map = new HashMap<>();
-        List<CategoryDTO> list = categoryRpc.list(input).getData();
+        List<CategoryDTO> list = assetsRpc.list(input).getData();
         results.addAll(list);
         map.put("obj", results);
         return new ModelAndView("/category/table", map);
@@ -125,6 +125,6 @@ public class CategoryController {
     @RequestMapping(value = "/batchUpdate")
     @ResponseBody
     public BaseOutput batchUpdate(Long id, Integer value) {
-        return categoryRpc.batchUpdate(id, value);
+        return assetsRpc.batchUpdate(id, value);
     }
 }

@@ -1,221 +1,180 @@
 <#bs4Body>
-<div class="main-container">
-    <div class="cur-position">
-        当前位置：基础信息管理&nbsp;&gt;
-        <a href="javascript:location.reload();">区域管理</a>
-    </div>
-    <!-- form-inline start  -->
-    <div class="form-search">
-        <form class="form-inline" role="form" id="d-form">
-            <div class="form-group">
-                <label class="text-justify">部门：</label>
-                <select name="departmentId" class="form-control input-sm">
-                    <option value="">全部</option>
-                    #foreach($dep in $queryDeps)
-                        <option value="$!dep.name"  #if($query.departmentId == $!dep.name) selected="selected" #end>$!{dep.value}</option>
-                    #end
+<div class="container-fluid">
+    <form class="form">
+        <div class="row">
+            <nav class="col-12" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">基本信息</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="row  row-cols-6">
+            <div class="form-group col">
+                <label for="">部门</label>
+                <select class="form-control" id="">
+                    <option value="11">1</option>
+                    <option value="22">2</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label class="text-justify">级别：</label>
-                <select  name="parentId" class="form-control input-sm">
-                    <option value="-1" #if($query.parentId == -1) selected="selected" #end >一级</option>
-                    <option value="-2" #if($query.parentId ==-2) selected="selected" #end >二级</option>
+            <div class="form-group col">
+                <label for="">级别</label>
+                <select class="form-control" id="">
+                    <option value="11">1</option>
+                    <option value="22">2</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label class="sr-only">区域名称：</label>
-                <input type="text" name="keyword" class="form-control input-sm input-control inputlong" value="$!{query.keyword}"  placeholder="区域名称">
+            <div class="form-group col">
+                <label for="">区域名称</label>
+                <input type="" class="form-control isNaturalNum" id="" placeholder="">
             </div>
-            <div class="form-group">
-                <a  href="#javascript:void();" class="btn-greyweak btn-sm" id="btn-search">查询</a>&nbsp;&nbsp;
+        </div>
+        <div class="">
+            <button type="button" class="btn btn-primary">查询</button>
+            <button type="button" class="btn btn-secondary">清空</button>
+        </div>
+    </form>
+    <hr>
 
+    <div class="">
+    </div>
+    <div class="">
+        <div class="row">
+            <div class="col-12">
+                <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+                    <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i
+                            class="fa fa-plus"></i> 新增
+                    </button>
+                    <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
+                            class="fa fa-pencil-square-o"></i> 更新
+                    </button>
+                    <button id="btn_delete" type="button" class="btn btn-primary" onclick="openDeleteHandler()"><i
+                            class="fa fa-trash-o"></i> 删除
+                    </button>
+                    <button id="btn_split" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
+                            class="fa "></i> 拆分摊位
+                    </button>
+                    <button id="btn_enable" type="button" class="btn btn-primary" onclick="doEnableHandler(true)"><i
+                            class="fa fa-play"></i> 启用
+                    </button>
+                    <button id="btn_disabled" type="button" class="btn btn-primary" onclick="doEnableHandler(false)"><i
+                            class="fa fa-stop"></i> 禁用
+                    </button>
+                    <button id="" type="button" class="btn btn-primary" onclick=""><i class="fa "></i> 可用</button>
+                    <button id="" type="button" class="btn btn-primary" onclick=""><i class="fa "></i> 不可用</button>
+                </div>
+                <table id="grid" data-toggle="table" data-title="区域列表" class="table" data-toolbar="#toolbar"
+                       data-pagination="true" data-page-number="1" data-page-size="10"
+                       data-query-params="queryParams" data-side-pagination="server" data-method="POST"
+                       data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                       data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
+                       data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
+                       data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
+                       data-detail-view="true"
+                >
+                    <thead>
+                    <tr>
+                        <th data-width-unit="%" data-width="1" data-radio="true"></th>
+                        <th data-width-unit="%" data-width="1" data-field="name" data-align="center">
+                            区域名称
+                        </th>
+                        <th data-width-unit="%" data-width="10" data-field="number" data-align="center">
+                            编号
+                        </th>
+                        <th data-width-unit="%" data-width="10" data-field="area" data-align="center">
+                            区域级别
+                        </th>
+                        <th data-width-unit="%" data-width="20" data-field="departmentId" data-align="center">
+                            部门
+                        </th>
+                        <th data-width-unit="%" data-width="10" data-field="notes" data-align="center">
+                            备注
+                        </th>
+                    </tr>
+                    </thead>
+                </table>
             </div>
-        </form>
-        <div class="form-newadd">
-            #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#add").toString()))
-            <button class="btn-main2 btn-newadd btn-sm">新增一级区域</button>
-            #end
         </div>
     </div>
-    <!-- form-inline end  -->
 
 
-    <!-- table-showlist start -->
-    <div class="table-showlist">
-        <table class="table table-bordered table-hover table-condensed">
-            <tbody><tr>
-            
-                <th>区域名称</th>
-                <th>编号</th>
-                <th>区域级别</th>
-                <th>部门</th>
-                <th>备注</th>
-                <th>操作</th>
-            </tr>
-            <tr>
-                #foreach($district in $districts.datas)
-                <tr bind-id="$!district.id">
-                    <td>
-                        #if($!district.children)
-                            <span class="glyphicon glyphicon-plus"></span>&nbsp;
-                        #else
-                            <span class="glyphicon">&nbsp;</span>&nbsp;
-                        #end
-                        $!district.name
-                    </td>
-                    <td>
-                        $!district.number
-                    </td>
-                    <td>
-                        #if($district.parentId == 0) 一级#else 二级 #end
-                    </td>
-                    <td>
-                        #foreach($dep in $deps)
-                                    		#if($district.departmentId == $!dep.id)$!{dep.name} #end
-										#end
-                    </td>
-                    <td>
-                        $!district.remarks
-                    </td>
-
-                    <td>
-
-                        #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#split").toString()))
-                            #if($district.parentId==0)
-                                <a href="javascript:;" class="table-split" did="$!district.id">划分</a>
-                            #end
-                        #end
-                        #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#modify").toString()))
-                            <a href="javascript:;" class="table-modify" did="$!district.id">修改</a>
-                        #end
-                        #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#delete").toString()))
-                            <a href="javascript:;" class="table-delete" pid ="$!district.parentId" dname="$!district.name">删除</a>
-                        #end
-                    </td>
-                </tr>
-                    #if($!district.children)
-                        #foreach($children in $!district.children)
-                        <tr bind-id="$!children.id" style="display: none" class="tr-twolevel ch-show$!district.id">
-                            <td>
-                                <span class="glyphicon">&nbsp;</span>&nbsp;
-                                $!district.name$!children.name
-                            </td>
-                            <td>
-                        $!children.number
-                    </td>
-                            <td>
-                                二级
-                            </td>
-                            <td>
-                                #foreach($dep in $deps)
-                                    		#if($children.departmentId == $!dep.id)$!{dep.name} #end
-										#end
-                            </td>
-                            <td>
-                                $!children.remarks
-                            </td>
-
-                            <td>
-                                #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#modify").toString()))
-                                <a href="javascript:;" class="table-modify" did="$!children.id">修改</a>
-                                #end
-                                #if($!manageScUtils.hasAccess('get',$!homeModule.getTarget("district/list.do#delete").toString()))
-                                <a href="javascript:;" class="table-delete" pid ="$!children.parentId" dname="$!district.name$!children.name">删除</a>
-                                #end
-                            </td>
-                        </tr>
-                        #end
-                    #end
-                #end
-
-            </tr>
-
-            </tbody></table>
-    </div>
-    <!-- table-showlist end -->
-    <!-- 翻页 start  -->
-    #showPage_v2($!districts $!homeModule.getTarget("/district/list").addQueryData("departmentId",$query.departmentId).addQueryData("parentId",$query.parentId).addQueryData("name",$query.name).addQueryData("pageSize",$!{query.pageSize}))
-
-    <!-- 翻页 end  -->
 </div>
-#parse("/customer/tip_js.vm")
-<script>
-    $('#btn-search').click(function(){
-        $('#d-form').submit();
-    });
-    $("input[name='keyword']").blur(function(){
-        $(this).val($(this).val().trim());
-    });
-    $('.glyphicon').click(function(){
-        var self = $(this);
-        var id = self.closest('tr').attr('bind-id');
-        if(self.hasClass("glyphicon-plus")){
-            self.removeClass("glyphicon-plus").addClass("glyphicon-minus");
-            $(".ch-show"+id).show();
-        }else{
-            self.removeClass("glyphicon-minus").addClass("glyphicon-plus");
-            $(".ch-show"+id).hide();
-        }
-    });
-    /*  -------弹框：新增，查看，修改，复制，拆分，删除，----- */
-    /* 新增 数据到表格 */
-    $('.form-newadd .btn-newadd').click(function(){
-        popDialogConfirm.size = BootstrapDialog.SIZE_NORMAL;
-        popDialogConfirm.title = '新增一级区域';
-        popDialogShow.show(popDialogConfirm, '/district/preSave');
-    });
 
-    /*表格中数据操作*/
-
-    // 修改
-    $('.table-modify').click(function(){
-        popDialogConfirm.size = BootstrapDialog.SIZE_NORMAL;
-        var id = $(this).attr("did");
-        popDialogConfirm.title = '修改区域';
-        popDialogShow.show(popDialogConfirm, '/district/edit?id='+id);
-
-    });
-    // 拆分
-    $('.table-split').click(function(){
-        var id = $(this).attr("did");
-        popDialogConfirm.size = BootstrapDialog.SIZE_WIDE;
-        popDialogConfirm.title = '划分区域';
-        popDialogShow.show(popDialogConfirm, '/district/division?id='+id);
-    });
-
-    // 删除
-    $('.table-delete').click(function(){
-        var dname = $(this).attr("dname");
-        var tip ="确定删除区域"+dname +"？";
-        if($(this).attr('pid')==0){
-            tip = "删除后，其下关联的二级区域将一并删除！确定删除区域"+dname +"？";
-        }
-        var id = $(this).closest('tr').attr('bind-id');
-        popDialogDelete.message =tip;
-        popDialogDelete.callback=function(ok){
-            if(ok){
-                $.ajax({
-                    type : 'post',
-                    url : '/district/del',
-                    data : {id : id},
-                    dataType : 'json',
-                    success : function(ret){
-                        if(ret.code!='success'){
-                            tips("提示",ret.result);
-                        }else{
-                            TLOG.component.operateLog(TLOG.operates.del,"区域信息管理","【区域名称】："+dname);
-                            tips("提示","删除成功",true,'/district/list');
-                        }
-                        //window.location.href="/customer/list";
-                    },
-
-                });
-
-            }
-        };
-        popDialogShow.confirm(popDialogDelete);
-    });
-
-</script>
 </#bs4Body>
+
+<div class="modal fade" id="_modal" data-backdrop="static" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!--modal-lg modal-sm(默认) 通过设置mw大小调整宽度（如mw-100） modal-dialog-centered垂直居中-->
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!-- 标题 -->
+                <h5 class="modal-title" id="exampleModalLabel">客户新增</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="subTable" type="text/html">
+    <table data-toggle="table" data-title="摊位列表" class="table" data-pagination="false" data-page-number="1"
+           data-page-size="10"
+           data-query-params="queryParams" data-method="POST" data-content-type="application/x-www-form-urlencoded"
+           data-single-select="true"
+           data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
+           data-sort-order="desc" data-icons="bui.variable.icons">
+        <thead>
+        <tr>
+            <th data-width-unit="%" data-width="2" data-checkbox="true"></th>
+            <th data-width-unit="%" data-width="10" data-field="" data-align="center"
+                data-provider="">
+                摊位编号
+            </th>
+            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
+                数量
+            </th>
+            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
+                单位
+            </th>
+            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
+                区域
+            </th>
+            <th data-width-unit="%" data-width="20" data-field="" data-align="center">
+                部门
+            </th>
+            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
+                创建时间
+            </th>
+            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
+                状态
+            </th>
+        </tr>
+        </thead>
+    </table>
+</script>
+<script>
+    let _grid = $('#grid');
+
+    $(function () {
+        $(window).resize(function () {
+            _grid.bootstrapTable('resetView')
+        });
+        queryDataHandler();
+    });
+
+    /**
+     * 查询处理
+     */
+    function queryDataHandler() {
+        _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action'});
+    }
+
+    function openInsertHandler() {
+        $("#_modal").modal();
+        $('#_modal .modal-body').load("/district/add.html");
+        $("#_modal").find('.modal-title').text('区域新增');
+    }
+</script>

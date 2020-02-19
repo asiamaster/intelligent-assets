@@ -10,7 +10,7 @@ package com.dili.ia.provider;
  */
 
 import com.dili.assets.sdk.dto.CategoryDTO;
-import com.dili.ia.rpc.CategoryRpc;
+import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
@@ -30,7 +30,7 @@ import java.util.Map;
 public class CategoryProvider implements ValueProvider {
 
     @Autowired
-    private CategoryRpc categoryRpc;
+    private AssetsRpc assetsRpc;
 
     @Override
     public List<ValuePair<?>> getLookupList(Object val, Map metaMap, FieldMeta fieldMeta) {

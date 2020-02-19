@@ -42,7 +42,7 @@
     function openInsertHandler() {
         $("#_modal").modal();
 
-        $('#_modal .modal-body').load("/booth/add");
+        $('#_modal .modal-body').load("/booth/add.html");
         _modal.find('.modal-title').text('摊位新增');
 
     }
@@ -125,7 +125,7 @@
         let _url = null;
         //没有id就新增
         if (_formData.id == null || _formData.id == "") {
-            _url = "${contextPath}/booth/insert.action";
+            _url = "${contextPath}/booth/insert";
         } else {//有id就修改
             _url = "${contextPath}/booth/update.action";
         }
