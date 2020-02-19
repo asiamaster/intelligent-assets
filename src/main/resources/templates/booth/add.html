@@ -30,10 +30,8 @@
         </div>
         <div class="form-group col">
             <label for="">单位</label>
-            <select class="form-control" id="unit" name="unit">
-                <option value="11">1</option>
-                <option value="22">2</option>
-            </select>
+            <select class="form-control" id="unit" name="unit"></select>
+            <#bcomboProvider _id="unit" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"unit", required:true}'/>
             <div class="valid-feedback">error tips</div>
         </div>
         <div class="form-group col">
