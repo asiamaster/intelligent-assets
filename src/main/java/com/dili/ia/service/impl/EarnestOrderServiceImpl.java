@@ -2,12 +2,14 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ia.domain.PaymentBill;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.service.CustomerAccountService;
+import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
 import com.dili.ia.service.PaymentBillService;
 import com.dili.ss.base.BaseServiceImpl;
@@ -18,6 +20,7 @@ import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -37,6 +40,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     CustomerAccountService customerAccountService;
     @Autowired
     PaymentBillService paymentBillService;
+    @Autowired
+    EarnestOrderDetailService earnestOrderDetailService;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -73,8 +78,32 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     @Override
-    public BaseOutput updateEarnestOrder(Long earnestOrderId) {
+    public BaseOutput updateEarnestOrder(EarnestOrder earnestOrder) {
+        this.getActualDao().updateByPrimaryKey(earnestOrder);
+        this.deleteEarnestOrderDetailByEarnestOrderId(earnestOrder.getId());
+        //@TODO根据摊位ID插入到定金详情里面
+//        earnestOrderDetailService.insert(bulidEarnestOrderDetail());
         return null;
+    }
+
+    private EarnestOrderDetail bulidEarnestOrderDetail(Long earnestOrderId, Long assetsId, String assetsName){
+        EarnestOrderDetail eod = DTOUtils.newDTO(EarnestOrderDetail.class);
+        eod.setEarnestOrderId(earnestOrderId);
+        eod.setAssetsId(assetsId);
+        eod.setAssetsName(assetsName);
+        return eod;
+    }
+
+    private void deleteEarnestOrderDetailByEarnestOrderId(Long earnestOrderId){
+        EarnestOrderDetail eod = DTOUtils.newDTO(EarnestOrderDetail.class);
+        eod.setEarnestOrderId(earnestOrderId);
+        List<EarnestOrderDetail> eodlist = earnestOrderDetailService.list(eod);
+        if (CollectionUtils.isEmpty(eodlist) && eodlist.size() > 0){
+            for (EarnestOrderDetail ed : eodlist){
+                earnestOrderDetailService.delete(ed.getId());
+            }
+        }
+        return;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -135,9 +164,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         ea.setState(EarnestOrderStateEnum.CREATED.getCode());
-//        ea.setCancelerId(userTicket.getId());
-//        ea.setCanceler(userTicket.getRealName());
-//        ea.setSubDate(new Date());
+        ea.setWithdrawOperatorId(userTicket.getId());
+        ea.setWithdrawOperator(userTicket.getRealName());
         this.getActualDao().updateByPrimaryKey(ea);
 
         PaymentBill pb = this.findPaymentBill(userTicket, ea.getId(), ea.getCode());
