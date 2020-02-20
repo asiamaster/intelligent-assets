@@ -34,5 +34,19 @@ public interface EarnestOrderService extends BaseService<EarnestOrder, Long> {
      * */
     BaseOutput withdrawEarnestOrder(Long earnestOrderId);
 
+    /**
+     * 定金单 --缴费成功回调
+     * @param earnestOrderId 定金单ID
+     * @return BaseOutput
+     * */
+    BaseOutput paySuccessEarnestOrder(Long earnestOrderId);
+
+    /**
+     * 定金单 --退款成功回调
+     * @param earnestOrderId 定金单ID
+     * @return BaseOutput
+     * */
+    BaseOutput refundSuccessEarnestOrder(Long earnestOrderId);
+
 
 }

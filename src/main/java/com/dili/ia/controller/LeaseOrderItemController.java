@@ -105,7 +105,7 @@ public class LeaseOrderItemController {
      * @return
      */
     @RequestMapping(value="/list.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput list(@RequestBody LeaseOrderItemListDto leaseOrderItem) {
+    public @ResponseBody BaseOutput list(LeaseOrderItemListDto leaseOrderItem) {
         return BaseOutput.success().setData(leaseOrderItemService.listByExample(leaseOrderItem));
     }
 }

@@ -26,10 +26,10 @@
                 摊位信息
             </div>
             <div id="boothInfo1">
-                <table class="table table-bordered table-hover table-striped" id="stallTable">
+                <table class="table table-bordered table-hover table-striped" id="boothTable">
                     <thead>
                     <tr>
-                        <th class="text-center align-middle" style="width: 5%"><a id="addStall" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
+                        <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
                         <th style="width: 25%;font-weight:normal; ">摊位编号</th>
                         <th style="width: 25%;font-weight:normal; ">租金</th>
                         <th style="width: 22%;font-weight:normal; ">物业管理费</th>
@@ -112,11 +112,11 @@
                 </div>
                 <div class="form-group col">
                     <label for="earnestDeduction">定金</label>
-                    <input type="text" class="form-control" id="earnestDeduction" name="earnestDeduction" value="2.23"/>
+                    <input type="text" class="form-control" id="earnestDeduction" name="earnestDeduction" value="" placeholder="余额2000.00"/>
                 </div>
                 <div class="form-group col">
                     <label for="transferDeduction">转抵扣</label>
-                    <input type="text" class="form-control" id="transferDeduction" name="transferDeduction"  value="3.21"/>
+                    <input type="text" class="form-control" id="transferDeduction" name="transferDeduction"  value="" placeholder="余额2000.00"/>
                 </div>
             </div>
             <div class="row row-cols-4 collapse show" id="otherInfo">
@@ -140,11 +140,11 @@
 
 </#bs4Body>
 <#leaseOrder_preSaveJs />
-<script  id="stallItem"  type="text/html">
+<script  id="boothItem"  type="text/html">
     <tr data-index="{{index}}">
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _escape="true" _hiddenDomainId="stallId_{{index}}" _hiddenDomainName="stallId" _displayDomainId="stallName_{{index}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected" _option="width:'350',paramName:'name',serviceUrl:'/stall/list.action',selectFn:stallSelectHandler"/>
+            <#bautoCompleteProvider _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId" _displayDomainId="boothName_{{index}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected" _option="width:'350',paramName:'name',serviceUrl:'/booth/list.action',selectFn:boothSelectHandler"/>
         </td>
         <td style="padding: .25rem!important;"><input type="text" id="rentAmount_{{index}}" name="rentAmount_{{index}}" value="{{rentAmount}}" class="form-control"></td>
         <td style="padding: .25rem!important;"><input type="text" id="manageAmount_{{index}}" name="manageAmount_{{index}}" value="{{manageAmount}}" class="form-control"></td>

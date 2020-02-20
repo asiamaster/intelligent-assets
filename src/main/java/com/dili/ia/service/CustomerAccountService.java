@@ -29,7 +29,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param marketId 市场ID
      * @return CustomerAccount 客户账户信息
      * */
-    void addEarnestFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
+//    void addEarnestFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
 
     /**
      * 客户账户 -- 解冻-【冻结定金余额】扣减
@@ -37,36 +37,40 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param marketId 市场ID
      * @return CustomerAccount 客户账户信息
      * */
-    void subtractEarnestFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
+//    void subtractEarnestFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
 
     /**
-     * 客户账户 -- 【定金可用余额】扣减
-     * @param customerAccount 客户
+     * 客户账户 -- 【定金可用余额】 和 【定金余额】扣减
+     * @param customerId 客户ID
      * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
+     * @param availableAmount 【定金可用余额】扣减金额
+     * @param balanceAmount 【定金余额】 扣减金额
+     * @return
      * */
-    void subtractEarnestAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount);
+    void subtractEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount);
     /**
-     * 客户账户 -- 【定金可用余额】增加
-     * @param customerAccount 客户
+     * 客户账户 -- 【定金可用余额】 和 【定金余额】增加
+     * @param customerId 客户ID
      * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
+     * @param availableAmount 【定金可用余额】增加金额
+     * @param balanceAmount 【定金余额】 增加金额
+     * @return
      * */
-    void addEarnestAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount);
+    void addEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount);
     /**
      * 客户账户 -- 【定金余额】扣减
      * @param customerAccount 客户
      * @param marketId 市场ID
      * @return CustomerAccount 客户账户信息
      * */
-    void subtractEarnestBalance(CustomerAccount customerAccount, Long marketId, Long amount);
+//    void subtractEarnestBalance(CustomerAccount customerAccount, Long marketId, Long amount);
     /**
      * 客户账户 -- 【定金余额】增加
      * @param customerAccount 客户
      * @param marketId 市场ID
      * @return CustomerAccount 客户账户信息
      * */
-    void addEarnestBalance(CustomerAccount customerAccount, Long marketId, Long amount);
+//    void addEarnestBalance(CustomerAccount customerAccount, Long marketId, Long amount);
 
     /**
      * 客户账户 -- 冻结--【冻结转抵余额】增加
@@ -74,7 +78,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param marketId 市场ID
      * @return CustomerAccount 客户账户信息
      * */
-    void addTransferFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
+//    void addTransferFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
 
     /**
      * 客户账户 -- 解冻-【冻结转抵余额】扣减
@@ -82,7 +86,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param marketId 市场ID
      * @return CustomerAccount 客户账户信息
      * */
-    void subtractTransferFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
+//    void subtractTransferFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
 
     /**
      * 客户账户 -- 【转抵可用余额】扣减
@@ -90,26 +94,26 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param marketId 市场ID
      * @return CustomerAccount 客户账户信息
      * */
-    void addTransferAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount);
+//    void addTransferAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount);
     /**
      * 客户账户 -- 【转抵可用余额】增加
      * @param customerAccount 客户
      * @param marketId 市场ID
      * @return CustomerAccount 客户账户信息
      * */
-    void subtractTransferAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount);
+//    void subtractTransferAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount);
     /**
      * 客户账户 -- 【转抵余额】扣减
      * @param customerAccount 客户
      * @param marketId 市场ID
      * @return CustomerAccount 客户账户信息
      * */
-    void addTransferBalance(CustomerAccount customerAccount, Long marketId, Long amount);
+//    void addTransferBalance(CustomerAccount customerAccount, Long marketId, Long amount);
     /**
      * 客户账户 -- 【转抵余额】增加
      * @param customerAccount 客户
      * @param marketId 市场ID
      * @return CustomerAccount 客户账户信息
      * */
-    void subtractTransferBalance(CustomerAccount customerAccount, Long marketId, Long amount);
+//    void subtractTransferBalance(CustomerAccount customerAccount, Long marketId, Long amount);
 }

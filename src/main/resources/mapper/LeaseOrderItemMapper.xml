@@ -10,8 +10,8 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="lease_order_id" jdbcType="BIGINT" property="leaseOrderId" />
-    <result column="stall_id" jdbcType="BIGINT" property="stallId" />
-    <result column="stall_name" jdbcType="VARCHAR" property="stallName" />
+    <result column="booth_id" jdbcType="BIGINT" property="boothId" />
+    <result column="booth_name" jdbcType="VARCHAR" property="boothName" />
     <result column="number" jdbcType="BIGINT" property="number" />
     <result column="unit_code" jdbcType="VARCHAR" property="unitCode" />
     <result column="unit_name" jdbcType="VARCHAR" property="unitName" />
@@ -37,7 +37,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, code, create_time, modify_time, lease_order_id, stall_id, stall_name, number, 
+    id, code, create_time, modify_time, lease_order_id, booth_id, booth_name, number,
     unit_code, unit_name, stop_time, stop_operator_id, stop_operator_name, stop_reason, 
     state, district_id, district_name, total_amount, deposit_amount_flag, deposit_amount_source_code, 
     deposit_amount, manage_amount, rent_amount, refund_amount, deposit_refund_amount, 
@@ -70,11 +70,11 @@
       <if test="leaseOrderId != null">
         lease_order_id = #{leaseOrderId,jdbcType=BIGINT},
       </if>
-      <if test="stallId != null">
-        stall_id = #{stallId,jdbcType=BIGINT},
+      <if test="boothId != null">
+        booth_id = #{boothId,jdbcType=BIGINT},
       </if>
-      <if test="stallName != null">
-        stall_name = #{stallName,jdbcType=VARCHAR},
+      <if test="boothName != null">
+        booth_name = #{boothName,jdbcType=VARCHAR},
       </if>
       <if test="number != null">
         number = #{number,jdbcType=BIGINT},

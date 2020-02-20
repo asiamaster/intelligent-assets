@@ -91,56 +91,12 @@ public class LeaseOrderController {
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(LeaseOrderListDto leaseOrder) throws Exception {
-        if (StringUtils.isNotBlank(leaseOrder.getStallName())) {
+        if (StringUtils.isNotBlank(leaseOrder.getBoothName())) {
             LeaseOrderItem leaseOrderItemCondition = DTOUtils.newDTO(LeaseOrderItem.class);
-            leaseOrderItemCondition.setStallName(leaseOrder.getStallName());
+            leaseOrderItemCondition.setBoothName(leaseOrder.getBoothName());
             leaseOrder.setIds(leaseOrderItemService.list(leaseOrderItemCondition).stream().map(LeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
         }
         return leaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
     }
 
-    /**
-     * 新增LeaseOrder
-     * @param leaseOrder
-     * @return BaseOutput
-     */
-    @ApiOperation("新增LeaseOrder")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="LeaseOrder", paramType="form", value = "LeaseOrder的form信息", required = true, dataType = "string")
-	})
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(LeaseOrder leaseOrder) {
-        leaseOrderService.insertSelective(leaseOrder);
-        return BaseOutput.success("新增成功");
-    }
-
-    /**
-     * 修改LeaseOrder
-     * @param leaseOrder
-     * @return BaseOutput
-     */
-    @ApiOperation("修改LeaseOrder")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="LeaseOrder", paramType="form", value = "LeaseOrder的form信息", required = true, dataType = "string")
-	})
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(LeaseOrder leaseOrder) {
-        leaseOrderService.updateSelective(leaseOrder);
-        return BaseOutput.success("修改成功");
-    }
-
-    /**
-     * 删除LeaseOrder
-     * @param id
-     * @return BaseOutput
-     */
-    @ApiOperation("删除LeaseOrder")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="id", paramType="form", value = "LeaseOrder的主键", required = true, dataType = "long")
-	})
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        leaseOrderService.delete(id);
-        return BaseOutput.success("删除成功");
-    }
 }
