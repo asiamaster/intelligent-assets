@@ -1,87 +1,97 @@
 <#bs4Body>
 
-<div class="container-fluid">
-    <form id="addForm" role="form" action="/earnestOrder/insert.action" novalidate>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true" aria-controls="customerInfo">
-            客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
-        </div>
-        <div class="row row-cols-3" id="customerInfo">
-            <div class="form-group col">
-                <label for="" class="">客户名称<i class="red">*</i></label>
-                <input type="text" class="form-control" name="customerName" required/>
+    <div class="container-fluid">
+        <form id="saveForm" role="form" novalidate>
+            <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
+                aria-controls="customerInfo">
+                客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
             </div>
-            <div class="form-group col">
-                <label for="" class="">证件号码<i class="red">*</i></label>
-                <input type="text" class="form-control" name="customerCertificateNumber"/>
+            <div class="row row-cols-4" id="customerInfo">
+                <div class="form-group col">
+                    <label for="customerName">客户名称<i class="red">*</i></label>
+                    <#bautoCompleteProvider _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _placeholder="" _validatorMethod="isSelected" _optionVariable="customerNameAutoCompleteOption"/>
+                </div>
+                <div class="form-group col">
+                    <label for="_certificateNumber">证件号码<i class="red">*</i></label>
+                    <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" _placeholder="" _validatorMethod="isSelected" _optionVariable="certificateNumberAutoCompleteOption"/>
+                </div>
+                <div class="form-group col">
+                    <label for="">联系电话<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" required />
+                </div>
             </div>
-            <div class="form-group col">
-                <label for="" class="">联系电话<i class="red">*</i></label>
-                <input type="text" class="form-control" name="customerCellphone"/>
+            <div class="breadcrumb" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true"
+                aria-controls="boothInfo">
+                对应摊位
             </div>
-            <div class="form-group col">
-                <label for="" class="">对应摊位</label>
-                <select id="" name="assetsId" class="form-control"></select>
+            <div id="boothInfo">
+                <table class="table table-bordered table-hover table-striped" id="stallTable">
+                    <thead>
+                    <tr>
+                        <th class="text-center align-middle" style="width: 5%"><a id="addStall" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
+                        <th style="width: 25%;font-weight:normal; ">摊位编号</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
-        </div>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#otherInfo"
-             aria-controls="otherInfo">
-            补充信息
-        </div>
-        <div class="row row-cols-3 collapse show" id="otherInfo">
-            <div class="form-group col col">
-                <label for="">开始日期</label>
-                <input type="text" name="startTime" class="form-control laydatetime" id="startTime" placeholder="">
+            <div class="breadcrumb" data-toggle="collapse" data-target="#otherInfo" aria-controls="otherInfo">
+                补充信息
             </div>
-            <div class="form-group col col">
-                <label for="">结束日期</label>
-                <input type="text" name="endTime" class="form-control laydatetime" id="endTime" placeholder="">
+            <div class="row row-cols-3 collapse show" id="otherInfo">
+                <div class="form-group col col">
+                    <label for="startTime">开始日期</label>
+                    <input type="text" id="startTime" name="startTime" class="form-control" oninput="startTimeChangeHandler()"  required>
+                </div>
+                <div class="form-group col col">
+                    <label for="endTime">结束日期</label>
+                    <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()"  required>
+                </div>
+                <div class="form-group col">
+                    <label for="" class="">业务所属部门</label>
+                    <select id="" name="departmentId" class="form-control"></select>
+                    <#bcomboProvider _id="" _provider="" _value="" />
+                </div>
             </div>
-            <div class="form-group col">
-                <label for="" class="">业务所属部门</label>
-                <select id="" name="departmentId" class="form-control"></select>
-                <#bcomboProvider _id="" _provider="" _value=""/>
+            <div class="breadcrumb" data-toggle="collapse" data-target="#moneyInfo" aria-controls="moneyInfo">
+                金额信息
             </div>
-        </div>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#moneyInfo"
-             aria-controls="moneyInfo">
-            金额信息
-        </div>
-        <div class="row  row-cols-3 collapse show" id="moneyInfo">
-            <div class="form-group col">
-                <label for="" class="">合计金额</label>
-                <input type="text" class="form-control" name="amount"/>
+            <div class="row  row-cols-3 collapse show" id="moneyInfo">
+                <div class="form-group col">
+                    <label for="" class="">合计金额<i class="red">*</i></label>
+                    <input type="text" class="form-control" name="amount" range="09999999.99" />
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-8">
-                <label for="">备注</label>
-                <textarea class="form-control" name="notes" id="" rows="1"  maxlength="50"></textarea>
+            <div class="row">
+                <div class="form-group col-8">
+                    <label for="">备注</label>
+                    <textarea class="form-control" name="notes" rows="1" maxlength="100"></textarea>
+                </div>
             </div>
-        </div>
-        <div class="text-right">
-            <button type="button" class="btn btn-secondary p-l-2 p-r-2" id="cancel">取消</button>
-            <button type="button" class="btn btn-primary p-l-2 p-r-2" id="formSubmit">保存</button>
-        </div>
-    </form>
-</div>
+            <div class="text-right">
+                <button type="button" class="btn btn-secondary p-l-2 p-r-2" id="cancel">取消</button>
+                <button type="button" class="btn btn-primary p-l-2 p-r-2" id="formSubmit">保存</button>
+            </div>
+        </form>
+    </div>
 
 </#bs4Body>
 
+<#earnestOrder_preSaveJs />
+
+<script  id="stallItem"  type="text/html">
+    <tr data-index="{{index}}">
+        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
+        <td style="padding: .25rem!important;">
+            <#bautoCompleteProvider _escape="true" _required="false" _hiddenDomainId="stallId_{{index}}"
+            _hiddenDomainName="stallId"
+            _displayDomainId="stallName_{{index}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected" _option="width:'350',paramName:'name',serviceUrl:'/stall/list.action'"/>
+        </td>
+    </tr>
+</script>
 <script>
 
-    $('#formSubmit').on('click', function(e) {
-        // if (!$('#addForm').valid()) {
-        //     return false;
-        // }
 
-        $('#addForm').submit();
-    });
-
-
-    $('#getCustomer').on('click', function(e){
-        alert('ss');
-        e.stopPropagation();
-    })
 
 </script>
-
