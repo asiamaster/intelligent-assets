@@ -94,4 +94,60 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+
+
+  <update id="updateEarnestAccountByVersion" parameterType="com.dili.ia.domain.CustomerAccount">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update customer_account
+    <set>
+      <if test="earnestBalance != null">
+        earnest_balance = #{earnestBalance,jdbcType=BIGINT},
+      </if>
+      <if test="earnestAvailableBalance != null">
+        earnest_available_balance = #{earnestAvailableBalance,jdbcType=BIGINT},
+      </if>
+      <if test="earnestFrozenAmount != null">
+        earnest_frozen_amount = #{earnestFrozenAmount,jdbcType=BIGINT},
+      </if>
+        earnest_version = #{earnestVersion,jdbcType=BIGINT} + 1,
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+    and market_id = #{marketId,jdbcType=BIGINT}
+    and earnest_version = #{earnestVersion,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateByVersion" parameterType="com.dili.ia.domain.CustomerAccount">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update customer_account
+    <set>
+      <if test="earnestBalance != null">
+        earnest_balance = #{earnestBalance,jdbcType=BIGINT},
+      </if>
+      <if test="transferBalance != null">
+        transfer_balance = #{transferBalance,jdbcType=BIGINT},
+      </if>
+      <if test="earnestAvailableBalance != null">
+        earnest_available_balance = #{earnestAvailableBalance,jdbcType=BIGINT},
+      </if>
+      <if test="transferAvailableBalance != null">
+        transfer_available_balance = #{transferAvailableBalance,jdbcType=BIGINT},
+      </if>
+      <if test="earnestFrozenAmount != null">
+        earnest_frozen_amount = #{earnestFrozenAmount,jdbcType=BIGINT},
+      </if>
+      <if test="transferFrozenAmount != null">
+        transfer_frozen_amount = #{transferFrozenAmount,jdbcType=BIGINT},
+      </if>
+      transfer_version = #{transferVersion,jdbcType=BIGINT} + 1,
+      earnest_version = #{earnestVersion,jdbcType=BIGINT} + 1,
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+    and market_id = #{marketId,jdbcType=BIGINT}
+    and earnest_version = #{earnestVersion,jdbcType=BIGINT}
+  </update>
 </mapper>

@@ -1,17 +1,11 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.CustomerAccount;
-import com.dili.ia.domain.EarnestOrder;
-import com.dili.ia.domain.EarnestOrderDetail;
-import com.dili.ia.domain.PaymentBill;
+import com.dili.ia.domain.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.mapper.EarnestOrderMapper;
-import com.dili.ia.service.CustomerAccountService;
-import com.dili.ia.service.EarnestOrderDetailService;
-import com.dili.ia.service.EarnestOrderService;
-import com.dili.ia.service.PaymentBillService;
+import com.dili.ia.service.*;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -42,6 +36,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     PaymentBillService paymentBillService;
     @Autowired
     EarnestOrderDetailService earnestOrderDetailService;
+    @Autowired
+    TransactionDetailsService transactionDetailsService;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -173,5 +169,52 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
         //@TODO 更改提交到结算中心的数据
         return BaseOutput.success();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public BaseOutput paySuccessEarnestOrder(Long earnestOrderId) {
+        //修改订单状态
+        EarnestOrder ea = this.getActualDao().selectByPrimaryKey(earnestOrderId);
+        ea.setState(EarnestOrderStateEnum.PAID.getCode());
+        this.getActualDao().updateByPrimaryKey(ea);
+        //@TODO缴费单数据更新，结算编号，缴费时间等
+        //更新客户账户定金余额和可用余额
+        customerAccountService.addEarnestAvailableAndBalance(ea.getCustomerId(), ea.getMarketId(), ea.getAmount(), ea.getAmount());
+        //插入客户账户定金资金动账流水
+        transactionDetailsService.insert(buildTransactionDetails(ea));
+        return BaseOutput.success();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public BaseOutput refundSuccessEarnestOrder(Long earnestOrderId) {
+        //@TODO退款单数据更新，结算编号，缴费时间等
+        //更新客户账户定金余额和可用余额
+//        customerAccountService.addEarnestAvailableAndBalance(ea.getCustomerId(), ea.getMarketId(), ea.getAmount(), ea.getAmount());
+        //插入客户账户定金资金动账流水
+//        transactionDetailsService.insert(buildTransactionDetails(ea));
+        return BaseOutput.success();
+    }
+
+    private TransactionDetails buildTransactionDetails(EarnestOrder ea){
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
+        tds.setAmount(ea.getAmount());
+        tds.setCertificateNumber(ea.getCustomerCertificateNumber());
+        tds.setCreator(userTicket.getRealName());
+        tds.setCreatorId(userTicket.getId());
+        tds.setCustomerCellphone(ea.getCustomerCellphone());
+        tds.setCustomerId(ea.getCustomerId());
+        tds.setCustomerName(ea.getCustomerName());
+        tds.setMarketId(ea.getMarketId());
+        tds.setNotes(ea.getCode());
+        tds.setOrderId(ea.getId());
+        tds.setOrderCode(ea.getCode());
+        tds.setCode("202002200001");
+//        tds.setSceneType();
+//        tds.setBizType();
+//        tds.setItemType();
+        return tds;
     }
 }

@@ -5,6 +5,7 @@ import com.dili.ia.mapper.CustomerAccountMapper;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -38,69 +39,32 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setMarketId(marketId);
         List<CustomerAccount> list = getActualDao().select(customerAccount);
         if (CollectionUtils.isEmpty(list) || list.size() > 1){
-            //@TODO异常提醒处理
-            return null;
+            throw new BusinessException("2","当前客户账户存在异常，不存在或者同一市场存在多个相同客户账户！");
         }
        return list.get(0);
     }
 
     @Override
-    public void addEarnestFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount) {
+    public void subtractEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount) {
+        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() - availableAmount);
+        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() - balanceAmount);
 
+        Integer count = this.getActualDao().updateEarnestAccountByVersion(customerAccount);
+        if (count < 1){
+            throw new BusinessException("2","当前数据正已被其他用户操作，更新失败！");
+        }
     }
 
     @Override
-    public void subtractEarnestFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount) {
+    public void addEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount) {
+        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + availableAmount);
+        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + balanceAmount);
 
-    }
-
-    @Override
-    public void subtractEarnestAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
-
-    }
-
-    @Override
-    public void addEarnestAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
-
-    }
-
-    @Override
-    public void subtractEarnestBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
-
-    }
-
-    @Override
-    public void addEarnestBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
-
-    }
-
-    @Override
-    public void addTransferFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount) {
-
-    }
-
-    @Override
-    public void subtractTransferFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount) {
-
-    }
-
-    @Override
-    public void addTransferAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
-
-    }
-
-    @Override
-    public void subtractTransferAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
-
-    }
-
-    @Override
-    public void addTransferBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
-
-    }
-
-    @Override
-    public void subtractTransferBalance(CustomerAccount customerAccount, Long marketId, Long amount) {
-
+        Integer count = this.getActualDao().updateEarnestAccountByVersion(customerAccount);
+        if (count < 1){
+            throw new BusinessException("2","当前数据正已被其他用户操作，更新失败！");
+        }
     }
 }
