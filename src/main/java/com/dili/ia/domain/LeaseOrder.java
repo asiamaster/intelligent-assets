@@ -181,15 +181,36 @@ public interface LeaseOrder extends IBaseDomain {
 
     void setTotalAmount(Long totalAmount);
 
-    @Column(name = "`deposit_deduction`")
+    @Column(name = "`deposit_amount`")
     @FieldDef(label="保证金")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getDepositAmount();
+
+    void setDepositAmount(Long depositAmount);
+
+    @Column(name = "`manage_amount`")
+    @FieldDef(label="物管费")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getManageAmount();
+
+    void setManageAmount(Long manageAmount);
+
+    @Column(name = "`rent_amount`")
+    @FieldDef(label="租金")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getRentAmount();
+
+    void setRentAmount(Long rentAmount);
+
+    @Column(name = "`deposit_deduction`")
+    @FieldDef(label="保证金抵扣")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getDepositDeduction();
 
     void setDepositDeduction(Long depositDeduction);
 
     @Column(name = "`earnest_deduction`")
-    @FieldDef(label="定金")
+    @FieldDef(label="定金抵扣")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getEarnestDeduction();
 

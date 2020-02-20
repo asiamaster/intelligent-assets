@@ -27,6 +27,6 @@ public class StallController {
    @RequestMapping(value="/list.action", method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
    public String list() throws CloneNotSupportedException {
-       return "[{\"id\":1,\"name\":\"蒋成勇\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000},{\"id\":2,\"name\":\"蒋成勇1\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000},{\"id\":3,\"name\":\"蒋成勇2\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000},{\"id\":4,\"name\":\"蒋成勇3\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000}]";
+       return "[{\"id\":1,\"name\":\"三号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000},{\"id\":2,\"name\":\"四号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000},{\"id\":3,\"name\":\"五号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000},{\"id\":4,\"name\":\"六号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000}]";
    }
 }

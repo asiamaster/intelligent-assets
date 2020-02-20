@@ -28,6 +28,9 @@
                 $('#certificateNumber').val(suggestion.certificateNumber);
                 $('#_certificateNumber').val(suggestion.certificateNumber);
                 $('#customerCellphone').val(suggestion.cellphone);
+
+                //获取保证金抵扣余额
+                getCustomerDepositAmount();
             }
         };
         var certificateNumberAutoCompleteOption = {
@@ -49,6 +52,9 @@
                 $('#customerName').val(suggestion.name);
                 $('#customerId').val(suggestion.id);
                 $('#customerCellphone').val(suggestion.cellphone);
+
+                //获取保证金抵扣余额
+                getCustomerDepositAmount();
             }
         };
 
@@ -202,6 +208,56 @@
                 $('#endTime').val(moment(startTime).add(days-1,"days").format("YYYY-MM-DD"));
             }
         }
+    }
+
+    /**
+     * 摊位选择事件Handler
+     * */
+    function stallSelectHandler() {
+        getCustomerDepositAmount();
+    }
+
+
+    /**
+     * 保证金可抵扣金额计算
+     * */
+    function getCustomerDepositAmount(){
+        let customerId = $('#customerId').val();
+        let stallIds = $("table input[name='stallId']").filter(function () {
+            return this.value
+        }).map(function(){
+            return $('#stallId_'+getIndex(this.id)).val();
+        }).get();
+        if(customerId && stallIds && stallIds.length > 0){
+            $.ajax({
+                type: "POST",
+                url: '/leaseOrderItem/list.action',
+                data: JSON.stringify({stallIds}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function (data) {
+                if (data.code == "200") {
+                    let depositAmount = 0;
+                    $.each(data.data,function (index,item) {
+                        depositAmount += item.depositAmount;
+                    });
+                    $('#depositDeduction').val(Number(depositAmount).div(100))
+                } else {
+                    bs4pop.alert(data.result, {type: 'error'});
+                }
+            }).fail(function () {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }).done(function () {
+                let depositDeduction = Number($('#depositDeduction').val());
+                let earnestDeduction = Number($('#earnestDeduction').val());
+                let transferDeduction = Number($('#transferDeduction').val());
+                let totalAmount = Number($('#totalAmount').val());
+                if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
+                    $('#payAmount').val((totalAmount.mul(100)- depositDeduction.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).div(100));
+                }
+            });
+        }
+
     }
 
     /*****************************************函数区 end**************************************/
