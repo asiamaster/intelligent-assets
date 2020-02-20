@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.LeaseOrderItem;
+import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ss.domain.BaseOutput;
 import io.swagger.annotations.Api;
@@ -11,6 +12,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -95,5 +97,15 @@ public class LeaseOrderItemController {
     public @ResponseBody BaseOutput delete(Long id) {
         leaseOrderItemService.delete(id);
         return BaseOutput.success("删除成功");
+    }
+
+    /**
+     * 订单项查询
+     * @param leaseOrderItem
+     * @return
+     */
+    @RequestMapping(value="/list.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput list(@RequestBody LeaseOrderItemListDto leaseOrderItem) {
+        return BaseOutput.success().setData(leaseOrderItemService.list(leaseOrderItem));
     }
 }

@@ -1,13 +1,12 @@
 package com.dili.ia.provider;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dili.ia.rpc.UapRpc;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
 import com.dili.ss.metadata.provider.BatchDisplayTextProviderAdaptor;
 import com.dili.uap.sdk.domain.DataDictionaryValue;
+import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class DataDictionaryValueProvider extends BatchDisplayTextProviderAdaptor
 
     protected static final String DD_CODE_KEY = "dd_code";
     @Autowired
-    private UapRpc uapRpc;
+    DataDictionaryRpc dataDictionaryRpc;
 
     @Override
     public List<ValuePair<?>> getLookupList(Object val, Map metaMap, FieldMeta fieldMeta) {
@@ -35,9 +34,7 @@ public class DataDictionaryValueProvider extends BatchDisplayTextProviderAdaptor
             return Lists.newArrayList();
         }
         String code = JSONObject.parseObject(queryParams.toString()).getString(DD_CODE_KEY);
-        DataDictionaryValue query = DTOUtils.newDTO(DataDictionaryValue.class);
-        query.setDdCode(code);
-        List<DataDictionaryValue> list = uapRpc.listDataDictionaryValue(query).getData();
+        List<DataDictionaryValue> list = dataDictionaryRpc.listDataDictionaryValueByDdCode(code).getData();
         if (CollectionUtils.isEmpty(list)) {
             return null;
         }
@@ -59,9 +56,7 @@ public class DataDictionaryValueProvider extends BatchDisplayTextProviderAdaptor
         }
 
         String code = JSONObject.parseObject(queryParams.toString()).getString(DD_CODE_KEY);
-        DataDictionaryValue query = DTOUtils.newDTO(DataDictionaryValue.class);
-        query.setDdCode(code);
-        return uapRpc.listDataDictionaryValue(query).getData();
+        return dataDictionaryRpc.listDataDictionaryValueByDdCode(code).getData();
     }
 
     @Override
