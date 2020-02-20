@@ -4,22 +4,12 @@
     <div class="row">
         <nav class="col-12" aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page">定金管理</li>
+                <li class="breadcrumb-item active" aria-current="page">定金余额</li>
             </ol>
         </nav>
     </div>
     <form id="queryForm" role="form" novalidate>
         <div class="row  row-cols-6">
-            <div class="form-group col">
-                <label for="state" class="">状态</label>
-                <select id="state" name="state" class="form-control"></select>
-                <#bcomboProvider _id="state" _provider="leaseOrderStateProvider" _value=""/>
-            </div>
-            <div class="form-group col">
-                <label for="payState" class="">业务所属部门</label>
-                <select id="payState" name="payState" class="form-control"></select>
-                <#bcomboProvider _id="payState" _provider="payStateProvider" _value=""/>
-            </div>
             <div class="form-group col">
                 <label for="customerName" class="">客户名称</label>
                 <input type="text" class="form-control" name="customerName" id="customerName"/>
@@ -29,12 +19,8 @@
                 <input type="text" class="form-control" name="stallName" id="stallName"/>
             </div>
             <div class="form-group col">
-                <label for="code" class="">业务单号</label>
+                <label for="code" class="">证件号码</label>
                 <input type="text" class="form-control" name="code" id="code"/>
-            </div>
-            <div class="form-group col col">
-                <label for="">创建时间</label>
-                <input type="text" class="form-control laydatetime" id="createDate" placeholder="">
             </div>
         </div>
         <div class="">
@@ -46,55 +32,34 @@
     <div class="row">
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
-                <button id="btn_view" type="button" class="btn btn-primary" onclick=""><i class="fa fa-eye"></i> 查看</button>
-                <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
-                <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
-                <button id="btn_submit" type="button" class="btn btn-primary" onclick=""><i class="fa fa-paper-plane"></i> 提交</button>
-                <button id="btn_withdraw" type="button" class="btn btn-primary" onclick=""><i class="fa fa-undo"></i> 撤回</button>
-                <button id="btn_cancel" type="button" class="btn btn-primary" onclick=""><i class="fa fa-ban"></i> 取消</button>
+                <#resource code="earnestTransfer">
+                <button id="btn_earnestTransfer" type="button" class="btn btn-primary" onclick="openEarnestRefundHandler()"><i class="fa fa-plus"></i> 退款申请</button>
+                </#resource>
+                <#resource code="earnestRefund">
+                <button id="btn_earnestRefund" type="button" class="btn btn-primary" onclick="openEarnestTransferHandler()"><i class="fa fa-pencil-square-o"></i> 转移</button>
+                </#resource>
             </div>
-            <table id="grid" data-toggle="table" data-title="定金列表" class="table" data-toolbar="#toolbar"
+            <table id="grid" data-toggle="table" data-title="定金余额列表" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST"
                    data-content-type="application/x-www-form-urlencoded" data-single-select="true"
-                   data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
+                   data-click-to-select="true" data-unique-id="id" data-sort-name="id"
                    data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
                    data-single-select="true"
-                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true" data-detail-view="true">
+                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
                 <thead>
                 <tr>
-                    <th data-radio="true"></th>
-                    <th data-field="code" data-align="center">
-                        业务单号
-                    </th>
-                    <th data-field="departmentName" data-align="center">
-                        业务所属部门
-                    </th>
                     <th data-field="customerName" data-align="center">
                         客户名称
                     </th>
                     <th data-field="customerCellphone" data-align="center">
                         联系电话
                     </th>
-                    <th data-field="startTime" data-provider="dateProvider" data-align="center">
-                        开始日期
+                    <th data-field="customerCellphone" data-align="center">
+                        证件号码
                     </th>
-                    <th data-field="endTime" data-provider="dateProvider" data-align="center">
-                        结束日期
-                    </th>
-                    <th data-field="state"
-                        data-provider="leaseOrderStateProvider" data-align="center">
-                        状态
-                    </th>
-                    <th data-field="totalAmount" data-align="center">
-                        金额
-                    </th>
-                    <th data-field="creator" data-align="center">
-                        创建人
-                    </th>
-                    <th data-field="createTime"
-                        data-provider="datetimeProvider" data-align="center">
-                        创建时间
+                    <th data-field="amount" data-align="center">
+                        定金金额
                     </th>
                 </tr>
                 </thead>
@@ -106,10 +71,9 @@
 
 </#bs4Body>
 
-<#earnestOrder_indexJs />
+<#customerAccount_indexJs />
 
 <script>
-
 
 
 

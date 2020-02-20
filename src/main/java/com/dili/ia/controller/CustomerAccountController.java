@@ -42,9 +42,9 @@ public class CustomerAccountController {
      * @return String
      */
     @ApiOperation("跳转到CustomerAccount页面")
-    @RequestMapping(value="/refund.html", method = RequestMethod.GET)
-    public String refund(ModelMap modelMap) {
-        return "customerAccount/refund";
+    @RequestMapping(value="/earnestRefund.html", method = RequestMethod.GET)
+    public String earnestRefund(ModelMap modelMap) {
+        return "customerAccount/earnestRefund";
     }
     /**
      * 跳转到CustomerAccount页面

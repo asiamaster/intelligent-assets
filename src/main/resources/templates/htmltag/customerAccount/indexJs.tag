@@ -9,11 +9,11 @@
         });
     });
 
-    function openInsertHandler() {
+    function openEarnestTransferHandler() {
         let dia = bs4pop.dialog({
             id: 'addModal',
-            title: '新增定金',//对话框title
-            content: '/earnestOrder/add.html', //对话框内容，可以是 string、element，$object
+            title: '定金转移',//对话框title
+            content: '/customerAccount/earnestTransfer.html', //对话框内容，可以是 string、element，$object
             width: 900,//宽度
             height: 700,//高度
             isIframe : true,//默认是页面层，非iframe
@@ -22,10 +22,53 @@
         $('#addModal').modal('handleUpdate')
     }
 
+    function openEarnestRefundHandler() {
+        let dia = bs4pop.dialog({
+            id: 'addModal',
+            title: '退款',//对话框title
+            content: '/customerAccount/earnestRefund.html', //对话框内容，可以是 string、element，$object
+            width: 900,//宽度
+            height: 700,//高度
+            isIframe : true,//默认是页面层，非iframe
+        });
+        // dia.modal('show');
+        $('#addModal').modal('handleUpdate')
+    }
+
+
+    /*********************变量定义区 begin*************/
+        //行索引计数器
+        //如 let itemIndex = 0;
+    let _grid = $('#grid');
+    let _form = $('#_form');
+    let _modal = $('#_modal');
+    let currentSelectRowIndex;
+    var dia;
+
+    /*********************变量定义区 end***************/
+
+
+    /******************************驱动执行区 begin***************************/
+    $(function () {
+        $(window).resize(function () {
+            _grid.bootstrapTable('resetView')
+        });
+        queryDataHandler();
+    });
+    /******************************驱动执行区 end****************************/
+
+    /**
+     * 查询处理
+     */
+    function queryDataHandler() {
+        // currentSelectRowIndex = undefined;
+        // $('#toolbar button').attr('disabled', false);
+        _grid.bootstrapTable('refreshOptions', {url: '/customerAccount/listPage.action'});
+    }
+
 </script>
 
 <!--
-http://127.0.0.1/earnestOrder/view.html 查看
-http://127.0.0.1/earnestOrder/add.html 新增
-http://127.0.0.1/earnestOrder/update.html 修改
+http://ia.diligrp.com:8381/customerAccount/earnestRefund.html 定金退款
+http://ia.diligrp.com:8381/customerAccount/earnestTransfer.html 定金转移
 -->

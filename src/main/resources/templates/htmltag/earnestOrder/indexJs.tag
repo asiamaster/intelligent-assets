@@ -57,7 +57,7 @@
 </script>
 
 <!--
-http://127.0.0.1/earnestOrder/view.html 查看
-http://127.0.0.1/earnestOrder/add.html 新增
-http://127.0.0.1/earnestOrder/update.html 修改
+http://ia.diligrp.com:8381/earnestOrder/view.html 查看
+http://ia.diligrp.com:8381/earnestOrder/add.html 新增
+http://ia.diligrp.com:8381/earnestOrder/update.html 修改
 -->

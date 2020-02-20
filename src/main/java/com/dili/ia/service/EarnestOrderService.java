@@ -16,10 +16,10 @@ public interface EarnestOrderService extends BaseService<EarnestOrder, Long> {
 
     /**
      * 定金单 --修改
-     * @param earnestOrderId 定金单ID
+     * @param earnestOrder 修改对象
      * @return BaseOutput
      * */
-    BaseOutput updateEarnestOrder(Long earnestOrderId);
+    BaseOutput updateEarnestOrder(EarnestOrder earnestOrder);
 
     /**
      * 定金单 --提交

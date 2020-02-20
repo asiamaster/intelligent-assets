@@ -26,16 +26,11 @@
     <result column="submitter" jdbcType="VARCHAR" property="submitter" />
     <result column="sub_date" jdbcType="TIMESTAMP" property="subDate" />
     <result column="notes" jdbcType="VARCHAR" property="notes" />
+    <result column="withdraw_operator_id" jdbcType="BIGINT" property="withdrawOperatorId" />
+    <result column="withdraw_operator" jdbcType="VARCHAR" property="withdrawOperator" />
     <result column="canceler_id" jdbcType="BIGINT" property="cancelerId" />
     <result column="canceler" jdbcType="VARCHAR" property="canceler" />
-    <result column="delete_id" jdbcType="BIGINT" property="deleteId" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.dili.ia.domain.EarnestOrder">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <result column="delete_name" jdbcType="VARBINARY" property="deleteName" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -43,23 +38,15 @@
     -->
     id, create_time, modify_time, customer_id, customer_name, customer_cellphone, customer_certificate_number, 
     start_time, end_time, department_id, department_name, state, assets_type, amount, 
-    code, creator_id, creator, submitter_id, submitter, sub_date, notes, canceler_id, 
-    canceler, delete_id, market_id
+    code, creator_id, creator, submitter_id, submitter, sub_date, notes, withdraw_operator_id, 
+    withdraw_operator, canceler_id, canceler, market_id
   </sql>
-  <sql id="Blob_Column_List">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    delete_name
-  </sql>
-  <select id="selectBy" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated
     -->
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from earnest_order
     where id = #{id,jdbcType=BIGINT}
   </select>
@@ -129,20 +116,20 @@
       <if test="notes != null">
         notes = #{notes,jdbcType=VARCHAR},
       </if>
+      <if test="withdrawOperatorId != null">
+        withdraw_operator_id = #{withdrawOperatorId,jdbcType=BIGINT},
+      </if>
+      <if test="withdrawOperator != null">
+        withdraw_operator = #{withdrawOperator,jdbcType=VARCHAR},
+      </if>
       <if test="cancelerId != null">
         canceler_id = #{cancelerId,jdbcType=BIGINT},
       </if>
       <if test="canceler != null">
         canceler = #{canceler,jdbcType=VARCHAR},
       </if>
-      <if test="deleteId != null">
-        delete_id = #{deleteId,jdbcType=BIGINT},
-      </if>
       <if test="marketId != null">
         market_id = #{marketId,jdbcType=BIGINT},
-      </if>
-      <if test="deleteName != null">
-        delete_name = #{deleteName,jdbcType=VARBINARY},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

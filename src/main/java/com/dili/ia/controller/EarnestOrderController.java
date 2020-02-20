@@ -5,8 +5,6 @@ import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.service.EarnestOrderService;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.uap.sdk.glossary.DataAuthType;
-import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -17,9 +15,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -101,7 +96,6 @@ public class EarnestOrderController {
 	})
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput insert(EarnestOrder earnestOrder) {
-//        earnestOrderService.insertSelective(earnestOrder);
         earnestOrderService.addEarnestOrder(earnestOrder);
         return BaseOutput.success("新增成功");
     }
@@ -117,7 +111,7 @@ public class EarnestOrderController {
 	})
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(EarnestOrder earnestOrder) {
-        earnestOrderService.updateSelective(earnestOrder);
+        earnestOrderService.updateEarnestOrder(earnestOrder);
         return BaseOutput.success("修改成功");
     }
 
@@ -132,7 +126,7 @@ public class EarnestOrderController {
 	})
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
-//        earnestOrderService.delete(id);
+        earnestOrderService.submitEarnestOrder(id);
         return BaseOutput.success("删除成功");
     }
 
@@ -147,7 +141,7 @@ public class EarnestOrderController {
     })
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
-//        earnestOrderService.delete(id);
+        earnestOrderService.withdrawEarnestOrder(id);
         return BaseOutput.success("删除成功");
     }
 

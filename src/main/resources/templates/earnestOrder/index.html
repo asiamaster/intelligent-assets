@@ -46,16 +46,24 @@
     <div class="row">
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+                <#resource code="viewEarnestOrder">
                 <button id="btn_view" type="button" class="btn btn-primary" onclick=""><i class="fa fa-eye"></i> 查看</button>
+                </#resource>
                 <#resource code="addEarnestOrder">
                 <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
                 </#resource>
                 <#resource code="updateEarnestOrder">
                 <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 </#resource>
-            <button id="btn_submit" type="button" class="btn btn-primary" onclick=""><i class="fa fa-paper-plane"></i> 提交</button>
+                <#resource code="submitEarnestOrder">
+                <button id="btn_submit" type="button" class="btn btn-primary" onclick=""><i class="fa fa-paper-plane"></i> 提交</button>
+                </#resource>
+                <#resource code="withdrawEarnestOrder">
                 <button id="btn_withdraw" type="button" class="btn btn-primary" onclick=""><i class="fa fa-undo"></i> 撤回</button>
+                </#resource>
+                <#resource code="cancelEarnestOrder">
                 <button id="btn_cancel" type="button" class="btn btn-primary" onclick=""><i class="fa fa-ban"></i> 取消</button>
+                </#resource>
             </div>
             <table id="grid" data-toggle="table" data-title="定金列表" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"

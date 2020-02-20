@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 明细流水
- * This file was generated on 2020-02-14 10:18:23.
+ * This file was generated on 2020-02-19 17:29:54.
  */
 @Table(name = "`transaction_details`")
 public interface TransactionDetails extends IBaseDomain {
@@ -42,7 +42,7 @@ public interface TransactionDetails extends IBaseDomain {
     void setModifyTime(Date modifyTime);
 
     @Column(name = "`code`")
-    @FieldDef(label="交易流水号", maxLength = 20)
+    @FieldDef(label="交易流水号", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
@@ -77,7 +77,7 @@ public interface TransactionDetails extends IBaseDomain {
     void setOrderId(Long orderId);
 
     @Column(name = "`order_code`")
-    @FieldDef(label="发生订单业务单编号", maxLength = 20)
+    @FieldDef(label="发生订单业务单编号", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getOrderCode();
 
