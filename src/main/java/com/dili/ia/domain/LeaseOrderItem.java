@@ -55,19 +55,19 @@ public interface LeaseOrderItem extends IBaseDomain {
 
     void setLeaseOrderId(Long leaseOrderId);
 
-    @Column(name = "`stall_id`")
+    @Column(name = "`booth_id`")
     @FieldDef(label="摊位ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getStallId();
+    Long getBoothId();
 
-    void setStallId(Long stallId);
+    void setBoothId(Long boothId);
 
-    @Column(name = "`stall_name`")
+    @Column(name = "`booth_name`")
     @FieldDef(label="摊位名称", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getStallName();
+    String getBoothName();
 
-    void setStallName(String stallName);
+    void setBoothName(String boothName);
 
     @Column(name = "`customer_id`")
     @FieldDef(label="客户ID")

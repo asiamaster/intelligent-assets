@@ -84,7 +84,7 @@
             }
         });
 
-        addStallItem();
+        addBoothItem();
     });
     /******************************驱动执行区 end****************************/
 
@@ -122,8 +122,8 @@
     /**
      * 添加摊位
      * */
-    function addStallItem(){
-        $('#stallTable tbody').append(HTMLDecode(template('stallItem',{index:++itemIndex})))
+    function addBoothItem(){
+        $('#boothTable tbody').append(HTMLDecode(template('boothItem',{index:++itemIndex})))
     }
 
     /**
@@ -213,7 +213,7 @@
     /**
      * 摊位选择事件Handler
      * */
-    function stallSelectHandler() {
+    function boothSelectHandler() {
         getCustomerDepositAmount();
     }
 
@@ -223,16 +223,16 @@
      * */
     function getCustomerDepositAmount(){
         let customerId = $('#customerId').val();
-        let stallIds = $("table input[name='stallId']").filter(function () {
+        let boothIds = $("table input[name='boothId']").filter(function () {
             return this.value
         }).map(function(){
-            return $('#stallId_'+getIndex(this.id)).val();
+            return $('#boothId_'+getIndex(this.id)).val();
         }).get();
-        if(customerId && stallIds && stallIds.length > 0){
+        if(customerId && boothIds && boothIds.length > 0){
             $.ajax({
                 type: "POST",
                 url: '/leaseOrderItem/list.action',
-                data: JSON.stringify({stallIds}),
+                data: JSON.stringify({customerId,boothIds}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).done(function (data) {
@@ -292,13 +292,13 @@
 
     })
 
-    $('#addStall').on('click', function(){
-        addStallItem();
+    $('#addBooth').on('click', function(){
+        addBoothItem();
     })
 
     //删除行事件
     $(document).on('click', '.item-del', function () {
-        if ($('#stallTable tr').length > 2) {
+        if ($('#boothTable tr').length > 2) {
             $(this).closest('tr').remove();
         }
     });

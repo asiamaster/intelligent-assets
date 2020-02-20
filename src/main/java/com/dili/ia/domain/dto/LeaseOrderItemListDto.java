@@ -37,8 +37,8 @@ public interface LeaseOrderItemListDto extends LeaseOrderItem {
     void setIds(List<Long> ids);
 
     @Operator(Operator.IN)
-    @Column(name = "`stall_id`")
-    List<Long> getStallIds();
-    void setStallIds(List<Long> stallIds);
+    @Column(name = "`booth_id`")
+    List<Long> getBoothIds();
+    void setBoothIds(List<Long> boothIds);
 
 }

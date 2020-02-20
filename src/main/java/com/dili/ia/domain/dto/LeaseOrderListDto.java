@@ -46,6 +46,6 @@ public interface LeaseOrderListDto extends LeaseOrder {
 
     //摊位名称
     @Transient
-    String getStallName();
-    void setStallName(String stallName);
+    String getBoothName();
+    void setBoothName(String boothName);
 }
