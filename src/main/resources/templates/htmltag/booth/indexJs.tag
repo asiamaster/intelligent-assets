@@ -51,11 +51,14 @@
      */
     function openInsertHandler() {
         editBoothDia = bs4pop.dialog({
-            title: '新增定金',//对话框title
-            content: '/booth/add', //对话框内容，可以是 string、element，$object
-            width: 900,//宽度
-            height: 700,//高度
-            isIframe : true,//默认是页面层，非iframe
+            title: '新增客户',
+            content: '/booth/add.html',
+            isIframe: true,
+            closeBtn: true,
+            backdrop: 'static',
+            width: '400',
+            height: '700',
+            btns: []
         });
     }
     /**
