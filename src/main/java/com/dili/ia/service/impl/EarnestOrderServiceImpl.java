@@ -3,14 +3,19 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
-import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.mapper.EarnestOrderMapper;
+import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
+import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +31,14 @@ import java.util.List;
 @Service
 public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long> implements EarnestOrderService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EarnestOrderServiceImpl.class);
+
     public EarnestOrderMapper getActualDao() {
         return (EarnestOrderMapper)getDao();
     }
 
+    @Autowired
+    SettlementRpc settlementRpc;
     @Autowired
     CustomerAccountService customerAccountService;
     @Autowired
@@ -120,8 +129,42 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         PaymentBill pb = this.buildPaymentBill(userTicket, ea.getAmount(), ea.getId(), ea.getCode());
         paymentBillService.insert(pb);
 
-        //@TODO提交到结算中心
+        //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
+        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrder(ea, userTicket));
+        if (!out.isSuccess()){
+            LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
+            throw new BusinessException("2","提交到结算中心失败！" + out.getMessage());
+        }
+
+
         return BaseOutput.success();
+    }
+
+    private SettleOrder buildSettleOrder(EarnestOrder ea, UserTicket userTicket){
+
+        SettleOrder settleOrder = DTOUtils.newDTO(SettleOrder.class);
+        //以下是提交到结算中心的必填字段
+        settleOrder.setMarketId(ea.getMarketId()); //市场ID
+        //@TODO应用ID  业务类型
+        settleOrder.setAppId(1L);//应用ID
+        settleOrder.setBusinessType(2); // 业务类型
+        settleOrder.setBusinessCode(ea.getCode()); //业务单号
+        settleOrder.setCustomerId(ea.getCustomerId());//客户ID
+        settleOrder.setCustomerName(ea.getCustomerName());// "客户姓名
+        settleOrder.setCustomerPhone(ea.getCustomerCellphone());//"客户手机号
+        settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
+        settleOrder.setAmount(ea.getAmount()); //金额
+        settleOrder.setBusinessDepId(ea.getDepartmentId()); //"业务部门ID
+        settleOrder.setBusinessDepName(ea.getDepartmentName());//"业务部门名称
+        settleOrder.setSubmitterId(userTicket.getId());// "提交人ID
+        settleOrder.setSubmitterName(userTicket.getRealName());// "提交人姓名
+        settleOrder.setSubmitterDepId(userTicket.getDepartmentId()); //"提交人部门ID
+        //@TODO部门名称查询
+        settleOrder.setBusinessDepName("部门名称");// "提交人部门名称
+        String returnUrl = "http://ia.diligrp.com/earnestOrder/paySuccess";
+        settleOrder.setReturnUrl(returnUrl); // 结算-- 缴费成功后回调路径
+
+        return settleOrder;
     }
 
     private PaymentBill buildPaymentBill(UserTicket userTicket, Long amount, Long businessId, String businessCode){
