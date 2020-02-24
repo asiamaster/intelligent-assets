@@ -1,6 +1,19 @@
 <#bs4Body>
+<style>
+    .w-200px {
+        width: 200px !important;
+    }
+
+    .w-100px {
+        width: 100px !important;
+    }
+
+    .detail {
+        width: 12px !important;
+    }
+</style>
 <div class="container-fluid">
-    <form class="form">
+    <form class="form" id="queryForm">
         <div class="row">
             <nav class="col-12" aria-label="breadcrumb">
                 <ol class="breadcrumb">
@@ -11,25 +24,18 @@
         <div class="row  row-cols-6">
             <div class="form-group col">
                 <label for="">部门</label>
-                <select class="form-control" id="">
-                    <option value="11">1</option>
-                    <option value="22">2</option>
-                </select>
-            </div>
-            <div class="form-group col">
-                <label for="">级别</label>
-                <select class="form-control" id="">
+                <select class="form-control" id="" name="departmentId">
                     <option value="11">1</option>
                     <option value="22">2</option>
                 </select>
             </div>
             <div class="form-group col">
                 <label for="">区域名称</label>
-                <input type="" class="form-control isNaturalNum" id="" placeholder="">
+                <input type="" class="form-control isNaturalNum" name="name" id="" placeholder="">
             </div>
         </div>
         <div class="">
-            <button type="button" class="btn btn-primary">查询</button>
+            <button type="button" class="btn btn-primary" onclick="queryDataHandler()">查询</button>
             <button type="button" class="btn btn-secondary">清空</button>
         </div>
     </form>
@@ -47,20 +53,12 @@
                     <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
                             class="fa fa-pencil-square-o"></i> 更新
                     </button>
-                    <button id="btn_delete" type="button" class="btn btn-primary" onclick="openDeleteHandler()"><i
-                            class="fa fa-trash-o"></i> 删除
+                    <button id="" type="button" class="btn btn-primary" onclick="delHandler()"><i
+                            class="fa "></i> 删除
                     </button>
-                    <button id="btn_split" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
-                            class="fa "></i> 拆分摊位
+                    <button id="btn_split" type="button" class="btn btn-primary" onclick="openDivisionHandler()"><i
+                            class="fa "></i> 划分区域
                     </button>
-                    <button id="btn_enable" type="button" class="btn btn-primary" onclick="doEnableHandler(true)"><i
-                            class="fa fa-play"></i> 启用
-                    </button>
-                    <button id="btn_disabled" type="button" class="btn btn-primary" onclick="doEnableHandler(false)"><i
-                            class="fa fa-stop"></i> 禁用
-                    </button>
-                    <button id="" type="button" class="btn btn-primary" onclick=""><i class="fa "></i> 可用</button>
-                    <button id="" type="button" class="btn btn-primary" onclick=""><i class="fa "></i> 不可用</button>
                 </div>
                 <table id="grid" data-toggle="table" data-title="区域列表" class="table" data-toolbar="#toolbar"
                        data-pagination="true" data-page-number="1" data-page-size="10"
@@ -73,20 +71,21 @@
                 >
                     <thead>
                     <tr>
-                        <th data-width-unit="%" data-width="1" data-radio="true"></th>
-                        <th data-width-unit="%" data-width="1" data-field="name" data-align="center">
+                        <th data-radio="true"></th>
+                        <th data-field="name" data-align="center">
                             区域名称
                         </th>
-                        <th data-width-unit="%" data-width="10" data-field="number" data-align="center">
+                        <th data-field="number" data-align="center">
                             编号
                         </th>
-                        <th data-width-unit="%" data-width="10" data-field="area" data-align="center">
+                        <th data-field="area" data-formatter="oneFormatter"
+                            data-align="center">
                             区域级别
                         </th>
-                        <th data-width-unit="%" data-width="20" data-field="departmentId" data-align="center">
+                        <th data-field="departmentId" data-align="center">
                             部门
                         </th>
-                        <th data-width-unit="%" data-width="10" data-field="notes" data-align="center">
+                        <th data-field="notes" data-align="center">
                             备注
                         </th>
                     </tr>
@@ -120,36 +119,40 @@
 </div>
 
 <script id="subTable" type="text/html">
-    <table data-toggle="table" data-title="摊位列表" class="table" data-pagination="false" data-page-number="1"
-           data-page-size="10"
-           data-query-params="queryParams" data-method="POST" data-content-type="application/x-www-form-urlencoded"
-           data-single-select="true"
+    <div id="toolbar{{index}}" class="btn-group" role="group" aria-label="Toolbar with button groups">
+        <button id="" type="button" class="btn btn-primary" onclick="openSubUpdateHandler('{{index}}')"><i
+                class="fa fa-pencil-square-o"></i> 更新
+        </button>
+        <button id="" type="button" class="btn btn-primary" onclick="delSubHandler('{{index}}')"><i
+                class="fa "></i> 删除
+        </button>
+    </div>
+    <table data-toggle="table" data-title="区域列表" class="table" data-toolbar="#toolbar{{index}}" id="grid{{index}}"
+           data-pagination="true" data-page-number="1" data-page-size="10"
+           data-query-params="queryParams" data-side-pagination="server" data-method="POST"
+           data-content-type="application/x-www-form-urlencoded" data-single-select="true"
            data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
-           data-sort-order="desc" data-icons="bui.variable.icons">
+           data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
+           data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
+    >
         <thead>
         <tr>
-            <th data-width-unit="%" data-width="2" data-checkbox="true"></th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center"
-                data-provider="">
-                摊位编号
+            <th data-radio="true"></th>
+            <th data-field="name" data-align="center">
+                区域名称
             </th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
-                数量
+            <th data-field="number" data-align="center">
+                编号
             </th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
-                单位
+            <th data-field="area" data-formatter="twoFormatter"
+                data-align="center">
+                区域级别
             </th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
-                区域
-            </th>
-            <th data-width-unit="%" data-width="20" data-field="" data-align="center">
+            <th data-field="departmentId" data-align="center">
                 部门
             </th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
-                创建时间
-            </th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
-                状态
+            <th data-field="notes" data-align="center">
+                备注
             </th>
         </tr>
         </thead>
@@ -162,19 +165,155 @@
         $(window).resize(function () {
             _grid.bootstrapTable('resetView')
         });
+        _grid.on('expand-row.bs.table', function (e, index, row, $detail) {
+            var cur_table = $detail.html(template('subTable', {index})).find('table');
+            $(cur_table).bootstrapTable();
+            $(cur_table).bootstrapTable('refreshOptions', {url: '/district/listPage.action?parentId=' + row.id});
+
+        });
         queryDataHandler();
     });
+
+    function oneFormatter(value, row) {
+        return '一级区域';
+    }
+
+
+    function twoFormatter(value, row) {
+        return '二级区域';
+    }
 
     /**
      * 查询处理
      */
     function queryDataHandler() {
-        _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action'});
+        _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action?parentId=0'});
     }
 
     function openInsertHandler() {
         $("#_modal").modal();
         $('#_modal .modal-body').load("/district/add.html");
         $("#_modal").find('.modal-title').text('区域新增');
+    }
+
+    function openUpdateHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        $("#_modal").modal();
+        $('#_modal .modal-body').load("/district/edit.html?id=" + rows[0].id);
+        $("#_modal").find('.modal-title').text('区域修改');
+    }
+
+    function openSubUpdateHandler(index) {
+        //获取选中行的数据
+        let rows = $("#grid" + index).bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        $("#_modal").modal();
+        $('#_modal .modal-body').load("/district/edit.html?id=" + rows[0].id);
+        $("#_modal").find('.modal-title').text('区域修改');
+    }
+
+
+    function delHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        bs4pop.confirm("确定要删除吗", {title: "确认提示"}, function (sure) {
+            if (sure) {
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '/district/delete.action',
+                    data: {id: rows[0].id},
+                    success: function (data) {
+                        bui.loading.hide();
+                        if (data.code != '200') {
+                            bs4pop.alert(data.message, {type: 'error'});
+                            return;
+                        }
+                        // bs4pop.alert('成功', {type: 'success '}, function () {
+                        //     window.location.reload();
+                        // });
+                        window.location.reload();
+                    },
+                    error: function () {
+                        bui.loading.hide();
+                        bs4pop.alert("区域信息删除失败!", {type: 'error'});
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * table参数组装
+     * 可修改queryParams向服务器发送其余的参数
+     * @param params
+     */
+    function queryParams(params) {
+        let temp = {
+            rows: params.limit,   //页面大小
+            page: ((params.offset / params.limit) + 1) || 1, //页码
+            sort: params.sort,
+            order: params.order
+        }
+        return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
+    }
+
+    function delSubHandler(index) {
+        //获取选中行的数据
+        let rows = $("#grid" + index).bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        bs4pop.confirm("确定要删除吗", {title: "确认提示"}, function (sure) {
+            if (sure) {
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '/district/delete.action',
+                    data: {id: rows[0].id},
+                    success: function (data) {
+                        bui.loading.hide();
+                        if (data.code != '200') {
+                            bs4pop.alert(data.message, {type: 'error'});
+                            return;
+                        }
+                        // bs4pop.alert('成功', {type: 'success '}, function () {
+                        //     window.location.reload();
+                        // });
+                        window.location.reload();
+                    },
+                    error: function () {
+                        bui.loading.hide();
+                        bs4pop.alert("区域信息删除失败!", {type: 'error'});
+                    }
+                });
+            }
+        });
+    }
+
+    function openDivisionHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        $("#_modal").modal();
+        $('#_modal .modal-body').load("/district/division.html?id=" + rows[0].id);
+        $("#_modal").find('.modal-title').text('区域划分');
     }
 </script>

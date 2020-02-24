@@ -57,8 +57,29 @@ public interface AssetsRpc {
     BaseOutput addDistrict(DistrictDTO input);
 
     /**
+     * 修改区域
+     */
+    @RequestMapping(value = "/api/district/edit", method = RequestMethod.POST)
+    BaseOutput editDistrict(DistrictDTO input);
+
+    /**
      * 获取区域列表
      */
     @RequestMapping(value = "/api/district/list", method = RequestMethod.GET)
     String listDistrictPage(DistrictDTO input);
+
+    /**
+     * 获取单个区域
+     */
+    @RequestMapping(value = "/api/district/get", method = RequestMethod.POST)
+    BaseOutput<DistrictDTO> getDistrictById(Long id);
+
+    /**
+     * 删除区域
+     */
+    @RequestMapping(value = "/api/district/delete", method = RequestMethod.POST)
+    BaseOutput delDistrictById(Long id);
+
+    @RequestMapping(value = "/api/district/divisionSave", method = RequestMethod.POST)
+    BaseOutput divisionSave(@RequestParam("parentId") Long parentId, @RequestParam("names") String[] names, @RequestParam("notes") String[] notes, @RequestParam("numbers") String[] numbers);
 }

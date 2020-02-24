@@ -6,6 +6,7 @@ import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -36,7 +37,28 @@ public class DistrictController {
     }
 
     /**
+     * 跳转导新增页面
+     */
+    @RequestMapping("edit.html")
+    public String toEdit(Long id, ModelMap map) {
+        BaseOutput<DistrictDTO> districtById = assetsRpc.getDistrictById(id);
+        map.put("obj", districtById.getData());
+        return "district/edit";
+    }
+
+    /**
+     * 跳转导划分区域页面
+     */
+    @RequestMapping("division.html")
+    public String toDivision(Long id, ModelMap map) {
+        BaseOutput<DistrictDTO> districtById = assetsRpc.getDistrictById(id);
+        map.put("obj", districtById.getData());
+        return "district/division";
+    }
+
+    /**
      * 新增区域
+     *
      * @param input
      * @return
      */
@@ -44,6 +66,29 @@ public class DistrictController {
     @ResponseBody
     public BaseOutput save(DistrictDTO input) {
         return assetsRpc.addDistrict(input);
+    }
+
+
+    /**
+     * 拆分区域
+     */
+    @RequestMapping("divisionSave.action")
+    @ResponseBody
+    public BaseOutput divisionSave(Long parentId, String[] names, String[] notes, String[] numbers) {
+        return assetsRpc.divisionSave(parentId, names, notes, numbers);
+    }
+
+
+    /**
+     * 修改区域
+     *
+     * @param input
+     * @return
+     */
+    @RequestMapping("edit.action")
+    @ResponseBody
+    public BaseOutput edit(DistrictDTO input) {
+        return assetsRpc.editDistrict(input);
     }
 
     /**
@@ -56,5 +101,15 @@ public class DistrictController {
     @ResponseBody
     public String listPage(DistrictDTO input) {
         return assetsRpc.listDistrictPage(input);
+    }
+
+
+    /**
+     * 删除区域
+     */
+    @RequestMapping("delete.action")
+    @ResponseBody
+    public BaseOutput delete(Long id) {
+        return assetsRpc.delDistrictById(id);
     }
 }
