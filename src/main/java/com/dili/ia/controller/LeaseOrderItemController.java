@@ -2,6 +2,7 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderItemListDto;
+import com.dili.ia.glossary.DepositAmountFlagEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ss.domain.BaseOutput;
 import io.swagger.annotations.Api;
@@ -106,6 +107,7 @@ public class LeaseOrderItemController {
      */
     @RequestMapping(value="/list.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput list(LeaseOrderItemListDto leaseOrderItem) {
+        leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.NOT_TRANSFER.getCode());
         return BaseOutput.success().setData(leaseOrderItemService.listByExample(leaseOrderItem));
     }
 }

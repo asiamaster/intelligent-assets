@@ -30,7 +30,9 @@
                 $('#customerCellphone').val(suggestion.cellphone);
 
                 //获取保证金抵扣余额
-                getCustomerDepositAmount();
+                queryCustomerDepositDeduction(true);
+                //账户余额查询
+                queryCustomerAccount();
             }
         };
         var certificateNumberAutoCompleteOption = {
@@ -54,7 +56,9 @@
                 $('#customerCellphone').val(suggestion.cellphone);
 
                 //获取保证金抵扣余额
-                getCustomerDepositAmount();
+                queryCustomerDepositDeduction(true);
+                //账户余额查询
+                queryCustomerAccount();
             }
         };
 
@@ -213,17 +217,27 @@
     /**
      * 摊位选择事件Handler
      * */
-    function boothSelectHandler() {
-        getCustomerDepositAmount();
+    function boothSelectHandler(suggestion,element) {
+        let index = getIndex($(element).attr('id'));
+        $('#number_'+index).val(suggestion.number);
+        $('#unitCode_'+index).val(suggestion.unitCode);
+        $('#unitName_'+index).val(suggestion.unitName);
+        $('#districtId_'+index).val(suggestion.districtId);
+        $('#districtName_'+index).val(suggestion.districtName);
+
+        queryCustomerDepositDeduction(true,element);
     }
 
 
     /**
      * 保证金可抵扣金额计算
-     * */
-    function getCustomerDepositAmount(){
+     * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
+     * @param (element)
+     * true：级联计算 false：不级联计算
+     */
+    function queryCustomerDepositDeduction(isCascadeCalc,element){
         let customerId = $('#customerId').val();
-        let boothIds = $("table input[name='boothId']").filter(function () {
+        let boothIds = $("table input[name^='boothId']").filter(function () {
             return this.value
         }).map(function(){
             return $('#boothId_'+getIndex(this.id)).val();
@@ -234,29 +248,173 @@
                 url: '/leaseOrderItem/list.action',
                 data: JSON.stringify({customerId,boothIds}),
                 contentType: "application/json; charset=utf-8",
-                dataType: "json"
+                dataType: "json",
+                async : false
             }).done(function (data) {
                 if (data.code == "200") {
                     let depositAmount = 0;
                     $.each(data.data,function (index,item) {
                         depositAmount += item.depositAmount;
+                        let trIndex = getIndex($(element).attr('id'));
+
+                        if(item.boothId == $('#boothId_'+trIndex).val()){
+                            $('#depositAmountSourceCode_'+trIndex).val(item.code);
+                        }
                     });
-                    $('#depositDeduction').val(Number(depositAmount).div(100))
+                    $('#depositDeduction').val(Number(depositAmount).centToYuan())
                 } else {
                     bs4pop.alert(data.result, {type: 'error'});
                 }
             }).fail(function () {
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }).done(function () {
-                let depositDeduction = Number($('#depositDeduction').val());
-                let earnestDeduction = Number($('#earnestDeduction').val());
-                let transferDeduction = Number($('#transferDeduction').val());
-                let totalAmount = Number($('#totalAmount').val());
-                if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
-                    $('#payAmount').val((totalAmount.mul(100)- depositDeduction.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).div(100));
-                }
+                isCascadeCalc && calcPayAmount();
             });
+        }else{
+            $('#depositDeduction').val('0.00');
         }
+
+    }
+
+    /**
+     * 账户余额查询
+     * */
+    function queryCustomerAccount(){
+        let customerId = $('#customerId').val();
+        if(!customerId) return;
+        $.ajax({
+            type: "get",
+            url: "/customerAccount/listByCustomerId.action",
+            data: {customerId},
+            dataType: "json",
+            async : false,
+            success: function (ret) {
+               if(ret.success){
+                   let data = ret.data;
+                   let earnestAvailableBalance = Number(data.earnestAvailableBalance).centToYuan();
+                   let transferAvailableBalance = Number(data.transferAvailableBalance).centToYuan();
+                   $('#earnestDeduction').val('').attr('max',earnestAvailableBalance).attr('placeHolder','余额'+earnestAvailableBalance);
+                   $('#transferDeduction').val('').attr('max',transferAvailableBalance).attr('placeHolder','余额'+transferAvailableBalance);
+               }
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
+    /**
+     * 计算租金
+     * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
+     * true：级联计算 false：不级联计算
+     * */
+    function calcRentAmount(isCascadeCalc){
+        let rentAmount = 0;
+        $("table input[name^='rentAmount']").filter(function () {
+            return this.value
+        }).each(function (i) {
+            rentAmount = Number(this.value).add(rentAmount);
+        });
+        $('#rentAmount').val(rentAmount.toFixed(2));
+
+        isCascadeCalc && calcTotalAmount(isCascadeCalc);
+    }
+
+    /**
+     * 计算物业管理费
+     * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
+     * true：级联计算 false：不级联计算
+     * */
+    function calcManageAmount(isCascadeCalc){
+        let manageAmount = 0;
+        $("table input[name^='manageAmount']").filter(function () {
+            return this.value
+        }).each(function (i) {
+            manageAmount = Number(this.value).add(manageAmount);
+        });
+        $('#manageAmount').val(manageAmount.toFixed(2));
+
+        isCascadeCalc && calcTotalAmount(isCascadeCalc);
+    }
+
+    /**
+     * 计算保证金
+     * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
+     * true：级联计算 false：不级联计算
+     * */
+    function calcDepositAmount(isCascadeCalc){
+        let depositAmount = 0;
+        $("table input[name^='depositAmount']").filter(function () {
+            return this.value
+        }).each(function (i) {
+            depositAmount = Number(this.value).add(depositAmount);
+        });
+        $('#depositAmount').val(depositAmount.toFixed(2));
+
+        isCascadeCalc && calcTotalAmount(isCascadeCalc);
+    }
+
+    /**
+     * 计算合计金额
+     * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
+     * true：级联计算 false：不级联计算
+     *
+     * */
+    function calcTotalAmount(isCascadeCalc){
+        let rentAmount = Number($('#rentAmount').val());
+        let manageAmount = Number($('#manageAmount').val());
+        let depositAmount = Number($('#depositAmount').val());
+        $('#totalAmount').val((rentAmount.mul(100) + manageAmount.mul(100) + depositAmount.mul(100)).centToYuan());
+
+        isCascadeCalc && calcPayAmount(isCascadeCalc);
+    }
+
+    /**
+     * 计算实付金额
+     * */
+    function calcPayAmount() {
+        let depositDeduction = Number($('#depositDeduction').val());
+        let earnestDeduction = Number($('#earnestDeduction').val());
+        let transferDeduction = Number($('#transferDeduction').val());
+        let totalAmount = Number($('#totalAmount').val());
+        if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
+            $('#payAmount').val((totalAmount.mul(100)- depositDeduction.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).centToYuan());
+        }
+    }
+
+    /**
+     *
+     *
+     */
+    function buildFormData(){
+        let formData = $("input:not(table input),textarea,select").serializeObject();
+        bui.util.yuanToCentForMoneyEl(formData);
+        let leaseOrderItems = [];
+        $("#boothTable tbody").find("tr").each(function(){
+            let leaseOrderItem = {};
+            $(this).find("input").each(function(t,el){
+                let fieldName = $(this).attr("name").split('_')[0];
+                leaseOrderItem[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+            });
+            leaseOrderItems.push(leaseOrderItem);
+        });
+        formData.leaseOrderItems = leaseOrderItems;
+        $.ajax({
+            type: "POST",
+            url: "/leaseOrder/saveLeaseOrder.action",
+            data: formData,
+            dataType: "json",
+            async : false,
+            success: function (ret) {
+                if(ret.success){
+
+                }
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+        console.log(formData);
 
     }
 
@@ -267,7 +425,8 @@
         if (!$('#saveForm').valid()) {
             return false;
         }
-        parent.dia.hide();
+        buildFormData();
+        parent.closeDialog(parent.dia);
     });
 
     $('#getCustomer').on('click', function (e) {
@@ -284,22 +443,35 @@
                 $('#certificateNumber').val(data[0].certificateNumber);
                 $('#_certificateNumber').val(data[0].certificateNumber);
                 $('#customerCellphone').val(data[0].cellphone);
+
+                $("#saveForm").validate().element($("#customerName"));
+                $("#saveForm").validate().element($("#_certificateNumber"));
+                $("#saveForm").validate().element($("#customerCellphone"));
+
+                queryCustomerAccount();
+                queryCustomerDepositDeduction(true);
             },
             error: function (a, b, c) {
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
 
-    })
+    });
 
     $('#addBooth').on('click', function(){
         addBoothItem();
-    })
+    });
 
     //删除行事件
     $(document).on('click', '.item-del', function () {
-        if ($('#boothTable tr').length > 2) {
+        if ($('#boothTable tr').length > 1) {
             $(this).closest('tr').remove();
+
+            queryCustomerDepositDeduction();
+            calcRentAmount();
+            calcDepositAmount();
+            calcManageAmount();
+            calcTotalAmount(true);
         }
     });
 

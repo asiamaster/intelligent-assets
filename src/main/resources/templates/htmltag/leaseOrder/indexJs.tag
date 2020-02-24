@@ -32,9 +32,6 @@
      * 打开新增窗口
      */
     function openInsertHandler() {
-        // _modal.modal('show');
-        // _modal.find('.modal-title').text('货站新增');
-
        dia = bs4pop.dialog({
             title: '新增摊位出租',
             content: '/leaseOrder/preSave.html',
@@ -61,13 +58,17 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-        _modal.modal('show');
-        _modal.find('.modal-title').text('货站修改');
 
-        let formData = $.extend({}, rows[0]);
-        formData = bui.util.addKeyStartWith(bui.util.getOriginalData(formData), "_");
-        bui.util.loadFormData(formData);
-        $('#_account').prop('disabled',true);
+        dia = bs4pop.dialog({
+            title: '修改摊位出租',
+            content: '/leaseOrder/preSave.html?id='+rows[0].id,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '80%',
+            height : '95%',
+            btns: []
+        });
     }
 
     /**
@@ -193,6 +194,18 @@
             order: params.order
         }
         return $.extend(temp, bui.util.bindMetadata(this.id));
+    }
+
+    function moneyFormatter(val) {
+        return
+    }
+
+    /**
+     * 关闭弹窗
+     */
+    function closeDialog(dialog){
+        dialog.hide();
+        _grid.bootstrapTable('refresh');
     }
 
     /*****************************************函数区 end**************************************/

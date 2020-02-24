@@ -3,10 +3,14 @@ package com.dili.ia.controller;
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -116,4 +120,20 @@ public class CustomerAccountController {
         customerAccountService.delete(id);
         return BaseOutput.success("删除成功");
     }
+
+    /**
+     * 账户余额查询
+     * @param customerId
+     * @return
+     */
+    @RequestMapping(value="/listByCustomerId.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput listByCustomerId(Long customerId) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            return BaseOutput.failure("未登陆");
+        }
+        return BaseOutput.success().setData(customerAccountService.getCustomerAccountByCustomerId(customerId,/**userTicket.getFirmId()**/1L));
+    }
+
+
 }

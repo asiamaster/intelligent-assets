@@ -7,14 +7,21 @@ import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.DateUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -30,6 +37,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/leaseOrder")
 public class LeaseOrderController {
+    private final static Logger LOG = LoggerFactory.getLogger(LeaseOrderController.class);
+
     @Autowired
     LeaseOrderService leaseOrderService;
     @Autowired
@@ -53,7 +62,13 @@ public class LeaseOrderController {
      */
     @ApiOperation("跳转到LeaseOrder查看页面")
     @RequestMapping(value="/view.html", method = RequestMethod.GET)
-    public String view(ModelMap modelMap) {
+    public String view(ModelMap modelMap,Long id) {
+        LeaseOrder leaseOrder = leaseOrderService.get(id);
+        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+        condition.setLeaseOrderId(id);
+        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
+        modelMap.put("leaseOrder",leaseOrder);
+        modelMap.put("leaseOrderItems",leaseOrderItems);
         return "leaseOrder/view";
     }
 
@@ -64,7 +79,13 @@ public class LeaseOrderController {
      */
     @ApiOperation("跳转到LeaseOrder新增页面")
     @RequestMapping(value="/preSave.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap) {
+    public String add(ModelMap modelMap,Long id) {
+        LeaseOrder leaseOrder = leaseOrderService.get(id);
+        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+        condition.setLeaseOrderId(id);
+        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
+        modelMap.put("leaseOrder",leaseOrder);
+        modelMap.put("leaseOrderItems",leaseOrderItems);
         return "leaseOrder/preSave";
     }
 
@@ -97,6 +118,31 @@ public class LeaseOrderController {
             leaseOrder.setIds(leaseOrderItemService.list(leaseOrderItemCondition).stream().map(LeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
         }
         return leaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
+    }
+
+    /**
+     * 摊位租赁订单保存
+     * @param leaseOrder
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value="/saveLeaseOrder.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput saveLeaseOrder(LeaseOrderListDto leaseOrder){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(leaseOrder.getEndTime());
+        calendar.add(Calendar.HOUR,23);
+        calendar.add(Calendar.MINUTE,59);
+        calendar.add(Calendar.SECOND,59);
+        leaseOrder.setEndTime(calendar.getTime());
+        try{
+            return leaseOrderService.saveLeaseOrder(leaseOrder);
+        }catch (BusinessException e){
+            LOG.error("摊位租赁订单保存异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }catch (Exception e){
+            LOG.error("摊位租赁订单保存异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
 }

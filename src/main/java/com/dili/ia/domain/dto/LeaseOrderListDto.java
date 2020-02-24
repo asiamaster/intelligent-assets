@@ -1,6 +1,7 @@
 package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.LeaseOrder;
+import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
 
@@ -48,4 +49,8 @@ public interface LeaseOrderListDto extends LeaseOrder {
     @Transient
     String getBoothName();
     void setBoothName(String boothName);
+
+    @Transient
+    List<LeaseOrderItem> getLeaseOrderItems();
+    void setLeaseOrderItems(List<LeaseOrderItem> leaseOrderItems);
 }

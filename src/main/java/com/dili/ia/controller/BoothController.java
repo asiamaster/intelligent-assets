@@ -72,6 +72,6 @@ public class BoothController {
     @RequestMapping(value="/list.action", method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
     public String list() {
-        return "[{\"id\":1,\"name\":\"三号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000},{\"id\":2,\"name\":\"四号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000},{\"id\":3,\"name\":\"五号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000},{\"id\":4,\"name\":\"六号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000}]";
+        return "[{\"id\":1,\"name\":\"三号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000,\"number\":2000,\"unitCode\":\"001\",\"unitName\":\"平\",\"districtId\":1,\"districtName\":\"一号区域\"},{\"id\":2,\"name\":\"四号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000,\"number\":2000,\"unitCode\":\"001\",\"unitName\":\"平\",\"districtId\":1,\"districtName\":\"一号区域\"},{\"id\":3,\"name\":\"五号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000,\"number\":2000,\"unitCode\":\"001\",\"unitName\":\"平\",\"districtId\":1,\"districtName\":\"一号区域\"},{\"id\":4,\"name\":\"六号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000,\"number\":2000,\"unitCode\":\"001\",\"unitName\":\"平\",\"districtId\":1,\"districtName\":\"一号区域\"}]";
     }
 }

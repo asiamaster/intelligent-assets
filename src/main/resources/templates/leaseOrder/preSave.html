@@ -2,6 +2,7 @@
 
     <div class="container-fluid">
         <form id="saveForm" role="form" novalidate>
+            <input type="hidden" name="id" value="${leaseOrder.id!}">
             <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                 aria-controls="customerInfo">
                 客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
@@ -9,16 +10,16 @@
             <div class="row row-cols-4" id="customerInfo">
                 <div class="form-group col">
                     <label for="customerName">客户名称</label>
-                    <#bautoCompleteProvider _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _placeholder="" _validatorMethod="isSelected" _optionVariable="customerNameAutoCompleteOption"/>
+                    <#bautoCompleteProvider _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _value="${leaseOrder.customerId!}" _text="${leaseOrder.customerName!}" _required="true" _optionVariable="customerNameAutoCompleteOption"/>
                 </div>
                 <div class="form-group col">
                     <label for="_certificateNumber">证件号码</label>
-                    <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" _placeholder="" _validatorMethod="isSelected" _optionVariable="certificateNumberAutoCompleteOption"/>
+                    <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" _displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected" _value="${leaseOrder.certificateNumber!}" _text="${leaseOrder.certificateNumber!}" _required="true" _optionVariable="certificateNumberAutoCompleteOption"/>
 
                 </div>
                 <div class="form-group col">
                     <label for="">联系电话</label>
-                    <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" />
+                    <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${leaseOrder.customerCellphone!}" required/>
                 </div>
             </div>
             <div class="breadcrumb" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true"
@@ -48,37 +49,39 @@
             <div class="row row-cols-4" id="leaseInfo">
                 <div class="form-group col">
                     <label for="engageCode">经营范围</label>
-                    <select id="engageCode" name="engageCode" class="form-control"></select>
-                    <#bcomboProvider _id="engageCode" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"lease_term", required:true}'/>
+                    <select id="engageCode" name="engageCode" class="form-control" required></select>
+                    <#bcomboProvider _id="engageCode" _provider="dataDictionaryValueProvider" _value="${leaseOrder.engageCode!}" _queryParams='{dd_code:"lease_term"}'/>
                 </div>
                 <div class="form-group col">
                     <label for="categoryName">经营品类</label>
-                    <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _placeholder="" _validatorMethod="isSelected" _provider="categoryProvider" _option="width:250"/>
+                    <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName"  _value="${leaseOrder.categoryId!}" _text="${leaseOrder.categoryName!}" _validatorMethod="isSelected" _provider="categoryProvider" _option="width:250" _required="true"/>
                 </div>
                 <div class="form-group col">
                     <label for="leaseTermCode">租赁期限</label>
-                    <select id="leaseTermCode" name="leaseTermCode" class="form-control"></select>
-                    <#bcomboProvider _id="leaseTermCode" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"engage", required:true}'/>
+                    <select id="leaseTermCode" name="leaseTermCode" class="form-control" required></select>
+                    <#bcomboProvider _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${leaseOrder.leaseTermCode!}" _queryParams='{dd_code:"engage"}'/>
                 </div>
                 <div class="form-group col">
                     <label for="days">租赁天数</label>
-                    <input type="number" class="form-control" id="days" name="days" oninput="daysChangeHandler()" min="1" required/>
+                    <input type="number" class="form-control" id="days" name="days" oninput="daysChangeHandler()" value="${leaseOrder.days!}" min="1" required/>
                 </div>
                 <div class="form-group col col">
                     <label for="startTime">开始日期</label>
-                    <input type="text" id="startTime" name="startTime" class="form-control" oninput="startTimeChangeHandler()"  required>
+                    <input type="text" id="startTime" name="startTime" class="form-control" oninput="startTimeChangeHandler()" value="${leaseOrder.startTime!,dateFormat='yyyy-MM-dd'}" required>
                 </div>
                 <div class="form-group col col">
                     <label for="endTime">结束日期</label>
-                    <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()"  required>
+                    <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()" value="${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}" required>
                 </div>
                 <div class="form-group col">
-                    <label for="">合同编号</label>
-                    <input type="text" class="form-control" name="" />
+                    <label for="contractNo">合同编号</label>
+                    <input type="text" class="form-control" id="contractNo" name="contractNo" value="${leaseOrder.contractNo!}"/>
                 </div>
                 <div class="form-group col">
-                    <label for="">业务所属部门</label>
-                    <select  name="" class="form-control"></select>
+                    <label for="departmentId">业务所属部门</label>
+                    <select id="departmentId"  name="departmentId" class="form-control" required></select>
+                    <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _value="${leaseOrder.departmentId!}"/>
+
                 </div>
             </div>
             <div class="breadcrumb" data-toggle="collapse" data-target="#moneyInfo" aria-controls="moneyInfo">
@@ -87,19 +90,19 @@
             <div class="row  row-cols-4 collapse show" id="moneyInfo">
                 <div class="form-group col">
                     <label for="rentAmount">租金</label>
-                    <input type="text" class="form-control" id="rentAmount" name="rentAmount" value="0" readonly/>
+                    <input type="number" class="form-control money" id="rentAmount" name="rentAmount" value="${leaseOrder.rentAmount!'0.00'}" readonly/>
                 </div>
                 <div class="form-group col">
                     <label for="manageAmount">物业管理费</label>
-                    <input type="text" class="form-control" id="manageAmount" name="manageAmount" value="0" readonly/>
+                    <input type="number" class="form-control money" id="manageAmount" name="manageAmount" value="${leaseOrder.manageAmount!'0.00'}" readonly/>
                 </div>
                 <div class="form-group col">
                     <label for="depositAmount">保证金</label>
-                    <input type="text" class="form-control" id="depositAmount" name="depositAmount" value="0" readonly/>
+                    <input type="number" class="form-control money" id="depositAmount" name="depositAmount" value="${leaseOrder.depositAmount!'0.00'}" readonly/>
                 </div>
                 <div class="form-group col">
                     <label for="totalAmount">合计金额</label>
-                    <input type="number" class="form-control" id="totalAmount" name="totalAmount" value="0"  readonly/>
+                    <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="${leaseOrder.totalAmount!'0.00'}"  readonly/>
                 </div>
             </div>
             <div class="breadcrumb" data-toggle="collapse" data-target="#deductInfo" aria-controls="deductInfo">
@@ -108,27 +111,27 @@
             <div class="row row-cols-4 collapse show" id="deductInfo">
                 <div class="form-group col">
                     <label for="depositDeduction">保证金</label>
-                    <input type="text" class="form-control" id="depositDeduction" name="depositDeduction" value="0" readonly/>
+                    <input type="number" class="form-control money" id="depositDeduction" name="depositDeduction" value="${leaseOrder.depositDeduction!'0.00'}" readonly/>
                 </div>
                 <div class="form-group col">
                     <label for="earnestDeduction">定金</label>
-                    <input type="text" class="form-control" id="earnestDeduction" name="earnestDeduction" value="" placeholder="余额2000.00"/>
+                    <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" value="${leaseOrder.earnestDeduction!}" oninput="calcPayAmount()"/>
                 </div>
                 <div class="form-group col">
                     <label for="transferDeduction">转抵扣</label>
-                    <input type="text" class="form-control" id="transferDeduction" name="transferDeduction"  value="" placeholder="余额2000.00"/>
+                    <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" value="${leaseOrder.transferDeduction!}" oninput="calcPayAmount()"/>
                 </div>
             </div>
             <div class="row row-cols-4 collapse show" id="otherInfo">
                 <div class="form-group col">
                     <label for="payAmount">实付金额</label>
-                    <input type="text" class="form-control" id="payAmount" name="payAmount" readonly/>
+                    <input type="number" class="form-control money" id="payAmount" name="payAmount" value="${leaseOrder.depositDeduction!}" readonly/>
                 </div>
             </div>
             <div class="row">
                 <div class="form-group col-8">
                     <label for="notes">备注</label>
-                    <textarea class="form-control" id="notes" name="notes"  rows="1" maxlength="50"></textarea>
+                    <textarea class="form-control" id="notes" name="notes"  rows="1" maxlength="50">${leaseOrder.notes!}</textarea>
                 </div>
             </div>
             <div class="text-right">
@@ -144,10 +147,16 @@
     <tr data-index="{{index}}">
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId" _displayDomainId="boothName_{{index}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected" _option="width:'350',paramName:'name',serviceUrl:'/booth/list.action',selectFn:boothSelectHandler"/>
+            <input type="hidden" id="number_{{index}}" name="number_{{index}}">
+            <input type="hidden" id="unitCode_{{index}}" name="unitCode_{{index}}">
+            <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}">
+            <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}">
+            <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}">
+            <input type="hidden" id="depositAmountSourceCode_{{index}}" name="depositAmountSourceCode_{{index}}">
+            <#bautoCompleteProvider _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId_{{index}}" _displayDomainId="boothName_{{index}}" _displayDomainName="boothName_{{index}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected" _required="true" _option="width:'350',paramName:'name',serviceUrl:'/booth/list.action',selectFn:boothSelectHandler"/>
         </td>
-        <td style="padding: .25rem!important;"><input type="text" id="rentAmount_{{index}}" name="rentAmount_{{index}}" value="{{rentAmount}}" class="form-control"></td>
-        <td style="padding: .25rem!important;"><input type="text" id="manageAmount_{{index}}" name="manageAmount_{{index}}" value="{{manageAmount}}" class="form-control"></td>
-        <td style="padding: .25rem!important;"><input type="text" id="depositAmount_{{index}}" name="depositAmount_{{index}}" value="{{depositAmount}}" class="form-control"></td>
+        <td style="padding: .25rem!important;"><input type="number" id="rentAmount_{{index}}" name="rentAmount_{{index}}" value="{{rentAmount}}" oninput="calcRentAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input type="number" id="manageAmount_{{index}}" name="manageAmount_{{index}}" value="{{manageAmount}}" oninput="calcManageAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input type="number" id="depositAmount_{{index}}" name="depositAmount_{{index}}" value="{{depositAmount}}" oninput="calcDepositAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
     </tr>
 </script>
