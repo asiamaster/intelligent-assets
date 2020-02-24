@@ -8,38 +8,48 @@
             </ol>
         </nav>
     </div>
-    <form id="queryForm" role="form" novalidate>
-        <div class="row  row-cols-6">
-            <div class="form-group col">
-                <label for="state" class="">状态</label>
-                <select id="state" name="state" class="form-control"></select>
-                <#bcomboProvider _id="state" _provider="earnestOrderStateProvider" _value=""/>
-            </div>
-            <div class="form-group col">
-                <label for="payState" class="">业务所属部门</label>
-                <select id="payState" name="payState" class="form-control"></select>
-                <#bcomboProvider _id="payState" _provider="payStateProvider" _value=""/>
-            </div>
-            <div class="form-group col">
-                <label for="customerName" class="">客户名称</label>
-                <input type="text" class="form-control" name="customerName" id="customerName"/>
-            </div>
-            <div class="form-group col">
-                <label for="boothName" class="">联系电话</label>
-                <input type="text" class="form-control" name="boothName" id="boothName"/>
-            </div>
-            <div class="form-group col">
-                <label for="code" class="">业务单号</label>
-                <input type="text" class="form-control" name="code" id="code"/>
-            </div>
-            <div class="form-group col">
-                <label for="">创建时间</label>
-                <input type="text" class="form-control laydatetime" id="createDate" placeholder="">
+
+    <form id="queryForm" role="form" class="form-inline" novalidate>
+        <div class="form-group mb-2 mr-5">
+            <label for="state" class="justify-content-end mr-2 w-100px">状态:</label>
+            <select id="state" name="state" class="form-control w-200px"></select>
+            <#bcomboProvider _id="state" _provider="earnestOrderStateProvider" _value=""/>
+        </div>
+        <div class="form-group mb-2 mr-5">
+            <label for="payState" class="justify-content-end mr-2 w-100px">业务所属部门:</label>
+            <select id="payState" name="payState" class="form-control w-200px"></select>
+            <#bcomboProvider _id="payState" _provider="payStateProvider" _value=""/>
+        </div>
+        <div class="form-group mb-2 mr-5">
+            <label for="likeCustomerName" class="justify-content-end mr-2 w-100px">客户名称:</label>
+            <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName"/>
+        </div>
+        <div class="form-group mb-2 mr-5">
+            <label for="boothName" class="justify-content-end mr-2 w-100px">联系电话:</label>
+            <input type="text" class="form-control" name="boothName" id="boothName"/>
+        </div>
+        <div class="form-group mb-2 mr-5">
+            <label for="code" class="justify-content-end mr-2 w-100px">业务单号:</label>
+            <input type="text" class="form-control" name="code" id="code"/>
+        </div>
+        <div class="form-group mb-2 mr-5">
+            <label for="createdStart" class="justify-content-end mr-2 w-100px">创建时间:</label>
+            <div class="input-group">
+                <input type="text" name="createdStart" id="createdStart" class="form-control date"/>
+                <div class="input-group-append">
+                    <label for="createdStart"  class="input-group-text fa fa-calendar"></label>
+                </div>
+            </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+            <div class="input-group" id="datetimepicker3">
+                <input type="text" name="createdEnd" id="createdEnd" class="form-control date" value=""/>
+                <div class="input-group-append">
+                    <label for="createdEnd"  class="input-group-text fa fa-calendar"></label>
+                </div>
             </div>
         </div>
-        <div class="">
-            <button type="button" class="btn btn-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
-            <button type="button" class="btn btn-secondary" onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-trash-o"></i> 清空</button>
+        <div class="btn-group mb-2">
+            <button id="query" type="button" class="btn btn-success mr-1" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+            <button id="clear" type="button" class="btn btn-danger" onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-trash-o"></i> 清除</button>
         </div>
     </form>
     <hr>
