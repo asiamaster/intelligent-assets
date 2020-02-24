@@ -1,10 +1,13 @@
 <#bs4Body>
+<style>
+
+</style>
 <div class="container-fluid">
     <form class="form">
         <div class="row">
             <nav class="col-12" aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page">基本信息</li>
+                    <li class="breadcrumb-item active" aria-current="page">摊位卡片</li>
                 </ol>
             </nav>
         </div>
@@ -13,15 +16,8 @@
                 <label for="">摊位编号</label>
                 <input type="" class="form-control isNaturalNum" id="" placeholder="">
             </div>
-            <div class="form-group col">
-                <label for="">区域1</label>
-                <select class="form-control" id="">
-                    <option value="11">1</option>
-                    <option value="22">2</option>
-                </select>
-            </div>
-            <div class="form-group col">
-                <label for="">区域2</label>
+            <div class="form-group col-4">
+                <label for="">区域</label>
                 <div class="input-group">
                     <select class="form-control" id="">
                         <option value="11">1</option>
@@ -40,19 +36,34 @@
                     <option value="22">2</option>
                 </select>
             </div>
-            <div class="form-group col">
-                <label for="">创建日期</label>
-                <input type="text" class="form-control laydatetime" id="createDate" placeholder="">
-            </div>
-            <div class="form-group col">
-                <label for="">数量</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" >
-                    <span class="input-group-text">~</span>
-                    <input type="text" class="form-control" >
+
+            <div class="form-group col-auto">
+                <label class="justify-content-end">创建日期</label>
+                <div class="form-inline">
+                    <div class="input-group">
+                        <input type="text" name="operateTimeStart" id="operateTimeStart" value="${operateTimeStart!}" class="form-control laydatetime"/>
+                        <div class="input-group-append">
+                            <label for="operateTimeStart"  class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                    <div class="input-group">
+                        <input type="text" name="operateTimeEnd" id="operateTimeEnd" value="${operateTimeEnd!}" class="form-control laydatetime"/>
+                        <div class="input-group-append">
+                            <label for="operateTimeEnd"  class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div class="form-group col-auto">
+                <label for="">数量</label>
+                <div class="form-inline">
+                        <input type="text" class="form-control" >
+                    &nbsp;&nbsp;至&nbsp;&nbsp;
+                        <input type="text" class="form-control" >
+                    </div>
 
+                </div>
+            </div>
         </div>
         <div class="">
             <button type="button" class="btn btn-primary">查询</button>

@@ -4,11 +4,10 @@ import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.service.EarnestOrderService;
+import com.dili.settlement.enums.EditEnableEnum;
+import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.uap.sdk.domain.Department;
-import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.glossary.DataAuthType;
-import com.dili.uap.sdk.session.SessionContext;
+import com.dili.ss.exception.BusinessException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -19,9 +18,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -133,8 +129,14 @@ public class EarnestOrderController {
 	})
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
-        earnestOrderService.submitEarnestOrder(id);
-        return BaseOutput.success("删除成功");
+        try {
+            earnestOrderService.submitEarnestOrder(id);
+            return BaseOutput.success("提交成功！");
+        } catch (BusinessException e) {
+            return BaseOutput.failure(e.getErrorMsg());
+        } catch (Exception e) {
+            return BaseOutput.failure("提交出错！");
+        }
     }
 
     /**
@@ -148,8 +150,14 @@ public class EarnestOrderController {
     })
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
-        earnestOrderService.withdrawEarnestOrder(id);
-        return BaseOutput.success("删除成功");
+        try {
+            earnestOrderService.withdrawEarnestOrder(id);
+            return BaseOutput.success("撤回成功！");
+        } catch (BusinessException e) {
+            return BaseOutput.failure(e.getErrorMsg());
+        } catch (Exception e) {
+            return BaseOutput.failure("撤回出错！");
+        }
     }
 
     /**

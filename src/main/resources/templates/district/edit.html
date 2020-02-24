@@ -1,15 +1,16 @@
-<form id="addForm">
-    <input type="hidden" name="parentId" value="0">
+<form id="editForm">
+    <input name="id" type="hidden" value="${obj.id!}">
     <div class="form-group row">
         <label for="number" class="col-sm-2 col-form-label">区域编号</label>
         <div class="col-sm-10">
-            <input type="text" class="form-control" name="number" id="number" digits="true" maxlength="4" required/>
+            <input type="text" class="form-control" name="number" id="number" value="${obj.number!}" digits="true"
+                   maxlength="4" required/>
         </div>
     </div>
     <div class="form-group row">
-        <label for="addForm_name" class="col-sm-2 col-form-label">区域名称</label>
+        <label for="editForm_name" class="col-sm-2 col-form-label">区域名称</label>
         <div class="col-sm-10">
-            <input type="text" id="addForm_name" name="name" class="form-control" maxlength="20"
+            <input type="text" id="editForm_name" name="name" class="form-control" value="${obj.name!}" maxlength="20"
                    required/>
         </div>
     </div>
@@ -23,7 +24,7 @@
     </div>
     <div class="form-group">
         <label for="notes">备注</label>
-        <textarea class="form-control" id="notes" name="notes" rows="1"></textarea>
+        <textarea class="form-control" id="notes" name="notes" rows="1">${obj.notes!}</textarea>
     </div>
     <div class="text-right">
         <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancel">取消</button>
@@ -32,20 +33,20 @@
 </form>
 <script type="text/javascript">
     $(function () {
-        $("#addForm").validate();
+        $("#editForm").validate();
     });
 
     var okButton = $("#form-submit");
 
     function saveOrUpdateHandler() {
-        if ($("#addForm").valid()) {
+        if ($("#editForm").valid()) {
             okButton.attr("disabled", "disabled");
             bui.loading.show('努力提交中，请稍候。。。');
             $.ajax({
                 type: "POST",
                 dataType: "json",
-                url: '/district/insert.action',
-                data: $("#addForm").serialize(),
+                url: '/district/edit.action',
+                data: $("#editForm").serialize(),
                 success: function (data) {
                     bui.loading.hide();
                     if (data.code != '200') {
@@ -53,9 +54,6 @@
                         okButton.removeAttr("disabled");
                         return;
                     }
-                    // bs4pop.alert('成功', {type: 'success '}, function () {
-                    //     window.location.reload();
-                    // });
                     window.location.reload();
                     okButton.removeAttr("disabled");
                 },
