@@ -49,7 +49,7 @@
     }
 
     /**
-     * 打开修改窗口
+     * 打开修改Handler
      */
     function openUpdateHandler() {
         //获取选中行的数据
@@ -72,7 +72,7 @@
     }
 
     /**
-     * 打开查看窗口
+     * 打开查看Handler
      */
     function openViewHandler() {
         //获取选中行的数据
@@ -91,6 +91,41 @@
             width: '80%',
             height : '95%',
             btns: []
+        });
+    }
+
+    /**
+     * 打开补录Handler
+     */
+    function openSupplementHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        dia = bs4pop.dialog({
+            title: '摊位租赁详情',
+            content: template('supplementTpl',{}),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            height : '60%',
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick(e) {
+                        if (!$('#supplementForm').valid()) {
+                            return false;
+                        }
+
+                    }
+                },
+                {
+                    label: '取消', className: 'btn-default', onClick(e) {
+                    }
+                }
+            ]
         });
     }
 

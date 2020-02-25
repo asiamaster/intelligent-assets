@@ -77,7 +77,7 @@
                 <button id="btn_cancel" type="button" class="btn btn-primary" onclick=""><i class="fa fa-ban"></i> 取消</button>
                 <button id="btn_submit" type="button" class="btn btn-primary" onclick=""><i class="fa fa-paper-plane"></i> 提交付款</button>
                 <button id="btn_withdraw" type="button" class="btn btn-primary" onclick=""><i class="fa fa-undo"></i> 撤回</button>
-                <button id="btn_supplement" type="button" class="btn btn-primary" onclick=""><i class="fa fa-paint-brush"></i> 补录</button>
+                <button id="btn_supplement" type="button" class="btn btn-primary" onclick="openSupplementHandler()"><i class="fa fa-paint-brush"></i> 补录</button>
                 <button id="btn_renew" type="button" class="btn btn-primary" onclick=""><i class="fa fa-plug"></i> 续租</button>
                 <button id="btn_refund_apply" type="button" class="btn btn-primary" onclick=""><i class="fa fa-reply"></i> 退款申请</button>
             </div>
@@ -303,4 +303,17 @@
             </thead>
         </table>
     </div>
+</script>
+<!-- 合同编号补充模板 -->
+<script id="supplementTpl" type="text/html">
+    <form id="supplementForm">
+        <div class="row">
+            <div class="col-2 col-form-label text-right">
+                <label for="contractNo" class="justify-content-end w-100px">合同编号:</label>
+            </div>
+            <div class="col-8 ml-2">
+                <input type="text" id="contractNo" name="contractNo" class="form-control" required/>
+            </div>
+        </div>
+    </form>
 </script>
