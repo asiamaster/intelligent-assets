@@ -69,7 +69,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             o.setCustomerId(dto.getCustomerId());
             o.setCustomerName(dto.getCustomerName());
             o.setState(LeaseOrderStateEnum.CREATED.getCode());
-            o.setDepositAmountFlag(DepositAmountFlagEnum.NOT_TRANSFER.getCode());
+            o.setDepositAmountFlag(DepositAmountFlagEnum.PRE_TRANSFER.getCode());
             leaseOrderItemService.insertSelective(o);
         });
     }

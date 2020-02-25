@@ -1,0 +1,1 @@
+<% if(isNotEmpty(value)){ %>${@com.dili.ss.util.MoneyUtils.centToYuan(value)}<%}%>

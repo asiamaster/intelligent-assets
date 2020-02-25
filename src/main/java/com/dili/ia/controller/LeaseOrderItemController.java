@@ -3,12 +3,15 @@ package com.dili.ia.controller;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.glossary.DepositAmountFlagEnum;
+import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ss.domain.BaseOutput;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -107,7 +110,8 @@ public class LeaseOrderItemController {
      */
     @RequestMapping(value="/list.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput list(LeaseOrderItemListDto leaseOrderItem) {
-        leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.NOT_TRANSFER.getCode());
+        leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
+        leaseOrderItem.setStateNotEquals(Arrays.asList(LeaseOrderStateEnum.REFUNDED.getCode()));
         return BaseOutput.success().setData(leaseOrderItemService.listByExample(leaseOrderItem));
     }
 }

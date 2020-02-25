@@ -1,5 +1,6 @@
 package com.dili.ia.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
@@ -63,12 +64,14 @@ public class LeaseOrderController {
     @ApiOperation("跳转到LeaseOrder查看页面")
     @RequestMapping(value="/view.html", method = RequestMethod.GET)
     public String view(ModelMap modelMap,Long id) {
-        LeaseOrder leaseOrder = leaseOrderService.get(id);
-        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
-        condition.setLeaseOrderId(id);
-        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
-        modelMap.put("leaseOrder",leaseOrder);
-        modelMap.put("leaseOrderItems",leaseOrderItems);
+        if(null != id){
+            LeaseOrder leaseOrder = leaseOrderService.get(id);
+            LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+            condition.setLeaseOrderId(id);
+            List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
+            modelMap.put("leaseOrder",leaseOrder);
+            modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
+        }
         return "leaseOrder/view";
     }
 
@@ -80,12 +83,14 @@ public class LeaseOrderController {
     @ApiOperation("跳转到LeaseOrder新增页面")
     @RequestMapping(value="/preSave.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap,Long id) {
-        LeaseOrder leaseOrder = leaseOrderService.get(id);
-        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
-        condition.setLeaseOrderId(id);
-        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
-        modelMap.put("leaseOrder",leaseOrder);
-        modelMap.put("leaseOrderItems",leaseOrderItems);
+        if(null != id){
+            LeaseOrder leaseOrder = leaseOrderService.get(id);
+            LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+            condition.setLeaseOrderId(id);
+            List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
+            modelMap.put("leaseOrder",leaseOrder);
+            modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
+        }
         return "leaseOrder/preSave";
     }
 
@@ -130,7 +135,7 @@ public class LeaseOrderController {
     public @ResponseBody BaseOutput saveLeaseOrder(LeaseOrderListDto leaseOrder){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(leaseOrder.getEndTime());
-        calendar.add(Calendar.HOUR,23);
+        calendar.add(Calendar.HOUR_OF_DAY,23);
         calendar.add(Calendar.MINUTE,59);
         calendar.add(Calendar.SECOND,59);
         leaseOrder.setEndTime(calendar.getTime());

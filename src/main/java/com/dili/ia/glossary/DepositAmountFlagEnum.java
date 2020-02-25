@@ -9,8 +9,9 @@ package com.dili.ia.glossary;
  * @createTime 2020-02-17 18:51
  */
 public enum DepositAmountFlagEnum {
-    NOT_TRANSFER(1, "未转低"),
-    TRANSFERED(2, "已转低"),
+    PRE_TRANSFER(1, "预转入"),
+    TRANSFERRED(2, "已转入"),
+    TRANSFERRED_OUT(3, "已转出"),
     ;
 
     private String name;

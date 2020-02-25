@@ -9,6 +9,7 @@
     /*********************变量定义区 begin*************/
         //行索引计数器
         let itemIndex = 0;
+        let isUpdateChecking = ${isNotEmpty(leaseOrder) ? true : false};
         var customerNameAutoCompleteOption = {
             width : 350,
             serviceUrl: '/customer/list.action',
@@ -88,7 +89,21 @@
             }
         });
 
-        addBoothItem();
+        <% if(isNotEmpty(leaseOrderItems)){ %>
+            let leaseOrderItems = JSON.parse('${leaseOrderItems}');
+            for (let leaseOrderItem of leaseOrderItems){
+                leaseOrderItem.rentAmount = leaseOrderItem.rentAmount.centToYuan();
+                leaseOrderItem.manageAmount = leaseOrderItem.manageAmount.centToYuan();
+                leaseOrderItem.depositAmount = leaseOrderItem.depositAmount.centToYuan();
+                addBoothItem($.extend(leaseOrderItem,{index: ++itemIndex}));
+            }
+            queryCustomerAccount();
+            queryCustomerDepositDeduction(true);
+        <% }else{%>
+            while (itemIndex<1) {
+                addBoothItem({index: ++itemIndex});
+            }
+        <% }%>
     });
     /******************************驱动执行区 end****************************/
 
@@ -125,9 +140,10 @@
 
     /**
      * 添加摊位
-     * */
-    function addBoothItem(){
-        $('#boothTable tbody').append(HTMLDecode(template('boothItem',{index:++itemIndex})))
+     * @param leaseOrderItem
+     */
+    function addBoothItem(leaseOrderItem){
+        $('#boothTable tbody').append(HTMLDecode(template('boothItem',leaseOrderItem)))
     }
 
     /**
@@ -225,17 +241,16 @@
         $('#districtId_'+index).val(suggestion.districtId);
         $('#districtName_'+index).val(suggestion.districtName);
 
-        queryCustomerDepositDeduction(true,element);
+        queryCustomerDepositDeduction(true);
     }
 
 
     /**
      * 保证金可抵扣金额计算
      * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
-     * @param (element)
      * true：级联计算 false：不级联计算
      */
-    function queryCustomerDepositDeduction(isCascadeCalc,element){
+    function queryCustomerDepositDeduction(isCascadeCalc){
         let customerId = $('#customerId').val();
         let boothIds = $("table input[name^='boothId']").filter(function () {
             return this.value
@@ -255,12 +270,18 @@
                     let depositAmount = 0;
                     $.each(data.data,function (index,item) {
                         depositAmount += item.depositAmount;
-                        let trIndex = getIndex($(element).attr('id'));
-
-                        if(item.boothId == $('#boothId_'+trIndex).val()){
-                            $('#depositAmountSourceCode_'+trIndex).val(item.code);
-                        }
+                        let boothIdEl = $("table input[name^='boothId']").filter(function () {
+                            return this.value == item.boothId;
+                        });
+                        let trIndex = getIndex(boothIdEl.attr('id'));
+                        $('#depositAmountSourceCode_'+trIndex).val(item.code);
                     });
+                    if(isUpdateChecking){
+                        if($('#depositDeduction').val() != depositAmount.centToYuan()){
+                            bs4pop.notice('保证金可抵扣额发生变化,已为您调整至最新值！', {position: 'bottomleft',autoClose: false})
+                        }
+                        isUpdateChecking = false;
+                    }
                     $('#depositDeduction').val(Number(depositAmount).centToYuan())
                 } else {
                     bs4pop.alert(data.result, {type: 'error'});
@@ -291,10 +312,27 @@
             success: function (ret) {
                if(ret.success){
                    let data = ret.data;
+                   let earnestDeductionEl$ = $('#earnestDeduction');
+                   let transferDeductionEl$ = $('#transferDeduction');
                    let earnestAvailableBalance = Number(data.earnestAvailableBalance).centToYuan();
                    let transferAvailableBalance = Number(data.transferAvailableBalance).centToYuan();
-                   $('#earnestDeduction').val('').attr('max',earnestAvailableBalance).attr('placeHolder','余额'+earnestAvailableBalance);
-                   $('#transferDeduction').val('').attr('max',transferAvailableBalance).attr('placeHolder','余额'+transferAvailableBalance);
+                   if(isUpdateChecking){
+                       if(Number(earnestDeductionEl$.val()) > earnestAvailableBalance){
+                           earnestDeductionEl$.val(earnestAvailableBalance);
+                           bs4pop.notice('定金可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
+                       }
+                       if(Number(transferDeductionEl$.val()) > transferAvailableBalance){
+                           transferDeductionEl$.val(transferAvailableBalance);
+                           bs4pop.notice('转低可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
+                       }
+                   }else{
+                       earnestDeductionEl$.val('');
+                       $('#transferDeduction').val('');
+                   }
+                   earnestDeductionEl$.attr('max',earnestAvailableBalance);
+                   $('#earnestAmount').text('余额'+earnestAvailableBalance);
+                   transferDeductionEl$.attr('max',transferAvailableBalance);
+                   $('#transferAmount').text('余额'+transferAvailableBalance);
                }
             },
             error: function (a, b, c) {
@@ -459,7 +497,7 @@
     });
 
     $('#addBooth').on('click', function(){
-        addBoothItem();
+        addBoothItem({index: ++itemIndex});
     });
 
     //删除行事件
