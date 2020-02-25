@@ -19,7 +19,7 @@
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item active">
-                        摊位出租管理<a href="javascript:closeModal()">关闭</a>
+                        摊位出租管理
                     </li>
                 </ol>
             </nav>
@@ -71,7 +71,7 @@
     <div class="row">
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
-                <button id="btn_view" type="button" class="btn btn-primary" onclick=""><i class="fa fa-eye"></i> 查看</button>
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
                 <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
                 <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 <button id="btn_cancel" type="button" class="btn btn-primary" onclick=""><i class="fa fa-ban"></i> 取消</button>
@@ -104,7 +104,7 @@
                     <th data-field="customerCellphone" data-sortable="true" data-align="center" data-visible="false">
                         联系电话
                     </th>
-                    <th data-field="leaseTerm" data-sortable="true" data-align="center" data-visible="false">
+                    <th data-field="leaseTermName" data-sortable="true" data-align="center" data-visible="false">
                         租赁期限
                     </th>
                     <th data-field="startTime" data-sortable="true" data-align="center" data-provider="dateProvider">

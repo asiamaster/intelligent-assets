@@ -70,7 +70,7 @@ public class LeaseOrderController {
             condition.setLeaseOrderId(id);
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
             modelMap.put("leaseOrder",leaseOrder);
-            modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
+            modelMap.put("leaseOrderItems", leaseOrderItems);
         }
         return "leaseOrder/view";
     }

@@ -426,8 +426,12 @@
      */
     function buildFormData(){
         let formData = $("input:not(table input),textarea,select").serializeObject();
-        bui.util.yuanToCentForMoneyEl(formData);
         let leaseOrderItems = [];
+        let leaseTermName = $('#leaseTermCode').find("option:selected").text();
+        let engageName = $('#engageCode').find("option:selected").text();
+        let departmentName = $('#departmentId').find("option:selected").text();
+
+        bui.util.yuanToCentForMoneyEl(formData);
         $("#boothTable tbody").find("tr").each(function(){
             let leaseOrderItem = {};
             $(this).find("input").each(function(t,el){
@@ -436,7 +440,8 @@
             });
             leaseOrderItems.push(leaseOrderItem);
         });
-        formData.leaseOrderItems = leaseOrderItems;
+
+        $.extend(formData,{leaseOrderItems,leaseTermName,engageName,departmentName})
         $.ajax({
             type: "POST",
             url: "/leaseOrder/saveLeaseOrder.action",

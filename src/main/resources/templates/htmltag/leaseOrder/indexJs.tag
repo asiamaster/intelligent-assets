@@ -72,6 +72,29 @@
     }
 
     /**
+     * 打开查看窗口
+     */
+    function openViewHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        dia = bs4pop.dialog({
+            title: '摊位租赁详情',
+            content: '/leaseOrder/view.html?id='+rows[0].id,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '80%',
+            height : '95%',
+            btns: []
+        });
+    }
+
+    /**
      * 禁启用操作
      * @param enable 是否启用:true-启用
      */

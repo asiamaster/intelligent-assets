@@ -1,3 +1,147 @@
 <#bs4Body>
 
+    <div class="container-fluid">
+        <form id="saveForm" role="form" novalidate>
+            <input type="hidden" name="id" value="${leaseOrder.id!}">
+            <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
+                aria-controls="customerInfo">
+                客户信息
+            </div>
+            <div class="row row-cols-4" id="customerInfo">
+                <div class="form-group col">
+                    <label for="customerName">客户名称<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="customerName" name="customerName" value="${leaseOrder.customerName!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="certificateNumber">证件号码<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${leaseOrder.certificateNumber!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="customerCellphone">联系电话<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${leaseOrder.customerCellphone!}" readonly/>
+                </div>
+            </div>
+            <div class="breadcrumb" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true"
+                aria-controls="boothInfo">
+                摊位信息
+            </div>
+            <div id="boothInfo1">
+                <table class="table table-bordered table-hover table-striped" id="boothTable">
+                    <thead>
+                    <tr>
+                        <th class="text-center align-middle" style="width: 25%;font-weight:normal; ">摊位编号<i class="red">*</i></th>
+                        <th class="text-center align-middle"  style="width: 25%;font-weight:normal; ">租金<i class="red">*</i></th>
+                        <th class="text-center align-middle"  style="width: 22%;font-weight:normal; ">物业管理费<i class="red">*</i></th>
+                        <th class="text-center align-middle"  style="width: 23%;font-weight:normal; ">保证金<i class="red">*</i></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <%
+                    if(leaseOrderItems.~size>0){
+                    for(item in leaseOrderItems){%>
+                        <tr>
+                            <td class="text-center align-middle" >${item.boothName!}</td>
+                            <td class="text-center align-middle" ><#centToYuan value='${item.rentAmount!}'/></td>
+                            <td class="text-center align-middle" ><#centToYuan value='${item.manageAmount!}'/></td>
+                            <td class="text-center align-middle" ><#centToYuan value='${item.depositAmount!}'/></td>
+                        </tr>
+                    <% } } %>
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="breadcrumb" data-toggle="collapse" data-target="#leaseInfo" aria-expanded="true"
+                aria-controls="leaseInfo">
+                出租信息
+            </div>
+            <div class="row row-cols-4" id="leaseInfo">
+                <div class="form-group col">
+                    <label for="engageName">经营范围<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="engageName" name="engageName" value="${leaseOrder.engageName!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="categoryName">经营品类<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="categoryName" name="categoryName" value="${leaseOrder.categoryName!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="leaseTermName">租赁期限<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="leaseTermName" name="leaseTermName" value="${leaseOrder.leaseTermName!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="days">租赁天数<i class="red">*</i></label>
+                    <input type="number" class="form-control" id="days" name="days" value="${leaseOrder.days!}" readonly/>
+                </div>
+                <div class="form-group col col">
+                    <label for="startTime">开始日期<i class="red">*</i></label>
+                    <input type="text" id="startTime" name="startTime" class="form-control" value="${leaseOrder.startTime!,dateFormat='yyyy-MM-dd'}" readonly>
+                </div>
+                <div class="form-group col col">
+                    <label for="endTime">结束日期<i class="red">*</i></label>
+                    <input type="text" id="endTime" name="endTime" class="form-control" value="${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}" readonly>
+                </div>
+                <div class="form-group col">
+                    <label for="contractNo">合同编号<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="contractNo" name="contractNo" value="${leaseOrder.contractNo!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="departmentName">业务所属部门<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="departmentName" name="departmentName" value="${leaseOrder.departmentName!}" readonly/>
+                </div>
+            </div>
+            <div class="breadcrumb" data-toggle="collapse" data-target="#moneyInfo" aria-controls="moneyInfo">
+                金额信息
+            </div>
+            <div class="row  row-cols-4 collapse show" id="moneyInfo">
+                <div class="form-group col">
+                    <label for="rentAmount">租金<i class="red">*</i></label>
+                    <input type="number" class="form-control money" id="rentAmount" name="rentAmount" value="<#centToYuan value='${leaseOrder.rentAmount!0}'/>" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="manageAmount">物业管理费<i class="red">*</i></label>
+                    <input type="number" class="form-control money" id="manageAmount" name="manageAmount" value="<#centToYuan value='${leaseOrder.manageAmount!0}'/>" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="depositAmount">保证金<i class="red">*</i></label>
+                    <input type="number" class="form-control money" id="depositAmount" name="depositAmount" value="<#centToYuan value='${leaseOrder.depositAmount!0}'/>" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="totalAmount">合计金额<i class="red">*</i></label>
+                    <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>"  readonly/>
+                </div>
+            </div>
+            <div class="breadcrumb" data-toggle="collapse" data-target="#deductInfo" aria-controls="deductInfo">
+                抵扣项
+            </div>
+            <div class="row row-cols-4 collapse show" id="deductInfo">
+                <div class="form-group col">
+                    <label for="depositDeduction">保证金<i class="red">*</i></label>
+                    <input type="number" class="form-control money" id="depositDeduction" name="depositDeduction" value="<#centToYuan value='${leaseOrder.depositDeduction!0}'/>" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="earnestDeduction">定金</label>
+                    <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" value="<#centToYuan value='${leaseOrder.earnestDeduction!}'/>" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="transferDeduction">转抵扣</label>
+                    <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" value="<#centToYuan value='${leaseOrder.transferDeduction!}'/>" readonly/>
+                </div>
+            </div>
+            <div class="row row-cols-4 collapse show" id="otherInfo">
+                <div class="form-group col">
+                    <label for="payAmount">实付金额<i class="red">*</i></label>
+                    <input type="number" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" readonly/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-8">
+                    <label for="notes">备注</label>
+                    <textarea class="form-control" id="notes" name="notes"  rows="1" maxlength="50" readonly>${leaseOrder.notes!}</textarea>
+                </div>
+            </div>
+            <div class="text-right">
+                <button type="button" class="btn btn-secondary p-l-2 p-r-2" id="cancel" onclick="javascript:parent.closeDialog(parent.dia)">关闭</button>
+            </div>
+        </form>
+    </div>
+
 </#bs4Body>
