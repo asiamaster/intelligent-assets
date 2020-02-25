@@ -36,13 +36,13 @@
         <div class="form-group mb-2 mr-5">
             <label for="createdStart" class="justify-content-end mr-2 w-100px">创建时间:</label>
             <div class="input-group">
-                <input type="text" name="createdStart" id="createdStart" class="form-control date"/>
+                <input type="text" name="createdStart" id="createdStart" class="form-control laydatetime laystart"/>
                 <div class="input-group-append">
                     <label for="createdStart"  class="input-group-text fa fa-calendar"></label>
                 </div>
             </div>&nbsp;&nbsp;至&nbsp;&nbsp;
             <div class="input-group" id="datetimepicker3">
-                <input type="text" name="createdEnd" id="createdEnd" class="form-control date" value=""/>
+                <input type="text" name="createdEnd" id="createdEnd" class="form-control laydatetime layend" value=""/>
                 <div class="input-group-append">
                     <label for="createdEnd"  class="input-group-text fa fa-calendar"></label>
                 </div>
@@ -58,7 +58,7 @@
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
                 <#resource code="viewEarnestOrder">
-                <button id="btn_view" type="button" class="btn btn-primary" onclick=""><i class="fa fa-eye"></i> 查看</button>
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
                 </#resource>
                 <#resource code="addEarnestOrder">
                 <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
@@ -67,7 +67,7 @@
                 <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 </#resource>
                 <#resource code="submitEarnestOrder">
-                <button id="btn_submit" type="button" class="btn btn-primary" onclick=""><i class="fa fa-paper-plane"></i> 提交</button>
+                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
                 </#resource>
                 <#resource code="withdrawEarnestOrder">
                 <button id="btn_withdraw" type="button" class="btn btn-primary" onclick=""><i class="fa fa-undo"></i> 撤回</button>
@@ -86,6 +86,7 @@
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
                 <thead>
                 <tr>
+                    <th data-radio="true"	></th>
                     <th data-field="code" data-align="center">
                         业务单号
                     </th>
@@ -127,7 +128,7 @@
 </div>
 
 </#bs4Body>
-
+<script type="text/javascript" src="${contextPath}/resources/js/bui/commonList.js"></script>
 <#earnestOrder_indexJs />
 
 <script>
