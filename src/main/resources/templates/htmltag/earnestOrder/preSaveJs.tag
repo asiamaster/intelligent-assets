@@ -57,7 +57,7 @@
             let _formData = new FormData($('#saveForm')[0]);
             $.ajax({
                 type: "POST",
-                url: "${contextPath}/earnestOrder/save.action",
+                url: "${contextPath}/earnestOrder/insert.action",
                 data: _formData,
                 processData: false,
                 contentType: false,
