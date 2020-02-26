@@ -19,25 +19,7 @@
         queryDataHandler();
     });
 
-    $(function () {
-        $(window).resize(function () {
-            _grid.bootstrapTable('resetView')
-        });
-        queryDataHandler();
-    });
     /******************************驱动执行区 end****************************/
-
-    /************ 表格是否选中一条数据 start **************/
-    function isSelectRow() {
-        let rows = _grid.bootstrapTable('getSelections');
-        let isSelectFlag = true;
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            isSelectFlag = false;
-        }
-        return isSelectFlag
-    }
-    /************ 表格是否选中一条数据 end **************/
 
     /**
      * 查询处理
