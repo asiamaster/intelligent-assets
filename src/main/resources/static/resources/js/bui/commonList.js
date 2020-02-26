@@ -36,7 +36,7 @@ $(function () {
             type: 'date',
             theme: '#007bff',
             done: function (value, date) {
-                isStartEndDatetime(date, this.elem);
+                isStartEndDatetime(value, this.elem);
             }
         });
 
