@@ -1,21 +1,10 @@
 <script>
 
-    //时间范围
-    lay('.laydatetime').each(function() {
-        laydate.render({
-            elem : this
-            ,trigger : 'click'
-            ,range: true
-        });
-    });
-
-
     /*********************变量定义区 begin*************/
         //行索引计数器
         //如 let itemIndex = 0;
     let _grid = $('#grid');
     let _form = $('#_form');
-    let _modal = $('#_modal');
     let currentSelectRowIndex;
     var dia;
 
@@ -29,6 +18,7 @@
         });
         queryDataHandler();
     });
+
     /******************************驱动执行区 end****************************/
 
     /**
@@ -37,7 +27,22 @@
     function queryDataHandler() {
         // currentSelectRowIndex = undefined;
         // $('#toolbar button').attr('disabled', false);
-        _grid.bootstrapTable('refreshOptions', {url: '/transactionDetails/listPage.action'});
+        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/transactionDetails/listPage.action'});
+    }
+
+    /**
+     * table参数组装
+     * 可修改queryParams向服务器发送其余的参数
+     * @param params
+     */
+    function queryParams(params) {
+        let temp = {
+            rows: params.limit,   //页面大小
+            page: ((params.offset / params.limit) + 1) || 1, //页码
+            sort: params.sort,
+            order: params.order
+        }
+        return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
     }
 
 </script>

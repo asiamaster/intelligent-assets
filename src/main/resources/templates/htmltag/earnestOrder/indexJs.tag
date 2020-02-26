@@ -22,6 +22,21 @@
     /******************************驱动执行区 end****************************/
 
     /**
+     * table参数组装
+     * 可修改queryParams向服务器发送其余的参数
+     * @param params
+     */
+    function queryParams(params) {
+        let temp = {
+            rows: params.limit,   //页面大小
+            page: ((params.offset / params.limit) + 1) || 1, //页码
+            sort: params.sort,
+            order: params.order
+        }
+        return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
+    }
+
+    /**
      * 查询处理
      */
     function queryDataHandler() {
