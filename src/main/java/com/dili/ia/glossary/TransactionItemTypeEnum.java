@@ -6,25 +6,24 @@ package com.dili.ia.glossary;
  * <B>农丰时代科技有限公司</B>
  *
  * @author qinkelan
- * @createTime 2020-02-11 16:31
+ * @createTime 2020-02-26 15:23
  */
-public enum EarnestOrderStateEnum {
-    CREATED(1, "已创建"),
-    CANCELD(2, "已取消"),
-    SUBMITTED(3, "已提交"),
-    PAID(4, "已缴费"),
+public enum TransactionItemTypeEnum {
+    EARNEST(1, "定金"),
+    TRANSFER(2, "转抵"),
+    DEPOSIT(3, "保证金"),
     ;
 
     private String name;
     private Integer code ;
 
-    EarnestOrderStateEnum(Integer code, String name){
+    TransactionItemTypeEnum(Integer code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static EarnestOrderStateEnum getEnabledState(Integer code) {
-        for (EarnestOrderStateEnum anEnum : EarnestOrderStateEnum.values()) {
+    public static TransactionItemTypeEnum getEnabledState(Integer code) {
+        for (TransactionItemTypeEnum anEnum : TransactionItemTypeEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }
