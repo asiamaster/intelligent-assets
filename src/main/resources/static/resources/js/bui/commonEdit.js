@@ -73,7 +73,15 @@ $('#getCustomer').on('click', function (e) {
             bs4pop.alert('远程访问失败', {type: 'error'});
         }
     });
-})
+});
+/**
+ * 读身份证卡
+ * @return {IDCardNo:'5116021989...'}
+ * */
+function reader() {
+    if (!window.callbackObj) return;
+    return eval('(' + callbackObj.readIDCard() + ')');
+}
 /************* 刷卡获取客户信息  end *****************/
 
 

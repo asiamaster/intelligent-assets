@@ -35,7 +35,6 @@
      */
     function openInsertHandler() {
         dia = bs4pop.dialog({
-            id: 'addModal',
             title: '新增定金',//对话框title
             content: '${contextPath}/earnestOrder/add.html', //对话框内容，可以是 string、element，$object
             width: 900,//宽度
@@ -49,7 +48,6 @@
      */
     function openUpdateHandler() {
         dia = bs4pop.dialog({
-            id: 'addModal',
             title: '修改定金',//对话框title
             content: '${contextPath}/earnestOrder/update.html', //对话框内容，可以是 string、element，$object
             width: 900,//宽度
@@ -63,7 +61,6 @@
      */
     function openViewHandler() {
         dia = bs4pop.dialog({
-            id: 'addModal',
             title: '定金详情',//对话框title
             content: '${contextPath}/earnestOrder/view.html', //对话框内容，可以是 string、element，$object
             width: 900,//宽度

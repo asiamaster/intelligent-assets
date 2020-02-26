@@ -24,8 +24,8 @@
             </div>
         </div>
         <div class="">
-            <button type="button" class="btn btn-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
-            <button type="button" class="btn btn-secondary" onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-trash-o"></i> 清空</button>
+            <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-refresh"></i> 清空</button>
+            <buttontype="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
         </div>
     </form>
     <hr>
@@ -49,6 +49,7 @@
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
                 <thead>
                 <tr>
+                    <th data-radio="true"></th>
                     <th data-field="customerName" data-align="center">
                         客户名称
                     </th>
@@ -70,11 +71,6 @@
 </div>
 
 </#bs4Body>
-
+<script type="text/javascript" src="${contextPath}/resources/js/bui/commonList.js"></script>
 <#customerAccount_indexJs />
 
-<script>
-
-
-
-</script>
