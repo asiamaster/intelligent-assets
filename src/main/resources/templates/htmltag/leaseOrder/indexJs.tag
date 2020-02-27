@@ -145,6 +145,45 @@
     }
 
     /**
+     * 打开取消Handler
+     */
+    function openCancelHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        let selectedRow = rows[0];
+        bs4pop.confirm('确定取消该业务单？', undefined, function (sure) {
+            if(sure){
+                bui.loading.show('努力提交中，请稍候。。。');
+                $.ajax({
+                    type: "POST",
+                    url: "${contextPath}/leaseOrder/cancelOrder.action",
+                    data: {id: selectedRow.id},
+                    dataType: "json",
+                    async:false,
+                    success : function(ret) {
+                        bui.loading.hide();
+                        if(ret.success){
+                            _grid.bootstrapTable('refresh');
+                        }else{
+                            bs4pop.alert(ret.message, {type: 'error'});
+                        }
+                    },
+                    error : function() {
+                        bui.loading.hide();
+                        bs4pop.alert('远程访问失败', {type: 'error'});
+                    }
+                });
+            }
+        })
+
+    }
+
+    /**
      * 禁启用操作
      * @param enable 是否启用:true-启用
      */
