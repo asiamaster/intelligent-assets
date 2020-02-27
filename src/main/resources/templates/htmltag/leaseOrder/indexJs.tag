@@ -105,7 +105,7 @@
             return;
         }
 
-        dia = bs4pop.dialog({
+        bs4pop.dialog({
             title: '摊位租赁详情',
             content: template('supplementTpl',{}),
             closeBtn: true,
@@ -118,13 +118,28 @@
                         if (!$('#supplementForm').valid()) {
                             return false;
                         }
-
+                        bui.loading.show();
+                        $.ajax({
+                            type: "POST",
+                            url: "${contextPath}/leaseOrder/supplement.action",
+                            data: {id: rows[0].id,contractNo : $('#contractNo').val()},
+                            processData:true,
+                            dataType: "json",
+                            async : false,
+                            success : function(data) {
+                                bui.loading.hide();
+                                if(!data.success){
+                                    bs4pop.alert(data.result, {type: 'error'});
+                                }
+                            },
+                            error : function() {
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
                     }
                 },
-                {
-                    label: '取消', className: 'btn-default', onClick(e) {
-                    }
-                }
+                {label: '取消', className: 'btn-default', onClick(e) {}}
             ]
         });
     }

@@ -195,6 +195,13 @@ public interface LeaseOrderItem extends IBaseDomain {
 
     void setRentAmount(Long rentAmount);
 
+    @Column(name = "`refund_state`")
+    @FieldDef(label="退款状态状态（1：未发起申请 2：退款中 3：已退款）")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Integer getRefundState();
+
+    void setRefundState(Integer refundState);
+
     @Column(name = "`refund_amount`")
     @FieldDef(label="退款总金额")
     @EditMode(editor = FieldEditor.Number, required = false)

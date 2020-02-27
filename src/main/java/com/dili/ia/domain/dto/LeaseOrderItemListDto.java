@@ -47,4 +47,9 @@ public interface LeaseOrderItemListDto extends LeaseOrderItem {
     List<Integer> getStateNotEquals();
     void setStateNotEquals(List<Integer> stateNotEquals);
 
+    @Operator(Operator.IN)
+    @Column(name = "`state`")
+    List<Integer> getStates();
+    void setStates(List<Integer> states);
+
 }

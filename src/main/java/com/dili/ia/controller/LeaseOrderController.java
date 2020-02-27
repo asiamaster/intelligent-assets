@@ -10,6 +10,8 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -117,12 +119,36 @@ public class LeaseOrderController {
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(LeaseOrderListDto leaseOrder) throws Exception {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+//        leaseOrder.setMarketId(userTicket.getFirmId());
+
         if (StringUtils.isNotBlank(leaseOrder.getBoothName())) {
             LeaseOrderItem leaseOrderItemCondition = DTOUtils.newDTO(LeaseOrderItem.class);
             leaseOrderItemCondition.setBoothName(leaseOrder.getBoothName());
             leaseOrder.setIds(leaseOrderItemService.list(leaseOrderItemCondition).stream().map(LeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
         }
         return leaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
+    }
+
+    /**
+     * 租赁订单信息补录
+     * @param leaseOrder
+     * @return
+     */
+    @RequestMapping(value="/supplement.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput supplement(LeaseOrderListDto leaseOrder){
+        try {
+            leaseOrderService.updateSelective(leaseOrder);
+            return BaseOutput.success();
+        }catch (Exception e){
+            LOG.error("补录异常！", e);
+            return BaseOutput.failure("补录异常");
+        }
+
+
     }
 
     /**
