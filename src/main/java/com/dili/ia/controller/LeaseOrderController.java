@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
+import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ss.domain.BaseOutput;
@@ -146,6 +147,26 @@ public class LeaseOrderController {
         }catch (Exception e){
             LOG.error("补录异常！", e);
             return BaseOutput.failure("补录异常");
+        }
+
+
+    }
+
+    /**
+     * 租赁订单取消
+     * @param id 订单ID
+     * @return
+     */
+    @RequestMapping(value="/cancelOrder.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput cancelOrder(Long id){
+        try {
+            LeaseOrder leaseOrder = leaseOrderService.get(id);
+            leaseOrder.setState(LeaseOrderStateEnum.CANCELD.getCode());
+            leaseOrderService.updateSelective(leaseOrder);
+            return BaseOutput.success();
+        }catch (Exception e){
+            LOG.error("租赁订单取消异常！", e);
+            return BaseOutput.failure("租赁订单取消异常");
         }
 
 

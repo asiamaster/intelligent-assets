@@ -1,12 +1,9 @@
 package com.dili.ia.service.impl;
 
-import com.dili.http.okhttp.utils.B;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
-import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.glossary.DepositAmountFlagEnum;
-import com.dili.ia.glossary.LeaseOrderItemStateEnum;
 import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.mapper.LeaseOrderMapper;
@@ -15,20 +12,14 @@ import com.dili.ia.service.LeaseOrderService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
-import com.dili.ss.dto.IErrorMessage;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
-import org.apache.poi.ss.formula.constant.ErrorConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -49,10 +40,13 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Override
     @Transactional
     public BaseOutput saveLeaseOrder(LeaseOrderListDto dto) throws BusinessException {
+        //@TODO 摊位是否可租赁，接口验证
+
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
+
         BaseOutput<Department> depOut = departmentRpc.get(userTicket.getDepartmentId());
         if(depOut.isSuccess()){
             dto.setDepartmentName(depOut.getData().getName());

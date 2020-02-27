@@ -26,8 +26,8 @@
             <form id="queryForm" role="form" class="form-inline" novalidate>
                 <div class="form-group mb-2 mr-5">
                     <label for="state" class="justify-content-end mr-2 w-100px">业务状态:</label>
-                    <select id="engage" name="engage" class="form-control w-200px"></select>
-                    <#bcomboProvider _id="engage" _provider="leaseOrderStateProvider" _value=""/>
+                    <select id="state" name="state" class="form-control w-200px"></select>
+                    <#bcomboProvider _id="state" _provider="leaseOrderStateProvider" _value=""/>
                 </div>
                 <div class="form-group mb-2 mr-5">
                     <label for="payState" class="justify-content-end mr-2 w-100px">交费状态:</label>
@@ -74,7 +74,7 @@
                 <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
                 <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
                 <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
-                <button id="btn_cancel" type="button" class="btn btn-primary" onclick=""><i class="fa fa-ban"></i> 取消</button>
+                <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                 <button id="btn_submit" type="button" class="btn btn-primary" onclick=""><i class="fa fa-paper-plane"></i> 提交付款</button>
                 <button id="btn_withdraw" type="button" class="btn btn-primary" onclick=""><i class="fa fa-undo"></i> 撤回</button>
                 <button id="btn_supplement" type="button" class="btn btn-primary" onclick="openSupplementHandler()"><i class="fa fa-paint-brush"></i> 补录</button>
