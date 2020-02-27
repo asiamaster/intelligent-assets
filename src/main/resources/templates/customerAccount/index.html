@@ -4,7 +4,7 @@
     <div class="row">
         <nav class="col-12" aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page">定金余额</li>
+                <li class="breadcrumb-item active" aria-current="page">客户余额</li>
             </ol>
         </nav>
     </div>
@@ -24,8 +24,8 @@
             </div>
         </div>
         <div class="">
-            <button type="button" class="btn btn-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
-            <button type="button" class="btn btn-secondary" onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-trash-o"></i> 清空</button>
+            <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-refresh"></i> 清空</button>
+            <buttontype="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
         </div>
     </form>
     <hr>
@@ -39,7 +39,7 @@
                 <button id="btn_earnestRefund" type="button" class="btn btn-primary" onclick="openEarnestTransferHandler()"><i class="fa fa-pencil-square-o"></i> 转移</button>
                 </#resource>
             </div>
-            <table id="grid" data-toggle="table" data-title="定金余额列表" class="table" data-toolbar="#toolbar"
+            <table id="grid" data-toggle="table" data-title="客户余额列表" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST"
                    data-content-type="application/x-www-form-urlencoded" data-single-select="true"
@@ -49,6 +49,7 @@
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
                 <thead>
                 <tr>
+                    <th data-radio="true"></th>
                     <th data-field="customerName" data-align="center">
                         客户名称
                     </th>
@@ -58,7 +59,7 @@
                     <th data-field="customerCellphone" data-align="center">
                         证件号码
                     </th>
-                    <th data-field="amount" data-align="center">
+                    <th data-field="amount" data-align="center" data-provider="moneyProvider">
                         定金金额
                     </th>
                 </tr>
@@ -70,11 +71,6 @@
 </div>
 
 </#bs4Body>
-
+<script type="text/javascript" src="${contextPath}/resources/js/bui/commonList.js"></script>
 <#customerAccount_indexJs />
 
-<script>
-
-
-
-</script>

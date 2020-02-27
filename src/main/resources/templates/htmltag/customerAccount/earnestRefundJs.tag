@@ -1,43 +1,16 @@
 <script>
-    /**
-     *
-     * @Date 2019-11-06 17:30:00
-     * @author jiangchengyong
-     *
-     ***/
 
-        //行索引计数器
-    let itemIndex = 0;
-
-    //对应摊位
     $(function () {
-        addStallItem();
+        $('[data-refund-way="bank"]').hide();
     });
 
 
-    //获取table Index
-    function getIndex(str) {
-        return str.split('_')[1];
-    }
-
-
-
-    /**
-     * 添加摊位
-     * */
-    function addStallItem() {
-        $('#stallTable tbody').append(HTMLDecode(template('stallItem', {index: ++itemIndex})))
-    }
-
-    // 添加摊位
-    $('#addStall').on('click', function () {
-        addStallItem();
-    })
-
-    //删除行事件 （删除摊位行）
-    $(document).on('click', '.item-del', function () {
-        if ($('#stallTable tr').length > 2) {
-            $(this).closest('tr').remove();
+    //退款方式
+    $('[name="refundWay"]').on('change', function () {
+        if($(this).val() === '3') {
+            $('[data-refund-way="bank"]').show();
+        } else {
+            $('[data-refund-way="bank"]').hide();
         }
     });
 
@@ -75,4 +48,8 @@
         }
     });
 
+
+
 </script>
+
+

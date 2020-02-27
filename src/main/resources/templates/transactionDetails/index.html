@@ -4,44 +4,65 @@
     <div class="row">
         <nav class="col-12" aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page">定金管理</li>
+                <li class="breadcrumb-item active" aria-current="page">余额明细</li>
             </ol>
         </nav>
     </div>
-    <form id="queryForm" role="form" novalidate>
+    <form id="queryForm" role="form">
         <div class="row  row-cols-6">
-            <div class="form-group col">
-                <label for="">时间</label>
-                <input type="text" class="form-control laydatetime" id="createDate" placeholder="">
+            <div class="form-group col-auto">
+                <label for="createdStart">时间:</label>
+                <div class="form-inline">
+                    <div class="input-group">
+                        <input type="text" name="createdStart" id="createdStart"
+                               class="form-control laydatetime laystart"/>
+                        <div class="input-group-append">
+                            <label for="createdStart" class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                    <div class="input-group" id="datetimepicker3">
+                        <input type="text" name="createdEnd" id="createdEnd" class="form-control laydatetime layend"
+                               value=""/>
+                        <div class="input-group-append">
+                            <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="form-group col">
-                <label for="state" class="">场景</label>
-                <select id="state" name="state" class="form-control"></select>
-                <#bcomboProvider _id="state" _provider="earnestOrderStateProvider" _value=""/>
+                <label for="itemType">类型:</label>
+                <select id="itemType" name="itemType" class="form-control"></select>
+                <#bcomboProvider _id="itemType" _provider="transactionItemTypeProvider" _value=""/>
             </div>
             <div class="form-group col">
-                <label for="customerName" class="">客户名称</label>
-                <input type="text" class="form-control" name="customerName" id="customerName"/>
+                <label for="sceneType">场景:</label>
+                <select id="sceneType" name="sceneType" class="form-control"></select>
+                <#bcomboProvider _id="sceneType" _provider="transactionSceneTypeProvider"/>
+
             </div>
             <div class="form-group col">
-                <label for="boothName" class="">联系电话</label>
-                <input type="text" class="form-control" name="boothName" id="boothName"/>
+                <label for="likeCustomerName">客户名称:</label>
+                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName"/>
             </div>
             <div class="form-group col">
-                <label for="code" class="">证件号码</label>
-                <input type="text" class="form-control" name="code" id="code"/>
+                <label for="customerCellphone">联系电话:</label>
+                <input type="text" class="form-control" name="customerCellphone" id="customerCellphone"/>
+            </div>
+            <div class="form-group col">
+                <label for="certificateNumber">证件号码:</label>
+                <input type="text" class="form-control" name="certificateNumber" id="certificateNumber"/>
             </div>
         </div>
         <div class="">
-            <button type="button" class="btn btn-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
-            <button type="button" class="btn btn-secondary" onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-trash-o"></i> 清空</button>
+            <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-refresh"></i> 清空</button>
+            <buttontype="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
         </div>
     </form>
     <hr>
     <div class="row">
         <div class="col-12">
 
-            <table id="grid" data-toggle="table" data-title="定金明细" class="table" data-toolbar="#toolbar"
+            <table id="grid" data-toggle="table" data-title="客户余额明细" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST"
                    data-content-type="application/x-www-form-urlencoded" data-single-select="true"
@@ -51,20 +72,22 @@
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
                 <thead>
                 <tr>
-                    <th data-field="createTime"
-                        data-provider="datetimeProvider" data-align="center">
+                    <th data-field="createTime" data-align="center" data-provider="datetimeProvider">
                         时间
                     </th>
-                    <th data-field="code" data-align="center">
+                    <th data-field="itemType" data-align="center" data-provider="transactionItemTypeProvider">
+                        类型
+                    </th>
+                    <th data-field="sceneType" data-align="center" data-provider="transactionSceneTypeProvider">
                         场景
                     </th>
-                    <th data-field="amount" data-align="center">
+                    <th data-field="amount" data-align="center" data-provider="moneyProvider">
                         发生金额
                     </th>
                     <th data-field="customerName" data-align="center">
                         客户名称
                     </th>
-                    <th data-field="departmentName" data-align="center">
+                    <th data-field="certificateNumber" data-align="center">
                         证件号码
                     </th>
                     <th data-field="customerCellphone" data-align="center">
@@ -82,7 +105,7 @@
 </div>
 
 </#bs4Body>
-
+<script type="text/javascript" src="${contextPath}/resources/js/bui/commonList.js"></script>
 <#transactionDetails_indexJs />
 
 <script>
