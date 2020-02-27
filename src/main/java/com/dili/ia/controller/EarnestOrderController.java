@@ -81,7 +81,15 @@ public class EarnestOrderController {
      */
     @ApiOperation("跳转到定金管理-修改页面")
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
-    public String update(ModelMap modelMap) {
+    public String update(ModelMap modelMap, Long id) {
+        if(null != id){
+            EarnestOrder earnestOrder = earnestOrderService.get(id);
+            EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
+            condition.setEarnestOrderId(id);
+            List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
+            modelMap.put("earnestOrder",earnestOrder);
+            modelMap.put("earnestOrderDetails", earnestOrderDetails);
+        }
         return "earnestOrder/update";
     }
 

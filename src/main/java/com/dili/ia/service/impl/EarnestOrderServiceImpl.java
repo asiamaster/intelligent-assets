@@ -67,7 +67,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             customerAccount.setMarketId(userTicket.getFirmId());
             customerAccount.setCustomerId(earnestOrder.getCustomerId());
             customerAccount.setCustomerCellphone(earnestOrder.getCustomerCellphone());
-            customerAccount.setCustomerCertificateNumber(earnestOrder.getCustomerCertificateNumber());
+            customerAccount.setCertificateNumber(earnestOrder.getCertificateNumber());
             customerAccount.setCustomerName(earnestOrder.getCustomerName());
             customerAccount.setEarnestBalance(0L);
             customerAccount.setEarnestAvailableBalance(0L);
@@ -244,7 +244,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
         tds.setAmount(ea.getAmount());
-        tds.setCertificateNumber(ea.getCustomerCertificateNumber());
+        tds.setCertificateNumber(ea.getCertificateNumber());
         tds.setCreator(userTicket.getRealName());
         tds.setCreatorId(userTicket.getId());
         tds.setCustomerCellphone(ea.getCustomerCellphone());

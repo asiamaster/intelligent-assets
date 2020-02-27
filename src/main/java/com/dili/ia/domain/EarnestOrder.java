@@ -62,12 +62,12 @@ public interface EarnestOrder extends IBaseDomain {
 
     void setCustomerCellphone(String customerCellphone);
 
-    @Column(name = "`customer_certificate_number`")
-    @FieldDef(label="customerCertificateNumber", maxLength = 40)
+    @Column(name = "`certificate_number`")
+    @FieldDef(label="certificateNumber", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getCustomerCertificateNumber();
+    String getCertificateNumber();
 
-    void setCustomerCertificateNumber(String customerCertificateNumber);
+    void setCertificateNumber(String certificateNumber);
 
     @Column(name = "`start_time`")
     @FieldDef(label="开始时间")

@@ -11,7 +11,7 @@
     <result column="customer_id" jdbcType="BIGINT" property="customerId" />
     <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
     <result column="customer_cellphone" jdbcType="VARCHAR" property="customerCellphone" />
-    <result column="customer_certificate_number" jdbcType="VARCHAR" property="customerCertificateNumber" />
+    <result column="certificate_number" jdbcType="VARCHAR" property="certificateNumber" />
     <result column="earnest_balance" jdbcType="BIGINT" property="earnestBalance" />
     <result column="transfer_balance" jdbcType="BIGINT" property="transferBalance" />
     <result column="earnest_available_balance" jdbcType="BIGINT" property="earnestAvailableBalance" />
@@ -26,7 +26,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, create_time, modify_time, customer_id, customer_name, customer_cellphone, customer_certificate_number, 
+    id, create_time, modify_time, customer_id, customer_name, customer_cellphone, certificate_number,
     earnest_balance, transfer_balance, earnest_available_balance, transfer_available_balance, 
     earnest_frozen_amount, transfer_frozen_amount, transfer_version, earnest_version, 
     market_id
@@ -61,8 +61,8 @@
       <if test="customerCellphone != null">
         customer_cellphone = #{customerCellphone,jdbcType=VARCHAR},
       </if>
-      <if test="customerCertificateNumber != null">
-        customer_certificate_number = #{customerCertificateNumber,jdbcType=VARCHAR},
+      <if test="certificateNumber != null">
+        certificate_number = #{certificateNumber,jdbcType=VARCHAR},
       </if>
       <if test="earnestBalance != null">
         earnest_balance = #{earnestBalance,jdbcType=BIGINT},
