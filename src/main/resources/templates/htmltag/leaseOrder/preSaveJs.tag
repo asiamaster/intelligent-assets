@@ -236,10 +236,10 @@
     function boothSelectHandler(suggestion,element) {
         let index = getIndex($(element).attr('id'));
         $('#number_'+index).val(suggestion.number);
-        $('#unitCode_'+index).val(suggestion.unitCode);
+        $('#unitCode_'+index).val(suggestion.unit);
         $('#unitName_'+index).val(suggestion.unitName);
-        $('#districtId_'+index).val(suggestion.districtId);
-        $('#districtName_'+index).val(suggestion.districtName);
+        $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
+        $('#districtName_'+index).val(suggestion.secondAreaName?suggestion.secondAreaName : suggestion.areaName);
 
         queryCustomerDepositDeduction(true);
     }
