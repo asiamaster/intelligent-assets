@@ -1,11 +1,13 @@
 package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.BoothDTO;
+import com.dili.ia.rpc.AssetsMockRpc;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,6 +21,9 @@ public class BoothController {
 
     @Autowired
     private AssetsRpc assetsRpc;
+
+    @Autowired
+    private AssetsMockRpc assetsMockRpc;
 
 
     /**
@@ -54,24 +59,81 @@ public class BoothController {
     }
 
     /**
+     * add
+     *
+     * @return
+     */
+    @RequestMapping("/split.html")
+    public String split(Long id, ModelMap map) {
+        map.put("obj", assetsRpc.getBoothById(id).getData());
+        return "booth/split";
+    }
+
+    /**
+     * edit
+     *
+     * @return
+     */
+    @RequestMapping("/update.html")
+    public String update(Long id, ModelMap map) {
+        map.put("obj", assetsRpc.getBoothById(id).getData());
+        return "booth/edit";
+    }
+
+    /**
      * insert
      *
      * @param input
      * @return
      */
-    @RequestMapping("/insert")
+    @RequestMapping("/save.action")
     @ResponseBody
     public BaseOutput save(BoothDTO input) {
         return assetsRpc.save(input);
     }
 
     /**
+     * insert
+     *
+     * @param input
+     * @return
+     */
+    @RequestMapping("/update.action")
+    @ResponseBody
+    public BaseOutput update(BoothDTO input) {
+        return assetsRpc.updateBooth(input);
+    }
+
+    /**
+     * split
+     */
+    @RequestMapping("/split.action")
+    @ResponseBody
+    public BaseOutput split(Long parentId, String[] names, String notes, String[] numbers) {
+        assetsRpc.boothSplit(parentId, names, notes, numbers);
+        return BaseOutput.success();
+    }
+
+
+    /**
+     * delete
+     *
+     * @param id
+     * @return
+     */
+    @RequestMapping("/delete.action")
+    @ResponseBody
+    public BaseOutput delete(Long id) {
+        return assetsRpc.delBoothById(id);
+    }
+
+    /**
      * 新增BoothOrderR
      */
     @ApiOperation("新增booth")
-    @RequestMapping(value="/list.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/search.action", method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
-    public String list() {
-        return "[{\"id\":1,\"name\":\"三号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000,\"number\":2000,\"unitCode\":\"001\",\"unitName\":\"平\",\"districtId\":1,\"districtName\":\"一号区域\"},{\"id\":2,\"name\":\"四号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000,\"number\":2000,\"unitCode\":\"001\",\"unitName\":\"平\",\"districtId\":1,\"districtName\":\"一号区域\"},{\"id\":3,\"name\":\"五号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000,\"number\":2000,\"unitCode\":\"001\",\"unitName\":\"平\",\"districtId\":1,\"districtName\":\"一号区域\"},{\"id\":4,\"name\":\"六号摊位\",\"rentAmount\":5000,\"manageAmount\":4000,\"depositAmount\":2000,\"number\":2000,\"unitCode\":\"001\",\"unitName\":\"平\",\"districtId\":1,\"districtName\":\"一号区域\"}]";
+    public BaseOutput list(String keyword) {
+        return assetsMockRpc.searchBooth(keyword);
     }
 }
