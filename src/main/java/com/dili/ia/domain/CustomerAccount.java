@@ -63,12 +63,12 @@ public interface CustomerAccount extends IBaseDomain {
 
     void setCustomerCellphone(String customerCellphone);
 
-    @Column(name = "`customer_certificate_number`")
-    @FieldDef(label="客户电话", maxLength = 40)
+    @Column(name = "`certificate_number`")
+    @FieldDef(label="客户证件号码", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getCustomerCertificateNumber();
+    String getCertificateNumber();
 
-    void setCustomerCertificateNumber(String customerCertificateNumber);
+    void setCertificateNumber(String certificateNumber);
 
     @Column(name = "`earnest_balance`")
     @FieldDef(label="定金余额= 定金可用余额 + 定金冻结金额")

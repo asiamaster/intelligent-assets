@@ -1,12 +1,13 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
+import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
-import com.dili.settlement.enums.EditEnableEnum;
-import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-14 10:18:23.
@@ -29,6 +32,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class EarnestOrderController {
     @Autowired
     EarnestOrderService earnestOrderService;
+    @Autowired
+    EarnestOrderDetailService earnestOrderDetailService;
 
     /**
      * 跳转到定金管理页面
@@ -58,7 +63,15 @@ public class EarnestOrderController {
      */
     @ApiOperation("跳转到定金管理-查看页面")
     @RequestMapping(value="/view.html", method = RequestMethod.GET)
-    public String view(ModelMap modelMap) {
+    public String view(ModelMap modelMap, Long id) {
+        if(null != id){
+            EarnestOrder earnestOrder = earnestOrderService.get(id);
+            EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
+            condition.setEarnestOrderId(id);
+            List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
+            modelMap.put("earnestOrder",earnestOrder);
+            modelMap.put("earnestOrderDetails", earnestOrderDetails);
+        }
         return "earnestOrder/view";
     }
     /**
@@ -68,7 +81,15 @@ public class EarnestOrderController {
      */
     @ApiOperation("跳转到定金管理-修改页面")
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
-    public String update(ModelMap modelMap) {
+    public String update(ModelMap modelMap, Long id) {
+        if(null != id){
+            EarnestOrder earnestOrder = earnestOrderService.get(id);
+            EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
+            condition.setEarnestOrderId(id);
+            List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
+            modelMap.put("earnestOrder",earnestOrder);
+            modelMap.put("earnestOrderDetails", earnestOrderDetails);
+        }
         return "earnestOrder/update";
     }
 

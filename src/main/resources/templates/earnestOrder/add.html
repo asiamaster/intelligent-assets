@@ -86,7 +86,7 @@
     <tr data-index="{{index}}">
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId_{{index}}" _displayDomainId="boothName_{{index}}" _displayDomainName="boothName_{{index}}" _value="{{boothId}}" _text="{{boothName}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected" _required="true" _option="width:'350',paramName:'name',serviceUrl:'/booth/list.action'"/>
+            <#bautoCompleteProvider _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId_{{index}}" _displayDomainId="boothName_{{index}}" _displayDomainName="boothName_{{index}}" _value="{{boothId}}" _text="{{boothName}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected" _required="true" _option="width:'350',paramName:'keyword',serviceUrl:'/booth/search.action'"/>
         </td>
 
     </tr>
