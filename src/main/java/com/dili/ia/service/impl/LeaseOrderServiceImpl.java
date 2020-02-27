@@ -12,7 +12,6 @@ import com.dili.ia.service.LeaseOrderService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
-import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -39,7 +38,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     @Override
     @Transactional
-    public BaseOutput saveLeaseOrder(LeaseOrderListDto dto) throws BusinessException {
+    public BaseOutput saveLeaseOrder(LeaseOrderListDto dto) {
         //@TODO 摊位是否可租赁，接口验证
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -52,6 +51,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             dto.setDepartmentName(depOut.getData().getName());
         }
         dto.setMarketId(userTicket.getFirmId());
+        dto.setCreatorId(userTicket.getId());
+        dto.setCreator(userTicket.getRealName());
 
         if (null == dto.getId()) {
             dto.setState(LeaseOrderStateEnum.CREATED.getCode());
@@ -60,7 +61,13 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             insertSelective(dto);
             insertLeaseOrderItems(dto);
         } else {
-            updateSelective(dto);
+            LeaseOrder oldLeaseOrder = get(dto.getId());
+            dto.setVersion(oldLeaseOrder.getVersion());
+            int rows = updateSelective(dto);
+            if (rows == 0) {
+                throw new RuntimeException("多人操作，请重试！");
+            }
+
             LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
             condition.setLeaseOrderId(dto.getId());
             leaseOrderItemService.deleteByExample(condition);
@@ -83,5 +90,30 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             o.setDepositAmountFlag(DepositAmountFlagEnum.PRE_TRANSFER.getCode());
             leaseOrderItemService.insertSelective(o);
         });
+    }
+
+    @Override
+    @Transactional
+    public BaseOutput cancelOrder(Long id) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            return BaseOutput.failure("未登录");
+        }
+        LeaseOrder leaseOrder = get(id);
+        leaseOrder.setState(LeaseOrderStateEnum.CANCELD.getCode());
+        leaseOrder.setCancelerId(userTicket.getId());
+        leaseOrder.setCanceler(userTicket.getRealName());
+        int rows = updateSelective(leaseOrder);
+        if(rows == 0){
+            throw new RuntimeException("多人操作，请重试！");
+        }
+
+        LeaseOrderItem itemCondition = DTOUtils.newInstance(LeaseOrderItem.class);
+        itemCondition.setLeaseOrderId(id);
+
+        LeaseOrderItem itemPO = DTOUtils.newInstance(LeaseOrderItem.class);
+        itemPO.setState(LeaseOrderStateEnum.CANCELD.getCode());
+        leaseOrderItemService.updateSelectiveByExample(itemPO,itemCondition);
+        return BaseOutput.success();
     }
 }

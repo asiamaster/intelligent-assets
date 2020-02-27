@@ -1,6 +1,8 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.LeaseOrderItem;
+import com.dili.ia.mapper.LeaseOrderItemMapper;
+import com.dili.ia.mapper.LeaseOrderMapper;
 import com.dili.ss.base.BaseService;
 
 /**
@@ -8,4 +10,5 @@ import com.dili.ss.base.BaseService;
  * This file was generated on 2020-02-11 15:54:49.
  */
 public interface LeaseOrderItemService extends BaseService<LeaseOrderItem, Long> {
+    public LeaseOrderItemMapper getActualDao();
 }

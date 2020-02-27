@@ -15,7 +15,14 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
      * 摊位租赁订单保存
      * @param dto
      * @return
+     */
+    BaseOutput saveLeaseOrder(LeaseOrderListDto dto);
+
+    /**
+     * 摊位租赁订单取消
+     * @param id
+     * @return
      * @throws BusinessException
      */
-    BaseOutput saveLeaseOrder(LeaseOrderListDto dto) throws BusinessException;
+    BaseOutput cancelOrder(Long id);
 }
