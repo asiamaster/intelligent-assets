@@ -4,6 +4,7 @@ import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.glossary.DepositAmountFlagEnum;
 import com.dili.ia.glossary.LeaseOrderStateEnum;
+import com.dili.ia.glossary.RefundStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ss.domain.BaseOutput;
 import io.swagger.annotations.Api;
@@ -111,7 +112,7 @@ public class LeaseOrderItemController {
     @RequestMapping(value="/list.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput list(LeaseOrderItemListDto leaseOrderItem) {
         leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
-        leaseOrderItem.setStateNotEquals(Arrays.asList(LeaseOrderStateEnum.REFUNDED.getCode()));
+        leaseOrderItem.setRefundState(RefundStateEnum.NO_APPLY.getCode());
         return BaseOutput.success().setData(leaseOrderItemService.listByExample(leaseOrderItem));
     }
 }

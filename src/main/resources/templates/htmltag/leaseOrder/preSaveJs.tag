@@ -284,7 +284,7 @@
                     }
                     $('#depositDeduction').val(Number(depositAmount).centToYuan())
                 } else {
-                    bs4pop.alert(data.result, {type: 'error'});
+                    bs4pop.alert(data.message, {type: 'error'});
                 }
             }).fail(function () {
                 bs4pop.alert('远程访问失败', {type: 'error'});
@@ -421,8 +421,8 @@
     }
 
     /**
-     *
-     *
+     * 构建摊位租赁表单提交数据
+     * @returns {{}|jQuery}
      */
     function buildFormData(){
         let formData = $("input:not(table input),textarea,select").serializeObject();
@@ -441,24 +441,26 @@
             leaseOrderItems.push(leaseOrderItem);
         });
 
-        $.extend(formData,{leaseOrderItems,leaseTermName,engageName,departmentName})
-        $.ajax({
-            type: "POST",
-            url: "/leaseOrder/saveLeaseOrder.action",
-            data: formData,
-            dataType: "json",
-            async : false,
-            success: function (ret) {
-                if(ret.success){
+        $.extend(formData,{leaseOrderItems,leaseTermName,engageName,departmentName});
+        return formData;
+    }
 
-                }
-            },
-            error: function (a, b, c) {
-                bs4pop.alert('远程访问失败', {type: 'error'});
+    /**
+     * 判断数组中的元素是否重复出现
+     * 验证重复元素，有重复返回true；否则返回false
+     * @param arr
+     * @returns {boolean}
+     */
+    function arrRepeatCheck(arr) {
+        var hash = {};
+        for(var i in arr) {
+            if(hash[arr[i]]) {
+                return true;
             }
-        });
-        console.log(formData);
-
+            // 不存在该元素，则赋值为true，可以赋任意值，相应的修改if判断条件即可
+            hash[arr[i]] = true;
+        }
+        return false;
     }
 
     /*****************************************函数区 end**************************************/
@@ -468,7 +470,34 @@
         if (!$('#saveForm').valid()) {
             return false;
         }
-        buildFormData();
+
+        let boothIds = $("table input[name^='boothId']").filter(function () {
+            return this.value
+        }).map(function(){
+            return $('#boothId_'+getIndex(this.id)).val();
+        }).get();
+        if(arrRepeatCheck(boothIds)){
+            bs4pop.alert('存在重复摊位，请检查！')
+            return false;
+        }
+
+        bui.loading.show();
+        $.ajax({
+            type: "POST",
+            url: "/leaseOrder/saveLeaseOrder.action",
+            data: buildFormData(),
+            dataType: "json",
+            async : false,
+            success: function (ret) {
+                bui.loading.hide();
+                if(!ret.success){
+                    bs4pop.alert(ret.message, {type: 'error'});
+                }
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
         parent.closeDialog(parent.dia);
     });
 
@@ -501,11 +530,12 @@
 
     });
 
+    //摊位新增事件
     $('#addBooth').on('click', function(){
         addBoothItem({index: ++itemIndex});
     });
 
-    //删除行事件
+    //摊位删除事件
     $(document).on('click', '.item-del', function () {
         if ($('#boothTable tr').length > 1) {
             $(this).closest('tr').remove();

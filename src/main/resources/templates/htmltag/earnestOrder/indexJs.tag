@@ -19,25 +19,22 @@
         queryDataHandler();
     });
 
-    $(function () {
-        $(window).resize(function () {
-            _grid.bootstrapTable('resetView')
-        });
-        queryDataHandler();
-    });
     /******************************驱动执行区 end****************************/
 
-    /************ 表格是否选中一条数据 start **************/
-    function isSelectRow() {
-        let rows = _grid.bootstrapTable('getSelections');
-        let isSelectFlag = true;
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            isSelectFlag = false;
+    /**
+     * table参数组装
+     * 可修改queryParams向服务器发送其余的参数
+     * @param params
+     */
+    function queryParams(params) {
+        let temp = {
+            rows: params.limit,   //页面大小
+            page: ((params.offset / params.limit) + 1) || 1, //页码
+            sort: params.sort,
+            order: params.order
         }
-        return isSelectFlag
+        return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
     }
-    /************ 表格是否选中一条数据 end **************/
 
     /**
      * 查询处理
@@ -53,7 +50,6 @@
      */
     function openInsertHandler() {
         dia = bs4pop.dialog({
-            id: 'addModal',
             title: '新增定金',//对话框title
             content: '${contextPath}/earnestOrder/add.html', //对话框内容，可以是 string、element，$object
             width: 900,//宽度
@@ -67,7 +63,6 @@
      */
     function openUpdateHandler() {
         dia = bs4pop.dialog({
-            id: 'addModal',
             title: '修改定金',//对话框title
             content: '${contextPath}/earnestOrder/update.html', //对话框内容，可以是 string、element，$object
             width: 900,//宽度
@@ -81,7 +76,6 @@
      */
     function openViewHandler() {
         dia = bs4pop.dialog({
-            id: 'addModal',
             title: '定金详情',//对话框title
             content: '${contextPath}/earnestOrder/view.html', //对话框内容，可以是 string、element，$object
             width: 900,//宽度

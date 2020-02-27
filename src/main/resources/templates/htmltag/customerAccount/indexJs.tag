@@ -1,52 +1,14 @@
 <script>
 
-    //时间范围
-    lay('.laydatetime').each(function() {
-        laydate.render({
-            elem : this
-            ,trigger : 'click'
-            ,range: true
-        });
-    });
-
-    function openEarnestTransferHandler() {
-        let dia = bs4pop.dialog({
-            id: 'addModal',
-            title: '定金转移',//对话框title
-            content: '/customerAccount/earnestTransfer.html', //对话框内容，可以是 string、element，$object
-            width: 900,//宽度
-            height: 700,//高度
-            isIframe : true,//默认是页面层，非iframe
-        });
-        // dia.modal('show');
-        $('#addModal').modal('handleUpdate')
-    }
-
-    function openEarnestRefundHandler() {
-        let dia = bs4pop.dialog({
-            id: 'addModal',
-            title: '退款',//对话框title
-            content: '/customerAccount/earnestRefund.html', //对话框内容，可以是 string、element，$object
-            width: 900,//宽度
-            height: 700,//高度
-            isIframe : true,//默认是页面层，非iframe
-        });
-        // dia.modal('show');
-        $('#addModal').modal('handleUpdate')
-    }
-
-
     /*********************变量定义区 begin*************/
         //行索引计数器
         //如 let itemIndex = 0;
     let _grid = $('#grid');
     let _form = $('#_form');
-    let _modal = $('#_modal');
     let currentSelectRowIndex;
     var dia;
 
     /*********************变量定义区 end***************/
-
 
     /******************************驱动执行区 begin***************************/
     $(function () {
@@ -56,6 +18,20 @@
         queryDataHandler();
     });
     /******************************驱动执行区 end****************************/
+    /**
+     * table参数组装
+     * 可修改queryParams向服务器发送其余的参数
+     * @param params
+     */
+    function queryParams(params) {
+        let temp = {
+            rows: params.limit,   //页面大小
+            page: ((params.offset / params.limit) + 1) || 1, //页码
+            sort: params.sort,
+            order: params.order
+        }
+        return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
+    }
 
     /**
      * 查询处理
@@ -65,6 +41,34 @@
         // $('#toolbar button').attr('disabled', false);
         _grid.bootstrapTable('refreshOptions', {url: '/customerAccount/listPage.action'});
     }
+
+    /**
+     打开退款窗口
+     */
+    function openEarnestRefundHandler() {
+        dia = bs4pop.dialog({
+            title: '退款',//对话框title
+            content: '/customerAccount/earnestRefund.html', //对话框内容，可以是 string、element，$object
+            width: 900,//宽度
+            height: 450,//高度
+            isIframe : true,//默认是页面层，非iframe
+        });
+
+    }
+    /**
+     打开定金转移窗口
+     */
+    function openEarnestTransferHandler() {
+        dia = bs4pop.dialog({
+            title: '定金转移',//对话框title
+            content: '/customerAccount/earnestTransfer.html', //对话框内容，可以是 string、element，$object
+            width: 900,//宽度
+            height: 580,//高度
+            isIframe : true,//默认是页面层，非iframe
+        });
+    }
+
+
 
 </script>
 

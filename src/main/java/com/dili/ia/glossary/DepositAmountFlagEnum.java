@@ -11,7 +11,8 @@ package com.dili.ia.glossary;
 public enum DepositAmountFlagEnum {
     PRE_TRANSFER(1, "预转入"),
     TRANSFERRED(2, "已转入"),
-    TRANSFERRED_OUT(3, "已转出"),
+    FROZEN(3, "已冻结"),
+    TRANSFERRED_OUT(4, "已转出"),
     ;
 
     private String name;

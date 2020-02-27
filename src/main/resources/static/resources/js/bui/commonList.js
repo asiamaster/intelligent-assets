@@ -10,19 +10,12 @@
 /************  end ***************/
 
 /******************************驱动执行区 begin***************************/
-$(function () {
+/*$(function () {
     $(window).resize(function () {
         _grid.bootstrapTable('resetView')
     });
     queryDataHandler();
-});
-
-$(function () {
-    $(window).resize(function () {
-        _grid.bootstrapTable('resetView')
-    });
-    queryDataHandler();
-});
+});*/
 
 /******************************驱动执行区 end****************************/
 

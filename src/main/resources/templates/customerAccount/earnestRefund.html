@@ -2,45 +2,56 @@
 
 <div class="container-fluid">
     <form action="">
-        <div class="row row-cols-2">
+        <div class="row row-cols-3">
             <div class="form-group col">
                 <label for="" class="">客户姓名</label>
                 <input type="text" class="form-control" name="" disabled />
             </div>
+            <div class="form-group col">
+                <label for="" class="">证件号码</label>
+                <input type="text" class="form-control" name="" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">手机号</label>
+                <input type="text" class="form-control" name="" disabled />
+            </div>
         </div>
-        <div class="row row-cols-2">
+        <div class="row row-cols-3">
             <div class="form-group col">
                 <label for="" class="">退款金额</label>
-                <input type="text" class="form-control" name=""  />
+                <input type="text" class="form-control floatReserve" name=""  required />
             </div>
         </div>
-        <div class="row row-cols-2">
+        <div class="row row-cols-3">
             <div class="form-group col">
                 <label for="" class="">退款方式</label>
-                <select id="" name="payState" class="form-control"></select>
+                <select id="" name="refundWay" class="form-control">
+                    <option value="1">1</option>
+                    <option value="3">银行转账</option>
+                </select>
             </div>
-        </div>
-        <div class="row roe-cols-2">
-            <div class="form-group col">
+            <div class="form-group col" data-refund-way="bank">
                 <label for="" class="">开户行</label>
-                <input type="text" class="form-control" name="" />
+                <input type="text" class="form-control" name="" required />
             </div>
-            <div class="form-group col">
+            <div class="form-group col" data-refund-way="bank">
                 <label for="" class="">银行卡号</label>
-                <input type="text" class="form-control" name="" />
+                <input type="text" class="form-control digits" name="" required />
             </div>
         </div>
         <div class="row row-cols-1">
             <div class="form-group col">
                 <label for="">退款原因</label>
-                <textarea class="form-control" rows="1"  maxlength="50"></textarea>
+                <textarea class="form-control" rows="1"  maxlength="100"></textarea>
             </div>
         </div>
-        <div class="">
-            <button type="button" class="btn btn-primary">确定</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+        <div class="text-right btn-r-b">
+            <button type="button" class="btn btn-secondary px-4" id="cancel" onclick="javascript: parent.dia.hide()">取消</button>
+            <button type="button" class="btn btn-primary px-4" id="formSubmit">保存</button>
         </div>
     </form>
 </div>
 
 </#bs4Body>
+<script type="text/javascript" src="${contextPath}/resources/js/bui/commonEdit.js"></script>
+<#customerAccount_earnestRefundJs />
