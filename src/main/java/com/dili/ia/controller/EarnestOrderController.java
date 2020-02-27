@@ -118,8 +118,8 @@ public class EarnestOrderController {
     @ApiImplicitParams({
 		@ApiImplicitParam(name="EarnestOrder", paramType="form", value = "EarnestOrder的form信息", required = true, dataType = "string")
 	})
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(EarnestOrder earnestOrder) {
+    @RequestMapping(value="/doAdd.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput doAdd(EarnestOrder earnestOrder) {
         earnestOrderService.addEarnestOrder(earnestOrder);
         return BaseOutput.success("新增成功");
     }
@@ -133,8 +133,8 @@ public class EarnestOrderController {
     @ApiImplicitParams({
 		@ApiImplicitParam(name="EarnestOrder", paramType="form", value = "EarnestOrder的form信息", required = true, dataType = "string")
 	})
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(EarnestOrder earnestOrder) {
+    @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput doUpdate(EarnestOrder earnestOrder) {
         earnestOrderService.updateEarnestOrder(earnestOrder);
         return BaseOutput.success("修改成功");
     }
