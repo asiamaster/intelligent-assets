@@ -1,5 +1,6 @@
 package com.dili.ia.rpc;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.assets.sdk.dto.DistrictDTO;
@@ -80,6 +81,45 @@ public interface AssetsRpc {
     @RequestMapping(value = "/api/district/delete", method = RequestMethod.POST)
     BaseOutput delDistrictById(Long id);
 
+    /**
+     * 拆分区域
+     */
     @RequestMapping(value = "/api/district/divisionSave", method = RequestMethod.POST)
     BaseOutput divisionSave(@RequestParam("parentId") Long parentId, @RequestParam("names") String[] names, @RequestParam("notes") String[] notes, @RequestParam("numbers") String[] numbers);
+
+    /**
+     * 修改搜索
+     */
+    @RequestMapping(value = "/api/district/search", method = RequestMethod.POST)
+    BaseOutput<List<DistrictDTO>> searchDistrict(DistrictDTO input);
+
+    /**
+     * 获取单个摊位
+     */
+    @RequestMapping(value = "/api/booth/get", method = RequestMethod.POST)
+    BaseOutput<BoothDTO> getBoothById(Long id);
+
+    /**
+     * 修改摊位
+     */
+    @RequestMapping(value = "/api/booth/update", method = RequestMethod.POST)
+    BaseOutput updateBooth(BoothDTO input);
+
+    /**
+     * 删除摊位
+     */
+    @RequestMapping(value = "/api/booth/delete", method = RequestMethod.POST)
+    BaseOutput delBoothById(Long id);
+
+    /**
+     * 拆分摊位
+     */
+    @RequestMapping(value = "/api/booth/split", method = RequestMethod.POST)
+    BaseOutput boothSplit(@RequestParam("parentId") Long parentId, @RequestParam("names") String[] names, @RequestParam("notes") String notes, @RequestParam("numbers") String[] numbers);
+
+    /**
+     * 搜索摊位
+     */
+    @RequestMapping(value = "/api/booth/search", method = RequestMethod.POST)
+    BaseOutput<List<BoothDTO>> searchBooth(JSONObject query);
 }
