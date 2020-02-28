@@ -73,11 +73,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             customerAccount.setEarnestBalance(0L);
             customerAccount.setEarnestAvailableBalance(0L);
             customerAccount.setEarnestFrozenAmount(0L);
-            customerAccount.setEarnestVersion(0L);
             customerAccount.setTransferAvailableBalance(0L);
             customerAccount.setTransferBalance(0L);
             customerAccount.setTransferFrozenAmount(0L);
-            customerAccount.setTransferVersion(0L);
+            customerAccount.setVersion(0L);
             customerAccountService.insertSelective(customerAccount);
         }
         return 0;
