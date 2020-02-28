@@ -6,17 +6,18 @@
             转出方
         </div>
         <div class="row row-cols-3">
+            <input type="hidden" name="id" value="${customerAccount.id!}">
             <div class="form-group col">
                 <label for="" class="">客户姓名</label>
-                <input type="text" class="form-control" name="" disabled />
+                <input type="text" class="form-control" name="" value="${customerAccount.customerName!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">证件号码</label>
-                <input type="text" class="form-control" name="" disabled />
+                <input type="text" class="form-control" name="" value="${customerAccount.certificateNumber!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">手机号</label>
-                <input type="text" class="form-control" name="" disabled />
+                <input type="text" class="form-control" name="" value="${customerAccount.customerCellphone!}" disabled />
             </div>
         </div>
         <div class="breadcrumb">

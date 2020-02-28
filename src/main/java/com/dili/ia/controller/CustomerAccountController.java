@@ -9,9 +9,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -40,26 +37,6 @@ public class CustomerAccountController {
     public String index(ModelMap modelMap) {
         return "customerAccount/index";
     }
-    /**
-     * 跳转到CustomerAccount页面
-     * @param modelMap
-     * @return String
-     */
-    @ApiOperation("跳转到CustomerAccount页面")
-    @RequestMapping(value="/earnestRefund.html", method = RequestMethod.GET)
-    public String earnestRefund(ModelMap modelMap) {
-        return "customerAccount/earnestRefund";
-    }
-    /**
-     * 跳转到CustomerAccount页面
-     * @param modelMap
-     * @return String
-     */
-    @ApiOperation("跳转到CustomerAccount页面")
-    @RequestMapping(value="/earnestTransfer.html", method = RequestMethod.GET)
-    public String earnestTransfer(ModelMap modelMap) {
-        return "customerAccount/earnestTransfer";
-    }
 
     /**
      * 分页查询CustomerAccount，返回easyui分页信息
@@ -77,46 +54,62 @@ public class CustomerAccountController {
     }
 
     /**
-     * 新增CustomerAccount
-     * @param customerAccount
-     * @return BaseOutput
+     * 跳转到CustomerAccount页面---定金退款
+     * @param modelMap
+     * @param id 客户账户Id
+     * @return String
      */
-    @ApiOperation("新增CustomerAccount")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="CustomerAccount", paramType="form", value = "CustomerAccount的form信息", required = true, dataType = "string")
-	})
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(CustomerAccount customerAccount) {
-        customerAccountService.insertSelective(customerAccount);
-        return BaseOutput.success("新增成功");
+    @ApiOperation("跳转到CustomerAccount页面---定金退款")
+    @RequestMapping(value="/earnestRefund.html", method = RequestMethod.GET)
+    public String earnestRefund(ModelMap modelMap, Long id) {
+        if(null != id){
+            CustomerAccount customerAccount = customerAccountService.get(id);
+            modelMap.put("customerAccount",customerAccount);
+        }
+        return "customerAccount/earnestRefund";
+    }
+    /**
+     * 跳转到CustomerAccount页面--定金转移
+     * @param modelMap
+     * @param id 客户账户Id
+     * @return String
+     */
+    @ApiOperation("跳转到CustomerAccount页面--定金转移")
+    @RequestMapping(value="/earnestTransfer.html", method = RequestMethod.GET)
+    public String earnestTransfer(ModelMap modelMap, Long id) {
+        if(null != id){
+            CustomerAccount customerAccount = customerAccountService.get(id);
+            modelMap.put("customerAccount",customerAccount);
+        }
+        return "customerAccount/earnestTransfer";
     }
 
     /**
-     * 修改CustomerAccount
+     * CustomerAccount--- 定金退款
      * @param customerAccount
      * @return BaseOutput
      */
-    @ApiOperation("修改CustomerAccount")
+    @ApiOperation("定金退款CustomerAccount")
     @ApiImplicitParams({
 		@ApiImplicitParam(name="CustomerAccount", paramType="form", value = "CustomerAccount的form信息", required = true, dataType = "string")
 	})
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(CustomerAccount customerAccount) {
+    @RequestMapping(value="/doEarnestRefund.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput doEarnestRefund(CustomerAccount customerAccount) {
         customerAccountService.updateSelective(customerAccount);
         return BaseOutput.success("修改成功");
     }
 
     /**
-     * 删除CustomerAccount
+     * CustomerAccount --- 定金转移
      * @param id
      * @return BaseOutput
      */
-    @ApiOperation("删除CustomerAccount")
+    @ApiOperation("定金转移CustomerAccount")
     @ApiImplicitParams({
 		@ApiImplicitParam(name="id", paramType="form", value = "CustomerAccount的主键", required = true, dataType = "long")
 	})
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
+    @RequestMapping(value="/doEarnestTransfer.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput doEarnestTransfer(Long id) {
         customerAccountService.delete(id);
         return BaseOutput.success("删除成功");
     }
