@@ -53,9 +53,9 @@ public interface RefundOrder extends IBaseDomain {
     @Column(name = "`biz_type`")
     @FieldDef(label="业务类型")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getBizType();
+    Integer getBizType();
 
-    void setBizType(Boolean bizType);
+    void setBizType(Integer bizType);
 
     @Column(name = "`order_item_id`")
     @FieldDef(label="订单项ID")
@@ -158,9 +158,9 @@ public interface RefundOrder extends IBaseDomain {
     @Column(name = "`refund_type`")
     @FieldDef(label="退款方式")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getRefundType();
+    Integer getRefundType();
 
-    void setRefundType(Boolean refundType);
+    void setRefundType(Integer refundType);
 
     @Column(name = "`bank`")
     @FieldDef(label="开户行", maxLength = 50)
@@ -242,16 +242,16 @@ public interface RefundOrder extends IBaseDomain {
     @Column(name = "`is_delete`")
     @FieldDef(label="是否删除")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getIsDelete();
+    Integer getIsDelete();
 
-    void setIsDelete(Boolean isDelete);
+    void setIsDelete(Integer isDelete);
 
     @Column(name = "`license_state`")
     @FieldDef(label="营业执照状态")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getLicenseState();
+    Integer getLicenseState();
 
-    void setLicenseState(Boolean licenseState);
+    void setLicenseState(Integer licenseState);
 
     @Column(name = "`market_id`")
     @FieldDef(label="市场ID")

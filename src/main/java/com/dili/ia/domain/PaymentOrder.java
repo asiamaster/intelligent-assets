@@ -29,6 +29,13 @@ public interface PaymentOrder extends IBaseDomain {
 
     void setId(Long id);
 
+    @Column(name = "`code`")
+    @FieldDef(label="编号", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getCode();
+
+    void setCode(String code);
+
     @Column(name = "`create_time`")
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
@@ -60,16 +67,16 @@ public interface PaymentOrder extends IBaseDomain {
     @Column(name = "`biz_type`")
     @FieldDef(label="业务类型")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getBizType();
+    Integer getBizType();
 
-    void setBizType(Boolean bizType);
+    void setBizType(Integer bizType);
 
     @Column(name = "`state`")
     @FieldDef(label="状态")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Boolean getState();
+    Integer getState();
 
-    void setState(Boolean state);
+    void setState(Integer state);
 
     @Column(name = "`amount`")
     @FieldDef(label="金额")

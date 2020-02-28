@@ -4,6 +4,7 @@ import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.DepositAmountFlagEnum;
 import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.glossary.PayStateEnum;
@@ -11,6 +12,7 @@ import com.dili.ia.mapper.LeaseOrderMapper;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
+import com.dili.ia.service.PaymentOrderService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -47,6 +50,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     @Autowired
     private SettlementRpc settlementRpc;
+
+    @Autowired
+    private PaymentOrderService paymentOrderService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -110,9 +116,32 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Override
     @Transactional
     public BaseOutput submitPayment(Long id, Long amount) {
-
         LeaseOrder leaseOrder = get(id);
+        //@TODO 定金 保证金 转低冻结
 
+        PaymentOrder paymentOrder = buildPaymentOrder(leaseOrder);
+        paymentOrder.setAmount(amount);
+        paymentOrderService.insertSelective(paymentOrder);
+
+        SettleOrder settleOrder = buildSettleOrder(leaseOrder);
+        settleOrder.setAmount(amount);
+        settleOrder.setBusinessCode(paymentOrder.getCode());
+        BaseOutput<SettleOrder> settlementOutput = settlementRpc.submit(settleOrder);
+//        if(settlementOutput.isSuccess()){
+//            PaymentOrder paymentOrderPo = DTOUtils.newInstance(PaymentOrder.class);
+//            paymentOrderPo.setId(paymentOrder.getId());
+//            paymentOrderPo.setSettlementCode(settlementOutput.getData().getCode());
+//            paymentOrderService.updateSelective(paymentOrderPo);
+//        }
+        return settlementOutput;
+    }
+
+    /**
+     * 构建缴费单数据
+     * @param leaseOrder
+     * @return
+     */
+    private PaymentOrder buildPaymentOrder(LeaseOrder leaseOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");
@@ -121,19 +150,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         paymentOrder.setBusinessCode(leaseOrder.getCode());
         paymentOrder.setBusinessId(leaseOrder.getId());
         paymentOrder.setMarketId(userTicket.getFirmId());
-        paymentOrder.setAmount(amount);
         paymentOrder.setCreatorId(userTicket.getId());
         paymentOrder.setCreator(userTicket.getRealName());
-//        paymentOrder.setBizType();
-
-
-        SettleOrder settleOrder = buildSettleOrder(leaseOrder);
-        settleOrder.setAmount(amount);
-        BaseOutput settlementOutput = settlementRpc.submit(settleOrder);
-        if(settlementOutput.isSuccess()){
-
-        }
-        return null;
+        paymentOrder.setState(PayStateEnum.NOT_PAID.getCode());
+        paymentOrder.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
+        return paymentOrder;
     }
 
     /**
