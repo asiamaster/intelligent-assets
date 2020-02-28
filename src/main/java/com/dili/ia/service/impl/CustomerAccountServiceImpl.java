@@ -25,11 +25,14 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     @Override
     public Boolean checkCustomerAccountExist(Long customerId, Long marketId) {
-       CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
-        if (null != ca){
-            return true;
+        CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
+        customerAccount.setCustomerId(customerId);
+        customerAccount.setMarketId(marketId);
+        List<CustomerAccount> list = getActualDao().select(customerAccount);
+        if (CollectionUtils.isEmpty(list)){
+            return false;
         }
-        return false;
+        return true;
     }
 
     @Override

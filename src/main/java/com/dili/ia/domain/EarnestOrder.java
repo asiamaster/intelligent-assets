@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 定金的业务单
- * This file was generated on 2020-02-19 17:41:16.
+ * This file was generated on 2020-02-28 18:25:12.
  */
 @Table(name = "`earnest_order`")
 public interface EarnestOrder extends IBaseDomain {
@@ -63,7 +63,7 @@ public interface EarnestOrder extends IBaseDomain {
     void setCustomerCellphone(String customerCellphone);
 
     @Column(name = "`certificate_number`")
-    @FieldDef(label="certificateNumber", maxLength = 40)
+    @FieldDef(label="客户证件号码", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCertificateNumber();
 
@@ -84,21 +84,21 @@ public interface EarnestOrder extends IBaseDomain {
     void setEndTime(Date endTime);
 
     @Column(name = "`department_id`")
-    @FieldDef(label="departmentId")
+    @FieldDef(label="业务单业务部门ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getDepartmentId();
 
     void setDepartmentId(Long departmentId);
 
     @Column(name = "`department_name`")
-    @FieldDef(label="departmentName", maxLength = 50)
+    @FieldDef(label="业务单业务部门名称", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getDepartmentName();
 
     void setDepartmentName(String departmentName);
 
     @Column(name = "`state`")
-    @FieldDef(label="状态")
+    @FieldDef(label="状态：1-已创建，2-已取消，3-已提交，4-已缴费")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getState();
 
@@ -140,14 +140,14 @@ public interface EarnestOrder extends IBaseDomain {
     void setCreator(String creator);
 
     @Column(name = "`submitter_id`")
-    @FieldDef(label="submitterId")
+    @FieldDef(label="提交人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getSubmitterId();
 
     void setSubmitterId(Long submitterId);
 
     @Column(name = "`submitter`")
-    @FieldDef(label="submitter", maxLength = 20)
+    @FieldDef(label="提交人名字", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getSubmitter();
 
@@ -168,37 +168,44 @@ public interface EarnestOrder extends IBaseDomain {
     void setNotes(String notes);
 
     @Column(name = "`withdraw_operator_id`")
-    @FieldDef(label="withdrawOperatorId")
+    @FieldDef(label="撤回人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getWithdrawOperatorId();
 
     void setWithdrawOperatorId(Long withdrawOperatorId);
 
     @Column(name = "`withdraw_operator`")
-    @FieldDef(label="withdrawOperator", maxLength = 20)
+    @FieldDef(label="撤回人名字", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getWithdrawOperator();
 
     void setWithdrawOperator(String withdrawOperator);
 
     @Column(name = "`canceler_id`")
-    @FieldDef(label="cancelerId")
+    @FieldDef(label="取消人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCancelerId();
 
     void setCancelerId(Long cancelerId);
 
-    @Column(name = "`canceler`")
-    @FieldDef(label="canceler", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getCanceler();
-
-    void setCanceler(String canceler);
-
     @Column(name = "`market_id`")
-    @FieldDef(label="marketId")
+    @FieldDef(label="市场Id")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getMarketId();
 
     void setMarketId(Long marketId);
+
+    @Column(name = "`version`")
+    @FieldDef(label="版本控制,乐观锁")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getVersion();
+
+    void setVersion(Long version);
+
+    @Column(name = "`canceler`")
+    @FieldDef(label="取消人名字")
+    @EditMode(editor = FieldEditor.Text, required = false)
+    byte[] getCanceler();
+
+    void setCanceler(byte[] canceler);
 }

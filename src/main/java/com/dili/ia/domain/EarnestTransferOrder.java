@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 定金转移主的业务单
- * This file was generated on 2020-02-19 17:29:54.
+ * This file was generated on 2020-02-28 18:25:12.
  */
 @Table(name = "`earnest_transfer_order`")
 public interface EarnestTransferOrder extends IBaseDomain {
@@ -54,6 +54,13 @@ public interface EarnestTransferOrder extends IBaseDomain {
     Long getAmount();
 
     void setAmount(Long amount);
+
+    @Column(name = "`payer_customer_account_id`")
+    @FieldDef(label="转出方客户余额账户ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getPayerCustomerAccountId();
+
+    void setPayerCustomerAccountId(Long payerCustomerAccountId);
 
     @Column(name = "`payer_id`")
     @FieldDef(label="转出方客户ID")
@@ -104,6 +111,13 @@ public interface EarnestTransferOrder extends IBaseDomain {
 
     void setTransferReason(String transferReason);
 
+    @Column(name = "`payee_customer_account_id`")
+    @FieldDef(label="转入方客户余额账户ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getPayeeCustomerAccountId();
+
+    void setPayeeCustomerAccountId(Long payeeCustomerAccountId);
+
     @Column(name = "`payee_id`")
     @FieldDef(label="转入方客户ID")
     @EditMode(editor = FieldEditor.Number, required = false)
@@ -139,10 +153,24 @@ public interface EarnestTransferOrder extends IBaseDomain {
 
     void setPayerTransactionDetailsCode(String payerTransactionDetailsCode);
 
+    @Column(name = "`market_id`")
+    @FieldDef(label="市场ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getMarketId();
+
+    void setMarketId(Long marketId);
+
     @Column(name = "`payee_transaction_code`")
     @FieldDef(label="转入方的定金转入流水号", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayeeTransactionCode();
 
     void setPayeeTransactionCode(String payeeTransactionCode);
+
+    @Column(name = "`version`")
+    @FieldDef(label="版本控制,乐观锁")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getVersion();
+
+    void setVersion(Long version);
 }

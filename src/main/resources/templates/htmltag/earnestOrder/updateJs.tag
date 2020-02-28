@@ -21,7 +21,7 @@
      * 添加摊位
      * */
     function addStallItem() {
-        $('#stallTable tbody').append(HTMLDecode(template('stallItem', {index: ++itemIndex})))
+        $('#boothTable tbody').append(HTMLDecode(template('stallItem', {index: ++itemIndex})))
     }
 
     // 添加摊位
@@ -31,7 +31,7 @@
 
     //删除行事件 （删除摊位行）
     $(document).on('click', '.item-del', function () {
-        if ($('#stallTable tr').length > 2) {
+        if ($('#boothTable tr').length > 2) {
             $(this).closest('tr').remove();
         }
     });

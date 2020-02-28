@@ -13,6 +13,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -30,6 +33,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/earnestOrder")
 public class EarnestOrderController {
+    private final static Logger LOG = LoggerFactory.getLogger(EarnestOrderController.class);
+
     @Autowired
     EarnestOrderService earnestOrderService;
     @Autowired
@@ -119,9 +124,23 @@ public class EarnestOrderController {
 		@ApiImplicitParam(name="EarnestOrder", paramType="form", value = "EarnestOrder的form信息", required = true, dataType = "string")
 	})
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doAdd(EarnestOrder earnestOrder) {
-        earnestOrderService.addEarnestOrder(earnestOrder);
-        return BaseOutput.success("新增成功");
+    public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(earnestOrder.getEndTime());
+        calendar.add(Calendar.HOUR_OF_DAY,23);
+        calendar.add(Calendar.MINUTE,59);
+        calendar.add(Calendar.SECOND,59);
+        earnestOrder.setEndTime(calendar.getTime());
+        try{
+            earnestOrderService.addEarnestOrder(earnestOrder);
+            return BaseOutput.success("新增成功");
+        }catch (BusinessException e){
+            LOG.error("定金单保存异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("定金单保存异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
     /**

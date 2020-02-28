@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 定金和资产关系，定金可以不挂资产，定金也可以挂在多个资产上
- * This file was generated on 2020-02-19 17:29:54.
+ * This file was generated on 2020-02-28 18:25:12.
  */
 @Table(name = "`earnest_order_detail`")
 public interface EarnestOrderDetail extends IBaseDomain {

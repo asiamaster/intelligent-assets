@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 明细流水
- * This file was generated on 2020-02-19 17:29:54.
+ * This file was generated on 2020-02-28 18:25:12.
  */
 @Table(name = "`transaction_details`")
 public interface TransactionDetails extends IBaseDomain {
@@ -49,14 +49,14 @@ public interface TransactionDetails extends IBaseDomain {
     void setCode(String code);
 
     @Column(name = "`scene_type`")
-    @FieldDef(label="转入，转出，抵扣消费，冻结，缴费，退款")
+    @FieldDef(label="场景：1-交费,2-抵扣消费,3-定金转入,4-定金转出,5-退款,6-冻结，7-解冻,8-转抵转入")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getSceneType();
 
     void setSceneType(Integer sceneType);
 
     @Column(name = "`item_type`")
-    @FieldDef(label="定金，保证金，转抵")
+    @FieldDef(label="1-定金，2-转抵，3-保证金")
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getItemType();
 
