@@ -32,6 +32,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import tk.mybatis.mapper.entity.Example;
 
@@ -200,7 +201,6 @@ public class LeaseOrderController {
      * 摊位租赁订单保存
      * @param leaseOrder
      * @return
-     * @throws Exception
      */
     @RequestMapping(value="/saveLeaseOrder.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput saveLeaseOrder(LeaseOrderListDto leaseOrder){
@@ -217,6 +217,25 @@ public class LeaseOrderController {
             return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("摊位租赁订单保存异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     * 提交付款
+     * @param id
+     * @param amount
+     * @return
+     */
+    @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id,@RequestParam Long amount){
+        try{
+            return leaseOrderService.submitPayment(id,amount);
+        }catch (BusinessException e){
+            LOG.error("摊位租赁订单提交付款异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }catch (Exception e){
+            LOG.error("摊位租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }

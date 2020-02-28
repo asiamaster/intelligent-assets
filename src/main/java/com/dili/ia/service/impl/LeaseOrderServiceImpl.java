@@ -2,13 +2,19 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
+import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.glossary.DepositAmountFlagEnum;
 import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.mapper.LeaseOrderMapper;
+import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
+import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.enums.SettleStateEnum;
+import com.dili.settlement.enums.SettleTypeEnum;
+import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -17,8 +23,11 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -35,6 +44,12 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     @Autowired
     private LeaseOrderItemService leaseOrderItemService;
+
+    @Autowired
+    private SettlementRpc settlementRpc;
+
+    @Value("${settlement.app-id}")
+    private Long settlementAppId;
 
     @Override
     @Transactional
@@ -90,6 +105,65 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             o.setDepositAmountFlag(DepositAmountFlagEnum.PRE_TRANSFER.getCode());
             leaseOrderItemService.insertSelective(o);
         });
+    }
+
+    @Override
+    @Transactional
+    public BaseOutput submitPayment(Long id, Long amount) {
+
+        LeaseOrder leaseOrder = get(id);
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+        PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+        paymentOrder.setBusinessCode(leaseOrder.getCode());
+        paymentOrder.setBusinessId(leaseOrder.getId());
+        paymentOrder.setMarketId(userTicket.getFirmId());
+        paymentOrder.setAmount(amount);
+        paymentOrder.setCreatorId(userTicket.getId());
+        paymentOrder.setCreator(userTicket.getRealName());
+//        paymentOrder.setBizType();
+
+
+        SettleOrder settleOrder = buildSettleOrder(leaseOrder);
+        settleOrder.setAmount(amount);
+        BaseOutput settlementOutput = settlementRpc.submit(settleOrder);
+        if(settlementOutput.isSuccess()){
+
+        }
+        return null;
+    }
+
+    /**
+     * 构造结算单数据
+     * @param leaseOrder
+     * @return
+     */
+    private SettleOrder buildSettleOrder(LeaseOrder leaseOrder) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+        SettleOrder settleOrder = new SettleOrder();
+        settleOrder.setAppId(settlementAppId);
+        settleOrder.setBusinessCode(leaseOrder.getCode());
+        settleOrder.setBusinessDepId(leaseOrder.getDepartmentId());
+        settleOrder.setBusinessDepName(leaseOrder.getDepartmentName());
+//        settleOrder.setBusinessType();
+        settleOrder.setCustomerId(leaseOrder.getCustomerId());
+        settleOrder.setCustomerName(leaseOrder.getCustomerName());
+        settleOrder.setCustomerPhone(leaseOrder.getCustomerCellphone());
+        settleOrder.setMarketId(userTicket.getFirmId());
+//        settleOrder.setReturnUrl();
+        settleOrder.setSubmitterDepId(userTicket.getDepartmentId());
+        settleOrder.setSubmitterId(userTicket.getId());
+        settleOrder.setSubmitterName(userTicket.getRealName());
+        settleOrder.setSubmitTime(LocalDateTime.now());
+        settleOrder.setType(SettleTypeEnum.PAY.getCode());
+        settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
+        return settleOrder;
     }
 
     @Override

@@ -180,6 +180,55 @@
     }
 
     /**
+     * 打开提交付款Handler
+     */
+    function openSubmitPaymentHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        bs4pop.dialog({
+            title: '提交付款',
+            content: template('submitPaymentTpl',{waitAmount:rows[0].waitAmount}),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            height : '60%',
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick(e) {
+                        if (!$('#submitPaymentForm').valid()) {
+                            return false;
+                        }
+                        bui.loading.show();
+                        $.ajax({
+                            type: "POST",
+                            url: "${contextPath}/leaseOrder/submitPayment.action",
+                            data: {id: rows[0].id,amount : Number($('#amount').val()).mul(100)},
+                            dataType: "json",
+                            async : false,
+                            success : function(data) {
+                                bui.loading.hide();
+                                if(!data.success){
+                                    bs4pop.alert(data.result, {type: 'error'});
+                                }
+                            },
+                            error : function() {
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
+                    }
+                },
+                {label: '取消', className: 'btn-default', onClick(e) {}}
+            ]
+        });
+    }
+
+    /**
      * 打开续租Handler
      */
     function openRenewHandler() {

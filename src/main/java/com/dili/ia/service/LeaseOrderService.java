@@ -19,6 +19,14 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
     BaseOutput saveLeaseOrder(LeaseOrderListDto dto);
 
     /**
+     * 提交付款
+     * @param id 租赁单ID
+     * @param amount 交费金额
+     * @return
+     */
+    BaseOutput submitPayment(Long id,Long amount);
+
+    /**
      * 摊位租赁订单取消
      * @param id
      * @return

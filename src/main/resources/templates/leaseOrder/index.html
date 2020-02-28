@@ -75,7 +75,7 @@
                 <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
                 <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
-                <button id="btn_submit" type="button" class="btn btn-primary" onclick=""><i class="fa fa-paper-plane"></i> 提交付款</button>
+                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交付款</button>
                 <button id="btn_withdraw" type="button" class="btn btn-primary" onclick=""><i class="fa fa-undo"></i> 撤回</button>
                 <button id="btn_supplement" type="button" class="btn btn-primary" onclick="openSupplementHandler()"><i class="fa fa-paint-brush"></i> 补录</button>
                 <button id="btn_renew" type="button" class="btn btn-primary" onclick="openRenewHandler()"><i class="fa fa-plug"></i> 续租</button>
@@ -153,103 +153,6 @@
     </div>
 </div>
 
-
-<div class="modal fade" id="_modal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <!--modal-lg modal-sm(默认) 通过设置mw大小调整宽度（如mw-100） modal-dialog-centered垂直居中-->
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <!-- 标题 -->
-                <h5 class="modal-title" id="exampleModalLabel">客户新增</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="_form" method="post" class="form-horizontal" action="">
-                    <input name="_id" id="_id" type="hidden">
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right" for="_code">客户编号</label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" id="_code" name="_code" placeholder="如：001" required/>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right" for="_name">客户名称</label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" id="_name" name="_name" placeholder="如：张三" required/>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right" for="_cellphone">手机号</label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" id="_cellphone" name="_cellphone" placeholder="如：13888888888" required/>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right" for="_certificateNumber">证件号</label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" id="_certificateNumber" name="_certificateNumber" placeholder="如：511602198902244293" required/>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right" for="_birthdate">出生日期</label>
-                        <div class="col-10">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <label for="_birthdate"  class="input-group-text fa fa-calendar"></label>
-                                </div>
-                                <input type="text" name="_birthdate" id="_birthdate" class="form-control date" required/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right" for="_certificateAddrDisplay">证件地址</label>
-                        <div class="col-10">
-                            <#bautoCompleteProvider _hiddenDomainId="_certificateAddr" _hiddenDomainName="_certificateAddr" _displayDomainId="_certificateAddrDisplay" _placeholder="" _provider="cityProvider" _validatorMethod="isSelected" _value="" _text="" _required="true" _option="width:630"/>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right">状态</label>
-                        <div class="col-10 pt-2" id="_state">
-                            <!--<div class="custom-control custom-radio custom-control-inline">
-                                <input type="radio" id="customRadioInline1" value="1" name="customRadioInline1" class="custom-control-input" required>
-                                <label class="custom-control-label" for="customRadioInline1">水果</label>
-                            </div>
-                            <div class="custom-control custom-radio custom-control-inline">
-                                <input type="radio" id="customRadioInline2" value="2" name="customRadioInline1" class="custom-control-input">
-                                <label class="custom-control-label" for="customRadioInline2">蔬菜</label>
-                            </div>
-                            <div class="custom-control custom-radio custom-control-inline">
-                                <input type="radio" id="customRadioInline3" value="3" name="customRadioInline1" class="custom-control-input">
-                                <label class="custom-control-label" for="customRadioInline3">海鲜</label>
-                            </div>-->
-                            <#bradioGroupProvider _containerId="_state" _name="_state" _provider="enabledStateProvider" _required="true"/>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right">性别</label>
-                        <div class="col-10 pt-2" id="_sex">
-                            <#bradioGroupProvider _containerId="_sex" _name="_sex" _provider="sexProvider" _required="true"/>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right">证件类型</label>
-                        <div class="col-10 pt-2" id="_certificateType">
-                            <#bradioGroupProvider _containerId="_certificateType" _name="_certificateType" _provider="certificateTypeProvider" _required="true"/>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary" onclick="saveOrUpdateHandler()">提交</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 </div>
 </#bs4Body>
 <#leaseOrder_indexJs />
@@ -313,6 +216,22 @@
             </div>
             <div class="col-8 ml-2">
                 <input type="text" id="contractNo" name="contractNo" class="form-control" required/>
+            </div>
+        </div>
+    </form>
+</script>
+<!-- 合同编号补充模板 -->
+<script id="submitPaymentTpl" type="text/html">
+    <form id="submitPaymentForm">
+        <div class="row mb-3">
+           <div class="col-12">提交后业务单信息不可改，并可进行缴费，确认提交？</div>
+        </div>
+        <div class="row">
+            <div class="col-2 col-form-label text-right">
+                <label for="amount" class="justify-content-end w-100px">本期付款金额:</label>
+            </div>
+            <div class="col-8 ml-2">
+                <input type="number" id="amount" name="amount" class="form-control floatReserve" value="{{waitAmount}}" min="0.01" max="{{waitAmount}}" required/>
             </div>
         </div>
     </form>
