@@ -12,6 +12,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
@@ -159,8 +160,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         settleOrder.setSubmitterId(userTicket.getId());// "提交人ID
         settleOrder.setSubmitterName(userTicket.getRealName());// "提交人姓名
         settleOrder.setSubmitterDepId(userTicket.getDepartmentId()); //"提交人部门ID
-        //@TODO部门名称查询
-        settleOrder.setBusinessDepName("部门名称");// "提交人部门名称
         String returnUrl = "http://ia.diligrp.com/earnestOrder/paySuccess";
         settleOrder.setReturnUrl(returnUrl); // 结算-- 缴费成功后回调路径
 
