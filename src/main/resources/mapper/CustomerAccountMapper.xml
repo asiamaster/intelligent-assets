@@ -18,18 +18,16 @@
     <result column="transfer_available_balance" jdbcType="BIGINT" property="transferAvailableBalance" />
     <result column="earnest_frozen_amount" jdbcType="BIGINT" property="earnestFrozenAmount" />
     <result column="transfer_frozen_amount" jdbcType="BIGINT" property="transferFrozenAmount" />
-    <result column="transfer_version" jdbcType="BIGINT" property="transferVersion" />
-    <result column="earnest_version" jdbcType="BIGINT" property="earnestVersion" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
+    <result column="version" jdbcType="BIGINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbg.generated
     -->
-    id, create_time, modify_time, customer_id, customer_name, customer_cellphone, certificate_number,
+    id, create_time, modify_time, customer_id, customer_name, customer_cellphone, certificate_number, 
     earnest_balance, transfer_balance, earnest_available_balance, transfer_available_balance, 
-    earnest_frozen_amount, transfer_frozen_amount, transfer_version, earnest_version, 
-    market_id
+    earnest_frozen_amount, transfer_frozen_amount, market_id, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -82,47 +80,16 @@
       <if test="transferFrozenAmount != null">
         transfer_frozen_amount = #{transferFrozenAmount,jdbcType=BIGINT},
       </if>
-      <if test="transferVersion != null">
-        transfer_version = #{transferVersion,jdbcType=BIGINT},
-      </if>
-      <if test="earnestVersion != null">
-        earnest_version = #{earnestVersion,jdbcType=BIGINT},
-      </if>
       <if test="marketId != null">
         market_id = #{marketId,jdbcType=BIGINT},
       </if>
+      <if test="version != null">
+        version = #{version,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-
-
-
-  <update id="updateEarnestAccountByVersion" parameterType="com.dili.ia.domain.CustomerAccount">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    update customer_account
-    <set>
-      <if test="earnestBalance != null">
-        earnest_balance = #{earnestBalance,jdbcType=BIGINT},
-      </if>
-      <if test="earnestAvailableBalance != null">
-        earnest_available_balance = #{earnestAvailableBalance,jdbcType=BIGINT},
-      </if>
-      <if test="earnestFrozenAmount != null">
-        earnest_frozen_amount = #{earnestFrozenAmount,jdbcType=BIGINT},
-      </if>
-        earnest_version = #{earnestVersion,jdbcType=BIGINT} + 1,
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-    and market_id = #{marketId,jdbcType=BIGINT}
-    and earnest_version = #{earnestVersion,jdbcType=BIGINT}
-  </update>
-
   <update id="updateByVersion" parameterType="com.dili.ia.domain.CustomerAccount">
-    <!--
-      WARNING - @mbg.generated
-    -->
     update customer_account
     <set>
       <if test="earnestBalance != null">
@@ -143,11 +110,10 @@
       <if test="transferFrozenAmount != null">
         transfer_frozen_amount = #{transferFrozenAmount,jdbcType=BIGINT},
       </if>
-      transfer_version = #{transferVersion,jdbcType=BIGINT} + 1,
-      earnest_version = #{earnestVersion,jdbcType=BIGINT} + 1,
+      version = #{version,jdbcType=BIGINT} + 1,
     </set>
     where id = #{id,jdbcType=BIGINT}
     and market_id = #{marketId,jdbcType=BIGINT}
-    and earnest_version = #{earnestVersion,jdbcType=BIGINT}
+    and version = #{version,jdbcType=BIGINT}
   </update>
 </mapper>

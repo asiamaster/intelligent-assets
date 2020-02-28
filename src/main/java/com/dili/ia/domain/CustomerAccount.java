@@ -15,7 +15,7 @@ import javax.persistence.Id;
  * 由MyBatis Generator工具自动生成
  * 客户余额管理,包含定金，转抵金额。定金可用来源于定金缴费，别人转移。
 转抵金额只来源于租赁退款
- * This file was generated on 2020-02-19 17:29:54.
+ * This file was generated on 2020-02-28 18:25:12.
  */
 @Table(name = "`customer_account`")
 public interface CustomerAccount extends IBaseDomain {
@@ -64,7 +64,7 @@ public interface CustomerAccount extends IBaseDomain {
     void setCustomerCellphone(String customerCellphone);
 
     @Column(name = "`certificate_number`")
-    @FieldDef(label="客户证件号码", maxLength = 40)
+    @FieldDef(label="客户证件号", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCertificateNumber();
 
@@ -112,24 +112,17 @@ public interface CustomerAccount extends IBaseDomain {
 
     void setTransferFrozenAmount(Long transferFrozenAmount);
 
-    @Column(name = "`transfer_version`")
-    @FieldDef(label="转抵数据修改版本控制")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getTransferVersion();
-
-    void setTransferVersion(Long transferVersion);
-
-    @Column(name = "`earnest_version`")
-    @FieldDef(label="定金数据修改版本控制")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getEarnestVersion();
-
-    void setEarnestVersion(Long earnestVersion);
-
     @Column(name = "`market_id`")
-    @FieldDef(label="marketId")
+    @FieldDef(label="市场ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getMarketId();
 
     void setMarketId(Long marketId);
+
+    @Column(name = "`version`")
+    @FieldDef(label="版本控制,乐观锁")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getVersion();
+
+    void setVersion(Long version);
 }
