@@ -8,28 +8,22 @@ package com.dili.ia.glossary;
  * @author jiangchengyong
  * @createTime 2020/02/10 18:43
  */
-public enum LeaseOrderStateEnum {
+public enum IsRenewEnum {
 
-    CREATED(1, "已创建"),
-    CANCELD(2, "已取消"),
-    SUBMITTED(3, "已提交"),
-    NOT_ACTIVE(4, "未生效"),
-    EFFECTIVE(5, "已生效"),
-    RENTED_OUT(6, "已停租"),
-    REFUNDED(7, "已退款"),
-    EXPIRED(8, "已到期"),
+    YES(1, "是"),
+    NO(2, "否"),
     ;
 
     private String name;
     private Integer code ;
 
-    LeaseOrderStateEnum(Integer code, String name){
+    IsRenewEnum(Integer code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static LeaseOrderStateEnum getEnabledState(Integer code) {
-        for (LeaseOrderStateEnum anEnum : LeaseOrderStateEnum.values()) {
+    public static IsRenewEnum getEnabledState(Integer code) {
+        for (IsRenewEnum anEnum : IsRenewEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }

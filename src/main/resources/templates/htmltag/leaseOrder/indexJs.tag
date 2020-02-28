@@ -44,10 +44,6 @@
         });
     }
 
-    function closeModal() {
-        parent.dia.hide();
-    }
-
     /**
      * 打开修改Handler
      */
@@ -184,10 +180,9 @@
     }
 
     /**
-     * 禁启用操作
-     * @param enable 是否启用:true-启用
+     * 打开续租Handler
      */
-    function doEnableHandler(enable) {
+    function openRenewHandler() {
         //获取选中行的数据
         let rows = _grid.bootstrapTable('getSelections');
         if (null == rows || rows.length == 0) {
@@ -195,38 +190,17 @@
             return;
         }
 
-        //table选择模式是单选时可用
-        let selectedRow = rows[0];
-        let msg = (enable || 'true' == enable) ? '确定要启用该货站吗？' : '确定要禁用该货站吗？';
-
-        bs4pop.confirm(msg, undefined, function (sure) {
-            if(sure){
-                bui.loading.show('努力提交中，请稍候。。。');
-                $.ajax({
-                    type: "POST",
-                    url: "${contextPath}/leaseOrder/doEnable.action",
-                    data: {id: selectedRow.id, enable: enable},
-                    processData:true,
-                    dataType: "json",
-                    async : true,
-                    success : function(data) {
-                        bui.loading.hide();
-                        if(data.success){
-                            _grid.bootstrapTable('refresh');
-                            _modal.modal('hide');
-                        }else{
-                            bs4pop.alert(data.result, {type: 'error'});
-                        }
-                    },
-                    error : function() {
-                        bui.loading.hide();
-                        bs4pop.alert('远程访问失败', {type: 'error'});
-                    }
-                });
-            }
-        })
+        dia = bs4pop.dialog({
+            title: '摊位续租',
+            content: '/leaseOrder/renew.html?id='+rows[0].id,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '80%',
+            height : '95%',
+            btns: []
+        });
     }
-
 
     /**
      *  保存及更新表单数据

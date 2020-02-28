@@ -9,7 +9,7 @@
     /*********************变量定义区 begin*************/
         //行索引计数器
         let itemIndex = 0;
-        let isUpdateChecking = ${isNotEmpty(leaseOrder) ? true : false};
+        let isInitCheckDeduction = ${isNotEmpty(leaseOrder) ? true : false};
         var customerNameAutoCompleteOption = {
             width : 350,
             serviceUrl: '/customer/list.action',
@@ -72,6 +72,11 @@
             elem: '#startTime',
             type: 'date',
             theme: '#007bff',
+            <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
+            value: moment("${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}").add(1,"days").format("YYYY-MM-DD"),
+            <% } else if(isEmpty(leaseOrder)){ %>
+            value: new Date(),
+            <% }%>
             done: function(value, date){
                 startTimeChangeHandler();
                 $("#saveForm").validate().element($("#startTime"));
@@ -88,6 +93,11 @@
                 $("#saveForm").validate().element($("#days"));
             }
         });
+
+        <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
+        //重新计算续租日期
+        $('#endTime').val(moment($('#startTime').val()).add($('#days').val()-1,"days").format("YYYY-MM-DD"));
+        <% } %>
 
         <% if(isNotEmpty(leaseOrderItems)){ %>
             let leaseOrderItems = JSON.parse('${leaseOrderItems}');
@@ -276,11 +286,11 @@
                         let trIndex = getIndex(boothIdEl.attr('id'));
                         $('#depositAmountSourceCode_'+trIndex).val(item.code);
                     });
-                    if(isUpdateChecking){
+                    if(isInitCheckDeduction){
                         if($('#depositDeduction').val() != depositAmount.centToYuan()){
                             bs4pop.notice('保证金可抵扣额发生变化,已为您调整至最新值！', {position: 'bottomleft',autoClose: false})
                         }
-                        isUpdateChecking = false;
+                        isInitCheckDeduction = false;
                     }
                     $('#depositDeduction').val(Number(depositAmount).centToYuan())
                 } else {
@@ -316,7 +326,7 @@
                    let transferDeductionEl$ = $('#transferDeduction');
                    let earnestAvailableBalance = Number(data.earnestAvailableBalance).centToYuan();
                    let transferAvailableBalance = Number(data.transferAvailableBalance).centToYuan();
-                   if(isUpdateChecking){
+                   if(isInitCheckDeduction){
                        if(Number(earnestDeductionEl$.val()) > earnestAvailableBalance){
                            earnestDeductionEl$.val(earnestAvailableBalance);
                            bs4pop.notice('定金可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})

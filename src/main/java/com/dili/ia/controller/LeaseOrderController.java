@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
+import com.dili.ia.glossary.IsRenewEnum;
 import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
@@ -80,6 +81,27 @@ public class LeaseOrderController {
     }
 
     /**
+     * 跳转到LeaseOrder续租页面
+     * @param modelMap
+     * @param id 老单子ID
+     * @return String
+     */
+    @ApiOperation("跳转到LeaseOrder续租页面")
+    @RequestMapping(value="/renew.html", method = RequestMethod.GET)
+    public String renew(ModelMap modelMap,Long id) {
+        if(null != id){
+            LeaseOrder leaseOrder = leaseOrderService.get(id);
+            LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+            condition.setLeaseOrderId(id);
+            List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
+            modelMap.put("leaseOrder",leaseOrder);
+            modelMap.put("isRenew", IsRenewEnum.YES.getCode());
+            modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
+        }
+        return "leaseOrder/preSave";
+    }
+
+    /**
      * 跳转到LeaseOrder新增页面
      * @param modelMap
      * @return String
@@ -94,6 +116,8 @@ public class LeaseOrderController {
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
             modelMap.put("leaseOrder",leaseOrder);
             modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
+        }else{
+            modelMap.put("isRenew", IsRenewEnum.NO.getCode());
         }
         return "leaseOrder/preSave";
     }

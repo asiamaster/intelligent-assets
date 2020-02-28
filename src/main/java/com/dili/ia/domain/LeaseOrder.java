@@ -309,6 +309,13 @@ public interface LeaseOrder extends IBaseDomain {
 
     void setRefundState(Integer refundState);
 
+    @Column(name = "`is_renew`")
+    @FieldDef(label="是否为续租")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Integer getIsRenew();
+
+    void setIsRenew(Integer isRenew);
+
     @Column(name = "`is_delete`")
     @FieldDef(label="是否删除")
     @EditMode(editor = FieldEditor.Number, required = false)
