@@ -14,6 +14,7 @@ import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     EarnestOrderDetailService earnestOrderDetailService;
     @Autowired
     TransactionDetailsService transactionDetailsService;
+    @Autowired
+    DepartmentRpc departmentRpc;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -56,14 +59,18 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setCreatorId(userTicket.getId());
         earnestOrder.setCreator(userTicket.getRealName());
         earnestOrder.setMarketId(userTicket.getFirmId());
+        BaseOutput<Department> depOut = departmentRpc.get(userTicket.getDepartmentId());
+        if(depOut.isSuccess()){
+            earnestOrder.setDepartmentName(depOut.getData().getName());
+        }
         earnestOrder.setState(EarnestOrderStateEnum.CREATED.getCode());
         earnestOrder.setAssetsType(AssetsTypeEnum.BOOTH.getCode());
         //@TODO业务单号, 多摊位存储  验证客户状态，摊位状态是否正常
-//        earnestOrder.setCode();
+        earnestOrder.setCode("DJ202002280001");
+        earnestOrder.setVersion(0L);
         this.getActualDao().insertSelective(earnestOrder);
 
-        CustomerAccount ca = customerAccountService.getCustomerAccountByCustomerId(earnestOrder.getCustomerId(), userTicket.getFirmId());
-        if (null == ca){ //如果客户账户不存在，创建客户账户
+        if (!customerAccountService.checkCustomerAccountExist(earnestOrder.getCustomerId(), userTicket.getFirmId())){ //如果客户账户不存在，创建客户账户
             CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
             customerAccount.setMarketId(userTicket.getFirmId());
             customerAccount.setCustomerId(earnestOrder.getCustomerId());

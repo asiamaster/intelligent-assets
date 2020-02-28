@@ -1,10 +1,12 @@
 package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
 
 import javax.persistence.Column;
+import javax.persistence.Transient;
 import java.util.Date;
 import java.util.List;
 
@@ -39,4 +41,13 @@ public interface EarnestOrderListDto extends EarnestOrder {
     @Like
     String getLikeCustomerName();
     void setLikeCustomerName(String likeCustomerName);
+
+    //摊位名称
+    @Transient
+    String getBoothName();
+    void setBoothName(String boothName);
+
+    @Transient
+    List<EarnestOrderDetail> getEarnestOrderdetails();
+    void setEarnestOrderdetails(List<EarnestOrderDetail> earnestOrderdetails);
 }

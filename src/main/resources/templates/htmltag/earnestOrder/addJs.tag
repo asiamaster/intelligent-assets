@@ -26,7 +26,7 @@
      * 添加摊位
      * */
     function addStallItem() {
-        $('#stallTable tbody').append(HTMLDecode(template('stallItem', {index: ++itemIndex})))
+        $('#boothTable tbody').append(HTMLDecode(template('stallItem', {index: ++itemIndex})))
     }
 
     // 添加摊位
@@ -36,10 +36,30 @@
 
     //删除行事件 （删除摊位行）
     $(document).on('click', '.item-del', function () {
-        if ($('#stallTable tr').length > 2) {
+        if ($('#boothTable tr').length > 2) {
             $(this).closest('tr').remove();
         }
     });
+
+
+    function buildFormData(){
+        // let formData = new FormData($('#saveForm')[0]);
+        let formData = $("input:not(table input),textarea,select").serializeObject();
+        let earnestOrderdetails = [];
+        bui.util.yuanToCentForMoneyEl(formData);
+        $("#boothTable tbody").find("tr").each(function(){
+            let earnestOrderdetail = {};
+            $(this).find("input").each(function(t,el){
+                let fieldName = $(this).attr("name").split('_')[0];
+                earnestOrderdetail[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+            });
+            earnestOrderdetails.push(earnestOrderdetail);
+        });
+
+        $.extend(formData,{earnestOrderdetails});
+        console.log(formData);
+        return formData;
+    }
 
     // 提交保存
     $('#formSubmit').on('click', function (e) {
@@ -47,24 +67,23 @@
             return false;
         } else {
             bui.loading.show('努力提交中，请稍候。。。');
-            let _formData = new FormData($('#saveForm')[0]);
             $.ajax({
                 type: "POST",
                 url: "${contextPath}/earnestOrder/doAdd.action",
-                data: _formData,
+                data: buildFormData(),
                 processData: false,
                 contentType: false,
                 async: true,
-                success: function (res) {
+                success: function (data) {
                     bui.loading.hide();
-                    if (data.code == "200") {
+                    if(data.success){
                         bs4pop.alert('注册成功', {type: 'success '}, function () {
                             /* 应该要带条件刷新 */
                             window.location.reload();
                         });
                     } else {
                         bui.loading.hide();
-                        bs4pop.alert(res.result, {type: 'error'});
+                        bs4pop.alert(data.message, {type: 'error'});
                     }
                 },
                 error: function (error) {
@@ -74,5 +93,6 @@
             });
         }
     });
+
 
 </script>

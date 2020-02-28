@@ -121,7 +121,7 @@
                             if(data.success){
                                 _grid.bootstrapTable('refresh');
                             }else{
-                                bs4pop.alert(data.result, {type: 'error'});
+                                bs4pop.alert(data.message, {type: 'error'});
                             }
                         },
                         error : function() {
