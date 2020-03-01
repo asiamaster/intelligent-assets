@@ -44,7 +44,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @Autowired
     CustomerAccountService customerAccountService;
     @Autowired
-    PaymentBillService paymentBillService;
+    PaymentOrderService paymentOrderService;
     @Autowired
     EarnestOrderDetailService earnestOrderDetailService;
     @Autowired
@@ -133,8 +133,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setSubDate(new Date());
         this.getActualDao().updateByPrimaryKey(ea);
 
-        PaymentBill pb = this.buildPaymentBill(userTicket, ea.getAmount(), ea.getId(), ea.getCode());
-        paymentBillService.insert(pb);
+        PaymentOrder pb = this.buildPaymentOrder(userTicket, ea.getAmount(), ea.getId(), ea.getCode());
+        paymentOrderService.insert(pb);
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrder(ea, userTicket));
@@ -172,8 +172,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return settleOrder;
     }
 
-    private PaymentBill buildPaymentBill(UserTicket userTicket, Long amount, Long businessId, String businessCode){
-        PaymentBill pb = DTOUtils.newDTO(PaymentBill.class);
+    private PaymentOrder buildPaymentOrder(UserTicket userTicket, Long amount, Long businessId, String businessCode){
+        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
         pb.setAmount(amount);
 //        pb.setBizType();
         pb.setBusinessId(businessId);
@@ -182,19 +182,19 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setCreator(userTicket.getRealName());
         pb.setMarketId(userTicket.getFirmId());
 //        pb.setState();
-        pb.setSubmitterId(userTicket.getId());
-        pb.setSubmitter(userTicket.getRealName());
+//        pb.setSubmitterId(userTicket.getId());
+//        pb.setSubmitter(userTicket.getRealName());
         return pb;
     }
 
-    private PaymentBill findPaymentBill(UserTicket userTicket, Long businessId, String businessCode){
-        PaymentBill pb = DTOUtils.newDTO(PaymentBill.class);
+    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
+        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
 //        pb.setBizType();
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
         pb.setMarketId(userTicket.getFirmId());
 //        pb.setState();
-        List<PaymentBill> list = paymentBillService.selectByExample(pb);
+        List<PaymentOrder> list = paymentOrderService.selectByExample(pb);
         //@TODO验证不存在，并抛出异常
         return list.get(0);
     }
@@ -212,8 +212,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setWithdrawOperator(userTicket.getRealName());
         this.getActualDao().updateByPrimaryKey(ea);
 
-        PaymentBill pb = this.findPaymentBill(userTicket, ea.getId(), ea.getCode());
-        paymentBillService.deleteByExample(pb);
+        PaymentOrder pb = this.findPaymentOrder(userTicket, ea.getId(), ea.getCode());
+        paymentOrderService.deleteByExample(pb);
 
         //@TODO 更改提交到结算中心的数据
         return BaseOutput.success();
