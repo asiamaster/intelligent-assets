@@ -59,6 +59,16 @@
               "defaultValue": ""
             },
             {
+              "name": "second_area",
+              "type": "Integer",
+              "chnname": "区域",
+              "remark": "",
+              "pk": false,
+              "notNull": false,
+              "autoIncrement": false,
+              "defaultValue": ""
+            },
+            {
               "name": "type",
               "type": "tinyint",
               "chnname": "摊位类型",
@@ -109,6 +119,18 @@
               "type": "Integer",
               "remark": "",
               "chnname": "状态"
+            },
+            {
+              "name": "rent_state",
+              "type": "tinyint",
+              "remark": "",
+              "chnname": "租赁状态"
+            },
+            {
+              "name": "corner",
+              "type": "tinyint",
+              "remark": "",
+              "chnname": "是否转角"
             },
             {
               "name": "is_delete",
@@ -677,56 +699,106 @@
               "relationNoShow": true
             }
           ]
+        },
+        {
+          "title": "booth_rent",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "order_id",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "业务单号"
+            },
+            {
+              "name": "booth_id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "摊位编号"
+            },
+            {
+              "name": "start",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "开始日期"
+            },
+            {
+              "name": "end",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "结束时间"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "租赁时间表"
         }
       ],
       "graphCanvas": {
         "nodes": [
           {
             "shape": "table",
-            "title": "district",
+            "title": "booth_rent",
             "moduleName": false,
-            "x": 54.7402601865909,
-            "y": 30.582533322565,
-            "id": "e442483f",
+            "x": 450,
+            "y": 130,
+            "id": "58136034",
             "size": [
-              486.2518083237477,
-              388.53889193749285
-            ]
-          },
-          {
-            "shape": "table",
-            "title": "print_template",
-            "moduleName": false,
-            "x": 500,
-            "y": -50,
-            "id": "b4b2fb94",
-            "size": [
-              218.98330721149625,
-              292.50407434250343
-            ]
-          },
-          {
-            "shape": "table",
-            "title": "booth",
-            "moduleName": false,
-            "x": 370,
-            "y": 360,
-            "id": "0826b071",
-            "size": [
-              355.2581652164797,
-              392.70421999795553
-            ]
-          },
-          {
-            "shape": "table",
-            "title": "category",
-            "moduleName": false,
-            "x": -140,
-            "y": -70,
-            "id": "b819210b",
-            "size": [
-              295.1985977823682,
-              330.0172084866174
+              389.11676344015325,
+              394.93711213113306
             ]
           }
         ],

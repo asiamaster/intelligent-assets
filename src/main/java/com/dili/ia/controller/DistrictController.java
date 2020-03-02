@@ -10,6 +10,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 /**
  * DistrictController
  */
@@ -112,4 +114,14 @@ public class DistrictController {
     public BaseOutput delete(Long id) {
         return assetsRpc.delDistrictById(id);
     }
+
+    /**
+     * 删除区域
+     */
+    @RequestMapping("search.action")
+    @ResponseBody
+    public BaseOutput<List<DistrictDTO>> search(DistrictDTO input) {
+        return assetsRpc.searchDistrict(input);
+    }
+
 }
