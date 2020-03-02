@@ -164,7 +164,7 @@
                     success : function(ret) {
                         bui.loading.hide();
                         if(ret.success){
-                            _grid.bootstrapTable('refresh');
+                            queryDataHandler();
                         }else{
                             bs4pop.alert(ret.message, {type: 'error'});
                         }
@@ -212,6 +212,7 @@
                             async : false,
                             success : function(data) {
                                 bui.loading.hide();
+                                queryDataHandler();
                                 if(!data.success){
                                     bs4pop.alert(data.result, {type: 'error'});
                                 }
@@ -248,46 +249,6 @@
             width: '80%',
             height : '95%',
             btns: []
-        });
-    }
-
-    /**
-     *  保存及更新表单数据
-     */
-    function saveOrUpdateHandler() {
-        if (_form.validate().form() != true) {
-            return;
-        }
-
-        bui.loading.show('努力提交中，请稍候。。。');
-        let _formData = bui.util.removeKeyStartWith(_form.serializeObject(), "_");
-        let _url = null;
-        //没有id就新增
-        if (_formData.id == null || _formData.id == "") {
-            _url = "${contextPath}/leaseOrder/insert.action";
-        } else {//有id就修改
-            _url = "${contextPath}/leaseOrder/update.action";
-        }
-        $.ajax({
-            type: "POST",
-            url: _url,
-            data: _formData,
-            processData: true,
-            dataType: "json",
-            async: true,
-            success: function (data) {
-                bui.loading.hide();
-                if (data.code == "200") {
-                    _grid.bootstrapTable('refresh');
-                    _modal.modal('hide');
-                } else {
-                    bs4pop.alert(data.result, {type: 'error'});
-                }
-            },
-            error: function (a, b, c) {
-                bui.loading.hide();
-                bs4pop.alert('远程访问失败', {type: 'error'});
-            }
         });
     }
 
@@ -331,16 +292,12 @@
         return $.extend(temp, bui.util.bindMetadata(this.id));
     }
 
-    function moneyFormatter(val) {
-        return
-    }
-
     /**
      * 关闭弹窗
      */
     function closeDialog(dialog){
         dialog.hide();
-        _grid.bootstrapTable('refresh');
+        queryDataHandler();
     }
 
     /*****************************************函数区 end**************************************/

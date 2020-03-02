@@ -3,11 +3,14 @@ package com.dili.ia.controller;
 import com.alibaba.fastjson.JSON;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
+import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.IsRenewEnum;
 import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
+import com.dili.ia.service.PaymentOrderService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
@@ -50,6 +53,8 @@ public class LeaseOrderController {
     LeaseOrderService leaseOrderService;
     @Autowired
     LeaseOrderItemService leaseOrderItemService;
+    @Autowired
+    PaymentOrderService paymentOrderService;
 
     /**
      * 跳转到LeaseOrder页面
@@ -65,19 +70,27 @@ public class LeaseOrderController {
     /**
      * 跳转到LeaseOrder查看页面
      * @param modelMap
+     * @param businessCode 缴费单CODE
      * @return String
      */
     @ApiOperation("跳转到LeaseOrder查看页面")
     @RequestMapping(value="/view.html", method = RequestMethod.GET)
-    public String view(ModelMap modelMap,Long id) {
-        if(null != id){
-            LeaseOrder leaseOrder = leaseOrderService.get(id);
-            LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
-            condition.setLeaseOrderId(id);
-            List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
-            modelMap.put("leaseOrder",leaseOrder);
-            modelMap.put("leaseOrderItems", leaseOrderItems);
+    public String view(ModelMap modelMap,Long id,String businessCode) {
+        LeaseOrder leaseOrder = null;
+        if(null != id) {
+            leaseOrder = leaseOrderService.get(id);
+        }else if(StringUtils.isNotBlank(businessCode)){
+            PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+            paymentOrder.setCode(businessCode);
+            leaseOrder = leaseOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
+            id = leaseOrder.getId();
         }
+
+        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+        condition.setLeaseOrderId(id);
+        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
+        modelMap.put("leaseOrder",leaseOrder);
+        modelMap.put("leaseOrderItems", leaseOrderItems);
         return "leaseOrder/view";
     }
 

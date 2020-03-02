@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author qinkelan
  * @createTime 2020-02-24 15:49
  */
-@FeignClient(name = "settlement-service")
+@FeignClient(name = "settlement-service",url = "http://10.28.10.84:8184")
 public interface SettlementRpc {
 
     /**
