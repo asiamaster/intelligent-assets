@@ -1,6 +1,8 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.CustomerAccount;
+import com.dili.ia.domain.EarnestTransferOrder;
+import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ss.base.BaseService;
 
 /**
@@ -22,6 +24,29 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @return CustomerAccount 客户账户信息
      * */
     CustomerAccount getCustomerAccountByCustomerId(Long customerId, Long marketId);
+
+    /**
+     * 客户账户定金转移
+     * @param earnestTransferOrder
+     * @return CustomerAccount 客户账户信息
+     * */
+    void earnestTransfer(EarnestTransferOrder earnestTransferOrder);
+    /**
+     * 根据用户信息，新增客户账户
+     * @param customerId 客户ID
+     * @param customerName 客户名字
+     * @param customerCellphone 客户电话
+     * @param certificateNumber 客户证件号码
+     * @return CustomerAccount 客户账户信息
+     * */
+    CustomerAccount creatCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber);
+
+    /**
+     * 根据用户信息，新增客户账户
+     * @param efDto EarnestTransferDto
+     * @return EarnestTransferOrder 转移单
+     * */
+    EarnestTransferOrder createEarnestTransferOrder(EarnestTransferDto efDto);
 
     /**
      * 客户账户 -- 冻结--【冻结定余额】增加
