@@ -1,17 +1,12 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.CustomerAccount;
-import com.dili.ia.domain.EarnestOrder;
-import com.dili.ia.domain.EarnestTransferOrder;
-import com.dili.ia.domain.TransactionDetails;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.EarnestTransferDto;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.EarnestTransferOrderStateEnum;
-import com.dili.ia.glossary.TransactionItemTypeEnum;
-import com.dili.ia.glossary.TransactionSceneTypeEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.CustomerAccountMapper;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.EarnestTransferOrderService;
+import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransactionDetailsService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
@@ -44,6 +39,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     EarnestTransferOrderService earnestTransferOrderService;
     @Autowired
     TransactionDetailsService transactionDetailsService;
+    @Autowired
+    RefundOrderService refundOrderService;
 
     @Override
     public Boolean checkCustomerAccountExist(Long customerId, Long marketId) {
@@ -200,5 +197,47 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         return tds;
     }
 
+    @Override
+    public void earnestRefund(RefundOrder order) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登陆");
+        }
+        BaseOutput checkResult = checkParams(order);
+        if (!checkResult.isSuccess()){
+            throw new RuntimeException(checkResult.getMessage());
+        }
+        order.setCreator(userTicket.getRealName());
+        order.setCreatorId(userTicket.getId());
+        order.setMarketId(userTicket.getFirmId());
+        //@TODO退款单编号
+        order.setCode("DJTK202003020001");
+        order.setBizType(BizTypeEnum.EARNEST.getCode());
+        order.setState((long)RefundOrderStateEnum.CREATED.getCode());
 
+        refundOrderService.insertSelective(order);
+    }
+
+    private BaseOutput checkParams(RefundOrder order){
+        if (null == order.getOrderId()){//定金退款不是针对业务单，所以订单ID记录的是【客户账户ID】
+            return BaseOutput.failure("退款单orderId不能为空！");
+        }
+        if (null == order.getCustomerId()){
+            return BaseOutput.failure("客户ID不能为空！");
+        }
+        if (null == order.getCustomerName()){
+            return BaseOutput.failure("客户名称不能为空！");
+        }
+        if (null == order.getCertificateNumber()){
+            return BaseOutput.failure("客户证件号码不能为空！");
+        }
+        if (null == order.getCustomerCellphone()){
+            return BaseOutput.failure("客户联系电话不能为空！");
+        }
+        if (null == order.getTotalRefundAmount()){
+            return BaseOutput.failure("退款单金额不能为空！");
+        }
+
+        return BaseOutput.success();
+    }
 }

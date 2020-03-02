@@ -10,7 +10,7 @@
     })
 
 
-    // 提交保存
+    // 定金转移保存
     $('#formSubmit').on('click', function (e) {
         if (!$('#saveForm').valid()) {
             return false;

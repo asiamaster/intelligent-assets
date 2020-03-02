@@ -1,49 +1,50 @@
 <#bs4Body>
 
 <div class="container-fluid">
-    <input type="hidden" name="id" value="${customerAccount.id!}">
-    <form action="">
+    <form id="saveForm" role="form" action="">
         <div class="row row-cols-3">
+            <input type="hidden" name="customerId" value="${customerAccount.customerId!}">
+            <input type="hidden" name="orderId" value="${customerAccount.id!}">
             <div class="form-group col">
                 <label for="" class="">客户姓名</label>
-                <input type="text" class="form-control" name="" value="${customerAccount.customerName!}" disabled />
+                <input type="text" class="form-control" name="customerName" value="${customerAccount.customerName!}" readonly />
             </div>
             <div class="form-group col">
                 <label for="" class="">证件号码</label>
-                <input type="text" class="form-control" name="" value="${customerAccount.certificateNumber!}" disabled />
+                <input type="text" class="form-control" name="certificateNumber" value="${customerAccount.certificateNumber!}" readonly />
             </div>
             <div class="form-group col">
                 <label for="" class="">手机号</label>
-                <input type="text" class="form-control" name="" value="${customerAccount.customerCellphone!}" disabled />
+                <input type="text" class="form-control" name="customerCellphone" value="${customerAccount.customerCellphone!}" readonly />
             </div>
         </div>
         <div class="row row-cols-3">
             <div class="form-group col">
                 <label for="" class="">退款金额</label>
-                <input type="text" class="form-control floatReserve" name="amount"  required />
+                <input type="text" class="form-control floatReserve money" name="totalRefundAmount"  required />
             </div>
         </div>
         <div class="row row-cols-3">
             <div class="form-group col">
                 <label for="" class="">退款方式</label>
-                <select id="" name="refundWay" class="form-control">
+                <select id="" name="refundType" class="form-control">
                     <option value="1">1</option>
                     <option value="3">银行转账</option>
                 </select>
             </div>
             <div class="form-group col" data-refund-way="bank">
                 <label for="" class="">开户行</label>
-                <input type="text" class="form-control" name="" required />
+                <input type="text" class="form-control" name="bank" required />
             </div>
             <div class="form-group col" data-refund-way="bank">
                 <label for="" class="">银行卡号</label>
-                <input type="text" class="form-control digits" name="" required />
+                <input type="text" class="form-control digits" name="bank_card_no" required />
             </div>
         </div>
         <div class="row row-cols-1">
             <div class="form-group col">
                 <label for="">退款原因</label>
-                <textarea class="form-control" rows="1" name=""  maxlength="100"></textarea>
+                <textarea class="form-control" rows="1" name="refundReason"  maxlength="100"></textarea>
             </div>
         </div>
         <div class="text-right btn-r-b">
