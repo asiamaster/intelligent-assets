@@ -134,9 +134,9 @@ public class EarnestOrderController {
         try{
             earnestOrderService.addEarnestOrder(earnestOrder);
             return BaseOutput.success("新增成功");
-        }catch (BusinessException e){
+        }catch (RuntimeException e){
             LOG.error("定金单保存异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("定金单保存异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -172,8 +172,8 @@ public class EarnestOrderController {
         try {
             earnestOrderService.submitEarnestOrder(id);
             return BaseOutput.success("提交成功！");
-        } catch (BusinessException e) {
-            return BaseOutput.failure(e.getErrorMsg());
+        } catch (RuntimeException e) {
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             return BaseOutput.failure("提交出错！");
         }
@@ -193,8 +193,8 @@ public class EarnestOrderController {
         try {
             earnestOrderService.withdrawEarnestOrder(id);
             return BaseOutput.success("撤回成功！");
-        } catch (BusinessException e) {
-            return BaseOutput.failure(e.getErrorMsg());
+        } catch (RuntimeException e) {
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             return BaseOutput.failure("撤回出错！");
         }

@@ -47,23 +47,23 @@
                 $.ajax({
                     type: "POST",
                     dataType: "json",
-                    url: '/category/save',
+                    url: '/category/save.action',
                     data: $("#addForm").serialize(),
                     success: function (data) {
                         if (data.code != '200') {
-                            tips("提示", data.message);
+                            bs4pop.alert(data.message, {type: 'error'});
                             okButton.removeAttr("disabled");
                             return;
                         }
                         loadTable();
                         addTreeNode($("#parentId").val(), data.data, true);
                         $('#addModal').modal('hide');
-                        tips("提示", "品类信息新增成功!");
+                        bs4pop.alert("品类信息新增成功", {type: 'success'});
                         okButton.removeAttr("disabled");
                     },
                     error: function () {
                         okButton.removeAttr("disabled");
-                        tips("提示", "品类信息新增失败!");
+                        bs4pop.alert("品类新增失败", {type: 'error'});
                     }
                 });
             }
@@ -74,7 +74,7 @@
             if (name != undefined && name.trim() != '') {
                 $.ajax({
                     type: "post",
-                    url: '/category/convert',
+                    url: '/category/convert.action',
                     dataType: "json",
                     data: {
                         'name': name

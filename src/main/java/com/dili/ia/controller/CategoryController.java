@@ -30,7 +30,7 @@ public class CategoryController {
     /**
      * 跳转到品类列表页
      */
-    @RequestMapping
+    @RequestMapping("list.html")
     public String list() {
         return "category/list";
     }
@@ -38,7 +38,7 @@ public class CategoryController {
     /**
      * 返回添加品类页面片段
      */
-    @RequestMapping("addView")
+    @RequestMapping("addView.html")
     public String toAdd(Long pid, ModelMap map) {
         // 品类未选择或者选择根品类时，添加页面不显示上级品类字段
         if (pid != null && pid != 0) {
@@ -52,7 +52,7 @@ public class CategoryController {
     /**
      * 返回修改品类页面片段
      */
-    @RequestMapping("editView")
+    @RequestMapping("editView.html")
     public String toEdit(Long id, ModelMap map) {
         map.put("obj", assetsRpc.get(id).getData());
         return "category/edit";
@@ -61,7 +61,7 @@ public class CategoryController {
     /**
      * 中文转拼音
      */
-    @RequestMapping(value = "/convert")
+    @RequestMapping(value = "/convert.action")
     @ResponseBody
     public Map<String, Object> convert(String name) {
         Map<String, Object> map = new HashMap<>();
@@ -78,7 +78,7 @@ public class CategoryController {
     /**
      * 获取品类树
      */
-    @RequestMapping(value = "/getTree")
+    @RequestMapping(value = "/getTree.action")
     @ResponseBody
     public BaseOutput<List<CategoryDTO>> getTree(CategoryDTO input) {
         return assetsRpc.list(input);
@@ -87,7 +87,7 @@ public class CategoryController {
     /**
      * 新增品类
      */
-    @RequestMapping(value = "/save")
+    @RequestMapping(value = "/save.action")
     @ResponseBody
     public BaseOutput save(CategoryDTO input) {
         return assetsRpc.save(input);
@@ -99,7 +99,7 @@ public class CategoryController {
      * @param input
      * @return
      */
-    @RequestMapping("/table")
+    @RequestMapping("/table.html")
     public ModelAndView list(@ModelAttribute CategoryDTO input) {
         List<CategoryDTO> results = new ArrayList<>();
 
@@ -122,7 +122,7 @@ public class CategoryController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/batchUpdate")
+    @RequestMapping(value = "/batchUpdate.action")
     @ResponseBody
     public BaseOutput batchUpdate(Long id, Integer value) {
         return assetsRpc.batchUpdate(id, value);

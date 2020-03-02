@@ -53,7 +53,7 @@
                 success: function (res) {
                     bui.loading.hide();
                     if (data.code == "200") {
-                        bs4pop.alert('修改成功', {type: 'success '}, function () {
+                        bs4pop.alert('修改成功', {type: 'success'}, function () {
                             /* 应该要带条件刷新 */
                             window.location.reload();
                         });

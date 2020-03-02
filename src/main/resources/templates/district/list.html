@@ -23,11 +23,10 @@
         </div>
         <div class="row  row-cols-6">
             <div class="form-group col">
-                <label for="">部门</label>
-                <select class="form-control" id="" name="departmentId">
-                    <option value="11">1</option>
-                    <option value="22">2</option>
-                </select>
+                <label for="departmentId" class="justify-content-end mr-2 w-100px">部门:</label>
+                <select id="departmentId"  name="departmentId" class="form-control w-200px"></select>
+                <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider"/>
+
             </div>
             <div class="form-group col">
                 <label for="">区域名称</label>
@@ -82,7 +81,7 @@
                             data-align="center">
                             区域级别
                         </th>
-                        <th data-field="departmentId" data-align="center">
+                        <th data-field="departmentId" data-align="center"  data-provider="departmentProvider">
                             部门
                         </th>
                         <th data-field="notes" data-align="center">
@@ -148,7 +147,7 @@
                 data-align="center">
                 区域级别
             </th>
-            <th data-field="departmentId" data-align="center">
+            <th data-field="departmentId" data-align="center" data-provider="departmentProvider">
                 部门
             </th>
             <th data-field="notes" data-align="center">

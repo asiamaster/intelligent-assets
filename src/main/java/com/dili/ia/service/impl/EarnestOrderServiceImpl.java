@@ -11,7 +11,6 @@ import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
-import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -74,20 +73,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         this.getActualDao().insertSelective(earnestOrder);
 
         if (!customerAccountService.checkCustomerAccountExist(earnestOrder.getCustomerId(), userTicket.getFirmId())){ //如果客户账户不存在，创建客户账户
-            CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
-            customerAccount.setMarketId(userTicket.getFirmId());
-            customerAccount.setCustomerId(earnestOrder.getCustomerId());
-            customerAccount.setCustomerCellphone(earnestOrder.getCustomerCellphone());
-            customerAccount.setCertificateNumber(earnestOrder.getCertificateNumber());
-            customerAccount.setCustomerName(earnestOrder.getCustomerName());
-            customerAccount.setEarnestBalance(0L);
-            customerAccount.setEarnestAvailableBalance(0L);
-            customerAccount.setEarnestFrozenAmount(0L);
-            customerAccount.setTransferAvailableBalance(0L);
-            customerAccount.setTransferBalance(0L);
-            customerAccount.setTransferFrozenAmount(0L);
-            customerAccount.setVersion(0L);
-            customerAccountService.insertSelective(customerAccount);
+           customerAccountService.creatCustomerAccountByCustomerInfo(earnestOrder.getCustomerId(), earnestOrder.getCustomerName(), earnestOrder.getCustomerCellphone(), earnestOrder.getCertificateNumber());
         }
         return 0;
     }
@@ -146,7 +132,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrder(userTicket, ea));
         if (!out.isSuccess()){
             LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
-            throw new BusinessException("2","提交到结算中心失败！" + out.getMessage());
+            throw new RuntimeException("提交到结算中心失败！" + out.getMessage());
         }
 
 
@@ -196,13 +182,15 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
         PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
-//        pb.setBizType();
+        pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
         pb.setMarketId(userTicket.getFirmId());
 //        pb.setState();
         List<PaymentOrder> list = paymentOrderService.selectByExample(pb);
-        //@TODO验证不存在，并抛出异常
+        if (CollectionUtils.isEmpty(list) || list.size() > 1) {
+            throw new RuntimeException("没有查询到有效付款单！");
+        }
         return list.get(0);
     }
 

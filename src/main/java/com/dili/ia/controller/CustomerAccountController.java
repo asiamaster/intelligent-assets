@@ -1,8 +1,11 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.CustomerAccount;
+import com.dili.ia.domain.EarnestTransferOrder;
+import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
@@ -101,7 +104,7 @@ public class CustomerAccountController {
 
     /**
      * CustomerAccount --- 定金转移
-     * @param id
+     * @param efDto
      * @return BaseOutput
      */
     @ApiOperation("定金转移CustomerAccount")
@@ -109,9 +112,22 @@ public class CustomerAccountController {
 		@ApiImplicitParam(name="id", paramType="form", value = "CustomerAccount的主键", required = true, dataType = "long")
 	})
     @RequestMapping(value="/doEarnestTransfer.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doEarnestTransfer(Long id) {
-        customerAccountService.delete(id);
-        return BaseOutput.success("删除成功");
+    public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferDto efDto) {
+        try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            //判断转入方客户账户是否存在,不存在先创建客户账户
+            if (!customerAccountService.checkCustomerAccountExist(efDto.getCustomerId(), userTicket.getFirmId())){
+                customerAccountService.creatCustomerAccountByCustomerInfo(efDto.getCustomerId(), efDto.getCustomerName(), efDto.getCustomerCellphone(), efDto.getCertificateNumber());
+            }
+            EarnestTransferOrder order = customerAccountService.createEarnestTransferOrder(efDto);
+
+            customerAccountService.earnestTransfer(order);
+            return BaseOutput.success("转移成功！");
+        } catch (RuntimeException e) {
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            return BaseOutput.failure("转移出错！");
+        }
     }
 
     /**

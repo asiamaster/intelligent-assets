@@ -42,6 +42,13 @@ public class CustomerController {
         customer1.setCertificateNumber("511602198902422586");
         cus.add(customer1);
 
+        Customer customer2 = new Customer();
+        customer2.setId(2L);
+        customer2.setName("克兰");
+        customer2.setCellphone("18781998571");
+        customer2.setCertificateNumber("513023199201206627");
+        cus.add(customer2);
+
         cus.add((Customer) customer1.clone());
         cus.add((Customer) customer1.clone());
         cus.add((Customer) customer1.clone());
