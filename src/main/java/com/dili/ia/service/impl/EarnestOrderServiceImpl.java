@@ -1,12 +1,12 @@
 package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.*;
-import com.dili.ia.glossary.AssetsTypeEnum;
-import com.dili.ia.glossary.EarnestOrderStateEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
@@ -19,6 +19,7 @@ import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -51,6 +52,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     TransactionDetailsService transactionDetailsService;
     @Autowired
     DepartmentRpc departmentRpc;
+    @Value("${settlement.app-id}")
+    private Long settlementAppId;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -127,17 +130,20 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             return BaseOutput.failure("提交失败，状态已变更！");
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         ea.setState(EarnestOrderStateEnum.SUBMITTED.getCode());
         ea.setSubmitterId(userTicket.getId());
         ea.setSubmitter(userTicket.getRealName());
         ea.setSubDate(new Date());
         this.getActualDao().updateByPrimaryKey(ea);
 
-        PaymentOrder pb = this.buildPaymentOrder(userTicket, ea.getAmount(), ea.getId(), ea.getCode());
+        PaymentOrder pb = this.buildPaymentOrder(userTicket, ea);
         paymentOrderService.insert(pb);
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrder(ea, userTicket));
+        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrder(userTicket, ea));
         if (!out.isSuccess()){
             LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException("2","提交到结算中心失败！" + out.getMessage());
@@ -147,43 +153,44 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return BaseOutput.success();
     }
 
-    private SettleOrder buildSettleOrder(EarnestOrder ea, UserTicket userTicket){
-
+    //组装 -- 结算中心缴费单 SettleOrder
+    private SettleOrder buildSettleOrder(UserTicket userTicket, EarnestOrder ea){
         SettleOrder settleOrder = DTOUtils.newDTO(SettleOrder.class);
         //以下是提交到结算中心的必填字段
         settleOrder.setMarketId(ea.getMarketId()); //市场ID
-        //@TODO应用ID  业务类型
-        settleOrder.setAppId(1L);//应用ID
-        settleOrder.setBusinessType(2); // 业务类型
         settleOrder.setBusinessCode(ea.getCode()); //业务单号
         settleOrder.setCustomerId(ea.getCustomerId());//客户ID
         settleOrder.setCustomerName(ea.getCustomerName());// "客户姓名
         settleOrder.setCustomerPhone(ea.getCustomerCellphone());//"客户手机号
-        settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setAmount(ea.getAmount()); //金额
         settleOrder.setBusinessDepId(ea.getDepartmentId()); //"业务部门ID
         settleOrder.setBusinessDepName(ea.getDepartmentName());//"业务部门名称
         settleOrder.setSubmitterId(userTicket.getId());// "提交人ID
         settleOrder.setSubmitterName(userTicket.getRealName());// "提交人姓名
         settleOrder.setSubmitterDepId(userTicket.getDepartmentId()); //"提交人部门ID
+        settleOrder.setAppId(settlementAppId);//应用ID
+        settleOrder.setBusinessType(BizTypeEnum.EARNEST.getCode()); // 业务类型
+        settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
+        settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         String returnUrl = "http://ia.diligrp.com/earnestOrder/paySuccess";
         settleOrder.setReturnUrl(returnUrl); // 结算-- 缴费成功后回调路径
 
         return settleOrder;
     }
 
-    private PaymentOrder buildPaymentOrder(UserTicket userTicket, Long amount, Long businessId, String businessCode){
+    //组装缴费单 PaymentOrder
+    private PaymentOrder buildPaymentOrder(UserTicket userTicket, EarnestOrder earnestOrder){
         PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
-        pb.setAmount(amount);
-//        pb.setBizType();
-        pb.setBusinessId(businessId);
-        pb.setBusinessCode(businessCode);
+        pb.setAmount(earnestOrder.getAmount());
+        pb.setBusinessId(earnestOrder.getId());
+        pb.setBusinessCode(earnestOrder.getCode());
         pb.setCreatorId(userTicket.getId());
         pb.setCreator(userTicket.getRealName());
         pb.setMarketId(userTicket.getFirmId());
-//        pb.setState();
-//        pb.setSubmitterId(userTicket.getId());
-//        pb.setSubmitter(userTicket.getRealName());
+        pb.setBizType(BizTypeEnum.EARNEST.getCode());
+        pb.setState(PayStateEnum.NOT_PAID.getCode());
+        //@TODO付款单编号
+//        pb.setCode();
         return pb;
     }
 
@@ -260,9 +267,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         tds.setOrderId(ea.getId());
         tds.setOrderCode(ea.getCode());
         tds.setCode("202002200001");
-//        tds.setSceneType();
-//        tds.setBizType();
-//        tds.setItemType();
+        tds.setBizType(BizTypeEnum.EARNEST.getCode());
+        tds.setSceneType(TransactionSceneTypeEnum.PAYMENT.getCode());
+        tds.setItemType(TransactionItemTypeEnum.EARNEST.getCode());
         return tds;
     }
 }
