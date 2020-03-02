@@ -1,5 +1,7 @@
 <#bs4Body>
-<link rel="stylesheet" href="http://www.jq22.com/demo/bootstrap-ztree3201708300202/css/bootstrapStyle/bootstrapStyle.css" type="text/css">
+<link rel="stylesheet"
+      href="http://www.jq22.com/demo/bootstrap-ztree3201708300202/css/bootstrapStyle/bootstrapStyle.css"
+      type="text/css">
 <div class="main-container container-fluid">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -86,10 +88,10 @@
 </div>
 
 
-<script type="text/javascript" src="${contextPath}/ztree/js/jquery.ztree.core-3.5.js"></script>
-<script type="text/javascript" src="${contextPath}/ztree/js/jquery.ztree.excheck-3.5.js"></script>
-<script type="text/javascript" src="${contextPath}/ztree/js/jquery.ztree.exedit-3.5.js"></script>
-<script type="text/javascript" src="${contextPath}/ztree/js/jquery.ztree.exhide-3.5.js"></script>
+<script type="text/javascript" src="${contextPath}/resources/ztree/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript" src="${contextPath}/resources/ztree/js/jquery.ztree.excheck-3.5.js"></script>
+<script type="text/javascript" src="${contextPath}/resources/ztree/js/jquery.ztree.exedit-3.5.js"></script>
+<script type="text/javascript" src="${contextPath}/resources/ztree/js/jquery.ztree.exhide-3.5.js"></script>
 <script type="text/javascript">
     jQuery(function ($) {
         loadTree();
@@ -116,7 +118,7 @@
         $.ajax({
             type: "GET",
             dataType: "json",
-            url: '/category/getTree',
+            url: '/category/getTree.action',
             success: function (data) {
                 if (data.code != '200') {
                     tips("提示", data.msg);
@@ -190,13 +192,13 @@
         }
         $("#category_status option[value='']")[0].selected = "selected";
         $("#category_text").val("");
-        tableurl = '/category/table' + '?parent=' + pid;
+        tableurl = '/category/table.html' + '?parent=' + pid;
         isQuery = false;
         loadTable();
     }
 
     function tips(title, msg) {
-        alert(msg);
+        bs4pop.alert(msg, {type: 'success'});
     }
 
     function queryClickHandler() {
@@ -204,7 +206,7 @@
         text = $("#category_text").val();
         $("#parentId").attr("value", "");
         $("#addButton").attr("disabled", "disabled");
-        tableurl = '/category/table' + '?state=' + status + '&keyword=' + text;
+        tableurl = '/category/table.html' + '?state=' + status + '&keyword=' + text;
         isQuery = true;
         loadTable();
         loadTree();
@@ -215,7 +217,7 @@
 
         $("#addModal").modal();
 
-        $('#addModal .modal-body').load("/category/addView?pid=" + pid);
+        $('#addModal .modal-body').load("/category/addView.html?pid=" + pid);
     }
 </script>
 </#bs4Body>

@@ -36,7 +36,7 @@
     function tableUpdateClickHandler(id) {
         $("#editModal").modal();
 
-        $('#editModal .modal-body').load("/category/editView?id=" + id);
+        $('#editModal .modal-body').load("/category/editView.html?id=" + id);
     }
 
     function tableDeleteClickHandler(id, name, code) {
@@ -46,7 +46,7 @@
             if (sure) {
                 $.ajax({
                     type: "POST",
-                    url: '/category/batchUpdate',
+                    url: '/category/batchUpdate.action',
                     dataType: "json",
                     data: {
                         'id': id,
@@ -75,7 +75,7 @@
             if (sure) {
                 $.ajax({
                     type: "POST",
-                    url: '/category/batchUpdate',
+                    url: '/category/batchUpdate.action',
                     dataType: "json",
                     data: {
                         'id': id,
@@ -103,7 +103,7 @@
             if (sure) {
                 $.ajax({
                     type: "POST",
-                    url: '/category/batchUpdate',
+                    url: '/category/batchUpdate.action',
                     dataType: "json",
                     data: {
                         'id': id,

@@ -41,7 +41,7 @@
                 $.ajax({
                     type: "POST",
                     dataType: "json",
-                    url: '/category/save',
+                    url: '/category/save.action',
                     data: $("#editForm").serialize(),
                     success: function (data) {
                         if (data.code != '200') {
@@ -68,7 +68,7 @@
             if (name != undefined && name.trim() != '') {
                 $.ajax({
                     type: "post",
-                    url: '/category/convert',
+                    url: '/category/convert.action',
                     dataType: "json",
                     data: {
                         'name': name
