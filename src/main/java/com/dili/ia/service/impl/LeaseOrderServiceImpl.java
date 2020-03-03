@@ -146,7 +146,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             throw new RuntimeException("多人操作，请重试！");
         }
 
-        //摊位租赁订单及订单项相关信息改动
+        //摊位租赁摊位租赁单及摊位租赁单项相关信息改动
         LeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
         if(LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())){
             //TODO 解冻并消费保证金、定金、转低
@@ -163,7 +163,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             }else if(now.getTime() > leaseOrder.getEndTime().getTime()){
                 leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
             }
-            //缴清后 级联修改子订单项状态
+            //缴清后 级联修改子摊位租赁单项状态
             cascadeUpdateLeaseOrderItemState(leaseOrder.getId(),LeaseOrderItemStateEnum.getLeaseOrderItemStateEnum(leaseOrder.getState()));
         }
         leaseOrder.setWaitAmount(leaseOrder.getWaitAmount()-paymentOrderPO.getAmount());
@@ -179,20 +179,27 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Override
     @Transactional
     public BaseOutput submitPayment(Long id, Long amount) {
-        //更新订单状态
+        //更新摊位租赁单状态
         LeaseOrder leaseOrder = get(id);
+        //提交付款条件：已创建状态或已提交状态
+        if(!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState()) &&
+                !LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())){
+            String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
+            LOG.error("租赁单编号【{}】 状态为【{}】，不可以进行提交付款操作",leaseOrder.getCode(),stateName);
+            throw new RuntimeException("租赁单状态为【"+stateName+"】，不可以进行提交付款操作");
+        }
         if (leaseOrder.getWaitAmount().equals(0L)) {
-            throw new RuntimeException("订单费用已结清");
+            throw new RuntimeException("摊位租赁单费用已结清");
         }
         if (amount > leaseOrder.getWaitAmount()) {
-            LOG.error("租赁单【ID {}】 支付金额【{}】大于待付金额【{}】",id,amount,leaseOrder.getWaitAmount());
+            LOG.error("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】",id,amount,leaseOrder.getWaitAmount());
             throw new RuntimeException("支付金额大于待付金额");
         }
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
             leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
             if (updateSelective(leaseOrder) == 0) {
-                LOG.error("订单提交状态更新失败 乐观锁生效 【租赁单ID {}】",id);
-                throw new RuntimeException("订单提交状态更新失败");
+                LOG.error("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】",id);
+                throw new RuntimeException("摊位租赁单提交状态更新失败");
             }
             cascadeUpdateLeaseOrderItemState(id, LeaseOrderItemStateEnum.SUBMITTED);
         } else if(null != leaseOrder.getPaymentId() && 0L != leaseOrder.getPaymentId()) {
@@ -242,7 +249,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     /**
-     * 级联更新订单项状态
+     * 级联更新摊位租赁单项状态
      *
      * @param id
      * @param stateEnum
@@ -253,7 +260,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
         leaseOrderItems.stream().forEach(o -> o.setState(stateEnum.getCode()));
         if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
-            throw new RuntimeException("订单项提交状态更新失败");
+            throw new RuntimeException("摊位租赁单项提交状态更新失败");
         }
     }
 
@@ -347,7 +354,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             throw new RuntimeException("多人操作，请重试！");
         }
 
-        //联动订单项状态 取消
+        //联动摊位租赁单项状态 取消
         cascadeUpdateLeaseOrderItemState(id, LeaseOrderItemStateEnum.CANCELD);
 
         return BaseOutput.success();
