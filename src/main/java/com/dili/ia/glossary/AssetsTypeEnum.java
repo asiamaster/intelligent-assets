@@ -20,7 +20,7 @@ public enum AssetsTypeEnum {
         this.name = name;
     }
 
-    public static AssetsTypeEnum getEnabledState(Integer code) {
+    public static AssetsTypeEnum getAssetsTypeEnum(Integer code) {
         for (AssetsTypeEnum anEnum : AssetsTypeEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

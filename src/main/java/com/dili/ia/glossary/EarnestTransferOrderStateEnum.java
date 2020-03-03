@@ -21,7 +21,7 @@ public enum EarnestTransferOrderStateEnum {
         this.name = name;
     }
 
-    public static EarnestTransferOrderStateEnum getEnabledState(Integer code) {
+    public static EarnestTransferOrderStateEnum getEarnestTransferOrderStateEnum(Integer code) {
         for (EarnestTransferOrderStateEnum anEnum : EarnestTransferOrderStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

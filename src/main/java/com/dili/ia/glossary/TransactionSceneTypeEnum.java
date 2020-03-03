@@ -27,7 +27,7 @@ public enum TransactionSceneTypeEnum {
         this.name = name;
     }
 
-    public static TransactionSceneTypeEnum getEnabledState(Integer code) {
+    public static TransactionSceneTypeEnum getTransactionSceneTypeEnum(Integer code) {
         for (TransactionSceneTypeEnum anEnum : TransactionSceneTypeEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

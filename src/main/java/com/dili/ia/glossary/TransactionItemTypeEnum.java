@@ -22,7 +22,7 @@ public enum TransactionItemTypeEnum {
         this.name = name;
     }
 
-    public static TransactionItemTypeEnum getEnabledState(Integer code) {
+    public static TransactionItemTypeEnum getTransactionItemTypeEnum(Integer code) {
         for (TransactionItemTypeEnum anEnum : TransactionItemTypeEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

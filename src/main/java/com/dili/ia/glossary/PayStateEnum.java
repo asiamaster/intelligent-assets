@@ -22,7 +22,7 @@ public enum PayStateEnum {
         this.name = name;
     }
 
-    public static PayStateEnum getEnabledState(Integer code) {
+    public static PayStateEnum getPayStateEnum(Integer code) {
         for (PayStateEnum anEnum : PayStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

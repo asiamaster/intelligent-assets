@@ -23,7 +23,7 @@ public enum DepositAmountFlagEnum {
         this.name = name;
     }
 
-    public static DepositAmountFlagEnum getEnabledState(Integer code) {
+    public static DepositAmountFlagEnum getDepositAmountFlagEnum(Integer code) {
         for (DepositAmountFlagEnum anEnum : DepositAmountFlagEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

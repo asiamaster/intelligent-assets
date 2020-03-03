@@ -23,7 +23,7 @@ public enum EarnestOrderStateEnum {
         this.name = name;
     }
 
-    public static EarnestOrderStateEnum getEnabledState(Integer code) {
+    public static EarnestOrderStateEnum getEarnestOrderStateEnum(Integer code) {
         for (EarnestOrderStateEnum anEnum : EarnestOrderStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

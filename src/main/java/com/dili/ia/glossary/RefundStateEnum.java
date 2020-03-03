@@ -23,7 +23,7 @@ public enum RefundStateEnum {
         this.name = name;
     }
 
-    public static RefundStateEnum getEnabledState(Integer code) {
+    public static RefundStateEnum getRefundStateEnum(Integer code) {
         for (RefundStateEnum anEnum : RefundStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

@@ -22,7 +22,7 @@ public enum IsRenewEnum {
         this.name = name;
     }
 
-    public static IsRenewEnum getEnabledState(Integer code) {
+    public static IsRenewEnum getIsRenewEnum(Integer code) {
         for (IsRenewEnum anEnum : IsRenewEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

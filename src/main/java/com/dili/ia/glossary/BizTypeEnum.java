@@ -21,7 +21,7 @@ public enum BizTypeEnum {
         this.name = name;
     }
 
-    public static BizTypeEnum getEnabledState(Integer code) {
+    public static BizTypeEnum getBizTypeEnum(Integer code) {
         for (BizTypeEnum anEnum : BizTypeEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

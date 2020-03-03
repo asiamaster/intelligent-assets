@@ -28,7 +28,7 @@ public enum LeaseOrderStateEnum {
         this.name = name;
     }
 
-    public static LeaseOrderStateEnum getEnabledState(Integer code) {
+    public static LeaseOrderStateEnum getLeaseOrderStateEnum(Integer code) {
         for (LeaseOrderStateEnum anEnum : LeaseOrderStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
