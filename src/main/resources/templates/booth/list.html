@@ -1,9 +1,217 @@
 <#bs4Body>
+<link href="https://cdn.bootcss.com/select2/4.0.12/css/select2.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/select2/4.0.12/js/select2.min.js"></script>
 <style>
+    .select2-container--bootstrap4 .select2-selection--single {
+        height: calc(2.25rem + 2px) !important
+    }
 
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__placeholder {
+        color: #757575;
+        line-height: 2.25rem
+    }
+
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+        position: absolute;
+        top: 50%;
+        right: 3px;
+        width: 20px
+    }
+
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow b {
+        top: 60%;
+        border-color: #343a40 transparent transparent;
+        border-style: solid;
+        border-width: 5px 4px 0;
+        width: 0;
+        height: 0;
+        left: 50%;
+        margin-left: -4px;
+        margin-top: -2px;
+        position: absolute
+    }
+
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+        line-height: 2.25rem
+    }
+
+    .select2-search--dropdown .select2-search__field {
+        border: 1px solid #ced4da;
+        border-radius: .25rem
+    }
+
+    .select2-results__message {
+        color: #6c757d
+    }
+
+    .select2-container--bootstrap4 .select2-selection--multiple {
+        min-height: calc(2.25rem + 2px) !important
+    }
+
+    .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__rendered {
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        list-style: none;
+        margin: 0;
+        padding: 0 5px;
+        width: 100%
+    }
+
+    .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice {
+        color: #343a40;
+        border: 1px solid #bdc6d0;
+        border-radius: .2rem;
+        padding: 0 5px 0 0;
+        cursor: pointer;
+        float: left;
+        margin-top: .3em;
+        margin-right: 5px
+    }
+
+    .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove {
+        color: #bdc6d0;
+        font-weight: 700;
+        margin-left: 3px;
+        margin-right: 1px;
+        padding-right: 3px;
+        padding-left: 3px;
+        float: left
+    }
+
+    .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove:hover {
+        color: #343a40
+    }
+
+    .select2-container {
+        display: block
+    }
+
+    .select2-container :focus {
+        outline: 0
+    }
+
+    .input-group .select2-container--bootstrap4 {
+        -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+        flex-grow: 1
+    }
+
+    .input-group-prepend ~ .select2-container--bootstrap4 .select2-selection {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0
+    }
+
+    .input-group > .select2-container--bootstrap4:not(:last-child) .select2-selection {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0
+    }
+
+    .select2-container--bootstrap4 .select2-selection {
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        -webkit-transition: border-color .15s ease-in-out, -webkit-box-shadow .15s ease-in-out;
+        transition: border-color .15s ease-in-out, -webkit-box-shadow .15s ease-in-out;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out, -webkit-box-shadow .15s ease-in-out;
+        width: 100%
+    }
+
+    @media screen and (prefers-reduced-motion: reduce) {
+        .select2-container--bootstrap4 .select2-selection {
+            -webkit-transition: none;
+            transition: none
+        }
+    }
+
+    .select2-container--bootstrap4.select2-container--focus .select2-selection {
+        border-color: #80bdff;
+        -webkit-box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
+        box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25)
+    }
+
+    .select2-container--bootstrap4.select2-container--focus.select2-container--open .select2-selection {
+        border-bottom: none;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0
+    }
+
+    .select2-container--bootstrap4.select2-container--disabled.select2-container--focus .select2-selection, .select2-container--bootstrap4.select2-container--disabled .select2-selection {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+        border-color: #ced4da;
+        -webkit-box-shadow: none;
+        box-shadow: none
+    }
+
+    .select2-container--bootstrap4.select2-container--disabled.select2-container--focus .select2-search__field, .select2-container--bootstrap4.select2-container--disabled .select2-search__field {
+        background-color: transparent
+    }
+
+    form.was-validated select:invalid ~ .select2-container--bootstrap4 .select2-selection, select.is-invalid ~ .select2-container--bootstrap4 .select2-selection {
+        border-color: #dc3545
+    }
+
+    form.was-validated select:valid ~ .select2-container--bootstrap4 .select2-selection, select.is-valid ~ .select2-container--bootstrap4 .select2-selection {
+        border-color: #28a745
+    }
+
+    .select2-container--bootstrap4 .select2-dropdown {
+        border-color: #ced4da;
+        border-top: none;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0
+    }
+
+    .select2-container--bootstrap4 .select2-dropdown.select2-dropdown--above {
+        border-top: 1px solid #ced4da;
+        border-top-left-radius: .25rem;
+        border-top-right-radius: .25rem
+    }
+
+    .select2-container--bootstrap4 .select2-dropdown .select2-results__option[aria-selected=true] {
+        background-color: #e9ecef
+    }
+
+    .select2-container--bootstrap4 .select2-results__option--highlighted, .select2-container--bootstrap4 .select2-results__option--highlighted.select2-results__option[aria-selected=true] {
+        background-color: #007bff;
+        color: #f8f9fa
+    }
+
+    .select2-container--bootstrap4 .select2-results__option[role=group] {
+        padding: 0
+    }
+
+    .select2-container--bootstrap4 .select2-results > .select2-results__options {
+        max-height: 15em;
+        overflow-y: auto
+    }
+
+    .select2-container--bootstrap4 .select2-results__group {
+        padding: 6px;
+        display: list-item;
+        color: #6c757d
+    }
+
+    .select2-container--bootstrap4 .select2-selection__clear {
+        width: 1.2em;
+        height: 1.2em;
+        line-height: 1.15em;
+        padding-left: .3em;
+        margin-top: .5em;
+        border-radius: 100%;
+        background-color: #6c757d;
+        color: #f8f9fa;
+        float: right;
+        margin-right: .3em
+    }
+
+    .select2-container--bootstrap4 .select2-selection__clear:hover {
+        background-color: #343a40
+    }
 </style>
 <div class="container-fluid">
-    <form class="form">
+    <form class="form" id="queryForm">
         <div class="row">
             <nav class="col-12" aria-label="breadcrumb">
                 <ol class="breadcrumb">
@@ -14,135 +222,126 @@
         <div class="row  row-cols-6">
             <div class="form-group col">
                 <label for="">摊位编号</label>
-                <input type="" class="form-control isNaturalNum" id="" placeholder="">
-            </div>
-            <div class="form-group col-4">
-                <label for="">区域</label>
-                <div class="input-group">
-                    <select class="form-control" id="">
-                        <option value="11">1</option>
-                        <option value="22">2</option>
-                    </select>
-                    <select class="form-control" id="">
-                        <option value="11">1</option>
-                        <option value="22">2</option>
-                    </select>
-                </div>
+                <input type="text" class="form-control isNaturalNum" name="name" placeholder="">
             </div>
             <div class="form-group col">
                 <label for="">部门</label>
-                <select class="form-control" id="">
-                    <option value="11">1</option>
-                    <option value="22">2</option>
-                </select>
+                <label for="departmentId" class="justify-content-end mr-2 w-100px">部门:</label>
+                <select id="departmentId" name="departmentId" class="form-control w-200px"></select>
+                <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider"/>
             </div>
 
+            <div class="form-group col-4">
+                <label for="">区域</label>
+                <div class="input-group">
+                    <select class="form-control" id="areaOneList" name="area" required>
+
+                    </select>
+                    <select class="form-control" id="areaTwoList" name="secondArea">
+
+                    </select>
+                </div>
+            </div>
             <div class="form-group col-auto">
-                <label class="justify-content-end">创建日期</label>
-                <div class="form-inline">
-                    <div class="input-group">
-                        <input type="text" name="operateTimeStart" id="operateTimeStart" value="${operateTimeStart!}" class="form-control laydatetime"/>
-                        <div class="input-group-append">
-                            <label for="operateTimeStart"  class="input-group-text fa fa-calendar"></label>
-                        </div>
-                    </div>&nbsp;&nbsp;至&nbsp;&nbsp;
-                    <div class="input-group">
-                        <input type="text" name="operateTimeEnd" id="operateTimeEnd" value="${operateTimeEnd!}" class="form-control laydatetime"/>
-                        <div class="input-group-append">
-                            <label for="operateTimeEnd"  class="input-group-text fa fa-calendar"></label>
-                        </div>
+                <label for="createdStart" class="justify-content-end mr-2 w-100px">创建时间:</label>
+                <div class="input-group">
+                    <input type="text" name="createdStart" id="createdStart" class="form-control date"/>
+                    <div class="input-group-append">
+                        <label for="createdStart" class="input-group-text fa fa-calendar"></label>
+                    </div>
+                </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                <div class="input-group" id="datetimepicker3">
+                    <input type="text" name="createdEnd" id="createdEnd" class="form-control date" value=""/>
+                    <div class="input-group-append">
+                        <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
                     </div>
                 </div>
             </div>
             <div class="form-group col-auto">
                 <label for="">数量</label>
                 <div class="form-inline">
-                        <input type="text" class="form-control" >
+                    <input type="text" name="startNumber" class="form-control">
                     &nbsp;&nbsp;至&nbsp;&nbsp;
-                        <input type="text" class="form-control" >
-                    </div>
-
+                    <input type="text" name="endNumber" class="form-control">
                 </div>
+
             </div>
         </div>
-        <div class="">
-            <button type="button" class="btn btn-primary">查询</button>
-            <button type="button" class="btn btn-secondary">清空</button>
-        </div>
-    </form>
-    <hr>
+</div>
+<div class="">
+    <button type="button" class="btn btn-primary" onclick="queryDataHandler()">查询</button>
+    <button type="button" class="btn btn-secondary">清空</button>
+</div>
+</form>
+<hr>
 
-    <div class="">
-    </div>
-    <div class="">
-        <div class="row">
-            <div class="col-12">
-                <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
-                    <%if(hasResource("booth_add")) {%>
-                    <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i
-                            class="fa fa-plus"></i> 新增
-                    </button>
-                    <%}%>
-                    <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
-                            class="fa fa-pencil-square-o"></i> 更新
-                    </button>
-                    <button id="btn_delete" type="button" class="btn btn-primary" onclick="openDeleteHandler()"><i
-                            class="fa fa-trash-o"></i> 删除
-                    </button>
-                    <button id="btn_split" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
-                            class="fa "></i> 拆分摊位
-                    </button>
-                    <button id="btn_enable" type="button" class="btn btn-primary" onclick="doEnableHandler(true)"><i
-                            class="fa fa-play"></i> 启用
-                    </button>
-                    <button id="btn_disabled" type="button" class="btn btn-primary" onclick="doEnableHandler(false)"><i
-                            class="fa fa-stop"></i> 禁用
-                    </button>
-                    <button id="" type="button" class="btn btn-primary" onclick=""><i class="fa "></i> 可用</button>
-                    <button id="" type="button" class="btn btn-primary" onclick=""><i class="fa "></i> 不可用</button>
-                </div>
-                <table id="grid" data-toggle="table" data-title="摊位列表" class="table" data-toolbar="#toolbar"
-                       data-pagination="true" data-page-number="1" data-page-size="10"
-                       data-query-params="queryParams" data-side-pagination="server" data-method="POST"
-                       data-content-type="application/x-www-form-urlencoded" data-single-select="true"
-                       data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
-                       data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
-                       data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
-                       data-detail-view="true"
-                >
-                    <thead>
-                    <tr>
-                        <th data-width-unit="%" data-width="1" data-checkbox="true"></th>
-                        <th data-width-unit="%" data-width="1" data-field="name" data-align="center">
-                            摊位编号
-                        </th>
-                        <th data-width-unit="%" data-width="10" data-field="number" data-align="center">
-                            数量
-                        </th>
-                        <th data-width-unit="%" data-width="10" data-field="unit" data-align="center">
-                            单位
-                        </th>
-                        <th data-width-unit="%" data-width="10" data-field="area" data-align="center"
-                            data-provider="certificateTypeProvider">
-                            区域
-                        </th>
-                        <th data-width-unit="%" data-width="20" data-field="departmentId" data-align="center">
-                            部门
-                        </th>
-                        <th data-width-unit="%" data-width="10" data-field="createTime" data-align="center"
-                            data-provider="datetimeProvider">
-                            创建时间
-                        </th>
-                        <th data-width-unit="%" data-width="10" data-field="state" data-align="center"
-                            data-provider="enabledStateProvider">
-                            状态
-                        </th>
-                    </tr>
-                    </thead>
-                </table>
+<div class="">
+</div>
+<div class="">
+    <div class="row">
+        <div class="col-12">
+            <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+                <%if(hasResource("booth_add")) {%>
+                <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i
+                        class="fa fa-plus"></i> 新增
+                </button>
+                <%}%>
+                <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
+                        class="fa fa-pencil-square-o"></i> 更新
+                </button>
+                <button id="btn_delete" type="button" class="btn btn-primary" onclick="openDeleteHandler()"><i
+                        class="fa fa-trash-o"></i> 删除
+                </button>
+                <button id="btn_split" type="button" class="btn btn-primary" onclick="openSplitHandler()"><i
+                        class="fa "></i> 拆分摊位
+                </button>
+                <button id="btn_enable" type="button" class="btn btn-primary" onclick="doEnableHandler(1)"><i
+                        class="fa fa-play"></i> 启用
+                </button>
+                <button id="btn_disabled" type="button" class="btn btn-primary" onclick="doEnableHandler(0)"><i
+                        class="fa fa-stop"></i> 禁用
+                </button>
             </div>
+            <table id="grid" data-toggle="table" data-title="摊位列表" class="table" data-toolbar="#toolbar"
+                   data-pagination="true" data-page-number="1" data-page-size="10"
+                   data-query-params="queryParams" data-side-pagination="server" data-method="POST"
+                   data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                   data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
+                   data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
+                   data-detail-view="true"
+            >
+                <thead>
+                <tr>
+                    <th data-radio="true"></th>
+                    <th data-field="name" data-align="center">
+                        摊位编号
+                    </th>
+                    <th data-field="number" data-align="center">
+                        数量
+                    </th>
+                    <th data-field="unit" data-align="center">
+                        单位
+                    </th>
+                    <th data-field="area" data-align="center">
+                        区域
+                    </th>
+                    <th data-field="departmentId" data-align="center" data-provider="departmentProvider">
+                        部门
+                    </th>
+                    <th data-field="createTime" data-align="center"
+                        data-provider="datetimeProvider">
+                        创建时间
+                    </th>
+                    <th data-field="state" data-align="center">
+                        状态
+                    </th>
+                </tr>
+                </thead>
+            </table>
         </div>
     </div>
+</div>
 
 
 </div>
@@ -177,27 +376,29 @@
            data-sort-order="desc" data-icons="bui.variable.icons">
         <thead>
         <tr>
-            <th data-width-unit="%" data-width="2" data-checkbox="true"></th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center"
-                data-provider="">
+            <th data-radio="true"></th>
+            <th data-field="name" data-align="center">
                 摊位编号
             </th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
+            <th data-field="number" data-align="center">
                 数量
             </th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
+            <th data-field="unit" data-align="center">
                 单位
             </th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
+            <th data-field="area" data-align="center"
+                data-provider="certificateTypeProvider">
                 区域
             </th>
-            <th data-width-unit="%" data-width="20" data-field="" data-align="center">
+            <th data-field="departmentId" data-provider="departmentProvider" data-align="center">
                 部门
             </th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
+            <th data-field="createTime" data-align="center"
+                data-provider="datetimeProvider">
                 创建时间
             </th>
-            <th data-width-unit="%" data-width="10" data-field="" data-align="center">
+            <th data-field="state" data-align="center"
+                data-provider="enabledStateProvider">
                 状态
             </th>
         </tr>
@@ -205,5 +406,5 @@
     </table>
 </script>
 <script>
-
+    var itemIndex = 0;
 </script>

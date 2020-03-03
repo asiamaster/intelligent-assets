@@ -1,52 +1,65 @@
-<#bs4Body>
 <div class="container-fluid">
-    <form class="form" id="saveForm">
+    <form class="form" id="splitForm">
+        <input type="hidden" name="parentId" value="${obj.id!}">
         <div class="breadcrumb" data-toggle="collapse" data-target="#baseInfo" aria-controls="baseInfo">
             基本信息
         </div>
         <div class="row row-cols-3" id="baseInfo">
             <div class="form-group col">
                 <label for="">摊位类型<i class="red">*</i></label>
-                <input type="text" class="form-control" disabled/>
-            </div>
-            <div class="form-group col-4">
-                <label for="">区域<i class="red">*</i></label>
-                <input type="text" class="form-control" disabled/>
-            </div>
-            <div class="form-group col">
-                <label for="">摊位编号<i class="red">*</i></label>
-                <input type="text" class="form-control" disabled/>
-            </div>
-            <div class="form-group col">
-                <label for="">数量<i class="red">*</i></label>
-                <input type="text" class="form-control" disabled/>
-            </div>
-            <div class="form-group col">
-                <label for="">单位<i class="red">*</i></label>
-                <input type="text" class="form-control" disabled/>
+                <input type="text" value="${obj.type!}" class="form-control" disabled/>
             </div>
             <div class="form-group col">
                 <label for="">所属部门</label>
-                <input type="text" class="form-control" disabled/>
+                <select id="splitDepartmentId" name="departmentId" class="form-control w-200px" required
+                        disabled></select>
+                <#bcomboProvider _id="splitDepartmentId" _provider="authDepartmentProvider" _value="${obj.departmentId!}"/>
             </div>
+            <div class="form-group col-4">
+                <label for="">区域<i class="red">*</i></label>
+                <div class="input-group">
+                    <select disabled class="form-control" id="areaOneSplit" name="area" required>
+
+                    </select>
+                    <select disabled class="form-control" id="areaTwoSplit" name="secondArea">
+
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col">
+                <label for="">摊位编号<i class="red">*</i></label>
+                <input type="text" value="${obj.name!}" id="splitName" class="form-control" disabled/>
+            </div>
+            <div class="form-group col">
+                <label for="">数量<i class="red">*</i></label>
+                <input type="text" value="${obj.number!}" class="form-control" disabled/>
+            </div>
+            <div class="form-group col">
+                <label for="">单位<i class="red">*</i></label>
+                <select class="form-control" id="unitSplit" name="unit" disabled></select>
+                <#bcomboProvider _id="unitSplit" _value="${obj.unit!}" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"unit", required:true}'/>
+            </div>
+
             <div class="form-group col">
                 <label for="">是否转角</label>
                 <input type="text" class="form-control" disabled/>
             </div>
             <div class="form-group col-8">
                 <label for="">备注</label>
-                <textarea class="form-control" id="notes" name="notes" rows="1" disabled ></textarea>
+                <textarea class="form-control" name="notes" rows="1" disabled>${obj.notes!}</textarea>
             </div>
         </div>
 
         <div class="breadcrumb" data-toggle="collapse" data-target="#boothInfo1" aria-controls="boothInfo1">
-            拆分
+            拆分(可用：${number!})
         </div>
         <div id="boothInfo">
             <table class="table table-bordered table-hover table-striped" id="boothTable">
                 <thead>
                 <tr>
-                    <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
+                    <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;"
+                                                                              style="padding: 8px 18px;"><i
+                            class="fa fa-plus-square fa-lg"></i></a></th>
                     <th style="width: 25%;font-weight:normal; ">摊位编号</th>
                     <th style="width: 23%;font-weight:normal; ">数量</th>
                 </tr>
@@ -58,26 +71,180 @@
         <div class="row row-cols-3">
             <div class="form-group col-8">
                 <label for="">拆分备注</label>
-                <textarea class="form-control" id="notes" name="notes" rows="1" required ></textarea>
+                <textarea class="form-control" id="notes" name="notes" rows="1" required></textarea>
             </div>
         </div>
 
         <div class="text-right">
-            <button type="button" class="btn btn-secondary" id="cancel">取消</button>
-            <button type="button" class="btn btn-primary" id="formSubmit">提交</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancel">取消</button>
+            <button type="button" class="btn btn-primary" id="splitSubmit">提交</button>
         </div>
     </form>
 </div>
-</#bs4Body>
+<script>
 
-<#booth_splitJs />
+    number = Number("${number!}");
+    area = "${obj.area!}";
+    se_area = "${obj.secondArea!}";
+    isInit = false;
 
-<script  id="boothItem"  type="text/html">
+    $(function () {
+        loadArea();
+    });
+
+    function loadArea() {
+        $.ajax({
+            type: "POST",
+            url: "/district/search.action",
+            data: {departmentId: '${obj.departmentId!}', parentId: 0},
+            success: function (data) {
+                if (data.code == "200") {
+                    var array = $.map(data.data, function (obj) {
+                        obj.text = obj.text || obj.name;
+                        return obj;
+                    });
+                    if (array.length == 0) {
+                        $('#areaOneSplit').html("")
+                    } else {
+                        $("#areaOneSplit").select2({
+                            data: array,
+                            minimumResultsForSearch: Infinity
+                        });
+                        $('#areaOneSplit').val(area);
+                        $('#areaOneSplit').trigger('change');
+                    }
+                }
+            }
+        });
+    }
+
+    function initArea() {
+        if (!isInit) {
+            $("#areaTwoSplit").val(se_area);
+            isInit = true;
+        }
+    }
+</script>
+<script>
+    itemIndex = 0;
+
+    /**
+     * 添加摊位
+     * */
+    function addBoothItem() {
+        if ($('#boothTable tbody tr').length == 0 && number>0) {
+            for (var i = 0; i < 2; i++) {
+                let n = number.div(2);
+                $('#boothTable tbody').append(HTMLDecode(template('boothItem', {
+                    index: itemIndex,
+                    name: $("#splitName").val() + "_" + ++itemIndex,
+                    number: n
+                })));
+            }
+        } else {
+            let total = Number(0);
+            $(".cal-number").each(function () {
+                total = total.add(Number($(this).val()));
+            });
+            if (total >= number) {
+                bs4pop.alert("可拆分数量不足", {type: 'error'});
+            } else {
+                $('#boothTable tbody').append(HTMLDecode(template('boothItem', {
+                    index: itemIndex,
+                    name: $("#splitName").val() + "_" + ++itemIndex,
+                    number: total.sub(number)
+                })));
+            }
+        }
+    }
+
+
+    /******************************驱动执行区 end****************************/
+
+
+    /*****************************************函数区 begin************************************/
+
+    //HTML反转义
+    function HTMLDecode(str) {
+        var s = "";
+        if (str.length == 0) return "";
+        s = str.replace(/&amp;/g, "&");
+        s = s.replace(/&lt;/g, "<");
+        s = s.replace(/&gt;/g, ">");
+        s = s.replace(/&nbsp;/g, " ");
+        s = s.replace(/&#39;/g, "\'");
+        s = s.replace(/&quot;/g, "\"");
+        s = s.replace(/<br\/>/g, "\n");
+        return s;
+    }
+
+    //获取table Index
+    function getIndex(str) {
+        return str.split('_')[1];
+    }
+
+    /*****************************************函数区 end**************************************/
+
+
+
+
+    /*****************************************自定义事件区 begin************************************/
+
+    $('#addBooth').on('click', function () {
+        addBoothItem();
+    })
+
+    //删除行事件 （删除摊位行）
+    $(document).on('click', '.item-del', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // 提交保存
+    $('#splitSubmit').on('click', function (e) {
+        if (!$('#splitForm').valid()) {
+            return false;
+        } else {
+            bui.loading.show('努力提交中，请稍候。。。');
+            let _formData = new FormData($('#splitForm')[0]);
+            $.ajax({
+                type: "POST",
+                url: "${contextPath}/booth/split.action",
+                data: _formData,
+                processData: false,
+                contentType: false,
+                async: true,
+                success: function (res) {
+                    bui.loading.hide();
+                    if (data.code == "200") {
+                        bs4pop.alert('成功', {type: 'success'}, function () {
+                            /* 应该要带条件刷新 */
+                            window.location.reload();
+                        });
+                    } else {
+                        bui.loading.hide();
+                        bs4pop.alert(res.result, {type: 'error'});
+                    }
+                },
+                error: function (error) {
+                    bui.loading.hide();
+                    bs4pop.alert(error.result, {type: 'error'});
+                }
+            });
+        }
+    });
+
+    /*****************************************自定义事件区 end**************************************/
+</script>
+
+<script id="boothItem" type="text/html">
     <tr data-index="{{index}}">
-        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
+        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i
+                class="fa fa-minus-square fa-lg"></i></a></td>
 
-        <td></td>
-        <td style="padding: .25rem!important;"><input type="text" id="number_{{index}}" name="number_{{index}}" value="{{number}}" class="form-control"></td>
+        <td style="padding: .25rem!important;"><input type="text" id="name_{{index}}" name="names" value="{{name}}"
+                                                      class="form-control"></td>
+        <td style="padding: .25rem!important;"><input type="text" id="number_{{index}}" name="numbers"
+                                                      value="{{number}}" class="form-control cal-number"></td>
     </tr>
 </script>
 

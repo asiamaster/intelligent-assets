@@ -2,6 +2,7 @@ package com.dili.ia.rpc;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BoothDTO;
+import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.ss.domain.BaseOutput;
@@ -112,6 +113,12 @@ public interface AssetsRpc {
     BaseOutput delBoothById(Long id);
 
     /**
+     * 删除摊位
+     */
+    @RequestMapping(value = "/api/booth/getBoothBalance", method = RequestMethod.POST)
+    BaseOutput<Double> getBoothBalance(Long id);
+
+    /**
      * 拆分摊位
      */
     @RequestMapping(value = "/api/booth/split", method = RequestMethod.POST)
@@ -122,4 +129,10 @@ public interface AssetsRpc {
      */
     @RequestMapping(value = "/api/booth/search", method = RequestMethod.POST)
     BaseOutput<List<BoothDTO>> searchBooth(JSONObject query);
+
+    /**
+     * 新增摊位租赁
+     */
+    @RequestMapping(value = "/api/boothRent/add", method = RequestMethod.POST)
+    BaseOutput addBoothRent(BoothRentDTO input);
 }
