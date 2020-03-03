@@ -243,6 +243,9 @@ public class LeaseOrderController {
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput submitPayment(@RequestParam Long id,@RequestParam Long amount){
         try{
+            if(amount <= 0L){
+                return BaseOutput.failure("支付金额必须大于0");
+            }
             return leaseOrderService.submitPayment(id,amount);
         }catch (BusinessException e){
             LOG.error("摊位租赁订单提交付款异常！", e);

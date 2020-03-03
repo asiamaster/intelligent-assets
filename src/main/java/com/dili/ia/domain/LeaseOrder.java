@@ -288,6 +288,13 @@ public interface LeaseOrder extends IBaseDomain {
 
     void setWaitAmount(Long waitAmount);
 
+    @Column(name = "`payment_id`")
+    @FieldDef(label="缴费单ID(缴费中)")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getPaymentId();
+
+    void setPaymentId(Long paymentId);
+
     @Column(name = "`notes`")
     @FieldDef(label="备注", maxLength = 250)
     @EditMode(editor = FieldEditor.Text, required = false)

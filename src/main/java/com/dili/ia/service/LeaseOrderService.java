@@ -2,6 +2,7 @@ package com.dili.ia.service;
 
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
+import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
@@ -33,4 +34,11 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
      * @throws BusinessException
      */
     BaseOutput cancelOrder(Long id);
+
+    /**
+     * 根据结算信息修改摊位租赁相关信息
+     * @param settleOrder
+     * @return
+     */
+    BaseOutput<Boolean> updateLeaseOrderBySettleInfo(SettleOrder settleOrder);
 }

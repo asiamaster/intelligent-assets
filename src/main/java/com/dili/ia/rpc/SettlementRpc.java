@@ -6,6 +6,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.Map;
+
 /**
  * <B>Description</B>
  * 本软件源代码版权归农丰时代及其团队所有,未经许可不得任意复制与传播
@@ -26,10 +28,18 @@ public interface SettlementRpc {
     BaseOutput<SettleOrder> submit(SettleOrder settleOrder);
 
     /**
-     * 【测回】结算单 ---根据结算单编号取消
+     * 【撤回】结算单 ---根据结算单编号取消
      * @param code 结算单编号
      * @return
      */
     @RequestMapping(value = "/api/settleOrder/cancelByCode", method = RequestMethod.POST)
     BaseOutput<String> cancelByCode(String code);
+
+    /**
+     * 【撤回】结算单 ---结算单查询
+     * @param map {businessCode,appId}
+     * @return
+     */
+    @RequestMapping(value = "/api/settleOrder/get", method = RequestMethod.POST)
+    BaseOutput<SettleOrder> get(Map<String,String> map);
 }

@@ -1,7 +1,5 @@
 package com.dili.ia.api;
 
-import com.dili.ia.controller.LeaseOrderController;
-import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.settlement.domain.SettleOrder;
@@ -34,9 +32,13 @@ public class LeaseOrderApi {
      * @param settleOrder
      * @return
      */
-    @RequestMapping(value="/paymentSuccess", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput paymentSuccess(SettleOrder settleOrder){
-
-        return BaseOutput.success();
+    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(SettleOrder settleOrder){
+        try{
+            return leaseOrderService.updateLeaseOrderBySettleInfo(settleOrder);
+        }catch (Exception e){
+            LOG.error("摊位租赁结算成功回调异常！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
+        }
     }
 }
