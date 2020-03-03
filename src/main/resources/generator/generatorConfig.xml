@@ -103,20 +103,9 @@
 <!--        <table domainObjectName="TransferDeductionItem" tableName="transfer_deduction_item">-->
 <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
 <!--        </table>-->
-       <table domainObjectName="CustomerAccount" tableName="customer_account">
+       <table domainObjectName="PrintTemplate" tableName="print_template">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
-        <table domainObjectName="EarnestOrder" tableName="earnest_order">
-            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
-        </table>
-        <table domainObjectName="EarnestOrderDetail" tableName="earnest_order_detail">
-            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
-        </table>
-        <table domainObjectName="EarnestTransferOrder" tableName="earnest_transfer_order">
-            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
-        </table>
-        <table domainObjectName="TransactionDetails" tableName="transaction_details">
-            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
-        </table>
+
     </context>
 </generatorConfiguration>

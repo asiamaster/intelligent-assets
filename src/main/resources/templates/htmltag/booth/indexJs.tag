@@ -12,7 +12,7 @@
         laydate.render({
             elem: this
             , trigger: 'click'
-            , range: true
+            , range: false
         });
     });
 
@@ -57,13 +57,59 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-        _modal.modal('show');
-        _modal.find('.modal-title').text('摊位修改');
 
-        let formData = $.extend({}, rows[0]);
-        formData = bui.util.addKeyStartWith(bui.util.getOriginalData(formData), "_");
-        bui.util.loadFormData(formData);
-        $('#_account').prop('disabled', true);
+        $("#_modal").modal("show");
+
+        $('#_modal .modal-body').load("/booth/update.html?id=" +rows[0].id);
+        _modal.find('.modal-title').text('摊位修改');
+    }
+
+    function openSplitHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        $("#_modal").modal("show");
+
+        $('#_modal .modal-body').load("/booth/split.html?id=" +rows[0].id);
+        _modal.find('.modal-title').text('摊位拆分');
+    }
+
+    function openDeleteHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        bs4pop.confirm("确定要删除吗", {title: "确认提示"}, function (sure) {
+            if (sure) {
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '/booth/delete.action',
+                    data: {id: rows[0].id},
+                    success: function (data) {
+                        bui.loading.hide();
+                        if (data.code != '200') {
+                            bs4pop.alert(data.message, {type: 'error'});
+                            return;
+                        }
+                        // bs4pop.alert('成功', {type: 'success '}, function () {
+                        //     window.location.reload();
+                        // });
+                        window.location.reload();
+                    },
+                    error: function () {
+                        bui.loading.hide();
+                        bs4pop.alert("区域信息删除失败!", {type: 'error'});
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -87,8 +133,8 @@
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/booth/doEnable.action",
-                    data: {id: selectedRow.id, enable: enable},
+                    url: "${contextPath}/booth/update.action",
+                    data: {id: selectedRow.id, state: enable},
                     processData: true,
                     dataType: "json",
                     async: true,
@@ -157,7 +203,7 @@
      * 查询处理
      */
     function queryDataHandler() {
-        _grid.bootstrapTable('refreshOptions', {url: '/booth/listPage.action'});
+        _grid.bootstrapTable('refreshOptions', {url: '/booth/listPage.action?parentId=0'});
     }
 
     /**
@@ -197,7 +243,55 @@
     _grid.on('expand-row.bs.table', function (e, index, row, $detail) {
         var cur_table = $detail.html(template('subTable', {})).find('table');
         $(cur_table).bootstrapTable();
-        $(cur_table).bootstrapTable('refreshOptions', {url: '/booth/listPage.action'});
+        $(cur_table).bootstrapTable('refreshOptions', {url: '/booth/listPage.action?parentId=' + row.id});
+    });
+
+    $("#departmentId").change(function () {
+        $.ajax({
+            type: "POST",
+            url: "/district/search.action",
+            data: {departmentId: $(this).val(), parentId: 0},
+            success: function (data) {
+                if (data.code == "200") {
+                    var array = $.map(data.data, function (obj) {
+                        obj.text = obj.text || obj.name;
+                        return obj;
+                    });
+                    if (array.length == 0) {
+                        $('#areaOneList').html("")
+                    } else {
+                        $("#areaOneList").select2({
+                            data: array,
+                            minimumResultsForSearch: Infinity
+                        });
+                        $('#areaOneList').trigger('change');
+                    }
+                }
+            }
+        });
+    });
+    $("#areaOneList").change(function () {
+        $.ajax({
+            type: "POST",
+            url: "/district/search.action",
+            data: {parentId: $(this).val()},
+            success: function (data) {
+                if (data.code == "200") {
+                    var array = $.map(data.data, function (obj) {
+                        obj.text = obj.text || obj.name;
+                        return obj;
+                    });
+                    if (array.length == 0) {
+                        $('#areaTwoList').html("")
+                    } else {
+                        $("#areaTwoList").select2({
+                            data: array,
+                            minimumResultsForSearch: Infinity
+                        })
+                    }
+                }
+            }
+        });
     });
 
     /*****************************************自定义事件区 end**************************************/

@@ -2,6 +2,7 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.EarnestTransferOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ss.domain.BaseOutput;
@@ -89,7 +90,7 @@ public class CustomerAccountController {
 
     /**
      * CustomerAccount--- 定金退款
-     * @param customerAccount
+     * @param order
      * @return BaseOutput
      */
     @ApiOperation("定金退款CustomerAccount")
@@ -97,9 +98,15 @@ public class CustomerAccountController {
 		@ApiImplicitParam(name="CustomerAccount", paramType="form", value = "CustomerAccount的form信息", required = true, dataType = "string")
 	})
     @RequestMapping(value="/doEarnestRefund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doEarnestRefund(CustomerAccount customerAccount) {
-        customerAccountService.updateSelective(customerAccount);
-        return BaseOutput.success("修改成功");
+    public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
+        try {
+            customerAccountService.earnestRefund(order);
+            return BaseOutput.success("创建退款成功！");
+        } catch (RuntimeException e) {
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            return BaseOutput.failure("创建退款出错！");
+        }
     }
 
     /**

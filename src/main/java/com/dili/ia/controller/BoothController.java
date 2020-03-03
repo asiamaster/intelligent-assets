@@ -1,10 +1,10 @@
 package com.dili.ia.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.ia.rpc.AssetsMockRpc;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -67,6 +67,8 @@ public class BoothController {
     @RequestMapping("/split.html")
     public String split(Long id, ModelMap map) {
         map.put("obj", assetsRpc.getBoothById(id).getData());
+        BaseOutput<Double> boothBalance = assetsRpc.getBoothBalance(id);
+        map.put("number", boothBalance.getData());
         return "booth/split";
     }
 
@@ -90,6 +92,7 @@ public class BoothController {
     @RequestMapping("/save.action")
     @ResponseBody
     public BaseOutput save(BoothDTO input) {
+        input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
         return assetsRpc.save(input);
     }
 
@@ -133,7 +136,8 @@ public class BoothController {
      */
     @ApiOperation("新增booth")
     @RequestMapping(value = "/search.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String search(String keyword) {
+    public @ResponseBody
+    String search(String keyword) {
 //        return JSON.toJSONString(assetsMockRpc.searchBooth(keyword).getData());
         return "[{\"id\":1,\"name\":\"三号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"},{\"id\":2,\"name\":\"四号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"},{\"id\":3,\"name\":\"五号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"},{\"id\":4,\"name\":\"六号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"}]";
     }

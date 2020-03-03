@@ -30,7 +30,7 @@
             },
             {
               "name": "number",
-              "type": "Integer",
+              "type": "Money",
               "chnname": "数量",
               "remark": "",
               "pk": false,
@@ -602,9 +602,9 @@
               "defaultValue": ""
             },
             {
-              "name": "content",
-              "type": "LongText",
-              "chnname": "模板内容",
+              "name": "path",
+              "type": "DefaultString",
+              "chnname": "模板路径",
               "remark": "",
               "pk": false,
               "notNull": false,

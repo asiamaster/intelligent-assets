@@ -2,6 +2,7 @@ package com.dili.ia.service;
 
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.EarnestTransferOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ss.base.BaseService;
 
@@ -28,9 +29,15 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     /**
      * 客户账户定金转移
      * @param earnestTransferOrder
-     * @return CustomerAccount 客户账户信息
+     * @return
      * */
     void earnestTransfer(EarnestTransferOrder earnestTransferOrder);
+    /**
+     * 客户账户定金退款单创建
+     * @param order
+     * @return
+     * */
+    void earnestRefund(RefundOrder order);
     /**
      * 根据用户信息，新增客户账户
      * @param customerId 客户ID
