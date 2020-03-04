@@ -207,7 +207,11 @@
                         $.ajax({
                             type: "POST",
                             url: "${contextPath}/leaseOrder/submitPayment.action",
-                            data: {id: rows[0].id,amount : Number($('#amount').val()).mul(100)},
+                            data: {
+                                id: rows[0].id,
+                                waitAmount: rows[0].waitAmount,
+                                amount: Number($('#amount').val()).mul(100)
+                            },
                             dataType: "json",
                             async : false,
                             success : function(data) {

@@ -211,6 +211,23 @@ public class LeaseOrderController {
     }
 
     /**
+     * 租赁订单撤回
+     * @param id 订单ID
+     * @return
+     */
+    @RequestMapping(value="/withdrawOrder.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput withdrawOrder(Long id){
+        try {
+            return leaseOrderService.withdrawOrder(id);
+        }catch (Exception e){
+            LOG.error("租赁订单取消异常！", e);
+            return BaseOutput.failure("租赁订单取消异常");
+        }
+
+
+    }
+
+    /**
      * 摊位租赁订单保存
      * @param leaseOrder
      * @return
@@ -241,12 +258,12 @@ public class LeaseOrderController {
      * @return
      */
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id,@RequestParam Long amount){
+    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id,@RequestParam Long amount,@RequestParam Long waitAmount){
         try{
             if(amount <= 0L){
                 return BaseOutput.failure("支付金额必须大于0");
             }
-            return leaseOrderService.submitPayment(id,amount);
+            return leaseOrderService.submitPayment(id,amount,waitAmount);
         }catch (BusinessException e){
             LOG.error("摊位租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getMessage());

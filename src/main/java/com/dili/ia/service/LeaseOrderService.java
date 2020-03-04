@@ -23,17 +23,24 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
      * 提交付款
      * @param id 租赁单ID
      * @param amount 交费金额
+     * @param waitAmount 待缴费金额
      * @return
      */
-    BaseOutput submitPayment(Long id,Long amount);
+    BaseOutput submitPayment(Long id,Long amount,Long waitAmount);
 
     /**
      * 摊位租赁订单取消
      * @param id
      * @return
-     * @throws BusinessException
      */
     BaseOutput cancelOrder(Long id);
+
+    /**
+     * 摊位租赁订单撤回
+     * @param id
+     * @return
+     */
+    BaseOutput withdrawOrder(Long id);
 
     /**
      * 根据结算信息修改摊位租赁相关信息

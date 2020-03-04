@@ -70,6 +70,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Value("${settlement.app-id}")
     private Long settlementAppId;
 
+    /**
+     * 摊位租赁单保存
+     * @param dto
+     * @return
+     */
     @Override
     @Transactional
     public BaseOutput saveLeaseOrder(LeaseOrderListDto dto) {
@@ -114,7 +119,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     /**
      * 批量插入租赁单项
-     *
      * @param dto
      */
     private void insertLeaseOrderItems(LeaseOrderListDto dto) {
@@ -130,13 +134,18 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         });
     }
 
+    /**
+     * 结算成功，同步更新租赁单相关信息
+     * @param settleOrder
+     * @return
+     */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public BaseOutput<Boolean> updateLeaseOrderBySettleInfo(SettleOrder settleOrder) {
         PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
         condition.setCode(settleOrder.getBusinessCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
-        if(PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())){
+        if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) {
             return BaseOutput.success().setData(true);
         }
 
@@ -148,25 +157,25 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         //摊位租赁摊位租赁单及摊位租赁单项相关信息改动
         LeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
-        if(LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())){
+        if (LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             //TODO 解冻并消费保证金、定金、转低
 
         }
-        if((leaseOrder.getWaitAmount()-paymentOrderPO.getAmount()) == 0L){
+        if ((leaseOrder.getWaitAmount() - paymentOrderPO.getAmount()) == 0L) {
             leaseOrder.setPayState(PayStateEnum.PAID.getCode());
             Date now = new Date();
-            if(now.getTime() >= leaseOrder.getStartTime().getTime() &&
-            now.getTime() <= leaseOrder.getEndTime().getTime()){
+            if (now.getTime() >= leaseOrder.getStartTime().getTime() &&
+                    now.getTime() <= leaseOrder.getEndTime().getTime()) {
                 leaseOrder.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
-            }else if(now.getTime() < leaseOrder.getStartTime().getTime()){
+            } else if (now.getTime() < leaseOrder.getStartTime().getTime()) {
                 leaseOrder.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
-            }else if(now.getTime() > leaseOrder.getEndTime().getTime()){
+            } else if (now.getTime() > leaseOrder.getEndTime().getTime()) {
                 leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
             }
             //缴清后 级联修改子摊位租赁单项状态
-            cascadeUpdateLeaseOrderItemState(leaseOrder.getId(),LeaseOrderItemStateEnum.getLeaseOrderItemStateEnum(leaseOrder.getState()));
+            cascadeUpdateLeaseOrderItemState(leaseOrder.getId(), LeaseOrderItemStateEnum.getLeaseOrderItemStateEnum(leaseOrder.getState()));
         }
-        leaseOrder.setWaitAmount(leaseOrder.getWaitAmount()-paymentOrderPO.getAmount());
+        leaseOrder.setWaitAmount(leaseOrder.getWaitAmount() - paymentOrderPO.getAmount());
         leaseOrder.setPaidAmount(leaseOrder.getPaidAmount() + paymentOrderPO.getAmount());
         leaseOrder.setPaymentId(0L);
         if (updateSelective(leaseOrder) == 0) {
@@ -176,63 +185,60 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         return BaseOutput.success().setData(true);
     }
 
+    /**
+     * 提交付款
+     * @param id 租赁单ID
+     * @param amount 交费金额
+     * @param waitAmount 待缴费金额
+     * @return
+     */
     @Override
     @Transactional
-    public BaseOutput submitPayment(Long id, Long amount) {
+    public BaseOutput submitPayment(Long id, Long amount,Long waitAmount) {
         //更新摊位租赁单状态
         LeaseOrder leaseOrder = get(id);
         //提交付款条件：已创建状态或已提交状态
-        if(!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState()) &&
-                !LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())){
+        if (!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState()) &&
+                !LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
-            LOG.error("租赁单编号【{}】 状态为【{}】，不可以进行提交付款操作",leaseOrder.getCode(),stateName);
-            throw new RuntimeException("租赁单状态为【"+stateName+"】，不可以进行提交付款操作");
+            LOG.error("租赁单编号【{}】 状态为【{}】，不可以进行提交付款操作", leaseOrder.getCode(), stateName);
+            throw new RuntimeException("租赁单状态为【" + stateName + "】，不可以进行提交付款操作");
         }
         if (leaseOrder.getWaitAmount().equals(0L)) {
             throw new RuntimeException("摊位租赁单费用已结清");
         }
         if (amount > leaseOrder.getWaitAmount()) {
-            LOG.error("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】",id,amount,leaseOrder.getWaitAmount());
+            LOG.error("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());
             throw new RuntimeException("支付金额大于待付金额");
         }
-        if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
-            leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
-            if (updateSelective(leaseOrder) == 0) {
-                LOG.error("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】",id);
-                throw new RuntimeException("摊位租赁单提交状态更新失败");
-            }
-            cascadeUpdateLeaseOrderItemState(id, LeaseOrderItemStateEnum.SUBMITTED);
-        } else if(null != leaseOrder.getPaymentId() && 0L != leaseOrder.getPaymentId()) {
-            PaymentOrder payingOrder = paymentOrderService.get(leaseOrder.getPaymentId());
-            if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
-                String paymentCode = payingOrder.getCode();
-                Map<String, String> paramMap = Map.of("appId", String.valueOf(settlementAppId), "businessCode", paymentCode);
-                BaseOutput<SettleOrder> settleOrderBaseOutput = settlementRpc.get(paramMap);
-                if (!settleOrderBaseOutput.isSuccess()) {
-                    LOG.error("结算单查询异常 【缴费单CODE {}】",paymentCode);
-                    throw new RuntimeException("结算单查询异常");
-                }
-                SettleOrder settleOrder = settleOrderBaseOutput.getData();
-                //缴费单对应的结算单未处理
-                if (settleOrder.getState().equals(SettleStateEnum.WAIT_DEAL.getCode())) {
-                    if(!settlementRpc.cancelByCode(paymentCode).isSuccess()){
-                        LOG.error("结算单撤回异常 【缴费单CODE {}】",paymentCode);
-                        throw new RuntimeException("结算单撤回异常");
-                    }
-                }else if(settleOrder.getState().equals(SettleStateEnum.DEAL.getCode())){
-                    //缴费单对应的结算单已处理 同步状态及数据 调用结算处理回调
-                    updateLeaseOrderBySettleInfo(settleOrder);
-                }
-            }
-
+        if(!waitAmount.equals(leaseOrder.getWaitAmount())){
+            LOG.error("摊位租赁单待缴费金额已发生变更，请重试【ID {}】 旧金额【{}】新金额【{}】", id, waitAmount, leaseOrder.getWaitAmount());
+            throw new RuntimeException("摊位租赁单待缴费金额已发生变更，请重试");
         }
-
         //@TODO 定金 保证金 转低冻结
 
         //新增缴费单
         PaymentOrder paymentOrder = buildPaymentOrder(leaseOrder);
         paymentOrder.setAmount(amount);
         paymentOrderService.insertSelective(paymentOrder);
+
+        if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
+            leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
+            leaseOrder.setPaymentId(paymentOrder.getId());
+            if (updateSelective(leaseOrder) == 0) {
+                LOG.error("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
+                throw new RuntimeException("摊位租赁单提交状态更新失败");
+            }
+            cascadeUpdateLeaseOrderItemState(id, LeaseOrderItemStateEnum.SUBMITTED);
+        } else if (leaseOrder.getState().equals(LeaseOrderStateEnum.SUBMITTED.getCode())) {
+            //判断缴费单是否需要撤回 需要撤回则撤回
+            withdrawPaymentOrder(leaseOrder.getPaymentId());
+            leaseOrder.setPaymentId(paymentOrder.getId());
+            if (updateSelective(leaseOrder) == 0) {
+                LOG.error("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
+                throw new RuntimeException("摊位租赁单提交状态更新失败");
+            }
+        }
 
         //新增结算单
         SettleOrder settleOrder = buildSettleOrder(leaseOrder);
@@ -242,7 +248,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (settlementOutput.isSuccess()) {
             //冗余结算编号 另起事务使其不影响原有事务
             saveSettlementCode(paymentOrder.getId(), settlementOutput.getData().getCode());
-        }else{
+        } else {
             throw new RuntimeException(settlementOutput.getMessage());
         }
         return settlementOutput;
@@ -333,6 +339,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         return settleOrder;
     }
 
+    /**
+     * 取消摊位租赁订单
+     * @param id
+     * @return
+     */
     @Override
     @Transactional
     public BaseOutput cancelOrder(Long id) {
@@ -341,10 +352,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             return BaseOutput.failure("未登录");
         }
         LeaseOrder leaseOrder = get(id);
-        if(!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState())){
+        if (!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState())) {
             String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
-            LOG.error("租赁单【code:{}】状态为【{}】，不可以进行取消操作",leaseOrder.getCode(),stateName);
-            throw new RuntimeException("租赁单状态为【"+stateName+"】，不可以进行取消操作");
+            LOG.error("租赁单【code:{}】状态为【{}】，不可以进行取消操作", leaseOrder.getCode(), stateName);
+            throw new RuntimeException("租赁单状态为【" + stateName + "】，不可以进行取消操作");
         }
         leaseOrder.setState(LeaseOrderStateEnum.CANCELD.getCode());
         leaseOrder.setCancelerId(userTicket.getId());
@@ -358,5 +369,63 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         cascadeUpdateLeaseOrderItemState(id, LeaseOrderItemStateEnum.CANCELD);
 
         return BaseOutput.success();
+    }
+
+    /**
+     * 撤回摊位租赁订单
+     * @param id
+     * @return
+     */
+    @Transactional
+    @Override
+    public BaseOutput withdrawOrder(Long id) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            return BaseOutput.failure("未登录");
+        }
+        LeaseOrder leaseOrder = get(id);
+        if (!LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
+            String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
+            LOG.error("租赁单【code:{}】状态为【{}】，不可以进行撤回操作", leaseOrder.getCode(), stateName);
+            throw new RuntimeException("租赁单状态为【" + stateName + "】，不可以进行撤回操作");
+        }
+        withdrawPaymentOrder(leaseOrder.getPaymentId());
+        leaseOrder.setState(LeaseOrderStateEnum.CREATED.getCode());
+        if(null != leaseOrder.getPaymentId()){
+            leaseOrder.setPaymentId(0L);
+        }
+        if(updateSelective(leaseOrder) == 0){
+            throw new RuntimeException("多人操作，请重试！");
+        }
+        return BaseOutput.success();
+    }
+
+    /**
+     * 撤回缴费单 判断缴费单是否需要撤回 需要撤回则撤回
+     * 如果撤回时发现缴费单状态为及时同步结算状态 则抛出异常 提示用户带结算同步后再操作
+     * @param paymentId
+     */
+    private void withdrawPaymentOrder(Long paymentId) {
+        PaymentOrder payingOrder = paymentOrderService.get(paymentId);
+        if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
+            String paymentCode = payingOrder.getCode();
+            Map<String, String> paramMap = Map.of("appId", String.valueOf(settlementAppId), "businessCode", paymentCode);
+            BaseOutput<SettleOrder> settleOrderBaseOutput = settlementRpc.get(paramMap);
+            if (!settleOrderBaseOutput.isSuccess()) {
+                LOG.error("结算单查询异常 【缴费单CODE {}】", paymentCode);
+                throw new RuntimeException("结算单查询异常");
+            }
+            SettleOrder settleOrder = settleOrderBaseOutput.getData();
+            //缴费单对应的结算单未处理
+            if (settleOrder.getState().equals(SettleStateEnum.WAIT_DEAL.getCode())) {
+                if (!settlementRpc.cancelByCode(paymentCode).isSuccess()) {
+                    LOG.error("结算单撤回异常 【缴费单CODE {}】", paymentCode);
+                    throw new RuntimeException("结算单撤回异常");
+                }
+            } else {
+                String stateName = SettleStateEnum.getNameByCode(settleOrder.getState());
+                throw new RuntimeException("状态已发生变更，目前状态【" + stateName + "】不能进行撤回，等结算数据同步后再操作");
+            }
+        }
     }
 }
