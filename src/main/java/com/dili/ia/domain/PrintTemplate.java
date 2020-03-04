@@ -33,11 +33,11 @@ public interface PrintTemplate extends IBaseDomain {
 
     void setPath(String path);
 
-    @Column(name = "`market_id`")
+    @Column(name = "`market_code`")
     @FieldDef(label="市场")
-    Long getMarketId();
+    String getMarketCode();
 
-    void setMarketId(Long marketId);
+    void setMarketCode(String marketId);
 
     @Column(name = "`creator_id`")
     @FieldDef(label="创建人")

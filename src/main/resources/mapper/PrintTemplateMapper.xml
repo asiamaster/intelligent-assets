@@ -8,7 +8,7 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="path" jdbcType="VARCHAR" property="path" />
-    <result column="market_id" jdbcType="BIGINT" property="marketId" />
+    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
@@ -17,7 +17,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, name, path, market_id, creator_id, create_time, modify_time
+    id, name, path, market_code, creator_id, create_time, modify_time
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -40,8 +40,8 @@
       <if test="path != null">
         path = #{path,jdbcType=VARCHAR},
       </if>
-      <if test="marketId != null">
-        market_id = #{marketId,jdbcType=BIGINT},
+      <if test="marketCode != null">
+        market_code = #{marketCode,jdbcType=BIGINT},
       </if>
       <if test="creatorId != null">
         creator_id = #{creatorId,jdbcType=BIGINT},

@@ -93,7 +93,7 @@ public class PrintTemplateController {
         }
         try {
             file.transferTo(dest);
-            printTemplate.setPath(fileName);
+            printTemplate.setPath("/getTemplate/" + fileName);
             printTemplate.setCreateTime(new Date());
             printTemplate.setModifyTime(new Date());
             printTemplateService.saveOrUpdate(printTemplate);
@@ -126,7 +126,7 @@ public class PrintTemplateController {
             e.printStackTrace();
         }
         if (!file.isEmpty()) {
-            printTemplate.setPath(fileName);
+            printTemplate.setPath("/getTemplate/" + fileName);
         }
         printTemplate.setCreateTime(new Date());
         printTemplate.setModifyTime(new Date());

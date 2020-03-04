@@ -40,7 +40,7 @@ public class FirmProvider implements ValueProvider {
         List<Firm> data = firmRpc.listByExample(DTOUtils.newInstance(FirmDto.class)).getData();
         List<ValuePair<?>> buffer = new ArrayList<ValuePair<?>>();
         data.forEach(o -> {
-            buffer.add(new ValuePairImpl(o.getName(), o.getId()));
+            buffer.add(new ValuePairImpl(o.getName(), o.getCode()));
         });
         return buffer;
     }
