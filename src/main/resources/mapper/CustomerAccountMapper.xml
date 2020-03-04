@@ -89,7 +89,7 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByVersion" parameterType="com.dili.ia.domain.CustomerAccount">
+  <update id="updateAmountByAccountIdAndVersion" parameterType="com.dili.ia.domain.CustomerAccount">
     update customer_account
     <set>
       <if test="earnestBalance != null">
@@ -113,7 +113,6 @@
       version = #{version,jdbcType=BIGINT} + 1,
     </set>
     where id = #{id,jdbcType=BIGINT}
-    and market_id = #{marketId,jdbcType=BIGINT}
     and version = #{version,jdbcType=BIGINT}
   </update>
 </mapper>

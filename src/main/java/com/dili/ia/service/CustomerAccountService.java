@@ -5,6 +5,7 @@ import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ss.base.BaseService;
+import com.dili.ss.domain.BaseOutput;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -56,20 +57,43 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     EarnestTransferOrder createEarnestTransferOrder(EarnestTransferDto efDto);
 
     /**
-     * 客户账户 -- 冻结--【冻结定余额】增加
-     * @param customerAccount 客户
+     * 摊位租赁【提交】-- 客户账户金额冻结及流水变动记录
+     * @param orderId 订单ID
+     * @param orderCode 订单编号
+     * @param customerId 客户ID
+     * @param earnestDeduction 定金抵扣金额
+     * @param transferDeduction 转抵抵扣金额
+     * @param depositDeduction 保证金抵扣金额
      * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
+     * @return BaseOutput
      * */
-//    void addEarnestFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
+    BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId);
 
     /**
-     * 客户账户 -- 解冻-【冻结定金余额】扣减
-     * @param customerAccount 客户
+     * 摊位租赁【撤回】-- 客户账户金额解冻及流水变动记录
+     * @param orderId 订单ID
+     * @param orderCode 订单编号
+     * @param customerId 客户ID
+     * @param earnestDeduction 定金抵扣金额
+     * @param transferDeduction 转抵抵扣金额
+     * @param depositDeduction 保证金抵扣金额
      * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
+     * @return BaseOutput
      * */
-//    void subtractEarnestFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
+    BaseOutput withdrawLeaseOrderCustomerAmountUnFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId);
+
+    /**
+     * 摊位租赁【缴费成功】-- 客户账户金额解冻及流水变动记录
+     * @param orderId 订单ID
+     * @param orderCode 订单编号
+     * @param customerId 客户ID
+     * @param earnestDeduction 定金抵扣金额
+     * @param transferDeduction 转抵抵扣金额
+     * @param depositDeduction 保证金抵扣金额
+     * @param marketId 市场ID
+     * @return BaseOutput
+     * */
+    BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId);
 
     /**
      * 客户账户 -- 【定金可用余额】 和 【定金余额】扣减
@@ -89,63 +113,4 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @return
      * */
     void addEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount);
-    /**
-     * 客户账户 -- 【定金余额】扣减
-     * @param customerAccount 客户
-     * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
-     * */
-//    void subtractEarnestBalance(CustomerAccount customerAccount, Long marketId, Long amount);
-    /**
-     * 客户账户 -- 【定金余额】增加
-     * @param customerAccount 客户
-     * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
-     * */
-//    void addEarnestBalance(CustomerAccount customerAccount, Long marketId, Long amount);
-
-    /**
-     * 客户账户 -- 冻结--【冻结转抵余额】增加
-     * @param customerAccount 客户
-     * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
-     * */
-//    void addTransferFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
-
-    /**
-     * 客户账户 -- 解冻-【冻结转抵余额】扣减
-     * @param customerAccount 客户
-     * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
-     * */
-//    void subtractTransferFrozenAmount(CustomerAccount customerAccount, Long marketId, Long amount);
-
-    /**
-     * 客户账户 -- 【转抵可用余额】扣减
-     * @param customerAccount 客户
-     * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
-     * */
-//    void addTransferAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount);
-    /**
-     * 客户账户 -- 【转抵可用余额】增加
-     * @param customerAccount 客户
-     * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
-     * */
-//    void subtractTransferAvailableBalance(CustomerAccount customerAccount, Long marketId, Long amount);
-    /**
-     * 客户账户 -- 【转抵余额】扣减
-     * @param customerAccount 客户
-     * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
-     * */
-//    void addTransferBalance(CustomerAccount customerAccount, Long marketId, Long amount);
-    /**
-     * 客户账户 -- 【转抵余额】增加
-     * @param customerAccount 客户
-     * @param marketId 市场ID
-     * @return CustomerAccount 客户账户信息
-     * */
-//    void subtractTransferBalance(CustomerAccount customerAccount, Long marketId, Long amount);
 }
