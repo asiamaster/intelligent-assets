@@ -14,12 +14,6 @@
                     <label class="custom-file-label" for="tempFileupload" data-browse="打开" id="showFileName">选择文件</label>
                 </div>
             </div>
-            <div>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="customFile">
-                    <label class="custom-file-label" for="customFile">Choose file</label>
-                </div>
-            </div>
             <div class="form-group col">
                 <label for="marketId">市场</label>
                 <select class="form-control" id="marketId" name="marketCode" required></select>
@@ -42,56 +36,67 @@
         src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.iframe-transport.js"></script>
 <script type="text/javascript" src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.fileupload.js"></script>
 <script>
+    let fileData;
     $(function () {
         $("#addForm").validate();
         $('#tempFileupload').fileupload({
+            type: 'post',
             url: '/printTemplate/save.action',
             dataType: 'json',
+            autoUpload: false,
+            singleFileUploads: false,
+            multipart: true,
+            change: function (e, data) {
+                $('#showFileName').html(data.files[0].name)
+            },
             add: function (e, data) {
                 console.log('ready')
-                $('#showFileName').html(data.files[0].name)
-
-                $("#form-submit").click(function () {
-                    data.submit();
-                    console.log('start')
-                })
+                fileData = data;
             },
             done: function (e, data) {
-                window.location.reload();
+                console.log('okkkk')
+
+                // window.location.reload();
             },
         });
     });
+    $("#form-submit").click(function () {
+        saveOrUpdateHandler(fileData)
+    })
+    function saveOrUpdateHandler(fileData) {
+        if ($("#addForm").valid() || fileData ) {
+            fileData.submit();
+            bui.loading.show('努力提交中，请稍候。。。');
+            debugger
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: '/printTemplate/save.action',
+                data: $("#addForm").serialize(),
+                /*processData: false,
+                contentType: false,
+                cache : false,
+                data: new FormData($('#addForm')[0]),*/
+                success: function (data) {
+                    debugger
 
-    function saveOrUpdateHandler() {
-        let okButton = $("#form-submit");
-        $("#addForm").submit();
-        // if ($("#addForm").valid()) {
-        //     okButton.attr("disabled", "disabled");
-        //     bui.loading.show('努力提交中，请稍候。。。');
-        //     $.ajax({
-        //         type: "POST",
-        //         dataType: "json",
-        //         url: '/printTemplate/save.action',
-        //         data: $("#addForm").serialize(),
-        //         success: function (data) {
-        //             bui.loading.hide();
-        //             if (data.code != '200') {
-        //                 bs4pop.alert(data.message, {type: 'error'});
-        //                 okButton.removeAttr("disabled");
-        //                 return;
-        //             }
-        //             bs4pop.alert('成功', {type: 'success'}, function () {
-        //                 window.location.reload();
-        //             });
-        //             okButton.removeAttr("disabled");
-        //         },
-        //         error: function () {
-        //             bui.loading.hide();
-        //             okButton.removeAttr("disabled");
-        //             bs4pop.alert("区域信息新增失败!", {type: 'error'});
-        //         }
-        //     });
-        // }
+                    bui.loading.hide();
+                    if (data.code != '200') {
+                        bs4pop.alert(data.message, {type: 'error'});
+                        return false;
+                    }
+                    bs4pop.alert('成功', {type: 'success'}, function () {
+                        // window.location.reload();
+                    });
+                },
+                error: function () {
+                    debugger
+
+                    bui.loading.hide();
+                    bs4pop.alert("区域信息新增失败!", {type: 'error'});
+                }
+            });
+        }
     }
 </script>
 
