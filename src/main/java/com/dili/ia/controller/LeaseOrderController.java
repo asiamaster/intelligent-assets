@@ -163,7 +163,7 @@ public class LeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-//        leaseOrder.setMarketId(userTicket.getFirmId());
+        leaseOrder.setMarketId(userTicket.getFirmId());
 
         if (StringUtils.isNotBlank(leaseOrder.getBoothName())) {
             LeaseOrderItem leaseOrderItemCondition = DTOUtils.newDTO(LeaseOrderItem.class);
