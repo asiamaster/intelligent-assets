@@ -603,7 +603,7 @@
             },
             {
               "name": "path",
-              "type": "DefaultString",
+              "type": "LongKey",
               "chnname": "模板路径",
               "remark": "",
               "pk": false,

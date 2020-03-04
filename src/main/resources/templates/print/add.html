@@ -1,0 +1,91 @@
+
+<div class="container-fluid">
+    <form id="addForm" role="form" method="post" action="/printTemplate/save.action" enctype="multipart/form-data">
+        <div class="row row-cols-1">
+
+            <div class="form-group col">
+                <label for="name" class="">模板名称<i class="red">*</i></label>
+                <input type="text" class="form-control" id="name" name="name" maxlength="20" required/>
+            </div>
+            <div class="form-group col">
+                <label for="" class="">模板路径<i class="red">*</i></label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" name="tempFileupload" id="tempFileupload">
+                    <label class="custom-file-label" for="tempFileupload" data-browse="打开">选择文件</label>
+                </div>
+            </div>
+
+            <div class="form-group col">
+                <label for="marketId">市场</label>
+                <select class="form-control" id="marketId" name="marketId" required></select>
+                <#bcomboProvider _id="marketId" _provider="firmProvider"/>
+            </div>
+
+        </div>
+
+        <div class="text-right mt-2">
+            <button type="button" class="btn btn-light px-5" id="formCancel" data-dismiss="modal">取消
+            </button>
+            <button type="button" class="btn btn-primary" id="form-submit">提交</button>
+        </div>
+    </form>
+</div>
+
+
+<script type="text/javascript" src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.ui.widget.js"></script>
+<script type="text/javascript"
+        src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.fileupload.js"></script>
+<script>
+    $(function () {
+        $("#addForm").validate();
+        $('#tempFileupload').fileupload({
+            url: '/printTemplate/save.action',
+            dataType: 'json',
+            add: function (e, data) {
+                console.log('ready')
+
+                $("#form-submit").click(function () {
+                    data.submit();
+                    console.log('start')
+                })
+            },
+            done: function (e, data) {
+                window.location.reload();
+            },
+        });
+    });
+
+    function saveOrUpdateHandler() {
+        let okButton = $("#form-submit");
+        $("#addForm").submit();
+        // if ($("#addForm").valid()) {
+        //     okButton.attr("disabled", "disabled");
+        //     bui.loading.show('努力提交中，请稍候。。。');
+        //     $.ajax({
+        //         type: "POST",
+        //         dataType: "json",
+        //         url: '/printTemplate/save.action',
+        //         data: $("#addForm").serialize(),
+        //         success: function (data) {
+        //             bui.loading.hide();
+        //             if (data.code != '200') {
+        //                 bs4pop.alert(data.message, {type: 'error'});
+        //                 okButton.removeAttr("disabled");
+        //                 return;
+        //             }
+        //             bs4pop.alert('成功', {type: 'success'}, function () {
+        //                 window.location.reload();
+        //             });
+        //             okButton.removeAttr("disabled");
+        //         },
+        //         error: function () {
+        //             bui.loading.hide();
+        //             okButton.removeAttr("disabled");
+        //             bs4pop.alert("区域信息新增失败!", {type: 'error'});
+        //         }
+        //     });
+        // }
+    }
+</script>
+

@@ -1,0 +1,153 @@
+<#bs4Body>
+<style>
+    .w-200px {
+        width: 200px !important;
+    }
+
+    .w-100px {
+        width: 100px !important;
+    }
+
+    .detail {
+        width: 12px !important;
+    }
+</style>
+<div class="container-fluid">
+    <form class="form" id="queryForm">
+        <div class="row">
+            <nav class="col-12" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">基本信息</li>
+                </ol>
+            </nav>
+        </div>
+    </form>
+    <hr>
+
+    <div class="">
+    </div>
+    <div class="">
+        <div class="row">
+            <div class="col-12">
+                <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+                    <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i
+                            class="fa fa-plus"></i> 新增
+                    </button>
+                    <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
+                            class="fa fa-pencil-square-o"></i> 更新
+                    </button>
+                </div>
+                <table id="grid" data-toggle="table" data-title="区域列表" class="table" data-toolbar="#toolbar"
+                       data-pagination="true" data-page-number="1" data-page-size="10"
+                       data-query-params="queryParams" data-side-pagination="server" data-method="POST"
+                       data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                       data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
+                       data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
+                       data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
+                       data-detail-view="true"
+                >
+                    <thead>
+                    <tr>
+                        <th data-radio="true"></th>
+                        <th data-field="name" data-align="center">
+                            模板名称
+                        </th>
+                        <th data-field="path" data-align="center">
+                            模板路径
+                        </th>
+                        <th data-field="marketId" data-align="center"  data-provider="firmProvider">
+                            市场
+                        </th>
+                        <th data-field="createTime" data-align="center"
+                            data-provider="datetimeProvider">
+                            创建时间
+                        </th>
+                        <th data-field="modifyTime" data-align="center"
+                            data-provider="datetimeProvider">
+                            修改时间
+                        </th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+</#bs4Body>
+
+<div class="modal fade" id="_modal" data-backdrop="static" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!--modal-lg modal-sm(默认) 通过设置mw大小调整宽度（如mw-100） modal-dialog-centered垂直居中-->
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!-- 标题 -->
+                <h5 class="modal-title" id="exampleModalLabel">客户新增</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let _grid = $('#grid');
+
+    $(function () {
+        $(window).resize(function () {
+            _grid.bootstrapTable('resetView')
+        });
+        _grid.on('expand-row.bs.table', function (e, index, row, $detail) {
+            var cur_table = $detail.html(template('subTable', {index})).find('table');
+            $(cur_table).bootstrapTable();
+            $(cur_table).bootstrapTable('refreshOptions', {url: '/printTemplate/listPage.action'});
+
+        });
+        queryDataHandler();
+    });
+    function openInsertHandler() {
+        $("#_modal").modal();
+        $('#_modal .modal-body').load("/printTemplate/add.html");
+        $("#_modal").find('.modal-title').text('模板新增');
+    }
+    function openUpdateHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        $("#_modal").modal();
+        $('#_modal .modal-body').load("/printTemplate/update.html?id=" + rows[0].id);
+        $("#_modal").find('.modal-title').text('模板修改');
+    }
+
+    /**
+     * 查询处理
+     */
+    function queryDataHandler() {
+        _grid.bootstrapTable('refreshOptions', {url: '/printTemplate/listPage.action'});
+    }
+
+    /**
+     * table参数组装
+     * 可修改queryParams向服务器发送其余的参数
+     * @param params
+     */
+    function queryParams(params) {
+        let temp = {
+            rows: params.limit,   //页面大小
+            page: ((params.offset / params.limit) + 1) || 1, //页码
+            sort: params.sort,
+            order: params.order
+        }
+        return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
+    }
+</script>
+
