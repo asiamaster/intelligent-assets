@@ -6,6 +6,7 @@ import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
@@ -129,7 +130,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         paymentOrderService.insert(pb);
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrder(userTicket, ea));
+        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, ea));
         if (!out.isSuccess()){
             LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new RuntimeException("提交到结算中心失败！" + out.getMessage());
@@ -140,8 +141,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     //组装 -- 结算中心缴费单 SettleOrder
-    private SettleOrder buildSettleOrder(UserTicket userTicket, EarnestOrder ea){
-        SettleOrder settleOrder = DTOUtils.newDTO(SettleOrder.class);
+    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, EarnestOrder ea){
+        SettleOrderDto settleOrder = new SettleOrderDto();
         //以下是提交到结算中心的必填字段
         settleOrder.setMarketId(ea.getMarketId()); //市场ID
         settleOrder.setBusinessCode(ea.getCode()); //业务单号

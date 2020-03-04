@@ -14,6 +14,7 @@ import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
@@ -238,7 +239,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             cascadeUpdateLeaseOrderItemState(id, LeaseOrderItemStateEnum.SUBMITTED);
         } else if (leaseOrder.getState().equals(LeaseOrderStateEnum.SUBMITTED.getCode())) {
             //判断缴费单是否需要撤回 需要撤回则撤回
-            withdrawPaymentOrder(leaseOrder.getPaymentId());
+            if(null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()){
+                withdrawPaymentOrder(leaseOrder.getPaymentId());
+            }
             leaseOrder.setPaymentId(paymentOrder.getId());
             if (updateSelective(leaseOrder) == 0) {
                 LOG.error("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
@@ -247,7 +250,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
 
         //新增结算单
-        SettleOrder settleOrder = buildSettleOrder(leaseOrder);
+        SettleOrderDto settleOrder = buildSettleOrderDto(leaseOrder);
         settleOrder.setAmount(amount);
         settleOrder.setBusinessCode(paymentOrder.getCode());
         BaseOutput<SettleOrder> settlementOutput = settlementRpc.submit(settleOrder);
@@ -324,12 +327,12 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param leaseOrder
      * @return
      */
-    private SettleOrder buildSettleOrder(LeaseOrder leaseOrder) {
+    private SettleOrderDto buildSettleOrderDto(LeaseOrder leaseOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        SettleOrder settleOrder = new SettleOrder();
+        SettleOrderDto settleOrder = new SettleOrderDto();
         settleOrder.setAppId(settlementAppId);
         settleOrder.setBusinessCode(leaseOrder.getCode());
         settleOrder.setBusinessDepId(leaseOrder.getDepartmentId());
@@ -339,7 +342,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         settleOrder.setCustomerName(leaseOrder.getCustomerName());
         settleOrder.setCustomerPhone(leaseOrder.getCustomerCellphone());
         settleOrder.setMarketId(userTicket.getFirmId());
-//        settleOrder.setMarketCode(userTicket.getFirmCode());
+        settleOrder.setMarketCode(userTicket.getFirmCode());
         settleOrder.setReturnUrl("http://ia.diligrp.com:8381/api/leaseOrder/settlementDealHandler");
         settleOrder.setSubmitterDepId(userTicket.getDepartmentId());
         settleOrder.setSubmitterId(userTicket.getId());
@@ -400,14 +403,17 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             LOG.error("租赁单【code:{}】状态为【{}】，不可以进行撤回操作", leaseOrder.getCode(), stateName);
             throw new RuntimeException("租赁单状态为【" + stateName + "】，不可以进行撤回操作");
         }
-        withdrawPaymentOrder(leaseOrder.getPaymentId());
-        leaseOrder.setState(LeaseOrderStateEnum.CREATED.getCode());
-        if(null != leaseOrder.getPaymentId()){
+        if(null != leaseOrder.getPaymentId() && 0L != leaseOrder.getPaymentId()){
+            withdrawPaymentOrder(leaseOrder.getPaymentId());
             leaseOrder.setPaymentId(0L);
         }
+        leaseOrder.setState(LeaseOrderStateEnum.CREATED.getCode());
         if(updateSelective(leaseOrder) == 0){
             throw new RuntimeException("多人操作，请重试！");
         }
+
+        //TODO 摊位、保证金、定金、转低解冻
+
         return BaseOutput.success();
     }
 

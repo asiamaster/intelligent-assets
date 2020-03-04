@@ -220,8 +220,8 @@ public class LeaseOrderController {
         try {
             return leaseOrderService.withdrawOrder(id);
         }catch (Exception e){
-            LOG.error("租赁订单取消异常！", e);
-            return BaseOutput.failure("租赁订单取消异常");
+            LOG.error("租赁订单撤回异常！", e);
+            return BaseOutput.failure("租赁订单撤回异常");
         }
 
 

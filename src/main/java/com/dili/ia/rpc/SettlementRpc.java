@@ -1,6 +1,7 @@
 package com.dili.ia.rpc;
 
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +26,7 @@ public interface SettlementRpc {
      * @return
      */
     @RequestMapping(value = "/api/settleOrder/save", method = RequestMethod.POST)
-    BaseOutput<SettleOrder> submit(SettleOrder settleOrder);
+    BaseOutput<SettleOrder> submit(SettleOrderDto settleOrder);
 
     /**
      * 【撤回】结算单 ---根据结算单编号取消
