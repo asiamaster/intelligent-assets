@@ -29,13 +29,6 @@ public interface LeaseOrderItem extends IBaseDomain {
 
     void setId(Long id);
 
-    @Column(name = "`code`")
-    @FieldDef(label="code", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getCode();
-
-    void setCode(String code);
-
     @Column(name = "`create_time`")
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
@@ -169,12 +162,12 @@ public interface LeaseOrderItem extends IBaseDomain {
 
     void setDepositAmountFlag(Integer depositAmountFlag);
 
-    @Column(name = "`deposit_amount_source_code`")
-    @FieldDef(label="保证金源单Code", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getDepositAmountSourceCode();
+    @Column(name = "`deposit_amount_source_id`")
+    @FieldDef(label="保证金源单ID", maxLength = 20)
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getDepositAmountSourceId();
 
-    void setDepositAmountSourceCode(String depositAmountSourceCode);
+    void setDepositAmountSourceId(Long depositAmountSourceId);
 
     @Column(name = "`deposit_amount`")
     @FieldDef(label="保证金")

@@ -260,6 +260,13 @@ public interface RefundOrder extends IBaseDomain {
 
     void setMarketId(Long marketId);
 
+    @Column(name = "`market_code`")
+    @FieldDef(label="市场Code", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getMarketCode();
+
+    void setMarketCode(String marketCode);
+
     @Column(name = "`version`")
     @FieldDef(label="乐观锁，版本号")
     @EditMode(editor = FieldEditor.Text, required = false)

@@ -9,6 +9,7 @@ import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.LeaseOrderMapper;
 import com.dili.ia.rpc.SettlementRpc;
+import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ia.service.PaymentOrderService;
@@ -70,6 +71,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Value("${settlement.app-id}")
     private Long settlementAppId;
 
+    @Autowired
+    private UidFeignRpc uidFeignRpc;
+
     /**
      * 摊位租赁单保存
      * @param dto
@@ -90,12 +94,16 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             dto.setDepartmentName(depOut.getData().getName());
         }
         dto.setMarketId(userTicket.getFirmId());
+        dto.setMarketCode(userTicket.getFirmCode());
         dto.setCreatorId(userTicket.getId());
         dto.setCreator(userTicket.getRealName());
 
         if (null == dto.getId()) {
-            // TODO: 2020/3/3 编号生成器取编码
-//            dto.setCode();
+            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.LEASE_ORDER.getCode());
+            if(!bizNumberOutput.isSuccess()){
+                throw new RuntimeException("编号生成器微服务异常");
+            }
+            dto.setCode(bizNumberOutput.getData());
             dto.setState(LeaseOrderStateEnum.CREATED.getCode());
             dto.setDepartmentId(userTicket.getDepartmentId());
             dto.setPayState(PayStateEnum.NOT_PAID.getCode());
@@ -123,8 +131,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      */
     private void insertLeaseOrderItems(LeaseOrderListDto dto) {
         dto.getLeaseOrderItems().forEach(o -> {
-            // TODO: 2020/3/3 编号生成器取编码
-//            o.setCode();
             o.setLeaseOrderId(dto.getId());
             o.setCustomerId(dto.getCustomerId());
             o.setCustomerName(dto.getCustomerName());
@@ -296,11 +302,15 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             throw new RuntimeException("未登录");
         }
         PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
-        //TODO 编号生成器 取
-        paymentOrder.setCode(leaseOrder.getCode());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            throw new RuntimeException("编号生成器微服务异常");
+        }
+        paymentOrder.setCode(bizNumberOutput.getData());
         paymentOrder.setBusinessCode(leaseOrder.getCode());
         paymentOrder.setBusinessId(leaseOrder.getId());
         paymentOrder.setMarketId(userTicket.getFirmId());
+        paymentOrder.setMarketCode(userTicket.getFirmCode());
         paymentOrder.setCreatorId(userTicket.getId());
         paymentOrder.setCreator(userTicket.getRealName());
         paymentOrder.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
@@ -329,6 +339,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         settleOrder.setCustomerName(leaseOrder.getCustomerName());
         settleOrder.setCustomerPhone(leaseOrder.getCustomerCellphone());
         settleOrder.setMarketId(userTicket.getFirmId());
+//        settleOrder.setMarketCode(userTicket.getFirmCode());
         settleOrder.setReturnUrl("http://ia.diligrp.com:8381/api/leaseOrder/settlementDealHandler");
         settleOrder.setSubmitterDepId(userTicket.getDepartmentId());
         settleOrder.setSubmitterId(userTicket.getId());
