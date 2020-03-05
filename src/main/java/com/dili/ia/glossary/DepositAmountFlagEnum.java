@@ -9,18 +9,20 @@ package com.dili.ia.glossary;
  * @createTime 2020-02-17 18:51
  */
 public enum DepositAmountFlagEnum {
-    PRE_TRANSFER(1, "预转入"),
-    TRANSFERRED(2, "已转入"),
-    FROZEN(3, "已冻结"),
-    TRANSFERRED_OUT(4, "已转出"),
+    PRE_TRANSFER(1, "预转入","新建"),
+    TRANSFERRED(2, "已转入","转入或解冻"),
+    FROZEN(3, "已冻结","冻结"),
+    TRANSFERRED_OUT(4, "已转出","转出"),
     ;
 
     private String name;
     private Integer code ;
+    private String operateName;
 
-    DepositAmountFlagEnum(Integer code, String name){
+    DepositAmountFlagEnum(Integer code, String name ,String operateName){
         this.code = code;
         this.name = name;
+        this.operateName = operateName;
     }
 
     public static DepositAmountFlagEnum getDepositAmountFlagEnum(Integer code) {
@@ -39,4 +41,9 @@ public enum DepositAmountFlagEnum {
     public String getName() {
         return name;
     }
+
+    public String getOperateName() {
+        return operateName;
+    }
+
 }

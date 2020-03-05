@@ -5,6 +5,7 @@ import com.dili.ia.controller.LeaseOrderController;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.LeaseOrderMapper;
@@ -44,6 +45,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -208,21 +210,24 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState()) &&
                 !LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
-            LOG.error("租赁单编号【{}】 状态为【{}】，不可以进行提交付款操作", leaseOrder.getCode(), stateName);
+            LOG.info("租赁单编号【{}】 状态为【{}】，不可以进行提交付款操作", leaseOrder.getCode(), stateName);
             throw new RuntimeException("租赁单状态为【" + stateName + "】，不可以进行提交付款操作");
         }
         if (leaseOrder.getWaitAmount().equals(0L)) {
             throw new RuntimeException("摊位租赁单费用已结清");
         }
         if (amount > leaseOrder.getWaitAmount()) {
-            LOG.error("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());
+            LOG.info("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());
             throw new RuntimeException("支付金额大于待付金额");
         }
         if(!waitAmount.equals(leaseOrder.getWaitAmount())){
-            LOG.error("摊位租赁单待缴费金额已发生变更，请重试【ID {}】 旧金额【{}】新金额【{}】", id, waitAmount, leaseOrder.getWaitAmount());
+            LOG.info("摊位租赁单待缴费金额已发生变更，请重试【ID {}】 旧金额【{}】新金额【{}】", id, waitAmount, leaseOrder.getWaitAmount());
             throw new RuntimeException("摊位租赁单待缴费金额已发生变更，请重试");
         }
-        //@TODO 定金 保证金 转低冻结
+        //@TODO 摊位 定金 保证金 转低冻结
+
+        //冻结保证金
+        frozenLeaseOrderItemDepositAmount(id);
 
         //新增缴费单
         PaymentOrder paymentOrder = buildPaymentOrder(leaseOrder);
@@ -233,7 +238,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
             leaseOrder.setPaymentId(paymentOrder.getId());
             if (updateSelective(leaseOrder) == 0) {
-                LOG.error("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
+                LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
                 throw new RuntimeException("摊位租赁单提交状态更新失败");
             }
             cascadeUpdateLeaseOrderItemState(id, LeaseOrderItemStateEnum.SUBMITTED);
@@ -244,7 +249,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             }
             leaseOrder.setPaymentId(paymentOrder.getId());
             if (updateSelective(leaseOrder) == 0) {
-                LOG.error("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
+                LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
                 throw new RuntimeException("摊位租赁单提交状态更新失败");
             }
         }
@@ -264,6 +269,63 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     /**
+     * 摊位租赁单保证金冻结
+     * @param id
+     */
+    private void frozenLeaseOrderItemDepositAmount(Long id){
+        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+        condition.setLeaseOrderId(id);
+        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+        List<Long> depositAmountSourceIds = leaseOrderItems.stream().map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
+
+        LeaseOrderItemListDto depositAmountSourceCondition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
+        depositAmountSourceCondition.setIds(depositAmountSourceIds);
+        List<LeaseOrderItem> depositAmountSourceItems = leaseOrderItemService.listByExample(depositAmountSourceCondition);
+        depositAmountSourceItems.stream().forEach(o -> {
+            if(DepositAmountFlagEnum.TRANSFERRED.getCode().equals(o.getDepositAmountFlag())){
+                o.setDepositAmountFlag(DepositAmountFlagEnum.FROZEN.getCode());
+            }else {
+                String operateName = DepositAmountFlagEnum.getDepositAmountFlagEnum(o.getDepositAmountFlag()).getOperateName();
+                LOG.info("{}保证金已被{},保证金总抵扣额已发生变化不可进行抵扣，请修改后重试",o.getBoothName(),operateName);
+                throw new RuntimeException(o.getBoothName() + "保证金已被" + operateName + ",保证金总抵扣额已发生变化不可进行抵扣，请修改后重试");
+            }
+        });
+        if (leaseOrderItemService.batchUpdateSelective(depositAmountSourceItems) != depositAmountSourceItems.size()) {
+            LOG.info("源摊位租赁单项冻结失败 【租赁单id={}】",id);
+            throw new RuntimeException("多人操作，请重试！");
+        }
+
+    }
+    /**
+     * 摊位租赁单保证金解冻
+     * @param id
+     */
+    private void unFrozenLeaseOrderItemDepositAmount(Long id){
+        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+        condition.setLeaseOrderId(id);
+        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+        List<Long> depositAmountSourceIds = leaseOrderItems.stream().map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
+
+        LeaseOrderItemListDto depositAmountSourceCondition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
+        depositAmountSourceCondition.setIds(depositAmountSourceIds);
+        List<LeaseOrderItem> depositAmountSourceItems = leaseOrderItemService.listByExample(depositAmountSourceCondition);
+        depositAmountSourceItems.stream().forEach(o -> {
+            if(DepositAmountFlagEnum.FROZEN.getCode().equals(o.getDepositAmountFlag())){
+                o.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
+            }else {
+                String operateName = DepositAmountFlagEnum.getDepositAmountFlagEnum(o.getDepositAmountFlag()).getOperateName();
+                LOG.info("{}保证金已被解冻,不可重复操作",o.getBoothName());
+                throw new RuntimeException(o.getBoothName() + "保证金已被解冻,不可重复操作");
+            }
+        });
+        if (leaseOrderItemService.batchUpdateSelective(depositAmountSourceItems) != depositAmountSourceItems.size()) {
+            LOG.info("源摊位租赁单项解冻失败 【租赁单id={}】",id);
+            throw new RuntimeException("多人操作，请重试！");
+        }
+
+    }
+
+    /**
      * 级联更新摊位租赁单项状态
      *
      * @param id
@@ -275,7 +337,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
         leaseOrderItems.stream().forEach(o -> o.setState(stateEnum.getCode()));
         if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
-            throw new RuntimeException("摊位租赁单项提交状态更新失败");
+            throw new RuntimeException("多人操作，请重试！");
         }
     }
 
@@ -368,7 +430,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         LeaseOrder leaseOrder = get(id);
         if (!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState())) {
             String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
-            LOG.error("租赁单【code:{}】状态为【{}】，不可以进行取消操作", leaseOrder.getCode(), stateName);
+            LOG.info("租赁单【code:{}】状态为【{}】，不可以进行取消操作", leaseOrder.getCode(), stateName);
             throw new RuntimeException("租赁单状态为【" + stateName + "】，不可以进行取消操作");
         }
         leaseOrder.setState(LeaseOrderStateEnum.CANCELD.getCode());
@@ -400,7 +462,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         LeaseOrder leaseOrder = get(id);
         if (!LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
-            LOG.error("租赁单【code:{}】状态为【{}】，不可以进行撤回操作", leaseOrder.getCode(), stateName);
+            LOG.info("租赁单【code:{}】状态为【{}】，不可以进行撤回操作", leaseOrder.getCode(), stateName);
             throw new RuntimeException("租赁单状态为【" + stateName + "】，不可以进行撤回操作");
         }
         if(null != leaseOrder.getPaymentId() && 0L != leaseOrder.getPaymentId()){
@@ -412,7 +474,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             throw new RuntimeException("多人操作，请重试！");
         }
 
+        cascadeUpdateLeaseOrderItemState(id,LeaseOrderItemStateEnum.CREATED);
+
         //TODO 摊位、保证金、定金、转低解冻
+        //解冻摊位保证金
+        unFrozenLeaseOrderItemDepositAmount(id);
 
         return BaseOutput.success();
     }
@@ -429,14 +495,14 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             Map<String, String> paramMap = Map.of("appId", String.valueOf(settlementAppId), "businessCode", paymentCode);
             BaseOutput<SettleOrder> settleOrderBaseOutput = settlementRpc.get(paramMap);
             if (!settleOrderBaseOutput.isSuccess()) {
-                LOG.error("结算单查询异常 【缴费单CODE {}】", paymentCode);
+                LOG.info("结算单查询异常 【缴费单CODE {}】", paymentCode);
                 throw new RuntimeException("结算单查询异常");
             }
             SettleOrder settleOrder = settleOrderBaseOutput.getData();
             //缴费单对应的结算单未处理
             if (settleOrder.getState().equals(SettleStateEnum.WAIT_DEAL.getCode())) {
                 if (!settlementRpc.cancelByCode(paymentCode).isSuccess()) {
-                    LOG.error("结算单撤回异常 【缴费单CODE {}】", paymentCode);
+                    LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
                     throw new RuntimeException("结算单撤回异常");
                 }
             } else {
