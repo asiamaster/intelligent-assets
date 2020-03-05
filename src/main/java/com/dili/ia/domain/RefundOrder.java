@@ -269,9 +269,9 @@ public interface RefundOrder extends IBaseDomain {
 
     @Column(name = "`version`")
     @FieldDef(label="乐观锁，版本号")
-    @EditMode(editor = FieldEditor.Text, required = false)
+    @EditMode(editor = FieldEditor.Number, required = false)
     @Version
-    Byte getVersion();
+    Integer getVersion();
 
-    void setVersion(Byte version);
+    void setVersion(Integer version);
 }

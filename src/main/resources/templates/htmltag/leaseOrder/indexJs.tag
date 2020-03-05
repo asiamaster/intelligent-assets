@@ -248,7 +248,7 @@
                             url: "${contextPath}/leaseOrder/submitPayment.action",
                             data: {
                                 id: rows[0].id,
-                                waitAmount: rows[0].waitAmount,
+                                waitAmount: rows[0].$_waitAmount,
                                 amount: Number($('#amount').val()).mul(100)
                             },
                             dataType: "json",

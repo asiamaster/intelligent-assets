@@ -110,6 +110,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             dto.setState(LeaseOrderStateEnum.CREATED.getCode());
             dto.setDepartmentId(userTicket.getDepartmentId());
             dto.setPayState(PayStateEnum.NOT_PAID.getCode());
+            dto.setWaitAmount(dto.getPayAmount());
             insertSelective(dto);
             insertLeaseOrderItems(dto);
         } else {
@@ -262,7 +263,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         BaseOutput<SettleOrder> settlementOutput = settlementRpc.submit(settleOrder);
         if (settlementOutput.isSuccess()) {
             //冗余结算编号 另起事务使其不影响原有事务
-            saveSettlementCode(paymentOrder.getId(), settlementOutput.getData().getCode());
+            try{
+                saveSettlementCode(paymentOrder.getId(), settlementOutput.getData().getCode());
+            }catch (Exception e){
+                LOG.error("结算编号冗余异常 租赁单【code:{}】缴费单【code:{}】 异常信息{}",leaseOrder.getCode(),paymentOrder.getCode(),e.getMessage());
+            }
         } else {
             throw new RuntimeException(settlementOutput.getMessage());
         }
@@ -378,8 +383,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     void saveSettlementCode(Long paymentId, String settlementCode) {
-        PaymentOrder paymentOrderPo = DTOUtils.newInstance(PaymentOrder.class);
-        paymentOrderPo.setId(paymentId);
+        PaymentOrder paymentOrderPo = paymentOrderService.get(paymentId);
         paymentOrderPo.setSettlementCode(settlementCode);
         paymentOrderService.updateSelective(paymentOrderPo);
     }
@@ -436,6 +440,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         settleOrder.setMarketCode(userTicket.getFirmCode());
         settleOrder.setReturnUrl("http://ia.diligrp.com:8381/api/leaseOrder/settlementDealHandler");
         settleOrder.setSubmitterDepId(userTicket.getDepartmentId());
+        settleOrder.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         settleOrder.setSubmitterId(userTicket.getId());
         settleOrder.setSubmitterName(userTicket.getRealName());
         settleOrder.setSubmitTime(LocalDateTime.now());
