@@ -355,9 +355,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     private TransactionDetails buildTransactionDetails(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId){
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
-        Customer customer = customerRpc.get(customerId, marketId).getData();
+        BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
+        Customer customer = out.getData();
         if (null == customer){
             LOGGER.info("客户不存在！【customerId=" + customerId + "; marketId=" + marketId + "】" );
             throw new RuntimeException("客户不存在！");
@@ -376,8 +377,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         tds.setItemType(itemType);
         tds.setMarketId(marketId);
         //固定构建参数
-        tds.setCreator(userTicket.getRealName());
-        tds.setCreatorId(userTicket.getId());
+        tds.setCreator("克兰");
+        tds.setCreatorId(1L);
         tds.setCode("202002200001");
         tds.setCreateTime(new Date());
         return tds;
