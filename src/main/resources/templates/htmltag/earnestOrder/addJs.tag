@@ -67,10 +67,11 @@
             return false;
         } else {
             bui.loading.show('努力提交中，请稍候。。。');
+            let _formData = new FormData($('#saveForm')[0]);
             $.ajax({
                 type: "POST",
                 url: "${contextPath}/earnestOrder/doAdd.action",
-                data: buildFormData(),
+                data: _formData,
                 processData: false,
                 contentType: false,
                 async: true,

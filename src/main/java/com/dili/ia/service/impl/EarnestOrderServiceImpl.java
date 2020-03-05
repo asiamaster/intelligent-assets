@@ -1,9 +1,13 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.*;
+import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.EarnestOrderDetail;
+import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.TransactionDetails;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.rpc.SettlementRpc;
+import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -52,6 +56,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     TransactionDetailsService transactionDetailsService;
     @Autowired
     DepartmentRpc departmentRpc;
+    @Autowired
+    UidFeignRpc uidFeignRpc;
+
     @Value("${settlement.app-id}")
     private Long settlementAppId;
 
@@ -68,8 +75,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         earnestOrder.setState(EarnestOrderStateEnum.CREATED.getCode());
         earnestOrder.setAssetsType(AssetsTypeEnum.BOOTH.getCode());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_ORDER.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            throw new RuntimeException("编号生成器微服务异常");
+        }
         //@TODO业务单号, 多摊位存储  验证客户状态，摊位状态是否正常
-        earnestOrder.setCode("DJ202002280001");
+        earnestOrder.setCode(bizNumberOutput.getData());
         earnestOrder.setVersion(0L);
         this.getActualDao().insertSelective(earnestOrder);
 
@@ -176,8 +187,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setMarketId(userTicket.getFirmId());
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setState(PayStateEnum.NOT_PAID.getCode());
-        //@TODO付款单编号
-//        pb.setCode();
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            throw new RuntimeException("编号生成器微服务异常");
+        }
+        pb.setCode(bizNumberOutput.getData());
         return pb;
     }
 
@@ -187,7 +201,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
         pb.setMarketId(userTicket.getFirmId());
-//        pb.setState();
+        pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
         List<PaymentOrder> list = paymentOrderService.selectByExample(pb);
         if (CollectionUtils.isEmpty(list) || list.size() > 1) {
             throw new RuntimeException("没有查询到有效付款单！");
@@ -255,7 +269,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         tds.setNotes(ea.getCode());
         tds.setOrderId(ea.getId());
         tds.setOrderCode(ea.getCode());
-        tds.setCode("202002200001");
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            throw new RuntimeException("编号生成器微服务异常");
+        }
+        tds.setCode(bizNumberOutput.getData());
         tds.setBizType(BizTypeEnum.EARNEST.getCode());
         tds.setSceneType(TransactionSceneTypeEnum.PAYMENT.getCode());
         tds.setItemType(TransactionItemTypeEnum.EARNEST.getCode());
