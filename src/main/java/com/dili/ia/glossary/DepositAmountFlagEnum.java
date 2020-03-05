@@ -12,7 +12,7 @@ public enum DepositAmountFlagEnum {
     PRE_TRANSFER(1, "预转入","新建"),
     TRANSFERRED(2, "已转入","转入或解冻"),
     FROZEN(3, "已冻结","冻结"),
-    TRANSFERRED_OUT(4, "已转出","转出"),
+    DEDUCTION(4, "已抵扣","抵扣"),
     ;
 
     private String name;

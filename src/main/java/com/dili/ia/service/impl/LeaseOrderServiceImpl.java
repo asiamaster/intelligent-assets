@@ -168,7 +168,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         LeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
         if (LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             //TODO 解冻并消费保证金、定金、转低
-
+            //第一笔消费抵扣保证金
+            deductionLeaseOrderItemDepositAmount(leaseOrder.getId());
         }
         if ((leaseOrder.getWaitAmount() - paymentOrderPO.getAmount()) == 0L) {
             leaseOrder.setPayState(PayStateEnum.PAID.getCode());
@@ -266,6 +267,34 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             throw new RuntimeException(settlementOutput.getMessage());
         }
         return settlementOutput;
+    }
+
+    /**
+     * 摊位租赁单保证金抵扣
+     * @param id
+     */
+    private void deductionLeaseOrderItemDepositAmount(Long id){
+        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+        condition.setLeaseOrderId(id);
+        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+        List<Long> depositAmountSourceIds = leaseOrderItems.stream().map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
+
+        LeaseOrderItemListDto depositAmountSourceCondition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
+        depositAmountSourceCondition.setIds(depositAmountSourceIds);
+        List<LeaseOrderItem> depositAmountSourceItems = leaseOrderItemService.listByExample(depositAmountSourceCondition);
+        depositAmountSourceItems.stream().forEach(o -> {
+            if(DepositAmountFlagEnum.FROZEN.getCode().equals(o.getDepositAmountFlag())){
+                o.setDepositAmountFlag(DepositAmountFlagEnum.DEDUCTION.getCode());
+            }else {
+                LOG.info("{}保证金已被抵扣,不可重复操作",o.getBoothName());
+                throw new RuntimeException(o.getBoothName() + "保证金已被抵扣,不可重复操作");
+            }
+        });
+        if (leaseOrderItemService.batchUpdateSelective(depositAmountSourceItems) != depositAmountSourceItems.size()) {
+            LOG.info("源摊位租赁单项抵扣失败 【租赁单id={}】",id);
+            throw new RuntimeException("多人操作，请重试！");
+        }
+
     }
 
     /**
