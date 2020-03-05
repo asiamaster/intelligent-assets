@@ -57,7 +57,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     EarnestTransferOrder createEarnestTransferOrder(EarnestTransferDto efDto);
 
     /**
-     * 摊位租赁【提交】-- 客户账户金额冻结及流水变动记录
+     * 摊位租赁【提交】-- 客户账户金额[冻结]及流水变动记录
      * @param orderId 订单ID
      * @param orderCode 订单编号
      * @param customerId 客户ID
@@ -70,7 +70,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId);
 
     /**
-     * 摊位租赁【撤回】-- 客户账户金额解冻及流水变动记录
+     * 摊位租赁【撤回】-- 客户账户金额[解冻]及流水变动记录
      * @param orderId 订单ID
      * @param orderCode 订单编号
      * @param customerId 客户ID
@@ -83,7 +83,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     BaseOutput withdrawLeaseOrderCustomerAmountUnFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId);
 
     /**
-     * 摊位租赁【缴费成功】-- 客户账户金额解冻及流水变动记录
+     * 摊位租赁【缴费成功】-- 客户账户金额[解冻] [消费抵扣]及相应流水变动记录
      * @param orderId 订单ID
      * @param orderCode 订单编号
      * @param customerId 客户ID
