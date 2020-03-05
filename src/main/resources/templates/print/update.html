@@ -1,24 +1,25 @@
-
 <div class="container-fluid">
-    <form id="editForm" role="form" method="post" action="/printTemplate/update.action" enctype="multipart/form-data">
+    <form id="editForm" role="form" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="${obj.id!}">
         <div class="row row-cols-1">
-            <input type="hidden" name="id" value="${obj.id!}">
+
             <div class="form-group col">
                 <label for="name" class="">模板名称<i class="red">*</i></label>
-                <input type="text" class="form-control" id="name" name="name" maxlength="20" value="${obj.name!}" required/>
+                <input type="text" class="form-control" id="name" name="name" value="${obj.name!}" maxlength="20"
+                       required/>
             </div>
             <div class="form-group col">
-                <label for="edittempFileupload" class="">模板路径<i class="red">*</i></label>
+                <label for="" class="">模板路径<i class="red">*</i></label>
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" name="tempFileupload" id="edittempFileupload">
-                    <label class="custom-file-label" for="edittempFileupload" data-browse="打开">选择文件</label>
+                    <label class="custom-file-label" for="edittempFileupload" data-browse="打开"
+                           id="showFileName">选择文件</label>
                 </div>
             </div>
-
             <div class="form-group col">
                 <label for="editmarketId">市场</label>
                 <select class="form-control" id="editmarketId" name="marketCode" required></select>
-                <#bcomboProvider _id="editmarketId" _value="${obj.marketId}" _provider="firmProvider"/>
+                <#bcomboProvider _id="editmarketId" _value="${obj.marketCode}" _provider="firmProvider"/>
             </div>
 
         </div>
@@ -26,7 +27,7 @@
         <div class="text-right mt-2">
             <button type="button" class="btn btn-light px-5" data-dismiss="modal">取消
             </button>
-            <button type="button" class="btn btn-primary" id="edit-form-submit">提交</button>
+            <button type="button" class="btn btn-primary px-5" id="edit-form-submit">提交</button>
         </div>
     </form>
 </div>
@@ -37,24 +38,68 @@
         src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.iframe-transport.js"></script>
 <script type="text/javascript" src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.fileupload.js"></script>
 <script>
+    let fileData;
     $(function () {
         $("#editForm").validate();
         $('#edittempFileupload').fileupload({
+            type: 'post',
             url: '/printTemplate/update.action',
             dataType: 'json',
+            autoUpload: false,
+            singleFileUploads: false,
+            multipart: true,
+            change: function (e, data) {
+                $('#showFileName').html(data.files[0].name)
+            },
             add: function (e, data) {
                 console.log('ready')
-
-                $("#edit-form-submit").click(function () {
-                    data.submit();
-                    console.log('start')
-                })
+                fileData = data;
             },
             done: function (e, data) {
-                window.location.reload();
+                bs4pop.alert('模板新增成功', {type: 'success'}, function () {
+                    window.location.reload();
+                });
             },
         });
     });
+    $("#edit-form-submit").click(function () {
+        $("#edit-form-submit").attr("disabled", "disabled");
+        saveOrUpdateHandler(fileData);
+    });
 
+    function saveOrUpdateHandler(fileData) {
+        if ($("#editForm").valid()) {
+            if (!fileData) {
+                update();
+            }
+            fileData.submit();
+        }
+    }
+
+    function update() {
+        var okButton = $("#edit-form-submit");
+        okButton.attr("disabled", "disabled");
+        bui.loading.show('努力提交中，请稍候。。。');
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '/printTemplate/update.action',
+            data: $("#editForm").serialize(),
+            success: function (data) {
+                bui.loading.hide();
+                if (data.code != '200') {
+                    bs4pop.alert(data.message, {type: 'error'});
+                    okButton.removeAttr("disabled");
+                    return;
+                }
+                window.location.reload();
+                okButton.removeAttr("disabled");
+            },
+            error: function () {
+                bui.loading.hide();
+                okButton.removeAttr("disabled");
+                bs4pop.alert("区域信息新增失败!", {type: 'error'});
+            }
+        });
+    }
 </script>
-

@@ -36,6 +36,9 @@
                     <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
                             class="fa fa-pencil-square-o"></i> 更新
                     </button>
+                    <button type="button" class="btn btn-primary" onclick="delHandler()"><i
+                            class="fa fa-pencil-square-o"></i> 删除
+                    </button>
                 </div>
                 <table id="grid" data-toggle="table" data-title="区域列表" class="table" data-toolbar="#toolbar"
                        data-pagination="true" data-page-number="1" data-page-size="10"
@@ -55,7 +58,7 @@
                         <th data-field="path" data-align="center">
                             模板路径
                         </th>
-                        <th data-field="marketId" data-align="center"  data-provider="firmProvider">
+                        <th data-field="marketId" data-align="center" data-provider="firmProvider">
                             市场
                         </th>
                         <th data-field="createTime" data-align="center"
@@ -111,11 +114,13 @@
         });
         queryDataHandler();
     });
+
     function openInsertHandler() {
         $("#_modal").modal();
         $('#_modal .modal-body').load("/printTemplate/add.html");
         $("#_modal").find('.modal-title').text('模板新增');
     }
+
     function openUpdateHandler() {
         //获取选中行的数据
         let rows = _grid.bootstrapTable('getSelections');
@@ -148,6 +153,39 @@
             order: params.order
         }
         return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
+    }
+
+    function delHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        bs4pop.confirm("确定要删除吗", {title: "确认提示"}, function (sure) {
+            if (sure) {
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '/printTemplate/delete.action',
+                    data: {id: rows[0].id},
+                    success: function (data) {
+                        bui.loading.hide();
+                        if (data.code != '200') {
+                            bs4pop.alert(data.message, {type: 'error'});
+                            return;
+                        }
+                        bs4pop.alert('删除成功', {type: 'success'}, function () {
+                            window.location.reload();
+                        });
+                    },
+                    error: function () {
+                        bui.loading.hide();
+                        bs4pop.alert("模板删除失败!", {type: 'error'});
+                    }
+                });
+            }
+        });
     }
 </script>
 

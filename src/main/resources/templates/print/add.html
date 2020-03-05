@@ -1,4 +1,3 @@
-
 <div class="container-fluid">
     <form id="addForm" role="form" method="post" action="/printTemplate/save.action" enctype="multipart/form-data">
         <div class="row row-cols-1">
@@ -11,7 +10,8 @@
                 <label for="" class="">模板路径<i class="red">*</i></label>
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" name="tempFileupload" id="tempFileupload">
-                    <label class="custom-file-label" for="tempFileupload" data-browse="打开" id="showFileName">选择文件</label>
+                    <label class="custom-file-label" for="tempFileupload" data-browse="打开"
+                           id="showFileName">选择文件</label>
                 </div>
             </div>
             <div class="form-group col">
@@ -54,48 +54,25 @@
                 fileData = data;
             },
             done: function (e, data) {
-                console.log('okkkk')
-
-                // window.location.reload();
+                bs4pop.alert('模板新增成功', {type: 'success'}, function () {
+                    window.location.reload();
+                });
             },
         });
     });
     $("#form-submit").click(function () {
-        saveOrUpdateHandler(fileData)
-    })
+        $("#form-submit").attr("disabled", "disabled");
+        saveOrUpdateHandler(fileData);
+    });
+
     function saveOrUpdateHandler(fileData) {
-        if ($("#addForm").valid() || fileData ) {
+        if ($("#addForm").valid()) {
+            if (!fileData) {
+                bs4pop.alert("未选择模板文件!", {type: 'error'});
+                $("#form-submit").removeAttr("disabled");
+                return;
+            }
             fileData.submit();
-            bui.loading.show('努力提交中，请稍候。。。');
-            debugger
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: '/printTemplate/save.action',
-                data: $("#addForm").serialize(),
-                /*processData: false,
-                contentType: false,
-                cache : false,
-                data: new FormData($('#addForm')[0]),*/
-                success: function (data) {
-                    debugger
-
-                    bui.loading.hide();
-                    if (data.code != '200') {
-                        bs4pop.alert(data.message, {type: 'error'});
-                        return false;
-                    }
-                    bs4pop.alert('成功', {type: 'success'}, function () {
-                        // window.location.reload();
-                    });
-                },
-                error: function () {
-                    debugger
-
-                    bui.loading.hide();
-                    bs4pop.alert("区域信息新增失败!", {type: 'error'});
-                }
-            });
         }
     }
 </script>

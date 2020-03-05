@@ -108,29 +108,41 @@ public class PrintTemplateController {
      */
     @RequestMapping("update.action")
     @ResponseBody
-    public BaseOutput update(@RequestParam(value = "tempFileupload") MultipartFile file, PrintTemplate printTemplate) {
-        if (file.isEmpty()) {
-            System.out.println("文件为空空");
+    public BaseOutput update(@RequestParam(value = "tempFileupload", required = false) MultipartFile file, PrintTemplate printTemplate) {
+
+        if (file != null && !file.isEmpty()) {
+            String fileName = file.getOriginalFilename();  // 文件名
+            String suffixName = fileName.substring(fileName.lastIndexOf("."));  // 后缀名
+            String filePath = path; // 上传后的路径
+            fileName = UUID.randomUUID() + suffixName; // 新文件名
+            File dest = new File(filePath + fileName);
+            if (!dest.getParentFile().exists()) {
+                dest.getParentFile().mkdirs();
+            }
+            try {
+                file.transferTo(dest);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (!file.isEmpty()) {
+                printTemplate.setPath("/getTemplate/" + fileName);
+            }
         }
-        String fileName = file.getOriginalFilename();  // 文件名
-        String suffixName = fileName.substring(fileName.lastIndexOf("."));  // 后缀名
-        String filePath = path; // 上传后的路径
-        fileName = UUID.randomUUID() + suffixName; // 新文件名
-        File dest = new File(filePath + fileName);
-        if (!dest.getParentFile().exists()) {
-            dest.getParentFile().mkdirs();
-        }
-        try {
-            file.transferTo(dest);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (!file.isEmpty()) {
-            printTemplate.setPath("/getTemplate/" + fileName);
-        }
-        printTemplate.setCreateTime(new Date());
         printTemplate.setModifyTime(new Date());
-        printTemplateService.saveOrUpdate(printTemplate);
+        printTemplateService.updateSelective(printTemplate);
+        return BaseOutput.success();
+    }
+
+    /**
+     * 删除
+     *
+     * @param id
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("delete.action")
+    public BaseOutput delete(Long id) {
+        printTemplateService.delete(id);
         return BaseOutput.success();
     }
 }
