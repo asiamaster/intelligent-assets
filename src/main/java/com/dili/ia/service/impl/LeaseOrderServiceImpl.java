@@ -562,8 +562,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             condition.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
             condition.setRows(100);
             condition.setPage(1);
-            condition.setOrder("desc");
-            condition.setSort("id");
             List<LeaseOrder> leaseOrders = listByExample(condition);
             if (CollectionUtils.isEmpty(leaseOrders)) {
                 break;
