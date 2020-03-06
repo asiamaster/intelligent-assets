@@ -48,4 +48,16 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
      * @return
      */
     BaseOutput<Boolean> updateLeaseOrderBySettleInfo(SettleOrder settleOrder);
+
+    /**
+     * 扫描已生效但状态未变更的单子，更改其状态
+     * @return
+     */
+    BaseOutput<Boolean> scanNotActiveLeaseOrder();
+
+    /**
+     * 扫描已到期但状态未变更的单子，更改其状态
+     * @return
+     */
+    BaseOutput<Boolean> scanExpiredLeaseOrder();
 }

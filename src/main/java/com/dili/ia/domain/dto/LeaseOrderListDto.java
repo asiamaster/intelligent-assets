@@ -53,4 +53,14 @@ public interface LeaseOrderListDto extends LeaseOrder {
     @Transient
     List<LeaseOrderItem> getLeaseOrderItems();
     void setLeaseOrderItems(List<LeaseOrderItem> leaseOrderItems);
+
+    @Column(name = "`start_time`")
+    @Operator(Operator.LITTLE_EQUAL_THAN)
+    Date getStartTimeLT();
+    void setStartTimeLT(Date startTimeLT);
+
+    @Column(name = "`end_time`")
+    @Operator(Operator.LITTLE_EQUAL_THAN)
+    Date getEndTimeLT();
+    void setEndTimeLT(Date endTimeLT);
 }
