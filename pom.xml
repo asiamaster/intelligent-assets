@@ -110,6 +110,11 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
+		<dependency>
+			<groupId>cn.hutool</groupId>
+			<artifactId>hutool-all</artifactId>
+			<version>5.1.0</version>
+		</dependency>
 		<!-- 内部包  -->
 		<dependency>
 			<groupId>com.dili</groupId>

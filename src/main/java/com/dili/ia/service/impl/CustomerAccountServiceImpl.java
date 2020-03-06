@@ -6,6 +6,7 @@ import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.CustomerAccountMapper;
 import com.dili.ia.rpc.CustomerRpc;
+import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.EarnestTransferOrderService;
 import com.dili.ia.service.RefundOrderService;
@@ -46,6 +47,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     RefundOrderService refundOrderService;
     @Autowired
     CustomerRpc customerRpc;
+    @Autowired
+    UidFeignRpc uidFeignRpc;
 
     @Override
     public Boolean checkCustomerAccountExist(Long customerId, Long marketId) {
@@ -65,8 +68,9 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setCustomerId(customerId);
         customerAccount.setMarketId(marketId);
         List<CustomerAccount> list = getActualDao().select(customerAccount);
-        if (CollectionUtils.isEmpty(list) || list.size() > 1){
-            throw new BusinessException("2","当前客户账户存在异常，不存在或者同一市场存在多个相同客户账户！");
+        if (CollectionUtils.isEmpty(list) || list.size() != 1){
+            LOGGER.info("当前【客户账户】不存在，或者一个客户同一市场存在多个客户账户！customerId={}，marketId={}", customerId, marketId);
+            return null;
         }
        return list.get(0);
     }
@@ -122,7 +126,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void earnestTransfer(EarnestTransferOrder order) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         //修改准入方转出方余额，
         CustomerAccount peyerCustomerAccount = this.get(order.getPayeeCustomerAccountId());
         peyerCustomerAccount.setEarnestBalance(peyerCustomerAccount.getEarnestBalance() - order.getAmount());
@@ -183,7 +186,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         order.setCreatorId(userTicket.getId());
         order.setMarketId(userTicket.getFirmId());
         //@TODO退款单编号
-        order.setCode("DJTK202003020001");
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            throw new RuntimeException("编号生成器微服务异常");
+        }
+        order.setCode(bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
         order.setState((long)RefundOrderStateEnum.CREATED.getCode());
 
@@ -263,9 +270,12 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         Integer deductUse = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
 
         CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+        if (ca == null){
+            throw new RuntimeException("客户在该市场不存在客户余额！");
+        }
         List<TransactionDetails> listDetails = new ArrayList<>();
         //写入 定金，转抵，保证金的【冻结】流水
-        if (earnestDeduction != null && earnestDeduction != 0){
+        if (earnestDeduction != null && !earnestDeduction.equals(0L)){
             ca.setEarnestBalance(ca.getEarnestBalance() - earnestDeduction);
             ca.setEarnestFrozenAmount(ca.getEarnestFrozenAmount() - earnestDeduction);
 
@@ -274,7 +284,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             listDetails.add(earnestUnfrozenDetail);
             listDetails.add(earnestDeductUseDetail);
         }
-        if (transferDeduction != null && transferDeduction != 0){
+        if (transferDeduction != null && !transferDeduction.equals(0L)){
             ca.setTransferBalance(ca.getTransferBalance() - transferDeduction);
             ca.setTransferFrozenAmount(ca.getTransferFrozenAmount() + transferDeduction);
 
@@ -283,14 +293,14 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             listDetails.add(transferUnfrozenDetail);
             listDetails.add(transferDeductUseDetail);
         }
-        if (depositDeduction != null && depositDeduction != 0){
+        if (depositDeduction != null && !depositDeduction.equals(0L)){
             TransactionDetails depositUnfrozenDetail = buildTransactionDetails(unfrozen, bizType, itemType, depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
             TransactionDetails depositDeductUseDetail = buildTransactionDetails(deductUse, bizType, itemType, 0 - depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
             listDetails.add(depositUnfrozenDetail);
             listDetails.add(depositDeductUseDetail);
         }
         //只有定金或者转抵有金额变动，才执行更新客户账户
-        if ((earnestDeduction != null && earnestDeduction != 0) || (transferDeduction != null && transferDeduction != 0)){
+        if ((earnestDeduction != null && !earnestDeduction.equals(0L)) || (transferDeduction != null && !transferDeduction.equals(0L))){
             this.getActualDao().updateAmountByAccountIdAndVersion(ca);
         }
 
@@ -310,26 +320,26 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
         List<TransactionDetails> listDetails = new ArrayList<>();
         //写入 定金，转抵，保证金的【冻结】流水
-        if (earnestDeduction != null && earnestDeduction != 0){
+        if (earnestDeduction != null && !earnestDeduction.equals(0L)){
             ca.setEarnestAvailableBalance(ca.getEarnestAvailableBalance() - earnestDeduction);
             ca.setEarnestFrozenAmount(ca.getEarnestFrozenAmount() + earnestDeduction);
 
             TransactionDetails earnestDetail = buildTransactionDetails(sceneType, bizType, itemType, 0 - earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
             listDetails.add(earnestDetail);
         }
-        if (transferDeduction != null && transferDeduction != 0){
+        if (transferDeduction != null && !transferDeduction.equals(0L)){
             ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() - transferDeduction);
             ca.setTransferFrozenAmount(ca.getTransferFrozenAmount() + transferDeduction);
 
             TransactionDetails transferDetail = buildTransactionDetails(sceneType, bizType, itemType, 0 - transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
             listDetails.add(transferDetail);
         }
-        if (depositDeduction != null && depositDeduction != 0){
+        if (depositDeduction != null && !depositDeduction.equals(0L)){
             TransactionDetails depositDetail = buildTransactionDetails(sceneType, bizType, itemType, 0 - depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
             listDetails.add(depositDetail);
         }
         //只有定金或者转抵有金额变动，才执行更新客户账户
-        if ((earnestDeduction != null && earnestDeduction != 0) || (transferDeduction != null && transferDeduction != 0)){
+        if ((earnestDeduction != null && !earnestDeduction.equals(0L)) || (transferDeduction != null && !transferDeduction.equals(0L))){
             this.getActualDao().updateAmountByAccountIdAndVersion(ca);
         }
 
@@ -356,10 +366,17 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     private TransactionDetails buildTransactionDetails(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw  new RuntimeException("未登陆");
+        }
         TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
-        Customer customer = customerRpc.get(customerId, marketId).getData();
+        BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
+        if(!out.isSuccess()){
+            throw new RuntimeException("客户微服务异常！");
+        }
+        Customer customer = out.getData();
         if (null == customer){
-            LOGGER.info("客户不存在！【customerId=" + customerId + "; marketId=" + marketId + "】" );
+            LOGGER.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
             throw new RuntimeException("客户不存在！");
         }
         tds.setCustomerId(customer.getId());
@@ -378,7 +395,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         //固定构建参数
         tds.setCreator(userTicket.getRealName());
         tds.setCreatorId(userTicket.getId());
-        tds.setCode("202002200001");
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            throw new RuntimeException("编号生成器微服务异常");
+        }
+        tds.setCode(bizNumberOutput.getData());
         tds.setCreateTime(new Date());
         return tds;
     }

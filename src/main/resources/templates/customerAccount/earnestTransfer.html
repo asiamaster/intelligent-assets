@@ -7,6 +7,7 @@
         </div>
         <div class="row row-cols-3">
             <input type="hidden" name="payerCustomerAccountId" value="${customerAccount.id!}">
+            <input type="hidden" name="payerId" value="${customerAccount.customerId!}">
             <div class="form-group col">
                 <label for="" class="">客户姓名</label>
                 <input type="text" class="form-control" name="payerName" value="${customerAccount.customerName!}" readonly />
