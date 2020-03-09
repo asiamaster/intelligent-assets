@@ -127,14 +127,20 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Override
     public void earnestTransfer(EarnestTransferOrder order) {
         //修改准入方转出方余额，
-        CustomerAccount peyerCustomerAccount = this.get(order.getPayeeCustomerAccountId());
-        peyerCustomerAccount.setEarnestBalance(peyerCustomerAccount.getEarnestBalance() - order.getAmount());
-        peyerCustomerAccount.setEarnestAvailableBalance(peyerCustomerAccount.getEarnestAvailableBalance() - order.getAmount());
-        this.update(peyerCustomerAccount);
-        CustomerAccount peyeeCustomerAccount = this.get(order.getPayeeCustomerAccountId());
-        peyeeCustomerAccount.setEarnestBalance(peyeeCustomerAccount.getEarnestBalance() + order.getAmount());
-        peyeeCustomerAccount.setEarnestAvailableBalance(peyeeCustomerAccount.getEarnestAvailableBalance() + order.getAmount());
-        this.update(peyerCustomerAccount);
+        CustomerAccount payerCustomerAccount = this.get(order.getPayeeCustomerAccountId());
+        payerCustomerAccount.setEarnestBalance(payerCustomerAccount.getEarnestBalance() - order.getAmount());
+        payerCustomerAccount.setEarnestAvailableBalance(payerCustomerAccount.getEarnestAvailableBalance() - order.getAmount());
+        int countPayer = this.getActualDao().updateAmountByAccountIdAndVersion(payerCustomerAccount);
+        if (countPayer != 1){
+            throw new RuntimeException("客户账户正在被多人操作，稍后再试");
+        }
+        CustomerAccount payeeCustomerAccount = this.get(order.getPayeeCustomerAccountId());
+        payeeCustomerAccount.setEarnestBalance(payeeCustomerAccount.getEarnestBalance() + order.getAmount());
+        payeeCustomerAccount.setEarnestAvailableBalance(payeeCustomerAccount.getEarnestAvailableBalance() + order.getAmount());
+        int countPayee = this.getActualDao().updateAmountByAccountIdAndVersion(payeeCustomerAccount);
+        if (countPayee != 1){
+            throw new RuntimeException("客户账户正在被多人操作，稍后再试");
+        }
 
         //记录定金转出转入流水
         TransactionDetails tdIn = buildTransactionDetails(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
@@ -147,7 +153,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         order.setState(EarnestTransferOrderStateEnum.TRANSFERED.getCode());
         order.setPayerTransactionDetailsCode(tdOut.getCode());
         order.setPayeeTransactionCode(tdIn.getCode());
-        earnestTransferOrderService.updateSelective(order);
+        order.setTransferTime(new Date());
+        int count = earnestTransferOrderService.updateSelective(order);
+        if (count != 1){
+            throw new RuntimeException("转移单被多人操作，稍后再试");
+        }
     }
 
     @Override
@@ -164,10 +174,16 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         efDto.setPayeeCertificateNumber(efDto.getCertificateNumber());
         efDto.setPayeeName(efDto.getCustomerName());
         efDto.setState(EarnestTransferOrderStateEnum.CREATED.getCode());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            throw new RuntimeException("编号生成器微服务异常");
+        }
+        efDto.setCode(bizNumberOutput.getData());
 
         efDto.setCreatorId(userTicket.getId());
         efDto.setCreator(userTicket.getRealName());
         efDto.setMarketId(userTicket.getFirmId());
+        efDto.setVersion(0L);
         earnestTransferOrderService.insertSelective(efDto);
         return efDto;
     }
@@ -184,8 +200,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         order.setCreator(userTicket.getRealName());
         order.setCreatorId(userTicket.getId());
+//        order.setR
         order.setMarketId(userTicket.getFirmId());
-        //@TODO退款单编号
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
             throw new RuntimeException("编号生成器微服务异常");
