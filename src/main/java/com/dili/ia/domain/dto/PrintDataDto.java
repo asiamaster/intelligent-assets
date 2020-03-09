@@ -1,4 +1,4 @@
-package com.dili.ia.domain;
+package com.dili.ia.domain.dto;
 
 import java.util.Map;
 
