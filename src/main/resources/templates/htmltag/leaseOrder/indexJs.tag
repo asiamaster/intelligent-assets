@@ -288,7 +288,7 @@
 
         bs4pop.dialog({
             title: '停租',
-            content: HTMLDecode(template('stopRentTpl',$.extend({},rows[0],{endTime : leaseOrder.endTime}))),
+            content: bui.util.HTMLDecode(template('stopRentTpl',$.extend({},rows[0],{endTime : leaseOrder.endTime}))),
             closeBtn: true,
             backdrop : 'static',
             width: '40%',
@@ -363,23 +363,6 @@
             btns: []
         });
     }
-
-
-    //HTML反转义
-    function HTMLDecode(str)
-    {
-        var s = "";
-        if (str.length == 0) return "";
-        s = str.replace(/&amp;/g, "&");
-        s = s.replace(/&lt;/g, "<");
-        s = s.replace(/&gt;/g, ">");
-        s = s.replace(/&nbsp;/g, " ");
-        s = s.replace(/&#39;/g, "\'");
-        s = s.replace(/&quot;/g, "\"");
-        s = s.replace(/<br\/>/g, "\n");
-        return s;
-    }
-
 
 /**
      * 查询处理
