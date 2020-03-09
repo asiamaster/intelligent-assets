@@ -273,6 +273,29 @@
     }
 
     /**
+     * 打开续租Handler
+     */
+    function openRenewHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        dia = bs4pop.dialog({
+            title: '摊位续租',
+            content: '/leaseOrder/renew.html?id='+rows[0].id,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '80%',
+            height : '95%',
+            btns: []
+        });
+    }
+
+    /**
      * 摊位订单停租
      * @returns {boolean}
      */
@@ -342,19 +365,19 @@
     }
 
     /**
-     * 打开续租Handler
+     * 打开退款申请Handler
      */
-    function openRenewHandler() {
+    function openRefundApplyHandler(subTableIndex) {
         //获取选中行的数据
-        let rows = _grid.bootstrapTable('getSelections');
+        let rows = $('#subGrid'+subTableIndex).bootstrapTable('getSelections');
         if (null == rows || rows.length == 0) {
             bs4pop.alert('请选中一条数据');
             return;
         }
 
         dia = bs4pop.dialog({
-            title: '摊位续租',
-            content: '/leaseOrder/renew.html?id='+rows[0].id,
+            title: '退款申请',
+            content: '/leaseOrder/refundApply.html?id='+rows[0].id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -449,7 +472,7 @@
                 // 退款条件
                 // 1.已到期或已停租 AND 2.未发起过退款 AND 3.保证金未被冻结
                 $('#toolbar'+index+' button').attr('disabled', true);
-                if(row.RefundStateEnum == ${@com.dili.ia.glossary.RefundStateEnum.NO_APPLY.getCode()}
+                if(row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.NO_APPLY.getCode()}
                     && row.depositAmountFlag != ${@com.dili.ia.glossary.DepositAmountFlagEnum.FROZEN.getCode()}){
                     $('#btn_refund_apply'+index).attr('disabled', false);
                 }
