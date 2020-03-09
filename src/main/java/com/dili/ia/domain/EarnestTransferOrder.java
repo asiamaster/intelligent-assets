@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 定金转移主的业务单
- * This file was generated on 2020-02-28 18:25:12.
+ * This file was generated on 2020-03-09 17:07:49.
  */
 @Table(name = "`earnest_transfer_order`")
 public interface EarnestTransferOrder extends IBaseDomain {
@@ -40,6 +40,13 @@ public interface EarnestTransferOrder extends IBaseDomain {
     Date getModifyTime();
 
     void setModifyTime(Date modifyTime);
+
+    @Column(name = "`code`")
+    @FieldDef(label="定金转移业务单编号", maxLength = 50)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getCode();
+
+    void setCode(String code);
 
     @Column(name = "`state`")
     @FieldDef(label="状态")
@@ -166,6 +173,13 @@ public interface EarnestTransferOrder extends IBaseDomain {
     String getPayeeTransactionCode();
 
     void setPayeeTransactionCode(String payeeTransactionCode);
+
+    @Column(name = "`transfer_time`")
+    @FieldDef(label="转移成功时间")
+    @EditMode(editor = FieldEditor.Datetime, required = false)
+    Date getTransferTime();
+
+    void setTransferTime(Date transferTime);
 
     @Column(name = "`version`")
     @FieldDef(label="版本控制,乐观锁")
