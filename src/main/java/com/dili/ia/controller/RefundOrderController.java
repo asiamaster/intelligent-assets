@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-02-28 21:11:27.
+ * This file was generated on 2020-03-09 19:34:40.
  */
 @Api("/refundOrder")
 @Controller
