@@ -235,7 +235,7 @@
             closeBtn: true,
             backdrop : 'static',
             width: '40%',
-            height : '60%',
+            height : '40%',
             btns: [
                 {
                     label: '确定', className: 'btn-primary', onClick(e) {
@@ -251,6 +251,75 @@
                                 waitAmount: rows[0].$_waitAmount,
                                 amount: Number($('#amount').val()).mul(100)
                             },
+                            dataType: "json",
+                            async : false,
+                            success : function(data) {
+                                bui.loading.hide();
+                                queryDataHandler();
+                                if(!data.success){
+                                    bs4pop.alert(data.result, {type: 'error'});
+                                }
+                            },
+                            error : function() {
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
+                    }
+                },
+                {label: '取消', className: 'btn-default', onClick(e) {}}
+            ]
+        });
+    }
+
+    /**
+     * 摊位订单停租
+     * @returns {boolean}
+     */
+    function openStopRentHandler(subTableIndex) {
+        //获取选中行的数据
+        let rows = $('#subGrid'+subTableIndex).bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        let leaseOrder = _grid.bootstrapTable('getRowByUniqueId',rows[0].leaseOrderId);
+
+        bs4pop.dialog({
+            title: '停租',
+            content: HTMLDecode(template('stopRentTpl',$.extend({},rows[0],{endTime : leaseOrder.endTime}))),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            height : '78%',
+            onShowEnd(){
+                let now = moment(new Date()).format("YYYY-MM-DD");
+                laydate.render({
+                        elem: '#stopTime',
+                        type: 'date',
+                        theme: '#007bff',
+                        min : now,
+                        done: function(value, date){
+                            $("#stopRentForm").validate().element($("#stopTime"));
+                        }
+                });
+                $('#stopWay').on('change',':radio',function () {
+                    $('#stopDateSelect').toggle();
+                });
+                $('#stopRentForm').validate({rules:{stopTime:{required: true,minDate:now}}});
+            },
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick(e) {
+                        if (!$('#stopRentForm').valid()) {
+                            return false;
+                        }
+                        bui.loading.show();
+                        $.ajax({
+                            type: "POST",
+                            url: "${contextPath}/leaseOrderItem/stopRent.action",
+                            data: $('#stopRentForm').serializeObject(),
                             dataType: "json",
                             async : false,
                             success : function(data) {
@@ -296,7 +365,23 @@
     }
 
 
-    /**
+    //HTML反转义
+    function HTMLDecode(str)
+    {
+        var s = "";
+        if (str.length == 0) return "";
+        s = str.replace(/&amp;/g, "&");
+        s = s.replace(/&lt;/g, "<");
+        s = s.replace(/&gt;/g, ">");
+        s = s.replace(/&nbsp;/g, " ");
+        s = s.replace(/&#39;/g, "\'");
+        s = s.replace(/&quot;/g, "\"");
+        s = s.replace(/<br\/>/g, "\n");
+        return s;
+    }
+
+
+/**
      * 查询处理
      */
     function queryDataHandler() {

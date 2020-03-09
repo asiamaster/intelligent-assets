@@ -60,4 +60,5 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
      * @return
      */
     BaseOutput<Boolean> scanExpiredLeaseOrder();
+
 }

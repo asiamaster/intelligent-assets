@@ -44,6 +44,7 @@ public class LeaseOrderApi {
 
     /**
      * 扫描已生效但状态未变更的单子，更改其状态
+     * cron 0 0 0 * * ?
      * @return
      */
     @RequestMapping(value="/scanNotActiveLeaseOrder")
@@ -51,13 +52,14 @@ public class LeaseOrderApi {
         try{
             return leaseOrderService.scanNotActiveLeaseOrder();
         }catch (Exception e){
-            LOG.error("摊位租赁结算成功回调异常！", e);
+            LOG.error("扫描已生效但状态未变更的单子异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
     }
 
     /**
      * 扫描已到期但状态未变更的单子，更改其状态
+     * cron 0 0 0 * * ?
      * @return
      */
     @RequestMapping(value="/scanExpiredLeaseOrder")
@@ -65,7 +67,22 @@ public class LeaseOrderApi {
         try{
             return leaseOrderService.scanExpiredLeaseOrder();
         }catch (Exception e){
-            LOG.error("摊位租赁结算成功回调异常！", e);
+            LOG.error("扫描已到期但状态未变更的单子异常！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
+        }
+    }
+
+    /**
+     * 扫描等待停租的摊位
+     * cron 0 0 0 * * ?
+     * @return
+     */
+    @RequestMapping(value="/scanWaitStopRentLeaseOrder")
+    public @ResponseBody BaseOutput<Boolean> scanWaitStopRentLeaseOrder(){
+        try{
+            return leaseOrderItemService.scanWaitStopRentLeaseOrder();
+        }catch (Exception e){
+            LOG.error("扫描等待停租的摊位异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
     }

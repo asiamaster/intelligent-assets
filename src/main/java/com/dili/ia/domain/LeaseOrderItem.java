@@ -120,6 +120,13 @@ public interface LeaseOrderItem extends IBaseDomain {
 
     void setStopOperatorName(String stopOperatorName);
 
+    @Column(name = "`stop_way`")
+    @FieldDef(label="停租方式（1：立即 2：定时）")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Integer getStopWay();
+
+    void setStopWay(Integer stopWay);
+
     @Column(name = "`stop_reason`")
     @FieldDef(label="停租原因", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
@@ -133,6 +140,13 @@ public interface LeaseOrderItem extends IBaseDomain {
     Integer getState();
 
     void setState(Integer state);
+
+    @Column(name = "`stop_rent_state`")
+    @FieldDef(label="停租状态(1:未发起 2：等待定时执行 3：已停租)")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Integer getStopRentState();
+
+    void setStopRentState(Integer stopRentState);
 
     @Column(name = "`district_id`")
     @FieldDef(label="区域id")

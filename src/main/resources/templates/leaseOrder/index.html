@@ -162,7 +162,7 @@
             <button id="btn_refund_apply{{index}}" type="button" class="btn btn-primary" onclick=""><i
                     class="fa fa-reply"></i> 退款申请
             </button>
-            <button id="btn_stop_rent{{index}}" type="button" class="btn btn-primary" onclick="doEnableHandler(false)"><i
+            <button id="btn_stop_rent{{index}}" type="button" class="btn btn-primary" onclick="openStopRentHandler('{{index}}')"><i
                     class="fa fa-stop"></i> 停租
             </button>
         </div>
@@ -224,15 +224,43 @@
 <script id="submitPaymentTpl" type="text/html">
     <form id="submitPaymentForm">
         <div class="row mb-3">
-           <div class="col-12">提交后业务单信息不可改，并可进行缴费，确认提交？</div>
+            <div class="col-12"><i class="red">提交后业务单信息不可改，并可进行缴费，确认提交？</i></div>
         </div>
         <div class="row">
-            <div class="col-2 col-form-label text-right">
-                <label for="amount" class="justify-content-end w-100px">本期付款金额:</label>
+            <div class="col-2 col-form-label">
+                <label for="amount" class="justify-content-end w-100px">本期付款金额：</label>
             </div>
             <div class="col-8 ml-2">
                 <input type="number" id="amount" name="amount" class="form-control floatReserve" value="{{waitAmount}}" min="0.01" max="{{waitAmount}}" required/>
             </div>
+        </div>
+    </form>
+</script>
+<!-- 合同编号补充模板 -->
+<script id="stopRentTpl" type="text/html">
+    <form id="stopRentForm">
+        <input type="hidden" name="id" value="{{id}}"/>
+        <div class="form-group">
+            <label for="stopRentObj">停租对象</label>
+            <input type="text" class="form-control" id="stopRentObj" name="stopRentObj" value="{{boothName}}【{{districtName}}】" readonly/>
+        </div>
+        <div class="form-group">
+            <label>停租日期</label>
+            <div id="stopWay">
+                <#bradioGroupProvider _escape="true" _containerId="stopWay" _name="stopWay" _provider="stopWayProvider" _value="1" _required="true"/>
+            </div>
+        </div>
+        <div id="stopDateSelect" class="form-group row align-items-center" style="display: none">
+            <div class="col-5">
+                <input type="text" class="form-control" id="stopTime" name="stopTime" placeholder="请输入停租日期" >
+            </div>
+            <div class="col-6">
+                <span><i class="red">（到期日期:{{endTime}}）</i></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>停租原因</label>
+            <textarea class="form-control" name="stopReason"  rows="3" maxlength="100"></textarea>
         </div>
     </form>
 </script>
