@@ -8,6 +8,7 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
     <result column="payer_customer_account_id" jdbcType="BIGINT" property="payerCustomerAccountId" />
@@ -26,16 +27,18 @@
     <result column="payer_transaction_details_code" jdbcType="VARCHAR" property="payerTransactionDetailsCode" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="payee_transaction_code" jdbcType="VARCHAR" property="payeeTransactionCode" />
+    <result column="transfer_time" jdbcType="TIMESTAMP" property="transferTime" />
     <result column="version" jdbcType="BIGINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbg.generated
     -->
-    id, create_time, modify_time, state, amount, payer_customer_account_id, payer_id, 
+    id, create_time, modify_time, code, state, amount, payer_customer_account_id, payer_id, 
     payer_certificate_number, payer_name, payer_cellphone, creator_id, creator, transfer_reason, 
     payee_customer_account_id, payee_id, payee_name, payee_certificate_number, payee_cellphone, 
-    payer_transaction_details_code, market_id, payee_transaction_code, version
+    payer_transaction_details_code, market_id, payee_transaction_code, transfer_time, 
+    version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -57,6 +60,9 @@
       </if>
       <if test="modifyTime != null">
         modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
       </if>
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
@@ -111,6 +117,9 @@
       </if>
       <if test="payeeTransactionCode != null">
         payee_transaction_code = #{payeeTransactionCode,jdbcType=VARCHAR},
+      </if>
+      <if test="transferTime != null">
+        transfer_time = #{transferTime,jdbcType=TIMESTAMP},
       </if>
       <if test="version != null">
         version = #{version,jdbcType=BIGINT},
