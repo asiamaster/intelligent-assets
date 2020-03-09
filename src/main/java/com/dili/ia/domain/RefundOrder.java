@@ -4,8 +4,6 @@ import com.dili.ss.dto.IBaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
-import tk.mybatis.mapper.annotation.Version;
-
 import java.util.Date;
 import javax.persistence.*;
 import javax.persistence.Column;
@@ -16,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 退款单
- * This file was generated on 2020-02-28 21:11:27.
+ * This file was generated on 2020-03-09 19:34:40.
  */
 @Table(name = "`refund_order`")
 public interface RefundOrder extends IBaseDomain {
@@ -30,7 +28,7 @@ public interface RefundOrder extends IBaseDomain {
     void setId(Long id);
 
     @Column(name = "`code`")
-    @FieldDef(label="编号", maxLength = 20)
+    @FieldDef(label="退款编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
@@ -58,7 +56,7 @@ public interface RefundOrder extends IBaseDomain {
     void setBizType(Integer bizType);
 
     @Column(name = "`order_item_id`")
-    @FieldDef(label="订单项ID")
+    @FieldDef(label="业务订单项ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getOrderItemId();
 
@@ -72,14 +70,14 @@ public interface RefundOrder extends IBaseDomain {
     void setOrderItemCode(String orderItemCode);
 
     @Column(name = "`order_id`")
-    @FieldDef(label="订单ID")
+    @FieldDef(label="业务单ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getOrderId();
 
     void setOrderId(Long orderId);
 
     @Column(name = "`order_code`")
-    @FieldDef(label="订单编号", maxLength = 20)
+    @FieldDef(label="业务单编号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getOrderCode();
 
@@ -93,35 +91,35 @@ public interface RefundOrder extends IBaseDomain {
     void setCustomerId(Long customerId);
 
     @Column(name = "`customer_name`")
-    @FieldDef(label="客户编号", maxLength = 20)
+    @FieldDef(label="客户名称", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCustomerName();
 
     void setCustomerName(String customerName);
 
     @Column(name = "`certificate_number`")
-    @FieldDef(label="证件号", maxLength = 40)
+    @FieldDef(label="客户证件号", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCertificateNumber();
 
     void setCertificateNumber(String certificateNumber);
 
     @Column(name = "`customer_cellphone`")
-    @FieldDef(label="客户手机号", maxLength = 20)
+    @FieldDef(label="客户电话", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCustomerCellphone();
 
     void setCustomerCellphone(String customerCellphone);
 
     @Column(name = "`refund_operator_id`")
-    @FieldDef(label="退款操作人 ID")
+    @FieldDef(label="结算操作员(经办人)")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getRefundOperatorId();
 
     void setRefundOperatorId(Long refundOperatorId);
 
     @Column(name = "`refund_operator_name`")
-    @FieldDef(label="退款操作人", maxLength = 20)
+    @FieldDef(label="结算操作员(经办人)", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getRefundOperatorName();
 
@@ -130,9 +128,9 @@ public interface RefundOrder extends IBaseDomain {
     @Column(name = "`state`")
     @FieldDef(label="状态（1：已创建 2：已取消 3：已提交 4：已退款）")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getState();
+    Integer getState();
 
-    void setState(Long state);
+    void setState(Integer state);
 
     @Column(name = "`total_refund_amount`")
     @FieldDef(label="金额")
@@ -149,7 +147,7 @@ public interface RefundOrder extends IBaseDomain {
     void setSubmitTime(Date submitTime);
 
     @Column(name = "`settlement_code`")
-    @FieldDef(label="结算编号", maxLength = 20)
+    @FieldDef(label="退款结算单号", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getSettlementCode();
 
@@ -218,8 +216,22 @@ public interface RefundOrder extends IBaseDomain {
 
     void setPayee(String payee);
 
+    @Column(name = "`withdraw_operator_id`")
+    @FieldDef(label="撤回操作人ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getWithdrawOperatorId();
+
+    void setWithdrawOperatorId(Long withdrawOperatorId);
+
+    @Column(name = "`withdraw_operator`")
+    @FieldDef(label="撤回操作人", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getWithdrawOperator();
+
+    void setWithdrawOperator(String withdrawOperator);
+
     @Column(name = "`canceler_id`")
-    @FieldDef(label="取消人ID")
+    @FieldDef(label="取消操作人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getCancelerId();
 
@@ -239,13 +251,6 @@ public interface RefundOrder extends IBaseDomain {
 
     void setRefundReason(String refundReason);
 
-    @Column(name = "`is_delete`")
-    @FieldDef(label="是否删除")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Integer getIsDelete();
-
-    void setIsDelete(Integer isDelete);
-
     @Column(name = "`license_state`")
     @FieldDef(label="营业执照状态")
     @EditMode(editor = FieldEditor.Number, required = false)
@@ -261,7 +266,7 @@ public interface RefundOrder extends IBaseDomain {
     void setMarketId(Long marketId);
 
     @Column(name = "`market_code`")
-    @FieldDef(label="市场Code", maxLength = 20)
+    @FieldDef(label="市场code", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getMarketCode();
 
@@ -270,7 +275,6 @@ public interface RefundOrder extends IBaseDomain {
     @Column(name = "`version`")
     @FieldDef(label="乐观锁，版本号")
     @EditMode(editor = FieldEditor.Number, required = false)
-    @Version
     Integer getVersion();
 
     void setVersion(Integer version);
