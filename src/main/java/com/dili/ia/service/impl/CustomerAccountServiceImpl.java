@@ -208,7 +208,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         order.setCode(bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
-        order.setState((long)RefundOrderStateEnum.CREATED.getCode());
+        order.setState(RefundOrderStateEnum.CREATED.getCode());
 
         refundOrderService.insertSelective(order);
     }
