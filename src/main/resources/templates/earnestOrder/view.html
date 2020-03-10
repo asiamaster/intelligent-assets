@@ -5,7 +5,7 @@
         <div class="breadcrumb" data-toggle="collapse" data-target="#orderInfo" aria-controls="orderInfo">
             订单信息
         </div>
-        <div class="row  row-cols-3 collapse show" id="orderInfo">
+        <div class="row  row-cols-4 collapse show" id="orderInfo">
             <div class="form-group col">
                 <label for="" class="">业务单号</label>
                 <input type="text" class="form-control" value="${earnestOrder.code!}" disabled />
@@ -22,7 +22,7 @@
         <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
              aria-controls="customerInfo">客户信息
         </div>
-        <div class="row row-cols-3" id="customerInfo">
+        <div class="row row-cols-4" id="customerInfo">
             <div class="form-group col">
                 <label for="">客户名称</label>
                 <input type="text" class="form-control" value="${earnestOrder.customerName!}" disabled />
@@ -67,7 +67,7 @@
         <div class="breadcrumb" data-toggle="collapse" data-target="#otherInfo" aria-controls="otherInfo">
             补充信息
         </div>
-        <div class="row row-cols-3 collapse show" id="otherInfo">
+        <div class="row row-cols-4 collapse show" id="otherInfo">
             <div class="form-group col col">
                 <label for="">开始日期</label>
                 <input type="text" class="form-control" value="${earnestOrder.startTime!,dateFormat='yyyy-MM-dd'}" disabled />
@@ -80,7 +80,7 @@
         <div class="breadcrumb" data-toggle="collapse" data-target="#moneyInfo" aria-controls="moneyInfo">
             金额信息
         </div>
-        <div class="row  row-cols-3 collapse show" id="moneyInfo">
+        <div class="row  row-cols-4 collapse show" id="moneyInfo">
             <div class="form-group col">
                 <label for="" class="">定金金额</label>
                 <input type="text" class="form-control" value="<#centToYuan value='${earnestOrder.amount!0}'/>"  disabled />

@@ -4,7 +4,7 @@
         <div class="breadcrumb" data-toggle="collapse" data-target="#baseInfo" aria-controls="baseInfo">
             基本信息
         </div>
-        <div class="row row-cols-3" id="baseInfo">
+        <div class="row row-cols-4" id="baseInfo">
             <div class="form-group col">
                 <label for="">摊位类型<i class="red">*</i></label>
                 <input type="text" value="${obj.type!}" class="form-control" disabled/>
@@ -68,7 +68,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="row row-cols-3">
+        <div class="row row-cols-4">
             <div class="form-group col-8">
                 <label for="">拆分备注</label>
                 <textarea class="form-control" id="notes" name="notes" rows="1" required></textarea>
@@ -76,8 +76,8 @@
         </div>
 
         <div class="text-right">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancel">取消</button>
-            <button type="button" class="btn btn-primary" id="splitSubmit">提交</button>
+            <button type="button" class="btn btn-secondary px-5" data-dismiss="modal" id="cancel">取消</button>
+            <button type="button" class="btn btn-primary px-5" id="splitSubmit">提交</button>
         </div>
     </form>
 </div>

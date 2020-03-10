@@ -56,7 +56,7 @@
         dia = bs4pop.dialog({
             title: '退款',//对话框title
             content: '${contextPath}/customerAccount/earnestRefund.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
-            width: 900,//宽度
+            width: '80%',//宽度
             height: 450,//高度
             isIframe : true,//默认是页面层，非iframe
         });
@@ -76,7 +76,7 @@
         dia = bs4pop.dialog({
             title: '定金转移',//对话框title
             content: '${contextPath}/customerAccount/earnestTransfer.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
-            width: 900,//宽度
+            width: '80%',//宽度
             height: 580,//高度
             isIframe : true,//默认是页面层，非iframe
         });
