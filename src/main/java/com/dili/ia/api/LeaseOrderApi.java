@@ -1,10 +1,13 @@
 package com.dili.ia.api;
 
+import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
 import io.swagger.annotations.Api;
+import io.swagger.models.auth.In;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +87,24 @@ public class LeaseOrderApi {
         }catch (Exception e){
             LOG.error("扫描等待停租的摊位异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
+        }
+    }
+
+    /**
+     * 扫描等待停租的摊位
+     * cron 0 0 0 * * ?
+     * @return
+     */
+    @RequestMapping(value="/queryPrintData")
+    public @ResponseBody BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint){
+        try{
+            if(StringUtils.isBlank(businessCode) || null == reprint){
+                return BaseOutput.failure("参数错误");
+            }
+            return leaseOrderService.queryPrintData(businessCode,reprint);
+        }catch (Exception e){
+            LOG.error("扫描等待停租的摊位异常！", e);
+            return BaseOutput.failure(e.getMessage());
         }
     }
 }
