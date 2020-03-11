@@ -69,9 +69,11 @@ public class RefundOrderController {
             modelMap.put("refundOrder",refundOrder);
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
                 return "refundOrder/earnestRefundOrderView";
+            }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+                return "refundOrder/leaseRefundOrderView";
             }
         }
-        return "refundOrder/view";
+        return "refundOrder/leaseRefundOrderView";
     }
     /**
      * 跳转到退款单-修改页面
@@ -86,9 +88,11 @@ public class RefundOrderController {
             modelMap.put("refundOrder",refundOrder);
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
                 return "refundOrder/earnestRefundOrderUpdate";
+            }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+                return "refundOrder/leaseRefundOrderUpdate";
             }
         }
-        return "refundOrder/modify";
+        return "refundOrder/leaseRefundOrderUpdate";
     }
 
     /**
