@@ -288,20 +288,8 @@
                         class="fa fa-plus"></i> 新增
                 </button>
                 <%}%>
-                <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
-                        class="fa fa-pencil-square-o"></i> 更新
-                </button>
-                <button id="btn_delete" type="button" class="btn btn-primary" onclick="openDeleteHandler()"><i
-                        class="fa fa-trash-o"></i> 删除
-                </button>
                 <button id="btn_split" type="button" class="btn btn-primary" onclick="openSplitHandler()"><i
                         class="fa "></i> 拆分摊位
-                </button>
-                <button id="btn_enable" type="button" class="btn btn-primary" onclick="doEnableHandler(1)"><i
-                        class="fa fa-play"></i> 启用
-                </button>
-                <button id="btn_disabled" type="button" class="btn btn-primary" onclick="doEnableHandler(0)"><i
-                        class="fa fa-stop"></i> 禁用
                 </button>
             </div>
             <table id="grid" data-toggle="table" data-title="摊位列表" class="table" data-toolbar="#toolbar"
@@ -311,11 +299,9 @@
                    data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
                    data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
-                   data-detail-view="true"
-            >
+                   data-tree-show-field="name" data-parentid-field="parentId">
                 <thead>
                 <tr>
-                    <th data-radio="true"></th>
                     <th data-field="name" data-align="center">
                         摊位编号
                     </th>
@@ -338,6 +324,9 @@
                     <th data-field="state" data-align="center">
                         状态
                     </th>
+                    <th data-align="center" data-formatter="operateFormatter">
+                        操作
+                    </th>
                 </tr>
                 </thead>
             </table>
@@ -349,7 +338,7 @@
 </div>
 
 </#bs4Body>
-
+<#btreegrid/>
 <div class="modal fade" id="_modal" data-backdrop="static" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true">
     <!--modal-lg modal-sm(默认) 通过设置mw大小调整宽度（如mw-100） modal-dialog-centered垂直居中-->
@@ -368,6 +357,37 @@
     </div>
 </div>
 
+<script>
+    var itemIndex = 0;
+
+    function operateFormatter(value, row, index) {
+        var split = ['<a class="like" href="javascript:void(0)" onclick="openSplitHandler(' + row.id + ')" title="Like">',
+            '拆分摊位',
+            '</a>  '];
+
+        var oprate = [
+            '<a class="like" href="javascript:void(0)" onclick="openUpdateHandler(' + row.id + ')" title="Like">',
+            '修改',
+            '</a>  ',
+            '<a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">',
+            '删除',
+            '</a>  ',
+            '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(1,' + row.id + ')" title="Remove">',
+            '启用',
+            '</a>  ',
+            '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(0,' + row.id + ')" title="Remove">',
+            '禁用',
+            '</a>  '
+        ];
+        if (row.parentId === 0) {
+            return split.join("") + oprate.join("");
+        } else {
+            return oprate.join("");
+        }
+    }
+
+</script>
+
 <#booth_indexJs />
 <script id="subTable" type="text/html">
     <table data-toggle="table" data-title="摊位列表子表" class="table" data-pagination="false" data-page-number="1"
@@ -378,7 +398,6 @@
            data-sort-order="desc" data-icons="bui.variable.icons">
         <thead>
         <tr>
-            <th data-radio="true"></th>
             <th data-field="name" data-align="center">
                 摊位编号
             </th>
@@ -403,10 +422,10 @@
                 data-provider="enabledStateProvider">
                 状态
             </th>
+            <th data-align="center" data-formatter="operateFormatter">
+                操作
+            </th>
         </tr>
         </thead>
     </table>
-</script>
-<script>
-    var itemIndex = 0;
 </script>
