@@ -114,6 +114,20 @@ public interface PaymentOrder extends IBaseDomain {
 
     void setSettlementCode(String settlementCode);
 
+    @Column(name = "`settlement_way`")
+    @FieldDef(label="结算方式（冗余 来自结算）")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Integer getSettlementWay();
+
+    void setSettlementWay(Integer settlementWay);
+
+    @Column(name = "`settlement_operator`")
+    @FieldDef(label="结算编号")
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getSettlementOperator();
+
+    void setSettlementOperator(String settlementOperator);
+
     @Column(name = "`market_id`")
     @FieldDef(label="marketId")
     @EditMode(editor = FieldEditor.Number, required = false)

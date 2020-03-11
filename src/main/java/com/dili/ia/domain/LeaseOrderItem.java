@@ -4,8 +4,10 @@ import com.dili.ss.dto.IBaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import io.swagger.annotations.ApiModelProperty;
 import tk.mybatis.mapper.annotation.Version;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.*;
 import javax.persistence.Column;
@@ -85,6 +87,13 @@ public interface LeaseOrderItem extends IBaseDomain {
 
     void setNumber(Long number);
 
+    @Column(name = "`is_corner`")
+    @FieldDef(label="是否转角")
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getIsCorner();
+
+    void setIsCorner(String isCorner);
+
     @Column(name = "`unit_code`")
     @FieldDef(label="单位编码", maxLength = 120)
     @EditMode(editor = FieldEditor.Text, required = false)
@@ -98,6 +107,27 @@ public interface LeaseOrderItem extends IBaseDomain {
     String getUnitName();
 
     void setUnitName(String unitName);
+
+    @Column(name = "`unit_price`")
+    @FieldDef(label="单价")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getUnitPrice();
+
+    void setUnitPrice(Long unitPrice);
+
+    @Column(name = "`payment_month`")
+    @FieldDef(label = "应交月数")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    BigDecimal getPaymentMonth();
+
+    void setPaymentMonth(BigDecimal paymentMonth);
+
+    @Column(name = "`discount_amount`")
+    @FieldDef(label="优惠金额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getDiscountAmount();
+
+    void setDiscountAmount(Long discountAmount);
 
     @Column(name = "`stop_time`")
     @FieldDef(label="停租时间")

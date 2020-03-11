@@ -5,8 +5,7 @@ import com.dili.ia.controller.LeaseOrderController;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.dto.LeaseOrderItemListDto;
-import com.dili.ia.domain.dto.LeaseOrderListDto;
+import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.LeaseOrderMapper;
 import com.dili.ia.rpc.SettlementRpc;
@@ -14,6 +13,7 @@ import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -23,6 +23,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.util.DateUtils;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -41,6 +42,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -664,5 +666,69 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (leaseOrderItemService.batchUpdateSelective(waitItems) != waitItems.size()) {
             throw new RuntimeException("多人操作，请重试！");
         }
+    }
+
+    @Override
+    public BaseOutput<PrintDataDto> queryPrintData(String businessCode,Integer reprint) {
+        PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
+        paymentOrderCondition.setCode(businessCode);
+        PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
+        if(null == paymentOrder){
+            throw new RuntimeException("businessCode无效");
+        }
+        if(!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())){
+            return BaseOutput.failure("此单未支付");
+        }
+
+        LeaseOrder leaseOrder = get(paymentOrder.getBusinessId());
+        PrintDataDto printDataDto = new PrintDataDto();
+        LeaseOrderPrintDto leaseOrderPrintDto = new LeaseOrderPrintDto();
+        leaseOrderPrintDto.setPrintTime(new Date());
+        leaseOrderPrintDto.setReprint(reprint == 2?"(补打)":"");
+        leaseOrderPrintDto.setLeaseOrderCode(leaseOrder.getCode());
+        if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())){
+            leaseOrderPrintDto.setBusinessType(BizTypeEnum.BOOTH_LEASE.getName());
+            printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_PAID.getCode());
+        }else{
+            leaseOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
+            printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_NOT_PAID.getCode());
+        }
+        leaseOrderPrintDto.setCustomerName(leaseOrder.getCustomerName());
+        leaseOrderPrintDto.setCustomerCellphone(leaseOrder.getCustomerCellphone());
+        leaseOrderPrintDto.setStartTime(leaseOrder.getStartTime());
+        leaseOrderPrintDto.setEndTime(leaseOrder.getEndTime());
+        leaseOrderPrintDto.setIsRenew(IsRenewEnum.getIsRenewEnum(leaseOrder.getIsRenew()).getName());
+        leaseOrderPrintDto.setCategoryName(leaseOrder.getCategoryName());
+        leaseOrderPrintDto.setNotes(leaseOrder.getNotes());
+        leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
+        leaseOrderPrintDto.setDepositDeduction(MoneyUtils.centToYuan(leaseOrder.getDepositDeduction()));
+        leaseOrderPrintDto.setEarnestDeduction(MoneyUtils.centToYuan(leaseOrder.getEarnestDeduction()));
+        leaseOrderPrintDto.setTransferDeduction(MoneyUtils.centToYuan(leaseOrder.getTransferDeduction()));
+        leaseOrderPrintDto.setPayAmount(MoneyUtils.centToYuan(leaseOrder.getPayAmount()));
+        leaseOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
+        leaseOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        leaseOrderPrintDto.setSubmitter(paymentOrder.getCreator());
+
+        LeaseOrderItem leaseOrderItemCondition = DTOUtils.newInstance(LeaseOrderItem.class);
+        leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
+        List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
+        leaseOrderItemService.list(leaseOrderItemCondition).forEach(o->{
+            LeaseOrderItemPrintDto leaseOrderItemPrintDto = new LeaseOrderItemPrintDto();
+            leaseOrderItemPrintDto.setBoothName(o.getBoothName());
+            leaseOrderItemPrintDto.setDistrictName(o.getDistrictName());
+            leaseOrderItemPrintDto.setNumber(o.getNumber().toString());
+            leaseOrderItemPrintDto.setUnitName(o.getUnitName());
+            leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(o.getUnitPrice()));
+            leaseOrderItemPrintDto.setIsCorner(o.getIsCorner());
+            leaseOrderItemPrintDto.setPaymentMonth(o.getPaymentMonth().toString());
+            leaseOrderItemPrintDto.setDiscountAmount(MoneyUtils.centToYuan(o.getDiscountAmount()));
+            leaseOrderItemPrintDto.setRentAmount(MoneyUtils.centToYuan(o.getRentAmount()));
+            leaseOrderItemPrintDto.setManageAmount(MoneyUtils.centToYuan(o.getManageAmount()));
+            leaseOrderItemPrintDto.setDepositAmount(MoneyUtils.centToYuan(o.getDepositAmount()));
+            leaseOrderItemPrintDtos.add(leaseOrderItemPrintDto);
+        });
+        leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemPrintDtos);
+        printDataDto.setItem(BeanMapUtil.beanToMap(leaseOrderPrintDto));
+        return BaseOutput.success().setData(printDataDto);
     }
 }

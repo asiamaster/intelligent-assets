@@ -13,7 +13,7 @@
         var customerNameAutoCompleteOption = {
             width : 350,
             serviceUrl: '/customer/list.action',
-            paramName : 'name',
+            paramName : 'likeName',
             displayFieldName : 'name',
             transformResult: function (result) {
                 return {
@@ -39,7 +39,7 @@
         var certificateNumberAutoCompleteOption = {
             width : 350,
             serviceUrl: '/customer/list.action',
-            paramName : 'certificateNumber',
+            paramName : 'certificateNumberMatch',
             displayFieldName : 'certificateNumber',
             transformResult: function (result) {
                 return {
