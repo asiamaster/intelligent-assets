@@ -84,8 +84,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Override
     @Transactional
     public BaseOutput saveLeaseOrder(LeaseOrderListDto dto) {
-        //@TODO 摊位是否可租赁，接口验证
-
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
@@ -172,6 +170,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             //TODO 解冻并消费保证金、定金、转低
             //第一笔消费抵扣保证金
             deductionLeaseOrderItemDepositAmount(leaseOrder.getId());
+            //消费定金、转低
+            BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(), userTicket.getFirmId());
+            if(!customerAccountOutput.isSuccess()){
+                throw new RuntimeException(customerAccountOutput.getMessage());
+            }
         }
         if ((leaseOrder.getWaitAmount() - paymentOrderPO.getAmount()) == 0L) {
             leaseOrder.setPayState(PayStateEnum.PAID.getCode());
@@ -526,6 +529,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         //TODO 摊位、保证金、定金、转低解冻
         //解冻摊位保证金
         unFrozenLeaseOrderItemDepositAmount(id);
+        //解冻定金、转抵
+        BaseOutput customerAccountOutput = customerAccountService.withdrawLeaseOrderCustomerAmountUnFrozen(leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(), userTicket.getFirmId());
+        if(!customerAccountOutput.isSuccess()){
+            throw new RuntimeException(customerAccountOutput.getMessage());
+        }
 
         return BaseOutput.success();
     }
