@@ -58,18 +58,9 @@
                             class="fa "></i> 划分区域
                     </button>
                 </div>
-                <table id="grid" data-toggle="table" data-title="区域列表" class="table" data-toolbar="#toolbar"
-                       data-pagination="true" data-page-number="1" data-page-size="10"
-                       data-query-params="queryParams" data-side-pagination="server" data-method="POST"
-                       data-content-type="application/x-www-form-urlencoded" data-single-select="true"
-                       data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
-                       data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
-                       data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
-                       data-detail-view="true"
-                >
+                <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-parent-id-field="parentId" data-query-params="queryParams">
                     <thead>
                     <tr>
-                        <th data-radio="true"></th>
                         <th data-field="name" data-align="center">
                             区域名称
                         </th>
@@ -86,6 +77,7 @@
                         <th data-field="notes" data-align="center">
                             备注
                         </th>
+                        <th data-align="center" data-formatter="operateFormatter">操作</th>
                     </tr>
                     </thead>
                 </table>
@@ -97,7 +89,7 @@
 </div>
 
 </#bs4Body>
-
+<#btreegrid/>
 <div class="modal fade" id="_modal" data-backdrop="static" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true">
     <!--modal-lg modal-sm(默认) 通过设置mw大小调整宽度（如mw-100） modal-dialog-centered垂直居中-->
@@ -116,46 +108,6 @@
     </div>
 </div>
 
-<script id="subTable" type="text/html">
-    <div id="toolbar{{index}}" class="btn-group" role="group" aria-label="Toolbar with button groups">
-        <button id="" type="button" class="btn btn-primary" onclick="openSubUpdateHandler('{{index}}')"><i
-                class="fa fa-pencil-square-o"></i> 更新
-        </button>
-        <button id="" type="button" class="btn btn-primary" onclick="delSubHandler('{{index}}')"><i
-                class="fa "></i> 删除
-        </button>
-    </div>
-    <table data-toggle="table" data-title="区域列表" class="table" data-toolbar="#toolbar{{index}}" id="grid{{index}}"
-           data-pagination="true" data-page-number="1" data-page-size="10"
-           data-query-params="queryParams" data-side-pagination="server" data-method="POST"
-           data-content-type="application/x-www-form-urlencoded" data-single-select="true"
-           data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
-           data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
-           data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
-    >
-        <thead>
-        <tr>
-            <th data-radio="true"></th>
-            <th data-field="name" data-align="center">
-                区域名称
-            </th>
-            <th data-field="number" data-align="center">
-                编号
-            </th>
-            <th data-field="area" data-formatter="twoFormatter"
-                data-align="center">
-                区域级别
-            </th>
-            <th data-field="departmentId" data-align="center" data-provider="departmentProvider">
-                部门
-            </th>
-            <th data-field="notes" data-align="center">
-                备注
-            </th>
-        </tr>
-        </thead>
-    </table>
-</script>
 <script>
     let _grid = $('#grid');
 
@@ -163,12 +115,7 @@
         $(window).resize(function () {
             _grid.bootstrapTable('resetView')
         });
-        _grid.on('expand-row.bs.table', function (e, index, row, $detail) {
-            var cur_table = $detail.html(template('subTable', {index})).find('table');
-            $(cur_table).bootstrapTable();
-            $(cur_table).bootstrapTable('refreshOptions', {url: '/district/listPage.action?parentId=' + row.id});
 
-        });
         queryDataHandler();
     });
 
@@ -181,11 +128,40 @@
         return '二级区域';
     }
 
+    function operateFormatter(value, row, index) {
+        var split = ['<a class="like" href="javascript:void(0)" onclick="openSplitHandler(' + row.id + ')" title="Like">',
+            '拆分摊位',
+            '</a>  '];
+
+        var oprate = [
+            '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">',
+            '查看',
+            '</a>  ',
+            '<a class="like" href="javascript:void(0)" onclick="openUpdateHandler(' + row.id + ')" title="Like">',
+            '修改',
+            '</a>  ',
+            '<a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">',
+            '删除',
+            '</a>  ',
+            '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(1,' + row.id + ')" title="Remove">',
+            '启用',
+            '</a>  ',
+            '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(0,' + row.id + ')" title="Remove">',
+            '禁用',
+            '</a>  '
+        ];
+        if (row.parentId === 0) {
+            return split.join("") + oprate.join("");
+        } else {
+            return oprate.join("");
+        }
+    }
+
     /**
      * 查询处理
      */
     function queryDataHandler() {
-        _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action?parentId=0'});
+        _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action'});
     }
 
     function openInsertHandler() {
@@ -314,4 +290,16 @@
         $('#_modal .modal-body').load("/district/division.html?id=" + rows[0].id);
         $("#_modal").find('.modal-title').text('区域划分');
     }
+
+    _grid.on('post-body.bs.table', function (e,data){
+        var columns = _grid.bootstrapTable('getOptions').columns;
+        if (columns && columns[0][0].visible) {
+            _grid.treegrid({
+                treeColumn: 0,
+                onChange: function() {
+                    console.log($(this).treegrid('getDepth'))
+                }
+            })
+        }
+    });
 </script>

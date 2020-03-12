@@ -4,12 +4,14 @@ package com.dili.ia.controller;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,6 +69,9 @@ public class DistrictController {
     @RequestMapping("insert.action")
     @ResponseBody
     public BaseOutput save(DistrictDTO input) {
+        input.setCreateTime(new Date());
+        input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
+        input.setModifyTime(new Date());
         return assetsRpc.addDistrict(input);
     }
 
@@ -90,6 +95,7 @@ public class DistrictController {
     @RequestMapping("edit.action")
     @ResponseBody
     public BaseOutput edit(DistrictDTO input) {
+        input.setModifyTime(new Date());
         return assetsRpc.editDistrict(input);
     }
 

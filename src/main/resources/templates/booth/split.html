@@ -231,6 +231,10 @@
         if (!$('#splitForm').valid()) {
             return false;
         } else {
+            if ($('#boothTable tbody tr').length === 0) {
+                bs4pop.alert("待拆分摊位信息为空", {type: 'error'});
+                return;
+            }
             bui.loading.show('努力提交中，请稍候。。。');
             let _formData = new FormData($('#splitForm')[0]);
             $.ajax({
@@ -242,19 +246,19 @@
                 async: true,
                 success: function (res) {
                     bui.loading.hide();
-                    if (data.code == "200") {
+                    if (res.code == "200") {
                         bs4pop.alert('成功', {type: 'success'}, function () {
                             /* 应该要带条件刷新 */
                             window.location.reload();
                         });
                     } else {
                         bui.loading.hide();
-                        bs4pop.alert(res.result, {type: 'error'});
+                        bs4pop.alert(res.message, {type: 'error'});
                     }
                 },
                 error: function (error) {
                     bui.loading.hide();
-                    bs4pop.alert(error.result, {type: 'error'});
+                    bs4pop.alert(error.message, {type: 'error'});
                 }
             });
         }
