@@ -1,8 +1,12 @@
 package com.dili.ia.controller;
 
+import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -50,6 +54,45 @@ public class RefundOrderController {
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(RefundOrder refundOrder) throws Exception {
         return refundOrderService.listEasyuiPageByExample(refundOrder, true).toString();
+    }
+
+    /**
+     * 跳转到退款单-查看页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到退款单-查看页面")
+    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    public String view(ModelMap modelMap, Long id) {
+        RefundOrder refundOrder = refundOrderService.get(id);
+        if(null != id && refundOrder != null){
+            modelMap.put("refundOrder",refundOrder);
+            if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
+                return "refundOrder/earnestRefundOrderView";
+            }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+                return "refundOrder/leaseRefundOrderView";
+            }
+        }
+        return "refundOrder/leaseRefundOrderView";
+    }
+    /**
+     * 跳转到退款单-修改页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到退款单-修改页面")
+    @RequestMapping(value="/update.html", method = RequestMethod.GET)
+    public String update(ModelMap modelMap, Long id) {
+        RefundOrder refundOrder = refundOrderService.get(id);
+        if(null != id && refundOrder != null){
+            modelMap.put("refundOrder",refundOrder);
+            if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
+                return "refundOrder/earnestRefundOrderUpdate";
+            }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+                return "refundOrder/leaseRefundOrderUpdate";
+            }
+        }
+        return "refundOrder/leaseRefundOrderUpdate";
     }
 
     /**
