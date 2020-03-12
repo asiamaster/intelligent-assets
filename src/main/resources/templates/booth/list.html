@@ -246,13 +246,13 @@
                 <label for="createdStart" class="justify-content-end mr-2 w-100px">创建时间:</label>
                 <div class="form-inline">
                     <div class="input-group">
-                        <input type="text" name="createdStart" id="createdStart" class="form-control laydate date"/>
+                        <input type="text" name="startTime" id="createdStart" class="form-control laydate date"/>
                         <div class="input-group-append">
                             <label for="createdStart" class="input-group-text fa fa-calendar"></label>
                         </div>
                     </div>&nbsp;&nbsp;至&nbsp;&nbsp;
                     <div class="input-group" id="datetimepicker3">
-                        <input type="text" name="createdEnd" id="createdEnd" class="form-control laydate date" value=""/>
+                        <input type="text" name="endTime" id="createdEnd" class="form-control laydate date" value=""/>
                         <div class="input-group-append">
                             <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
                         </div>
@@ -288,18 +288,8 @@
                         class="fa fa-plus"></i> 新增
                 </button>
                 <%}%>
-                <button id="btn_split" type="button" class="btn btn-primary" onclick="openSplitHandler()"><i
-                        class="fa "></i> 拆分摊位
-                </button>
             </div>
-            <table id="grid" data-toggle="table" data-title="摊位列表" class="table" data-toolbar="#toolbar"
-                   data-pagination="true" data-page-number="1" data-page-size="10"
-                   data-query-params="queryParams" data-side-pagination="server" data-method="POST"
-                   data-content-type="application/x-www-form-urlencoded" data-single-select="true"
-                   data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
-                   data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
-                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true"
-                   data-tree-show-field="name" data-parentid-field="parentId">
+            <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-parent-id-field="parentId" data-query-params="queryParams">
                 <thead>
                 <tr>
                     <th data-field="name" data-align="center">
@@ -321,7 +311,7 @@
                         data-provider="datetimeProvider">
                         创建时间
                     </th>
-                    <th data-field="state" data-align="center">
+                    <th data-field="state" data-align="center" data-provider="boothStateProvider">
                         状态
                     </th>
                     <th data-align="center" data-formatter="operateFormatter">
@@ -366,6 +356,9 @@
             '</a>  '];
 
         var oprate = [
+            '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">',
+            '查看',
+            '</a>  ',
             '<a class="like" href="javascript:void(0)" onclick="openUpdateHandler(' + row.id + ')" title="Like">',
             '修改',
             '</a>  ',
@@ -389,43 +382,3 @@
 </script>
 
 <#booth_indexJs />
-<script id="subTable" type="text/html">
-    <table data-toggle="table" data-title="摊位列表子表" class="table" data-pagination="false" data-page-number="1"
-           data-page-size="10"
-           data-query-params="queryParams" data-method="POST" data-content-type="application/x-www-form-urlencoded"
-           data-single-select="true"
-           data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
-           data-sort-order="desc" data-icons="bui.variable.icons">
-        <thead>
-        <tr>
-            <th data-field="name" data-align="center">
-                摊位编号
-            </th>
-            <th data-field="number" data-align="center">
-                数量
-            </th>
-            <th data-field="unit" data-align="center">
-                单位
-            </th>
-            <th data-field="area" data-align="center"
-                data-provider="certificateTypeProvider">
-                区域
-            </th>
-            <th data-field="departmentId" data-provider="departmentProvider" data-align="center">
-                部门
-            </th>
-            <th data-field="createTime" data-align="center"
-                data-provider="datetimeProvider">
-                创建时间
-            </th>
-            <th data-field="state" data-align="center"
-                data-provider="enabledStateProvider">
-                状态
-            </th>
-            <th data-align="center" data-formatter="operateFormatter">
-                操作
-            </th>
-        </tr>
-        </thead>
-    </table>
-</script>
