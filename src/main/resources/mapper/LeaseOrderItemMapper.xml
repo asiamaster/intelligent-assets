@@ -12,36 +12,47 @@
     <result column="lease_order_id" jdbcType="BIGINT" property="leaseOrderId" />
     <result column="booth_id" jdbcType="BIGINT" property="boothId" />
     <result column="booth_name" jdbcType="VARCHAR" property="boothName" />
+    <result column="customer_id" jdbcType="BIGINT" property="customerId" />
+    <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
     <result column="number" jdbcType="BIGINT" property="number" />
+    <result column="is_corner" jdbcType="VARCHAR" property="isCorner" />
     <result column="unit_code" jdbcType="VARCHAR" property="unitCode" />
     <result column="unit_name" jdbcType="VARCHAR" property="unitName" />
+    <result column="unit_price" jdbcType="BIGINT" property="unitPrice" />
+    <result column="payment_month" jdbcType="DECIMAL" property="paymentMonth" />
+    <result column="discount_amount" jdbcType="BIGINT" property="discountAmount" />
     <result column="stop_time" jdbcType="TIMESTAMP" property="stopTime" />
     <result column="stop_operator_id" jdbcType="BIGINT" property="stopOperatorId" />
     <result column="stop_operator_name" jdbcType="VARCHAR" property="stopOperatorName" />
+    <result column="stop_way" jdbcType="BIT" property="stopWay" />
     <result column="stop_reason" jdbcType="VARCHAR" property="stopReason" />
     <result column="state" jdbcType="BIT" property="state" />
+    <result column="stop_rent_state" jdbcType="BIT" property="stopRentState" />
     <result column="district_id" jdbcType="BIGINT" property="districtId" />
     <result column="district_name" jdbcType="VARCHAR" property="districtName" />
     <result column="total_amount" jdbcType="BIGINT" property="totalAmount" />
     <result column="deposit_amount_flag" jdbcType="BIT" property="depositAmountFlag" />
-    <result column="deposit_amount_source_code" jdbcType="VARCHAR" property="depositAmountSourceCode" />
+    <result column="deposit_amount_source_id" jdbcType="BIGINT" property="depositAmountSourceId" />
     <result column="deposit_amount" jdbcType="BIGINT" property="depositAmount" />
     <result column="manage_amount" jdbcType="BIGINT" property="manageAmount" />
     <result column="rent_amount" jdbcType="BIGINT" property="rentAmount" />
+    <result column="refund_state" jdbcType="BIT" property="refundState" />
     <result column="refund_amount" jdbcType="BIGINT" property="refundAmount" />
     <result column="deposit_refund_amount" jdbcType="BIGINT" property="depositRefundAmount" />
     <result column="manage_refund_amount" jdbcType="BIGINT" property="manageRefundAmount" />
     <result column="rent_refund_amount" jdbcType="BIGINT" property="rentRefundAmount" />
+    <result column="version" jdbcType="TINYINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbg.generated
     -->
-    id, code, create_time, modify_time, lease_order_id, booth_id, booth_name, number,
-    unit_code, unit_name, stop_time, stop_operator_id, stop_operator_name, stop_reason, 
-    state, district_id, district_name, total_amount, deposit_amount_flag, deposit_amount_source_code, 
-    deposit_amount, manage_amount, rent_amount, refund_amount, deposit_refund_amount, 
-    manage_refund_amount, rent_refund_amount
+    id, code, create_time, modify_time, lease_order_id, booth_id, booth_name, customer_id, 
+    customer_name, number, is_corner, unit_code, unit_name, unit_price, payment_month, 
+    discount_amount, stop_time, stop_operator_id, stop_operator_name, stop_way, stop_reason, 
+    state, stop_rent_state, district_id, district_name, total_amount, deposit_amount_flag, 
+    deposit_amount_source_id, deposit_amount, manage_amount, rent_amount, refund_state, 
+    refund_amount, deposit_refund_amount, manage_refund_amount, rent_refund_amount, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -76,14 +87,32 @@
       <if test="boothName != null">
         booth_name = #{boothName,jdbcType=VARCHAR},
       </if>
+      <if test="customerId != null">
+        customer_id = #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="customerName != null">
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
       <if test="number != null">
         number = #{number,jdbcType=BIGINT},
+      </if>
+      <if test="isCorner != null">
+        is_corner = #{isCorner,jdbcType=VARCHAR},
       </if>
       <if test="unitCode != null">
         unit_code = #{unitCode,jdbcType=VARCHAR},
       </if>
       <if test="unitName != null">
         unit_name = #{unitName,jdbcType=VARCHAR},
+      </if>
+      <if test="unitPrice != null">
+        unit_price = #{unitPrice,jdbcType=BIGINT},
+      </if>
+      <if test="paymentMonth != null">
+        payment_month = #{paymentMonth,jdbcType=DECIMAL},
+      </if>
+      <if test="discountAmount != null">
+        discount_amount = #{discountAmount,jdbcType=BIGINT},
       </if>
       <if test="stopTime != null">
         stop_time = #{stopTime,jdbcType=TIMESTAMP},
@@ -94,11 +123,17 @@
       <if test="stopOperatorName != null">
         stop_operator_name = #{stopOperatorName,jdbcType=VARCHAR},
       </if>
+      <if test="stopWay != null">
+        stop_way = #{stopWay,jdbcType=BIT},
+      </if>
       <if test="stopReason != null">
         stop_reason = #{stopReason,jdbcType=VARCHAR},
       </if>
       <if test="state != null">
         state = #{state,jdbcType=BIT},
+      </if>
+      <if test="stopRentState != null">
+        stop_rent_state = #{stopRentState,jdbcType=BIT},
       </if>
       <if test="districtId != null">
         district_id = #{districtId,jdbcType=BIGINT},
@@ -112,8 +147,8 @@
       <if test="depositAmountFlag != null">
         deposit_amount_flag = #{depositAmountFlag,jdbcType=BIT},
       </if>
-      <if test="depositAmountSourceCode != null">
-        deposit_amount_source_code = #{depositAmountSourceCode,jdbcType=VARCHAR},
+      <if test="depositAmountSourceId != null">
+        deposit_amount_source_id = #{depositAmountSourceId,jdbcType=BIGINT},
       </if>
       <if test="depositAmount != null">
         deposit_amount = #{depositAmount,jdbcType=BIGINT},
@@ -123,6 +158,9 @@
       </if>
       <if test="rentAmount != null">
         rent_amount = #{rentAmount,jdbcType=BIGINT},
+      </if>
+      <if test="refundState != null">
+        refund_state = #{refundState,jdbcType=BIT},
       </if>
       <if test="refundAmount != null">
         refund_amount = #{refundAmount,jdbcType=BIGINT},
@@ -135,6 +173,9 @@
       </if>
       <if test="rentRefundAmount != null">
         rent_refund_amount = #{rentRefundAmount,jdbcType=BIGINT},
+      </if>
+      <if test="version != null">
+        version = #{version,jdbcType=TINYINT},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

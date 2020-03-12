@@ -6,6 +6,7 @@
       WARNING - @mbg.generated
     -->
     <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="business_id" jdbcType="BIGINT" property="businessId" />
@@ -17,15 +18,19 @@
     <result column="creator" jdbcType="VARCHAR" property="creator" />
     <result column="payed_time" jdbcType="TIMESTAMP" property="payedTime" />
     <result column="settlement_code" jdbcType="VARCHAR" property="settlementCode" />
+    <result column="settlement_way" jdbcType="BIT" property="settlementWay" />
+    <result column="settlement_operator" jdbcType="VARCHAR" property="settlementOperator" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
+    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
     <result column="version" jdbcType="TINYINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbg.generated
     -->
-    id, create_time, modify_time, business_id, business_code, biz_type, state, amount, 
-    creator_id, creator, payed_time, settlement_code, market_id, version
+    id, code, create_time, modify_time, business_id, business_code, biz_type, state, 
+    amount, creator_id, creator, payed_time, settlement_code, settlement_way, settlement_operator, 
+    market_id, market_code, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -42,6 +47,9 @@
     -->
     update payment_order
     <set>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -75,8 +83,17 @@
       <if test="settlementCode != null">
         settlement_code = #{settlementCode,jdbcType=VARCHAR},
       </if>
+      <if test="settlementWay != null">
+        settlement_way = #{settlementWay,jdbcType=BIT},
+      </if>
+      <if test="settlementOperator != null">
+        settlement_operator = #{settlementOperator,jdbcType=VARCHAR},
+      </if>
       <if test="marketId != null">
         market_id = #{marketId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCode != null">
+        market_code = #{marketCode,jdbcType=VARCHAR},
       </if>
       <if test="version != null">
         version = #{version,jdbcType=TINYINT},

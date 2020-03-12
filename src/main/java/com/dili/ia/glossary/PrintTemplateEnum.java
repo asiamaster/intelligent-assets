@@ -9,8 +9,8 @@ package com.dili.ia.glossary;
  * @createTime 2020-02-17 18:51
  */
 public enum PrintTemplateEnum {
-    BOOTH_LEASE_NOT_PAID("boothLeaseNotPaid", "摊位租赁未交清"),
-    BOOTH_LEASE_PAID("boothLeasePaid", "摊位租赁已交清"),
+    BOOTH_LEASE_NOT_PAID("BoothLeaseNotPaid", "摊位租赁未交清"),
+    BOOTH_LEASE_PAID("BoothLeasePaid", "摊位租赁已交清"),
     ;
 
     private String name;

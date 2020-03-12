@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "customer-service")
+@FeignClient(name = "customer-service",url = "http://10.28.10.84:8181")
 public interface CustomerRpc {
 
     /** 获取客户列表信息

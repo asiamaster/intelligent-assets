@@ -6,10 +6,12 @@ import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ss.domain.BaseOutput;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
@@ -26,14 +28,17 @@ public class CustomerController {
     @Autowired
     CustomerRpc customerRpc;
 
-   /**
-     * 新增CustomerOrder
-     * @param customer
-     * @return BaseOutput
+    /**
+     * 查询客户
+     * @param likeName
+     * @param certificateNumberMatch
+     * @param certificateNumber
+     * @return
+     * @throws CloneNotSupportedException
      */
-    @ApiOperation("新增CustomerOrder")
+    @ApiOperation("查询CustomerOrder")
     @RequestMapping(value="/list.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<Customer> list(CustomerQuery customer) throws CloneNotSupportedException {
+    public @ResponseBody List<Customer> list(String likeName, String certificateNumberMatch,String certificateNumber) throws CloneNotSupportedException {
         List<Customer> cus = new ArrayList<>();
         Customer customer1 = new Customer();
         customer1.setId(1L);
@@ -55,7 +60,14 @@ public class CustomerController {
         cus.add((Customer) customer1.clone());
 
         return cus;
-
-//        return customerRpc.list(customer).getData();
+//        CustomerQuery customerQuery = new CustomerQuery();
+//        if(StringUtils.isNotBlank(likeName)){
+//            customerQuery.setName(likeName);
+//        }else if(StringUtils.isNotBlank(certificateNumberMatch)){
+//            customerQuery.setCertificateNumberMatch(certificateNumberMatch);
+//        }else if(StringUtils.isNotBlank(certificateNumber)){
+//            customerQuery.setCertificateNumber(certificateNumber);
+//        }
+//        return customerRpc.list(customerQuery).getData();
     }
 }
