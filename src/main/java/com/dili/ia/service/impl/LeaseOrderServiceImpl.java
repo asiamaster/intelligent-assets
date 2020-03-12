@@ -10,6 +10,7 @@ import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.LeaseOrderMapper;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
+import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ia.service.PaymentOrderService;
@@ -61,21 +62,18 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     @Autowired
     private DepartmentRpc departmentRpc;
-
     @Autowired
     private LeaseOrderItemService leaseOrderItemService;
-
     @Autowired
     private SettlementRpc settlementRpc;
-
     @Autowired
     private PaymentOrderService paymentOrderService;
-
     @Value("${settlement.app-id}")
     private Long settlementAppId;
-
     @Autowired
     private UidFeignRpc uidFeignRpc;
+    @Autowired
+    private CustomerAccountService customerAccountService;
 
     /**
      * 摊位租赁单保存
@@ -208,6 +206,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Override
     @Transactional
     public BaseOutput submitPayment(Long id, Long amount, Long waitAmount) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         //更新摊位租赁单状态
         LeaseOrder leaseOrder = get(id);
         //提交付款条件：已创建状态或已提交状态
@@ -228,10 +230,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             LOG.info("摊位租赁单待缴费金额已发生变更，请重试【ID {}】 旧金额【{}】新金额【{}】", id, waitAmount, leaseOrder.getWaitAmount());
             throw new RuntimeException("摊位租赁单待缴费金额已发生变更，请重试");
         }
-        //@TODO 摊位 定金 保证金 转低冻结
-
-        //冻结保证金
-        frozenLeaseOrderItemDepositAmount(id);
 
         //新增缴费单
         PaymentOrder paymentOrder = buildPaymentOrder(leaseOrder);
@@ -239,6 +237,16 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         paymentOrderService.insertSelective(paymentOrder);
 
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
+            //@TODO 摊位 定金 保证金 转低冻结
+
+            //冻结保证金
+            frozenLeaseOrderItemDepositAmount(id);
+            //冻结定金和转低
+            BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(), userTicket.getFirmId());
+            if(!customerAccountOutput.isSuccess()){
+                throw new RuntimeException(customerAccountOutput.getMessage());
+            }
+
             leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
             leaseOrder.setPaymentId(paymentOrder.getId());
             cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
@@ -554,6 +562,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     /**
      * 扫描待生效的订单，做生效处理
+     *
      * @return
      */
     @Override
@@ -583,6 +592,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     /**
      * 租赁单生效处理
+     *
      * @param o
      */
     @Transactional
@@ -612,6 +622,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     /**
      * 扫描待到期的订单，做到期处理
+     *
      * @return
      */
     @Override
@@ -641,6 +652,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     /**
      * 租赁单到期处理
+     *
      * @param o
      */
     @Transactional
@@ -669,14 +681,14 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     @Override
-    public BaseOutput<PrintDataDto> queryPrintData(String businessCode,Integer reprint) {
+    public BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint) {
         PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
         paymentOrderCondition.setCode(businessCode);
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
-        if(null == paymentOrder){
+        if (null == paymentOrder) {
             throw new RuntimeException("businessCode无效");
         }
-        if(!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())){
+        if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
             return BaseOutput.failure("此单未支付");
         }
 
@@ -684,12 +696,12 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         PrintDataDto printDataDto = new PrintDataDto();
         LeaseOrderPrintDto leaseOrderPrintDto = new LeaseOrderPrintDto();
         leaseOrderPrintDto.setPrintTime(new Date());
-        leaseOrderPrintDto.setReprint(reprint == 2?"(补打)":"");
+        leaseOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         leaseOrderPrintDto.setLeaseOrderCode(leaseOrder.getCode());
-        if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())){
+        if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
             leaseOrderPrintDto.setBusinessType(BizTypeEnum.BOOTH_LEASE.getName());
             printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_PAID.getCode());
-        }else{
+        } else {
             leaseOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
             printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_NOT_PAID.getCode());
         }
@@ -712,7 +724,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         LeaseOrderItem leaseOrderItemCondition = DTOUtils.newInstance(LeaseOrderItem.class);
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
         List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
-        leaseOrderItemService.list(leaseOrderItemCondition).forEach(o->{
+        leaseOrderItemService.list(leaseOrderItemCondition).forEach(o -> {
             LeaseOrderItemPrintDto leaseOrderItemPrintDto = new LeaseOrderItemPrintDto();
             leaseOrderItemPrintDto.setBoothName(o.getBoothName());
             leaseOrderItemPrintDto.setDistrictName(o.getDistrictName());
