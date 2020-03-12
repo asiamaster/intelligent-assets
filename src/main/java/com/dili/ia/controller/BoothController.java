@@ -139,7 +139,7 @@ public class BoothController {
     @RequestMapping(value = "/search.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     String search(String keyword) {
-        return JSON.toJSONString(assetsMockRpc.searchBooth(keyword).getData());
-//        return "[{\"id\":1,\"name\":\"三号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"},{\"id\":2,\"name\":\"四号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"},{\"id\":3,\"name\":\"五号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"},{\"id\":4,\"name\":\"六号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"}]";
+//        return JSON.toJSONString(assetsMockRpc.searchBooth(keyword).getData());
+        return "[{\"id\":1,\"name\":\"三号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":2,\"name\":\"四号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":3,\"name\":\"五号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":4,\"name\":\"六号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"}]";
     }
 }
