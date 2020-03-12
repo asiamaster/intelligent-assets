@@ -1,10 +1,10 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
+import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class RefundOrderController {
     @Autowired
     RefundOrderService refundOrderService;
+    @Autowired
+    RefundOrderDispatcherService refundOrderDispatcherService;
 
     /**
      * 跳转到RefundOrder页面
@@ -97,36 +99,6 @@ public class RefundOrderController {
     }
 
     /**
-     * 新增RefundOrder
-     * @param refundOrder
-     * @return BaseOutput
-     */
-    @ApiOperation("新增RefundOrder")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="RefundOrder", paramType="form", value = "RefundOrder的form信息", required = true, dataType = "string")
-	})
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(RefundOrder refundOrder) {
-        refundOrderService.insertSelective(refundOrder);
-        return BaseOutput.success("新增成功");
-    }
-
-    /**
-     * 修改RefundOrder
-     * @param refundOrder
-     * @return BaseOutput
-     */
-    @ApiOperation("修改RefundOrder")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="RefundOrder", paramType="form", value = "RefundOrder的form信息", required = true, dataType = "string")
-	})
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(RefundOrder refundOrder) {
-        refundOrderService.updateSelective(refundOrder);
-        return BaseOutput.success("修改成功");
-    }
-
-    /**
      * 退款单--提交
      * @param id
      * @return BaseOutput
@@ -138,8 +110,12 @@ public class RefundOrderController {
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
-            refundOrderService.submitRefundOrder(id);
-            return BaseOutput.success("提交成功！");
+            RefundOrder refundOrder = refundOrderService.get(id);
+            if (refundOrder == null){
+                return BaseOutput.failure("未查询到退款单！");
+            }
+            BaseOutput out = refundOrderDispatcherService.doSubmitDispatcher(refundOrder);
+            return out;
         } catch (RuntimeException e) {
             return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
@@ -159,8 +135,12 @@ public class RefundOrderController {
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
-            refundOrderService.withdrawRefundOrder(id);
-            return BaseOutput.success("撤回成功！");
+            RefundOrder refundOrder = refundOrderService.get(id);
+            if (refundOrder == null){
+                return BaseOutput.failure("未查询到退款单！");
+            }
+            BaseOutput out = refundOrderDispatcherService.doWithdrawDispatcher(refundOrder);
+            return out;
         } catch (RuntimeException e) {
             return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
