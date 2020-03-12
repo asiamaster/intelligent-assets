@@ -274,7 +274,7 @@
                             return this.value == item.boothId;
                         });
                         let trIndex = getIndex(boothIdEl.attr('id'));
-                        $('#depositAmountSourceCode_'+trIndex).val(item.code);
+                        $('#depositAmountSourceId_'+trIndex).val(item.id);
                     });
                     if(isInitCheckDeduction){
                         if($('#depositDeduction').val() != depositAmount.centToYuan()){
