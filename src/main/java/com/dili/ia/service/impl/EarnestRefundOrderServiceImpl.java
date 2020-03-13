@@ -1,21 +1,24 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.EarnestOrder;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransactionDetails;
+import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.EarnestOrderPrintDto;
+import com.dili.ia.domain.dto.EarnestRefundOrderPrintDto;
+import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
+import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
@@ -117,6 +120,36 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         settleOrder.setReturnUrl(returnUrl); // 结算-- 缴费成功后回调路径
 
         return settleOrder;
+    }
+
+    @Override
+    public BaseOutput<PrintDataDto> queryPrintData(RefundOrder refundOrder, Integer reprint) {
+        if (!RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) {
+            return BaseOutput.failure("此单未退款");
+        }
+        PrintDataDto printDataDto = new PrintDataDto();
+        EarnestRefundOrderPrintDto erPrintDto = new EarnestRefundOrderPrintDto();
+        erPrintDto.setPrintTime(new Date());
+        erPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
+        erPrintDto.setCode(refundOrder.getCode());
+
+        erPrintDto.setCustomerName(refundOrder.getCustomerName());
+        erPrintDto.setCustomerCellphone(refundOrder.getCustomerCellphone());
+        erPrintDto.setRefundReason(refundOrder.getRefundReason());
+        erPrintDto.setAmount(MoneyUtils.centToYuan(refundOrder.getTotalRefundAmount()));
+        //@TODO退款单冗余结算员
+        erPrintDto.setSettlementOperator(refundOrder.getSubmitter());
+        erPrintDto.setSubmitter(refundOrder.getSubmitter());
+        erPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
+        erPrintDto.setPayee(refundOrder.getPayee());
+        erPrintDto.setBank(refundOrder.getBank());
+        erPrintDto.setBankCardNo(refundOrder.getBankCardNo());
+        //@TODO 退款方式定义
+        erPrintDto.setRefundType(SettleWayEnum.getNameByCode(refundOrder.getRefundType()));
+
+        printDataDto.setItem(BeanMapUtil.beanToMap(erPrintDto));
+        printDataDto.setName(PrintTemplateEnum.EARNEST_REFUND_ORDER.getCode());
+        return BaseOutput.success().setData(printDataDto);
     }
 
     @Override

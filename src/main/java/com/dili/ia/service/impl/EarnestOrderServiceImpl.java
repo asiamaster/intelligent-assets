@@ -317,6 +317,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
         earnestOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         earnestOrderPrintDto.setSubmitter(paymentOrder.getCreator());
+        earnestOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
 
         EarnestOrderDetail earnestOrderDetail = DTOUtils.newInstance(EarnestOrderDetail.class);
         earnestOrderDetail.setEarnestOrderId(earnestOrder.getId());

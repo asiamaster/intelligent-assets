@@ -44,7 +44,7 @@ public class EarnestOrderApi {
             }
             return earnestOrderService.queryPrintData(businessCode,reprint);
         }catch (Exception e){
-            LOG.error("扫描等待停租的摊位异常！", e);
+            LOG.error("获取打印数据异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
