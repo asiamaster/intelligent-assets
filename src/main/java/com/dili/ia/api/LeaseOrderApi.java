@@ -1,10 +1,20 @@
 package com.dili.ia.api;
+import com.dili.ss.exception.AppException;
+import com.google.common.collect.Lists;
+import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.Date;
 
+import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.rpc.AssetsRpc;
+import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.ss.domain.BaseOutput;
+import io.seata.spring.annotation.GlobalTransactional;
 import io.swagger.annotations.Api;
 import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +40,74 @@ public class LeaseOrderApi {
     @Autowired
     LeaseOrderItemService leaseOrderItemService;
 
+    @Autowired
+    SettlementRpc settlementRpc;
+
+    @Autowired
+    AssetsRpc assetsRpc;
+
+    /**
+     * 测试分布式事务回滚
+     * 新增品类和结算单，在抛异常前可以看到数据已经正常插入，抛异常后，数据成功回滚
+     * http://127.0.0.1:8381/api/leaseOrder/testGlobalTransactional
+     * @return
+     */
+    @RequestMapping(value="/testGlobalTransactional")
+    @GlobalTransactional
+    public @ResponseBody BaseOutput<String> test(){
+        //新增品类
+        CategoryDTO categoryDTO = new CategoryDTO();
+        categoryDTO.setName("测试品类");
+        categoryDTO.setPingying("ceshi");
+        categoryDTO.setPyInitials("cspl");
+        categoryDTO.setIsDelete(0);
+        categoryDTO.setPath("test");
+        categoryDTO.setCode("test");
+        categoryDTO.setCreatorId(1L);
+        categoryDTO.setCreateTime(new Date());
+        categoryDTO.setModifyTime(new Date());
+        categoryDTO.setState(1);
+        assetsRpc.save(categoryDTO);
+
+        //新增结算单
+        SettleOrderDto settleOrderDto = new SettleOrderDto();
+        settleOrderDto.setMarketId(1L);
+        settleOrderDto.setMarketCode("group");
+        settleOrderDto.setAppId(101L);
+        settleOrderDto.setBusinessCode("T0001");
+        settleOrderDto.setBusinessType(1);
+        settleOrderDto.setBusinessDepId(49L);
+        settleOrderDto.setBusinessDepName("成都技术部new");
+        settleOrderDto.setCustomerId(1L);
+        settleOrderDto.setCustomerName("test");
+        settleOrderDto.setCustomerPhone("13333333333");
+        settleOrderDto.setAmount(100L);
+        settleOrderDto.setSubmitterId(1L);
+        settleOrderDto.setSubmitterName("admin");
+        settleOrderDto.setSubmitterDepId(49L);
+        settleOrderDto.setSubmitterDepName("成都技术部new");
+        settleOrderDto.setSubmitTime(LocalDateTime.now());
+        settleOrderDto.setType(1);
+        settleOrderDto.setWay(1);
+        settleOrderDto.setState(1);
+        settleOrderDto.setOperatorId(1L);
+        settleOrderDto.setOperatorName("admin");
+        settleOrderDto.setOperateTime(LocalDateTime.now());
+        settleOrderDto.setAccountNumber("123456789");
+        settleOrderDto.setBankName("testBank");
+        settleOrderDto.setBankCardHolder("");
+        settleOrderDto.setSerialNumber("");
+        settleOrderDto.setEditEnable(1);
+        settleOrderDto.setNotes("test info");
+        settleOrderDto.setBusinessName("test");
+        settleOrderDto.setReturnUrl("http://www.baidu.com");
+        settlementRpc.submit(settleOrderDto);
+        //主动抛异常回滚事务
+        if(true){
+            throw new AppException("测试事务回滚");
+        }
+        return BaseOutput.success();
+    }
     /**
      * 摊位租赁结算成功回调
      * @param settleOrder

@@ -4,6 +4,7 @@ import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.util.PinyinUtil;
 import com.dili.ss.domain.BaseOutput;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -31,6 +32,7 @@ public class CategoryController {
      * 跳转到品类列表页
      */
     @RequestMapping("list.html")
+    @GlobalTransactional
     public String list() {
         return "category/list";
     }
