@@ -39,6 +39,9 @@ public class RefundOrderDispatcherServiceImpl implements RefundOrderDispatcherSe
     private Map<Integer,RefundOrderService> refundBiz = new HashMap<>();
     @PostConstruct
     public void init() {
+        if (CollectionUtils.isEmpty(refundBizTypes)){
+            return;
+        }
         for(RefundOrderService service : refundBizTypes) {
             for(Integer bizType : service.getBizType()) {
                 this.refundBiz.put(bizType, service);
