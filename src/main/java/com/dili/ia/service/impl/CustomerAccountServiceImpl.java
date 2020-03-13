@@ -76,10 +76,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public void subtractEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount) {
+    public void frozenEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
-        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() - availableAmount);
-        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() - balanceAmount);
+        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() - amount);
+        customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() + amount);
 
         Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
         if (count < 1){
