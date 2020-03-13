@@ -6,9 +6,12 @@ import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -215,6 +218,12 @@ public class EarnestOrderController {
         if (!earnestOrder.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("取消失败，定金单状态已变更！");
         }
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null){
+            return BaseOutput.failure("未登录！");
+        }
+        earnestOrder.setCancelerId(userTicket.getId());
+        earnestOrder.setCanceler(userTicket.getRealName());
         earnestOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
         earnestOrderService.updateSelective(earnestOrder);
         return BaseOutput.success("取消成功");

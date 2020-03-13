@@ -1,8 +1,11 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -47,6 +50,14 @@ public interface EarnestOrderService extends BaseService<EarnestOrder, Long> {
      * @return BaseOutput
      * */
     BaseOutput refundSuccessEarnestOrder(Long earnestOrderId);
+
+    /**
+     * 定金票据打印数据加载
+     * @param businessCode 业务编码
+     * @param reprint 是否补打标记
+     * @return BaseOutput<PrintDataDto>
+     */
+    BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint);
 
 
 }

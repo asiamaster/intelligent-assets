@@ -58,6 +58,14 @@
         _modal.find('.modal-title').text('摊位修改');
     }
 
+    function openViewHandler(id) {
+
+        $("#_modal").modal("show");
+
+        $('#_modal .modal-body').load("/booth/view.html?id=" + id);
+        _modal.find('.modal-title').text('摊位查看');
+    }
+
     function openSplitHandler(id) {
 
         $("#_modal").modal("show");
@@ -180,6 +188,7 @@
      * 查询处理
      */
     function queryDataHandler() {
+        debugger
         _grid.bootstrapTable('refreshOptions', {url: '/booth/listPage.action'});
     }
 
@@ -194,7 +203,7 @@
             page: ((params.offset / params.limit) + 1) || 1, //页码
             sort: params.sort,
             order: params.order
-        }
+        };
         return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
     }
 
@@ -208,19 +217,6 @@
         $(this).find('input,select,textarea').removeClass('is-invalid is-valid');
         $(this).find('input,select,textarea').removeAttr('disabled readonly');
         $(this).find('.invalid-feedback').css('display', 'none');
-    });
-
-    _grid.on('post-body.bs.table', function (e,data){
-        var columns = _grid.bootstrapTable('getOptions').columns;
-
-        if (columns && columns[0][0].visible) {
-            _grid.treegrid({
-                treeColumn: 0,
-                onChange: function() {
-                    console.log($(this).treegrid('getDepth'))
-                }
-            })
-        }
     });
 
     $("#departmentId").change(function () {
@@ -269,6 +265,18 @@
                 }
             }
         });
+    });
+
+    _grid.on('post-body.bs.table', function (e,data){
+        var columns = _grid.bootstrapTable('getOptions').columns;
+        if (columns && columns[0][0].visible) {
+            _grid.treegrid({
+                treeColumn: 0,
+                onChange: function() {
+                    console.log($(this).treegrid('getDepth'))
+                }
+            })
+        }
     });
 
     /*****************************************自定义事件区 end**************************************/

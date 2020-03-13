@@ -96,14 +96,13 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId);
 
     /**
-     * 客户账户 -- 【定金可用余额】 和 【定金余额】扣减
+     * 客户账户 -- 冻结定金
      * @param customerId 客户ID
      * @param marketId 市场ID
-     * @param availableAmount 【定金可用余额】扣减金额
-     * @param balanceAmount 【定金余额】 扣减金额
+     * @param amount 冻结金额
      * @return
      * */
-    void subtractEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount);
+    void frozenEarnest(Long customerId, Long marketId, Long amount);
     /**
      * 客户账户 -- 【定金可用余额】 和 【定金余额】增加
      * @param customerId 客户ID

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Date;
+
 /**
  * 摊位控制器
  */
@@ -85,6 +87,17 @@ public class BoothController {
     }
 
     /**
+     * edit
+     *
+     * @return
+     */
+    @RequestMapping("/view.html")
+    public String view(Long id, ModelMap map) {
+        map.put("obj", assetsRpc.getBoothById(id).getData());
+        return "booth/view";
+    }
+
+    /**
      * insert
      *
      * @param input
@@ -93,7 +106,9 @@ public class BoothController {
     @RequestMapping("/save.action")
     @ResponseBody
     public BaseOutput save(BoothDTO input) {
+        input.setCreateTime(new Date());
         input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
+        input.setModifyTime(new Date());
         return assetsRpc.save(input);
     }
 
@@ -106,6 +121,7 @@ public class BoothController {
     @RequestMapping("/update.action")
     @ResponseBody
     public BaseOutput update(BoothDTO input) {
+        input.setModifyTime(new Date());
         return assetsRpc.updateBooth(input);
     }
 
@@ -139,7 +155,7 @@ public class BoothController {
     @RequestMapping(value = "/search.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     String search(String keyword) {
-        return JSON.toJSONString(assetsMockRpc.searchBooth(keyword).getData());
-//        return "[{\"id\":1,\"name\":\"三号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"},{\"id\":2,\"name\":\"四号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"},{\"id\":3,\"name\":\"五号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"},{\"id\":4,\"name\":\"六号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\"}]";
+//        return JSON.toJSONString(assetsMockRpc.searchBooth(keyword).getData());
+        return "[{\"id\":1,\"name\":\"三号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":2,\"name\":\"四号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":3,\"name\":\"五号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":4,\"name\":\"六号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"}]";
     }
 }

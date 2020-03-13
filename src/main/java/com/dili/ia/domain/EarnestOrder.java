@@ -205,7 +205,7 @@ public interface EarnestOrder extends IBaseDomain {
     @Column(name = "`canceler`")
     @FieldDef(label="取消人名字")
     @EditMode(editor = FieldEditor.Text, required = false)
-    byte[] getCanceler();
+    String getCanceler();
 
-    void setCanceler(byte[] canceler);
+    void setCanceler(String canceler);
 }

@@ -725,6 +725,12 @@
               "chnname": "摊位编号"
             },
             {
+              "name": "freeze",
+              "type": "tinyint",
+              "remark": "",
+              "chnname": "冻结状态"
+            },
+            {
               "name": "start",
               "type": "DateTime",
               "remark": "",

@@ -131,8 +131,14 @@ public interface AssetsRpc {
     BaseOutput<List<BoothDTO>> searchBooth(JSONObject query);
 
     /**
-     * 新增摊位租赁
+     * 新增摊位租赁时间
      */
     @RequestMapping(value = "/api/boothRent/add", method = RequestMethod.POST)
     BaseOutput addBoothRent(BoothRentDTO input);
+
+    /**
+     * 修改摊位租赁时间
+     */
+    @RequestMapping(value = "/api/boothRent/update", method = RequestMethod.POST)
+    BaseOutput updateBoothRent(BoothRentDTO input);
 }

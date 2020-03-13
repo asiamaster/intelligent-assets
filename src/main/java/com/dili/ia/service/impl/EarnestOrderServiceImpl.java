@@ -1,21 +1,25 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.EarnestOrder;
-import com.dili.ia.domain.EarnestOrderDetail;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.TransactionDetails;
+import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.EarnestOrderPrintDto;
+import com.dili.ia.domain.dto.LeaseOrderItemPrintDto;
+import com.dili.ia.domain.dto.LeaseOrderPrintDto;
+import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
+import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
+import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -29,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +51,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     @Autowired
+    DepartmentRpc departmentRpc;
+    @Autowired
     SettlementRpc settlementRpc;
     @Autowired
     CustomerAccountService customerAccountService;
@@ -55,8 +62,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     EarnestOrderDetailService earnestOrderDetailService;
     @Autowired
     TransactionDetailsService transactionDetailsService;
-    @Autowired
-    DepartmentRpc departmentRpc;
     @Autowired
     UidFeignRpc uidFeignRpc;
 
@@ -282,5 +287,48 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         tds.setSceneType(TransactionSceneTypeEnum.PAYMENT.getCode());
         tds.setItemType(TransactionItemTypeEnum.EARNEST.getCode());
         return tds;
+    }
+
+    @Override
+    public BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint) {
+        PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
+        paymentOrderCondition.setCode(businessCode);
+        PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
+        if (null == paymentOrder) {
+            throw new RuntimeException("businessCode无效");
+        }
+        if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
+            return BaseOutput.failure("此单未支付");
+        }
+
+        EarnestOrder earnestOrder = get(paymentOrder.getBusinessId());
+        PrintDataDto printDataDto = new PrintDataDto();
+        EarnestOrderPrintDto earnestOrderPrintDto = new EarnestOrderPrintDto();
+        earnestOrderPrintDto.setPrintTime(new Date());
+        earnestOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
+        earnestOrderPrintDto.setCode(earnestOrder.getCode());
+        printDataDto.setName(PrintTemplateEnum.EARNEST_ORDER.getCode());
+        earnestOrderPrintDto.setCustomerName(earnestOrder.getCustomerName());
+        earnestOrderPrintDto.setCustomerCellphone(earnestOrder.getCustomerCellphone());
+        earnestOrderPrintDto.setStartTime(earnestOrder.getStartTime());
+        earnestOrderPrintDto.setEndTime(earnestOrder.getEndTime());
+        earnestOrderPrintDto.setNotes(earnestOrder.getNotes());
+        earnestOrderPrintDto.setAmount(MoneyUtils.centToYuan(earnestOrder.getAmount()));
+        earnestOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
+        earnestOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        earnestOrderPrintDto.setSubmitter(paymentOrder.getCreator());
+
+        EarnestOrderDetail earnestOrderDetail = DTOUtils.newInstance(EarnestOrderDetail.class);
+        earnestOrderDetail.setEarnestOrderId(earnestOrder.getId());
+        StringBuffer assetsItems = new StringBuffer();
+        earnestOrderDetailService.list(earnestOrderDetail).forEach(o -> {
+            assetsItems.append(o.getAssetsName()).append(",");
+        });
+        if (assetsItems != null){
+            assetsItems.substring(0, assetsItems.length() - 1);
+        }
+        earnestOrderPrintDto.setAssetsItems(assetsItems.toString());
+        printDataDto.setItem(BeanMapUtil.beanToMap(earnestOrderPrintDto));
+        return BaseOutput.success().setData(printDataDto);
     }
 }

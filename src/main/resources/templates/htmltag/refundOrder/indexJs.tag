@@ -45,25 +45,6 @@
         _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/refundOrder/listPage.action'});
     }
 
-    /**
-     打开新增窗口
-     */
-    function openUpdateHandler() {
-        //获取选中行的数据
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            return;
-        }
-
-        dia = bs4pop.dialog({
-            title: '修改定金',//对话框title
-            content: '${contextPath}/refundOrder/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
-            width: '80%',//宽度
-            height: '95%',//高度
-            isIframe: true,//默认是页面层，非iframe
-        });
-    }
 
     /**
      打开查看窗口

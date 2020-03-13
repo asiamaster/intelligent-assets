@@ -32,10 +32,16 @@
                     <thead>
                     <tr>
                         <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
-                        <th style="width: 25%;font-weight:normal; ">摊位编号<i class="red">*</i></th>
-                        <th style="width: 25%;font-weight:normal; ">租金<i class="red">*</i></th>
-                        <th style="width: 22%;font-weight:normal; ">物业管理费<i class="red">*</i></th>
-                        <th style="width: 23%;font-weight:normal; ">保证金<i class="red">*</i></th>
+                        <th style="font-weight:normal;" >摊位编号<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 7rem;">数量<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 5rem;">单位<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 5rem;">转角<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 7rem;">单价<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 7rem;">应交月数<i class="red">*</i></th>
+                        <th style="font-weight:normal; ">优惠金额<i class="red">*</i></th>
+                        <th style="font-weight:normal; ">租金<i class="red">*</i></th>
+                        <th style="font-weight:normal; ">物管费<i class="red">*</i></th>
+                        <th style="font-weight:normal; ">保证金<i class="red">*</i></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -75,8 +81,8 @@
                     <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()" value="${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}" required>
                 </div>
                 <div class="form-group col">
-                    <label for="contractNo">合同编号<i class="red">*</i></label>
-                    <input type="text" class="form-control" id="contractNo" name="contractNo" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.contractNo!}"/>
+                    <label for="contractNo">合同编号</label>
+                    <input type="text" class="form-control" id="contractNo" name="contractNo" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.contractNo!}" uncheck/>
                 </div>
                 <div class="form-group col">
                     <label for="departmentId">业务所属部门<i class="red">*</i></label>
@@ -91,19 +97,19 @@
             <div class="row  row-cols-4 collapse show" id="moneyInfo">
                 <div class="form-group col">
                     <label for="rentAmount">租金<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="rentAmount" name="rentAmount" value="<#centToYuan value='${leaseOrder.rentAmount!0}'/>" readonly/>
+                    <input type="number" class="form-control money" id="rentAmount" name="rentAmount" value="<#centToYuan value='${leaseOrder.rentAmount!0}'/>" readonly uncheck/>
                 </div>
                 <div class="form-group col">
                     <label for="manageAmount">物业管理费<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="manageAmount" name="manageAmount" value="<#centToYuan value='${leaseOrder.manageAmount!0}'/>" readonly/>
+                    <input type="number" class="form-control money" id="manageAmount" name="manageAmount" value="<#centToYuan value='${leaseOrder.manageAmount!0}'/>" readonly uncheck/>
                 </div>
                 <div class="form-group col">
                     <label for="depositAmount">保证金<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="depositAmount" name="depositAmount" value="<#centToYuan value='${leaseOrder.depositAmount!0}'/>" readonly/>
+                    <input type="number" class="form-control money" id="depositAmount" name="depositAmount" value="<#centToYuan value='${leaseOrder.depositAmount!0}'/>" readonly uncheck/>
                 </div>
                 <div class="form-group col">
                     <label for="totalAmount">合计金额<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>"  readonly/>
+                    <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>"  readonly uncheck/>
                 </div>
             </div>
             <div class="breadcrumb" data-toggle="collapse" data-target="#deductInfo" aria-controls="deductInfo">
@@ -112,7 +118,7 @@
             <div class="row row-cols-4 collapse show" id="deductInfo">
                 <div class="form-group col">
                     <label for="depositDeduction">保证金<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="depositDeduction" name="depositDeduction" value="<#centToYuan value='${leaseOrder.depositDeduction!0}'/>" readonly/>
+                    <input type="number" class="form-control money" id="depositDeduction" name="depositDeduction" value="<#centToYuan value='${leaseOrder.depositDeduction!0}'/>" readonly uncheck/>
                 </div>
                 <div class="form-group col">
                     <label for="earnestDeduction">定金</label>
@@ -142,12 +148,12 @@
             <div class="row">
                 <div class="form-group col-8">
                     <label for="notes">备注</label>
-                    <textarea class="form-control" id="notes" name="notes"  rows="1" maxlength="50">${leaseOrder.notes!}</textarea>
+                    <textarea class="form-control" id="notes" name="notes"  rows="1" maxlength="50" uncheck>${leaseOrder.notes!}</textarea>
                 </div>
             </div>
             <div class="text-right">
-                <button type="button" class="btn btn-secondary p-l-2 p-r-2" id="cancel" onclick="javascript:parent.closeDialog(parent.dia)">取消</button>
-                <button type="button" class="btn btn-primary p-l-2 p-r-2" id="formSubmit">保存</button>
+                <button type="button" class="btn btn-secondary px-5" id="cancel" onclick="javascript:parent.closeDialog(parent.dia)">取消</button>
+                <button type="button" class="btn btn-primary px-5" id="formSubmit">保存</button>
             </div>
         </form>
     </div>
@@ -158,14 +164,18 @@
     <tr data-index="{{index}}">
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
-            <input type="hidden" id="number_{{index}}" name="number_{{index}}" value="{{number}}">
             <input type="hidden" id="unitCode_{{index}}" name="unitCode_{{index}}" value="{{unitCode}}">
-            <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}" value="{{unitName}}">
             <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}" value="{{districtId}}">
             <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}" value="{{districtName}}">
-            <input type="hidden" id="depositAmountSourceCode_{{index}}" name="depositAmountSourceCode_{{index}}" value="{{depositAmountSourceCode}}">
+            <input type="hidden" id="depositAmountSourceId_{{index}}" name="depositAmountSourceId_{{index}}" value="{{depositAmountSourceId}}">
             <#bautoCompleteProvider _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId_{{index}}" _displayDomainId="boothName_{{index}}" _displayDomainName="boothName_{{index}}" _value="{{boothId}}" _text="{{boothName}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected" _required="true" _option="width:'350',paramName:'keyword',serviceUrl:'/booth/search.action',selectFn:boothSelectHandler"/>
         </td>
+        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="number_{{index}}" name="number_{{index}}" value="{{number}}" readonly uncheck/></td>
+        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="unitName_{{index}}" name="unitName_{{index}}" value="{{unitName}}" readonly uncheck/></td>
+        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" value="{{isCorner}}" readonly uncheck/></td>
+        <td style="padding: .25rem!important;"><input type="number" id="unitPrice_{{index}}" name="unitPrice_{{index}}" value="{{unitPrice}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input type="number" id="paymentMonth_{{index}}" name="paymentMonth_{{index}}" value="{{paymentMonth}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input type="number" id="discountAmount_{{index}}" name="discountAmount_{{index}}" value="{{discountAmount}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <td style="padding: .25rem!important;"><input type="number" id="rentAmount_{{index}}" name="rentAmount_{{index}}" value="{{rentAmount}}" oninput="calcRentAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <td style="padding: .25rem!important;"><input type="number" id="manageAmount_{{index}}" name="manageAmount_{{index}}" value="{{manageAmount}}" oninput="calcManageAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <td style="padding: .25rem!important;"><input type="number" id="depositAmount_{{index}}" name="depositAmount_{{index}}" value="{{depositAmount}}" oninput="calcDepositAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>

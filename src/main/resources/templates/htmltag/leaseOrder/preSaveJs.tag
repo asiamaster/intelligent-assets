@@ -105,6 +105,8 @@
                 leaseOrderItem.rentAmount = leaseOrderItem.rentAmount.centToYuan();
                 leaseOrderItem.manageAmount = leaseOrderItem.manageAmount.centToYuan();
                 leaseOrderItem.depositAmount = leaseOrderItem.depositAmount.centToYuan();
+                leaseOrderItem.unitPrice = leaseOrderItem.unitPrice.centToYuan();
+                leaseOrderItem.discountAmount = leaseOrderItem.discountAmount.centToYuan();
                 addBoothItem($.extend(leaseOrderItem,{index: ++itemIndex}));
             }
             queryCustomerAccount();
@@ -233,6 +235,7 @@
         $('#number_'+index).val(suggestion.number);
         $('#unitCode_'+index).val(suggestion.unit);
         $('#unitName_'+index).val(suggestion.unitName);
+        $('#isCorner_'+index).val(suggestion.cornerName);
         $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
         $('#districtName_'+index).val(suggestion.secondAreaName?suggestion.secondAreaName : suggestion.areaName);
 
@@ -269,7 +272,7 @@
                             return this.value == item.boothId;
                         });
                         let trIndex = getIndex(boothIdEl.attr('id'));
-                        $('#depositAmountSourceCode_'+trIndex).val(item.code);
+                        $('#depositAmountSourceId_'+trIndex).val(item.id);
                     });
                     if(isInitCheckDeduction){
                         if($('#depositDeduction').val() != depositAmount.centToYuan()){

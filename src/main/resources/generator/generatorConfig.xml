@@ -88,18 +88,18 @@
 <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
 <!--        </table>-->
         <!-- 生成指定表模型 -->
-<!--        <table domainObjectName="LeaseOrder" tableName="lease_order">-->
-<!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
-<!--        </table>-->
-<!--        <table domainObjectName="LeaseOrderItem" tableName="lease_order_item">-->
-<!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
-<!--        </table>-->
-<!--        <table domainObjectName="PaymentBill" tableName="payment_bill">-->
-<!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
-<!--        </table>-->
-<!--        <table domainObjectName="RefundBill" tableName="refund_bill">-->
-<!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
-<!--        </table>-->
+       <!-- <table domainObjectName="LeaseOrder" tableName="lease_order">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
+        <table domainObjectName="LeaseOrderItem" tableName="lease_order_item">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
+        <table domainObjectName="PaymentOrder" tableName="payment_order">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
+        <table domainObjectName="RefundOrder" tableName="refund_order">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>-->
 <!--        <table domainObjectName="TransferDeductionItem" tableName="transfer_deduction_item">-->
 <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
 <!--        </table>-->
