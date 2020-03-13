@@ -1,7 +1,10 @@
 <#bs4Body>
 
 <div class="container-fluid">
-    <form id="addForm" role="form" novalidate>
+    <form id="refundApplyForm" role="form">
+        <input type="hidden" name="orderId" value="${leaseOrder.id}"/>
+        <input type="hidden" name="orderCode" value="${leaseOrder.code!}"/>
+        <input type="hidden" name="orderItemId" value="${leaseOrderItem.id!}"/>
         <div class="row row-cols-4">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
@@ -18,108 +21,85 @@
         </div>
         <div class="row row-cols-4">
             <div class="form-group col">
-                <label for="" class="">摊位编号</label>
-                <input type="text" class="form-control" name="" required />
+                <label for="" class="">摊位编号<i class="red">*</i></label>
+                <input type="text" class="form-control" name="boothName" value="${leaseOrderItem.boothName}" required readonly/>
             </div>
             <div class="form-group col">
-                <label for="" class="">租金</label>
-                <input type="text" class="form-control" name="" />
+                <label for="" class="">租金<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve" name="rentAmount" placeholder="可退<#centToYuan value='${leaseOrderItem.rentAmount!}'/>" min="0" max="<#centToYuan value='${leaseOrderItem.rentAmount!}'/>" required/>
             </div>
             <div class="form-group col">
-                <label for="" class="">物业管理费</label>
-                <input type="text" class="form-control" name="" />
+                <label for="" class="">物管费<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve"  name="manageAmount" placeholder="可退<#centToYuan value='${leaseOrderItem.manageAmount!}'/>" min="0" max="<#centToYuan value='${leaseOrderItem.manageAmount!}'/>" required/>
             </div>
             <div class="form-group col align-items-end">
-                <label for="" class="">保证金</label>
-                <input type="text" class="form-control" name="" />
+                <label for="" class="">保证金<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve"  name="depositAmount" placeholder="可退<#centToYuan value='${leaseOrderItem.depositAmount!}'/>" min="0" max="<#centToYuan value='${leaseOrderItem.depositAmount!}'/>" required/>
             </div>
         </div>
         <div class="row row-cols-4">
             <div class="form-group col align-items-end">
-                <label for="" class="">退款金额</label>
-                <input type="text" class="form-control red" name="" />
+                <label for="" class="">退款金额<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve" name="totalRefundAmount" min="0" ${isNotEmpty(leaseOrderItem)?'readonly':''}/>
             </div>
         </div>
+        <hr>
         <div class="row row-cols-4">
             <div class="form-group col">
-                <label for="" class="">收款人</label>
-                <input type="text" class="form-control" name="" required />
+                <label for="payee">收款人<i class="red">*</i></label>
+                <#bautoCompleteProvider _hiddenDomainId="payeeId" _hiddenDomainName="payeeId" _displayDomainId="payee" _displayDomainName="payee" _validatorMethod="isSelected" _required="true" _optionVariable="customerNameAutoCompleteOption"/>
             </div>
             <div class="form-group col">
-                <label for="" class="">金额</label>
-                <input type="text" class="form-control" name="" />
+                <label for="" class="">证件号<i class="red">*</i></label>
+                <input type="number" class="form-control" id="payeeCertificateNumber" readonly/>
             </div>
             <div class="form-group col">
-                <label for="" class="">退款方式</label>
-                <select id="" name="" class="form-control"></select>
+                <label for="" class="">金额<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve" name="payeeAmount" min="0" required/>
             </div>
             <div class="form-group col">
-                <label for="" class="">银行</label>
-                <input type="text" class="form-control" name="" />
+                <label for="" class="">退款方式<i class="red">*</i></label>
+                <select id="refundType" name="refundType" class="form-control" onchange="javascript:$('#bankInfo').toggle()"></select>
+                <#bcomboProvider _id="refundType" _provider="refundTypeProvider" _queryParams='{required:true}' _value=""/>
+            </div>
+        </div>
+        <div id="bankInfo" class="row row-cols-4" style="display: none;">
+            <div class="form-group col">
+                <label for="" class="">银行<i class="red">*</i></label>
+                <input type="text" class="form-control" name="bank" maxlength="50" required/>
             </div>
             <div class="form-group col">
-                <label for="" class="">银行卡号</label>
-                <input type="text" class="form-control" name="" />
+                <label for="" class="">银行卡号<i class="red">*</i></label>
+                <input type="text" class="form-control" name="bankCardNo" maxlength="20" required/>
             </div>
 
         </div>
         <div class="breadcrumb" data-toggle="collapse" data-target="#transferInfo" aria-controls="transferInfo">
             转抵信息
         </div>
-        <div id="transferInfo">
-            <div class="row row-cols-4 collapse show transfercard">
-                <div class="form-group col">
-                    <label for="" class="">收款人</label>
-                    <input type="text" class="form-control" name="" required />
-                </div>
-                <div class="form-group col">
-                    <label for="" class="">金额</label>
-                    <input type="text" class="form-control" name="" />
-                </div>
-                <div class="col align-items-end align-middle">
-                    <i class="fa fa-plus-square fa-lg text-primary px-3 boothPlus" aria-hidden="true"></i>
-                    <i class="fa fa-minus-square fa-lg text-primary boothMinus" aria-hidden="true"></i>
-                </div>
+        <div id="transferInfo" class="collapse">
+            <table class="table table-bordered table-hover table-striped" id="transferTable">
+                <thead>
+                <tr>
+                    <th class="text-center align-middle" style="width: 5%"><a id="addTransfer" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
+                    <th style="font-weight:normal;" >收款人<i class="red">*</i></th>
+                    <th style="font-weight:normal;" >证件号<i class="red">*</i></th>
+                    <th style="font-weight:normal; ">收款金额<i class="red">*</i></th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <label>营业执照状态<i class="red">*</i></label>
+            <div id="licenseStateContainer">
+            <#bradioGroupProvider _containerId="licenseStateContainer" _name="licenseState" _provider="licenseStateProvider"  _queryParams='{required:true}' _required="true"/>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-auto">
-                营业执照状态
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="" id="" value="option1" checked>
-                <label class="form-check-label" for="">
-                    未办理
-                </label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="" id="" value="option2">
-                <label class="form-check-label" for="">
-                    已变更
-                </label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="" id="" value="option2">
-                <label class="form-check-label" for="">
-                    未注销
-                </label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="" id="" value="option2">
-                <label class="form-check-label" for="">
-                    支付宝
-                </label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="" id="" value="option2">
-                <label class="form-check-label" for="">
-                    已注销
-                </label>
-            </div>
-        </div>
-        <div class="row">
+        <div class="row mt-1">
             <div class="form-group col-8">
-                <label for="">退款原因</label>
+                <label for="">退款原因<i class="red">*</i></label>
                 <textarea class="form-control" id="" rows="1" maxlength="50"></textarea>
             </div>
         </div>
@@ -131,58 +111,14 @@
 </div>
 
 </#bs4Body>
-
-<script id="boothTemp" type="text/html">
-    <div class="row row-cols-5 boothcard">
-        <div class="form-group col">
-            <label for="" class="">摊位编号</label>
-            <input type="text" class="form-control" name="" required />
-        </div>
-        <div class="form-group col">
-            <label for="" class="">租金</label>
-            <input type="text" class="form-control" name="" />
-        </div>
-        <div class="form-group col">
-            <label for="" class="">物业管理费</label>
-            <input type="text" class="form-control" name="" />
-        </div>
-        <div class="form-group col align-items-end">
-            <label for="" class="">保证金</label>
-            <input type="text" class="form-control" name="" />
-        </div>
-        <div class="col align-items-end">
-            <i class="fa fa-plus-square fa-lg text-primary px-3 boothPlus" aria-hidden="true"></i>
-            <i class="fa fa-minus-square fa-lg text-primary boothMinus" aria-hidden="true"></i>
-        </div>
-    </div>
-</script>
-
-<script>
-
-    $('#formSubmit').on('click', function (e) {
-        if (!$('#addForm').valid()) {
-            return false;
-        }
-    });
-
-
-    $('#getCustomer').on('click', function (e) {
-        alert('ss');
-        e.stopPropagation();
-    })
-
-
-
-
-    $('#transferInfo').on('click', '.boothPlus', function () {
-        $('#transferInfo').append(template('boothTemp'))
-    })
-
-    $('#transferInfo').on('click', '.boothMinus', function () {
-        if ($('.boothcard').length > 1) {
-            $(this).parents('.boothcard').remove()
-        }
-
-    })
-
+<#leaseOrder_refundApplyJs />
+<script id="transferItemTpl" type="text/html">
+    <tr data-index="{{index}}">
+        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
+        <td style="padding: .25rem!important;">
+            <#bautoCompleteProvider _escape="true" _hiddenDomainId="payeeId_{{index}}" _hiddenDomainName="payeeId_{{index}}" _displayDomainId="payee_{{index}}" _displayDomainName="payee_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="customerNameTableAutoCompleteOption"/>
+        </td>
+        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="certificateNumber_{{index}}" name="certificateNumber_{{index}}" readonly uncheck/></td>
+        <td style="padding: .25rem!important;"><input type="number" id="payeeAmount_{{index}}" name="payeeAmount_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+    </tr>
 </script>

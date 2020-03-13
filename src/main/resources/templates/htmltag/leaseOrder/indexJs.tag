@@ -366,18 +366,24 @@
 
     /**
      * 打开退款申请Handler
+     * @param type 1：租赁单退款 2： 子单退款
+     * @param subTableIndex
      */
-    function openRefundApplyHandler(subTableIndex) {
+    function openRefundApplyHandler(type,subTableIndex) {
         //获取选中行的数据
-        let rows = $('#subGrid'+subTableIndex).bootstrapTable('getSelections');
+        let rows = $('#subGrid' + subTableIndex).bootstrapTable('getSelections');
         if (null == rows || rows.length == 0) {
             bs4pop.alert('请选中一条数据');
             return;
         }
+        let url = '/leaseOrder/refundApply.html?id=' + rows[0].id;
+        if (type == 2) {
+            url += '&type=' + type;
+        }
 
         dia = bs4pop.dialog({
             title: '退款申请',
-            content: '/leaseOrder/refundApply.html?id='+rows[0].id,
+            content: url,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',

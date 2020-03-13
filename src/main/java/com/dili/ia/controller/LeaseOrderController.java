@@ -7,6 +7,7 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.IsRenewEnum;
+import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
 import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
@@ -137,13 +138,22 @@ public class LeaseOrderController {
     }
 
     /**
-     * 跳转到LeaseOrder新增页面
+     *
      * @param modelMap
-     * @return String
+     * @param id 对应租赁单ID 或 订单项ID
+     * @param type 1：租赁单退款 2： 子单退款
+     * @return
      */
     @ApiOperation("跳转到LeaseOrder退款申请页面")
     @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
-    public String refundApply(ModelMap modelMap) {
+    public String refundApply(ModelMap modelMap,Long id,Integer type) {
+        if(LeaseOrderRefundTypeEnum.LEASE_ORDER_REFUND.getCode().equals(type)){
+            modelMap.put("leaseOrder",leaseOrderService.get(id));
+        }else if(LeaseOrderRefundTypeEnum.LEASE_ORDER_ITEM_REFUND.getCode().equals(type)){
+            LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(id);
+            modelMap.put("leaseOrderItem",leaseOrderItem);
+            modelMap.put("leaseOrder",leaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
+        }
         return "leaseOrder/refundApply";
     }
 

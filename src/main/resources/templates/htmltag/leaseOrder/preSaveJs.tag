@@ -474,6 +474,12 @@
         }).map(function(){
             return $('#boothId_'+getIndex(this.id)).val();
         }).get();
+
+        if(!boothIds || boothIds.length == 0){
+            bs4pop.alert('请添加摊位！')
+            return false;
+        }
+
         if(arrRepeatCheck(boothIds)){
             bs4pop.alert('存在重复摊位，请检查！')
             return false;

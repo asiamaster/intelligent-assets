@@ -62,10 +62,10 @@ public interface TransferDeductionItem extends IBaseDomain {
 
     void setRefundOrderId(Long refundOrderId);
 
-    @Column(name = "`deduction_amount`")
-    @FieldDef(label="退款金额")
+    @Column(name = "`payee_amount`")
+    @FieldDef(label="收款人收款金额")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getDeductionAmount();
+    Long getPayeeAmount();
 
-    void setDeductionAmount(Long deductionAmount);
+    void setPayeeAmount(Long payeeAmount);
 }
