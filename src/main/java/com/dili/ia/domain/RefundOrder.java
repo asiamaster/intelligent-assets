@@ -111,20 +111,6 @@ public interface RefundOrder extends IBaseDomain {
 
     void setCustomerCellphone(String customerCellphone);
 
-    @Column(name = "`refund_operator_id`")
-    @FieldDef(label="结算操作员(经办人)")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getRefundOperatorId();
-
-    void setRefundOperatorId(Long refundOperatorId);
-
-    @Column(name = "`refund_operator_name`")
-    @FieldDef(label="结算操作员(经办人)", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getRefundOperatorName();
-
-    void setRefundOperatorName(String refundOperatorName);
-
     @Column(name = "`state`")
     @FieldDef(label="状态（1：已创建 2：已取消 3：已提交 4：已退款）")
     @EditMode(editor = FieldEditor.Number, required = false)
@@ -159,6 +145,13 @@ public interface RefundOrder extends IBaseDomain {
     Integer getRefundType();
 
     void setRefundType(Integer refundType);
+
+    @Column(name = "`payee_amount`")
+    @FieldDef(label="收款人收款金额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getPayeeAmount();
+
+    void setPayeeAmount(Long payeeAmount);
 
     @Column(name = "`bank`")
     @FieldDef(label="开户行", maxLength = 50)
@@ -250,6 +243,27 @@ public interface RefundOrder extends IBaseDomain {
     String getRefundReason();
 
     void setRefundReason(String refundReason);
+
+    @Column(name = "`refund_time`")
+    @FieldDef(label="提交时间")
+    @EditMode(editor = FieldEditor.Datetime, required = false)
+    Date getRefundTime();
+
+    void setRefundTime(Date refundTime);
+
+    @Column(name = "`refund_operator_id`")
+    @FieldDef(label="退款操作人ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getRefundOperatorId();
+
+    void setRefundOperatorId(Long refundOperatorId);
+
+    @Column(name = "`refund_operator`")
+    @FieldDef(label="退款操作人")
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getRefundOperator();
+
+    void setRefundOperator(String refundOperator);
 
     @Column(name = "`license_state`")
     @FieldDef(label="营业执照状态")
