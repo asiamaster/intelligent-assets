@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,15 +34,11 @@ public class RefundOrderDispatcherServiceImpl implements RefundOrderDispatcherSe
 
     @Autowired
     RefundOrderService refundOrderService;
-
-    @Lazy
+    @Autowired @Lazy
     private List<RefundOrderService> refundBizTypes;
     private Map<Integer,RefundOrderService> refundBiz = new HashMap<>();
     @PostConstruct
     public void init() {
-        if (CollectionUtils.isEmpty(refundBizTypes)){
-            return;
-        }
         for(RefundOrderService service : refundBizTypes) {
             for(Integer bizType : service.getBizType()) {
                 this.refundBiz.put(bizType, service);
