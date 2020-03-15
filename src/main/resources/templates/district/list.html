@@ -48,15 +48,6 @@
                     <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i
                             class="fa fa-plus"></i> 新增
                     </button>
-                    <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
-                            class="fa fa-pencil-square-o"></i> 更新
-                    </button>
-                    <button id="" type="button" class="btn btn-primary" onclick="delHandler()"><i
-                            class="fa "></i> 删除
-                    </button>
-                    <button id="btn_split" type="button" class="btn btn-primary" onclick="openDivisionHandler()"><i
-                            class="fa "></i> 划分区域
-                    </button>
                 </div>
                 <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-parent-id-field="parentId" data-query-params="queryParams">
                     <thead>
@@ -120,35 +111,24 @@
     });
 
     function oneFormatter(value, row) {
-        return '一级区域';
-    }
-
-
-    function twoFormatter(value, row) {
+        if(row.parentId == 0){
+            return "一级区域";
+        }
         return '二级区域';
     }
 
     function operateFormatter(value, row, index) {
-        var split = ['<a class="like" href="javascript:void(0)" onclick="openSplitHandler(' + row.id + ')" title="Like">',
-            '拆分摊位',
+        var split = ['<a class="like" href="javascript:void(0)" onclick="openDivisionHandler(' + row.id + ')" title="Like">',
+            '划分区域',
             '</a>  '];
 
         var oprate = [
-            '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">',
-            '查看',
             '</a>  ',
             '<a class="like" href="javascript:void(0)" onclick="openUpdateHandler(' + row.id + ')" title="Like">',
             '修改',
             '</a>  ',
             '<a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">',
-            '删除',
-            '</a>  ',
-            '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(1,' + row.id + ')" title="Remove">',
-            '启用',
-            '</a>  ',
-            '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(0,' + row.id + ')" title="Remove">',
-            '禁用',
-            '</a>  '
+            '删除'
         ];
         if (row.parentId === 0) {
             return split.join("") + oprate.join("");
@@ -170,15 +150,10 @@
         $("#_modal").find('.modal-title').text('区域新增');
     }
 
-    function openUpdateHandler() {
-        //获取选中行的数据
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            return;
-        }
+    function openUpdateHandler(id) {
+
         $("#_modal").modal();
-        $('#_modal .modal-body').load("/district/edit.html?id=" + rows[0].id);
+        $('#_modal .modal-body').load("/district/edit.html?id=" + id);
         $("#_modal").find('.modal-title').text('区域修改');
     }
 
@@ -279,15 +254,10 @@
         });
     }
 
-    function openDivisionHandler() {
-        //获取选中行的数据
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            return;
-        }
+    function openDivisionHandler(id) {
+
         $("#_modal").modal();
-        $('#_modal .modal-body').load("/district/division.html?id=" + rows[0].id);
+        $('#_modal .modal-body').load("/district/division.html?id=" + id);
         $("#_modal").find('.modal-title').text('区域划分');
     }
 

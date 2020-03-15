@@ -188,7 +188,6 @@
      * 查询处理
      */
     function queryDataHandler() {
-        debugger
         _grid.bootstrapTable('refreshOptions', {url: '/booth/listPage.action'});
     }
 

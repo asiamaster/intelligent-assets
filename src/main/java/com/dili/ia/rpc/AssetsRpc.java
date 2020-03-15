@@ -131,14 +131,27 @@ public interface AssetsRpc {
     BaseOutput<List<BoothDTO>> searchBooth(JSONObject query);
 
     /**
-     * 新增摊位租赁时间
+     * 新增摊位租赁时间，默认为冻结
      */
     @RequestMapping(value = "/api/boothRent/add", method = RequestMethod.POST)
     BaseOutput addBoothRent(BoothRentDTO input);
 
     /**
-     * 修改摊位租赁时间
+     * 根据@param{摊位}和@param{单号}修改出粗状态为已出租
      */
-    @RequestMapping(value = "/api/boothRent/update", method = RequestMethod.POST)
-    BaseOutput updateBoothRent(BoothRentDTO input);
+    @RequestMapping(value = "/api/boothRent/rent", method = RequestMethod.POST)
+    BaseOutput rentBoothRent(BoothRentDTO input);
+
+    /**
+     * 根据@param{摊位}和@param{单号}删除信息
+     */
+    @RequestMapping(value = "/api/boothRent/delete", method = RequestMethod.POST)
+    BaseOutput deleteBoothRent(BoothRentDTO input);
+
+    /**
+     * 根据@param{摊位}和@param{单号}修改@param{结束时间}
+     */
+    @RequestMapping(value = "/api/boothRent/updateEnd", method = RequestMethod.POST)
+    BaseOutput updateEndBoothRent(BoothRentDTO input);
+
 }
