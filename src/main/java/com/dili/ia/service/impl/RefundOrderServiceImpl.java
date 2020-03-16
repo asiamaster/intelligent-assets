@@ -150,8 +150,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if(service!=null){
             BaseOutput refundResult = service.submitHandler(refundOrder);
             if (!refundResult.isSuccess()){
-                LOG.info("提交到结算中心失败!退款回调业务，返回失败！" + refundResult.getMessage());
-                throw new RuntimeException("提交到结算中心失败！" + refundResult.getMessage());
+                LOG.info("提交回调业务返回失败！" + refundResult.getMessage());
+                throw new RuntimeException("提交回调业务返回失败！" + refundResult.getMessage());
             }
         }
 
@@ -206,38 +206,65 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
     @Override
     public BaseOutput doWithdrawDispatcher(RefundOrder refundOrder) {
-        try {
-            RefundOrderDispatcherService service=refundBiz.get(refundOrder.getBizType());
-            if(service!=null){
-                BaseOutput refundResult = service.withdrawHandler(refundOrder);
-                return refundResult;
-            }
-        } catch (RuntimeException e) {
-            LOG.info("测回异常！{}", e.getMessage());
-            return BaseOutput.failure(e.getMessage());
-        }catch (Exception e1){
-            LOG.info("测回异常！{}", e1.getMessage());
-            return BaseOutput.failure("测回异常");
+        if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
+            return BaseOutput.failure("撤回失败，状态已变更！");
         }
-        return BaseOutput.failure("测回异常");
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            return BaseOutput.failure("未登录");
+        }
+        refundOrder.setState(RefundOrderStateEnum.CREATED.getCode());
+        refundOrder.setWithdrawOperator(userTicket.getRealName());
+        refundOrder.setWithdrawOperatorId(userTicket.getId());
+        refundOrderService.update(refundOrder);
+
+        //获取业务service,调用业务实现
+        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
+        if(service!=null){
+            BaseOutput refundResult = service.withdrawHandler(refundOrder);
+            if (!refundResult.isSuccess()){
+                LOG.info("测回回调业务返回失败！" + refundResult.getMessage());
+                throw new RuntimeException("测回回调业务返回失败！" + refundResult.getMessage());
+            }
+        }
+
+        //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
+        BaseOutput<String> out= settlementRpc.cancelByCode(refundOrder.getCode());
+        if (!out.isSuccess()){
+            LOG.info("测回调用结算中心失败！" + out.getMessage() + out.getErrorData());
+            throw new RuntimeException("测回调用结算中心失败！" + out.getMessage());
+        }
+
+        return BaseOutput.success("撤回成功");
     }
 
     @Override
     public BaseOutput doRefundSuccessHandler(Integer bizType, Long refundOrderId) {
-        try {
-            RefundOrderDispatcherService service=refundBiz.get(bizType);
-            if(service!=null){
-                BaseOutput refundResult = service.refundSuccessHandler(refundOrderId);
-                return refundResult;
-            }
-        } catch (RuntimeException e) {
-            LOG.info("退款成功回调异常！{}", e.getMessage());
-            return BaseOutput.failure(e.getMessage());
-        }catch (Exception e1){
-            LOG.info("退款成功回调异常！{}", e1.getMessage());
-            return BaseOutput.failure("退款成功回调异常");
+        //@退款成功回调参数待讨论
+        RefundOrder refundOrder = refundOrderService.get(refundOrderId);
+        if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
+            return BaseOutput.failure("退款失败，状态已变更！");
         }
-        return BaseOutput.failure("退款成功回调异常");
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            return BaseOutput.failure("未登录");
+        }
+        refundOrder.setState(RefundOrderStateEnum.REFUNDED.getCode());
+        refundOrder.setWithdrawOperator(userTicket.getRealName());
+        refundOrder.setWithdrawOperatorId(userTicket.getId());
+        refundOrderService.update(refundOrder);
+
+        //获取业务service,调用业务实现
+        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
+        if(service!=null){
+            BaseOutput refundResult = service.withdrawHandler(refundOrder);
+            if (!refundResult.isSuccess()){
+                LOG.info("退款成功回调业务返回失败！" + refundResult.getMessage());
+                throw new RuntimeException("退款成功回调业务返回失败！" + refundResult.getMessage());
+            }
+        }
+
+        return BaseOutput.success("退款成功！");
     }
 
     @Override
