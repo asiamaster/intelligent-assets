@@ -4,7 +4,6 @@ import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.RefundOrderPrintDto;
-import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
@@ -184,15 +183,15 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setWay(ro.getRefundType());
 
         //@TODO部门待处理
-        settleOrder.setBusinessDepId(2L); //"业务部门ID
-        settleOrder.setBusinessDepName("测试部门");//"业务部门名称
+        settleOrder.setBusinessDepId(ro.getDepartmentId()); //"业务部门ID
+        settleOrder.setBusinessDepName(ro.getDepartmentName());//"业务部门名称
         settleOrder.setSubmitterId(userTicket.getId());// "提交人ID
         settleOrder.setSubmitterName(userTicket.getRealName());// "提交人姓名
         settleOrder.setSubmitterDepId(userTicket.getDepartmentId()); //"提交人部门ID
         settleOrder.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         settleOrder.setSubmitTime(LocalDateTime.now());
+        settleOrder.setBusinessType(ro.getBizType()); // 业务类型
         settleOrder.setAppId(settlementAppId);//应用ID
-        settleOrder.setBusinessType(BizTypeEnum.EARNEST.getCode()); // 业务类型
         settleOrder.setType(SettleTypeEnum.REFUND.getCode());// "结算类型  -- 退款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         settleOrder.setEditEnable(EditEnableEnum.NO.getCode());
@@ -204,6 +203,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput doWithdrawDispatcher(RefundOrder refundOrder) {
         if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){

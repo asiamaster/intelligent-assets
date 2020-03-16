@@ -275,9 +275,9 @@ public interface RefundOrder extends IBaseDomain {
     @Column(name = "`department_id`")
     @FieldDef(label="退款单对应的业务部门ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Integer getDepartmentId();
+    Long getDepartmentId();
 
-    void setDepartmentId(Integer departmentId);
+    void setDepartmentId(Long departmentId);
 
     @Column(name = "`department_name`")
     @FieldDef(label="退款单对应的部门名称", maxLength = 50)
