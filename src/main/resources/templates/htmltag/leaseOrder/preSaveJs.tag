@@ -495,14 +495,17 @@
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
-                    bs4pop.alert(ret.message, {type: 'error'});
+                    bs4pop.alert(ret.message, {type: 'error'},function () {
+                        parent.closeDialog(parent.dia);
+                    });
+                }else{
+                    parent.closeDialog(parent.dia);
                 }
             },
             error: function (a, b, c) {
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
-        parent.closeDialog(parent.dia);
     });
 
     $('#getCustomer').on('click', function (e) {

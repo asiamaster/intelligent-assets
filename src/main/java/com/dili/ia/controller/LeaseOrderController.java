@@ -5,6 +5,7 @@ import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
+import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.IsRenewEnum;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
@@ -281,6 +282,17 @@ public class LeaseOrderController {
             LOG.error("摊位租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
+    }
+
+    /**
+     * 退款单--新建
+     * @param refundOrderDto
+     * @return BaseOutput
+     */
+    @ApiOperation("退款单--新建")
+    @RequestMapping(value="/createRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
+        return BaseOutput.success("退款单--新建成功");
     }
 
 }
