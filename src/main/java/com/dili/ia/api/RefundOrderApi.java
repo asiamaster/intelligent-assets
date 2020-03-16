@@ -2,6 +2,7 @@ package com.dili.ia.api;
 
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.service.RefundOrderDispatcherService;
+import com.dili.ia.service.RefundOrderService;
 import com.dili.ss.domain.BaseOutput;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +29,7 @@ public class RefundOrderApi {
     private final static Logger LOG = LoggerFactory.getLogger(RefundOrderApi.class);
 
     @Autowired
-    RefundOrderDispatcherService refundOrderDispatcherService;
+    RefundOrderService refundOrderService;
 
     /**
      * 定金票据打印数据加载
@@ -43,7 +44,7 @@ public class RefundOrderApi {
             if(StringUtils.isBlank(businessCode) || null == reprint){
                 return BaseOutput.failure("参数错误");
             }
-            return refundOrderDispatcherService.queryPrintData(businessCode,reprint);
+            return refundOrderService.queryPrintData(businessCode,reprint);
         }catch (Exception e){
             LOG.error("获取打印数据异常！", e);
             return BaseOutput.failure(e.getMessage());
