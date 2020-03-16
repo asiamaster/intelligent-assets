@@ -190,51 +190,15 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     @Override
     public void earnestRefund(RefundOrder order) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null) {
-            throw new RuntimeException("未登陆");
-        }
-        BaseOutput checkResult = checkParams(order);
-        if (!checkResult.isSuccess()){
-            throw new RuntimeException(checkResult.getMessage());
-        }
-        order.setCreator(userTicket.getRealName());
-        order.setCreatorId(userTicket.getId());
-//        order.setR
-        order.setMarketId(userTicket.getFirmId());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
             throw new RuntimeException("编号生成器微服务异常");
         }
         order.setCode(bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
-        order.setState(RefundOrderStateEnum.CREATED.getCode());
-
-        refundOrderService.insertSelective(order);
+        refundOrderService.doAddHandler(order);
     }
 
-    private BaseOutput checkParams(RefundOrder order){
-        if (null == order.getOrderId()){//定金退款不是针对业务单，所以订单ID记录的是【客户账户ID】
-            return BaseOutput.failure("退款单orderId不能为空！");
-        }
-        if (null == order.getCustomerId()){
-            return BaseOutput.failure("客户ID不能为空！");
-        }
-        if (null == order.getCustomerName()){
-            return BaseOutput.failure("客户名称不能为空！");
-        }
-        if (null == order.getCertificateNumber()){
-            return BaseOutput.failure("客户证件号码不能为空！");
-        }
-        if (null == order.getCustomerCellphone()){
-            return BaseOutput.failure("客户联系电话不能为空！");
-        }
-        if (null == order.getTotalRefundAmount()){
-            return BaseOutput.failure("退款单金额不能为空！");
-        }
-
-        return BaseOutput.success();
-    }
 
     @Override
     public BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId){

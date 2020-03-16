@@ -31,8 +31,14 @@ public interface RefundOrderService extends BaseService<RefundOrder, Long> {
      * @param refundOrderId 退款单Id
      * @return BaseOutput
      * */
-    BaseOutput doRefundSuccessHandlerDispatcher(Integer bizType, Long refundOrderId);
+    BaseOutput doRefundSuccessHandler(Integer bizType, Long refundOrderId);
 
+    /**
+     * 退款单 --新增
+     * @param refundOrder 退款单
+     * @return BaseOutput
+     * */
+    BaseOutput doAddHandler(RefundOrder refundOrder);
     /**
      * 票据打印数据加载
      * @param businessCode 业务编码

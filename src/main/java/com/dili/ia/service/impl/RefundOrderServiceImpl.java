@@ -4,6 +4,7 @@ import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.RefundOrderPrintDto;
+import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
@@ -80,6 +81,53 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     private Long settlementAppId;
 
 
+    @Override
+    public BaseOutput doAddHandler(RefundOrder order) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登陆");
+        }
+        BaseOutput checkResult = checkParams(order);
+        if (!checkResult.isSuccess()){
+            throw new RuntimeException(checkResult.getMessage());
+        }
+        order.setCreator(userTicket.getRealName());
+        order.setCreatorId(userTicket.getId());
+        order.setMarketId(userTicket.getFirmId());
+        order.setMarketCode(userTicket.getFirmCode());
+        order.setState(RefundOrderStateEnum.CREATED.getCode());
+        order.setVersion(0);
+        refundOrderService.insertSelective(order);
+        return BaseOutput.success();
+    }
+    private BaseOutput checkParams(RefundOrder order){
+        if (null == order.getOrderId()){//定金退款不是针对业务单，所以订单ID记录的是【客户账户ID】
+            return BaseOutput.failure("退款单orderId不能为空！");
+        }
+        if (null == order.getCustomerId()){
+            return BaseOutput.failure("客户ID不能为空！");
+        }
+        if (null == order.getCustomerName()){
+            return BaseOutput.failure("客户名称不能为空！");
+        }
+        if (null == order.getCertificateNumber()){
+            return BaseOutput.failure("客户证件号码不能为空！");
+        }
+        if (null == order.getCustomerCellphone()){
+            return BaseOutput.failure("客户联系电话不能为空！");
+        }
+        if (null == order.getPayeeAmount()){
+            return BaseOutput.failure("退款单金额不能为空！");
+        }
+        if (null == order.getTotalRefundAmount()){
+            return BaseOutput.failure("退款单总金额不能为空！");
+        }
+        if (null == order.getBizType()){
+            return BaseOutput.failure("退款单业务类型不能为空！");
+        }
+
+        return BaseOutput.success();
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -175,7 +223,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
     @Override
-    public BaseOutput doRefundSuccessHandlerDispatcher(Integer bizType, Long refundOrderId) {
+    public BaseOutput doRefundSuccessHandler(Integer bizType, Long refundOrderId) {
         try {
             RefundOrderDispatcherService service=refundBiz.get(bizType);
             if(service!=null){
