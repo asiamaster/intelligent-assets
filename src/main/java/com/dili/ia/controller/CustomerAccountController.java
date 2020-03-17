@@ -142,13 +142,13 @@ public class CustomerAccountController {
      * @param customerId
      * @return
      */
-    @RequestMapping(value="/listByCustomerId.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput listByCustomerId(Long customerId) {
+    @RequestMapping(value="/getCustomerAccountByCustomerId.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput getCustomerAccountByCustomerId(Long customerId) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登陆");
         }
-        return BaseOutput.success().setData(customerAccountService.getCustomerAccountByCustomerId(customerId,/**userTicket.getFirmId()**/1L));
+        return BaseOutput.success().setData(customerAccountService.getCustomerAccountByCustomerId(customerId,userTicket.getFirmId()));
     }
 
 

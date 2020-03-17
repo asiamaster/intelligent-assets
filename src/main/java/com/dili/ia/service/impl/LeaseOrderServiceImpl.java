@@ -1,13 +1,13 @@
 package com.dili.ia.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.dili.ia.controller.LeaseOrderController;
+import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.LeaseOrderMapper;
+import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.CustomerAccountService;
@@ -29,10 +29,7 @@ import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
-import com.google.common.collect.Maps;
-import net.sf.cglib.beans.BeanMap;
-import okhttp3.internal.http2.ErrorCode;
-import org.apache.commons.beanutils.BeanUtils;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +39,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -70,10 +68,14 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     private PaymentOrderService paymentOrderService;
     @Value("${settlement.app-id}")
     private Long settlementAppId;
+    @Value("${settlement.handler.url}")
+    private String settlerHandlerUrl;
     @Autowired
     private UidFeignRpc uidFeignRpc;
     @Autowired
     private CustomerAccountService customerAccountService;
+    @Autowired
+    private AssetsRpc assetsRpc;
 
     /**
      * 摊位租赁单保存
@@ -149,7 +151,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @return
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
+    @GlobalTransactional
     public BaseOutput<Boolean> updateLeaseOrderBySettleInfo(SettleOrder settleOrder) {
         PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
         condition.setCode(settleOrder.getBusinessCode());
@@ -167,7 +170,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         //摊位租赁摊位租赁单及摊位租赁单项相关信息改动
         LeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
         if (LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
-            //TODO 解冻并消费保证金、定金、转低
             //第一笔消费抵扣保证金
             deductionLeaseOrderItemDepositAmount(leaseOrder.getId());
             //消费定金、转低
@@ -175,6 +177,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             if(!customerAccountOutput.isSuccess()){
                 throw new RuntimeException(customerAccountOutput.getMessage());
             }
+            //解冻出租摊位
+            leaseBooth(leaseOrder);
         }
         if ((leaseOrder.getWaitAmount() - paymentOrderPO.getAmount()) == 0L) {
             leaseOrder.setPayState(PayStateEnum.PAID.getCode());
@@ -199,6 +203,20 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     /**
+     * 解冻消费摊位
+     * @param leaseOrder
+     */
+    private void leaseBooth(LeaseOrder leaseOrder) {
+        BoothRentDTO boothRentDTO = new BoothRentDTO();
+        boothRentDTO.setOrderId(leaseOrder.getId().toString());
+        BaseOutput assetsOutput = assetsRpc.rentBoothRent(boothRentDTO);
+        if(!assetsOutput.isSuccess()){
+            LOG.error("摊位解冻出租异常{}",assetsOutput.getMessage());
+            throw new RuntimeException(assetsOutput.getMessage());
+        }
+    }
+
+    /**
      * 提交付款
      *
      * @param id         租赁单ID
@@ -208,6 +226,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      */
     @Override
     @Transactional
+    @GlobalTransactional
     public BaseOutput submitPayment(Long id, Long amount, Long waitAmount) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
@@ -215,24 +234,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
         //更新摊位租赁单状态
         LeaseOrder leaseOrder = get(id);
-        //提交付款条件：已创建状态或已提交状态
-        if (!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState()) &&
-                !LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
-            String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
-            LOG.info("租赁单编号【{}】 状态为【{}】，不可以进行提交付款操作", leaseOrder.getCode(), stateName);
-            throw new RuntimeException("租赁单状态为【" + stateName + "】，不可以进行提交付款操作");
-        }
-        if (leaseOrder.getWaitAmount().equals(0L)) {
-            throw new RuntimeException("摊位租赁单费用已结清");
-        }
-        if (amount > leaseOrder.getWaitAmount()) {
-            LOG.info("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());
-            throw new RuntimeException("支付金额大于待付金额");
-        }
-        if (!waitAmount.equals(leaseOrder.getWaitAmount())) {
-            LOG.info("摊位租赁单待缴费金额已发生变更，请重试【ID {}】 旧金额【{}】新金额【{}】", id, waitAmount, leaseOrder.getWaitAmount());
-            throw new RuntimeException("摊位租赁单待缴费金额已发生变更，请重试");
-        }
+        //检查提交付款
+        checkSubmitPayment(id, amount, waitAmount, leaseOrder);
 
         //新增缴费单
         PaymentOrder paymentOrder = buildPaymentOrder(leaseOrder);
@@ -240,8 +243,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         paymentOrderService.insertSelective(paymentOrder);
 
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
-            //@TODO 摊位 定金 保证金 转低冻结
-
             //冻结保证金
             frozenLeaseOrderItemDepositAmount(id);
             //冻结定金和转低
@@ -249,7 +250,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             if(!customerAccountOutput.isSuccess()){
                 throw new RuntimeException(customerAccountOutput.getMessage());
             }
-
+            //冻结摊位
+            frozenBooth(leaseOrder);
             leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
             leaseOrder.setPaymentId(paymentOrder.getId());
             cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
@@ -281,6 +283,73 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             throw new RuntimeException(settlementOutput.getMessage());
         }
         return settlementOutput;
+    }
+
+    /**
+     * 冻结摊位
+     * @param leaseOrder
+     */
+    private void frozenBooth(LeaseOrder leaseOrder) {
+        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+        condition.setLeaseOrderId(leaseOrder.getId());
+        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+        leaseOrderItems.forEach(o->{
+            BoothRentDTO boothRentDTO = new BoothRentDTO();
+            boothRentDTO.setBoothId(o.getBoothId());
+            boothRentDTO.setStart(leaseOrder.getStartTime());
+            boothRentDTO.setEnd(leaseOrder.getEndTime());
+            boothRentDTO.setOrderId(leaseOrder.getId().toString());
+            BaseOutput assetsOutput = assetsRpc.addBoothRent(boothRentDTO);
+            if(!assetsOutput.isSuccess()){
+                if(assetsOutput.getCode().equals("2500")){
+                    throw new RuntimeException(o.getBoothName()+"状态异常，请重新修改后保存");
+                }else{
+                    throw new RuntimeException(assetsOutput.getMessage());
+                }
+            }
+        });
+    }
+
+    /**
+     * 解冻摊位
+     * @param leaseOrder
+     */
+    private void unFrozenBooth(LeaseOrder leaseOrder) {
+        BoothRentDTO boothRentDTO = new BoothRentDTO();
+        boothRentDTO.setOrderId(leaseOrder.getId().toString());
+        BaseOutput assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
+        if(!assetsOutput.isSuccess()){
+            LOG.error("摊位解冻异常{}",assetsOutput.getMessage());
+            throw new RuntimeException(assetsOutput.getMessage());
+        }
+    }
+
+    /**
+     * 检查是否可以进行提交付款
+     * @param id
+     * @param amount
+     * @param waitAmount
+     * @param leaseOrder
+     */
+    private void checkSubmitPayment(Long id, Long amount, Long waitAmount, LeaseOrder leaseOrder) {
+        //提交付款条件：已创建状态或已提交状态
+        if (!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState()) &&
+                !LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
+            String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
+            LOG.info("租赁单编号【{}】 状态为【{}】，不可以进行提交付款操作", leaseOrder.getCode(), stateName);
+            throw new RuntimeException("租赁单状态为【" + stateName + "】，不可以进行提交付款操作");
+        }
+        if (leaseOrder.getWaitAmount().equals(0L)) {
+            throw new RuntimeException("摊位租赁单费用已结清");
+        }
+        if (amount > leaseOrder.getWaitAmount()) {
+            LOG.info("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());
+            throw new RuntimeException("支付金额大于待付金额");
+        }
+        if (!waitAmount.equals(leaseOrder.getWaitAmount())) {
+            LOG.info("摊位租赁单待缴费金额已发生变更，请重试【ID {}】 旧金额【{}】新金额【{}】", id, waitAmount, leaseOrder.getWaitAmount());
+            throw new RuntimeException("摊位租赁单待缴费金额已发生变更，请重试");
+        }
     }
 
     /**
@@ -460,7 +529,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         settleOrder.setCustomerPhone(leaseOrder.getCustomerCellphone());
         settleOrder.setMarketId(userTicket.getFirmId());
         settleOrder.setMarketCode(userTicket.getFirmCode());
-        settleOrder.setReturnUrl("http://ia.diligrp.com:8381/api/leaseOrder/settlementDealHandler");
+        settleOrder.setReturnUrl(settlerHandlerUrl);
         settleOrder.setSubmitterDepId(userTicket.getDepartmentId());
         settleOrder.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         settleOrder.setSubmitterId(userTicket.getId());
@@ -507,6 +576,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @return
      */
     @Transactional
+    @GlobalTransactional
     @Override
     public BaseOutput withdrawOrder(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -526,7 +596,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrder.setState(LeaseOrderStateEnum.CREATED.getCode());
         cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.CREATED);
 
-        //TODO 摊位、保证金、定金、转低解冻
         //解冻摊位保证金
         unFrozenLeaseOrderItemDepositAmount(id);
         //解冻定金、转抵
@@ -534,6 +603,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if(!customerAccountOutput.isSuccess()){
             throw new RuntimeException(customerAccountOutput.getMessage());
         }
+        //解冻摊位
+        unFrozenBooth(leaseOrder);
 
         return BaseOutput.success();
     }
@@ -544,6 +615,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      *
      * @param paymentId
      */
+    @GlobalTransactional
     private void withdrawPaymentOrder(Long paymentId) {
         PaymentOrder payingOrder = paymentOrderService.get(paymentId);
         if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {

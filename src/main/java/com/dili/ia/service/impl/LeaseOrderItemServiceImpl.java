@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.ia.controller.LeaseOrderItemController;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
@@ -9,6 +10,7 @@ import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.glossary.StopRentStateEnum;
 import com.dili.ia.glossary.StopWayEnum;
 import com.dili.ia.mapper.LeaseOrderItemMapper;
+import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ss.base.BaseServiceImpl;
@@ -16,6 +18,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +44,8 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
 
     @Autowired
     private LeaseOrderService leaseOrderService;
+    @Autowired
+    private AssetsRpc assetsRpc;
 
     /**
      * 停租操作
@@ -49,8 +54,8 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
      */
     @Override
     @Transactional
+    @GlobalTransactional
     public BaseOutput stopRent(LeaseOrderItem leaseOrderItem) {
-
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
@@ -74,6 +79,17 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
             leaseOrderItem.setStopTime(calendar.getTime());
             leaseOrderItem.setStopRentState(StopRentStateEnum.WAIT_TIMER_EXE.getCode());
             leaseOrderItem.setVersion(leaseOrderItemOld.getVersion());
+        }
+
+        //修改摊位租赁时间段
+        BoothRentDTO boothRentDTO = new BoothRentDTO();
+        boothRentDTO.setBoothId(leaseOrderItemOld.getBoothId());
+        boothRentDTO.setOrderId(leaseOrderItemOld.getLeaseOrderId().toString());
+        boothRentDTO.setEnd(leaseOrderItem.getStopTime());
+        BaseOutput assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
+        if(!assetsOutput.isSuccess()){
+            LOG.error("摊位 {} 停租异常{}",leaseOrderItemOld.getBoothName(),assetsOutput.getMessage());
+            throw new RuntimeException(assetsOutput.getMessage());
         }
         if(updateSelective(leaseOrderItem) == 0){
             throw new RuntimeException("多人操作，请重试！");

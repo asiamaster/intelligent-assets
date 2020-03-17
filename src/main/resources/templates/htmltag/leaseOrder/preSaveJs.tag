@@ -303,7 +303,7 @@
         if(!customerId) return;
         $.ajax({
             type: "get",
-            url: "/customerAccount/listByCustomerId.action",
+            url: "/customerAccount/getCustomerAccountByCustomerId.action",
             data: {customerId},
             dataType: "json",
             async : false,
