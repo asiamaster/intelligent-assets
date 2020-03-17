@@ -1,13 +1,16 @@
 /**
  *
- * @Date 2019-02-22 21:32:00
+ * @Date 2019-03-17 09:00:00
  * @author chenliangfang
  *
  ***/
 
-
 /************  start **************/
 /************  end ***************/
+
+
+window.domain = 'diligrp.com';
+
 
 /************* 刷卡获取客户信息  start *****************/
 // 客户名称
@@ -74,6 +77,8 @@ $('#getCustomer').on('click', function (e) {
         }
     });
 });
+
+
 /**
  * 读身份证卡
  * @return {IDCardNo:'5116021989...'}
@@ -85,64 +90,34 @@ function reader() {
 /************* 刷卡获取客户信息  end *****************/
 
 
+/**
+无此客户点击注册
+*/
 
-/************ 初始化日期/时间 start **************/
-$(function () {
-    lay('.laydate').each(function () {
-        laydate.render({
-            elem: this,
-            trigger: 'click',
-            type: 'date',
-            theme: '#007bff',
-            done: function (value, date) {
-                isStartEndDatetime(value, this.elem);
-            }
-        });
+var registerDia;
 
+function openCustomerRegister() {
+    let url = 'http://customer.diligrp.com:8382/customer/register.action?sourceSystem=INTELLIGENT_ASSETS&sourceChannel=bg_create';
+    registerDia = bs4pop.dialog({
+        title: '新增客户',
+        content: url,
+        isIframe: true,
+        closeBtn: true,
+        backdrop: 'static',
+        width: '600',
+        height: '700',
     });
-    lay('.laydatetime').each(function () {
-        laydate.render({
-            elem: this,
-            trigger: 'click',
-            type: 'datetime',
-            theme: '#007bff',
-            done: function (value, date) {
-                isStartEndDatetime(value, this.elem);
-            }
-        });
-    });
-})
-//始结束时间对比
-function isStartEndDatetime(date, el){
-    let start = new Date($('.laystart').val());
-    let end = new Date($('.layend').val());
-    if ($(el).attr('class').indexOf('laystart')>-1 && end) {
-        if (moment(date).isSameOrAfter(end)) {
-            bs4pop.alert('结束时间需大于开始时间',{} ,function () {$(el).val('')});
-        }
-    } else if (start && $(el).attr('class').indexOf('layend')>-1 ) {
-        if (moment(start).isSameOrAfter(date)) {
-            bs4pop.alert('结束时间需大于开始时间',{} ,function () {$(el).val('')});
-        }
+}
+
+window.addEventListener('message', function (e) {
+    debugger
+    if(e.data){
+        registerDia.hide();
     }
-}
-/************ 初始化日期/时间 end **************/
+}, false);
 
 
+$('#goCustomerRegister').on('click', function(){
+    openCustomerRegister();
+});
 
-
-/************ HTML反转义 start **************/
-function HTMLDecode(str) {
-    var s = "";
-    if (str.length == 0) return "";
-    s = str.replace(/&amp;/g, "&");
-    s = s.replace(/&lt;/g, "<");
-    s = s.replace(/&gt;/g, ">");
-    s = s.replace(/&nbsp;/g, " ");
-    s = s.replace(/&#39;/g, "\'");
-    s = s.replace(/&quot;/g, "\"");
-    s = s.replace(/<br\/>/g, "\n");
-    return s;
-}
-
-/************ HTML反转义 end **************/
