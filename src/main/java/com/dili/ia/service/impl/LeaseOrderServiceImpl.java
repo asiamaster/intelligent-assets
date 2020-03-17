@@ -10,10 +10,7 @@ import com.dili.ia.mapper.LeaseOrderMapper;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
-import com.dili.ia.service.CustomerAccountService;
-import com.dili.ia.service.LeaseOrderItemService;
-import com.dili.ia.service.LeaseOrderService;
-import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -76,6 +73,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     private CustomerAccountService customerAccountService;
     @Autowired
     private AssetsRpc assetsRpc;
+    @Autowired
+    private RefundOrderService refundOrderService;
 
     /**
      * 摊位租赁单保存
@@ -823,5 +822,30 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemPrintDtos);
         printDataDto.setItem(BeanMapUtil.beanToMap(leaseOrderPrintDto));
         return BaseOutput.success().setData(printDataDto);
+    }
+
+    @Autowired
+    private TransferDeductionItemService transferDeductionItemService;
+
+    @Override
+    @Transactional
+    public BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
+        if(!refundOrderService.doAddHandler(refundOrderDto).isSuccess()){
+            throw new RuntimeException("退款单新增异常");
+        }
+
+        if(CollectionUtils.isNotEmpty(refundOrderDto.getTransferDeductionItems())){
+            refundOrderDto.getTransferDeductionItems().forEach(o->{
+                o.setRefundOrderId(refundOrderDto.getId());
+                transferDeductionItemService.insertSelective(o);
+            });
+        }
+        LeaseOrder leaseOrder = DTOUtils.newInstance(LeaseOrder.class);
+        leaseOrder.setId(refundOrderDto.getOrderId());
+        leaseOrder.setRefundState(RefundStateEnum.REFUNDING.getCode());
+        if(updateSelective(leaseOrder) == 0){
+            throw new RuntimeException("多人操作，请重试！");
+        }
+        return BaseOutput.success();
     }
 }
