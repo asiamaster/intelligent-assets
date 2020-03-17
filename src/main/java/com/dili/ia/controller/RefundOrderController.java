@@ -160,14 +160,7 @@ public class RefundOrderController {
         if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("取消失败，定金单状态已变更！");
         }
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null){
-            return BaseOutput.failure("未登录！");
-        }
-        refundOrder.setCancelerId(userTicket.getId());
-        refundOrder.setCanceler(userTicket.getRealName());
-        refundOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
-        refundOrderService.updateSelective(refundOrder);
+        refundOrderService.doCancelDispatcher(refundOrder);
         return BaseOutput.success("取消成功");
     }
 }

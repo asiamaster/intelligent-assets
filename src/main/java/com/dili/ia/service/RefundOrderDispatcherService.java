@@ -32,6 +32,12 @@ public interface RefundOrderDispatcherService extends BaseService<RefundOrder, L
      * @return BaseOutput
      * */
     BaseOutput refundSuccessHandler(RefundOrder refundOrder);
+    /**
+     * 退款单 --取消
+     * @param refundOrder 退款单
+     * @return BaseOutput
+     * */
+    BaseOutput cancelHandler(RefundOrder refundOrder);
 
     /**
      * 票据打印  --- 业务数据加载

@@ -5,6 +5,7 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.RefundOrderPrintDto;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
@@ -125,6 +126,29 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             return BaseOutput.failure("退款单业务类型不能为空！");
         }
 
+        return BaseOutput.success();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public BaseOutput doCancelDispatcher(RefundOrder refundOrder) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null){
+            return BaseOutput.failure("未登录！");
+        }
+        refundOrder.setCancelerId(userTicket.getId());
+        refundOrder.setCanceler(userTicket.getRealName());
+        refundOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
+        refundOrderService.updateSelective(refundOrder);
+        //获取业务service,调用业务实现
+        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
+        if(service!=null){
+            BaseOutput refundResult = service.cancelHandler(refundOrder);
+            if (!refundResult.isSuccess()){
+                LOG.info("提交回调业务返回失败！" + refundResult.getMessage());
+                throw new RuntimeException("提交回调业务返回失败！" + refundResult.getMessage());
+            }
+        }
         return BaseOutput.success();
     }
 

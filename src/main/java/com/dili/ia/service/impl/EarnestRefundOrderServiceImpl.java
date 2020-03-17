@@ -91,6 +91,11 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     }
 
     @Override
+    public BaseOutput cancelHandler(RefundOrder refundOrder) {
+        return BaseOutput.success();
+    }
+
+    @Override
     public BaseOutput<RefundOrderPrintDto> buildBusinessPrintData(RefundOrderPrintDto refundOrderPrintDto) {
         refundOrderPrintDto.setPrintTemplateCode(PrintTemplateEnum.EARNEST_REFUND_ORDER.getCode());
         return BaseOutput.success().setData(refundOrderPrintDto);

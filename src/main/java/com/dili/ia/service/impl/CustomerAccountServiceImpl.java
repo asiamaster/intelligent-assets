@@ -14,6 +14,7 @@ import com.dili.ia.service.EarnestTransferOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransactionDetailsService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
@@ -187,7 +188,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public EarnestTransferOrder addEarnestTransferOrder(EarnestTransferDto efDto){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw  new RuntimeException("未登陆");
+            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
         }
         CustomerAccount payeeCustomerAccount = this.getCustomerAccountByCustomerId(efDto.getCustomerId(), userTicket.getFirmId());
         //保存定金转移单
@@ -215,7 +216,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public void addEarnestRefund(RefundOrder order) {
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
-            throw new RuntimeException("编号生成器微服务异常");
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
         }
         order.setCode(bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
@@ -228,11 +229,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         try {
             Integer sceneType = TransactionSceneTypeEnum.FROZEN.getCode();
             this.changeCustomerAmountAndDetails(sceneType, orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
-            return BaseOutput.success("处理成功！");
+            return BaseOutput.success();
         } catch (RuntimeException e) {
             return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
-            return BaseOutput.failure("处理出错！");
+            return BaseOutput.failure();
         }
     }
 
