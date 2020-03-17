@@ -10,6 +10,7 @@
 
 
 window.domain = 'diligrp.com';
+var registerDia;
 
 
 /************* 刷卡获取客户信息  start *****************/
@@ -19,6 +20,8 @@ var customerNameAutoCompleteOption = {
     serviceUrl: '/customer/list.action',
     paramName: 'name',
     displayFieldName: 'name',
+    showNoSuggestionNotice: true,
+    noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>',
     transformResult: function (result) {
         return {
             suggestions: $.map(result, function (dataItem) {
@@ -90,11 +93,18 @@ function reader() {
 /************* 刷卡获取客户信息  end *****************/
 
 
+/************ postMessage 监听消息 start **************/
+function initMsg(fn){
+    window.addEventListener('message', function (e) {
+        fn(e.data);
+    }, false);
+}
+/************  end ***************/
+
+
 /**
 无此客户点击注册
 */
-
-var registerDia;
 
 function openCustomerRegister() {
     let url = 'http://customer.diligrp.com:8382/customer/register.action?sourceSystem=INTELLIGENT_ASSETS&sourceChannel=bg_create';
@@ -109,15 +119,15 @@ function openCustomerRegister() {
     });
 }
 
-window.addEventListener('message', function (e) {
-    debugger
-    if(e.data){
+initMsg(function (data) {
+    if (JSON.parse(data)["isClose"]) {
         registerDia.hide();
     }
-}, false);
-
+});
 
 $('#goCustomerRegister').on('click', function(){
     openCustomerRegister();
 });
+
+
 
