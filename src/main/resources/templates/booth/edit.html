@@ -49,9 +49,9 @@
             <div class="form-group col">
                 <label for="">是否转角</label>
                 <select class="form-control" id="corner" name="corner">
-                    <option value="1">是</option>
-                    <option value="0">否</option>
+
                 </select>
+                <#bcomboProvider _id="corner" _provider="cornerProvider" _value="${obj.corner!}" />
             </div>
             <div class="form-group col-8">
                 <label for="">备注</label>
