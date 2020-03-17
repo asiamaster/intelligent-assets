@@ -28,7 +28,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     CustomerAccount getCustomerAccountByCustomerId(Long customerId, Long marketId);
 
     /**
-     * 客户账户定金转移
+     * 客户账户 -- 定金转移
      * @param earnestTransferOrder
      * @return
      * */
@@ -38,7 +38,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param order
      * @return
      * */
-    void earnestRefund(RefundOrder order);
+    void addEarnestRefund(RefundOrder order);
     /**
      * 根据用户信息，新增客户账户
      * @param customerId 客户ID
@@ -47,14 +47,14 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param certificateNumber 客户证件号码
      * @return CustomerAccount 客户账户信息
      * */
-    CustomerAccount creatCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber);
+    CustomerAccount addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber);
 
     /**
      * 根据用户信息，新增客户账户
      * @param efDto EarnestTransferDto
      * @return EarnestTransferOrder 转移单
      * */
-    EarnestTransferOrder createEarnestTransferOrder(EarnestTransferDto efDto);
+    EarnestTransferOrder addEarnestTransferOrder(EarnestTransferDto efDto);
 
     /**
      * 摊位租赁【提交】-- 客户账户金额[冻结]及流水变动记录
@@ -96,7 +96,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId);
 
     /**
-     * 客户账户 -- 冻结定金
+     * 客户账户 -- 冻结定金， 定金【冻结金额】加，【可用余额】减，【余额】不变
      * @param customerId 客户ID
      * @param marketId 市场ID
      * @param amount 冻结金额
@@ -104,12 +104,27 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * */
     void frozenEarnest(Long customerId, Long marketId, Long amount);
     /**
-     * 客户账户 -- 【定金可用余额】 和 【定金余额】增加
+     * 客户账户 -- 解冻定金， 定金【冻结金额】见，【可用余额】加，【余额】不变
      * @param customerId 客户ID
      * @param marketId 市场ID
-     * @param availableAmount 【定金可用余额】增加金额
-     * @param balanceAmount 【定金余额】 增加金额
+     * @param amount 冻结金额
      * @return
      * */
-    void addEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount);
+    void unfrozenEarnest(Long customerId, Long marketId, Long amount);
+    /**
+     * 客户账户 定金单付款成功-- 【定金可用余额】 和 【定金余额】增加
+     * @param customerId 客户ID
+     * @param marketId 市场ID
+     * @param amount 付款成功金额
+     * @return
+     * */
+    void paySuccessEarnest(Long customerId, Long marketId, Long amount);
+    /**
+     * 客户账户 定金单退款成功-- 实际是解冻 和 退款扣除。定金【定金可用余额】不变 ， 【定金余额】减少，【冻结金额】减少
+     * @param customerId 客户ID
+     * @param marketId 市场ID
+     * @param amount 退款成功金额
+     * @return
+     * */
+    void refundSuccessEarnest(Long customerId, Long marketId, Long amount);
 }

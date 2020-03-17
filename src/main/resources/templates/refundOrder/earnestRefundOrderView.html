@@ -8,76 +8,76 @@
         <div class="row row-cols-4">
             <div class="form-group col">
                 <label for="" class="">退款单编号</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${refundOrder.code!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">对应订单编号</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${refundOrder.orderCode!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">状态</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${refundOrder.state!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">退款金额</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="<#centToYuan value='${refundOrder.totalRefundAmount!}'/>" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">客户名称</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${refundOrder.customerName!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">证件号码</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${refundOrder.certificateNumber!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">联系电话</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${refundOrder.customerCellphone!}" disabled />
             </div>
         </div>
         <div class="breadcrumb">
             退款详情
         </div>
-        <div class="row row-cols-4">
-            <div class="form-group col">
-                <label for="" class="">租金</label>
-                <input type="text" class="form-control" value="" disabled />
-            </div>
-            <div class="form-group col">
-                <label for="" class="">市场管理费</label>
-                <input type="text" class="form-control" value="" disabled />
-            </div>
-            <div class="form-group col">
-                <label for="" class="">保证金</label>
-                <input type="text" class="form-control" value="" disabled />
-            </div>
-        </div>
+<!--        <div class="row row-cols-4">-->
+<!--            <div class="form-group col">-->
+<!--                <label for="" class="">租金</label>-->
+<!--                <input type="text" class="form-control" value="" disabled />-->
+<!--            </div>-->
+<!--            <div class="form-group col">-->
+<!--                <label for="" class="">市场管理费</label>-->
+<!--                <input type="text" class="form-control" value="" disabled />-->
+<!--            </div>-->
+<!--            <div class="form-group col">-->
+<!--                <label for="" class="">保证金</label>-->
+<!--                <input type="text" class="form-control" value="" disabled />-->
+<!--            </div>-->
+<!--        </div>-->
         <div class="row row-cols-4">
             <div class="form-group col">
                 <label for="" class="">收款人</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${refundOrder.payee!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">退款金额</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="<#centToYuan value='${refundOrder.payeeAmount!}'/>" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">退款方式</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${refundOrder.refundType!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">开户行</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${refundOrder.bank!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">银行账号</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${refundOrder.bankCardNo!}" disabled />
             </div>
         </div>
         <div class="row">
             <div class="form-group col-8">
                 <label for="">退款原因</label>
-                <textarea class="form-control" id="" rows="1" maxlength="50"></textarea>
+                <textarea class="form-control" id="" rows="1" maxlength="50">${refundOrder.refundReason!}</textarea>
             </div>
         </div>
         <div class="breadcrumb" data-toggle="collapse" data-target="#recordInfo" aria-controls="recordInfo">

@@ -4,7 +4,6 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
-import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -30,8 +29,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class RefundOrderController {
     @Autowired
     RefundOrderService refundOrderService;
-    @Autowired
-    RefundOrderDispatcherService refundOrderDispatcherService;
 
     /**
      * 跳转到RefundOrder页面
@@ -114,7 +111,7 @@ public class RefundOrderController {
             if (refundOrder == null){
                 return BaseOutput.failure("未查询到退款单！");
             }
-            BaseOutput out = refundOrderDispatcherService.doSubmitDispatcher(refundOrder);
+            BaseOutput out = refundOrderService.doSubmitDispatcher(refundOrder);
             return out;
         } catch (RuntimeException e) {
             return BaseOutput.failure(e.getMessage());
@@ -139,7 +136,7 @@ public class RefundOrderController {
             if (refundOrder == null){
                 return BaseOutput.failure("未查询到退款单！");
             }
-            BaseOutput out = refundOrderDispatcherService.doWithdrawDispatcher(refundOrder);
+            BaseOutput out = refundOrderService.doWithdrawDispatcher(refundOrder);
             return out;
         } catch (RuntimeException e) {
             return BaseOutput.failure(e.getMessage());
@@ -163,14 +160,7 @@ public class RefundOrderController {
         if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("取消失败，定金单状态已变更！");
         }
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null){
-            return BaseOutput.failure("未登录！");
-        }
-        refundOrder.setCancelerId(userTicket.getId());
-        refundOrder.setCanceler(userTicket.getRealName());
-        refundOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
-        refundOrderService.updateSelective(refundOrder);
+        refundOrderService.doCancelDispatcher(refundOrder);
         return BaseOutput.success("取消成功");
     }
 }

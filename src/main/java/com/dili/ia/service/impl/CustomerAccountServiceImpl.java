@@ -1,7 +1,9 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.*;
-import com.dili.ia.domain.dto.CustomerQuery;
+import com.dili.ia.domain.CustomerAccount;
+import com.dili.ia.domain.EarnestTransferOrder;
+import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransactionDetails;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.CustomerAccountMapper;
@@ -11,20 +13,20 @@ import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.EarnestTransferOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransactionDetailsService;
+import com.dili.ia.util.ResultCodeConst;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -83,27 +85,50 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
         Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
         if (count < 1){
-            throw new BusinessException("2","当前数据正已被其他用户操作，更新失败！");
+            throw new BusinessException(ResultCode.DATA_ERROR,"当前数据正已被其他用户操作，更新失败！");
         }
     }
 
     @Override
-    public void addEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount) {
+    public void unfrozenEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
-        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + availableAmount);
-        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + balanceAmount);
+        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
+        customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
 
         Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
         if (count < 1){
-            throw new BusinessException("2","当前数据正已被其他用户操作，更新失败！");
+            throw new BusinessException(ResultCode.DATA_ERROR,"当前数据正已被其他用户操作，更新失败！");
         }
     }
 
     @Override
-    public CustomerAccount creatCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber){
+    public void paySuccessEarnest(Long customerId, Long marketId, Long amount) {
+        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
+        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + amount);
+
+        Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
+        if (count < 1){
+            throw new BusinessException(ResultCode.DATA_ERROR, "当前数据正已被其他用户操作，更新失败！");
+        }
+    }
+    @Override
+    public void refundSuccessEarnest(Long customerId, Long marketId, Long amount) {
+        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() - amount);
+        customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
+
+        Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
+        if (count < 1){
+            throw new BusinessException(ResultCode.DATA_ERROR, "当前数据正已被其他用户操作，更新失败！");
+        }
+    }
+
+    @Override
+    public CustomerAccount addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw new RuntimeException("未登录");
+            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
         }
         CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
         customerAccount.setMarketId(userTicket.getFirmId());
@@ -132,19 +157,19 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         payerCustomerAccount.setEarnestAvailableBalance(payerCustomerAccount.getEarnestAvailableBalance() - order.getAmount());
         int countPayer = this.getActualDao().updateAmountByAccountIdAndVersion(payerCustomerAccount);
         if (countPayer != 1){
-            throw new RuntimeException("客户账户正在被多人操作，稍后再试");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户账户正在被多人操作，稍后再试");
         }
         CustomerAccount payeeCustomerAccount = this.get(order.getPayeeCustomerAccountId());
         payeeCustomerAccount.setEarnestBalance(payeeCustomerAccount.getEarnestBalance() + order.getAmount());
         payeeCustomerAccount.setEarnestAvailableBalance(payeeCustomerAccount.getEarnestAvailableBalance() + order.getAmount());
         int countPayee = this.getActualDao().updateAmountByAccountIdAndVersion(payeeCustomerAccount);
         if (countPayee != 1){
-            throw new RuntimeException("客户账户正在被多人操作，稍后再试");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户账户正在被多人操作，稍后再试");
         }
 
         //记录定金转出转入流水
-        TransactionDetails tdIn = buildTransactionDetails(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
-        TransactionDetails tdOut = buildTransactionDetails(TransactionSceneTypeEnum.EARNEST_OUT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), 0 - order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
+        TransactionDetails tdIn = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
+        TransactionDetails tdOut = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_OUT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), 0 - order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
         List<TransactionDetails> listDetails = new ArrayList<>();
         listDetails.add(tdIn);
         listDetails.add(tdOut);
@@ -156,15 +181,15 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         order.setTransferTime(new Date());
         int count = earnestTransferOrderService.updateSelective(order);
         if (count != 1){
-            throw new RuntimeException("转移单被多人操作，稍后再试");
+            throw new BusinessException(ResultCode.DATA_ERROR, "转移单被多人操作，稍后再试");
         }
     }
 
     @Override
-    public EarnestTransferOrder createEarnestTransferOrder(EarnestTransferDto efDto){
+    public EarnestTransferOrder addEarnestTransferOrder(EarnestTransferDto efDto){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw  new RuntimeException("未登陆");
+            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
         }
         CustomerAccount payeeCustomerAccount = this.getCustomerAccountByCustomerId(efDto.getCustomerId(), userTicket.getFirmId());
         //保存定金转移单
@@ -176,7 +201,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         efDto.setState(EarnestTransferOrderStateEnum.CREATED.getCode());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
-            throw new RuntimeException("编号生成器微服务异常");
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
         }
         efDto.setCode(bizNumberOutput.getData());
 
@@ -189,63 +214,36 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public void earnestRefund(RefundOrder order) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null) {
-            throw new RuntimeException("未登陆");
-        }
-        BaseOutput checkResult = checkParams(order);
-        if (!checkResult.isSuccess()){
-            throw new RuntimeException(checkResult.getMessage());
-        }
-        order.setCreator(userTicket.getRealName());
-        order.setCreatorId(userTicket.getId());
-//        order.setR
-        order.setMarketId(userTicket.getFirmId());
+    public void addEarnestRefund(RefundOrder order) {
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
-            throw new RuntimeException("编号生成器微服务异常");
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
         }
         order.setCode(bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
-        order.setState(RefundOrderStateEnum.CREATED.getCode());
-
-        refundOrderService.insertSelective(order);
+        refundOrderService.doAddHandler(order);
     }
 
-    private BaseOutput checkParams(RefundOrder order){
-        if (null == order.getOrderId()){//定金退款不是针对业务单，所以订单ID记录的是【客户账户ID】
-            return BaseOutput.failure("退款单orderId不能为空！");
-        }
-        if (null == order.getCustomerId()){
-            return BaseOutput.failure("客户ID不能为空！");
-        }
-        if (null == order.getCustomerName()){
-            return BaseOutput.failure("客户名称不能为空！");
-        }
-        if (null == order.getCertificateNumber()){
-            return BaseOutput.failure("客户证件号码不能为空！");
-        }
-        if (null == order.getCustomerCellphone()){
-            return BaseOutput.failure("客户联系电话不能为空！");
-        }
-        if (null == order.getTotalRefundAmount()){
-            return BaseOutput.failure("退款单金额不能为空！");
-        }
-
-        return BaseOutput.success();
-    }
 
     @Override
     public BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId){
         try {
             Integer sceneType = TransactionSceneTypeEnum.FROZEN.getCode();
-            this.changeCustomerAmountAndDetails(sceneType, orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
-            return BaseOutput.success("处理成功！");
-        } catch (RuntimeException e) {
-            return BaseOutput.failure(e.getMessage());
+            BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
+            if(!checkOut.isSuccess()){
+                return checkOut;
+            }
+            CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+            BaseOutput caCheckOut = this.checkCustomerAccount(sceneType, ca, earnestDeduction, transferDeduction);
+            if (!caCheckOut.isSuccess()){
+                return caCheckOut;
+            }
+            this.submitChangeCustomerAmountAndDetails(sceneType, orderId, orderCode, ca, earnestDeduction, transferDeduction, depositDeduction);
+            return BaseOutput.success();
+        } catch (BusinessException e) {
+            return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
         } catch (Exception e) {
-            return BaseOutput.failure("处理出错！");
+            return BaseOutput.failure();
         }
     }
 
@@ -253,10 +251,21 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public BaseOutput withdrawLeaseOrderCustomerAmountUnFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
         try {
             Integer sceneType = TransactionSceneTypeEnum.UNFROZEN.getCode();
-            this.changeCustomerAmountAndDetails(sceneType, orderId, orderCode, customerId, 0 - earnestDeduction, 0 - transferDeduction, 0 - depositDeduction, marketId);
+
+            BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
+            if(!checkOut.isSuccess()){
+                return checkOut;
+            }
+            CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+            BaseOutput caCheckOut = this.checkCustomerAccount(sceneType, ca, earnestDeduction, transferDeduction);
+            if (!caCheckOut.isSuccess()){
+                return caCheckOut;
+            }
+
+            this.withdrawChangeCustomerAmountAndDetails(sceneType, orderId, orderCode, ca, earnestDeduction, transferDeduction, depositDeduction);
             return BaseOutput.success("处理成功！");
-        } catch (RuntimeException e) {
-            return BaseOutput.failure(e.getMessage());
+        } catch (BusinessException e) {
+            return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
         } catch (Exception e) {
             return BaseOutput.failure("处理出错！");
         }
@@ -265,159 +274,166 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Override
     public BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
         try {
-            this.payChangeCustomerAmountAndDetails(orderId, orderCode, customerId, 0 - earnestDeduction, 0 - transferDeduction, 0 - depositDeduction, marketId);
+            Integer sceneType = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
+            BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
+            if(!checkOut.isSuccess()){
+                return checkOut;
+            }
+            CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+            BaseOutput caCheckOut = this.checkCustomerAccount(sceneType, ca, earnestDeduction, transferDeduction);
+            if (!caCheckOut.isSuccess()){
+                return caCheckOut;
+            }
+            this.payChangeCustomerAmountAndDetails(orderId, orderCode, ca, earnestDeduction, transferDeduction, depositDeduction);
             return BaseOutput.success("处理成功！");
-        } catch (RuntimeException e) {
-            return BaseOutput.failure(e.getMessage());
+        } catch (BusinessException e) {
+            return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
         } catch (Exception e) {
             return BaseOutput.failure("处理出错！");
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void payChangeCustomerAmountAndDetails(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
-        BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
-        if(!checkOut.isSuccess()){
-            throw new RuntimeException(checkOut.getMessage());
+    private BaseOutput checkCustomerAccount(Integer sceneType, CustomerAccount customerAccount, Long earnestDeduction, Long transferDeduction){
+        if (customerAccount == null){
+            return BaseOutput.failure().setCode(ResultCodeConst.CUSTOMER_ACCOUNT_ERROR).setMessage("客户在该市场不存在客户余额！");
         }
-        Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
-        Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
-        Integer unfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
-        Integer deductUse = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
-
-        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
-        if (ca == null){
-            throw new RuntimeException("客户在该市场不存在客户余额！");
-        }
-        List<TransactionDetails> listDetails = new ArrayList<>();
-        //写入 定金，转抵，保证金的【冻结】流水
-        if (earnestDeduction != null && !earnestDeduction.equals(0L)){
-            ca.setEarnestBalance(ca.getEarnestBalance() - earnestDeduction);
-            ca.setEarnestFrozenAmount(ca.getEarnestFrozenAmount() - earnestDeduction);
-
-            TransactionDetails earnestUnfrozenDetail = buildTransactionDetails(unfrozen, bizType, itemType, earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            TransactionDetails earnestDeductUseDetail = buildTransactionDetails(deductUse, bizType, itemType, 0 - earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            listDetails.add(earnestUnfrozenDetail);
-            listDetails.add(earnestDeductUseDetail);
-        }
-        if (transferDeduction != null && !transferDeduction.equals(0L)){
-            ca.setTransferBalance(ca.getTransferBalance() - transferDeduction);
-            ca.setTransferFrozenAmount(ca.getTransferFrozenAmount() + transferDeduction);
-
-            TransactionDetails transferUnfrozenDetail = buildTransactionDetails(unfrozen, bizType, itemType, transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            TransactionDetails transferDeductUseDetail = buildTransactionDetails(deductUse, bizType, itemType, 0 - transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            listDetails.add(transferUnfrozenDetail);
-            listDetails.add(transferDeductUseDetail);
-        }
-        if (depositDeduction != null && !depositDeduction.equals(0L)){
-            TransactionDetails depositUnfrozenDetail = buildTransactionDetails(unfrozen, bizType, itemType, depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            TransactionDetails depositDeductUseDetail = buildTransactionDetails(deductUse, bizType, itemType, 0 - depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            listDetails.add(depositUnfrozenDetail);
-            listDetails.add(depositDeductUseDetail);
-        }
-        //只有定金或者转抵有金额变动，才执行更新客户账户
-        if ((earnestDeduction != null && !earnestDeduction.equals(0L)) || (transferDeduction != null && !transferDeduction.equals(0L))){
-            this.getActualDao().updateAmountByAccountIdAndVersion(ca);
+        if (sceneType.equals(TransactionSceneTypeEnum.UNFROZEN.getCode())){
+            if (customerAccount.getEarnestFrozenAmount() < earnestDeduction){
+                return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户定金冻结总金额小于解冻金额！");
+            }
+            if (customerAccount.getTransferFrozenAmount() < transferDeduction){
+                return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户转抵冻结总金额小于解冻金额！");
+            }
+        }else if (sceneType.equals(TransactionSceneTypeEnum.FROZEN.getCode())){
+            if (customerAccount.getEarnestAvailableBalance() < earnestDeduction){
+                return BaseOutput.failure().setCode(ResultCodeConst.EARNEST_ERROR).setMessage( "客户定金可用余额不足！");
+            }
+            if (customerAccount.getTransferAvailableBalance() < transferDeduction){
+                return BaseOutput.failure().setCode(ResultCodeConst.TRANSFER_ERROR).setMessage("客户转抵可用余额不足！");
+            }
+        }else if (sceneType.equals(TransactionSceneTypeEnum.DEDUCT_USE.getCode())){
+            if (customerAccount.getEarnestFrozenAmount() < earnestDeduction){
+                return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户定金冻结总金额小于解冻金额！");
+            }
+            if (customerAccount.getTransferFrozenAmount() < transferDeduction){
+                return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户转抵冻结总金额小于解冻金额！");
+            }
+            if (customerAccount.getEarnestBalance() < earnestDeduction){
+                return BaseOutput.failure().setCode(ResultCodeConst.EARNEST_ERROR).setMessage( "客户定金余额不足！");
+            }
+            if (customerAccount.getTransferBalance() < transferDeduction){
+                return BaseOutput.failure().setCode(ResultCodeConst.TRANSFER_ERROR).setMessage("客户转抵余额不足！");
+            }
         }
 
-        if (!CollectionUtils.isEmpty(listDetails)){
-            transactionDetailsService.batchInsert(listDetails );
-        }
+        return BaseOutput.success();
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void changeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
-        BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
-        if(!checkOut.isSuccess()){
-            throw new RuntimeException(checkOut.getMessage());
-        }
-        Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
-        Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
-        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
-        List<TransactionDetails> listDetails = new ArrayList<>();
+    public void submitChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca, Long earnestDeduction, Long transferDeduction, Long depositDeduction) {
         //写入 定金，转抵，保证金的【冻结】流水
+        this.addTransactionDetails(sceneType,orderId, orderCode, ca, earnestDeduction, transferDeduction, depositDeduction);
+        //客户账户金额修改
         if (earnestDeduction != null && !earnestDeduction.equals(0L)){
             ca.setEarnestAvailableBalance(ca.getEarnestAvailableBalance() - earnestDeduction);
             ca.setEarnestFrozenAmount(ca.getEarnestFrozenAmount() + earnestDeduction);
-
-            TransactionDetails earnestDetail = buildTransactionDetails(sceneType, bizType, itemType, 0 - earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            listDetails.add(earnestDetail);
         }
         if (transferDeduction != null && !transferDeduction.equals(0L)){
             ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() - transferDeduction);
             ca.setTransferFrozenAmount(ca.getTransferFrozenAmount() + transferDeduction);
-
-            TransactionDetails transferDetail = buildTransactionDetails(sceneType, bizType, itemType, 0 - transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            listDetails.add(transferDetail);
-        }
-        if (depositDeduction != null && !depositDeduction.equals(0L)){
-            TransactionDetails depositDetail = buildTransactionDetails(sceneType, bizType, itemType, 0 - depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            listDetails.add(depositDetail);
         }
         //只有定金或者转抵有金额变动，才执行更新客户账户
         if ((earnestDeduction != null && !earnestDeduction.equals(0L)) || (transferDeduction != null && !transferDeduction.equals(0L))){
             this.getActualDao().updateAmountByAccountIdAndVersion(ca);
         }
+    }
 
-        if (!CollectionUtils.isEmpty(listDetails)){
-            transactionDetailsService.batchInsert(listDetails );
+    @Transactional(rollbackFor = Exception.class)
+    public void withdrawChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca, Long earnestDeduction, Long transferDeduction, Long depositDeduction) {
+        //写入 定金，转抵，保证金的【冻结】流水
+        this.addTransactionDetails(sceneType,orderId, orderCode, ca, earnestDeduction, transferDeduction, depositDeduction);
+        //客户账户金额修改
+        if (earnestDeduction != null && !earnestDeduction.equals(0L)){
+            ca.setEarnestAvailableBalance(ca.getEarnestAvailableBalance() + earnestDeduction);
+            ca.setEarnestFrozenAmount(ca.getEarnestFrozenAmount() - earnestDeduction);
+        }
+        if (transferDeduction != null && !transferDeduction.equals(0L)){
+            ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() + transferDeduction);
+            ca.setTransferFrozenAmount(ca.getTransferFrozenAmount() - transferDeduction);
+        }
+        //只有定金或者转抵有金额变动，才执行更新客户账户
+        if ((earnestDeduction != null && !earnestDeduction.equals(0L)) || (transferDeduction != null && !transferDeduction.equals(0L))){
+            int count = this.getActualDao().updateAmountByAccountIdAndVersion(ca);
+            if (count != 1){
+                throw new BusinessException(ResultCode.DATA_ERROR, "更新客户账户失败，客户账户多人操作！");
+            }
         }
     }
 
-    private BaseOutput checkParams(Long orderId, String orderCode, Long customerId, Long marketId){
-        if (orderId == null){
-            return BaseOutput.failure("订单ID不能为空");
+    @Transactional(rollbackFor = Exception.class)
+    public void payChangeCustomerAmountAndDetails(Long orderId, String orderCode, CustomerAccount ca, Long earnestDeduction, Long transferDeduction, Long depositDeduction) {
+        Integer unfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
+        Integer deductUse = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
+
+        //写入 定金，转抵，保证金的【解冻】【抵扣消费】流水
+        this.addTransactionDetails(unfrozen, orderId, orderCode, ca, earnestDeduction, transferDeduction, depositDeduction);
+        this.addTransactionDetails(deductUse, orderId, orderCode, ca, earnestDeduction, transferDeduction, depositDeduction);
+        //客户账户余额变动
+        if (earnestDeduction != null && !earnestDeduction.equals(0L)){ // 解冻 + 抵扣消费 = 冻结金额减少 + 余额减少
+            ca.setEarnestBalance(ca.getEarnestBalance() - earnestDeduction);
+            ca.setEarnestFrozenAmount(ca.getEarnestFrozenAmount() - earnestDeduction);
         }
-        if (orderCode == null){
-            return BaseOutput.failure("订单CODE不能为空");
+        if (transferDeduction != null && !transferDeduction.equals(0L)){  // 解冻 + 抵扣消费 = 冻结金额减少 + 余额减少
+            ca.setTransferBalance(ca.getTransferBalance() - transferDeduction);
+            ca.setTransferFrozenAmount(ca.getTransferFrozenAmount() - transferDeduction);
         }
-        if (customerId == null){
-            return BaseOutput.failure("客户ID不能为空");
+        //只有定金或者转抵有金额变动，才执行更新客户账户
+        if ((earnestDeduction != null && !earnestDeduction.equals(0L)) || (transferDeduction != null && !transferDeduction.equals(0L))){
+            this.getActualDao().updateAmountByAccountIdAndVersion(ca);
         }
-        if (marketId == null){
-            return BaseOutput.failure("市场ID不能为空");
+    }
+
+
+    private BaseOutput addTransactionDetails(Integer sceneType,Long orderId, String orderCode, CustomerAccount ca, Long earnestDeduction, Long transferDeduction, Long depositDeduction){
+        Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
+        List<TransactionDetails> listDetails = new ArrayList<>();
+        //写入 定金，转抵，保证金的【冻结】流水
+        if (earnestDeduction != null && !earnestDeduction.equals(0L)){ // 解冻 + 抵扣消费 = 冻结金额减少 + 余额减少
+            Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
+            TransactionDetails earnestUnfrozenDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, earnestDeduction, orderId, orderCode, ca.getCustomerId(), orderCode, ca.getMarketId());
+            listDetails.add(earnestUnfrozenDetail);
+        }
+        if (transferDeduction != null && !transferDeduction.equals(0L)){  // 解冻 + 抵扣消费 = 冻结金额减少 + 余额减少
+            Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
+            TransactionDetails transferUnfrozenDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, transferDeduction, orderId, orderCode, ca.getCustomerId(), orderCode, ca.getMarketId());
+            listDetails.add(transferUnfrozenDetail);
+        }
+        if (depositDeduction != null && !depositDeduction.equals(0L)){
+            Integer itemType = TransactionItemTypeEnum.DEPOSIT.getCode();
+            TransactionDetails depositUnfrozenDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, depositDeduction, orderId, orderCode, ca.getCustomerId(), orderCode, ca.getMarketId());
+            listDetails.add(depositUnfrozenDetail);
+        }
+        if (!CollectionUtils.isEmpty(listDetails)){
+            transactionDetailsService.batchInsert(listDetails );
         }
         return BaseOutput.success();
     }
 
-    private TransactionDetails buildTransactionDetails(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId){
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null) {
-            throw  new RuntimeException("未登陆");
+    private BaseOutput checkParams(Long orderId, String orderCode, Long customerId, Long marketId){
+        if (orderId == null){
+            return BaseOutput.failure().setCode(ResultCode.PARAMS_ERROR).setMessage("订单ID不能为空");
         }
-        TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
-        BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
-        if(!out.isSuccess()){
-            throw new RuntimeException("客户微服务异常！");
+        if (orderCode == null){
+            return BaseOutput.failure().setCode(ResultCode.PARAMS_ERROR).setMessage("订单CODE不能为空");
         }
-        Customer customer = out.getData();
-        if (null == customer){
-            LOGGER.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
-            throw new RuntimeException("客户不存在！");
+        if (customerId == null){
+            return BaseOutput.failure().setCode(ResultCode.PARAMS_ERROR).setMessage("客户ID不能为空");
         }
-        tds.setCustomerId(customer.getId());
-        tds.setCustomerName(customer.getName());
-        tds.setCertificateNumber(customer.getCertificateNumber());
-        tds.setCustomerCellphone(customer.getContactsPhone());
-        //参数传入
-        tds.setAmount(amount);
-        tds.setNotes(notes);
-        tds.setOrderCode(orderCode);
-        tds.setOrderId(orderId);
-        tds.setBizType(bizType);
-        tds.setSceneType(sceneType);
-        tds.setItemType(itemType);
-        tds.setMarketId(marketId);
-        //固定构建参数
-        tds.setCreator(userTicket.getRealName());
-        tds.setCreatorId(userTicket.getId());
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            throw new RuntimeException("编号生成器微服务异常");
+        if (marketId == null){
+            return BaseOutput.failure().setCode(ResultCode.PARAMS_ERROR).setMessage("市场ID不能为空");
         }
-        tds.setCode(bizNumberOutput.getData());
-        tds.setCreateTime(new Date());
-        return tds;
+        return BaseOutput.success();
     }
+
 }
 

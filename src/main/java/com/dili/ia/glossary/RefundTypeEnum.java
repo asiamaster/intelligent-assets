@@ -3,6 +3,9 @@ package com.dili.ia.glossary;
 public enum RefundTypeEnum {
     CASH(1, "现金"),
     POS(2, "POS"),
+    BANK(3, "银行卡"),
+    ALI_PAY(4, "支付宝"),
+    WECHAT_PAY(5, "微信"),
     ;
     private String name;
     private Integer code ;

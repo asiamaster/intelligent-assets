@@ -40,7 +40,7 @@ class CusromerAccountTests {
 
         BaseOutput out = customerAccountService.submitLeaseOrderCustomerAmountFrozen(orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
 
-        System.out.println("----------------" + out.isSuccess());
+        System.out.println("----------------" + out.isSuccess() + out.getMessage());
     }
 
     @Test
