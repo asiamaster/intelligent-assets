@@ -18,8 +18,6 @@
     <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
     <result column="certificate_number" jdbcType="VARCHAR" property="certificateNumber" />
     <result column="customer_cellphone" jdbcType="VARCHAR" property="customerCellphone" />
-    <result column="refund_operator_id" jdbcType="BIGINT" property="refundOperatorId" />
-    <result column="refund_operator_name" jdbcType="VARCHAR" property="refundOperatorName" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="total_refund_amount" jdbcType="BIGINT" property="totalRefundAmount" />
     <result column="submit_time" jdbcType="TIMESTAMP" property="submitTime" />
@@ -33,12 +31,18 @@
     <result column="submitter" jdbcType="VARCHAR" property="submitter" />
     <result column="payee_id" jdbcType="BIGINT" property="payeeId" />
     <result column="payee" jdbcType="VARCHAR" property="payee" />
+    <result column="payee_amount" jdbcType="BIGINT" property="payeeAmount" />
     <result column="withdraw_operator_id" jdbcType="BIGINT" property="withdrawOperatorId" />
     <result column="withdraw_operator" jdbcType="VARCHAR" property="withdrawOperator" />
     <result column="canceler_id" jdbcType="BIGINT" property="cancelerId" />
     <result column="canceler" jdbcType="VARCHAR" property="canceler" />
     <result column="refund_reason" jdbcType="VARCHAR" property="refundReason" />
+    <result column="refund_time" jdbcType="TIMESTAMP" property="refundTime" />
+    <result column="refund_operator_id" jdbcType="BIGINT" property="refundOperatorId" />
+    <result column="refund_operator" jdbcType="VARCHAR" property="refundOperator" />
     <result column="license_state" jdbcType="INTEGER" property="licenseState" />
+    <result column="department_id" jdbcType="INTEGER" property="departmentId" />
+    <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
     <result column="version" jdbcType="INTEGER" property="version" />
@@ -48,11 +52,12 @@
       WARNING - @mbg.generated
     -->
     id, code, create_time, modify_time, biz_type, order_item_id, order_item_code, order_id, 
-    order_code, customer_id, customer_name, certificate_number, customer_cellphone, refund_operator_id, 
-    refund_operator_name, state, total_refund_amount, submit_time, settlement_code, refund_type, 
-    bank, bank_card_no, creator_id, creator, submitter_id, submitter, payee_id, payee, 
-    withdraw_operator_id, withdraw_operator, canceler_id, canceler, refund_reason, license_state, 
-    market_id, market_code, version
+    order_code, customer_id, customer_name, certificate_number, customer_cellphone, state, 
+    total_refund_amount, submit_time, settlement_code, refund_type, bank, bank_card_no, 
+    creator_id, creator, submitter_id, submitter, payee_id, payee, payee_amount, withdraw_operator_id, 
+    withdraw_operator, canceler_id, canceler, refund_reason, refund_time, refund_operator_id, 
+    refund_operator, license_state, department_id, department_name, market_id, market_code, 
+    version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -105,12 +110,6 @@
       <if test="customerCellphone != null">
         customer_cellphone = #{customerCellphone,jdbcType=VARCHAR},
       </if>
-      <if test="refundOperatorId != null">
-        refund_operator_id = #{refundOperatorId,jdbcType=BIGINT},
-      </if>
-      <if test="refundOperatorName != null">
-        refund_operator_name = #{refundOperatorName,jdbcType=VARCHAR},
-      </if>
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
       </if>
@@ -150,6 +149,9 @@
       <if test="payee != null">
         payee = #{payee,jdbcType=VARCHAR},
       </if>
+      <if test="payeeAmount != null">
+        payee_amount = #{payeeAmount,jdbcType=BIGINT},
+      </if>
       <if test="withdrawOperatorId != null">
         withdraw_operator_id = #{withdrawOperatorId,jdbcType=BIGINT},
       </if>
@@ -165,8 +167,23 @@
       <if test="refundReason != null">
         refund_reason = #{refundReason,jdbcType=VARCHAR},
       </if>
+      <if test="refundTime != null">
+        refund_time = #{refundTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="refundOperatorId != null">
+        refund_operator_id = #{refundOperatorId,jdbcType=BIGINT},
+      </if>
+      <if test="refundOperator != null">
+        refund_operator = #{refundOperator,jdbcType=VARCHAR},
+      </if>
       <if test="licenseState != null">
         license_state = #{licenseState,jdbcType=INTEGER},
+      </if>
+      <if test="departmentId != null">
+        department_id = #{departmentId,jdbcType=INTEGER},
+      </if>
+      <if test="departmentName != null">
+        department_name = #{departmentName,jdbcType=VARCHAR},
       </if>
       <if test="marketId != null">
         market_id = #{marketId,jdbcType=BIGINT},

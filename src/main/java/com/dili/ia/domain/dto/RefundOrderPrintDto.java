@@ -18,7 +18,7 @@ import java.util.Date;
  * @author qinkelan
  * @createTime 2020-03-13 10:32
  */
-public class EarnestRefundOrderPrintDto {
+public class RefundOrderPrintDto {
     //打印时间
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -51,6 +51,17 @@ public class EarnestRefundOrderPrintDto {
     private String bank;
     //银行卡号
     private String bankCardNo;
+
+    //打印模板
+    private String PrintTemplateCode;
+
+    public String getPrintTemplateCode() {
+        return PrintTemplateCode;
+    }
+
+    public void setPrintTemplateCode(String printTemplateCode) {
+        PrintTemplateCode = printTemplateCode;
+    }
 
     public Date getPrintTime() {
         return printTime;

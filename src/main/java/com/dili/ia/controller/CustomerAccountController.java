@@ -97,10 +97,10 @@ public class CustomerAccountController {
     @ApiImplicitParams({
 		@ApiImplicitParam(name="CustomerAccount", paramType="form", value = "CustomerAccount的form信息", required = true, dataType = "string")
 	})
-    @RequestMapping(value="/doEarnestRefund.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/doAddEarnestRefund.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
         try {
-            customerAccountService.earnestRefund(order);
+            customerAccountService.addEarnestRefund(order);
             return BaseOutput.success("创建退款成功！");
         } catch (RuntimeException e) {
             return BaseOutput.failure(e.getMessage());
@@ -124,9 +124,9 @@ public class CustomerAccountController {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             //判断转入方客户账户是否存在,不存在先创建客户账户
             if (!customerAccountService.checkCustomerAccountExist(efDto.getCustomerId(), userTicket.getFirmId())){
-                customerAccountService.creatCustomerAccountByCustomerInfo(efDto.getCustomerId(), efDto.getCustomerName(), efDto.getCustomerCellphone(), efDto.getCertificateNumber());
+                customerAccountService.addCustomerAccountByCustomerInfo(efDto.getCustomerId(), efDto.getCustomerName(), efDto.getCustomerCellphone(), efDto.getCertificateNumber());
             }
-            EarnestTransferOrder order = customerAccountService.createEarnestTransferOrder(efDto);
+            EarnestTransferOrder order = customerAccountService.addEarnestTransferOrder(efDto);
 
             customerAccountService.earnestTransfer(order);
             return BaseOutput.success("转移成功！");

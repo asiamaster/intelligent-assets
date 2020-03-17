@@ -1,9 +1,10 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.*;
+import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.EarnestOrderDetail;
+import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.TransactionDetails;
 import com.dili.ia.domain.dto.EarnestOrderPrintDto;
-import com.dili.ia.domain.dto.LeaseOrderItemPrintDto;
-import com.dili.ia.domain.dto.LeaseOrderPrintDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
@@ -33,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -91,7 +91,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         this.getActualDao().insertSelective(earnestOrder);
 
         if (!customerAccountService.checkCustomerAccountExist(earnestOrder.getCustomerId(), userTicket.getFirmId())){ //如果客户账户不存在，创建客户账户
-           customerAccountService.creatCustomerAccountByCustomerInfo(earnestOrder.getCustomerId(), earnestOrder.getCustomerName(), earnestOrder.getCustomerCellphone(), earnestOrder.getCertificateNumber());
+           customerAccountService.addCustomerAccountByCustomerInfo(earnestOrder.getCustomerId(), earnestOrder.getCustomerName(), earnestOrder.getCustomerCellphone(), earnestOrder.getCertificateNumber());
         }
         return 0;
     }
@@ -247,20 +247,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         this.getActualDao().updateByPrimaryKey(ea);
         //@TODO缴费单数据更新，结算编号，缴费时间等
         //更新客户账户定金余额和可用余额
-        customerAccountService.addEarnestAvailableAndBalance(ea.getCustomerId(), ea.getMarketId(), ea.getAmount(), ea.getAmount());
+        customerAccountService.paySuccessEarnest(ea.getCustomerId(), ea.getMarketId(), ea.getAmount());
         //插入客户账户定金资金动账流水
         transactionDetailsService.insert(buildTransactionDetails(ea));
-        return BaseOutput.success();
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public BaseOutput refundSuccessEarnestOrder(Long earnestOrderId) {
-        //@TODO退款单数据更新，结算编号，缴费时间等
-        //更新客户账户定金余额和可用余额
-//        customerAccountService.addEarnestAvailableAndBalance(ea.getCustomerId(), ea.getMarketId(), ea.getAmount(), ea.getAmount());
-        //插入客户账户定金资金动账流水
-//        transactionDetailsService.insert(buildTransactionDetails(ea));
         return BaseOutput.success();
     }
 

@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 退款单
- * This file was generated on 2020-03-09 19:34:40.
+ * This file was generated on 2020-03-16 17:20:53.
  */
 @Table(name = "`refund_order`")
 public interface RefundOrder extends IBaseDomain {
@@ -146,13 +146,6 @@ public interface RefundOrder extends IBaseDomain {
 
     void setRefundType(Integer refundType);
 
-    @Column(name = "`payee_amount`")
-    @FieldDef(label="收款人收款金额")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getPayeeAmount();
-
-    void setPayeeAmount(Long payeeAmount);
-
     @Column(name = "`bank`")
     @FieldDef(label="开户行", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
@@ -209,6 +202,13 @@ public interface RefundOrder extends IBaseDomain {
 
     void setPayee(String payee);
 
+    @Column(name = "`payee_amount`")
+    @FieldDef(label="收款人收款金额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getPayeeAmount();
+
+    void setPayeeAmount(Long payeeAmount);
+
     @Column(name = "`withdraw_operator_id`")
     @FieldDef(label="撤回操作人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
@@ -245,21 +245,21 @@ public interface RefundOrder extends IBaseDomain {
     void setRefundReason(String refundReason);
 
     @Column(name = "`refund_time`")
-    @FieldDef(label="提交时间")
+    @FieldDef(label="退款时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     Date getRefundTime();
 
     void setRefundTime(Date refundTime);
 
     @Column(name = "`refund_operator_id`")
-    @FieldDef(label="退款操作人ID")
+    @FieldDef(label="refundOperatorId")
     @EditMode(editor = FieldEditor.Number, required = false)
     Long getRefundOperatorId();
 
     void setRefundOperatorId(Long refundOperatorId);
 
     @Column(name = "`refund_operator`")
-    @FieldDef(label="退款操作人")
+    @FieldDef(label="退款操作人", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getRefundOperator();
 
@@ -271,6 +271,20 @@ public interface RefundOrder extends IBaseDomain {
     Integer getLicenseState();
 
     void setLicenseState(Integer licenseState);
+
+    @Column(name = "`department_id`")
+    @FieldDef(label="退款单对应的业务部门ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getDepartmentId();
+
+    void setDepartmentId(Long departmentId);
+
+    @Column(name = "`department_name`")
+    @FieldDef(label="退款单对应的部门名称", maxLength = 50)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getDepartmentName();
+
+    void setDepartmentName(String departmentName);
 
     @Column(name = "`market_id`")
     @FieldDef(label="市场ID")

@@ -45,13 +45,6 @@ public interface EarnestOrderService extends BaseService<EarnestOrder, Long> {
     BaseOutput paySuccessEarnestOrder(Long earnestOrderId);
 
     /**
-     * 定金单 --退款成功回调
-     * @param earnestOrderId 定金单ID
-     * @return BaseOutput
-     * */
-    BaseOutput refundSuccessEarnestOrder(Long earnestOrderId);
-
-    /**
      * 定金票据打印数据加载
      * @param businessCode 业务编码
      * @param reprint 是否补打标记

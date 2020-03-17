@@ -57,7 +57,7 @@
             let _formData = new FormData($('#saveForm')[0]);
             $.ajax({
                 type: "POST",
-                url: "${contextPath}/customerAccount/doEarnestRefund.action",
+                url: "${contextPath}/customerAccount/doAddEarnestRefund.action",
                 data: _formData,
                 processData: false,
                 contentType: false,

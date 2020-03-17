@@ -1,7 +1,9 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.*;
-import com.dili.ia.domain.dto.CustomerQuery;
+import com.dili.ia.domain.CustomerAccount;
+import com.dili.ia.domain.EarnestTransferOrder;
+import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransactionDetails;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.CustomerAccountMapper;
@@ -17,14 +19,12 @@ import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -88,10 +88,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public void addEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount) {
+    public void unfrozenEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
-        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + availableAmount);
-        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + balanceAmount);
+        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
+        customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
 
         Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
         if (count < 1){
@@ -100,7 +100,30 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public CustomerAccount creatCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber){
+    public void paySuccessEarnest(Long customerId, Long marketId, Long amount) {
+        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
+        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + amount);
+
+        Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
+        if (count < 1){
+            throw new BusinessException("2","当前数据正已被其他用户操作，更新失败！");
+        }
+    }
+    @Override
+    public void refundSuccessEarnest(Long customerId, Long marketId, Long amount) {
+        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() - amount);
+        customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
+
+        Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
+        if (count < 1){
+            throw new BusinessException("2","当前数据正已被其他用户操作，更新失败！");
+        }
+    }
+
+    @Override
+    public CustomerAccount addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");
@@ -143,8 +166,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
 
         //记录定金转出转入流水
-        TransactionDetails tdIn = buildTransactionDetails(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
-        TransactionDetails tdOut = buildTransactionDetails(TransactionSceneTypeEnum.EARNEST_OUT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), 0 - order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
+        TransactionDetails tdIn = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
+        TransactionDetails tdOut = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_OUT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), 0 - order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
         List<TransactionDetails> listDetails = new ArrayList<>();
         listDetails.add(tdIn);
         listDetails.add(tdOut);
@@ -161,7 +184,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public EarnestTransferOrder createEarnestTransferOrder(EarnestTransferDto efDto){
+    public EarnestTransferOrder addEarnestTransferOrder(EarnestTransferDto efDto){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw  new RuntimeException("未登陆");
@@ -189,52 +212,16 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public void earnestRefund(RefundOrder order) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null) {
-            throw new RuntimeException("未登陆");
-        }
-        BaseOutput checkResult = checkParams(order);
-        if (!checkResult.isSuccess()){
-            throw new RuntimeException(checkResult.getMessage());
-        }
-        order.setCreator(userTicket.getRealName());
-        order.setCreatorId(userTicket.getId());
-//        order.setR
-        order.setMarketId(userTicket.getFirmId());
+    public void addEarnestRefund(RefundOrder order) {
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
             throw new RuntimeException("编号生成器微服务异常");
         }
         order.setCode(bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
-        order.setState(RefundOrderStateEnum.CREATED.getCode());
-
-        refundOrderService.insertSelective(order);
+        refundOrderService.doAddHandler(order);
     }
 
-    private BaseOutput checkParams(RefundOrder order){
-        if (null == order.getOrderId()){//定金退款不是针对业务单，所以订单ID记录的是【客户账户ID】
-            return BaseOutput.failure("退款单orderId不能为空！");
-        }
-        if (null == order.getCustomerId()){
-            return BaseOutput.failure("客户ID不能为空！");
-        }
-        if (null == order.getCustomerName()){
-            return BaseOutput.failure("客户名称不能为空！");
-        }
-        if (null == order.getCertificateNumber()){
-            return BaseOutput.failure("客户证件号码不能为空！");
-        }
-        if (null == order.getCustomerCellphone()){
-            return BaseOutput.failure("客户联系电话不能为空！");
-        }
-        if (null == order.getTotalRefundAmount()){
-            return BaseOutput.failure("退款单金额不能为空！");
-        }
-
-        return BaseOutput.success();
-    }
 
     @Override
     public BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId){
@@ -295,8 +282,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             ca.setEarnestBalance(ca.getEarnestBalance() - earnestDeduction);
             ca.setEarnestFrozenAmount(ca.getEarnestFrozenAmount() - earnestDeduction);
 
-            TransactionDetails earnestUnfrozenDetail = buildTransactionDetails(unfrozen, bizType, itemType, earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            TransactionDetails earnestDeductUseDetail = buildTransactionDetails(deductUse, bizType, itemType, 0 - earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
+            TransactionDetails earnestUnfrozenDetail = transactionDetailsService.buildByConditions(unfrozen, bizType, itemType, earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
+            TransactionDetails earnestDeductUseDetail = transactionDetailsService.buildByConditions(deductUse, bizType, itemType, 0 - earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
             listDetails.add(earnestUnfrozenDetail);
             listDetails.add(earnestDeductUseDetail);
         }
@@ -304,14 +291,14 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             ca.setTransferBalance(ca.getTransferBalance() - transferDeduction);
             ca.setTransferFrozenAmount(ca.getTransferFrozenAmount() + transferDeduction);
 
-            TransactionDetails transferUnfrozenDetail = buildTransactionDetails(unfrozen, bizType, itemType, transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            TransactionDetails transferDeductUseDetail = buildTransactionDetails(deductUse, bizType, itemType, 0 - transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
+            TransactionDetails transferUnfrozenDetail = transactionDetailsService.buildByConditions(unfrozen, bizType, itemType, transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
+            TransactionDetails transferDeductUseDetail =transactionDetailsService.buildByConditions(deductUse, bizType, itemType, 0 - transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
             listDetails.add(transferUnfrozenDetail);
             listDetails.add(transferDeductUseDetail);
         }
         if (depositDeduction != null && !depositDeduction.equals(0L)){
-            TransactionDetails depositUnfrozenDetail = buildTransactionDetails(unfrozen, bizType, itemType, depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            TransactionDetails depositDeductUseDetail = buildTransactionDetails(deductUse, bizType, itemType, 0 - depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
+            TransactionDetails depositUnfrozenDetail = transactionDetailsService.buildByConditions(unfrozen, bizType, itemType, depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
+            TransactionDetails depositDeductUseDetail = transactionDetailsService.buildByConditions(deductUse, bizType, itemType, 0 - depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
             listDetails.add(depositUnfrozenDetail);
             listDetails.add(depositDeductUseDetail);
         }
@@ -340,18 +327,18 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             ca.setEarnestAvailableBalance(ca.getEarnestAvailableBalance() - earnestDeduction);
             ca.setEarnestFrozenAmount(ca.getEarnestFrozenAmount() + earnestDeduction);
 
-            TransactionDetails earnestDetail = buildTransactionDetails(sceneType, bizType, itemType, 0 - earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
+            TransactionDetails earnestDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, 0 - earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
             listDetails.add(earnestDetail);
         }
         if (transferDeduction != null && !transferDeduction.equals(0L)){
             ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() - transferDeduction);
             ca.setTransferFrozenAmount(ca.getTransferFrozenAmount() + transferDeduction);
 
-            TransactionDetails transferDetail = buildTransactionDetails(sceneType, bizType, itemType, 0 - transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
+            TransactionDetails transferDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, 0 - transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
             listDetails.add(transferDetail);
         }
         if (depositDeduction != null && !depositDeduction.equals(0L)){
-            TransactionDetails depositDetail = buildTransactionDetails(sceneType, bizType, itemType, 0 - depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
+            TransactionDetails depositDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, 0 - depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
             listDetails.add(depositDetail);
         }
         //只有定金或者转抵有金额变动，才执行更新客户账户
@@ -380,44 +367,5 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         return BaseOutput.success();
     }
 
-    private TransactionDetails buildTransactionDetails(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId){
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null) {
-            throw  new RuntimeException("未登陆");
-        }
-        TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
-        BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
-        if(!out.isSuccess()){
-            throw new RuntimeException("客户微服务异常！");
-        }
-        Customer customer = out.getData();
-        if (null == customer){
-            LOGGER.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
-            throw new RuntimeException("客户不存在！");
-        }
-        tds.setCustomerId(customer.getId());
-        tds.setCustomerName(customer.getName());
-        tds.setCertificateNumber(customer.getCertificateNumber());
-        tds.setCustomerCellphone(customer.getContactsPhone());
-        //参数传入
-        tds.setAmount(amount);
-        tds.setNotes(notes);
-        tds.setOrderCode(orderCode);
-        tds.setOrderId(orderId);
-        tds.setBizType(bizType);
-        tds.setSceneType(sceneType);
-        tds.setItemType(itemType);
-        tds.setMarketId(marketId);
-        //固定构建参数
-        tds.setCreator(userTicket.getRealName());
-        tds.setCreatorId(userTicket.getId());
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            throw new RuntimeException("编号生成器微服务异常");
-        }
-        tds.setCode(bizNumberOutput.getData());
-        tds.setCreateTime(new Date());
-        return tds;
-    }
 }
 

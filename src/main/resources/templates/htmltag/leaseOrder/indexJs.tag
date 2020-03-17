@@ -388,12 +388,12 @@
             closeBtn: true,
             backdrop : 'static',
             width: '80%',
-            height : '95%',
+            height : '65%',
             btns: []
         });
     }
 
-/**
+    /**
      * 查询处理
      */
     function queryDataHandler() {
