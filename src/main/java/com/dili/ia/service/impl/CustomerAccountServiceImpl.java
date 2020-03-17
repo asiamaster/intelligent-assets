@@ -100,10 +100,21 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public void addEarnestAvailableAndBalance(Long customerId, Long marketId, Long availableAmount, Long balanceAmount) {
+    public void paySuccessEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
-        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + availableAmount);
-        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + balanceAmount);
+        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
+        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + amount);
+
+        Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
+        if (count < 1){
+            throw new BusinessException("2","当前数据正已被其他用户操作，更新失败！");
+        }
+    }
+    @Override
+    public void refundSuccessEarnest(Long customerId, Long marketId, Long amount) {
+        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() - amount);
+        customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
 
         Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
         if (count < 1){
