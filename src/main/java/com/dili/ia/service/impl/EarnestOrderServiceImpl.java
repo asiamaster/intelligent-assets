@@ -18,8 +18,10 @@ import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -135,7 +137,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw new RuntimeException("未登录");
+            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
         }
         ea.setState(EarnestOrderStateEnum.SUBMITTED.getCode());
         ea.setSubmitterId(userTicket.getId());

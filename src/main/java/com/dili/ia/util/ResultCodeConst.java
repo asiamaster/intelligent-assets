@@ -8,15 +8,22 @@ package com.dili.ia.util;
  * @author qinkelan
  * @createTime 2020-03-17 10:04
  */
-public class RedultCodeConst {
+public class ResultCodeConst {
     // --------------------  自定义错误码 摊位租赁错误码号段 2001 ~ 2100  -------------------------
     /**
      * 2000 DATA_ERROR: 业务逻辑或数据错误(未查询到数据，数据验证不通过，数据发生变化等错误)
      */
     /**
-     * 2001 DATA_ERROR: 业务逻辑或数据错误(未查询到数据，数据验证不通过，数据发生变化等错误)
+     * 2001 CUSTOMER_ACCOUNT_ERROR:  客户账户不存在
      */
-    public static final String EARNEST_ERROR="2001";
-    public static final String TRANSFER_ERROR="2002";
+    public static final String CUSTOMER_ACCOUNT_ERROR="2001";
+    /**
+     * 2002 EARNEST_ERROR:  使用定金时，可用余额不足
+     */
+    public static final String EARNEST_ERROR="2002";
+    /**
+     * 2003 TRANSFER_ERROR: 使用转抵金时，可用余额不足
+     */
+    public static final String TRANSFER_ERROR="2003";
 
 }

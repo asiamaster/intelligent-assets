@@ -8,8 +8,10 @@ import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.TransactionDetailsService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,17 +39,18 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
     public TransactionDetails buildByConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw  new RuntimeException("未登陆");
+            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
         }
         TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
         BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
         if(!out.isSuccess()){
-            throw new RuntimeException("客户微服务异常！");
+            LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户微服务异常！");
         }
         Customer customer = out.getData();
         if (null == customer){
             LOGGER.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
-            throw new RuntimeException("客户不存在！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
         }
         tds.setCustomerId(customer.getId());
         tds.setCustomerName(customer.getName());
@@ -67,7 +70,8 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
         tds.setCreatorId(userTicket.getId());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
         if(!bizNumberOutput.isSuccess()){
-            throw new RuntimeException("编号生成器微服务异常");
+            LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
         }
         tds.setCode(bizNumberOutput.getData());
         tds.setCreateTime(new Date());
