@@ -16,11 +16,12 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.google.common.collect.Sets;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -50,8 +51,8 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
+        //冻结客户资金，写入冻结记录
         customerAccountService.frozenEarnest(refundOrder.getCustomerId(), refundOrder.getMarketId(), refundOrder.getPayeeAmount());
-
         Integer bizType = BizTypeEnum.EARNEST.getCode();
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
         Integer sceneType = TransactionSceneTypeEnum.FROZEN.getCode();
@@ -62,7 +63,7 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-        //@TODO 解冻客户资金，写入解冻记录
+        //解冻客户资金，写入解冻记录
         customerAccountService.unfrozenEarnest(refundOrder.getCustomerId(), refundOrder.getMarketId(), refundOrder.getPayeeAmount());
         Integer bizType = BizTypeEnum.EARNEST.getCode();
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
@@ -73,10 +74,20 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     }
 
     @Override
-    public BaseOutput refundSuccessHandler(Long refundOrderId) {
-        //@TODO 解冻客户资金，扣除客户余额，写入解冻，扣除记录记录
-
-        return null;
+    public BaseOutput refundSuccessHandler(RefundOrder refundOrder) {
+        //解冻客户资金，扣除客户余额，写入解冻，扣除记录记录
+        customerAccountService.refundSuccessEarnest(refundOrder.getCustomerId(), refundOrder.getMarketId(), refundOrder.getPayeeAmount());
+        Integer bizType = BizTypeEnum.EARNEST.getCode();
+        Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
+        Integer sceneTypeUnfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
+        Integer sceneTypeRefund = TransactionSceneTypeEnum.REFUND.getCode();
+        TransactionDetails unfrozenDetails = transactionDetailsService.buildByConditions(sceneTypeUnfrozen, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getOrderCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId());
+        TransactionDetails refundDetails = transactionDetailsService.buildByConditions(sceneTypeRefund, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getOrderCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId());
+        List<TransactionDetails> list = new ArrayList<>();
+        list.add(unfrozenDetails);
+        list.add(refundDetails);
+        transactionDetailsService.batchInsert(list);
+        return BaseOutput.success();
     }
 
     @Override

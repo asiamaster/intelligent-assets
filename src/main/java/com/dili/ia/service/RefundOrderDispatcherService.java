@@ -28,10 +28,10 @@ public interface RefundOrderDispatcherService extends BaseService<RefundOrder, L
 
     /**
      * 退款单 --退款成功回调
-     * @param refundOrderId 退款单Id
+     * @param refundOrder 退款单
      * @return BaseOutput
      * */
-    BaseOutput refundSuccessHandler(Long refundOrderId);
+    BaseOutput refundSuccessHandler(RefundOrder refundOrder);
 
     /**
      * 票据打印  --- 业务数据加载

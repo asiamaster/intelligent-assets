@@ -31,7 +31,7 @@
         $(window).resize(function () {
             _grid.bootstrapTable('resetView')
         });
-        queryDataHandler();
+        _grid.bootstrapTable('refreshOptions', {url: '/booth/listPage.action'});
     });
     /******************************驱动执行区 end****************************/
 
@@ -188,7 +188,7 @@
      * 查询处理
      */
     function queryDataHandler() {
-        _grid.bootstrapTable('refreshOptions', {url: '/booth/listPage.action'});
+        _grid.bootstrapTable('refresh');
     }
 
     /**

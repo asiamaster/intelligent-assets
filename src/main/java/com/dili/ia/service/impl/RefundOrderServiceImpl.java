@@ -257,7 +257,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //获取业务service,调用业务实现
         RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
         if(service!=null){
-            BaseOutput refundResult = service.withdrawHandler(refundOrder);
+            BaseOutput refundResult = service.refundSuccessHandler(refundOrder);
             if (!refundResult.isSuccess()){
                 LOG.info("退款成功回调业务返回失败！" + refundResult.getMessage());
                 throw new RuntimeException("退款成功回调业务返回失败！" + refundResult.getMessage());

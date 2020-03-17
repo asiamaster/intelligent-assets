@@ -107,7 +107,7 @@
             _grid.bootstrapTable('resetView')
         });
 
-        queryDataHandler();
+        _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action'});
     });
 
     function oneFormatter(value, row) {
@@ -141,7 +141,7 @@
      * 查询处理
      */
     function queryDataHandler() {
-        _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action'});
+        _grid.bootstrapTable('refresh');
     }
 
     function openInsertHandler() {
