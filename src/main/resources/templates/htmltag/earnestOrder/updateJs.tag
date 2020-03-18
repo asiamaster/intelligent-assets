@@ -57,7 +57,7 @@
 
     // 提交保存
     $('#formSubmit').on('click', function (e) {
-        if (!$('#updateorm').valid()) {
+        if (!$('#updateForm').valid()) {
             return false;
         } else {
             bui.loading.show('努力提交中，请稍候。。。');
