@@ -78,4 +78,20 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
      */
     BaseOutput createRefundOrder(RefundOrderDto refundOrderDto);
 
+    /**
+     * 取消退款单回调处理
+     * @param leaseOrderId
+     * @param leaseOrderItemId
+     * @return
+     */
+    BaseOutput cancelRefundOrderHandler(Long leaseOrderId,Long leaseOrderItemId);
+
+    /**
+     * 结算退款单成功回调处理
+     * @param leaseOrderId
+     * @param leaseOrderItemId
+     * @return
+     */
+    BaseOutput settleSuccessRefundOrderHandler(Long leaseOrderId,Long leaseOrderItemId);
+
 }

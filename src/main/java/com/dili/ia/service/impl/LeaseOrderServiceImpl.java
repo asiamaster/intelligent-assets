@@ -19,7 +19,6 @@ import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTO;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
@@ -396,7 +395,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         depositAmountSourceCondition.setIds(depositAmountSourceIds);
         List<LeaseOrderItem> depositAmountSourceItems = leaseOrderItemService.listByExample(depositAmountSourceCondition);
         depositAmountSourceItems.stream().forEach(o -> {
-            if (DepositAmountFlagEnum.TRANSFERRED.getCode().equals(o.getDepositAmountFlag()) && RefundStateEnum.NO_APPLY.getCode().equals(o.getRefundState())) {
+            if (DepositAmountFlagEnum.TRANSFERRED.getCode().equals(o.getDepositAmountFlag()) && RefundStateEnum.WAIT_APPLY.getCode().equals(o.getRefundState())) {
                 o.setDepositAmountFlag(DepositAmountFlagEnum.FROZEN.getCode());
             } else {
                 String operateName = DepositAmountFlagEnum.getDepositAmountFlagEnum(o.getDepositAmountFlag()).getOperateName();
@@ -831,6 +830,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Override
     @Transactional
     public BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
+        refundOrderDto.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
         if(!refundOrderService.doAddHandler(refundOrderDto).isSuccess()){
             throw new RuntimeException("退款单新增异常");
         }
@@ -889,6 +889,109 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrderItem.setManageRefundAmount(refundOrderDto.getManageRefundAmount());
             if(leaseOrderItemService.updateSelective(leaseOrderItem) == 0){
                 throw new RuntimeException("多人操作，请重试！");
+            }
+        }
+        return BaseOutput.success();
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public BaseOutput cancelRefundOrderHandler(Long leaseOrderId,Long leaseOrderItemId) {
+        if(null == leaseOrderItemId){
+            LeaseOrder leaseOrder = get(leaseOrderId);
+            if(!RefundStateEnum.REFUNDING.getCode().equals(leaseOrder.getRefundState())){
+                throw new RuntimeException("退款状态已发生变更，不能取消退款");
+            }
+            leaseOrder.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
+            leaseOrder.setRefundAmount(0L);
+            if(updateSelective(leaseOrder) == 0){
+                throw new RuntimeException("多人操作，请重试！");
+            }
+
+            //级联订单项退款状态
+            LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+            condition.setLeaseOrderId(leaseOrder.getId());
+            List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+            leaseOrderItems.stream().forEach(o -> o.setRefundState(RefundStateEnum.WAIT_APPLY.getCode()));
+            if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
+                throw new RuntimeException("多人操作，请重试！");
+            }
+        }else{
+            //订单项退款申请
+            LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(leaseOrderItemId);
+            if(!RefundStateEnum.REFUNDING.getCode().equals(leaseOrderItem.getRefundState())){
+                throw new RuntimeException("退款状态已发生变更，不能取消退款");
+            }
+
+            leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
+            leaseOrderItem.setRefundAmount(0L);
+            leaseOrderItem.setDepositRefundAmount(0L);
+            leaseOrderItem.setRentRefundAmount(0L);
+            leaseOrderItem.setManageRefundAmount(0L);
+            if(leaseOrderItemService.updateSelective(leaseOrderItem) == 0){
+                throw new RuntimeException("多人操作，请重试！");
+            }
+        }
+        return BaseOutput.success();
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public BaseOutput settleSuccessRefundOrderHandler(Long leaseOrderId,Long leaseOrderItemId) {
+        LeaseOrder leaseOrder = get(leaseOrderId);
+        if(null == leaseOrderItemId){
+            if(RefundStateEnum.REFUNDED.getCode().equals(leaseOrder.getRefundState())){
+                LOG.info("此单已退款【leaseOrderId={}】",leaseOrderId);
+                return BaseOutput.success();
+            }
+            leaseOrder.setRefundState(RefundStateEnum.REFUNDED.getCode());
+            leaseOrder.setState(LeaseOrderStateEnum.REFUNDED.getCode());
+            if(updateSelective(leaseOrder) == 0){
+                throw new RuntimeException("多人操作，请重试！");
+            }
+
+            //级联订单项退款状态
+            LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+            condition.setLeaseOrderId(leaseOrder.getId());
+            List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+            leaseOrderItems.stream().forEach(o -> {
+                o.setRefundState(RefundStateEnum.REFUNDED.getCode());
+                o.setState(LeaseOrderItemStateEnum.REFUNDED.getCode());
+            });
+            if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
+                throw new RuntimeException("多人操作，请重试！");
+            }
+        }else{
+            //订单项退款申请
+            LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(leaseOrderItemId);
+            if(RefundStateEnum.REFUNDED.getCode().equals(leaseOrderItem.getRefundState())){
+                LOG.info("此单已退款【leaseOrderItemId={}】",leaseOrderItemId);
+                return BaseOutput.success();
+            }
+            leaseOrderItem.setRefundState(RefundStateEnum.REFUNDED.getCode());
+
+            if(leaseOrderItemService.updateSelective(leaseOrderItem) == 0){
+                throw new RuntimeException("多人操作，请重试！");
+            }
+
+            //级联检查其他订单项状态，如果全部为已退款，则需联动更新订单状态为已退款
+            LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+            condition.setLeaseOrderId(leaseOrderId);
+            List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+            boolean isUpdateLeaseOrderState = true;
+            for (LeaseOrderItem orderItem : leaseOrderItems) {
+                if (orderItem.getId().equals(leaseOrderItemId)) {
+                    continue;
+                } else if (LeaseOrderItemStateEnum.REFUNDED.getCode().equals(orderItem.getState())) {
+                    isUpdateLeaseOrderState = false;
+                    break;
+                }
+            }
+            if(isUpdateLeaseOrderState){
+                leaseOrder.setState(LeaseOrderStateEnum.REFUNDED.getCode());
+                if(updateSelective(leaseOrder) == 0){
+                    throw new RuntimeException("多人操作，请重试！");
+                }
             }
         }
         return BaseOutput.success();
