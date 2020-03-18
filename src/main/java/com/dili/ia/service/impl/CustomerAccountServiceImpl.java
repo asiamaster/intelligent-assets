@@ -412,7 +412,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public BaseOutput leaseOrderTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId){
+    public BaseOutput leaseOrderRechargTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId){
         if (null == amount || amount < 0){
             return BaseOutput.failure("转抵充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
         }

@@ -103,7 +103,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param marketId 市场ID
      * @return BaseOutput
      * */
-    BaseOutput leaseOrderTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId);
+    BaseOutput leaseOrderRechargTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId);
     /**
      * 客户账户 -- 冻结定金， 定金【冻结金额】加，【可用余额】减，【余额】不变
      * @param customerId 客户ID
