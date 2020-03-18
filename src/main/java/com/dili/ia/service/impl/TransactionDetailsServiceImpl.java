@@ -3,6 +3,8 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.TransactionDetails;
 import com.dili.ia.glossary.BizNumberTypeEnum;
+import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.TransactionItemTypeEnum;
 import com.dili.ia.mapper.TransactionDetailsMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidFeignRpc;
@@ -16,8 +18,11 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -34,6 +39,17 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
     CustomerRpc customerRpc;
     @Autowired
     UidFeignRpc uidFeignRpc;
+
+    private void addTransactionDetails(Integer sceneType, Integer bizType, Integer itemType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId){
+        //写入 定金，转抵，保证金对应 sceneType 的流水 --- 抵扣项为 null 或者 0 元 不写入流水记录
+        if (null != amount && amount > 0){ //定金流水
+            TransactionDetails earnestUnfrozenDetail = this.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId);
+            int count = this.insertSelective(earnestUnfrozenDetail);
+            if (count != 1){
+                throw new BusinessException(ResultCode.DATA_ERROR, "写入流水记录失败");
+            }
+        }
+    }
 
     @Override
     public TransactionDetails buildByConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId) {

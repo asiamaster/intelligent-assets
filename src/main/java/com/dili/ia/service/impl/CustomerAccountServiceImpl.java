@@ -1,9 +1,6 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.CustomerAccount;
-import com.dili.ia.domain.EarnestTransferOrder;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransactionDetails;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.CustomerAccountMapper;
@@ -130,12 +127,23 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (userTicket == null) {
             throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
         }
+        BaseOutput<Customer> out= customerRpc.get(customerId, userTicket.getFirmId());
+        if(!out.isSuccess()){
+            LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, userTicket.getFirmId(), out.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户微服务异常！");
+        }
+        Customer customer = out.getData();
+        if (null == customer){
+            LOGGER.info("客户不存在！【customerId={}; marketId={}】", customerId,userTicket.getFirmId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
+        }
+
         CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
         customerAccount.setMarketId(userTicket.getFirmId());
         customerAccount.setCustomerId(customerId);
-        customerAccount.setCustomerCellphone(customerCellphone);
-        customerAccount.setCertificateNumber(certificateNumber);
-        customerAccount.setCustomerName(customerName);
+        customerAccount.setCustomerCellphone(customer.getContactsPhone());
+        customerAccount.setCertificateNumber(customer.getCertificateNumber());
+        customerAccount.setCustomerName(customer.getName());
         customerAccount.setEarnestBalance(0L);
         customerAccount.setEarnestAvailableBalance(0L);
         customerAccount.setEarnestFrozenAmount(0L);
@@ -403,6 +411,73 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
     }
 
+    @Override
+    public BaseOutput leaseOrderTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId){
+        if (null == amount || amount < 0){
+            return BaseOutput.failure("转抵充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
+        }
+        if (amount.equals(0L)){
+            return BaseOutput.success();
+        }
+        BaseOutput check = this.checkParams(orderId, orderCode, customerId, marketId);
+        if (!check.isSuccess()){
+            return check;
+        }
+        try {
+            this.rechargeTransfer(customerId, amount, marketId);
+            Integer sceneType = TransactionSceneTypeEnum.TRANSFER_IN.getCode();
+            Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
+            Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
+            TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId);
+            transactionDetailsService.insertSelective(detail);
+            return BaseOutput.success("处理成功！");
+        } catch (BusinessException e) {
+            return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
+        } catch (Exception e) {
+            return BaseOutput.failure("处理出错！");
+        }
+
+    }
+
+    public void rechargeTransfer(Long customerId, Long amount, Long marketId){
+        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+        //判断转入方客户账户是否存在,不存在先创建客户账户
+        if (null == ca){
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            if (userTicket == null) {
+                throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
+            }
+            BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
+            if(!out.isSuccess()){
+                LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
+                throw new BusinessException(ResultCode.DATA_ERROR, "客户微服务异常！");
+            }
+            Customer customer = out.getData();
+            if (null == customer){
+                LOGGER.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
+                throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
+            }
+
+            CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
+            customerAccount.setMarketId(userTicket.getFirmId());
+            customerAccount.setCustomerId(customerId);
+            customerAccount.setCustomerCellphone(customer.getContactsPhone());
+            customerAccount.setCertificateNumber(customer.getCertificateNumber());
+            customerAccount.setCustomerName(customer.getName());
+            customerAccount.setEarnestBalance(0L);
+            customerAccount.setEarnestAvailableBalance(0L);
+            customerAccount.setEarnestFrozenAmount(0L);
+            customerAccount.setTransferAvailableBalance(null == amount?0L:amount);
+            customerAccount.setTransferBalance(null == amount?0L:amount);
+            customerAccount.setTransferFrozenAmount(0L);
+            customerAccount.setVersion(0L);
+            this.getActualDao().insertSelective(customerAccount);
+        }else {
+            ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() + amount);
+            ca.setTransferBalance(ca.getTransferBalance() + amount);
+            this.getActualDao().updateAmountByAccountIdAndVersion(ca);
+        }
+    }
 
     private void addTransactionDetails(Integer sceneType,Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId){
         Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
