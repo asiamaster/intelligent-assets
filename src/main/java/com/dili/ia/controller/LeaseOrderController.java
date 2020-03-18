@@ -285,14 +285,22 @@ public class LeaseOrderController {
     }
 
     /**
-     * 退款单--新建
+     * 摊位租赁退款申请
      * @param refundOrderDto
      * @return BaseOutput
      */
-    @ApiOperation("退款单--新建")
+    @ApiOperation("摊位租赁退款申请")
     @RequestMapping(value="/createRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
-        return BaseOutput.success("退款单--新建成功");
+        try{
+            return leaseOrderService.createRefundOrder(refundOrderDto);
+        }catch (BusinessException e){
+            LOG.error("摊位租赁退款申请异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }catch (Exception e){
+            LOG.error("摊位租赁退款申请异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
 }

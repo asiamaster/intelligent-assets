@@ -3,6 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -69,5 +70,12 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
      * @return
      */
     BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint);
+
+    /**
+     * 退款申请
+     * @param refundOrderDto
+     * @return
+     */
+    BaseOutput createRefundOrder(RefundOrderDto refundOrderDto);
 
 }
