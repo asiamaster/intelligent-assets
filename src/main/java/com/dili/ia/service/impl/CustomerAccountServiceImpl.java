@@ -432,7 +432,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             transactionDetailsService.insertSelective(detail);
             return BaseOutput.success("处理成功！");
         } catch (BusinessException e) {
-            return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
+            return BaseOutput.failure(e.getErrorMsg()).setCode(e.getErrorCode());
         } catch (Exception e) {
             return BaseOutput.failure("处理出错！");
         }

@@ -96,8 +96,8 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId);
     /**
      * 摊位租赁【退款转抵成功】-- 客户账户转抵余额加， 及相应流水变动记录
-     * @param orderId 订单ID
-     * @param orderCode 订单编号
+     * @param orderId 产生转抵金额的【租赁退款单】订单ID
+     * @param orderCode 产生转抵金额的【租赁退款单】订单编号
      * @param customerId 客户ID
      * @param amount 转抵金额
      * @param marketId 市场ID

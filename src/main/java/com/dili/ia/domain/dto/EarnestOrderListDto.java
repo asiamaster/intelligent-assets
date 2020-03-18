@@ -29,10 +29,6 @@ public interface EarnestOrderListDto extends EarnestOrder {
     Date getCreatedEnd();
     void setCreatedEnd(Date createdEnd);
 
-    @Operator(Operator.IN)
-    @Column(name = "code")
-    List<String> getCodes();
-    void setCodes(List<String> codes);
     /**
      * 昵称模糊查询
      * @return

@@ -11,7 +11,7 @@
 
     //对应摊位
     $(function () {
-        addStallItem();
+        addBoothItem();
     });
 
 
@@ -25,13 +25,17 @@
     /**
      * 添加摊位
      * */
-    function addStallItem() {
-        $('#boothTable tbody').append(HTMLDecode(template('stallItem', {index: ++itemIndex})))
+    // function addBoothItem() {
+    //     $('#boothTable tbody').append(HTMLDecode(template('stallItem', {index: ++itemIndex})))
+    // }
+
+    function addBoothItem(){
+        $('#boothTable tbody').append(bui.util.HTMLDecode(template('boothItem', {index: ++itemIndex})))
     }
 
     // 添加摊位
-    $('#addStall').on('click', function () {
-        addStallItem();
+    $('#addBooth').on('click', function () {
+        addBoothItem();
     })
 
     //删除行事件 （删除摊位行）
@@ -40,7 +44,6 @@
             $(this).closest('tr').remove();
         }
     });
-
 
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);
@@ -67,24 +70,21 @@
             return false;
         } else {
             bui.loading.show('努力提交中，请稍候。。。');
-            let _formData = new FormData($('#saveForm')[0]);
+            // let _formData = new FormData($('#saveForm')[0]);
             $.ajax({
                 type: "POST",
                 url: "${contextPath}/earnestOrder/doAdd.action",
-                data: _formData,
-                processData: false,
-                contentType: false,
-                async: true,
-                success: function (data) {
+                data: buildFormData(),
+                dataType: "json",
+                async : false,
+                success: function (ret) {
                     bui.loading.hide();
-                    if(data.success){
-                        bs4pop.alert('注册成功', {type: 'success'}, function () {
-                            /* 应该要带条件刷新 */
-                            window.location.reload();
+                    if(!ret.success){
+                        bs4pop.alert(ret.message, {type: 'error'},function () {
+                            parent.closeDialog(parent.dia);
                         });
-                    } else {
-                        bui.loading.hide();
-                        bs4pop.alert(data.message, {type: 'error'});
+                    }else{
+                        parent.closeDialog(parent.dia);
                     }
                 },
                 error: function (error) {
@@ -95,5 +95,12 @@
         }
     });
 
+    /**
+     * 关闭弹窗
+     */
+    function closeDialog(dialog){
+        dialog.hide();
+        queryDataHandler();
+    }
 
 </script>
