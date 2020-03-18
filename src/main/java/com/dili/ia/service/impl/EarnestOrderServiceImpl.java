@@ -4,7 +4,9 @@ import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.TransactionDetails;
+import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.EarnestOrderPrintDto;
+import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
@@ -72,7 +74,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public int addEarnestOrder(EarnestOrder earnestOrder) {
+    public int addEarnestOrder(EarnestOrderListDto earnestOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         earnestOrder.setCreatorId(userTicket.getId());
         earnestOrder.setCreator(userTicket.getRealName());
@@ -91,20 +93,35 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setCode(bizNumberOutput.getData());
         earnestOrder.setVersion(0L);
         this.getActualDao().insertSelective(earnestOrder);
-
+        insertEarnestOrderDetails(earnestOrder);
         if (!customerAccountService.checkCustomerAccountExist(earnestOrder.getCustomerId(), userTicket.getFirmId())){ //如果客户账户不存在，创建客户账户
            customerAccountService.addCustomerAccountByCustomerInfo(earnestOrder.getCustomerId(), earnestOrder.getCustomerName(), earnestOrder.getCustomerCellphone(), earnestOrder.getCertificateNumber());
         }
         return 0;
     }
 
+    /**
+     * 批量插入租赁单项
+     *
+     * @param dto
+     */
+    private void insertEarnestOrderDetails(EarnestOrderListDto dto) {
+        dto.getEarnestOrderdetails().forEach(o -> {
+            o.setEarnestOrderId(dto.getId());
+            earnestOrderDetailService.insertSelective(o);
+        });
+    }
+
     @Override
-    public BaseOutput updateEarnestOrder(EarnestOrder earnestOrder) {
+    public BaseOutput updateEarnestOrder(EarnestOrderListDto earnestOrder) {
+        if (earnestOrder.getId() == null){
+            return BaseOutput.failure();
+        }
         this.getActualDao().updateByPrimaryKey(earnestOrder);
         this.deleteEarnestOrderDetailByEarnestOrderId(earnestOrder.getId());
-        //@TODO根据摊位ID插入到定金详情里面
-//        earnestOrderDetailService.insert(bulidEarnestOrderDetail());
-        return null;
+        //根据摊位ID插入到定金详情里面
+        insertEarnestOrderDetails(earnestOrder);
+        return BaseOutput.success();
     }
 
     private EarnestOrderDetail bulidEarnestOrderDetail(Long earnestOrderId, Long assetsId, String assetsName){

@@ -77,6 +77,7 @@ public class EarnestOrderController {
             EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
             condition.setEarnestOrderId(id);
             List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
+            modelMap.put("stateName", EarnestOrderStateEnum.getEarnestOrderStateEnumName(earnestOrder.getState()));
             modelMap.put("earnestOrder",earnestOrder);
             modelMap.put("earnestOrderDetails", earnestOrderDetails);
         }
@@ -126,7 +127,7 @@ public class EarnestOrderController {
     @ApiImplicitParams({
 		@ApiImplicitParam(name="EarnestOrder", paramType="form", value = "EarnestOrder的form信息", required = true, dataType = "string")
 	})
-    @RequestMapping(value="/doAdd.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(earnestOrder.getEndTime());
@@ -156,9 +157,23 @@ public class EarnestOrderController {
 		@ApiImplicitParam(name="EarnestOrder", paramType="form", value = "EarnestOrder的form信息", required = true, dataType = "string")
 	})
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doUpdate(EarnestOrder earnestOrder) {
-        earnestOrderService.updateEarnestOrder(earnestOrder);
-        return BaseOutput.success("修改成功");
+    public @ResponseBody BaseOutput doUpdate(EarnestOrderListDto earnestOrder) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(earnestOrder.getEndTime());
+        calendar.add(Calendar.HOUR_OF_DAY,23);
+        calendar.add(Calendar.MINUTE,59);
+        calendar.add(Calendar.SECOND,59);
+        earnestOrder.setEndTime(calendar.getTime());
+        try{
+            earnestOrderService.updateEarnestOrder(earnestOrder);
+            return BaseOutput.success("修改成功");
+        }catch (RuntimeException e){
+            LOG.error("定金单修改异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }catch (Exception e){
+            LOG.error("定金单修改异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
     /**

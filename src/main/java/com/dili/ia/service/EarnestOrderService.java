@@ -1,6 +1,7 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -15,14 +16,14 @@ public interface EarnestOrderService extends BaseService<EarnestOrder, Long> {
     /**
      * 新增定金单，需要先检查客户账户是否存在
      * */
-    int addEarnestOrder(EarnestOrder earnestOrder);
+    int addEarnestOrder(EarnestOrderListDto earnestOrder);
 
     /**
      * 定金单 --修改
      * @param earnestOrder 修改对象
      * @return BaseOutput
      * */
-    BaseOutput updateEarnestOrder(EarnestOrder earnestOrder);
+    BaseOutput updateEarnestOrder(EarnestOrderListDto earnestOrder);
 
     /**
      * 定金单 --提交

@@ -32,6 +32,15 @@ public enum EarnestOrderStateEnum {
         return null;
     }
 
+    public static String getEarnestOrderStateEnumName(Integer code) {
+        for (EarnestOrderStateEnum r : EarnestOrderStateEnum.values()) {
+            if (r.getCode().equals(code)) {
+                return r.getName();
+            }
+        }
+        return "";
+    }
+
     public Integer getCode() {
         return code;
     }
