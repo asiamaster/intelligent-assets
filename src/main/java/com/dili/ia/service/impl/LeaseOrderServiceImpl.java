@@ -19,6 +19,7 @@ import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTO;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
@@ -395,7 +396,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         depositAmountSourceCondition.setIds(depositAmountSourceIds);
         List<LeaseOrderItem> depositAmountSourceItems = leaseOrderItemService.listByExample(depositAmountSourceCondition);
         depositAmountSourceItems.stream().forEach(o -> {
-            if (DepositAmountFlagEnum.TRANSFERRED.getCode().equals(o.getDepositAmountFlag())) {
+            if (DepositAmountFlagEnum.TRANSFERRED.getCode().equals(o.getDepositAmountFlag()) && RefundStateEnum.NO_APPLY.getCode().equals(o.getRefundState())) {
                 o.setDepositAmountFlag(DepositAmountFlagEnum.FROZEN.getCode());
             } else {
                 String operateName = DepositAmountFlagEnum.getDepositAmountFlagEnum(o.getDepositAmountFlag()).getOperateName();
@@ -840,11 +841,55 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 transferDeductionItemService.insertSelective(o);
             });
         }
-        LeaseOrder leaseOrder = DTOUtils.newInstance(LeaseOrder.class);
-        leaseOrder.setId(refundOrderDto.getOrderId());
-        leaseOrder.setRefundState(RefundStateEnum.REFUNDING.getCode());
-        if(updateSelective(leaseOrder) == 0){
-            throw new RuntimeException("多人操作，请重试！");
+
+        if(null == refundOrderDto.getOrderItemId()){
+            //主单上退款申请
+            LeaseOrder leaseOrder = get(refundOrderDto.getOrderId());
+            if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())){
+                throw new RuntimeException("租赁单费用已交清不能，只能在租赁摊位上进行退款");
+            }
+            leaseOrder.setRefundState(RefundStateEnum.REFUNDING.getCode());
+            leaseOrder.setRefundAmount(refundOrderDto.getTotalRefundAmount());
+            if(updateSelective(leaseOrder) == 0){
+                throw new RuntimeException("多人操作，请重试！");
+            }
+
+            //级联订单项退款状态
+            LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+            condition.setLeaseOrderId(leaseOrder.getId());
+            List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+            leaseOrderItems.stream().forEach(o -> o.setRefundState(RefundStateEnum.REFUNDING.getCode()));
+            if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
+                throw new RuntimeException("多人操作，请重试！");
+            }
+        }else{
+            //订单项退款申请
+            LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(refundOrderDto.getOrderId());
+            //保证金已转入状态才可退
+            if(refundOrderDto.getDepositRefundAmount() > 0 && !leaseOrderItem.getDepositAmountFlag().equals(DepositAmountFlagEnum.TRANSFERRED.getCode())){
+                throw new RuntimeException("摊位保证金状态已发生变更，不能进行退款，请修改");
+            }
+            if(refundOrderDto.getRentRefundAmount() > leaseOrderItem.getRentAmount()){
+                throw new RuntimeException("租金退款额大于可退款额");
+            }
+            if(refundOrderDto.getDepositRefundAmount() > leaseOrderItem.getDepositAmount()){
+                throw new RuntimeException("保证金退款额大于可退款额");
+            }
+            if(refundOrderDto.getManageRefundAmount() > leaseOrderItem.getManageAmount()){
+                throw new RuntimeException("物管费退款额大于可退款额");
+            }
+            if(!refundOrderDto.getTotalRefundAmount().equals(refundOrderDto.getRentRefundAmount() + refundOrderDto.getDepositRefundAmount() + refundOrderDto.getManageRefundAmount())){
+                throw new RuntimeException("退款金额分配错误，请重新修改再保存");
+            }
+
+            leaseOrderItem.setRefundState(RefundStateEnum.REFUNDING.getCode());
+            leaseOrderItem.setRefundAmount(refundOrderDto.getTotalRefundAmount());
+            leaseOrderItem.setDepositRefundAmount(refundOrderDto.getDepositRefundAmount());
+            leaseOrderItem.setRentRefundAmount(refundOrderDto.getRentRefundAmount());
+            leaseOrderItem.setManageRefundAmount(refundOrderDto.getManageRefundAmount());
+            if(leaseOrderItemService.updateSelective(leaseOrderItem) == 0){
+                throw new RuntimeException("多人操作，请重试！");
+            }
         }
         return BaseOutput.success();
     }

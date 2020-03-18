@@ -34,7 +34,7 @@
                 let index = getIndex($(element).attr('id'));
                 $('#certificateNumber_'+index).val(suggestion.certificateNumber);
             }
-        })
+        });
 
     /*********************变量定义区 end***************/
 
@@ -44,6 +44,19 @@
         while ( itemIndex < 1){
             addTransferItem();
         }
+    <% if(isNotEmpty(leaseOrderItem)){ %>
+        <% if(leaseOrderItem.depositAmountFlag == @com.dili.ia.glossary.DepositAmountFlagEnum.FROZEN.getCode()){ %>
+            bs4pop.notice('保证金已被冻结，不能进行退款。', {position: 'bottomleft',autoClose: false});
+            $('#formSubmit').attr('disabled', true);
+        <% }else if(leaseOrderItem.depositAmountFlag == @com.dili.ia.glossary.DepositAmountFlagEnum.DEDUCTION.getCode()){ %>
+            $('#depositRefundAmount').val(0).attr('readonly', true);
+            $('#depositRefundAmount').val(0).attr('readonly', true);
+        <% } %>
+    <% } else {%>
+            $('#totalRefundAmount').attr('max', Number(${leaseOrder.totalAmount!}).centToYuan());
+    <% } %>
+
+
     });
     /******************************驱动执行区 end****************************/
 
@@ -107,10 +120,10 @@
     * 计算退款总金额
     */
     function calcTotalRefundAmount(){
-        let rentAmount = Number($('#rentAmount').val());
-        let manageAmount = Number($('#manageAmount').val());
-        let depositAmount = Number($('#depositAmount').val());
-        $('#totalRefundAmount').val((rentAmount.mul(100) + manageAmount.mul(100) + depositAmount.mul(100)).centToYuan());
+        let rentRefundAmount = Number($('#rentRefundAmount').val());
+        let manageRefundAmount = Number($('#manageRefundAmount').val());
+        let depositRefundAmount = Number($('#depositRefundAmount').val());
+        $('#totalRefundAmount').val((rentRefundAmount.mul(100) + manageRefundAmount.mul(100) + depositRefundAmount.mul(100)).centToYuan());
     }
 
     /**
@@ -152,7 +165,7 @@
         }
 
         if(!validateActualRefundAmount()){
-            bs4pop.alert('不等于退款金额');
+            bs4pop.alert('退款金额分配错误，请重新修改再保存');
             return;
         }
 

@@ -371,16 +371,17 @@
      */
     function openRefundApplyHandler(type,subTableIndex) {
         //获取选中行的数据
-        let rows = $('#subGrid' + subTableIndex).bootstrapTable('getSelections');
+        let rows;
+        if(type == 1){
+            rows = _grid.bootstrapTable('getSelections');
+        }else if(type == 2){
+            rows = $('#subGrid' + subTableIndex).bootstrapTable('getSelections');
+        }
         if (null == rows || rows.length == 0) {
             bs4pop.alert('请选中一条数据');
             return;
         }
-        let url = '/leaseOrder/refundApply.html?id=' + rows[0].id;
-        if (type == 2) {
-            url += '&type=' + type;
-        }
-
+        let url = '/leaseOrder/refundApply.html?id=' + rows[0].id + '&type=' + type;
         dia = bs4pop.dialog({
             title: '退款申请',
             content: url,
@@ -531,7 +532,7 @@
             $('#btn_renew').attr('disabled', false);
 
             //未交清且未发起过退款申请
-            if (row.waitAmount > 0 && row.depositAmountFlag == ${@com.dili.ia.glossary.RefundStateEnum.NO_APPLY.getCode()}) {
+            if (row.waitAmount > 0 && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.NO_APPLY.getCode()}) {
                 $('#btn_refund_apply').attr('disabled', false);
             }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {

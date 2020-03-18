@@ -13,6 +13,7 @@ public enum DepositAmountFlagEnum {
     TRANSFERRED(2, "已转入","转入或解冻"),
     FROZEN(3, "已冻结","冻结"),
     DEDUCTION(4, "已抵扣","抵扣"),
+    REFUNDED(5, "已退款","退款"),
     ;
 
     private String name;
