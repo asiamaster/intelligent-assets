@@ -1,12 +1,16 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
+import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
@@ -20,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-03-09 19:34:40.
@@ -30,6 +36,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class RefundOrderController {
     @Autowired
     RefundOrderService refundOrderService;
+    @Autowired
+    LeaseOrderItemService leaseOrderItemService;
+    @Autowired
+    TransferDeductionItemService transferDeductionItemService;
 
     /**
      * 跳转到RefundOrder页面
@@ -71,6 +81,12 @@ public class RefundOrderController {
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
                 return "refundOrder/earnestRefundOrderView";
             }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+                TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
+                transferDeductionItemCondition.setRefundOrderId(id);
+                modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
+                if(null != refundOrder.getOrderItemId()){
+                    modelMap.put("leaseOrderItem",leaseOrderItemService.get(refundOrder.getOrderItemId()));
+                }
                 return "refundOrder/leaseRefundOrderView";
             }
         }
