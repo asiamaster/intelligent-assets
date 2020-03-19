@@ -81,10 +81,10 @@
                     bui.loading.hide();
                     if(!ret.success){
                         bs4pop.alert(ret.message, {type: 'error'},function () {
-                            parent.closeDialog(parent.dia);
+                            closeDialog(parent.dia);
                         });
                     }else{
-                        parent.closeDialog(parent.dia);
+                        closeDialog(parent.dia);
                     }
                 },
                 error: function (error) {

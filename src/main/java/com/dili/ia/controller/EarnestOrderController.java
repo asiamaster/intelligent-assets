@@ -1,15 +1,14 @@
 package com.dili.ia.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
-import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
-import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
@@ -97,7 +96,7 @@ public class EarnestOrderController {
             condition.setEarnestOrderId(id);
             List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
             modelMap.put("earnestOrder",earnestOrder);
-            modelMap.put("earnestOrderDetails", earnestOrderDetails);
+            modelMap.put("earnestOrderDetails", JSON.toJSONString(earnestOrderDetails));
         }
         return "earnestOrder/update";
     }
