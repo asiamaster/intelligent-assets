@@ -479,7 +479,7 @@
                 // 退款条件
                 // 1.已到期或已停租 AND 2.未发起过退款 AND 3.保证金未被冻结
                 $('#toolbar'+index+' button').attr('disabled', true);
-                if(row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.NO_APPLY.getCode()}
+                if(row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}
                     && row.depositAmountFlag != ${@com.dili.ia.glossary.DepositAmountFlagEnum.FROZEN.getCode()}){
                     $('#btn_refund_apply'+index).attr('disabled', false);
                 }
@@ -532,7 +532,7 @@
             $('#btn_renew').attr('disabled', false);
 
             //未交清且未发起过退款申请
-            if (row.waitAmount > 0 && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.NO_APPLY.getCode()}) {
+            if (row.waitAmount > 0 && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}) {
                 $('#btn_refund_apply').attr('disabled', false);
             }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {

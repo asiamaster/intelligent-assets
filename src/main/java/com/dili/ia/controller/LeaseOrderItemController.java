@@ -56,7 +56,7 @@ public class LeaseOrderItemController {
     @RequestMapping(value="/list.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput list(LeaseOrderItemListDto leaseOrderItem) {
         leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
-        leaseOrderItem.setRefundState(RefundStateEnum.NO_APPLY.getCode());
+        leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
         return BaseOutput.success().setData(leaseOrderItemService.listByExample(leaseOrderItem));
     }
 

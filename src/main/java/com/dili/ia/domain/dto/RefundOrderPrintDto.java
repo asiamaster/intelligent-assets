@@ -53,14 +53,14 @@ public class RefundOrderPrintDto {
     private String bankCardNo;
 
     //打印模板
-    private String PrintTemplateCode;
+    private String printTemplateCode;
 
     public String getPrintTemplateCode() {
-        return PrintTemplateCode;
+        return printTemplateCode;
     }
 
     public void setPrintTemplateCode(String printTemplateCode) {
-        PrintTemplateCode = printTemplateCode;
+        this.printTemplateCode = printTemplateCode;
     }
 
     public Date getPrintTime() {

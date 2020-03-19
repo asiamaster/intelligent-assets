@@ -20,9 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -96,8 +94,9 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     }
 
     @Override
-    public BaseOutput<RefundOrderPrintDto> buildBusinessPrintData(RefundOrderPrintDto refundOrderPrintDto) {
-        refundOrderPrintDto.setPrintTemplateCode(PrintTemplateEnum.EARNEST_REFUND_ORDER.getCode());
-        return BaseOutput.success().setData(refundOrderPrintDto);
+    public BaseOutput<Map<String,Object>> buildBusinessPrintData(RefundOrder refundOrder) {
+        Map<String,Object> resultMap = new HashMap<>();
+        resultMap.put("printTemplateCode",PrintTemplateEnum.EARNEST_REFUND_ORDER.getCode());
+        return BaseOutput.success().setData(resultMap);
     }
 }

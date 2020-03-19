@@ -10,7 +10,7 @@ package com.dili.ia.glossary;
  */
 public enum RefundStateEnum {
 
-    NO_APPLY(1, "未发起申请"),
+    WAIT_APPLY(1, "待申请"),
     REFUNDING(2, "退款中"),
     REFUNDED(3, "已退款"),
     ;

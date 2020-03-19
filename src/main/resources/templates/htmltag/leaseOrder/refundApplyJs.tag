@@ -53,7 +53,8 @@
             $('#depositRefundAmount').val(0).attr('readonly', true);
         <% } %>
     <% } else {%>
-            $('#totalRefundAmount').attr('max', Number(${leaseOrder.totalAmount!}).centToYuan());
+            let refundMaxAmount = Number(${leaseOrder.paidAmount + leaseOrder.depositDeduction + leaseOrder.earnestDeduction + leaseOrder.transferDeduction}).centToYuan();
+            $('#totalRefundAmount').attr('max', refundMaxAmount).attr('placeHolder','可退'+refundMaxAmount);
     <% } %>
 
 
@@ -179,9 +180,7 @@
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
-                    bs4pop.alert(ret.message, {type: 'error'},function () {
-                        parent.closeDialog(parent.dia);
-                    });
+                    bs4pop.alert(ret.message, {type: 'error'});
                 }else{
                     parent.closeDialog(parent.dia);
                 }

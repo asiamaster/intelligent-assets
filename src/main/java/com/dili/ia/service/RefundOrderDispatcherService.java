@@ -5,6 +5,7 @@ import com.dili.ia.domain.dto.RefundOrderPrintDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -41,10 +42,10 @@ public interface RefundOrderDispatcherService extends BaseService<RefundOrder, L
 
     /**
      * 票据打印  --- 业务数据加载
-     * @param refundOrderPrintDto 提款单票据dto
+     * @param refundOrder 退款单
      * @return BaseOutput<RefundOrderPrintDto>
      */
-    BaseOutput<RefundOrderPrintDto> buildBusinessPrintData(RefundOrderPrintDto refundOrderPrintDto);
+    BaseOutput<Map<String,Object>> buildBusinessPrintData(RefundOrder refundOrder);
 
     /**
      * 退款单 --获取业务类型
