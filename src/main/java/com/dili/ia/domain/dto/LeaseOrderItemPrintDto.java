@@ -23,6 +23,12 @@ public class LeaseOrderItemPrintDto {
     private String manageAmount;
     //保证金
     private String depositAmount;
+    //租金退款额
+    private String rentRefundAmount;
+    //物管费退款额
+    private String manageRefundAmount;
+    //保证金退款额
+    private String depositRefundAmount;
 
     public String getBoothName() {
         return boothName;
@@ -110,5 +116,29 @@ public class LeaseOrderItemPrintDto {
 
     public void setDepositAmount(String depositAmount) {
         this.depositAmount = depositAmount;
+    }
+
+    public String getRentRefundAmount() {
+        return rentRefundAmount;
+    }
+
+    public void setRentRefundAmount(String rentRefundAmount) {
+        this.rentRefundAmount = rentRefundAmount;
+    }
+
+    public String getManageRefundAmount() {
+        return manageRefundAmount;
+    }
+
+    public void setManageRefundAmount(String manageRefundAmount) {
+        this.manageRefundAmount = manageRefundAmount;
+    }
+
+    public String getDepositRefundAmount() {
+        return depositRefundAmount;
+    }
+
+    public void setDepositRefundAmount(String depositRefundAmount) {
+        this.depositRefundAmount = depositRefundAmount;
     }
 }

@@ -294,10 +294,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint) {
         try {
-            RefundOrder refundOrder = DTOUtils.newDTO(RefundOrder.class);
-            refundOrder.setCode(businessCode);
-            List<RefundOrder> reList = refundOrderService.list(refundOrder);
-            if (CollectionUtils.isEmpty(reList)){
+            RefundOrder refundOrderCondition = DTOUtils.newDTO(RefundOrder.class);
+            refundOrderCondition.setCode(businessCode);
+            RefundOrder refundOrder = refundOrderService.list(refundOrderCondition).stream().findFirst().orElse(null);
+            if (null == refundOrder){
                 return BaseOutput.failure("没有获取到结算单【" + businessCode + "】");
             }
             if (!RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) {
@@ -305,21 +305,22 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             }
 
             RefundOrderPrintDto refundOrderPrintDto = buildCommonPrintDate(refundOrder, reprint);
-
+            Map<String,Object> resultMap = BeanMapUtil.beanToMap(refundOrderPrintDto);
             //获取业务service,调用业务实现 ---- 业务专业的
             RefundOrderDispatcherService service=refundBiz.get(refundOrder.getBizType());
             if(service!=null){
-                BaseOutput<RefundOrderPrintDto> result = service.buildBusinessPrintData(refundOrderPrintDto);
+                BaseOutput<Map<String,Object>> result = service.buildBusinessPrintData(refundOrder);
                 if (!result.isSuccess()){
                     LOG.info("获取打印数据异常！获取组装业务数据异常！{}", result.getMessage());
                     return BaseOutput.failure("获取打印数据异常！获取组装业务数据异常！{}" + result.getMessage());
                 }
-                refundOrderPrintDto = result.getData();
+                resultMap.putAll(result.getData());
             }
 
             PrintDataDto printDataDto = new PrintDataDto();
-            printDataDto.setItem(BeanMapUtil.beanToMap(refundOrderPrintDto));
-            printDataDto.setName(refundOrderPrintDto.getPrintTemplateCode());
+            printDataDto.setItem(resultMap);
+            printDataDto.setName(resultMap.get("printTemplateCode").toString());
+            return BaseOutput.success().setData(printDataDto);
         } catch (RuntimeException e) {
             LOG.info("获取打印数据异常！{}", e.getMessage());
             return BaseOutput.failure(e.getMessage());
@@ -327,7 +328,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             LOG.info("获取打印数据异常！{}", e1.getMessage());
             return BaseOutput.failure("获取打印数据异常");
         }
-        return BaseOutput.failure("获取打印数据异常");
     }
 
     private RefundOrderPrintDto buildCommonPrintDate(RefundOrder refundOrder, Integer reprint){
@@ -340,8 +340,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         roPrintDto.setCustomerCellphone(refundOrder.getCustomerCellphone());
         roPrintDto.setRefundReason(refundOrder.getRefundReason());
         roPrintDto.setAmount(MoneyUtils.centToYuan(refundOrder.getTotalRefundAmount()));
-        //@TODO退款单冗余结算员
-        roPrintDto.setSettlementOperator(refundOrder.getSubmitter());
+        roPrintDto.setSettlementOperator(refundOrder.getRefundOperator());
         roPrintDto.setSubmitter(refundOrder.getSubmitter());
         roPrintDto.setBusinessType(BizTypeEnum.getBizTypeEnum(refundOrder.getBizType()).getName());
         roPrintDto.setPayee(refundOrder.getPayee());
