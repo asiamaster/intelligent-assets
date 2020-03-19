@@ -1,9 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.BoothRentDTO;
-import com.dili.ia.domain.LeaseOrder;
-import com.dili.ia.domain.LeaseOrderItem;
-import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.LeaseOrderMapper;
@@ -934,11 +932,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public BaseOutput settleSuccessRefundOrderHandler(Long leaseOrderId,Long leaseOrderItemId) {
-        LeaseOrder leaseOrder = get(leaseOrderId);
-        if(null == leaseOrderItemId){
+    public BaseOutput settleSuccessRefundOrderHandler(RefundOrder refundOrder) {
+        LeaseOrder leaseOrder = get(refundOrder.getOrderId());
+        if(null == refundOrder.getOrderItemId()){
             if(RefundStateEnum.REFUNDED.getCode().equals(leaseOrder.getRefundState())){
-                LOG.info("此单已退款【leaseOrderId={}】",leaseOrderId);
+                LOG.info("此单已退款【leaseOrderId={}】",refundOrder.getOrderId());
                 return BaseOutput.success();
             }
             leaseOrder.setRefundState(RefundStateEnum.REFUNDED.getCode());
@@ -960,9 +958,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             }
         }else{
             //订单项退款申请
-            LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(leaseOrderItemId);
+            LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(refundOrder.getOrderItemId());
             if(RefundStateEnum.REFUNDED.getCode().equals(leaseOrderItem.getRefundState())){
-                LOG.info("此单已退款【leaseOrderItemId={}】",leaseOrderItemId);
+                LOG.info("此单已退款【leaseOrderItemId={}】",refundOrder.getOrderItemId());
                 return BaseOutput.success();
             }
             leaseOrderItem.setRefundState(RefundStateEnum.REFUNDED.getCode());
@@ -973,11 +971,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
             //级联检查其他订单项状态，如果全部为已退款，则需联动更新订单状态为已退款
             LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
-            condition.setLeaseOrderId(leaseOrderId);
+            condition.setLeaseOrderId(leaseOrder.getId());
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
             boolean isUpdateLeaseOrderState = true;
             for (LeaseOrderItem orderItem : leaseOrderItems) {
-                if (orderItem.getId().equals(leaseOrderItemId)) {
+                if (orderItem.getId().equals(refundOrder.getOrderItemId())) {
                     continue;
                 } else if (LeaseOrderItemStateEnum.REFUNDED.getCode().equals(orderItem.getState())) {
                     isUpdateLeaseOrderState = false;
@@ -990,6 +988,20 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                     throw new RuntimeException("多人操作，请重试！");
                 }
             }
+        }
+
+        //转抵扣充值
+        TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
+        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
+        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
+        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
+            transferDeductionItems.forEach(o->{
+                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(refundOrder.getId(),refundOrder.getCode(),refundOrder.getCustomerId(),o.getPayeeAmount(),refundOrder.getMarketId());
+                if(!accountOutput.isSuccess()){
+                    LOG.error("退款单转低异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】",refundOrder.getCode(),o.getPayee(),o.getPayeeAmount(),accountOutput.getMessage());
+                    throw new RuntimeException(accountOutput.getMessage());
+                }
+            });
         }
         return BaseOutput.success();
     }
