@@ -2,6 +2,7 @@ package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
@@ -31,6 +32,15 @@ public interface RefundOrderDto extends RefundOrder {
     @Column(name = "code")
     List<String> getCodes();
     void setCodes(List<String> codes);
+
+    /**
+     * 昵称模糊查询
+     * @return
+     */
+    @Column(name = "customer_name")
+    @Like
+    String getLikeCustomerName();
+    void setLikeCustomerName(String likeCustomerName);
 
     @Operator(Operator.IN)
     @Column(name = "id")

@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
@@ -52,7 +53,7 @@ public class RefundOrderController {
 		@ApiImplicitParam(name="RefundOrder", paramType="form", value = "RefundOrder的form信息", required = false, dataType = "string")
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(RefundOrder refundOrder) throws Exception {
+    public @ResponseBody String listPage(RefundOrderDto refundOrder) throws Exception {
         return refundOrderService.listEasyuiPageByExample(refundOrder, true).toString();
     }
 
