@@ -6,10 +6,12 @@ import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.LeaseOrderMapper;
 import com.dili.ia.rpc.AssetsRpc;
+import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
+import com.dili.ia.util.ResultCodeConst;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -73,6 +75,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     private AssetsRpc assetsRpc;
     @Autowired
     private RefundOrderService refundOrderService;
+    @Autowired
+    private CustomerRpc customerRpc;
 
     /**
      * 摊位租赁单保存
@@ -87,6 +91,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
+
+        //检查客户状态
+        checkCustomerState(dto.getCustomerId(),userTicket.getFirmId());
 
         BaseOutput<Department> depOut = departmentRpc.get(userTicket.getDepartmentId());
         if (depOut.isSuccess()) {
@@ -139,6 +146,26 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             o.setDepositAmountFlag(DepositAmountFlagEnum.PRE_TRANSFER.getCode());
             leaseOrderItemService.insertSelective(o);
         });
+    }
+
+    /**
+     * 检查客户状态
+     * @param customerId
+     * @param marketId
+     */
+    private void checkCustomerState(Long customerId,Long marketId){
+        BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
+        if(!output.isSuccess()){
+            throw new RuntimeException("客户接口调用异常 "+output.getMessage());
+        }
+        Customer customer = output.getData();
+        if(null == customer){
+            throw new RuntimeException("客户不存在，请核实和修改后再保存");
+        }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
+            throw new RuntimeException("客户已禁用，请核实和修改后再保存");
+        }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
+            throw new RuntimeException("客户已删除，请核实和修改后再保存");
+        }
     }
 
     /**
@@ -229,8 +256,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
+
         //更新摊位租赁单状态
         LeaseOrder leaseOrder = get(id);
+        //检查客户状态
+        checkCustomerState(leaseOrder.getCustomerId(),leaseOrder.getMarketId());
         //检查提交付款
         checkSubmitPayment(id, amount, waitAmount, leaseOrder);
 
@@ -245,7 +275,13 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             //冻结定金和转低
             BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(), leaseOrder.getMarketId());
             if(!customerAccountOutput.isSuccess()){
-                throw new RuntimeException(customerAccountOutput.getMessage());
+                if(ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())){
+                    throw new RuntimeException("客户定金余额不足，请修改重试");
+                }else if(ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())){
+                    throw new RuntimeException("客户转低余额不足，请修改重试");
+                }else{
+                    throw new RuntimeException(customerAccountOutput.getMessage());
+                }
             }
             //冻结摊位
             frozenBooth(leaseOrder);
@@ -329,6 +365,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param leaseOrder
      */
     private void checkSubmitPayment(Long id, Long amount, Long waitAmount, LeaseOrder leaseOrder) {
+
         //提交付款条件：已创建状态或已提交状态
         if (!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState()) &&
                 !LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {

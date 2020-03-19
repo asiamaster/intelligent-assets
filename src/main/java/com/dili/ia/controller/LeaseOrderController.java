@@ -57,8 +57,8 @@ public class LeaseOrderController {
     LeaseOrderItemService leaseOrderItemService;
     @Autowired
     PaymentOrderService paymentOrderService;
-    @Autowired
-    BusinessLogRpc businessLogRpc;
+  /*  @Autowired
+    BusinessLogRpc businessLogRpc;*/
 
     /**
      * 跳转到LeaseOrder页面
@@ -272,6 +272,7 @@ public class LeaseOrderController {
             return BaseOutput.failure(e.getMessage());
         }
     }
+
 
     /**
      * 提交付款
