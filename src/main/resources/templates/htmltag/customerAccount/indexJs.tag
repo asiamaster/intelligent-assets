@@ -32,7 +32,13 @@
         }
         return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
     }
-
+    /**
+     * 关闭弹窗
+     */
+    function closeDialog(dialog){
+        dialog.hide();
+        queryDataHandler();
+    }
     /**
      * 查询处理
      */
