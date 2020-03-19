@@ -159,7 +159,6 @@
                         async : true,
                         success : function(data) {
                             bui.loading.hide();
-                            console.log(data);
                             if(data.success){
                                 _grid.bootstrapTable('refresh');
                             }else{

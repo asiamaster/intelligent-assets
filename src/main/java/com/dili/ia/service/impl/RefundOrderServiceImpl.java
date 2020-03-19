@@ -20,8 +20,11 @@ import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
+import com.dili.ss.exception.ParamErrorException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -85,11 +88,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     public BaseOutput doAddHandler(RefundOrder order) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw new RuntimeException("未登陆");
+            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
         }
         BaseOutput checkResult = checkParams(order);
         if (!checkResult.isSuccess()){
-            throw new RuntimeException(checkResult.getMessage());
+            throw new BusinessException(ResultCode.PARAMS_ERROR, checkResult.getMessage());
         }
         order.setCreator(userTicket.getRealName());
         order.setCreatorId(userTicket.getId());
@@ -97,7 +100,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         order.setMarketCode(userTicket.getFirmCode());
         order.setState(RefundOrderStateEnum.CREATED.getCode());
         order.setVersion(0);
-        refundOrderService.insertSelective(order);
+        int count = refundOrderService.insertSelective(order);
+        if (count != 1){
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款单保存失败！");
+        }
         return BaseOutput.success();
     }
     private BaseOutput checkParams(RefundOrder order){

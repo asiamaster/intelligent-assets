@@ -201,6 +201,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (userTicket == null) {
             throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
         }
+        CustomerAccount customerAccount = this.get(efDto.getPayerCustomerAccountId());
+        if (customerAccount.getEarnestAvailableBalance() < efDto.getAmount()){
+            throw new BusinessException(ResultCode.DATA_ERROR, "转移金额不能大于可用余额！");
+        }
+
         CustomerAccount payeeCustomerAccount = this.getCustomerAccountByCustomerId(efDto.getCustomerId(), userTicket.getFirmId());
         //保存定金转移单
         efDto.setPayeeCustomerAccountId(payeeCustomerAccount.getId());
@@ -224,14 +229,23 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public void addEarnestRefund(RefundOrder order) {
+    public BaseOutput addEarnestRefund(RefundOrder order) {
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+           return BaseOutput.failure("编号生成器微服务异常").setCode(ResultCode.DATA_ERROR);
+        }
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (null == userTicket){
+            return BaseOutput.failure("未登录！").setCode(ResultCode.NOT_AUTH_ERROR);
+        }
+        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(order.getCustomerId(), userTicket.getFirmId());
+        if (customerAccount.getEarnestAvailableBalance() < order.getPayeeAmount()){
+            return BaseOutput.failure("退款金额不能大于可用余额！").setCode(ResultCode.DATA_ERROR);
         }
         order.setCode(bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
-        refundOrderService.doAddHandler(order);
+        order.setTotalRefundAmount(order.getPayeeAmount());
+        return refundOrderService.doAddHandler(order);
     }
 
 

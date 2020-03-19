@@ -38,7 +38,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param order
      * @return
      * */
-    void addEarnestRefund(RefundOrder order);
+    BaseOutput addEarnestRefund(RefundOrder order);
     /**
      * 根据用户信息，新增客户账户
      * @param customerId 客户ID
