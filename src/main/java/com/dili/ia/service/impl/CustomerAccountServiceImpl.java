@@ -160,13 +160,15 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Override
     public void earnestTransfer(EarnestTransferOrder order) {
         //修改准入方转出方余额，
-        CustomerAccount payerCustomerAccount = this.get(order.getPayeeCustomerAccountId());
+        CustomerAccount payerCustomerAccount = this.get(order.getPayerCustomerAccountId());
         payerCustomerAccount.setEarnestBalance(payerCustomerAccount.getEarnestBalance() - order.getAmount());
         payerCustomerAccount.setEarnestAvailableBalance(payerCustomerAccount.getEarnestAvailableBalance() - order.getAmount());
         int countPayer = this.getActualDao().updateAmountByAccountIdAndVersion(payerCustomerAccount);
         if (countPayer != 1){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户账户正在被多人操作，稍后再试");
         }
+
+
         CustomerAccount payeeCustomerAccount = this.get(order.getPayeeCustomerAccountId());
         payeeCustomerAccount.setEarnestBalance(payeeCustomerAccount.getEarnestBalance() + order.getAmount());
         payeeCustomerAccount.setEarnestAvailableBalance(payeeCustomerAccount.getEarnestAvailableBalance() + order.getAmount());

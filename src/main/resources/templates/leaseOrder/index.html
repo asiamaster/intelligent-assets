@@ -1,8 +1,7 @@
 <#bs4Body>
 <style>
-    .w-200px{width: 200px!important;}
     .w-100px{width: 100px!important;}
-    .detail{width: 12px!important;}
+
 </style>
 <!--
  内联元素:让元素排成一行显示出来，且高度和宽度由内容决定，不能用css控制
@@ -16,54 +15,58 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <nav>
-                <ol class="breadcrumb">
+            <nav class="position-relative">
+                <ol class="breadcrumb"  data-toggle="collapse" data-target="#queryForm" aria-controls="queryForm">
                     <li class="breadcrumb-item active">
-                        摊位出租管理
+                        摊位出租管理 &nbsp;&nbsp;<a class="position-absolute" href="javascript:;"><i class="fa fa-angle-double-down fa-lg" aria-hidden="true"></i></a>
                     </li>
                 </ol>
             </nav>
-            <form id="queryForm" role="form" class="form-inline" novalidate>
-                <div class="form-group mb-2 mr-5">
-                    <label for="state" class="justify-content-end mr-2 w-100px">业务状态:</label>
-                    <select id="state" name="state" class="form-control w-200px"></select>
-                    <#bcomboProvider _id="state" _provider="leaseOrderStateProvider" _value=""/>
-                </div>
-                <div class="form-group mb-2 mr-5">
-                    <label for="payState" class="justify-content-end mr-2 w-100px">交费状态:</label>
-                    <select id="payState" name="payState" class="form-control w-200px"></select>
-                    <#bcomboProvider _id="payState" _provider="payStateProvider" _value=""/>
-                </div>
-                <div class="form-group mb-2 mr-5">
-                    <label for="likeCustomerName" class="justify-content-end mr-2 w-100px">客户名称:</label>
-                    <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName"/>
-                </div>
-                <div class="form-group mb-2 mr-5">
-                    <label for="boothName" class="justify-content-end mr-2 w-100px">摊位编号:</label>
-                    <input type="text" class="form-control" name="boothName" id="boothName"/>
-                </div>
-                <div class="form-group mb-2 mr-5">
-                    <label for="code" class="justify-content-end mr-2 w-100px">业务单号:</label>
-                    <input type="text" class="form-control" name="code" id="code"/>
-                </div>
-                <div class="form-group mb-2 mr-5">
-                    <label for="createdStart" class="justify-content-end mr-2 w-100px">创建时间:</label>
-                    <div class="input-group">
-                        <input type="text" name="createdStart" id="createdStart" class="form-control date"/>
-                        <div class="input-group-append">
-                            <label for="createdStart"  class="input-group-text fa fa-calendar"></label>
-                        </div>
-                    </div>&nbsp;&nbsp;至&nbsp;&nbsp;
-                    <div class="input-group" id="datetimepicker3">
-                        <input type="text" name="createdEnd" id="createdEnd" class="form-control date" value=""/>
-                        <div class="input-group-append">
-                            <label for="createdEnd"  class="input-group-text fa fa-calendar"></label>
+            <form id="queryForm" role="form" class="collapse show" >
+                <div class="row row-cols-6">
+                    <div class="form-group col">
+                        <label for="state">业务状态</label>
+                        <select id="state" name="state" class="form-control"></select>
+                        <#bcomboProvider _id="state" _provider="leaseOrderStateProvider" _value=""/>
+                    </div>
+                    <div class="form-group col">
+                        <label for="payState">交费状态</label>
+                        <select id="payState" name="payState" class="form-control"></select>
+                        <#bcomboProvider _id="payState" _provider="payStateProvider" _value=""/>
+                    </div>
+                    <div class="form-group col">
+                        <label for="likeCustomerName">客户名称</label>
+                        <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName"/>
+                    </div>
+                    <div class="form-group col">
+                        <label for="boothName">摊位编号</label>
+                        <input type="text" class="form-control" name="boothName" id="boothName"/>
+                    </div>
+                    <div class="form-group col">
+                        <label for="code">业务单号</label>
+                        <input type="text" class="form-control" name="code" id="code"/>
+                    </div>
+                    <div class="form-group col-auto">
+                        <label for="createdStart">创建时间</label>
+                        <div class="form-inline">
+                            <div class="input-group">
+                                <input type="text" name="createdStart" id="createdStart" class="form-control date"/>
+                                <div class="input-group-append">
+                                    <label for="createdStart"  class="input-group-text fa fa-calendar"></label>
+                                </div>
+                            </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                            <div class="input-group" id="datetimepicker3">
+                                <input type="text" name="createdEnd" id="createdEnd" class="form-control date" value=""/>
+                                <div class="input-group-append">
+                                    <label for="createdEnd"  class="input-group-text fa fa-calendar"></label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="btn-group mb-2">
-                    <button id="query" type="button" class="btn btn-success mr-1" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
-                    <button id="clear" type="button" class="btn btn-danger" onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-trash-o"></i> 清除</button>
+                <div>
+                    <button id="clear" type="button" class="btn btn-outline-primary mr-2" onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-refresh"></i> 清除</button>
+                    <button id="query" type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
                 </div>
             </form>
         </div>
@@ -81,7 +84,7 @@
                 <button id="btn_renew" type="button" class="btn btn-primary" onclick="openRenewHandler()"><i class="fa fa-plug"></i> 续租</button>
                 <button id="btn_refund_apply" type="button" class="btn btn-primary" onclick="openRefundApplyHandler(1)"><i class="fa fa-reply"></i> 退款申请</button>
             </div>
-            <table id="grid" data-toggle="table" data-title="租赁单列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="10"
+            <table id="grid" data-toggle="table" data-title="租赁单列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="5"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
                    data-click-to-select="true"  data-checkbox-header="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true" data-detail-view="true"

@@ -81,26 +81,18 @@
                     bui.loading.hide();
                     if(!ret.success){
                         bs4pop.alert(ret.message, {type: 'error'},function () {
-                            closeDialog(parent.dia);
+                            parent.closeDialog(parent.dia);
                         });
                     }else{
-                        closeDialog(parent.dia);
+                        parent.closeDialog(parent.dia);
                     }
                 },
                 error: function (error) {
                     bui.loading.hide();
-                    bs4pop.alert(error.result, {type: 'error'});
+                    bs4pop.alert('远程访问失败', {type: 'error'});
                 }
             });
         }
     });
-
-    /**
-     * 关闭弹窗
-     */
-    function closeDialog(dialog){
-        dialog.hide();
-        queryDataHandler();
-    }
 
 </script>

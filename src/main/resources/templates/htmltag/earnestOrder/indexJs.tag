@@ -46,6 +46,14 @@
     }
 
     /**
+     * 关闭弹窗
+     */
+    function closeDialog(dialog){
+        dialog.hide();
+        queryDataHandler();
+    }
+
+    /**
      打开新增窗口
      */
     function openInsertHandler() {
@@ -116,12 +124,12 @@
                         processData:true,
                         dataType: "json",
                         async : true,
-                        success : function(data) {
+                        success : function(ret) {
                             bui.loading.hide();
-                            if(data.success){
-                                _grid.bootstrapTable('refresh');
+                            if(ret.success){
+                                queryDataHandler();
                             }else{
-                                bs4pop.alert(data.message, {type: 'error'});
+                                bs4pop.alert(ret.message, {type: 'error'});
                             }
                         },
                         error : function() {
@@ -153,12 +161,12 @@
                         processData:true,
                         dataType: "json",
                         async : true,
-                        success : function(data) {
+                        success : function(ret) {
                             bui.loading.hide();
-                            if(data.success){
-                                _grid.bootstrapTable('refresh');
+                            if(ret.success){
+                                queryDataHandler();
                             }else{
-                                bs4pop.alert(data.result, {type: 'error'});
+                                bs4pop.alert(ret.message, {type: 'error'});
                             }
                         },
                         error : function() {
@@ -189,13 +197,12 @@
                         processData:true,
                         dataType: "json",
                         async : true,
-                        success : function(data) {
+                        success : function(ret) {
                             bui.loading.hide();
-                            console.log(data);
-                            if(data.success){
-                                _grid.bootstrapTable('refresh');
+                            if(ret.success){
+                                queryDataHandler();
                             }else{
-                                bs4pop.alert(data.result, {type: 'error'});
+                                bs4pop.alert(ret.message, {type: 'error'});
                             }
                         },
                         error : function() {
