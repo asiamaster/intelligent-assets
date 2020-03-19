@@ -6,7 +6,6 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.TransactionDetails;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.EarnestOrderPrintDto;
-import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
@@ -112,15 +111,16 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         });
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput updateEarnestOrder(EarnestOrderListDto earnestOrder) {
         if (earnestOrder.getId() == null){
-            return BaseOutput.failure();
+            return BaseOutput.failure("Id不能为空！");
         }
-        this.getActualDao().updateByPrimaryKey(earnestOrder);
+        this.getActualDao().updateByPrimaryKeySelective(earnestOrder);
         this.deleteEarnestOrderDetailByEarnestOrderId(earnestOrder.getId());
         //根据摊位ID插入到定金详情里面
-        insertEarnestOrderDetails(earnestOrder);
+        this.insertEarnestOrderDetails(earnestOrder);
         return BaseOutput.success();
     }
 
@@ -136,7 +136,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         EarnestOrderDetail eod = DTOUtils.newDTO(EarnestOrderDetail.class);
         eod.setEarnestOrderId(earnestOrderId);
         List<EarnestOrderDetail> eodlist = earnestOrderDetailService.list(eod);
-        if (CollectionUtils.isEmpty(eodlist) && eodlist.size() > 0){
+        if (!CollectionUtils.isEmpty(eodlist) && eodlist.size() > 0){
             for (EarnestOrderDetail ed : eodlist){
                 earnestOrderDetailService.delete(ed.getId());
             }

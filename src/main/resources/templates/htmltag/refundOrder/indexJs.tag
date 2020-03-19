@@ -40,8 +40,8 @@
      * 查询处理
      */
     function queryDataHandler() {
-        // currentSelectRowIndex = undefined;
-        // $('#toolbar button').attr('disabled', false);
+        currentSelectRowIndex = undefined;
+        $('#toolbar button').attr('disabled', false);
         _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/refundOrder/listPage.action'});
     }
 
@@ -176,6 +176,38 @@
         }
     }
 
+
+
+    //选中行事件
+    _grid.on('uncheck.bs.table', function (e, row, $element) {
+        currentSelectRowIndex = undefined;
+    });
+
+    //选中行事件 -- 可操作按钮控制
+    _grid.on('check.bs.table', function (e, row, $element) {
+        let state = row.$_state;
+        if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CREATED.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+            $('#btn_update').attr('disabled', false);
+            $('#btn_cancel').attr('disabled', false);
+            $('#btn_submit').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CANCELD.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.SUBMITTED.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+            $('#btn_withdraw').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.REFUNDED.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+        }
+    });
 </script>
 
 <!--

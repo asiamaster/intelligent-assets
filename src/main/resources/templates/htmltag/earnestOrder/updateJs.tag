@@ -16,9 +16,32 @@
     }
 
 
+    /******************************驱动执行区 begin***************************/
+    $(function () {
+        <% if(isNotEmpty(earnestOrderDetails)){ %>
+        let earnestOrderDetails = JSON.parse('${earnestOrderDetails}');
+        for (let earnestOrderDetail of earnestOrderDetails){
+            initBoothItem($.extend(earnestOrderDetail,{index: ++itemIndex}));
+        }
+        <% }else{%>
+        while (itemIndex<1) {
+            initBoothItem({index: ++itemIndex});
+        }
+        <% }%>
+    });
+
     /**
      * 添加摊位
-     * */
+     * @param leaseOrderItem
+     */
+    function initBoothItem(earnestOrderDetail){
+        $('#boothTable tbody').append(bui.util.HTMLDecode(template('initBoothItem',earnestOrderDetail)))
+    }
+
+    /**
+     * 添加摊位
+     * @param leaseOrderItem
+     */
     function addBoothItem(){
         $('#boothTable tbody').append(bui.util.HTMLDecode(template('boothItem', {index: ++itemIndex})))
     }
@@ -72,10 +95,10 @@
                     bui.loading.hide();
                     if(!ret.success){
                         bs4pop.alert(ret.message, {type: 'error'},function () {
-                            parent.closeDialog(parent.dia);
+                            closeDialog(parent.dia);
                         });
                     }else{
-                        parent.closeDialog(parent.dia);
+                        closeDialog(parent.dia);
                     }
                 },
                 error: function (error) {

@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.TransactionDetails;
+import com.dili.ia.domain.dto.TransactionDetailsListDto;
 import com.dili.ia.service.TransactionDetailsService;
 import com.dili.ss.domain.BaseOutput;
 import io.swagger.annotations.Api;
@@ -48,7 +49,7 @@ public class TransactionDetailsController {
 		@ApiImplicitParam(name="TransactionDetails", paramType="form", value = "TransactionDetails的form信息", required = false, dataType = "string")
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(TransactionDetails transactionDetails) throws Exception {
+    public @ResponseBody String listPage(TransactionDetailsListDto transactionDetails) throws Exception {
         return transactionDetailsService.listEasyuiPageByExample(transactionDetails, true).toString();
     }
 
