@@ -41,8 +41,8 @@
         <hr>
         <div class="row row-cols-4">
             <div class="form-group col">
-                <label for="" class="">转移金额</label>
-                <input type="text" class="form-control floatReserve money" name="amount" range="0 9999999.99" required/>
+                <label for="amount" class="">转移金额</label>
+                <input id="amount" type="number" class="form-control floatReserve money" name="amount" range="0 9999999.99" required/>
             </div>
         </div>
         <div class="row row-cols-1">
@@ -60,6 +60,6 @@
 
 
 </#bs4Body>
-<script type="text/javascript" src="${contextPath}/resources/js/bui/common.js"></script>
-<script type="text/javascript" src="${contextPath}/resources/js/bui/customerAutocomplete.js"></script>
+<script type="text/javascript" src="${contextPath}/resources/js/bui/common.js?v=1.0"></script>
+<script type="text/javascript" src="${contextPath}/resources/js/bui/customerAutocomplete.js?v=1.0"></script>
 <#customerAccount_earnestTransferJs />

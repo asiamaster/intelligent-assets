@@ -26,12 +26,11 @@
         </div>
         <div class="row row-cols-4">
             <div class="form-group col">
-                <label for="" class="">退款方式</label>
-                <select id="" name="refundType" class="form-control">
-                    <option value="1">1</option>
-                    <option value="3">银行转账</option>
-                </select>
+                <label for="refundType">退款方式</label>
+                <select id="refundType"  name="refundType" class="form-control" required></select>
+                <#bcomboProvider _id="refundType" _provider="refundTypeProvider"/>
             </div>
+
             <div class="form-group col" data-refund-way="bank">
                 <label for="" class="">开户行</label>
                 <input type="text" class="form-control" name="bank" required />

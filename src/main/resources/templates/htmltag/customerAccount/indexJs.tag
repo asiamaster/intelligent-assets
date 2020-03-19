@@ -37,7 +37,7 @@
      * 查询处理
      */
     function queryDataHandler() {
-        // currentSelectRowIndex = undefined;
+        currentSelectRowIndex = undefined;
         // $('#toolbar button').attr('disabled', false);
         _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/customerAccount/listPage.action'});
     }
