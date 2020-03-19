@@ -26,7 +26,7 @@ var customerNameAutoCompleteOption = {
         return {
             suggestions: $.map(result, function (dataItem) {
                 return $.extend(dataItem, {
-                        value: dataItem.name + ' ' + dataItem.certificateNumber + ' ' + dataItem.cellphone
+                        value: dataItem.name + ' ' + dataItem.certificateNumber + ' ' + dataItem.contactsPhone
                     }
                 );
             })
@@ -35,7 +35,7 @@ var customerNameAutoCompleteOption = {
     selectFn: function (suggestion) {
         $('#certificateNumber').val(suggestion.certificateNumber);
         $('#_certificateNumber').val(suggestion.certificateNumber);
-        $('#customerCellphone').val(suggestion.cellphone);
+        $('#customerCellphone').val(suggestion.contactsPhone);
     }
 };
 // 证件号码
@@ -48,7 +48,7 @@ var certificateNumberAutoCompleteOption = {
         return {
             suggestions: $.map(result, function (dataItem) {
                 return $.extend(dataItem, {
-                        value: dataItem.name + ' ' + dataItem.certificateNumber + ' ' + dataItem.cellphone
+                        value: dataItem.name + ' ' + dataItem.certificateNumber + ' ' + dataItem.contactsPhone
                     }
                 );
             })
@@ -57,7 +57,7 @@ var certificateNumberAutoCompleteOption = {
     selectFn: function (suggestion) {
         $('#customerName').val(suggestion.name);
         $('#customerId').val(suggestion.id);
-        $('#customerCellphone').val(suggestion.cellphone);
+        $('#customerCellphone').val(suggestion.contactsPhone);
     }
 };
 $('#getCustomer').on('click', function (e) {
@@ -73,7 +73,7 @@ $('#getCustomer').on('click', function (e) {
             $('#customerId').val(data[0].id);
             $('#certificateNumber').val(data[0].certificateNumber);
             $('#_certificateNumber').val(data[0].certificateNumber);
-            $('#customerCellphone').val(data[0].cellphone);
+            $('#customerCellphone').val(data[0].contactsPhone);
         },
         error: function (a, b, c) {
             bs4pop.alert('远程访问失败', {type: 'error'});

@@ -11,16 +11,16 @@
     <form id="queryForm" role="form" novalidate>
         <div class="row  row-cols-6">
             <div class="form-group col">
-                <label for="customerName" class="">客户名称</label>
-                <input type="text" class="form-control" name="customerName" id="customerName"/>
+                <label for="likeCustomerName" class="">客户名称</label>
+                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="boothName" class="">联系电话</label>
-                <input type="text" class="form-control" name="boothName" id="boothName"/>
+                <label for="customerCellphone" class="">联系电话</label>
+                <input type="text" class="form-control" name="customerCellphone" id="customerCellphone" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="code" class="">证件号码</label>
-                <input type="text" class="form-control" name="code" id="code"/>
+                <label for="certificateNumber" class="">证件号码</label>
+                <input type="text" class="form-control" name="certificateNumber" id="certificateNumber" maxlength="50"/>
             </div>
         </div>
         <div class="">
@@ -56,13 +56,13 @@
                     <th data-field="customerCellphone" data-align="center">
                         联系电话
                     </th>
-                    <th data-field="customerCellphone" data-align="center">
+                    <th data-field="certificateNumber" data-align="center">
                         证件号码
                     </th>
-                    <th data-field="earnestBalance" data-align="center" data-provider="moneyProvider">
+                    <th data-field="earnestAvailableBalance" data-align="center" data-provider="moneyProvider">
                         定金金额
                     </th>
-                    <th data-field="transferBalance" data-align="center" data-provider="moneyProvider">
+                    <th data-field="transferAvailableBalance" data-align="center" data-provider="moneyProvider">
                         转抵金额
                     </th>
                 </tr>

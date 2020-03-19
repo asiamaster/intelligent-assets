@@ -39,35 +39,36 @@ public class CustomerController {
     @ApiOperation("查询CustomerOrder")
     @RequestMapping(value="/list.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody List<Customer> list(String likeName, String certificateNumberMatch,String certificateNumber) throws CloneNotSupportedException {
-        List<Customer> cus = new ArrayList<>();
-        Customer customer1 = new Customer();
-        customer1.setId(1L);
-        customer1.setName("蒋成勇");
-        customer1.setCellphone("13558720686");
-        customer1.setCertificateNumber("511602198902422586");
-        cus.add(customer1);
-
-        Customer customer2 = new Customer();
-        customer2.setId(2L);
-        customer2.setName("克兰");
-        customer2.setCellphone("18781998571");
-        customer2.setCertificateNumber("513023199201206627");
-        cus.add(customer2);
-
-        cus.add((Customer) customer1.clone());
-        cus.add((Customer) customer1.clone());
-        cus.add((Customer) customer1.clone());
-        cus.add((Customer) customer1.clone());
-
-        return cus;
-//        CustomerQuery customerQuery = new CustomerQuery();
-//        if(StringUtils.isNotBlank(likeName)){
-//            customerQuery.setName(likeName);
-//        }else if(StringUtils.isNotBlank(certificateNumberMatch)){
-//            customerQuery.setCertificateNumberMatch(certificateNumberMatch);
-//        }else if(StringUtils.isNotBlank(certificateNumber)){
-//            customerQuery.setCertificateNumber(certificateNumber);
-//        }
-//        return customerRpc.list(customerQuery).getData();
+//        List<Customer> cus = new ArrayList<>();
+//        Customer customer1 = new Customer();
+//        customer1.setId(1L);
+//        customer1.setName("蒋成勇");
+//        customer1.setCellphone("13558720686");
+//        customer1.setCertificateNumber("511602198902422586");
+//        cus.add(customer1);
+//
+//        Customer customer2 = new Customer();
+//        customer2.setId(2L);
+//        customer2.setName("克兰");
+//        customer2.setCellphone("18781998571");
+//        customer2.setCertificateNumber("513023199201206627");
+//        cus.add(customer2);
+//
+//        cus.add((Customer) customer1.clone());
+//        cus.add((Customer) customer1.clone());
+//        cus.add((Customer) customer1.clone());
+//        cus.add((Customer) customer1.clone());
+//
+//        return cus;
+        CustomerQuery customerQuery = new CustomerQuery();
+        if(StringUtils.isNotBlank(likeName)){
+            customerQuery.setName(likeName);
+        }else if(StringUtils.isNotBlank(certificateNumberMatch)){
+            customerQuery.setCertificateNumberMatch(certificateNumberMatch);
+        }else if(StringUtils.isNotBlank(certificateNumber)){
+            customerQuery.setCertificateNumber(certificateNumber);
+        }
+        List<Customer> list = customerRpc.list(customerQuery).getData();
+        return list;
     }
 }

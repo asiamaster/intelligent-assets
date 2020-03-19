@@ -3,6 +3,7 @@ package com.dili.ia.controller;
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.CustomerAccountListDto;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ss.domain.BaseOutput;
@@ -53,7 +54,7 @@ public class CustomerAccountController {
 		@ApiImplicitParam(name="CustomerAccount", paramType="form", value = "CustomerAccount的form信息", required = false, dataType = "string")
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(CustomerAccount customerAccount) throws Exception {
+    public @ResponseBody String listPage(CustomerAccountListDto customerAccount) throws Exception {
         return customerAccountService.listEasyuiPageByExample(customerAccount, true).toString();
     }
 
