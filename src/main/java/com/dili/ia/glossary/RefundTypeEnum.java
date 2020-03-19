@@ -2,7 +2,7 @@ package com.dili.ia.glossary;
 
 public enum RefundTypeEnum {
     CASH(1, "现金"),
-    POS(2, "POS"),
+    BANK(3, "银行卡转帐"),
     ;
     private String name;
     private Integer code ;
