@@ -65,7 +65,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     @Override
     public BaseOutput refundSuccessHandler(RefundOrder refundOrder) {
         try{
-            return leaseOrderService.settleSuccessRefundOrderHandler(refundOrder.getOrderId(),refundOrder.getOrderItemId());
+            return leaseOrderService.settleSuccessRefundOrderHandler(refundOrder);
         }catch (Exception e){
             LOG.info("租赁退款单成功回调异常",e);
             return BaseOutput.failure(e.getMessage());

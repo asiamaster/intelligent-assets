@@ -1,6 +1,7 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.LeaseOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
@@ -88,10 +89,9 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
 
     /**
      * 结算退款单成功回调处理
-     * @param leaseOrderId
-     * @param leaseOrderItemId
+     * @param refundOrder
      * @return
      */
-    BaseOutput settleSuccessRefundOrderHandler(Long leaseOrderId,Long leaseOrderItemId);
+    BaseOutput settleSuccessRefundOrderHandler(RefundOrder refundOrder);
 
 }

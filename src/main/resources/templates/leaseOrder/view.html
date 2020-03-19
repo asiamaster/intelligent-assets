@@ -138,6 +138,36 @@
                     <textarea class="form-control" id="notes" name="notes"  rows="1" maxlength="50" readonly>${leaseOrder.notes!}</textarea>
                 </div>
             </div>
+            <%if(isNotEmpty(logs) && logs.~size>0){ %>
+            <div class="breadcrumb" data-toggle="collapse" data-target="#recordInfo" aria-controls="recordInfo">
+                业务记录 <a href="javascript:;" class="ml-2" >点击查看</a>
+            </div>
+            <div class="collapse" id="recordInfo">
+                <table data-toggle="table">
+                    <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>操作</th>
+                        <th>详情</th>
+                        <th>补充信息</th>
+                        <th>工作员</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <%
+                    for(log in logs){%>
+                    <tr>
+                        <td class="text-center align-middle" >${log.createTime,dateFormat='yyyy-MM-dd HH:mm:ss'}</td>
+                        <td class="text-center align-middle" >${log.operatorName}</td>
+                        <td class="text-center align-middle" >${log.content}</td>
+                        <td class="text-center align-middle" >${log.notes}</td>
+                        <td class="text-center align-middle" >${log.operatorId}</td>
+                    </tr>
+                    <% }%>
+                    </tbody>
+                </table>
+            </div>
+            <% }%>
         </form>
     </div>
 

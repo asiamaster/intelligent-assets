@@ -6,13 +6,13 @@ import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.IsRenewEnum;
-import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
-import com.dili.ia.glossary.LeaseOrderStateEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
@@ -57,6 +57,8 @@ public class LeaseOrderController {
     LeaseOrderItemService leaseOrderItemService;
     @Autowired
     PaymentOrderService paymentOrderService;
+    @Autowired
+    BusinessLogRpc businessLogRpc;
 
     /**
      * 跳转到LeaseOrder页面
@@ -93,6 +95,15 @@ public class LeaseOrderController {
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
         modelMap.put("leaseOrder",leaseOrder);
         modelMap.put("leaseOrderItems", leaseOrderItems);
+
+        //日志查询
+//        BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+//        businessLogQueryInput.setBusinessId(id);
+//        businessLogQueryInput.setBusinessType(LogBizTypeEnum.BOOTH_LEASE.getCode());
+//        BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+//        if(businessLogOutput.isSuccess()){
+//            modelMap.put("logs",businessLogOutput.getData());
+//        }
         return "leaseOrder/view";
     }
 
