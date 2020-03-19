@@ -74,7 +74,6 @@
         });
 
         $.extend(formData,{earnestOrderdetails});
-        console.log(formData);
         return formData;
     }
 

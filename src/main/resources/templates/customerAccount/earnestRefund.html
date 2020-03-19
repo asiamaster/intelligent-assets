@@ -20,8 +20,8 @@
         </div>
         <div class="row row-cols-4">
             <div class="form-group col">
-                <label for="" class="">退款金额</label>
-                <input type="text" class="form-control floatReserve money" name="totalRefundAmount"  required />
+                <label for="payeeAmount" class="">退款金额</label>
+                <input id="payeeAmount" type="number" class="form-control floatReserve money" name="payeeAmount" placeholder="余额：<#centToYuan value='${customerAccount.earnestAvailableBalance!0}'/>"  required />
             </div>
         </div>
         <div class="row row-cols-4">
@@ -37,7 +37,7 @@
             </div>
             <div class="form-group col" data-refund-way="bank">
                 <label for="" class="">银行卡号</label>
-                <input type="text" class="form-control digits" name="bank_card_no" required />
+                <input type="text" class="form-control digits" name="bankCardNo" required />
             </div>
         </div>
         <div class="row row-cols-1">

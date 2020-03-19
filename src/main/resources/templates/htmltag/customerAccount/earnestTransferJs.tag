@@ -4,20 +4,9 @@
         $('[data-refund-way="bank"]').hide();
     });
 
-    // 退款方式
-    $('#refundType').on('change', function () {
-        debugger
-        if($(this).val() == '3') {
-            $('[data-refund-way="bank"]').show();
-        } else {
-            $('[data-refund-way="bank"]').hide();
-        }
-    })
-
     function buildFormData(){
         let formData = $("input:not(table input),textarea,select").serializeObject();
         bui.util.yuanToCentForMoneyEl(formData);
-        console.log(formData);
         return formData;
     }
 

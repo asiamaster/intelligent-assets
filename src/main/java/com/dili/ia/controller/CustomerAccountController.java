@@ -8,6 +8,7 @@ import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
@@ -101,10 +102,9 @@ public class CustomerAccountController {
     @RequestMapping(value="/doAddEarnestRefund.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
         try {
-            customerAccountService.addEarnestRefund(order);
-            return BaseOutput.success("创建退款成功！");
-        } catch (RuntimeException e) {
-            return BaseOutput.failure(e.getMessage());
+            return customerAccountService.addEarnestRefund(order);
+        } catch (BusinessException e) {
+            return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
             return BaseOutput.failure("创建退款出错！");
         }
@@ -131,8 +131,8 @@ public class CustomerAccountController {
 
             customerAccountService.earnestTransfer(order);
             return BaseOutput.success("转移成功！");
-        } catch (RuntimeException e) {
-            return BaseOutput.failure(e.getMessage());
+        } catch (BusinessException e) {
+            return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
             return BaseOutput.failure("转移出错！");
         }
