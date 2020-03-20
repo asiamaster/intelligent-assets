@@ -10,22 +10,7 @@
         //行索引计数器
         let itemIndex = 0;
         let isInitCheckDeduction = ${isNotEmpty(leaseOrder) ? true : false};
-        var customerNameAutoCompleteOption = {
-            width : 350,
-            serviceUrl: '/customer/list.action',
-            paramName : 'likeName',
-            displayFieldName : 'name',
-            noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>',
-            transformResult: function (result) {
-                return {
-                    suggestions: $.map(result, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + ' ' + dataItem.certificateNumber
-                            }
-                        );
-                    })
-                }
-            },
+        $.extend(customerNameAutoCompleteOption,{
             selectFn: function (suggestion) {
                 $('#certificateNumber').val(suggestion.certificateNumber);
                 $('#_certificateNumber').val(suggestion.certificateNumber);
@@ -36,27 +21,11 @@
                 //账户余额查询
                 queryCustomerAccount();
             }
-        };
-        var certificateNumberAutoCompleteOption = {
-            width : 350,
-            minChars : 6,
-            serviceUrl: '/customer/list.action',
-            paramName : 'certificateNumberMatch',
-            displayFieldName : 'certificateNumber',
-            noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>',
-            transformResult: function (result) {
-                return {
-                    suggestions: $.map(result, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + ' ' + dataItem.certificateNumber
-                            }
-                        );
-                    })
-                }
-            },
+        });
+        $.extend(certificateNumberAutoCompleteOption,{
             selectFn: function (suggestion) {
-                $('#customerName').val(suggestion.name);
-                $('#customerId').val(suggestion.id);
+                $('#certificateNumber').val(suggestion.certificateNumber);
+                $('#_certificateNumber').val(suggestion.certificateNumber);
                 $('#customerCellphone').val(suggestion.contactsPhone);
 
                 //获取保证金抵扣余额
@@ -64,13 +33,21 @@
                 //账户余额查询
                 queryCustomerAccount();
             }
-        };
-
+        });
     /*********************变量定义区 end***************/
 
 
     /******************************驱动执行区 begin***************************/
     $(function () {
+        //初始化刷卡
+        initSwipeCard({
+            id:'getCustomer',
+            onLoadSuccess:function(customer){
+                queryCustomerAccount();
+                queryCustomerDepositDeduction(true);
+            }
+        });
+
         laydate.render({
             elem: '#startTime',
             type: 'date',
@@ -127,15 +104,6 @@
     //获取table Index
     function getIndex(str) {
         return str.split('_')[1];
-    }
-
-    /**
-     * 读身份证卡
-     * @return {IDCardNo:'5116021989...'}
-     * */
-    function reader(){
-        if(!window.callbackObj)return ;
-        return eval('(' + callbackObj.readIDCard() + ')');
     }
 
     /**
@@ -507,35 +475,6 @@
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
-    });
-
-    $('#getCustomer').on('click', function (e) {
-        e.stopPropagation();
-        let user = reader();
-        $.ajax({
-            type: "POST",
-            url: "/customer/list.action",
-            // data: {certificateNumber : user.IDCardNo},
-            dataType: "json",
-            success: function (data) {
-                $('#customerName').val(data[0].name);
-                $('#customerId').val(data[0].id);
-                $('#certificateNumber').val(data[0].certificateNumber);
-                $('#_certificateNumber').val(data[0].certificateNumber);
-                $('#customerCellphone').val(data[0].cellphone);
-
-                $("#saveForm").validate().element($("#customerName"));
-                $("#saveForm").validate().element($("#_certificateNumber"));
-                $("#saveForm").validate().element($("#customerCellphone"));
-
-                queryCustomerAccount();
-                queryCustomerDepositDeduction(true);
-            },
-            error: function (a, b, c) {
-                bs4pop.alert('远程访问失败', {type: 'error'});
-            }
-        });
-
     });
 
     //摊位新增事件

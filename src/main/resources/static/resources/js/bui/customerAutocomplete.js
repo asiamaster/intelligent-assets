@@ -61,26 +61,36 @@ var certificateNumberAutoCompleteOption = {
         $('#customerCellphone').val(suggestion.contactsPhone);
     }
 };
-$('#getCustomer').on('click', function (e) {
-    e.stopPropagation();
-    let user = reader();
-    $.ajax({
-        type: "POST",
-        url: "/customer/list.action",
-        // data: {certificateNumber : user.IDCardNo},
-        dataType: "json",
-        success: function (data) {
-            $('#customerName').val(data[0].name);
-            $('#customerId').val(data[0].id);
-            $('#certificateNumber').val(data[0].certificateNumber);
-            $('#_certificateNumber').val(data[0].certificateNumber);
-            $('#customerCellphone').val(data[0].contactsPhone);
-        },
-        error: function (a, b, c) {
-            bs4pop.alert('远程访问失败', {type: 'error'});
-        }
+
+/**
+ * 初始化刷卡 身份证
+ * @param option {id:'',onLoadSuccess:function(customer){}}
+ */
+function initSwipeCard(option){
+    $('#'+option.id).on('click', function (e) {
+        e.stopPropagation();
+        let user = reader();
+        $.ajax({
+            type: "POST",
+            url: "/customer/list.action",
+            // data: {certificateNumber : user.IDCardNo},
+            dataType: "json",
+            success: function (data) {
+                let customer = data[0];
+                $('#customerName').val(customer.name);
+                $('#customerId').val(customer.id);
+                $('#certificateNumber').val(customer.certificateNumber);
+                $('#_certificateNumber').val(customer.certificateNumber);
+                $('#customerCellphone').val(customer.contactsPhone);
+                option.onLoadSuccess && option.onLoadSuccess(customer);
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
     });
-});
+}
+
 
 
 /**
@@ -126,7 +136,7 @@ initMsg(function (data) {
     }
 });
 
-$('#goCustomerRegister').on('click', function(){
+$(document).on('click','#goCustomerRegister', function(){
     openCustomerRegister();
 });
 
