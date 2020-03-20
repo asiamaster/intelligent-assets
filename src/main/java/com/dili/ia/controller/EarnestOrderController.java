@@ -87,13 +87,17 @@ public class EarnestOrderController {
             modelMap.put("stateName", EarnestOrderStateEnum.getEarnestOrderStateEnumName(earnestOrder.getState()));
             modelMap.put("earnestOrder",earnestOrder);
             modelMap.put("earnestOrderDetails", earnestOrderDetails);
-
-            BusinessLogQueryInput query = new BusinessLogQueryInput();
-            query.setBusinessId(id);
-            query.setBusinessType(LogBizTypeEnum.EARNEST_ORDER.getCode());
-            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(query);
-            if(businessLogOutput.isSuccess()){
-                modelMap.put("logs",businessLogOutput.getData());
+            try{
+                //日志查询
+                BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+                businessLogQueryInput.setBusinessId(id);
+                businessLogQueryInput.setBusinessType(LogBizTypeEnum.BOOTH_LEASE.getCode());
+                BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+                if(businessLogOutput.isSuccess()){
+                    modelMap.put("logs",businessLogOutput.getData());
+                }
+            }catch (Exception e){
+                LOG.error("日志服务查询异常",e);
             }
         }
         return "earnestOrder/view";

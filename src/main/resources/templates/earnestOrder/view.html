@@ -112,20 +112,16 @@
                 for(log in logs){%>
                 <tr>
                     <td class="text-center align-middle" >${log.createTime,dateFormat='yyyy-MM-dd HH:mm:ss'}</td>
-                    <td class="text-center align-middle" >${log.operatorName}</td>
+                    <td class="text-center align-middle" >${log.operatorTypeText}</td>
                     <td class="text-center align-middle" >${log.content}</td>
                     <td class="text-center align-middle" >${log.notes}</td>
-                    <td class="text-center align-middle" >${log.operatorId}</td>
+                    <td class="text-center align-middle" >${log.operatorName}</td>
                 </tr>
                 <% }%>
                 </tbody>
             </table>
         </div>
         <% }%>
-        <div class="text-right">
-            <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()" >关闭</button>
-        </div>
-
     </form>
 </div>
 
