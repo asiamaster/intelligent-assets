@@ -31,7 +31,7 @@ public interface PaymentOrder extends IBaseDomain {
     void setId(Long id);
 
     @Column(name = "`code`")
-    @FieldDef(label="编号", maxLength = 20)
+    @FieldDef(label="编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
@@ -59,7 +59,7 @@ public interface PaymentOrder extends IBaseDomain {
     void setBusinessId(Long businessId);
 
     @Column(name = "`business_code`")
-    @FieldDef(label="业务单编号", maxLength = 20)
+    @FieldDef(label="业务单编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getBusinessCode();
 
@@ -108,7 +108,7 @@ public interface PaymentOrder extends IBaseDomain {
     void setPayedTime(Date payedTime);
 
     @Column(name = "`settlement_code`")
-    @FieldDef(label="结算编号", maxLength = 20)
+    @FieldDef(label="结算编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getSettlementCode();
 

@@ -130,7 +130,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         BaseOutput<Customer> out= customerRpc.get(customerId, userTicket.getFirmId());
         if(!out.isSuccess()){
             LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, userTicket.getFirmId(), out.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户微服务异常！");
+            throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
         }
         Customer customer = out.getData();
         if (null == customer){
@@ -177,9 +177,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             throw new BusinessException(ResultCode.DATA_ERROR, "客户账户正在被多人操作，稍后再试");
         }
 
+        String notesPayer = "转入方：" + order.getPayeeName() + ";转出原因：" + order.getTransferReason();
+        String notesPayee = "转出方：" + order.getPayerName() + ";转入原因：" + order.getTransferReason();
         //记录定金转出转入流水
-        TransactionDetails tdIn = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
-        TransactionDetails tdOut = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_OUT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), 0 - order.getAmount(), order.getId(), "code", order.getPayeeId(), order.getTransferReason(), order.getMarketId());
+        TransactionDetails tdIn = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), "code", order.getPayeeId(), notesPayer, order.getMarketId());
+        TransactionDetails tdOut = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_OUT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), 0 - order.getAmount(), order.getId(), "code", order.getPayeeId(), notesPayee, order.getMarketId());
         List<TransactionDetails> listDetails = new ArrayList<>();
         listDetails.add(tdIn);
         listDetails.add(tdOut);
@@ -218,7 +220,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if(!bizNumberOutput.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
         }
-        efDto.setCode(bizNumberOutput.getData());
+        efDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
 
         efDto.setCreatorId(userTicket.getId());
         efDto.setCreator(userTicket.getRealName());
@@ -242,7 +244,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (customerAccount.getEarnestAvailableBalance() < order.getPayeeAmount()){
             return BaseOutput.failure("退款金额不能大于可用余额！").setCode(ResultCode.DATA_ERROR);
         }
-        order.setCode(bizNumberOutput.getData());
+        order.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
         order.setTotalRefundAmount(order.getPayeeAmount());
         return refundOrderService.doAddHandler(order);
@@ -466,7 +468,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
             if(!out.isSuccess()){
                 LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
-                throw new BusinessException(ResultCode.DATA_ERROR, "客户微服务异常！");
+                throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
             }
             Customer customer = out.getData();
             if (null == customer){

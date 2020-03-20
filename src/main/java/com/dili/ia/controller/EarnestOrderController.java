@@ -9,6 +9,7 @@ import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
@@ -137,9 +138,9 @@ public class EarnestOrderController {
         try{
             earnestOrderService.addEarnestOrder(earnestOrder);
             return BaseOutput.success("新增成功");
-        }catch (RuntimeException e){
-            LOG.error("定金单保存异常！", e);
-            return BaseOutput.failure(e.getMessage());
+        }catch (BusinessException e){
+            LOG.error("定金单保存异常！", e.getErrorMsg());
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("定金单保存异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -166,9 +167,9 @@ public class EarnestOrderController {
         try{
             earnestOrderService.updateEarnestOrder(earnestOrder);
             return BaseOutput.success("修改成功");
-        }catch (RuntimeException e){
-            LOG.error("定金单修改异常！", e);
-            return BaseOutput.failure(e.getMessage());
+        }catch (BusinessException e){
+            LOG.error("定金单修改异常！", e.getErrorMsg());
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("定金单修改异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -187,10 +188,9 @@ public class EarnestOrderController {
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
-            earnestOrderService.submitEarnestOrder(id);
-            return BaseOutput.success("提交成功！");
-        } catch (RuntimeException e) {
-            return BaseOutput.failure(e.getMessage());
+            return earnestOrderService.submitEarnestOrder(id);
+        } catch (BusinessException e) {
+            return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
             return BaseOutput.failure("提交出错！");
         }
@@ -208,10 +208,9 @@ public class EarnestOrderController {
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
-            earnestOrderService.withdrawEarnestOrder(id);
-            return BaseOutput.success("撤回成功！");
-        } catch (RuntimeException e) {
-            return BaseOutput.failure(e.getMessage());
+            return earnestOrderService.withdrawEarnestOrder(id);
+        } catch (BusinessException e) {
+            return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
             return BaseOutput.failure("撤回出错！");
         }
