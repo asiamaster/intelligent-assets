@@ -26,7 +26,7 @@ var customerNameAutoCompleteOption = {
         return {
             suggestions: $.map(result, function (dataItem) {
                 return $.extend(dataItem, {
-                        value: dataItem.name + ' ' + dataItem.certificateNumber
+                        value: dataItem.name + '（' + dataItem.certificateNumber + '）'
                     }
                 );
             })
@@ -49,7 +49,7 @@ var certificateNumberAutoCompleteOption = {
         return {
             suggestions: $.map(result, function (dataItem) {
                 return $.extend(dataItem, {
-                        value: dataItem.name + ' ' + dataItem.certificateNumber
+                        value: dataItem.name + '（' + dataItem.certificateNumber + '）'
                     }
                 );
             })
