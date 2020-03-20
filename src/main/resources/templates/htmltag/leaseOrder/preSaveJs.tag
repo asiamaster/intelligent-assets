@@ -15,6 +15,7 @@
             serviceUrl: '/customer/list.action',
             paramName : 'likeName',
             displayFieldName : 'name',
+            noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>',
             transformResult: function (result) {
                 return {
                     suggestions: $.map(result, function (dataItem) {
@@ -42,6 +43,7 @@
             serviceUrl: '/customer/list.action',
             paramName : 'certificateNumberMatch',
             displayFieldName : 'certificateNumber',
+            noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>',
             transformResult: function (result) {
                 return {
                     suggestions: $.map(result, function (dataItem) {

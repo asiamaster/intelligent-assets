@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -42,8 +41,8 @@ public class RefundOrderController {
     LeaseOrderItemService leaseOrderItemService;
     @Autowired
     TransferDeductionItemService transferDeductionItemService;
-//    @Autowired
-//    BusinessLogRpc businessLogRpc;
+    @Autowired
+    BusinessLogRpc businessLogRpc;
 
     /**
      * 跳转到RefundOrder页面
@@ -96,13 +95,13 @@ public class RefundOrderController {
         }
 
         //日志查询
-//        BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-//        businessLogQueryInput.setBusinessId(id);
-//        businessLogQueryInput.setBusinessType(LogBizTypeEnum.REFUND_ORDER.getCode());
-//        BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-//        if(businessLogOutput.isSuccess()){
-//            modelMap.put("logs",businessLogOutput.getData());
-//        }
+        BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+        businessLogQueryInput.setBusinessId(id);
+        businessLogQueryInput.setBusinessType(LogBizTypeEnum.REFUND_ORDER.getCode());
+        BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+        if(businessLogOutput.isSuccess()){
+            modelMap.put("logs",businessLogOutput.getData());
+        }
         return "refundOrder/leaseRefundOrderView";
     }
     /**
