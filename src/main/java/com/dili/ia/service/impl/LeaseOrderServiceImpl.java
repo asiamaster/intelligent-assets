@@ -1,6 +1,9 @@
 package com.dili.ia.service.impl;
 
+import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.assets.sdk.dto.BoothRentDTO;
+import com.dili.commons.glossary.EnabledStateEnum;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.*;
@@ -94,6 +97,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         //检查客户状态
         checkCustomerState(dto.getCustomerId(),userTicket.getFirmId());
+        dto.getLeaseOrderItems().forEach(o->{
+            //检查摊位状态
+            checkBoothState(o.getBoothId());
+        });
 
         BaseOutput<Department> depOut = departmentRpc.get(userTicket.getDepartmentId());
         if (depOut.isSuccess()) {
@@ -146,6 +153,25 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             o.setDepositAmountFlag(DepositAmountFlagEnum.PRE_TRANSFER.getCode());
             leaseOrderItemService.insertSelective(o);
         });
+    }
+
+    /**
+     * 检查摊位状态
+     * @param boothId
+     */
+    private void checkBoothState(Long boothId){
+        BaseOutput<BoothDTO> output = assetsRpc.getBoothById(boothId);
+        if(!output.isSuccess()){
+            throw new RuntimeException("摊位接口调用异常 "+output.getMessage());
+        }
+        BoothDTO booth = output.getData();
+        if(null == booth){
+            throw new RuntimeException("摊位不存在，请核实和修改后再保存");
+        }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
+            throw new RuntimeException("摊位已禁用，请核实和修改后再保存");
+        }else if(YesOrNoEnum.YES.getCode().equals(booth.getIsDelete())){
+            throw new RuntimeException("摊位已删除，请核实和修改后再保存");
+        }
     }
 
     /**
@@ -259,8 +285,15 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         //更新摊位租赁单状态
         LeaseOrder leaseOrder = get(id);
+        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+        condition.setLeaseOrderId(leaseOrder.getId());
+        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
         //检查客户状态
         checkCustomerState(leaseOrder.getCustomerId(),leaseOrder.getMarketId());
+        leaseOrderItems.forEach(o->{
+            //检查摊位状态
+            checkBoothState(o.getBoothId());
+        });
         //检查提交付款
         checkSubmitPayment(id, amount, waitAmount, leaseOrder);
 
@@ -284,7 +317,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             }
             //冻结摊位
-            frozenBooth(leaseOrder);
+            frozenBooth(leaseOrder,leaseOrderItems);
             leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
             leaseOrder.setPaymentId(paymentOrder.getId());
             cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
@@ -320,12 +353,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     /**
      * 冻结摊位
-     * @param leaseOrder
+     * @param leaseOrderItems
      */
-    private void frozenBooth(LeaseOrder leaseOrder) {
-        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
-        condition.setLeaseOrderId(leaseOrder.getId());
-        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+    private void frozenBooth(LeaseOrder leaseOrder,List<LeaseOrderItem> leaseOrderItems) {
         leaseOrderItems.forEach(o->{
             BoothRentDTO boothRentDTO = new BoothRentDTO();
             boothRentDTO.setBoothId(o.getBoothId());
