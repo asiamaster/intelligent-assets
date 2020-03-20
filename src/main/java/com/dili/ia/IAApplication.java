@@ -16,7 +16,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients
+@EnableFeignClients(basePackages = {"com.dili.ia.rpc", "com.dili.logger.sdk.rpc"})
 @MapperScan(basePackages = { "com.dili.ia.mapper", "com.dili.ss.dao"})
 @ComponentScan(basePackages={"com.dili.ss", "com.dili.ia", "com.dili.uap.sdk", "com.dili.logger.sdk"})
 @RestfulScan({"com.dili.ia.rpc","com.dili.uap.sdk.rpc", "com.dili.logger.sdk.rpc"})

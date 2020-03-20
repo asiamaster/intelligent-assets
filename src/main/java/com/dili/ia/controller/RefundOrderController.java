@@ -4,13 +4,10 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.LogBizTypeEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
-import com.dili.logger.sdk.domain.BusinessLog;
-import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -24,9 +21,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -42,8 +36,8 @@ public class RefundOrderController {
     LeaseOrderItemService leaseOrderItemService;
     @Autowired
     TransferDeductionItemService transferDeductionItemService;
-//    @Autowired
-//    BusinessLogRpc businessLogRpc;
+    @Autowired
+    BusinessLogRpc businessLogRpc;
 
     /**
      * 跳转到RefundOrder页面
