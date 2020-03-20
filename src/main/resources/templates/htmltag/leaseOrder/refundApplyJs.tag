@@ -12,7 +12,7 @@
         var customerNameAutoCompleteOption = {
             width : 350,
             serviceUrl: '/customer/list.action',
-            paramName : 'likeName',
+            paramName : 'keyword',
             displayFieldName : 'name',
             transformResult: function (result) {
                 return {

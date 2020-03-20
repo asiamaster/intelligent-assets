@@ -4,6 +4,8 @@ import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.dto.CustomerQuery;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -38,28 +40,11 @@ public class CustomerController {
      */
     @ApiOperation("查询CustomerOrder")
     @RequestMapping(value="/list.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<Customer> list(String likeName, String certificateNumberMatch,String certificateNumber) throws CloneNotSupportedException {
-//        List<Customer> cus = new ArrayList<>();
-//        Customer customer1 = new Customer();
-//        customer1.setId(1L);
-//        customer1.setName("蒋成勇");
-//        customer1.setCellphone("13558720686");
-//        customer1.setCertificateNumber("511602198902422586");
-//        cus.add(customer1);
-//
-//        Customer customer2 = new Customer();
-//        customer2.setId(2L);
-//        customer2.setName("克兰");
-//        customer2.setCellphone("18781998571");
-//        customer2.setCertificateNumber("513023199201206627");
-//        cus.add(customer2);
-//
-//        cus.add((Customer) customer1.clone());
-//        cus.add((Customer) customer1.clone());
-//        cus.add((Customer) customer1.clone());
-//        cus.add((Customer) customer1.clone());
-//
-//        return cus;
+    public @ResponseBody List<Customer> list(String likeName, String certificateNumberMatch,String certificateNumber,String keyword) throws CloneNotSupportedException {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            return null;
+        }
         CustomerQuery customerQuery = new CustomerQuery();
         if(StringUtils.isNotBlank(likeName)){
             customerQuery.setName(likeName);
@@ -67,7 +52,10 @@ public class CustomerController {
             customerQuery.setCertificateNumberMatch(certificateNumberMatch);
         }else if(StringUtils.isNotBlank(certificateNumber)){
             customerQuery.setCertificateNumber(certificateNumber);
+        }else if(StringUtils.isNotBlank(keyword)){
+            customerQuery.setKeyword(keyword);
         }
+        customerQuery.setMarketId(userTicket.getFirmId());
         List<Customer> list = customerRpc.list(customerQuery).getData();
         return list;
     }
