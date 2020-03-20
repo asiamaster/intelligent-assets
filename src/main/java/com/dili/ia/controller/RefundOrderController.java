@@ -4,10 +4,13 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.LogBizTypeEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -21,6 +24,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -90,13 +95,13 @@ public class RefundOrderController {
         }
 
         //日志查询
-//        BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-//        businessLogQueryInput.setBusinessId(id);
-//        businessLogQueryInput.setBusinessType(LogBizTypeEnum.REFUND_ORDER.getCode());
-//        BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-//        if(businessLogOutput.isSuccess()){
-//            modelMap.put("logs",businessLogOutput.getData());
-//        }
+        BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+        businessLogQueryInput.setBusinessId(id);
+        businessLogQueryInput.setBusinessType(LogBizTypeEnum.REFUND_ORDER.getCode());
+        BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+        if(businessLogOutput.isSuccess()){
+            modelMap.put("logs",businessLogOutput.getData());
+        }
         return "refundOrder/leaseRefundOrderView";
     }
     /**

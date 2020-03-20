@@ -57,8 +57,8 @@ public class LeaseOrderController {
     LeaseOrderItemService leaseOrderItemService;
     @Autowired
     PaymentOrderService paymentOrderService;
-  /*  @Autowired
-    BusinessLogRpc businessLogRpc;*/
+    @Autowired
+    BusinessLogRpc businessLogRpc;
 
     /**
      * 跳转到LeaseOrder页面
@@ -97,13 +97,13 @@ public class LeaseOrderController {
         modelMap.put("leaseOrderItems", leaseOrderItems);
 
         //日志查询
-//        BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-//        businessLogQueryInput.setBusinessId(id);
-//        businessLogQueryInput.setBusinessType(LogBizTypeEnum.BOOTH_LEASE.getCode());
-//        BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-//        if(businessLogOutput.isSuccess()){
-//            modelMap.put("logs",businessLogOutput.getData());
-//        }
+        BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+        businessLogQueryInput.setBusinessId(id);
+        businessLogQueryInput.setBusinessType(LogBizTypeEnum.BOOTH_LEASE.getCode());
+        BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+        if(businessLogOutput.isSuccess()){
+            modelMap.put("logs",businessLogOutput.getData());
+        }
         return "leaseOrder/view";
     }
 
