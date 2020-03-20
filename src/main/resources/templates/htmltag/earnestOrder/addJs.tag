@@ -44,6 +44,13 @@
     }
 
     /**
+     * 摊位选择事件Handler
+     * */
+    function boothSelectHandler(suggestion,element) {
+        return ;
+    }
+
+    /**
      * 添加摊位
      * */
     // function addBoothItem() {

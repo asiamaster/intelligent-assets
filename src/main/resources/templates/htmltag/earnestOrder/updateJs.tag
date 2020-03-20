@@ -37,7 +37,12 @@
             }
         }
     }
-
+    /**
+     * 摊位选择事件Handler
+     * */
+    function boothSelectHandler(suggestion,element) {
+        return ;
+    }
     /******************************驱动执行区 begin***************************/
     $(function () {
         <% if(isNotEmpty(earnestOrderDetails)){ %>

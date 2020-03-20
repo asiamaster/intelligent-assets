@@ -38,7 +38,7 @@ public class EarnestOrderApi {
      * @param settleOrder
      * @return
      */
-    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
+    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(SettleOrder settleOrder){
         try{
             return earnestOrderService.paySuccessHandler(settleOrder);

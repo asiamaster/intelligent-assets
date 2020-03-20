@@ -245,10 +245,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setState(EarnestOrderStateEnum.CREATED.getCode());
         ea.setWithdrawOperatorId(userTicket.getId());
         ea.setWithdrawOperator(userTicket.getRealName());
-        this.getActualDao().updateByPrimaryKey(ea);
+        this.updateSelective(ea);
 
         PaymentOrder pb = this.findPaymentOrder(userTicket, ea.getId(), ea.getCode());
-        paymentOrderService.deleteByExample(pb);
+        paymentOrderService.delete(pb.getId());
 
         //@TODO 更改提交到结算中心的数据
         return BaseOutput.success();
@@ -257,6 +257,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput paySuccessHandler(SettleOrder settleOrder) {
+        if (null == settleOrder){
+            return BaseOutput.failure("回调参数为空！");
+        }
         PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
         //结算单code唯一
         condition.setCode(settleOrder.getBusinessCode());

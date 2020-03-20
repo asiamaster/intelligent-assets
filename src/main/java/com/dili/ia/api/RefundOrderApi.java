@@ -41,7 +41,7 @@ public class RefundOrderApi {
      * @param reprint 是否补打标记
      * @return BaseOutput<PrintDataDto>
      */
-    @RequestMapping(value="/queryPrintData")
+    @RequestMapping(value="/queryPrintData", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint){
         try{
@@ -60,8 +60,11 @@ public class RefundOrderApi {
      * @param settleOrder
      * @return
      */
-    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
+    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(SettleOrder settleOrder){
+        if (null == settleOrder){
+            return BaseOutput.failure("回调参数为空！");
+        }
         try{
             return refundOrderService.doRefundSuccessHandler(settleOrder);
         }catch (BusinessException e){
