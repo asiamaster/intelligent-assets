@@ -18,7 +18,7 @@ var registerDia;
 var customerNameAutoCompleteOption = {
     width: 350,
     serviceUrl: '/customer/list.action',
-    paramName: 'name',
+    paramName: 'likeName',
     displayFieldName: 'name',
     showNoSuggestionNotice: true,
     noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>',
@@ -26,7 +26,7 @@ var customerNameAutoCompleteOption = {
         return {
             suggestions: $.map(result, function (dataItem) {
                 return $.extend(dataItem, {
-                        value: dataItem.name + ' ' + dataItem.certificateNumber + ' ' + dataItem.contactsPhone
+                        value: dataItem.name + ' ' + dataItem.certificateNumber
                     }
                 );
             })
@@ -41,14 +41,15 @@ var customerNameAutoCompleteOption = {
 // 证件号码
 var certificateNumberAutoCompleteOption = {
     width: 350,
+    minChars: 6,
     serviceUrl: '/customer/list.action',
-    paramName: 'certificateNumber',
+    paramName: 'certificateNumberMatch',
     displayFieldName: 'certificateNumber',
     transformResult: function (result) {
         return {
             suggestions: $.map(result, function (dataItem) {
                 return $.extend(dataItem, {
-                        value: dataItem.name + ' ' + dataItem.certificateNumber + ' ' + dataItem.contactsPhone
+                        value: dataItem.name + ' ' + dataItem.certificateNumber
                     }
                 );
             })
