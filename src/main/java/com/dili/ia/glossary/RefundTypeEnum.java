@@ -12,14 +12,15 @@ public enum RefundTypeEnum {
         this.name = name;
     }
 
-    public static BizTypeEnum getRefundTypeEnum(Integer code) {
-        for (BizTypeEnum anEnum : BizTypeEnum.values()) {
+    public static RefundTypeEnum getRefundTypeEnum(Integer code) {
+        for (RefundTypeEnum anEnum : RefundTypeEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }
         }
         return null;
     }
+
 
     public Integer getCode() {
         return code;

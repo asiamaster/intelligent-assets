@@ -12,7 +12,7 @@
             </div>
             <div class="form-group col">
                 <label for="" class="">状态</label>
-                <input type="text" class="form-control" value="${refundOrder.state!}" disabled />
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.state).getName()}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">退款金额</label>
@@ -34,20 +34,6 @@
         <div class="breadcrumb">
             退款详情
         </div>
-<!--        <div class="row row-cols-4">-->
-<!--            <div class="form-group col">-->
-<!--                <label for="" class="">租金</label>-->
-<!--                <input type="text" class="form-control" value="" disabled />-->
-<!--            </div>-->
-<!--            <div class="form-group col">-->
-<!--                <label for="" class="">市场管理费</label>-->
-<!--                <input type="text" class="form-control" value="" disabled />-->
-<!--            </div>-->
-<!--            <div class="form-group col">-->
-<!--                <label for="" class="">保证金</label>-->
-<!--                <input type="text" class="form-control" value="" disabled />-->
-<!--            </div>-->
-<!--        </div>-->
         <div class="row row-cols-4">
             <div class="form-group col">
                 <label for="" class="">收款人</label>
@@ -59,7 +45,7 @@
             </div>
             <div class="form-group col">
                 <label for="" class="">退款方式</label>
-                <input type="text" class="form-control" value="${refundOrder.refundType!}" disabled />
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.RefundTypeEnum.getRefundTypeEnum(refundOrder.refundType).getName()}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">开户行</label>
@@ -73,7 +59,7 @@
         <div class="row">
             <div class="form-group col-8">
                 <label for="">退款原因</label>
-                <textarea class="form-control" id="" rows="1" maxlength="50">${refundOrder.refundReason!}</textarea>
+                <textarea class="form-control" id="" rows="1" maxlength="100">${refundOrder.refundReason!}</textarea>
             </div>
         </div>
         <%if(isNotEmpty(logs) && logs.~size>0){ %>
