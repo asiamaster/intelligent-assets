@@ -38,9 +38,9 @@ public class CategoryProvider implements ValueProvider {
 //        if(null == val){
 //            categoryDTO.setParent(0L);
 //        }else{
-//            categoryInput.setKeyword(val.toString());
+//            categoryDTO.setKeyword(val.toString());
 //        }
-//        List<CategoryDTO> categoryList = categoryRpc.list(categoryDTO).getData();
+//        List<CategoryDTO> categoryList = assetsRpc.list(categoryDTO).getData();
 
         List<CategoryDTO> categoryList = new ArrayList<>();
         CategoryDTO categoryDTO = new CategoryDTO();
