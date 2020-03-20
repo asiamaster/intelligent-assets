@@ -24,7 +24,7 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.exception.ParamErrorException;
+import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
@@ -68,6 +67,12 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     CustomerRpc customerRpc;
     @Autowired
     RefundOrderService refundOrderService;
+
+    @Value("${settlement.app-id}")
+    private Long settlementAppId;
+    @Value("${refundOrder.settlement.handler.url}")
+    private String settlerHandlerUrl;
+
     @Autowired @Lazy
     private List<RefundOrderDispatcherService> refundBizTypes;
     private Map<Integer,RefundOrderDispatcherService> refundBiz = new HashMap<>();
@@ -80,19 +85,17 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
         }
     }
-    @Value("${settlement.app-id}")
-    private Long settlementAppId;
 
 
     @Override
     public BaseOutput doAddHandler(RefundOrder order) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
+            return BaseOutput.failure("未登陆");
         }
         BaseOutput checkResult = checkParams(order);
         if (!checkResult.isSuccess()){
-            throw new BusinessException(ResultCode.PARAMS_ERROR, checkResult.getMessage());
+            return checkResult;
         }
         order.setCreator(userTicket.getRealName());
         order.setCreatorId(userTicket.getId());
@@ -212,7 +215,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setBankCardHolder(ro.getPayee());
         settleOrder.setWay(ro.getRefundType());
 
-        //@TODO部门待处理
         settleOrder.setBusinessDepId(ro.getDepartmentId()); //"业务部门ID
         settleOrder.setBusinessDepName(ro.getDepartmentName());//"业务部门名称
         settleOrder.setSubmitterId(userTicket.getId());// "提交人ID
@@ -225,9 +227,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setType(SettleTypeEnum.REFUND.getCode());// "结算类型  -- 退款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         settleOrder.setEditEnable(EditEnableEnum.NO.getCode());
-
-        String returnUrl = "http://ia.diligrp.com/refundOrder/refundSuccess";
-        settleOrder.setReturnUrl(returnUrl); // 结算-- 缴费成功后回调路径
+        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
 
         return settleOrder;
     }
@@ -269,28 +269,40 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
     @Override
-    public BaseOutput doRefundSuccessHandler(Integer bizType, Long refundOrderId) {
-        //@退款成功回调参数待讨论
-        RefundOrder refundOrder = refundOrderService.get(refundOrderId);
+    public BaseOutput doRefundSuccessHandler(SettleOrder settleOrder) {
+        RefundOrder condition = DTOUtils.newInstance(RefundOrder.class);
+        //结算单code唯一
+        condition.setCode(settleOrder.getBusinessCode());
+        RefundOrder refundOrder = this.listByExample(condition).stream().findFirst().orElse(null);
+        if (RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) { //如果已退款，直接返回
+            return BaseOutput.success();
+        }
         if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
-            return BaseOutput.failure("退款失败，状态已变更！");
+            LOG.info("退款单状态已变更！状态为：" + RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.getState()).getName() );
+            return BaseOutput.failure("退款单状态已变更！");
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
         refundOrder.setState(RefundOrderStateEnum.REFUNDED.getCode());
-        refundOrder.setWithdrawOperator(userTicket.getRealName());
-        refundOrder.setWithdrawOperatorId(userTicket.getId());
-        refundOrderService.update(refundOrder);
+        refundOrder.setRefundTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
+        refundOrder.setSettlementCode(settleOrder.getCode());
+        refundOrder.setRefundOperatorId(settleOrder.getOperatorId());
+        refundOrder.setRefundOperator(settleOrder.getOperatorName());
+        refundOrder.setRefundType(settleOrder.getWay());
+        if (refundOrderService.updateSelective(refundOrder) != 1) {
+            LOG.info("退款成功后--回调更新退款单状态记录数不为1，多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
 
         //获取业务service,调用业务实现
         RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
         if(service!=null){
             BaseOutput refundResult = service.refundSuccessHandler(refundOrder);
             if (!refundResult.isSuccess()){
-                LOG.info("退款成功回调业务返回失败！" + refundResult.getMessage());
-                throw new RuntimeException("退款成功回调业务返回失败！" + refundResult.getMessage());
+                LOG.info("退款成功后--回调业务返回失败！" + refundResult.getMessage());
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款成功回调业务返回失败！" + refundResult.getMessage());
             }
         }
 

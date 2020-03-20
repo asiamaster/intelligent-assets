@@ -20,6 +20,7 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -94,7 +95,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
         Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
         if (count < 1){
-            throw new BusinessException(ResultCode.DATA_ERROR,"当前数据正已被其他用户操作，更新失败！");
+            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
     }
 
@@ -105,8 +106,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + amount);
 
         Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
-        if (count < 1){
-            throw new BusinessException(ResultCode.DATA_ERROR, "当前数据正已被其他用户操作，更新失败！");
+        if (count != 1){
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
     }
     @Override
@@ -117,7 +118,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
         Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
         if (count < 1){
-            throw new BusinessException(ResultCode.DATA_ERROR, "当前数据正已被其他用户操作，更新失败！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
     }
 
@@ -247,6 +248,9 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         order.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
         order.setTotalRefundAmount(order.getPayeeAmount());
+        //定金退款给本人，收款人为本人
+        order.setPayeeId(order.getCustomerId());
+        order.setPayee(order.getCustomerName());
         return refundOrderService.doAddHandler(order);
     }
 
@@ -359,7 +363,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         return BaseOutput.success();
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    //租赁单提交调用接口，另起事务使其不影响原有事务
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void submitChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
         //写入 定金，转抵，保证金的【冻结】流水
         this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
@@ -381,7 +386,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    //租赁单撤回调用接口，另起事务使其不影响原有事务
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void withdrawChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
         //写入 定金，转抵，保证金的【冻结】流水
         this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
@@ -406,7 +412,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    //租赁单提交成功调用接口，另起事务使其不影响原有事务
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void payChangeCustomerAmountAndDetails(Long orderId, String orderCode, CustomerAccount ca, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
         Integer unfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
         Integer deductUse = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
@@ -429,6 +436,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
     }
 
+    //租赁单退款调用接口--充值转抵金，另起事务使其不影响原有事务
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     @Override
     public BaseOutput leaseOrderRechargTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId){
         if (null == amount || amount < 0){

@@ -3,6 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,10 +41,10 @@ public interface EarnestOrderService extends BaseService<EarnestOrder, Long> {
 
     /**
      * 定金单 --缴费成功回调
-     * @param earnestOrderId 定金单ID
+     * @param settleOrder 结算单
      * @return BaseOutput
      * */
-    BaseOutput paySuccessEarnestOrder(Long earnestOrderId);
+    BaseOutput paySuccessHandler(SettleOrder settleOrder);
 
     /**
      * 定金票据打印数据加载

@@ -2,6 +2,7 @@ package com.dili.ia.service;
 
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 
@@ -33,11 +34,10 @@ public interface RefundOrderService extends BaseService<RefundOrder, Long> {
 
     /**
      * 退款单 --撤回
-     * @param bizType 业务类型
-     * @param refundOrderId 退款单Id
+     * @param settleOrder 退款结算单
      * @return BaseOutput
      * */
-    BaseOutput doRefundSuccessHandler(Integer bizType, Long refundOrderId);
+    BaseOutput doRefundSuccessHandler(SettleOrder settleOrder);
 
     /**
      * 退款单 --新增

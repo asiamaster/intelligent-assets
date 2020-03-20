@@ -2,13 +2,17 @@ package com.dili.ia.api;
 
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.service.EarnestOrderService;
+import com.dili.settlement.domain.SettleOrder;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,6 +34,24 @@ public class EarnestOrderApi {
     EarnestOrderService earnestOrderService;
 
     /**
+     * 摊位租赁结算成功回调
+     * @param settleOrder
+     * @return
+     */
+    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(SettleOrder settleOrder){
+        try{
+            return earnestOrderService.paySuccessHandler(settleOrder);
+        }catch (BusinessException e){
+            LOG.error("定金结算成功回调异常！", e);
+            return BaseOutput.failure(e.getErrorMsg()).setData(ResultCode.DATA_ERROR);
+        }catch (Exception e){
+            LOG.error("定金结算成功回调异常！", e);
+            return BaseOutput.failure(e.getMessage()).setData(ResultCode.DATA_ERROR);
+        }
+    }
+
+    /**
      * 定金票据打印数据加载
      * @param businessCode 业务编码
      * @param reprint 是否补打标记
@@ -48,4 +70,6 @@ public class EarnestOrderApi {
             return BaseOutput.failure(e.getMessage());
         }
     }
+
+
 }
