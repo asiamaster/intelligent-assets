@@ -20,7 +20,10 @@
         return str.split('_')[1];
     }
 
-
+    //初始化刷卡
+    initSwipeCard({
+        id:'getCustomer',
+    });
 
     /**
      * 添加摊位

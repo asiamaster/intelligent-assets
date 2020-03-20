@@ -15,7 +15,10 @@
         return str.split('_')[1];
     }
 
-
+    //初始化刷卡
+    initSwipeCard({
+        id:'getCustomer',
+    });
     /******************************驱动执行区 begin***************************/
     $(function () {
         <% if(isNotEmpty(earnestOrderDetails)){ %>
