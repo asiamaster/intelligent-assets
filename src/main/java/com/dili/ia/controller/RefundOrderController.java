@@ -18,6 +18,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -35,6 +37,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/refundOrder")
 public class RefundOrderController {
+    private final static Logger LOG = LoggerFactory.getLogger(RefundOrderController.class);
     @Autowired
     RefundOrderService refundOrderService;
     @Autowired
@@ -94,13 +97,17 @@ public class RefundOrderController {
             }
         }
 
-        //日志查询
-        BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-        businessLogQueryInput.setBusinessId(id);
-        businessLogQueryInput.setBusinessType(LogBizTypeEnum.REFUND_ORDER.getCode());
-        BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-        if(businessLogOutput.isSuccess()){
-            modelMap.put("logs",businessLogOutput.getData());
+        try{
+            //日志查询
+            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+            businessLogQueryInput.setBusinessId(id);
+            businessLogQueryInput.setBusinessType(LogBizTypeEnum.REFUND_ORDER.getCode());
+            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            if(businessLogOutput.isSuccess()){
+                modelMap.put("logs",businessLogOutput.getData());
+            }
+        }catch (Exception e){
+            LOG.error("日志服务查询异常",e);
         }
         return "refundOrder/leaseRefundOrderView";
     }

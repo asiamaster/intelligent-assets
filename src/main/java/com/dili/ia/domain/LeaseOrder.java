@@ -100,7 +100,7 @@ public interface LeaseOrder extends IBaseDomain {
     void setDays(Integer days);
 
     @Column(name = "`contract_no`")
-    @FieldDef(label="合同编号", maxLength = 50)
+    @FieldDef(label="合同编号")
     @EditMode(editor = FieldEditor.Text, required = false)
     String getContractNo();
 

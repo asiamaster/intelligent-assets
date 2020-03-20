@@ -47,24 +47,41 @@
 
 
     /**
-     打开查看窗口
+     * 打开查看
+     * @param id
      */
-    function openViewHandler() {
-        //获取选中行的数据
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            return;
+    function openViewHandler(id) {
+        if(!id){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            id = rows[0].id;
         }
 
         dia = bs4pop.dialog({
-            title: '定金详情',//对话框title
-            content: '${contextPath}/refundOrder/view.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
+            title: '退款详情',//对话框title
+            content: '${contextPath}/refundOrder/view.html?id='+id, //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
             height: '95%',//高度
             isIframe: true,//默认是页面层，非iframe
+            btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
         });
     }
+
+    /**
+     * 业务编号formatter
+     * @param value
+     * @param row
+     * @param index
+     * @returns {string}
+     */
+    function codeFormatter(value,row,index) {
+        return '<a href="javascript:openViewHandler('+row.id+')">'+value+'</a>';
+    }
+
     /**
      提交处理
      */

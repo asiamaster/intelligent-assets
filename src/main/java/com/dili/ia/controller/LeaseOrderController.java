@@ -96,13 +96,17 @@ public class LeaseOrderController {
         modelMap.put("leaseOrder",leaseOrder);
         modelMap.put("leaseOrderItems", leaseOrderItems);
 
-        //日志查询
-        BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-        businessLogQueryInput.setBusinessId(id);
-        businessLogQueryInput.setBusinessType(LogBizTypeEnum.BOOTH_LEASE.getCode());
-        BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-        if(businessLogOutput.isSuccess()){
-            modelMap.put("logs",businessLogOutput.getData());
+        try{
+            //日志查询
+            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+            businessLogQueryInput.setBusinessId(id);
+            businessLogQueryInput.setBusinessType(LogBizTypeEnum.BOOTH_LEASE.getCode());
+            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            if(businessLogOutput.isSuccess()){
+                modelMap.put("logs",businessLogOutput.getData());
+            }
+        }catch (Exception e){
+            LOG.error("日志服务查询异常",e);
         }
         return "leaseOrder/view";
     }

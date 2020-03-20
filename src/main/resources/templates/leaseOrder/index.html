@@ -95,7 +95,7 @@
                     <th data-field="id" data-sortable="true" data-align="center" data-width-unit="%">
                         ID
                     </th>
-                    <th data-field="code" data-sortable="true" data-align="center" data-width-unit="%">
+                    <th data-field="code" data-sortable="true" data-align="center" data-width-unit="%" data-formatter="codeFormatter">
                         业务单号
                     </th>
                     <th data-field="departmentName" data-sortable="true" data-align="center">
@@ -218,7 +218,7 @@
                 <label for="contractNo" class="justify-content-end w-100px">合同编号:</label>
             </div>
             <div class="col-8 ml-2">
-                <input type="text" id="contractNo" name="contractNo" class="form-control" required/>
+                <input type="text" id="contractNo" name="contractNo" class="form-control" maxlength="100" required/>
             </div>
         </div>
     </form>

@@ -323,9 +323,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(), leaseOrder.getMarketId());
             if(!customerAccountOutput.isSuccess()){
                 if(ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())){
-                    throw new RuntimeException("客户定金余额不足，请修改重试");
+                    throw new RuntimeException("客户定金可用金额不足，请核实修改后重新保存");
                 }else if(ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())){
-                    throw new RuntimeException("客户转低余额不足，请修改重试");
+                    throw new RuntimeException("客户转低可用金额不足，请核实修改后重新保存");
                 }else{
                     throw new RuntimeException(customerAccountOutput.getMessage());
                 }
@@ -379,7 +379,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             BaseOutput assetsOutput = assetsRpc.addBoothRent(boothRentDTO);
             if(!assetsOutput.isSuccess()){
                 if(assetsOutput.getCode().equals("2500")){
-                    throw new RuntimeException(o.getBoothName()+"状态异常，请重新修改后保存");
+                    throw new RuntimeException(o.getBoothName()+"选择的时间期限重复，请修改后重新保存");
                 }else{
                     throw new RuntimeException(assetsOutput.getMessage());
                 }
@@ -875,7 +875,18 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderPrintDto.setNotes(leaseOrder.getNotes());
         leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
         leaseOrderPrintDto.setDepositDeduction(MoneyUtils.centToYuan(leaseOrder.getDepositDeduction()));
-        leaseOrderPrintDto.setEarnestDeduction(MoneyUtils.centToYuan(leaseOrder.getEarnestDeduction()));
+
+        PaymentOrder paymentOrderConditions = DTOUtils.newInstance(PaymentOrder.class);
+        paymentOrderConditions.setBusinessId(paymentOrder.getBusinessId());
+        List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);
+        Long totalPayAmountExcludeLast = 0L;
+        for (PaymentOrder order : paymentOrders) {
+            if (!order.getCode().equals(businessCode) && order.getState().equals(PaymentOrderStateEnum.PAID.getCode())) {
+                totalPayAmountExcludeLast += order.getAmount();
+            }
+        }
+        //除最后一次所交费用+定金抵扣 之和未总定金
+        leaseOrderPrintDto.setEarnestDeduction(MoneyUtils.centToYuan(leaseOrder.getEarnestDeduction() + totalPayAmountExcludeLast));
         leaseOrderPrintDto.setTransferDeduction(MoneyUtils.centToYuan(leaseOrder.getTransferDeduction()));
         leaseOrderPrintDto.setPayAmount(MoneyUtils.centToYuan(leaseOrder.getPayAmount()));
         leaseOrderPrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount()));

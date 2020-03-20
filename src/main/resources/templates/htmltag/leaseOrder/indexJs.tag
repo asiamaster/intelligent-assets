@@ -76,26 +76,42 @@
     }
 
     /**
-     * 打开查看Handler
+     * 打开查看
+     * @param id
      */
-    function openViewHandler() {
-        //获取选中行的数据
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            return;
+    function openViewHandler(id) {
+        if(!id){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            id = rows[0].id;
         }
+
 
         dia = bs4pop.dialog({
             title: '摊位租赁详情',
-            content: '/leaseOrder/view.html?id='+rows[0].id,
+            content: '/leaseOrder/view.html?id='+id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
             width: '80%',
             height : '95%',
-            btns: []
+            btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
         });
+    }
+
+    /**
+     * 业务编号formatter
+     * @param value
+     * @param row
+     * @param index
+     * @returns {string}
+     */
+    function codeFormatter(value,row,index) {
+        return '<a href="javascript:openViewHandler('+row.id+')">'+value+'</a>';
     }
 
     /**
