@@ -28,7 +28,7 @@ public interface RefundOrder extends IBaseDomain {
     void setId(Long id);
 
     @Column(name = "`code`")
-    @FieldDef(label="退款编号", maxLength = 20)
+    @FieldDef(label="退款编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
@@ -63,7 +63,7 @@ public interface RefundOrder extends IBaseDomain {
     void setOrderItemId(Long orderItemId);
 
     @Column(name = "`order_item_code`")
-    @FieldDef(label="订单项编号", maxLength = 20)
+    @FieldDef(label="订单项编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getOrderItemCode();
 
@@ -77,7 +77,7 @@ public interface RefundOrder extends IBaseDomain {
     void setOrderId(Long orderId);
 
     @Column(name = "`order_code`")
-    @FieldDef(label="业务单编号", maxLength = 20)
+    @FieldDef(label="业务单编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getOrderCode();
 
@@ -133,7 +133,7 @@ public interface RefundOrder extends IBaseDomain {
     void setSubmitTime(Date submitTime);
 
     @Column(name = "`settlement_code`")
-    @FieldDef(label="退款结算单号", maxLength = 20)
+    @FieldDef(label="退款结算单号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getSettlementCode();
 

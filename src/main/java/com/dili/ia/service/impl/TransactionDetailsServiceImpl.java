@@ -61,7 +61,7 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
         BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
         if(!out.isSuccess()){
             LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户微服务异常！");
+            throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
         }
         Customer customer = out.getData();
         if (null == customer){
@@ -89,7 +89,7 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
             LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
         }
-        tds.setCode(bizNumberOutput.getData());
+        tds.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         tds.setCreateTime(new Date());
         return tds;
     }

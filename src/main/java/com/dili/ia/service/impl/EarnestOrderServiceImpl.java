@@ -89,7 +89,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             throw new RuntimeException("编号生成器微服务异常");
         }
         //@TODO业务单号, 多摊位存储  验证客户状态，摊位状态是否正常
-        earnestOrder.setCode(bizNumberOutput.getData());
+        earnestOrder.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         earnestOrder.setVersion(0L);
         this.getActualDao().insertSelective(earnestOrder);
         insertEarnestOrderDetails(earnestOrder);
@@ -171,8 +171,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new RuntimeException("提交到结算中心失败！" + out.getMessage());
         }
-
-
         return BaseOutput.success();
     }
 
@@ -219,7 +217,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if(!bizNumberOutput.isSuccess()){
             throw new RuntimeException("编号生成器微服务异常");
         }
-        pb.setCode(bizNumberOutput.getData());
+        pb.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         return pb;
     }
 
@@ -290,7 +288,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if(!bizNumberOutput.isSuccess()){
             throw new RuntimeException("编号生成器微服务异常");
         }
-        tds.setCode(bizNumberOutput.getData());
+        tds.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         tds.setBizType(BizTypeEnum.EARNEST.getCode());
         tds.setSceneType(TransactionSceneTypeEnum.PAYMENT.getCode());
         tds.setItemType(TransactionItemTypeEnum.EARNEST.getCode());

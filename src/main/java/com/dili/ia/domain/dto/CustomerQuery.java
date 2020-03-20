@@ -34,6 +34,11 @@ public class CustomerQuery extends Customer {
     private Long marketId;
 
     /**
+     * 关键词
+     */
+    private String keyword;
+
+    /**
      * 客户所属组织集
      */
     private List<Long> marketIdList;
@@ -69,6 +74,14 @@ public class CustomerQuery extends Customer {
 
     public void setMarketId(Long marketId) {
         this.marketId = marketId;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 
     public List<Long> getMarketIdList() {

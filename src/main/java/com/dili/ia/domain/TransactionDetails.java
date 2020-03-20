@@ -42,7 +42,7 @@ public interface TransactionDetails extends IBaseDomain {
     void setModifyTime(Date modifyTime);
 
     @Column(name = "`code`")
-    @FieldDef(label="交易流水号", maxLength = 50)
+    @FieldDef(label="交易流水号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
@@ -77,7 +77,7 @@ public interface TransactionDetails extends IBaseDomain {
     void setOrderId(Long orderId);
 
     @Column(name = "`order_code`")
-    @FieldDef(label="发生订单业务单编号", maxLength = 50)
+    @FieldDef(label="发生订单业务单编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getOrderCode();
 

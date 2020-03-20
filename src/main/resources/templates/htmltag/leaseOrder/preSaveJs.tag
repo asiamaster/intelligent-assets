@@ -19,7 +19,7 @@
                 return {
                     suggestions: $.map(result, function (dataItem) {
                         return $.extend(dataItem, {
-                                value: dataItem.name + ' ' + dataItem.certificateNumber + ' ' + dataItem.cellphone
+                                value: dataItem.name + ' ' + dataItem.certificateNumber
                             }
                         );
                     })
@@ -28,7 +28,7 @@
             selectFn: function (suggestion) {
                 $('#certificateNumber').val(suggestion.certificateNumber);
                 $('#_certificateNumber').val(suggestion.certificateNumber);
-                $('#customerCellphone').val(suggestion.cellphone);
+                $('#customerCellphone').val(suggestion.contactsPhone);
 
                 //获取保证金抵扣余额
                 queryCustomerDepositDeduction(true);
@@ -38,6 +38,7 @@
         };
         var certificateNumberAutoCompleteOption = {
             width : 350,
+            minChars : 6,
             serviceUrl: '/customer/list.action',
             paramName : 'certificateNumberMatch',
             displayFieldName : 'certificateNumber',
@@ -45,7 +46,7 @@
                 return {
                     suggestions: $.map(result, function (dataItem) {
                         return $.extend(dataItem, {
-                                value: dataItem.name + ' ' + dataItem.certificateNumber + ' ' + dataItem.cellphone
+                                value: dataItem.name + ' ' + dataItem.certificateNumber
                             }
                         );
                     })
@@ -54,7 +55,7 @@
             selectFn: function (suggestion) {
                 $('#customerName').val(suggestion.name);
                 $('#customerId').val(suggestion.id);
-                $('#customerCellphone').val(suggestion.cellphone);
+                $('#customerCellphone').val(suggestion.contactsPhone);
 
                 //获取保证金抵扣余额
                 queryCustomerDepositDeduction(true);
