@@ -34,6 +34,25 @@
                 queryCustomerAccount();
             }
         });
+
+    //摊位搜索自动完成
+    var boothAutoCompleteOption = {
+        width: '350',
+        paramName: 'keyword',
+        displayFieldName: 'name',
+        serviceUrl: '/booth/search.action',
+        selectFn: boothSelectHandler,
+        transformResult: function (result) {
+            return {
+                suggestions: $.map(result, function (dataItem) {
+                    return $.extend(dataItem, {
+                            value: dataItem.name + '(' + (dataItem.secondAreaName?dataItem.secondAreaName : dataItem.areaName) + ')'
+                        }
+                    );
+                })
+            }
+        }
+    }
     /*********************变量定义区 end***************/
 
 

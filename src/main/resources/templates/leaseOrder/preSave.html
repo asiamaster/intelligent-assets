@@ -169,7 +169,7 @@
             <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}" value="{{districtId}}">
             <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}" value="{{districtName}}">
             <input type="hidden" id="depositAmountSourceId_{{index}}" name="depositAmountSourceId_{{index}}" value="{{depositAmountSourceId}}">
-            <#bautoCompleteProvider _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId_{{index}}" _displayDomainId="boothName_{{index}}" _displayDomainName="boothName_{{index}}" _value="{{boothId}}" _text="{{boothName}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected" _required="true" _option="width:'350',paramName:'keyword',serviceUrl:'/booth/search.action',selectFn:boothSelectHandler"/>
+            <#bautoCompleteProvider _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId_{{index}}" _displayDomainId="boothName_{{index}}" _displayDomainName="boothName_{{index}}" _value="{{boothId}}" _text="{{boothName}}" _validatorMethod="isSelected" _required="true" _optionVariable="boothAutoCompleteOption"/>
         </td>
         <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="number_{{index}}" name="number_{{index}}" value="{{number}}" readonly uncheck/></td>
         <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="unitName_{{index}}" name="unitName_{{index}}" value="{{unitName}}" readonly uncheck/></td>

@@ -6,7 +6,6 @@
 
     // 退款方式
     $('#refundType').on('change', function () {
-        debugger
         if($(this).val() == '3') {
             $('[data-refund-way="bank"]').show();
         } else {
