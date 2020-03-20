@@ -1,9 +1,6 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.EarnestOrder;
-import com.dili.ia.domain.EarnestOrderDetail;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.TransactionDetails;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.EarnestOrderPrintDto;
 import com.dili.ia.domain.dto.PrintDataDto;
@@ -23,6 +20,7 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -47,7 +45,7 @@ import java.util.List;
 @Service
 public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long> implements EarnestOrderService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EarnestOrderServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EarnestOrderServiceImpl.class);
 
     public EarnestOrderMapper getActualDao() {
         return (EarnestOrderMapper)getDao();
@@ -70,6 +68,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
+    @Value("${earnestOrder.settlement.handler.url}")
+    private String settlerHandlerUrl;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -196,8 +196,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         settleOrder.setBusinessType(BizTypeEnum.EARNEST.getCode()); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        String returnUrl = "http://ia.diligrp.com/earnestOrder/paySuccess";
-        settleOrder.setReturnUrl(returnUrl); // 结算-- 缴费成功后回调路径
+        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
 
         return settleOrder;
     }
@@ -257,42 +256,47 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput paySuccessEarnestOrder(Long earnestOrderId) {
+    public BaseOutput paySuccessHandler(SettleOrder settleOrder) {
+        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        //结算单code唯一
+        condition.setCode(settleOrder.getBusinessCode());
+        PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
+        if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
+            return BaseOutput.success();
+        }
+        if (!paymentOrderPO.getState().equals(PaymentOrderStateEnum.NOT_PAID.getCode())){
+            LOG.info("缴费单状态已变更！状态为：" + PaymentOrderStateEnum.getPaymentOrderStateEnum(paymentOrderPO.getState()).getName() );
+            return BaseOutput.failure("缴费单状态已变更！");
+        }
+        //缴费单数据更新
+        paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
+        paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
+        paymentOrderPO.setSettlementCode(settleOrder.getCode());
+        paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
+        paymentOrderPO.setSettlementWay(settleOrder.getWay());
+        if (paymentOrderService.updateSelective(paymentOrderPO) != 1) {
+            LOG.info("缴费单成功回调 -- 更新【缴费单】状态记录数不为 1 ，多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
         //修改订单状态
-        EarnestOrder ea = this.getActualDao().selectByPrimaryKey(earnestOrderId);
+        EarnestOrder ea = this.getActualDao().selectByPrimaryKey(paymentOrderPO.getBusinessId());
         ea.setState(EarnestOrderStateEnum.PAID.getCode());
-        this.getActualDao().updateByPrimaryKey(ea);
-        //@TODO缴费单数据更新，结算编号，缴费时间等
+        if (this.updateSelective(ea) != 1) {
+            LOG.info("缴费单成功回调 -- 更新【租赁单】状态记录数不为 1 ，多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
         //更新客户账户定金余额和可用余额
         customerAccountService.paySuccessEarnest(ea.getCustomerId(), ea.getMarketId(), ea.getAmount());
         //插入客户账户定金资金动账流水
-        transactionDetailsService.insert(buildTransactionDetails(ea));
-        return BaseOutput.success();
-    }
-
-    private TransactionDetails buildTransactionDetails(EarnestOrder ea){
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
-        tds.setAmount(ea.getAmount());
-        tds.setCertificateNumber(ea.getCertificateNumber());
-        tds.setCreator(userTicket.getRealName());
-        tds.setCreatorId(userTicket.getId());
-        tds.setCustomerCellphone(ea.getCustomerCellphone());
-        tds.setCustomerId(ea.getCustomerId());
-        tds.setCustomerName(ea.getCustomerName());
-        tds.setMarketId(ea.getMarketId());
-        tds.setNotes(ea.getCode());
-        tds.setOrderId(ea.getId());
-        tds.setOrderCode(ea.getCode());
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            throw new RuntimeException("编号生成器微服务异常");
+        TransactionDetails details = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.PAYMENT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), ea.getAmount(), ea.getId(), ea.getCode(), ea.getCustomerId(), ea.getCode(), ea.getMarketId());
+        if (transactionDetailsService.insert(details) != 1) {
+            LOG.info("缴费单成功回调 -- 插入【缴费成功流水】不为 1 ，失败，多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-        tds.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
-        tds.setBizType(BizTypeEnum.EARNEST.getCode());
-        tds.setSceneType(TransactionSceneTypeEnum.PAYMENT.getCode());
-        tds.setItemType(TransactionItemTypeEnum.EARNEST.getCode());
-        return tds;
+
+        return BaseOutput.success();
     }
 
     @Override
@@ -331,7 +335,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrderDetailService.list(earnestOrderDetail).forEach(o -> {
             assetsItems.append(o.getAssetsName()).append(",");
         });
-        if (assetsItems != null){
+        if (assetsItems != null && assetsItems.length() > 1){
             assetsItems.substring(0, assetsItems.length() - 1);
         }
         earnestOrderPrintDto.setAssetsItems(assetsItems.toString());
