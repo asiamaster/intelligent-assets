@@ -4,6 +4,7 @@ import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.glossary.DepositAmountFlagEnum;
+import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.glossary.RefundStateEnum;
 import com.dili.ia.glossary.StopWayEnum;
 import com.dili.ia.service.LeaseOrderItemService;
@@ -57,6 +58,7 @@ public class LeaseOrderItemController {
     public @ResponseBody BaseOutput list(LeaseOrderItemListDto leaseOrderItem) {
         leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
         leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
+        leaseOrderItem.setPayState(PayStateEnum.PAID.getCode());
         return BaseOutput.success().setData(leaseOrderItemService.listByExample(leaseOrderItem));
     }
 

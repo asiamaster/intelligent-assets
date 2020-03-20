@@ -171,6 +171,14 @@ public interface LeaseOrderItem extends IBaseDomain {
 
     void setState(Integer state);
 
+
+    @Column(name = "`pay_state`")
+    @FieldDef(label="支付状态（1：未交清 2：已交清）")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Integer getPayState();
+
+    void setPayState(Integer payState);
+
     @Column(name = "`stop_rent_state`")
     @FieldDef(label="停租状态(1:未发起 2：等待定时执行 3：已停租)")
     @EditMode(editor = FieldEditor.Number, required = false)
