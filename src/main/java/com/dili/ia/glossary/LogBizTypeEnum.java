@@ -10,6 +10,7 @@ package com.dili.ia.glossary;
  */
 public enum LogBizTypeEnum {
     BOOTH_LEASE("booth_lease", "摊位租赁"),
+    EARNEST_ORDER("earnest_order", "定金管理"),
     REFUND_ORDER("refund_order", "退款单"),
     ;
 

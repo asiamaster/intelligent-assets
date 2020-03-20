@@ -12,7 +12,7 @@
             </div>
             <div class="form-group col">
                 <label for="" class="">状态</label>
-                <input type="text" class="form-control" value="${stateName!}" disabled />
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.EarnestOrderStateEnum.getEarnestOrderStateEnum(earnestOrder.state).getName()}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">业务所属部门</label>
@@ -92,11 +92,12 @@
                 <textarea class="form-control" name="notes" rows="1" disabled>${earnestOrder.notes!}</textarea>
             </div>
         </div>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#editRecordInfo" aria-controls="editRecordInfo">
-            业务记录 <a href="javascript:;" class="ml-2">点击查看</a>
+        <%if(isNotEmpty(logs) && logs.~size>0){ %>
+        <div class="breadcrumb" data-toggle="collapse" data-target="#recordInfo" aria-controls="recordInfo">
+            业务记录 <a href="javascript:;" class="ml-2" >点击查看</a>
         </div>
-        <div class="collapse" id="editRecordInfo">
-            <table class="table table-bordered table-hover table-striped text-center">
+        <div class="collapse" id="recordInfo">
+            <table data-toggle="table">
                 <thead>
                 <tr>
                     <th>时间</th>
@@ -107,14 +108,20 @@
                 </tr>
                 </thead>
                 <tbody>
-                <td>1</td>
-                <td>1</td>
-                <td>1</td>
-                <td>1</td>
-                <td>1</td>
+                <%
+                for(log in logs){%>
+                <tr>
+                    <td class="text-center align-middle" >${log.createTime,dateFormat='yyyy-MM-dd HH:mm:ss'}</td>
+                    <td class="text-center align-middle" >${log.operatorName}</td>
+                    <td class="text-center align-middle" >${log.content}</td>
+                    <td class="text-center align-middle" >${log.notes}</td>
+                    <td class="text-center align-middle" >${log.operatorId}</td>
+                </tr>
+                <% }%>
                 </tbody>
             </table>
         </div>
+        <% }%>
         <div class="text-right">
             <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()" >关闭</button>
         </div>

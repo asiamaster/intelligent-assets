@@ -4,9 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
+import com.dili.ia.glossary.LogBizTypeEnum;
 import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
+import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
@@ -42,6 +47,8 @@ public class EarnestOrderController {
     EarnestOrderService earnestOrderService;
     @Autowired
     EarnestOrderDetailService earnestOrderDetailService;
+    @Autowired
+    BusinessLogRpc businessLogRpc;
 
     /**
      * 跳转到定金管理页面
@@ -80,6 +87,14 @@ public class EarnestOrderController {
             modelMap.put("stateName", EarnestOrderStateEnum.getEarnestOrderStateEnumName(earnestOrder.getState()));
             modelMap.put("earnestOrder",earnestOrder);
             modelMap.put("earnestOrderDetails", earnestOrderDetails);
+
+            BusinessLogQueryInput query = new BusinessLogQueryInput();
+            query.setBusinessId(id);
+            query.setBusinessType(LogBizTypeEnum.EARNEST_ORDER.getCode());
+            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(query);
+            if(businessLogOutput.isSuccess()){
+                modelMap.put("logs",businessLogOutput.getData());
+            }
         }
         return "earnestOrder/view";
     }
