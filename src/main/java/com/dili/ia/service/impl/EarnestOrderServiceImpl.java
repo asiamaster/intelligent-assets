@@ -148,7 +148,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @Override
     public BaseOutput submitEarnestOrder(Long earnestOrderId) {
         //@TODO改状态，创建缴费单，提交到结算中心
-        EarnestOrder ea = this.getActualDao().selectByPrimaryKey(earnestOrderId);
+        EarnestOrder ea = this.get(earnestOrderId);
         if (null == ea || !ea.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("提交失败，状态已变更！");
         }
@@ -160,16 +160,22 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setSubmitterId(userTicket.getId());
         ea.setSubmitter(userTicket.getRealName());
         ea.setSubDate(new Date());
-        this.getActualDao().updateByPrimaryKey(ea);
+        if (this.updateSelective(ea) != 1) {
+            LOG.info("提交定金【修改定金单状态】失败 -- 记录数不为 1 ，多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
 
         PaymentOrder pb = this.buildPaymentOrder(userTicket, ea);
-        paymentOrderService.insert(pb);
+        if (paymentOrderService.insert(pb) != 1) {
+            LOG.info("提交【保存缴费单】失败 -- 记录数不为 1 ，多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, ea));
         if (!out.isSuccess()){
             LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
-            throw new RuntimeException("提交到结算中心失败！" + out.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
         }
         return BaseOutput.success();
     }
@@ -214,7 +220,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setState(PayStateEnum.NOT_PAID.getCode());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
-            throw new RuntimeException("编号生成器微服务异常");
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
         }
         pb.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         return pb;
@@ -229,11 +235,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
         List<PaymentOrder> list = paymentOrderService.selectByExample(pb);
         if (CollectionUtils.isEmpty(list) || list.size() > 1) {
-            throw new RuntimeException("没有查询到有效付款单！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到有效付款单！");
         }
         return list.get(0);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput withdrawEarnestOrder(Long earnestOrderId) {
         //@TODO改状态，删除缴费单，通知撤销结算中心缴费单
@@ -242,13 +249,22 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             return BaseOutput.failure("撤回失败，状态已变更！");
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (null == userTicket){
+            return BaseOutput.failure("未登录！");
+        }
         ea.setState(EarnestOrderStateEnum.CREATED.getCode());
         ea.setWithdrawOperatorId(userTicket.getId());
         ea.setWithdrawOperator(userTicket.getRealName());
-        this.updateSelective(ea);
+        if (this.updateSelective(ea) != 1) {
+            LOG.info("撤回定金【修改定金单状态】失败 -- 记录数不为 1 ，多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
 
         PaymentOrder pb = this.findPaymentOrder(userTicket, ea.getId(), ea.getCode());
-        paymentOrderService.delete(pb.getId());
+        if (paymentOrderService.delete(pb.getId()) != 1) {
+            LOG.info("撤回定金【删除缴费单】失败 -- 记录数不为 1 ，多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
 
         //@TODO 更改提交到结算中心的数据
         return BaseOutput.success();
