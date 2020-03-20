@@ -42,7 +42,7 @@ public interface EarnestTransferOrder extends IBaseDomain {
     void setModifyTime(Date modifyTime);
 
     @Column(name = "`code`")
-    @FieldDef(label="定金转移业务单编号", maxLength = 50)
+    @FieldDef(label="定金转移业务单编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
@@ -154,7 +154,7 @@ public interface EarnestTransferOrder extends IBaseDomain {
     void setPayeeCellphone(String payeeCellphone);
 
     @Column(name = "`payer_transaction_details_code`")
-    @FieldDef(label="转出方的定金转出流水号", maxLength = 50)
+    @FieldDef(label="转出方的定金转出流水号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayerTransactionDetailsCode();
 
@@ -168,7 +168,7 @@ public interface EarnestTransferOrder extends IBaseDomain {
     void setMarketId(Long marketId);
 
     @Column(name = "`payee_transaction_code`")
-    @FieldDef(label="转入方的定金转入流水号", maxLength = 50)
+    @FieldDef(label="转入方的定金转入流水号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getPayeeTransactionCode();
 

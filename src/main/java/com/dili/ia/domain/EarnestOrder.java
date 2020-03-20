@@ -119,7 +119,7 @@ public interface EarnestOrder extends IBaseDomain {
     void setAmount(Long amount);
 
     @Column(name = "`code`")
-    @FieldDef(label="定金业务单编号", maxLength = 50)
+    @FieldDef(label="定金业务单编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 

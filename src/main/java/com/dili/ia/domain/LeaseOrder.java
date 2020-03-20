@@ -30,7 +30,7 @@ public interface LeaseOrder extends IBaseDomain {
     void setId(Long id);
 
     @Column(name = "`code`")
-    @FieldDef(label="出租编号", maxLength = 20)
+    @FieldDef(label="出租编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCode();
 
