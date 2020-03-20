@@ -10,6 +10,11 @@
         return formData;
     }
 
+    //初始化刷卡
+    initSwipeCard({
+        id:'getCustomer',
+    });
+
     // 定金转移保存
     $('#formSubmit').on('click', function (e) {
         if (!$('#saveForm').valid()) {
