@@ -2,8 +2,10 @@ package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ss.domain.annotation.Like;
+import com.dili.ss.domain.annotation.Operator;
 
 import javax.persistence.Column;
+import java.util.List;
 
 /**
  * <B>Description</B>
@@ -23,4 +25,8 @@ public interface CustomerAccountListDto extends CustomerAccount {
     String getLikeCustomerName();
     void setLikeCustomerName(String likeCustomerName);
 
+    @Operator(Operator.IN)
+    @Column(name = "market_id")
+    List<Long> getMarketIds();
+    void setMarketIds(List<Long> marketIds);
 }

@@ -38,10 +38,15 @@ public interface EarnestOrderListDto extends EarnestOrder {
     String getLikeCustomerName();
     void setLikeCustomerName(String likeCustomerName);
 
-    //摊位名称
-    @Transient
-    String getBoothName();
-    void setBoothName(String boothName);
+    @Operator(Operator.IN)
+    @Column(name = "market_id")
+    List<Long> getMarketIds();
+    void setMarketIds(List<Long> marketIds);
+
+    @Operator(Operator.IN)
+    @Column(name = "department_id")
+    List<Long> getDepartmentIds();
+    void setDepartmentIds(List<Long> departmentIds);
 
     @Transient
     List<EarnestOrderDetail> getEarnestOrderdetails();

@@ -6,6 +6,7 @@ import com.dili.ss.domain.annotation.Operator;
 
 import javax.persistence.Column;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <B>Description</B>
@@ -34,4 +35,9 @@ public interface TransactionDetailsListDto extends TransactionDetails {
     @Like
     String getLikeCustomerName();
     void setLikeCustomerName(String likeCustomerName);
+
+    @Operator(Operator.IN)
+    @Column(name = "market_id")
+    List<Long> getMarketIds();
+    void setMarketIds(List<Long> marketIds);
 }

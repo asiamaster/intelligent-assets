@@ -6,7 +6,9 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.CustomerAccountListDto;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.service.CustomerAccountService;
+import com.dili.ia.service.DataAuthService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -15,12 +17,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -32,6 +38,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class CustomerAccountController {
     @Autowired
     CustomerAccountService customerAccountService;
+    @Autowired
+    DataAuthService dataAuthService;
 
     /**
      * 跳转到CustomerAccount页面
@@ -56,6 +64,12 @@ public class CustomerAccountController {
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(CustomerAccountListDto customerAccount) throws Exception {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        List<Long> marketIdList = dataAuthService.getMarketDataAuth(userTicket.getId());
+        if (CollectionUtils.isEmpty(marketIdList)){
+            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+        }
+        customerAccount.setMarketIds(marketIdList);
         return customerAccountService.listEasyuiPageByExample(customerAccount, true).toString();
     }
 
