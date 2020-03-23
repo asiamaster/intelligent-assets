@@ -111,11 +111,11 @@
                 <%
                 for(log in logs){%>
                 <tr>
-                    <td class="text-center align-middle" >${log.createTime,dateFormat='yyyy-MM-dd HH:mm:ss'}</td>
-                    <td class="text-center align-middle" >${log.operatorTypeText}</td>
-                    <td class="text-center align-middle" >${log.content}</td>
-                    <td class="text-center align-middle" >${log.notes}</td>
-                    <td class="text-center align-middle" >${log.operatorName}</td>
+                    <td class="text-center align-middle" >${log.createTime!}</td>
+                    <td class="text-center align-middle" >${log.operationType!}</td>
+                    <td class="text-center align-middle" >${log.notes!}</td>
+                    <td class="text-center align-middle" >${log.notes!}</td>
+                    <td class="text-center align-middle" >${log.operatorId!}</td>
                 </tr>
                 <% }%>
                 </tbody>

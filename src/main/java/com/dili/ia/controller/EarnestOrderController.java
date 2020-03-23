@@ -106,7 +106,7 @@ public class EarnestOrderController {
                 //日志查询
                 BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
                 businessLogQueryInput.setBusinessId(id);
-                businessLogQueryInput.setBusinessType(LogBizTypeEnum.BOOTH_LEASE.getCode());
+                businessLogQueryInput.setBusinessType(LogBizTypeEnum.EARNEST_ORDER.getCode());
                 BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
                 if(businessLogOutput.isSuccess()){
                     modelMap.put("logs",businessLogOutput.getData());
