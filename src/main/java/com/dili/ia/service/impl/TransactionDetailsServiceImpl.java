@@ -90,7 +90,6 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
         }
         tds.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
-        tds.setCreateTime(new Date());
         return tds;
     }
 }

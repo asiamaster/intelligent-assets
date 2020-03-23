@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -167,13 +168,13 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
 
         PaymentOrder pb = this.buildPaymentOrder(userTicket, ea);
-        if (paymentOrderService.insert(pb) != 1) {
+        if (paymentOrderService.insertSelective(pb) != 1) {
             LOG.info("提交【保存缴费单】失败 -- 记录数不为 1 ，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, ea));
+        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, ea, pb));
         if (!out.isSuccess()){
             LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
@@ -182,12 +183,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     //组装 -- 结算中心缴费单 SettleOrder
-    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, EarnestOrder ea){
+    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, EarnestOrder ea, PaymentOrder paymentOrder){
         SettleOrderDto settleOrder = new SettleOrderDto();
         //以下是提交到结算中心的必填字段
         settleOrder.setMarketId(ea.getMarketId()); //市场ID
         settleOrder.setMarketCode(userTicket.getFirmCode());
-        settleOrder.setBusinessCode(ea.getCode()); //业务单号
+        settleOrder.setBusinessCode(paymentOrder.getCode()); //缴费单业务单号
         settleOrder.setCustomerId(ea.getCustomerId());//客户ID
         settleOrder.setCustomerName(ea.getCustomerName());// "客户姓名
         settleOrder.setCustomerPhone(ea.getCustomerCellphone());//"客户手机号
@@ -217,8 +218,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setCreatorId(userTicket.getId());
         pb.setCreator(userTicket.getRealName());
         pb.setMarketId(userTicket.getFirmId());
+        pb.setMarketCode(userTicket.getFirmCode());
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setState(PayStateEnum.NOT_PAID.getCode());
+        pb.setVersion(0);
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
@@ -234,11 +237,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setBusinessCode(businessCode);
         pb.setMarketId(userTicket.getFirmId());
         pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
-        List<PaymentOrder> list = paymentOrderService.selectByExample(pb);
-        if (CollectionUtils.isEmpty(list) || list.size() > 1) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到有效付款单！");
+        PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
+        if (null == order) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到付款单！");
         }
-        return list.get(0);
+        return order;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -268,13 +271,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         BaseOutput<String>  setOut = settlementRpc.cancel(settlementAppId, pb.getCode());
         if (!setOut.isSuccess()){
-            LOG.info("撤回，调用结算中心修改状态失败！");
-            throw new BusinessException(ResultCode.DATA_ERROR, "撤回，调用结算中心修改状态失败！");
+            LOG.info("撤回，调用结算中心修改状态失败！" + setOut.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "撤回，调用结算中心修改状态失败！" + setOut.getMessage());
         }
         return BaseOutput.success();
     }
 
-    @BusinessLogger(businessType="edit", content="${userName} 新建了 XXXXX${code} ", operationType="edit", notes = "备注", systemCode = "INTELLIGENT_ASSETS")
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput paySuccessHandler(SettleOrder settleOrder) {
@@ -320,7 +322,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        return BaseOutput.success();
+        return BaseOutput.success().setData(true);
     }
 
     @Override

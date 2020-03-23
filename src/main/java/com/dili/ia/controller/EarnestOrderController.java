@@ -1,14 +1,15 @@
 package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.dili.ia.domain.EarnestOrder;
-import com.dili.ia.domain.EarnestOrderDetail;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.glossary.LogBizTypeEnum;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
+import com.dili.ia.service.PaymentOrderService;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
@@ -26,6 +27,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +59,8 @@ public class EarnestOrderController {
     BusinessLogRpc businessLogRpc;
     @Autowired
     DataAuthService dataAuthService;
+    @Autowired
+    PaymentOrderService paymentOrderService;
 
     /**
      * 跳转到定金管理页面
@@ -86,13 +90,19 @@ public class EarnestOrderController {
      */
     @ApiOperation("跳转到定金管理-查看页面")
     @RequestMapping(value="/view.html", method = RequestMethod.GET)
-    public String view(ModelMap modelMap, Long id) {
-        if(null != id){
-            EarnestOrder earnestOrder = earnestOrderService.get(id);
+    public String view(ModelMap modelMap,Long id,String businessCode) {
+        EarnestOrder earnestOrder = null;
+        if(null != id) {
+            earnestOrder = earnestOrderService.get(id);
+        }else if(StringUtils.isNotBlank(businessCode)){
+            PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+            paymentOrder.setCode(businessCode);
+            paymentOrder.setBizType(BizTypeEnum.EARNEST.getCode());
+            earnestOrder = earnestOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
+        }
             EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
             condition.setEarnestOrderId(id);
             List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
-            modelMap.put("stateName", EarnestOrderStateEnum.getEarnestOrderStateEnumName(earnestOrder.getState()));
             modelMap.put("earnestOrder",earnestOrder);
             modelMap.put("earnestOrderDetails", earnestOrderDetails);
             try{
@@ -107,7 +117,6 @@ public class EarnestOrderController {
             }catch (Exception e){
                 LOG.error("日志服务查询异常",e);
             }
-        }
         return "earnestOrder/view";
     }
     /**
