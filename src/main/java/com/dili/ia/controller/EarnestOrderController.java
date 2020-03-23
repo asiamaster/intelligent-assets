@@ -67,7 +67,6 @@ public class EarnestOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到定金管理页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         return "earnestOrder/index";
@@ -78,7 +77,6 @@ public class EarnestOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到定金管理-新增页面")
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap) {
         return "earnestOrder/add";
@@ -88,7 +86,6 @@ public class EarnestOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到定金管理-查看页面")
     @RequestMapping(value="/view.html", method = RequestMethod.GET)
     public String view(ModelMap modelMap,Long id,String businessCode) {
         EarnestOrder earnestOrder = null;
@@ -124,7 +121,6 @@ public class EarnestOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到定金管理-修改页面")
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
     public String update(ModelMap modelMap, Long id) {
         if(null != id){
@@ -145,10 +141,6 @@ public class EarnestOrderController {
      * @return String
      * @throws Exception
      */
-    @ApiOperation(value="分页查询EarnestOrder", notes = "分页查询EarnestOrder，返回easyui分页信息")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="EarnestOrder", paramType="form", value = "EarnestOrder的form信息", required = false, dataType = "string")
-	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(EarnestOrderListDto earnestOrderListDto) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -167,10 +159,6 @@ public class EarnestOrderController {
      * @param earnestOrder
      * @return BaseOutput
      */
-    @ApiOperation("新增EarnestOrder")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="EarnestOrder", paramType="form", value = "EarnestOrder的form信息", required = true, dataType = "string")
-	})
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
         Calendar calendar = Calendar.getInstance();
@@ -249,10 +237,6 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @ApiOperation("定金管理--撤回")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="id", paramType="form", value = "EarnestOrder的主键", required = true, dataType = "long")
-    })
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -269,10 +253,6 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @ApiOperation("定金管理--取消")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="id", paramType="form", value = "EarnestOrder的主键", required = true, dataType = "long")
-    })
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         EarnestOrder earnestOrder = earnestOrderService.get(id);
@@ -283,11 +263,17 @@ public class EarnestOrderController {
         if (userTicket == null){
             return BaseOutput.failure("未登录！");
         }
-        earnestOrder.setCancelerId(userTicket.getId());
-        earnestOrder.setCanceler(userTicket.getRealName());
-        earnestOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
-        earnestOrderService.updateSelective(earnestOrder);
-        return BaseOutput.success("取消成功");
-
+        try {
+            earnestOrder.setCancelerId(userTicket.getId());
+            earnestOrder.setCanceler(userTicket.getRealName());
+            earnestOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
+            if (earnestOrderService.updateSelective(earnestOrder) != 1){
+                LOG.info("取消失败，取消更新状态记录数不为 1，取消单定金单ID【{}】", id);
+                return BaseOutput.failure("取消失败！");
+            }
+            return BaseOutput.success("取消成功");
+        } catch (Exception e) {
+            return BaseOutput.failure("取消出错！");
+        }
     }
 }
