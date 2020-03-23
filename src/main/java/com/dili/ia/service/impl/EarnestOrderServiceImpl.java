@@ -147,7 +147,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput submitEarnestOrder(Long earnestOrderId) {
+    public BaseOutput<EarnestOrder> submitEarnestOrder(Long earnestOrderId) {
         //@TODO改状态，创建缴费单，提交到结算中心
         EarnestOrder ea = this.get(earnestOrderId);
         if (null == ea || !ea.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){

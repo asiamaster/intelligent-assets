@@ -31,7 +31,7 @@ public interface EarnestOrderService extends BaseService<EarnestOrder, Long> {
      * @param earnestOrderId 定金单ID
      * @return BaseOutput
      * */
-    BaseOutput submitEarnestOrder(Long earnestOrderId);
+    BaseOutput<EarnestOrder> submitEarnestOrder(Long earnestOrderId);
     /**
      * 定金单 --撤回
      * @param earnestOrderId 定金单ID

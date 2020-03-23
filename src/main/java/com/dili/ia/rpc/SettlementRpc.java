@@ -18,7 +18,7 @@ import java.util.Map;
  * @author qinkelan
  * @createTime 2020-02-24 15:49
  */
-@FeignClient(name = "settlement-service",url = "http://10.28.10.84:8184")
+@FeignClient(name = "settlement-service")
 public interface SettlementRpc {
 
     /**

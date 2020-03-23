@@ -212,20 +212,21 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="edit", content="${userName} 新建了 XXXXX${code} ", operationType="edit", notes = "备注", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="", operationType="submit", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
-            BaseOutput output = earnestOrderService.submitEarnestOrder(id);
-
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, "firm0001");
-//            LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, firm.getId());
-            if(userTicket != null) {
-                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+            BaseOutput<EarnestOrder> output = earnestOrderService.submitEarnestOrder(id);
+            if (output.isSuccess()){
+                EarnestOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, order.getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, order.getId());
+                if(userTicket != null) {
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+                }
             }
-
             return output;
         } catch (BusinessException e) {
             return BaseOutput.failure(e.getErrorMsg());
