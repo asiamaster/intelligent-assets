@@ -6,6 +6,7 @@ import com.dili.ss.domain.BaseOutput;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
@@ -35,6 +36,14 @@ public interface SettlementRpc {
      */
     @RequestMapping(value = "/api/settleOrder/cancelByCode", method = RequestMethod.POST)
     BaseOutput<String> cancelByCode(String code);
+    /**
+     * 【撤回】结算单 ---根据业务缴费单code取消
+     * @param apppId 应用ID
+     * @param businessCode 业务缴费单code
+     * @return
+     */
+    @RequestMapping(value = "/api/settleOrder/cancel", method = RequestMethod.POST)
+    BaseOutput<String> cancel(@RequestParam("apppId") Long apppId, @RequestParam("businessCode") String businessCode);
 
     /**
      * 【撤回】结算单 ---结算单查询

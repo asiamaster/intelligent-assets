@@ -243,7 +243,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput withdrawEarnestOrder(Long earnestOrderId) {
-        //@TODO改状态，删除缴费单，通知撤销结算中心缴费单
+        //改状态，删除缴费单，通知撤回结算中心缴费单
         EarnestOrder ea = this.getActualDao().selectByPrimaryKey(earnestOrderId);
         if (null == ea || !ea.getState().equals(EarnestOrderStateEnum.SUBMITTED.getCode())){
             return BaseOutput.failure("撤回失败，状态已变更！");
@@ -265,8 +265,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOG.info("撤回定金【删除缴费单】失败 -- 记录数不为 1 ，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-
-        //@TODO 更改提交到结算中心的数据
+        BaseOutput<String>  setOut = settlementRpc.cancel(settlementAppId, pb.getCode());
+        if (!setOut.isSuccess()){
+            LOG.info("撤回，调用结算中心修改状态失败！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "撤回，调用结算中心修改状态失败！");
+        }
         return BaseOutput.success();
     }
 
