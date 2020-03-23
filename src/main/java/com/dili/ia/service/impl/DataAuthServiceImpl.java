@@ -5,6 +5,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.UserDataAuth;
+import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.domain.dto.FirmDto;
 import com.dili.uap.sdk.glossary.DataAuthType;
 import com.dili.uap.sdk.rpc.DataAuthRpc;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,9 +36,12 @@ public class DataAuthServiceImpl implements DataAuthService {
     FirmRpc firmRpc;
 
     @Override
-    public List<Long> getMarketDataAuth(Long userTicketId){
+    public List<Long> getMarketDataAuth(UserTicket userTicket){
+        if (null == userTicket){
+            return Collections.emptyList();
+        }
         UserDataAuth userDataAuth = DTOUtils.newInstance(UserDataAuth.class);
-        userDataAuth.setUserId(userTicketId);
+        userDataAuth.setUserId(userTicket.getId());
         userDataAuth.setRefCode(DataAuthType.MARKET.getCode());
         BaseOutput<List<Map>> out = dataAuthRpc.listUserDataAuthDetail(userDataAuth);
 
@@ -57,9 +62,12 @@ public class DataAuthServiceImpl implements DataAuthService {
     }
 
     @Override
-    public List<Long> getDepartmentDataAuth(Long userTicketId){
+    public List<Long> getDepartmentDataAuth(UserTicket userTicket){
+        if (null == userTicket){
+            return Collections.emptyList();
+        }
         UserDataAuth userDataAuth = DTOUtils.newInstance(UserDataAuth.class);
-        userDataAuth.setUserId(userTicketId);
+        userDataAuth.setUserId(userTicket.getId());
         userDataAuth.setRefCode(DataAuthType.DEPARTMENT.getCode());
         BaseOutput<List<Map>> out = dataAuthRpc.listUserDataAuthDetail(userDataAuth);
         List<Long> malist = new ArrayList<>();

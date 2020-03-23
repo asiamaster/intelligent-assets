@@ -10,6 +10,7 @@ import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -177,7 +178,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
         }
-        return BaseOutput.success();
+        return BaseOutput.success().setData(ea);
     }
 
     //组装 -- 结算中心缴费单 SettleOrder
@@ -273,6 +274,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return BaseOutput.success();
     }
 
+    @BusinessLogger(businessType="edit", content="${userName} 新建了 XXXXX${code} ", operationType="edit", notes = "备注", systemCode = "INTELLIGENT_ASSETS")
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput paySuccessHandler(SettleOrder settleOrder) {

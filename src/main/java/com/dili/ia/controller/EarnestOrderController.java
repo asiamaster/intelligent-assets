@@ -9,8 +9,11 @@ import com.dili.ia.glossary.LogBizTypeEnum;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
@@ -140,8 +143,8 @@ public class EarnestOrderController {
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(EarnestOrderListDto earnestOrderListDto) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        List<Long> marketIdList = dataAuthService.getMarketDataAuth(userTicket.getId());
-        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket.getId());
+        List<Long> marketIdList = dataAuthService.getMarketDataAuth(userTicket);
+        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
         if (CollectionUtils.isEmpty(marketIdList) || CollectionUtils.isEmpty(departmentIdList)){
             return new EasyuiPageOutput(0, Collections.emptyList()).toString();
         }
@@ -184,10 +187,6 @@ public class EarnestOrderController {
      * @param earnestOrder
      * @return BaseOutput
      */
-    @ApiOperation("修改EarnestOrder")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="EarnestOrder", paramType="form", value = "EarnestOrder的form信息", required = true, dataType = "string")
-	})
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doUpdate(EarnestOrderListDto earnestOrder) {
         Calendar calendar = Calendar.getInstance();
@@ -213,14 +212,21 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @ApiOperation("定金管理--提交")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="id", paramType="form", value = "EarnestOrder的主键", required = true, dataType = "long")
-	})
+    @BusinessLogger(businessType="edit", content="${userName} 新建了 XXXXX${code} ", operationType="edit", notes = "备注", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
-            return earnestOrderService.submitEarnestOrder(id);
+            BaseOutput output = earnestOrderService.submitEarnestOrder(id);
+
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, "firm0001");
+//            LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, firm.getId());
+            if(userTicket != null) {
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+            }
+
+            return output;
         } catch (BusinessException e) {
             return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {

@@ -64,8 +64,7 @@ public class CustomerAccountController {
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(CustomerAccountListDto customerAccount) throws Exception {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        List<Long> marketIdList = dataAuthService.getMarketDataAuth(userTicket.getId());
+        List<Long> marketIdList = dataAuthService.getMarketDataAuth(SessionContext.getSessionContext().getUserTicket());
         if (CollectionUtils.isEmpty(marketIdList)){
             return new EasyuiPageOutput(0, Collections.emptyList()).toString();
         }

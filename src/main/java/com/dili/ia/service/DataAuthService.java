@@ -1,5 +1,7 @@
 package com.dili.ia.service;
 
+import com.dili.uap.sdk.domain.UserTicket;
+
 import java.util.List;
 
 /**
@@ -14,16 +16,16 @@ import java.util.List;
 public interface DataAuthService {
     /**
      * 获取市场权限
-     * @param userTicketId 当前登录客户ID
+     * @param userTicket  当前登录客户
      * @return List<Long> 权限市场ID list
      */
-    List<Long> getMarketDataAuth(Long userTicketId);
+    List<Long> getMarketDataAuth(UserTicket userTicket);
 
     /**
      * 获取部门权限
-     * @param userTicketId 当前登录客户ID
+     * @param userTicket 当前登录客户
      * @return List<Long> 权限部门ID list
      */
-    List<Long> getDepartmentDataAuth(Long userTicketId);
+    List<Long> getDepartmentDataAuth(UserTicket userTicket);
 
 }
