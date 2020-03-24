@@ -54,7 +54,7 @@ public class EarnestOrderApi {
      * @param reprint 是否补打标记
      * @return BaseOutput<PrintDataDto>
      */
-    @RequestMapping(value="/queryPrintData")
+    @RequestMapping(value="/queryPrintData", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint){
         try{

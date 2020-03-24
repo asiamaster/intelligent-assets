@@ -281,10 +281,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             LOG.info("退款单状态已变更！状态为：" + RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.getState()).getName() );
             return BaseOutput.failure("退款单状态已变更！");
         }
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null) {
-            return BaseOutput.failure("未登录");
-        }
         refundOrder.setState(RefundOrderStateEnum.REFUNDED.getCode());
         refundOrder.setRefundTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
         refundOrder.setSettlementCode(settleOrder.getCode());
@@ -299,14 +295,14 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //获取业务service,调用业务实现
         RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
         if(service!=null){
-            BaseOutput refundResult = service.refundSuccessHandler(refundOrder);
+            BaseOutput refundResult = service.refundSuccessHandler(settleOrder, refundOrder);
             if (!refundResult.isSuccess()){
                 LOG.info("退款成功后--回调业务返回失败！" + refundResult.getMessage());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款成功回调业务返回失败！" + refundResult.getMessage());
             }
         }
 
-        return BaseOutput.success("退款成功！");
+        return BaseOutput.success("退款成功！").setData(true);
     }
 
     @Override

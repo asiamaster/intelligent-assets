@@ -316,8 +316,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         //更新客户账户定金余额和可用余额
         customerAccountService.paySuccessEarnest(ea.getCustomerId(), ea.getMarketId(), ea.getAmount());
         //插入客户账户定金资金动账流水
-        TransactionDetails details = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.PAYMENT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), ea.getAmount(), ea.getId(), ea.getCode(), ea.getCustomerId(), ea.getCode(), ea.getMarketId());
-        if (transactionDetailsService.insert(details) != 1) {
+        TransactionDetails details = transactionDetailsService.buildByConditions(settleOrder ,TransactionSceneTypeEnum.PAYMENT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), ea.getAmount(), ea.getId(), ea.getCode(), ea.getCustomerId(), ea.getCode(), ea.getMarketId());
+        if (transactionDetailsService.insertSelective(details) != 1) {
             LOG.info("缴费单成功回调 -- 插入【缴费成功流水】不为 1 ，失败，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
