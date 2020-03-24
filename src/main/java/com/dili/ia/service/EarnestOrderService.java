@@ -17,7 +17,7 @@ public interface EarnestOrderService extends BaseService<EarnestOrder, Long> {
     /**
      * 新增定金单，需要先检查客户账户是否存在
      * */
-    int addEarnestOrder(EarnestOrderListDto earnestOrder);
+    BaseOutput<EarnestOrder> addEarnestOrder(EarnestOrderListDto earnestOrder);
 
     /**
      * 定金单 --修改

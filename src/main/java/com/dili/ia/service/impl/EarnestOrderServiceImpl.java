@@ -75,7 +75,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public int addEarnestOrder(EarnestOrderListDto earnestOrder) {
+    public BaseOutput<EarnestOrder> addEarnestOrder(EarnestOrderListDto earnestOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         earnestOrder.setCreatorId(userTicket.getId());
         earnestOrder.setCreator(userTicket.getRealName());
@@ -93,12 +93,16 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         //@TODO业务单号, 多摊位存储  验证客户状态，摊位状态是否正常
         earnestOrder.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         earnestOrder.setVersion(0L);
-        this.getActualDao().insertSelective(earnestOrder);
+        this.insertSelective(earnestOrder);
         insertEarnestOrderDetails(earnestOrder);
+
         if (!customerAccountService.checkCustomerAccountExist(earnestOrder.getCustomerId(), userTicket.getFirmId())){ //如果客户账户不存在，创建客户账户
-           customerAccountService.addCustomerAccountByCustomerInfo(earnestOrder.getCustomerId(), earnestOrder.getCustomerName(), earnestOrder.getCustomerCellphone(), earnestOrder.getCertificateNumber());
+           BaseOutput<CustomerAccount> addCusOut = customerAccountService.addCustomerAccountByCustomerInfo(earnestOrder.getCustomerId(), earnestOrder.getCustomerName(), earnestOrder.getCustomerCellphone(), earnestOrder.getCertificateNumber());
+           if (!addCusOut.isSuccess()){
+               return BaseOutput.failure(addCusOut.getMessage());
+           }
         }
-        return 0;
+        return BaseOutput.success().setData(earnestOrder);
     }
 
     /**
