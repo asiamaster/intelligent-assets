@@ -13,7 +13,9 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -44,6 +46,18 @@ public class TransactionDetailsController {
     @ApiOperation("跳转到TransactionDetails页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
+        //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
+        Calendar c = Calendar.getInstance();
+        c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        c.add(Calendar.DAY_OF_MONTH, -2);
+        Date createdStart = c.getTime();
+
+        Calendar ce = Calendar.getInstance();
+        ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
+        Date  createdEnd = ce.getTime();
+
+        modelMap.put("createdStart", createdStart);
+        modelMap.put("createdEnd", createdEnd);
         return "transactionDetails/index";
     }
 
