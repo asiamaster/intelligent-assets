@@ -234,6 +234,7 @@ public class EarnestOrderController {
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, order.getId());
                 if(userTicket != null) {
                     LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
                     LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
                 }
             }
@@ -262,6 +263,7 @@ public class EarnestOrderController {
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, order.getId());
                 if(userTicket != null) {
                     LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
                     LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
                 }
             }
@@ -303,6 +305,7 @@ public class EarnestOrderController {
             LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, earnestOrder.getId());
             if(userTicket != null) {
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
                 LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
             }
 

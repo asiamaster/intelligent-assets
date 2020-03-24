@@ -121,8 +121,10 @@ public class CustomerAccountController {
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, out.getData().getCode());
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, out.getData().getId());
                 LoggerContext.put("amountYuan", MoneyUtils.centToYuan(order.getPayeeAmount()));
+                LoggerContext.put("refundReason", order.getRefundReason());
                 if(userTicket != null) {
                     LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
                     LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
                 }
             }
@@ -163,8 +165,10 @@ public class CustomerAccountController {
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transOutput.getData().getCode());
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transOutput.getData().getId());
                 LoggerContext.put("amountYuan", MoneyUtils.centToYuan(efDto.getAmount()));
+                LoggerContext.put("transferReason", efDto.getTransferReason());
                 if(userTicket != null) {
                     LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
                     LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
                 }
             }
