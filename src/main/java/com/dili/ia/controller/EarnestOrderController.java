@@ -173,6 +173,7 @@ public class EarnestOrderController {
      * @param earnestOrder
      * @return BaseOutput
      */
+    @BusinessLogger(businessType="earnest_order", content="", operationType="add", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
         Calendar calendar = Calendar.getInstance();
@@ -182,7 +183,20 @@ public class EarnestOrderController {
         calendar.add(Calendar.SECOND,59);
         earnestOrder.setEndTime(calendar.getTime());
         try{
-            return earnestOrderService.addEarnestOrder(earnestOrder);
+            BaseOutput<EarnestOrder> output = earnestOrderService.addEarnestOrder(earnestOrder);
+
+            if (output.isSuccess()){
+                EarnestOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, order.getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, order.getId());
+                if(userTicket != null) {
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+                }
+            }
+            return output;
         }catch (BusinessException e){
             LOG.error("定金单保存异常！", e.getErrorMsg());
             return BaseOutput.failure(e.getErrorMsg());
