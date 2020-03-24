@@ -269,7 +269,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
     @Override
-    public BaseOutput doRefundSuccessHandler(SettleOrder settleOrder) {
+    public BaseOutput<RefundOrder> doRefundSuccessHandler(SettleOrder settleOrder) {
         RefundOrder condition = DTOUtils.newInstance(RefundOrder.class);
         //结算单code唯一
         condition.setCode(settleOrder.getBusinessCode());
@@ -302,7 +302,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             }
         }
 
-        return BaseOutput.success("退款成功！").setData(true);
+        return BaseOutput.success("退款成功！").setData(refundOrder);
     }
 
     @Override

@@ -44,7 +44,7 @@ public interface EarnestOrderService extends BaseService<EarnestOrder, Long> {
      * @param settleOrder 结算单
      * @return BaseOutput
      * */
-    BaseOutput paySuccessHandler(SettleOrder settleOrder);
+    BaseOutput<EarnestOrder> paySuccessHandler(SettleOrder settleOrder);
 
     /**
      * 定金票据打印数据加载

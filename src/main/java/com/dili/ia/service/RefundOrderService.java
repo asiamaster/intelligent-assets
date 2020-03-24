@@ -37,7 +37,7 @@ public interface RefundOrderService extends BaseService<RefundOrder, Long> {
      * @param settleOrder 退款结算单
      * @return BaseOutput
      * */
-    BaseOutput doRefundSuccessHandler(SettleOrder settleOrder);
+    BaseOutput<RefundOrder> doRefundSuccessHandler(SettleOrder settleOrder);
 
     /**
      * 退款单 --新增

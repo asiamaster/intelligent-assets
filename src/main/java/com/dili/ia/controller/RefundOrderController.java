@@ -90,6 +90,19 @@ public class RefundOrderController {
         RefundOrder refundOrder = refundOrderService.get(id);
         if(null != id && refundOrder != null){
             modelMap.put("refundOrder",refundOrder);
+            try{
+                //日志查询
+                BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+                businessLogQueryInput.setBusinessId(id);
+                businessLogQueryInput.setBusinessType(LogBizTypeEnum.REFUND_ORDER.getCode());
+                BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+                if(businessLogOutput.isSuccess()){
+                    modelMap.put("logs",businessLogOutput.getData());
+                }
+            }catch (Exception e){
+                LOG.error("日志服务查询异常",e);
+            }
+
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
                 return "refundOrder/earnestRefundOrderView";
             }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
@@ -101,19 +114,6 @@ public class RefundOrderController {
                 }
                 return "refundOrder/leaseRefundOrderView";
             }
-        }
-
-        try{
-            //日志查询
-            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-            businessLogQueryInput.setBusinessId(id);
-            businessLogQueryInput.setBusinessType(LogBizTypeEnum.REFUND_ORDER.getCode());
-            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-            if(businessLogOutput.isSuccess()){
-                modelMap.put("logs",businessLogOutput.getData());
-            }
-        }catch (Exception e){
-            LOG.error("日志服务查询异常",e);
         }
         return "refundOrder/leaseRefundOrderView";
     }
@@ -142,7 +142,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="refund_order", content="", operationType="submit", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="refund_order", content="${businessCode!}", operationType="submit", notes = "${refundReason!}", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
@@ -156,6 +156,7 @@ public class RefundOrderController {
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
+                LoggerContext.put("refundReason", refundOrder.getRefundReason());
                 if(userTicket != null) {
                     LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
                     LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
@@ -176,7 +177,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="refund_order", content="", operationType="withdraw", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="refund_order", content="${businessCode!}", operationType="withdraw", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -209,7 +210,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="refund_order", content="", operationType="cancel", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="refund_order", content="${businessCode!}", operationType="cancel", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         RefundOrder refundOrder = refundOrderService.get(id);

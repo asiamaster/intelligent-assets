@@ -110,6 +110,7 @@ public class EarnestOrderController {
             paymentOrder.setCode(businessCode);
             paymentOrder.setBizType(BizTypeEnum.EARNEST.getCode());
             earnestOrder = earnestOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
+            id = earnestOrder.getId();
         }
             EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
             condition.setEarnestOrderId(id);
@@ -173,7 +174,7 @@ public class EarnestOrderController {
      * @param earnestOrder
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="", operationType="add", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="add", notes = "${notes!}", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
         if (null != earnestOrder.getEndTime()){
@@ -192,6 +193,7 @@ public class EarnestOrderController {
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, order.getCode());
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, order.getId());
+                LoggerContext.put("notes", order.getNotes());
                 if(userTicket != null) {
                     LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
                     LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
@@ -240,7 +242,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="", operationType="submit", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="submit", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
@@ -269,7 +271,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="", operationType="withdraw", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="withdraw", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -298,7 +300,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="", operationType="cancel", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="cancel", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         EarnestOrder earnestOrder = earnestOrderService.get(id);

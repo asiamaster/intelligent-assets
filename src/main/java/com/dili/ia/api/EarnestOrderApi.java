@@ -1,11 +1,17 @@
 package com.dili.ia.api;
 
+import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.service.EarnestOrderService;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,10 +41,19 @@ public class EarnestOrderApi {
      * @param settleOrder
      * @return
      */
+    @BusinessLogger(businessType="earnest_order", content="${code!}", operationType="pay", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
+    public @ResponseBody BaseOutput<EarnestOrder> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
-            return earnestOrderService.paySuccessHandler(settleOrder);
+            BaseOutput<EarnestOrder> output = earnestOrderService.paySuccessHandler(settleOrder);
+            if (output.isSuccess()){
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, output.getData().getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, output.getData().getId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, settleOrder.getOperatorId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, settleOrder.getOperatorName());
+                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, output.getData().getMarketId());
+            }
+            return output;
         }catch (BusinessException e){
             LOG.error("定金结算成功回调异常！", e);
             return BaseOutput.failure(e.getErrorMsg()).setData(ResultCode.DATA_ERROR);

@@ -1,8 +1,12 @@
 package com.dili.ia.api;
 
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.RefundOrderService;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -57,13 +61,22 @@ public class RefundOrderApi {
      * @param settleOrder
      * @return
      */
+    @BusinessLogger(businessType="refund_order", content="${code!}", operationType="refund", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
+    public @ResponseBody BaseOutput<RefundOrder> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         if (null == settleOrder){
             return BaseOutput.failure("回调参数为空！");
         }
         try{
-            return refundOrderService.doRefundSuccessHandler(settleOrder);
+            BaseOutput<RefundOrder> output = refundOrderService.doRefundSuccessHandler(settleOrder);
+            if (output.isSuccess()){
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, output.getData().getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, output.getData().getId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, settleOrder.getOperatorId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, settleOrder.getOperatorName());
+                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, output.getData().getMarketId());
+            }
+            return output;
         }catch (BusinessException e){
             LOG.error("退款成功回调异常！", e);
             return BaseOutput.failure(e.getErrorMsg()).setData(ResultCode.DATA_ERROR);

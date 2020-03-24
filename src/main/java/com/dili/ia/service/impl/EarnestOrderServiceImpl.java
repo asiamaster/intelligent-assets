@@ -283,7 +283,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput paySuccessHandler(SettleOrder settleOrder) {
+    public BaseOutput<EarnestOrder> paySuccessHandler(SettleOrder settleOrder) {
         if (null == settleOrder){
             return BaseOutput.failure("回调参数为空！");
         }
@@ -326,7 +326,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        return BaseOutput.success().setData(true);
+        return BaseOutput.success().setData(ea);
     }
 
     @Override
