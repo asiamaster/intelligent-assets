@@ -246,7 +246,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput withdrawEarnestOrder(Long earnestOrderId) {
+    public BaseOutput<EarnestOrder> withdrawEarnestOrder(Long earnestOrderId) {
         //改状态，删除缴费单，通知撤回结算中心缴费单
         EarnestOrder ea = this.getActualDao().selectByPrimaryKey(earnestOrderId);
         if (null == ea || !ea.getState().equals(EarnestOrderStateEnum.SUBMITTED.getCode())){
@@ -274,7 +274,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOG.info("撤回，调用结算中心修改状态失败！" + setOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "撤回，调用结算中心修改状态失败！" + setOut.getMessage());
         }
-        return BaseOutput.success();
+        return BaseOutput.success().setData(ea);
     }
 
     @Transactional(rollbackFor = Exception.class)

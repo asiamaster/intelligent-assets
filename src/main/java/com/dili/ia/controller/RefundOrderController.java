@@ -1,5 +1,6 @@
 package com.dili.ia.controller;
 
+import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.RefundOrderDto;
@@ -9,11 +10,16 @@ import com.dili.ia.glossary.RefundOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -136,10 +142,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @ApiOperation("退款单--提交")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="id", paramType="form", value = "RefundOrder的主键", required = true, dataType = "long")
-    })
+    @BusinessLogger(businessType="refund_order", content="", operationType="submit", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
@@ -148,6 +151,17 @@ public class RefundOrderController {
                 return BaseOutput.failure("未查询到退款单！");
             }
             BaseOutput out = refundOrderService.doSubmitDispatcher(refundOrder);
+
+            if (out.isSuccess()){
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
+                if(userTicket != null) {
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+                }
+            }
+
             return out;
         } catch (RuntimeException e) {
             return BaseOutput.failure(e.getMessage());
@@ -161,10 +175,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @ApiOperation("退款单--撤回")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="id", paramType="form", value = "RefundOrder的主键", required = true, dataType = "long")
-    })
+    @BusinessLogger(businessType="refund_order", content="", operationType="withdraw", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -173,6 +184,16 @@ public class RefundOrderController {
                 return BaseOutput.failure("未查询到退款单！");
             }
             BaseOutput out = refundOrderService.doWithdrawDispatcher(refundOrder);
+
+            if (out.isSuccess()){
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
+                if(userTicket != null) {
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+                }
+            }
             return out;
         } catch (RuntimeException e) {
             return BaseOutput.failure(e.getMessage());
@@ -186,17 +207,24 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @ApiOperation("定退款单--取消")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="id", paramType="form", value = "RefundOrder的主键", required = true, dataType = "long")
-    })
+    @BusinessLogger(businessType="refund_order", content="", operationType="cancel", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         RefundOrder refundOrder = refundOrderService.get(id);
         if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("取消失败，定金单状态已变更！");
         }
-        refundOrderService.doCancelDispatcher(refundOrder);
+        BaseOutput output = refundOrderService.doCancelDispatcher(refundOrder);
+
+        if (output.isSuccess()){
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
+            if(userTicket != null) {
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+            }
+        }
         return BaseOutput.success("取消成功");
     }
 }

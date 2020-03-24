@@ -251,10 +251,22 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
+    @BusinessLogger(businessType="earnest_order", content="", operationType="withdraw", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
-            return earnestOrderService.withdrawEarnestOrder(id);
+            BaseOutput<EarnestOrder> output = earnestOrderService.withdrawEarnestOrder(id);
+            if (output.isSuccess()){
+                EarnestOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, order.getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, order.getId());
+                if(userTicket != null) {
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+                }
+            }
+            return BaseOutput.success("修改成功");
         } catch (BusinessException e) {
             return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
@@ -267,6 +279,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
+    @BusinessLogger(businessType="earnest_order", content="", operationType="cancel", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         EarnestOrder earnestOrder = earnestOrderService.get(id);
@@ -285,6 +298,15 @@ public class EarnestOrderController {
                 LOG.info("取消失败，取消更新状态记录数不为 1，取消单定金单ID【{}】", id);
                 return BaseOutput.failure("取消失败！");
             }
+
+            //记录日志
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, earnestOrder.getCode());
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, earnestOrder.getId());
+            if(userTicket != null) {
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+            }
+
             return BaseOutput.success("取消成功");
         } catch (Exception e) {
             return BaseOutput.failure("取消出错！");
