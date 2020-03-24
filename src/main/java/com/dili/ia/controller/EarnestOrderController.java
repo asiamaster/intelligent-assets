@@ -176,12 +176,14 @@ public class EarnestOrderController {
     @BusinessLogger(businessType="earnest_order", content="", operationType="add", notes = "", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(earnestOrder.getEndTime());
-        calendar.add(Calendar.HOUR_OF_DAY,23);
-        calendar.add(Calendar.MINUTE,59);
-        calendar.add(Calendar.SECOND,59);
-        earnestOrder.setEndTime(calendar.getTime());
+        if (null != earnestOrder.getEndTime()){
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(earnestOrder.getEndTime());
+            calendar.add(Calendar.HOUR_OF_DAY,23);
+            calendar.add(Calendar.MINUTE,59);
+            calendar.add(Calendar.SECOND,59);
+            earnestOrder.setEndTime(calendar.getTime());
+        }
         try{
             BaseOutput<EarnestOrder> output = earnestOrderService.addEarnestOrder(earnestOrder);
 
@@ -213,12 +215,14 @@ public class EarnestOrderController {
      */
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doUpdate(EarnestOrderListDto earnestOrder) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(earnestOrder.getEndTime());
-        calendar.add(Calendar.HOUR_OF_DAY,23);
-        calendar.add(Calendar.MINUTE,59);
-        calendar.add(Calendar.SECOND,59);
-        earnestOrder.setEndTime(calendar.getTime());
+        if (null != earnestOrder.getEndTime()){
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(earnestOrder.getEndTime());
+            calendar.add(Calendar.HOUR_OF_DAY,23);
+            calendar.add(Calendar.MINUTE,59);
+            calendar.add(Calendar.SECOND,59);
+            earnestOrder.setEndTime(calendar.getTime());
+        }
         try{
             earnestOrderService.updateEarnestOrder(earnestOrder);
             return BaseOutput.success("修改成功");

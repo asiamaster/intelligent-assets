@@ -53,10 +53,6 @@
     /**
      * 添加摊位
      * */
-    // function addBoothItem() {
-    //     $('#boothTable tbody').append(HTMLDecode(template('stallItem', {index: ++itemIndex})))
-    // }
-
     function addBoothItem(){
         $('#boothTable tbody').append(bui.util.HTMLDecode(template('boothItem', {index: ++itemIndex})))
     }
