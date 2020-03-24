@@ -45,6 +45,8 @@ public class RefundOrderPrintDto {
     private String submitter;
     //收款人
     private String payee;
+    //收款人金额
+    private String payeeAmount;
     //退款方式
     private String refundType;
     // 开户行
@@ -150,6 +152,14 @@ public class RefundOrderPrintDto {
 
     public void setPayee(String payee) {
         this.payee = payee;
+    }
+
+    public String getPayeeAmount() {
+        return payeeAmount;
+    }
+
+    public void setPayeeAmount(String payeeAmount) {
+        this.payeeAmount = payeeAmount;
     }
 
     public String getRefundType() {

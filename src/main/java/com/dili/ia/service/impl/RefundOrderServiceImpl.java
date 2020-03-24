@@ -358,6 +358,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         roPrintDto.setSubmitter(refundOrder.getSubmitter());
         roPrintDto.setBusinessType(BizTypeEnum.getBizTypeEnum(refundOrder.getBizType()).getName());
         roPrintDto.setPayee(refundOrder.getPayee());
+        roPrintDto.setPayeeAmount(MoneyUtils.centToYuan(refundOrder.getPayeeAmount()));
         roPrintDto.setBank(refundOrder.getBank());
         roPrintDto.setBankCardNo(refundOrder.getBankCardNo());
         roPrintDto.setRefundType(SettleWayEnum.getNameByCode(refundOrder.getRefundType()));
