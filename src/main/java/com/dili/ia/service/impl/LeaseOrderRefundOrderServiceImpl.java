@@ -92,9 +92,12 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
         }else{
             //已交清退款单打印数据
             resultMap.put("printTemplateCode", PrintTemplateEnum.BOOTH_LEASE_REFUND_PAID.getCode());
-            resultMap.put("leaseOrderItem", leaseOrderItem2PrintDto(leaseOrderItemService.get(refundOrder.getOrderItemId())));
+            //resultMap.put("leaseOrderItem", leaseOrderItem2PrintDto(leaseOrderItemService.get(refundOrder.getOrderItemId())));
+            //根据要求拼装订单项
+            buildLeaseOrderItem(leaseOrderItemService.get(refundOrder.getOrderItemId()), resultMap);
         }
-        resultMap.put("transferDeductionItems", buildTransferDeductionItemsPrintDto(refundOrder.getId()));
+        //resultMap.put("transferDeductionItems", buildTransferDeductionItemsPrintDto(refundOrder.getId()));
+        buildTransferDeductionItems(refundOrder.getId(), resultMap);
         return BaseOutput.success().setData(resultMap);
     }
 
@@ -120,6 +123,30 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     }
 
     /**
+     * 构建退款单转低打印数据
+     * @param refundOrderId
+     * @return
+     */
+    private void buildTransferDeductionItems(Long refundOrderId, Map<String, Object> resultMap) {
+        TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
+        transferDeductionItemCondition.setRefundOrderId(refundOrderId);
+        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
+        List<Map<String,Object>> transferMaps = new ArrayList<>();
+        StringBuilder stringBuilder = new StringBuilder();
+        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
+            for (TransferDeductionItem transferDeductionItem : transferDeductionItems) {
+                Map<String,Object> transferMap = new HashMap<>();
+                transferMap.put("payee",transferDeductionItem.getPayee());
+                transferMap.put("payeeAmount", MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount()));
+                transferMaps.add(transferMap);
+                stringBuilder.append(transferDeductionItem.getPayee()).append("  金额: ").append(MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount())).append(";  ");
+            }
+        }
+        resultMap.put("transferDeductionItems", transferMaps);
+        resultMap.put("transferDeductionItemsStr", stringBuilder.toString());
+    }
+
+    /**
      * 订单项Bean转PrintDto
      * @param leaseOrderItem
      * @return
@@ -141,5 +168,27 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
         leaseOrderItemPrintDto.setManageRefundAmount(MoneyUtils.centToYuan(leaseOrderItem.getManageRefundAmount()));
         leaseOrderItemPrintDto.setDepositRefundAmount(MoneyUtils.centToYuan(leaseOrderItem.getDepositRefundAmount()));
         return leaseOrderItemPrintDto;
+    }
+
+    /**
+     * 构建打印map外层订单项
+     * @param leaseOrderItem
+     * @return
+     */
+    static void buildLeaseOrderItem(LeaseOrderItem leaseOrderItem, Map<String, Object> resultMap) {
+        resultMap.put("boothName", leaseOrderItem.getBoothName());
+        resultMap.put("districtName", leaseOrderItem.getDistrictName());
+        resultMap.put("number", String.valueOf(leaseOrderItem.getNumber()));
+        resultMap.put("unitName", leaseOrderItem.getUnitName());
+        resultMap.put("unitPrice", MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
+        resultMap.put("isCorner", leaseOrderItem.getIsCorner());
+        resultMap.put("paymentMonth", String.valueOf(leaseOrderItem.getPaymentMonth()));
+        resultMap.put("discountAmount", MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
+        resultMap.put("rentAmount", MoneyUtils.centToYuan(leaseOrderItem.getRentAmount()));
+        resultMap.put("manageAmount", MoneyUtils.centToYuan(leaseOrderItem.getManageAmount()));
+        resultMap.put("depositAmount", MoneyUtils.centToYuan(leaseOrderItem.getDepositAmount()));
+        resultMap.put("rentRefundAmount", MoneyUtils.centToYuan(leaseOrderItem.getRentRefundAmount()));
+        resultMap.put("manageRefundAmount", MoneyUtils.centToYuan(leaseOrderItem.getManageRefundAmount()));
+        resultMap.put("depositRefundAmount", MoneyUtils.centToYuan(leaseOrderItem.getDepositRefundAmount()));
     }
 }
