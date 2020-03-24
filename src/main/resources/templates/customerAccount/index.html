@@ -2,13 +2,15 @@
 
 <div class="container-fluid">
     <div class="row">
-        <nav class="col-12" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page">客户余额</li>
+        <nav class="col-12">
+            <ol class="breadcrumb"  data-toggle="collapse" data-target="#queryForm" aria-controls="queryForm">
+                <li class="breadcrumb-item active">
+                    客户余额 &nbsp;&nbsp;<a class="position-absolute" href="javascript:;"><i class="fa fa-angle-double-down fa-lg" aria-hidden="true"></i></a>
+                </li>
             </ol>
         </nav>
     </div>
-    <form id="queryForm" role="form" novalidate>
+    <form id="queryForm" role="form" class="collapse show" >
         <div class="row  row-cols-6">
             <div class="form-group col">
                 <label for="likeCustomerName" class="">客户名称</label>

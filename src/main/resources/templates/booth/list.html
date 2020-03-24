@@ -211,14 +211,16 @@
     }
 </style>
 <div class="container-fluid">
-    <form class="form" id="queryForm">
-        <div class="row">
-            <nav class="col-12" aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page">摊位卡片</li>
-                </ol>
-            </nav>
-        </div>
+    <div class="row">
+        <nav class="col-12">
+            <ol class="breadcrumb"  data-toggle="collapse" data-target="#queryForm" aria-controls="queryForm">
+                <li class="breadcrumb-item active">
+                    摊位卡片 &nbsp;&nbsp;<a class="position-absolute" href="javascript:;"><i class="fa fa-angle-double-down fa-lg" aria-hidden="true"></i></a>
+                </li>
+            </ol>
+        </nav>
+    </div>
+    <form class="form collapse show" id="queryForm" role="form" >
         <div class="row  row-cols-6">
             <div class="form-group col">
                 <label for="">摊位编号</label>
