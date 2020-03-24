@@ -12,10 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <B>Description</B>
@@ -61,7 +58,7 @@ public class RefundOrderApi {
      * @return
      */
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(SettleOrder settleOrder){
+    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         if (null == settleOrder){
             return BaseOutput.failure("回调参数为空！");
         }

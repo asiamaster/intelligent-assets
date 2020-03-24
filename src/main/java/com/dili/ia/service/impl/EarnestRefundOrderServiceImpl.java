@@ -82,10 +82,8 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         Integer sceneTypeRefund = TransactionSceneTypeEnum.REFUND.getCode();
         TransactionDetails unfrozenDetails = transactionDetailsService.buildByConditions(settleOrder, sceneTypeUnfrozen, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getOrderCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId());
         TransactionDetails refundDetails = transactionDetailsService.buildByConditions(settleOrder, sceneTypeRefund, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getOrderCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId());
-        List<TransactionDetails> list = new ArrayList<>();
-        list.add(unfrozenDetails);
-        list.add(refundDetails);
-        transactionDetailsService.batchInsert(list);
+        transactionDetailsService.insertSelective(unfrozenDetails);
+        transactionDetailsService.insertSelective(refundDetails);
         return BaseOutput.success();
     }
 
