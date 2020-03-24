@@ -2,13 +2,15 @@
 
 <div class="container-fluid">
     <div class="row">
-        <nav class="col-12" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page">余额明细</li>
+        <nav class="col-12">
+            <ol class="breadcrumb"  data-toggle="collapse" data-target="#queryForm" aria-controls="queryForm">
+                <li class="breadcrumb-item active">
+                    余额明细 &nbsp;&nbsp;<a class="position-absolute" href="javascript:;"><i class="fa fa-angle-double-down fa-lg" aria-hidden="true"></i></a>
+                </li>
             </ol>
         </nav>
     </div>
-    <form id="queryForm" role="form">
+    <form id="queryForm" role="form" class="collapse show" >
         <div class="row  row-cols-6">
             <div class="form-group col-auto">
                 <label for="createdStart">时间:</label>
