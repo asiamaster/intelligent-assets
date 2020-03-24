@@ -1,5 +1,6 @@
 package com.dili.ia.api;
 
+import cn.hutool.core.collection.CollUtil;
 import com.dili.ia.domain.PrintTemplate;
 import com.dili.ia.service.PrintTemplateService;
 import com.dili.ss.domain.BaseOutput;
@@ -26,11 +27,10 @@ public class PrintTemplateApi {
      */
     @RequestMapping("getTemplate")
     public BaseOutput get(PrintTemplate printTemplate) {
-        BaseOutput<Object> success = BaseOutput.success();
         List<PrintTemplate> printTemplates = printTemplateService.listByExample(printTemplate);
-        if (printTemplates != null && printTemplates.size() > 0) {
-            success.setData(printTemplates.get(0));
+        if (CollUtil.isEmpty(printTemplates)) {
+            return BaseOutput.failure();
         }
-        return success;
+        return BaseOutput.success().setData(printTemplates.get(0));
     }
 }
