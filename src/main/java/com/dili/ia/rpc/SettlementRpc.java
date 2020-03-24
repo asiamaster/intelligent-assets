@@ -38,12 +38,12 @@ public interface SettlementRpc {
     BaseOutput<String> cancelByCode(String code);
     /**
      * 【撤回】结算单 ---根据业务缴费单code取消
-     * @param apppId 应用ID
+     * @param appId 应用ID
      * @param businessCode 业务缴费单code
      * @return
      */
     @RequestMapping(value = "/api/settleOrder/cancel", method = RequestMethod.POST)
-    BaseOutput<String> cancel(@RequestParam("apppId") Long apppId, @RequestParam("businessCode") String businessCode);
+    BaseOutput<String> cancel(@RequestParam("appId") Long appId, @RequestParam("businessCode") String businessCode);
 
     /**
      * 【撤回】结算单 ---结算单查询

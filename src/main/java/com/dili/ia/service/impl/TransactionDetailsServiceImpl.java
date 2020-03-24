@@ -9,12 +9,15 @@ import com.dili.ia.mapper.TransactionDetailsMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.TransactionDetailsService;
+import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.FirmRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,8 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
     CustomerRpc customerRpc;
     @Autowired
     UidFeignRpc uidFeignRpc;
+    @Autowired
+    FirmRpc firmRpc;
 
     private void addTransactionDetails(Integer sceneType, Integer bizType, Integer itemType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId){
         //写入 定金，转抵，保证金对应 sceneType 的流水 --- 抵扣项为 null 或者 0 元 不写入流水记录
@@ -57,6 +62,40 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
         if (userTicket == null) {
             throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
         }
+        TransactionDetails tds = this.buildCommonConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, notes, marketId);
+        //固定构建参数
+        tds.setCreator(userTicket.getRealName());
+        tds.setCreatorId(userTicket.getId());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+        }
+        tds.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+        return tds;
+    }
+
+    @Override
+    public TransactionDetails buildByConditions(SettleOrder settleOrder, Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId) {
+        TransactionDetails tds = this.buildCommonConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, notes, marketId);
+        //固定构建参数
+        tds.setCreator(settleOrder.getOperatorName());
+        tds.setCreatorId(settleOrder.getOperatorId());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+        }
+        BaseOutput<Firm> marketOut = firmRpc.getById(marketId);
+        if (!marketOut.isSuccess() || marketOut.getData() == null){
+            LOGGER.info("获取市场code失败！市场ID{}",marketId);
+            throw new BusinessException(ResultCode.DATA_ERROR ,"获取市场code失败！");
+        }
+        tds.setCode(marketOut.getData().getCode().toUpperCase() + bizNumberOutput.getData());
+        return tds;
+    }
+
+    private TransactionDetails buildCommonConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId){
         TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
         BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
         if(!out.isSuccess()){
@@ -81,15 +120,6 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
         tds.setSceneType(sceneType);
         tds.setItemType(itemType);
         tds.setMarketId(marketId);
-        //固定构建参数
-        tds.setCreator(userTicket.getRealName());
-        tds.setCreatorId(userTicket.getId());
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
-        }
-        tds.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         return tds;
     }
 }

@@ -183,10 +183,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         //记录定金转出转入流水
         TransactionDetails tdIn = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), order.getCode(), order.getPayeeId(), notesPayee, order.getMarketId());
         TransactionDetails tdOut = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_OUT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), order.getCode(), order.getPayerId(), notesPayer, order.getMarketId());
-        List<TransactionDetails> listDetails = new ArrayList<>();
-        listDetails.add(tdIn);
-        listDetails.add(tdOut);
-        transactionDetailsService.batchInsert(listDetails );
+        transactionDetailsService.insertSelective(tdIn);
+        transactionDetailsService.insertSelective(tdOut);
         //回写转入转出流水号
         order.setState(EarnestTransferOrderStateEnum.TRANSFERED.getCode());
         order.setPayerTransactionDetailsCode(tdOut.getCode());

@@ -1,6 +1,7 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.TransactionDetails;
+import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 
 /**
@@ -23,5 +24,21 @@ public interface TransactionDetailsService extends BaseService<TransactionDetail
      *
      */
     TransactionDetails buildByConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId);
+
+    /**构建业务流水对象 --- 结算回调构建记录，因为回调接口拿不到登录人UserTicket
+     * @param settleOrder 结算单
+     * @param sceneType 场景类型
+     * @param bizType 业务类型
+     * @param itemType 业务场景
+     * @param amount 交易金额
+     * @param orderId 订单ID
+     * @param orderCode 订单code
+     * @param customerId 客户ID
+     * @param notes 详情
+     * @param marketId 市场ID
+     * @return TransactionDetails
+     *
+     */
+    TransactionDetails buildByConditions(SettleOrder settleOrder, Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId);
 
 }

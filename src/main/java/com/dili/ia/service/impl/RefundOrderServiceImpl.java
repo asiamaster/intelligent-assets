@@ -299,7 +299,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //获取业务service,调用业务实现
         RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
         if(service!=null){
-            BaseOutput refundResult = service.refundSuccessHandler(refundOrder);
+            BaseOutput refundResult = service.refundSuccessHandler(settleOrder, refundOrder);
             if (!refundResult.isSuccess()){
                 LOG.info("退款成功后--回调业务返回失败！" + refundResult.getMessage());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款成功回调业务返回失败！" + refundResult.getMessage());

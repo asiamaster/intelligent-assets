@@ -12,6 +12,7 @@ import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.TransactionDetailsService;
+import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -72,15 +73,15 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     }
 
     @Override
-    public BaseOutput refundSuccessHandler(RefundOrder refundOrder) {
+    public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
         //解冻客户资金，扣除客户余额，写入解冻，扣除记录记录
         customerAccountService.refundSuccessEarnest(refundOrder.getCustomerId(), refundOrder.getMarketId(), refundOrder.getPayeeAmount());
         Integer bizType = BizTypeEnum.EARNEST.getCode();
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
         Integer sceneTypeUnfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
         Integer sceneTypeRefund = TransactionSceneTypeEnum.REFUND.getCode();
-        TransactionDetails unfrozenDetails = transactionDetailsService.buildByConditions(sceneTypeUnfrozen, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getOrderCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId());
-        TransactionDetails refundDetails = transactionDetailsService.buildByConditions(sceneTypeRefund, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getOrderCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId());
+        TransactionDetails unfrozenDetails = transactionDetailsService.buildByConditions(settleOrder, sceneTypeUnfrozen, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getOrderCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId());
+        TransactionDetails refundDetails = transactionDetailsService.buildByConditions(settleOrder, sceneTypeRefund, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getOrderCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId());
         List<TransactionDetails> list = new ArrayList<>();
         list.add(unfrozenDetails);
         list.add(refundDetails);

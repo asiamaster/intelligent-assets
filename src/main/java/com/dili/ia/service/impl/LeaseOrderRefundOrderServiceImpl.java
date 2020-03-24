@@ -14,6 +14,7 @@ import com.dili.ia.glossary.RefundStateEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
+import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -63,7 +64,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     }
 
     @Override
-    public BaseOutput refundSuccessHandler(RefundOrder refundOrder) {
+    public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
         try{
             return leaseOrderService.settleSuccessRefundOrderHandler(refundOrder);
         }catch (Exception e){
