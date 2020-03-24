@@ -107,7 +107,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if (count != 1){
             throw new BusinessException(ResultCode.DATA_ERROR, "退款单保存失败！");
         }
-        return BaseOutput.success();
+        return BaseOutput.success().setData(order);
     }
     private BaseOutput checkParams(RefundOrder order){
         if (null == order.getOrderId()){//定金退款不是针对业务单，所以订单ID记录的是【客户账户ID】
@@ -259,7 +259,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<String> out= settlementRpc.cancelByCode(refundOrder.getCode());
+        BaseOutput<String> out= settlementRpc.cancel(settlementAppId, refundOrder.getCode());
         if (!out.isSuccess()){
             LOG.info("测回调用结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new RuntimeException("测回调用结算中心失败！" + out.getMessage());

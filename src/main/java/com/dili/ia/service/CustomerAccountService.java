@@ -32,7 +32,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param earnestTransferOrder
      * @return
      * */
-    void earnestTransfer(EarnestTransferOrder earnestTransferOrder);
+    BaseOutput<EarnestTransferOrder> earnestTransfer(EarnestTransferOrder earnestTransferOrder);
     /**
      * 客户账户定金退款单创建
      * @param order
@@ -45,16 +45,16 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param customerName 客户名字
      * @param customerCellphone 客户电话
      * @param certificateNumber 客户证件号码
-     * @return CustomerAccount 客户账户信息
+     * @return BaseOutput<CustomerAccount> 客户账户信息
      * */
-    CustomerAccount addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber);
+    BaseOutput<CustomerAccount> addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber);
 
     /**
      * 根据用户信息，新增客户账户
      * @param efDto EarnestTransferDto
      * @return EarnestTransferOrder 转移单
      * */
-    EarnestTransferOrder addEarnestTransferOrder(EarnestTransferDto efDto);
+    BaseOutput<EarnestTransferOrder> addEarnestTransferOrder(EarnestTransferDto efDto);
 
     /**
      * 摊位租赁【提交】-- 客户账户金额[冻结]及流水变动记录

@@ -7,10 +7,13 @@ import com.dili.ia.domain.dto.CustomerAccountListDto;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DataAuthService;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
@@ -108,14 +111,22 @@ public class CustomerAccountController {
      * @param order
      * @return BaseOutput
      */
-    @ApiOperation("定金退款CustomerAccount")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="CustomerAccount", paramType="form", value = "CustomerAccount的form信息", required = true, dataType = "string")
-	})
+    @BusinessLogger(businessType="customer_account", content="客户【${customerName}】申请退款${amountYuan}元", operationType="refundApply", notes = "退款原因：${refundReason}", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAddEarnestRefund.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
         try {
-            return customerAccountService.addEarnestRefund(order);
+            BaseOutput<RefundOrder> out = customerAccountService.addEarnestRefund(order);
+            if (out.isSuccess()){
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, out.getData().getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, out.getData().getId());
+                LoggerContext.put("amountYuan", MoneyUtils.centToYuan(order.getPayeeAmount()));
+                if(userTicket != null) {
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+                }
+            }
+            return out;
         } catch (BusinessException e) {
             return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
@@ -128,21 +139,36 @@ public class CustomerAccountController {
      * @param efDto
      * @return BaseOutput
      */
-    @ApiOperation("定金转移CustomerAccount")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="id", paramType="form", value = "CustomerAccount的主键", required = true, dataType = "long")
-	})
+    @BusinessLogger(businessType="customer_account", content="客户【${payerName}】转移给客户【${customerName}】${amountYuan}元", operationType="transfer", notes = "转移原因：${transferReason}", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doEarnestTransfer.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferDto efDto) {
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             //判断转入方客户账户是否存在,不存在先创建客户账户
             if (!customerAccountService.checkCustomerAccountExist(efDto.getCustomerId(), userTicket.getFirmId())){
-                customerAccountService.addCustomerAccountByCustomerInfo(efDto.getCustomerId(), efDto.getCustomerName(), efDto.getCustomerCellphone(), efDto.getCertificateNumber());
+                BaseOutput<CustomerAccount> cusOut = customerAccountService.addCustomerAccountByCustomerInfo(efDto.getCustomerId(), efDto.getCustomerName(), efDto.getCustomerCellphone(), efDto.getCertificateNumber());
+                if (!cusOut.isSuccess()){
+                    return cusOut;
+                }
             }
-            EarnestTransferOrder order = customerAccountService.addEarnestTransferOrder(efDto);
+            BaseOutput<EarnestTransferOrder> output = customerAccountService.addEarnestTransferOrder(efDto);
+            if (!output.isSuccess()){
+                return output;
+            }
+            BaseOutput<EarnestTransferOrder> transOutput = customerAccountService.earnestTransfer(output.getData());
+            if (!transOutput.isSuccess()){
+                return transOutput;
+            }
+            if (transOutput.isSuccess()){
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transOutput.getData().getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transOutput.getData().getId());
+                LoggerContext.put("amountYuan", MoneyUtils.centToYuan(efDto.getAmount()));
+                if(userTicket != null) {
+                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+                }
+            }
 
-            customerAccountService.earnestTransfer(order);
             return BaseOutput.success("转移成功！");
         } catch (BusinessException e) {
             return BaseOutput.failure(e.getErrorMsg());

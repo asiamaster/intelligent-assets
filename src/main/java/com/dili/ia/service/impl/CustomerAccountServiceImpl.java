@@ -78,6 +78,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Override
     public void frozenEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        if (null == customerAccount){
+            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
+            throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
+        }
         customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() - amount);
         customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() + amount);
 
@@ -90,6 +94,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Override
     public void unfrozenEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        if (null == customerAccount){
+            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
+            throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
+        }
         customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
         customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
 
@@ -102,6 +110,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Override
     public void paySuccessEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        if (null == customerAccount){
+            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
+            throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
+        }
         customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
         customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + amount);
 
@@ -113,6 +125,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Override
     public void refundSuccessEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
+        if (null == customerAccount){
+            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
+            throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
+        }
         customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() - amount);
         customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
 
@@ -123,20 +139,20 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public CustomerAccount addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber){
+    public BaseOutput<CustomerAccount> addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
+            return BaseOutput.failure("未登陆");
         }
         BaseOutput<Customer> out= customerRpc.get(customerId, userTicket.getFirmId());
         if(!out.isSuccess()){
-            LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, userTicket.getFirmId(), out.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
+            LOGGER.info("客户微服务调用返回失败！【customerId={}; marketId={}】{}", customerId, userTicket.getFirmId(), out.getMessage());
+            return BaseOutput.failure(out.getMessage());
         }
         Customer customer = out.getData();
         if (null == customer){
             LOGGER.info("客户不存在！【customerId={}; marketId={}】", customerId,userTicket.getFirmId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
+            return BaseOutput.failure("客户不存在！");
         }
 
         CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
@@ -152,14 +168,16 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setTransferBalance(0L);
         customerAccount.setTransferFrozenAmount(0L);
         customerAccount.setVersion(0L);
-        this.getActualDao().insertSelective(customerAccount);
-        return customerAccount;
+        if (this.insertSelective(customerAccount) != 1){
+            return BaseOutput.failure("新增客户账户失败！");
+        }
+        return BaseOutput.success().setData(customerAccount);
     }
 
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void earnestTransfer(EarnestTransferOrder order) {
+    public BaseOutput<EarnestTransferOrder> earnestTransfer(EarnestTransferOrder order) {
         //修改准入方转出方余额，
         CustomerAccount payerCustomerAccount = this.get(order.getPayerCustomerAccountId());
         payerCustomerAccount.setEarnestBalance(payerCustomerAccount.getEarnestBalance() - order.getAmount());
@@ -194,20 +212,26 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (count != 1){
             throw new BusinessException(ResultCode.DATA_ERROR, "转移单被多人操作，稍后再试");
         }
+
+        return BaseOutput.success().setData(order);
     }
 
     @Override
-    public EarnestTransferOrder addEarnestTransferOrder(EarnestTransferDto efDto){
+    public BaseOutput<EarnestTransferOrder> addEarnestTransferOrder(EarnestTransferDto efDto){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
+            return BaseOutput.failure("未登陆");
         }
         CustomerAccount customerAccount = this.get(efDto.getPayerCustomerAccountId());
         if (customerAccount.getEarnestAvailableBalance() < efDto.getAmount()){
-            throw new BusinessException(ResultCode.DATA_ERROR, "转移金额不能大于可用余额！");
+            return BaseOutput.failure("转移金额不能大于可用余额！");
         }
 
         CustomerAccount payeeCustomerAccount = this.getCustomerAccountByCustomerId(efDto.getCustomerId(), userTicket.getFirmId());
+        if (null == customerAccount){
+            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", efDto.getCustomerId(), userTicket.getFirmId());
+            return BaseOutput.failure("客户账户不存在！");
+        }
         //保存定金转移单
         efDto.setPayeeCustomerAccountId(payeeCustomerAccount.getId());
         efDto.setPayeeId(efDto.getCustomerId());
@@ -217,7 +241,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         efDto.setState(EarnestTransferOrderStateEnum.CREATED.getCode());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+            return BaseOutput.failure("编号生成器微服务异常");
         }
         efDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
 
@@ -225,23 +249,29 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         efDto.setCreator(userTicket.getRealName());
         efDto.setMarketId(userTicket.getFirmId());
         efDto.setVersion(0L);
-        earnestTransferOrderService.insertSelective(efDto);
-        return efDto;
+        if (earnestTransferOrderService.insertSelective(efDto) != 1){
+            return BaseOutput.failure("新增转移单失败！");
+        }
+        return BaseOutput.success().setData(efDto);
     }
 
     @Override
     public BaseOutput addEarnestRefund(RefundOrder order) {
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
-           return BaseOutput.failure("编号生成器微服务异常").setCode(ResultCode.DATA_ERROR);
+           return BaseOutput.failure("编号生成器微服务异常");
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (null == userTicket){
-            return BaseOutput.failure("未登录！").setCode(ResultCode.NOT_AUTH_ERROR);
+            return BaseOutput.failure("未登录！");
         }
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(order.getCustomerId(), userTicket.getFirmId());
+        if (null == customerAccount){
+            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}:{}】不存在！", order.getCustomerId(), userTicket.getFirmId(), userTicket.getFirmCode());
+            return BaseOutput.failure("客户账户不存在！");
+        }
         if (customerAccount.getEarnestAvailableBalance() < order.getPayeeAmount()){
-            return BaseOutput.failure("退款金额不能大于可用余额！").setCode(ResultCode.DATA_ERROR);
+            return BaseOutput.failure("退款金额不能大于可用余额！");
         }
         order.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());

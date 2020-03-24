@@ -182,8 +182,7 @@ public class EarnestOrderController {
         calendar.add(Calendar.SECOND,59);
         earnestOrder.setEndTime(calendar.getTime());
         try{
-            earnestOrderService.addEarnestOrder(earnestOrder);
-            return BaseOutput.success("新增成功");
+            return earnestOrderService.addEarnestOrder(earnestOrder);
         }catch (BusinessException e){
             LOG.error("定金单保存异常！", e.getErrorMsg());
             return BaseOutput.failure(e.getErrorMsg());
