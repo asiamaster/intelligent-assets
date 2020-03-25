@@ -7,6 +7,7 @@ import com.dili.ia.domain.dto.CustomerAccountListDto;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DataAuthService;
+import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
@@ -17,8 +18,6 @@ import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +48,6 @@ public class CustomerAccountController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到CustomerAccount页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         return "customerAccount/index";
@@ -61,10 +59,6 @@ public class CustomerAccountController {
      * @return String
      * @throws Exception
      */
-    @ApiOperation(value="分页查询CustomerAccount", notes = "分页查询CustomerAccount，返回easyui分页信息")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="CustomerAccount", paramType="form", value = "CustomerAccount的form信息", required = false, dataType = "string")
-	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(CustomerAccountListDto customerAccount) throws Exception {
         List<Long> marketIdList = dataAuthService.getMarketDataAuth(SessionContext.getSessionContext().getUserTicket());
@@ -111,7 +105,7 @@ public class CustomerAccountController {
      * @param order
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="customer_account", content="${businessCode!}客户【${customerName!}】申请退款${amountYuan!}元", operationType="refundApply", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}客户【${customerName!}】申请退款${amountYuan!}元", operationType="refundApply", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAddEarnestRefund.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
         try {
@@ -135,7 +129,7 @@ public class CustomerAccountController {
      * @param efDto
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="customer_account", content="${businessCode}客户【${payerName}】转移给客户【${customerName}】${amountYuan}元", operationType="transfer", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_ACCOUNT, content="${businessCode}客户【${payerName}】转移给客户【${customerName}】${amountYuan}元", operationType="transfer", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doEarnestTransfer.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferDto efDto) {
         try {

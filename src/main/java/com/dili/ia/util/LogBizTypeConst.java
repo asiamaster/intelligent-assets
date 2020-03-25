@@ -7,5 +7,7 @@ public class LogBizTypeConst {
     public static final String EARNEST_ORDER="earnest_order";
     //退款单
     public static final String REFUND_ORDER="refund_order";
+    //退款单
+    public static final String CUSTOMER_ACCOUNT="customer_account";
 
 }
