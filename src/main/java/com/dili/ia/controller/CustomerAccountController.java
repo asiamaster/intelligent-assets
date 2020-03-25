@@ -111,7 +111,7 @@ public class CustomerAccountController {
      * @param order
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="customer_account", content="${businessCode!}客户【${customerName!}】申请退款${amountYuan!}元", operationType="refundApply", notes = "${refundReason!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="customer_account", content="${businessCode!}客户【${customerName!}】申请退款${amountYuan!}元", operationType="refundApply", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAddEarnestRefund.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
         try {
@@ -135,7 +135,7 @@ public class CustomerAccountController {
      * @param efDto
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="customer_account", content="${businessCode}客户【${payerName}】转移给客户【${customerName}】${amountYuan}元", operationType="transfer", notes = "${transferReason}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="customer_account", content="${businessCode}客户【${payerName}】转移给客户【${customerName}】${amountYuan}元", operationType="transfer", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doEarnestTransfer.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferDto efDto) {
         try {

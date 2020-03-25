@@ -256,7 +256,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="withdraw", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -279,7 +279,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="cancel", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         EarnestOrder earnestOrder = earnestOrderService.get(id);
