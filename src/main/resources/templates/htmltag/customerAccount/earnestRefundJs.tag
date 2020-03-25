@@ -10,6 +10,7 @@
             $('[data-refund-way="bank"]').show();
         } else {
             $('[data-refund-way="bank"]').hide();
+            $('[data-refund-way="bank"]').find('input').val("");
         }
     })
 

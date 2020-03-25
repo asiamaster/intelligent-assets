@@ -93,7 +93,7 @@
      */
     function openSubmitHandler() {
         if(isSelectRow()){
-            bs4pop.confirm('提交后该信息不可更改，并且可进行缴费，确认提交？', {}, function (sure) {
+            bs4pop.confirm('提交之后信息不可更改，并可在结算中心办理退款，确定提交？', {}, function (sure) {
                 if(sure){
                     bui.loading.show('努力提交中，请稍候。。。');
                     //获取选中行的数据
@@ -130,7 +130,7 @@
      */
     function openWithdrawHandler() {
         if(isSelectRow()){
-            bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', {}, function (sure) {
+            bs4pop.confirm('撤回之后该业务单可继续修改，但不能退款，如需继续退款可以再次提交。确定撤回？', {}, function (sure) {
                 if(sure){
                     bui.loading.show('努力提交中，请稍候。。。');
                     //获取选中行的数据
@@ -166,7 +166,7 @@
      */
     function openCancelHandler() {
         if(isSelectRow()){
-            bs4pop.confirm('确定取消该业务单？', {}, function (sure) {
+            bs4pop.confirm('取消后该单据不可用，确定取消？', {}, function (sure) {
                 if(sure){
                     bui.loading.show('努力提交中，请稍候。。。');
                     //获取选中行的数据
