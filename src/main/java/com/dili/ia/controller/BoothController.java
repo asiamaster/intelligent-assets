@@ -109,6 +109,7 @@ public class BoothController {
         input.setCreateTime(new Date());
         input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
         input.setModifyTime(new Date());
+        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
         return assetsRpc.save(input);
     }
 
