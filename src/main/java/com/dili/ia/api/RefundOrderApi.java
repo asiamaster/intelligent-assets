@@ -2,11 +2,9 @@ package com.dili.ia.api;
 
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.PrintDataDto;
-import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
-import com.dili.logger.sdk.base.LoggerContext;
-import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -61,7 +59,7 @@ public class RefundOrderApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType="refund_order", content="${code!}", operationType="refund", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="refund_order", content="${code!}", operationType="refund", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput<RefundOrder> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         if (null == settleOrder){
@@ -70,11 +68,8 @@ public class RefundOrderApi {
         try{
             BaseOutput<RefundOrder> output = refundOrderService.doRefundSuccessHandler(settleOrder);
             if (output.isSuccess()){
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, output.getData().getCode());
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, output.getData().getId());
-                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, settleOrder.getOperatorId());
-                LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, settleOrder.getOperatorName());
-                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, output.getData().getMarketId());
+                //记录业务日志
+                LoggerUtil.buildLoggerContext(output.getData().getId(), output.getData().getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), output.getData().getMarketId(), null);
             }
             return output;
         }catch (BusinessException e){

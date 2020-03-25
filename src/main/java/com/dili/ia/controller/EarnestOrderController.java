@@ -1,7 +1,9 @@
 package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.dili.ia.domain.*;
+import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.EarnestOrderDetail;
+import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
@@ -10,11 +12,10 @@ import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
-import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
-import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
@@ -23,9 +24,6 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -37,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.xml.crypto.Data;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -174,7 +171,7 @@ public class EarnestOrderController {
      * @param earnestOrder
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="add", notes = "${notes!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
         if (null != earnestOrder.getEndTime()){
@@ -187,18 +184,11 @@ public class EarnestOrderController {
         }
         try{
             BaseOutput<EarnestOrder> output = earnestOrderService.addEarnestOrder(earnestOrder);
-
+            //写业务日志
             if (output.isSuccess()){
                 EarnestOrder order = output.getData();
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, order.getCode());
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, order.getId());
-                LoggerContext.put("notes", order.getNotes());
-                if(userTicket != null) {
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                }
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             }
             return output;
         }catch (BusinessException e){
@@ -242,21 +232,16 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="submit", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
             BaseOutput<EarnestOrder> output = earnestOrderService.submitEarnestOrder(id);
+            //写业务日志
             if (output.isSuccess()){
                 EarnestOrder order = output.getData();
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, order.getCode());
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, order.getId());
-                if(userTicket != null) {
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                }
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             }
             return output;
         } catch (BusinessException e) {
@@ -271,7 +256,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="withdraw", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -279,13 +264,7 @@ public class EarnestOrderController {
             if (output.isSuccess()){
                 EarnestOrder order = output.getData();
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, order.getCode());
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, order.getId());
-                if(userTicket != null) {
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                }
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             }
             return BaseOutput.success("修改成功");
         } catch (BusinessException e) {
@@ -300,7 +279,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="cancel", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         EarnestOrder earnestOrder = earnestOrderService.get(id);
@@ -320,14 +299,8 @@ public class EarnestOrderController {
                 return BaseOutput.failure("取消失败！");
             }
 
-            //记录日志
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, earnestOrder.getCode());
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, earnestOrder.getId());
-            if(userTicket != null) {
-                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-                LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-            }
+            //记录业务日志
+            LoggerUtil.buildLoggerContext(earnestOrder.getId(), earnestOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
             return BaseOutput.success("取消成功");
         } catch (Exception e) {
