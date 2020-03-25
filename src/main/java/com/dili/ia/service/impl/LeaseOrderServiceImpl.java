@@ -136,7 +136,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrderItemService.deleteByExample(condition);
             insertLeaseOrderItems(dto);
         }
-        return BaseOutput.success();
+        return BaseOutput.success().setData(dto);
     }
 
     /**

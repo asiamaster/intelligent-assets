@@ -2,7 +2,7 @@
 
     <div class="container-fluid">
         <form id="saveForm" role="form" novalidate>
-            <input type="hidden" name="id" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.id!}">
+            <input type="hidden" id="id" name="id" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.id!}">
             <input type="hidden" name="isRenew" value="${isRenew!}">
             <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                 aria-controls="customerInfo">
@@ -28,7 +28,7 @@
                 摊位信息
             </div>
             <div id="boothInfo1">
-                <table class="table table-bordered table-hover table-striped" id="boothTable">
+                <table class="table table-bordered table-hover table-striped" id="boothTable" _logTable="摊位项">
                     <thead>
                     <tr>
                         <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
@@ -169,16 +169,16 @@
             <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}" value="{{districtId}}">
             <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}" value="{{districtName}}">
             <input type="hidden" id="depositAmountSourceId_{{index}}" name="depositAmountSourceId_{{index}}" value="{{depositAmountSourceId}}">
-            <#bautoCompleteProvider _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId_{{index}}" _displayDomainId="boothName_{{index}}" _displayDomainName="boothName_{{index}}" _value="{{boothId}}" _text="{{boothName}}" _validatorMethod="isSelected" _required="true" _optionVariable="boothAutoCompleteOption"/>
+            <#bautoCompleteProvider _log="摊位编号" _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId_{{index}}" _displayDomainId="boothName_{{index}}" _displayDomainName="boothName_{{index}}" _value="{{boothId}}" _text="{{boothName}}" _validatorMethod="isSelected" _required="true" _optionVariable="boothAutoCompleteOption"/>
         </td>
         <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="number_{{index}}" name="number_{{index}}" value="{{number}}" readonly uncheck/></td>
         <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="unitName_{{index}}" name="unitName_{{index}}" value="{{unitName}}" readonly uncheck/></td>
         <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" value="{{isCorner}}" readonly uncheck/></td>
-        <td style="padding: .25rem!important;"><input type="number" id="unitPrice_{{index}}" name="unitPrice_{{index}}" value="{{unitPrice}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input type="number" id="paymentMonth_{{index}}" name="paymentMonth_{{index}}" value="{{paymentMonth}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input type="number" id="discountAmount_{{index}}" name="discountAmount_{{index}}" value="{{discountAmount}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input type="number" id="rentAmount_{{index}}" name="rentAmount_{{index}}" value="{{rentAmount}}" oninput="calcRentAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input type="number" id="manageAmount_{{index}}" name="manageAmount_{{index}}" value="{{manageAmount}}" oninput="calcManageAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input type="number" id="depositAmount_{{index}}" name="depositAmount_{{index}}" value="{{depositAmount}}" oninput="calcDepositAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_{{index}}" name="unitPrice_{{index}}" value="{{unitPrice}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_{{index}}" name="paymentMonth_{{index}}" value="{{paymentMonth}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_{{index}}" name="discountAmount_{{index}}" value="{{discountAmount}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="租金" type="number" id="rentAmount_{{index}}" name="rentAmount_{{index}}" value="{{rentAmount}}" oninput="calcRentAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="物管费" type="number" id="manageAmount_{{index}}" name="manageAmount_{{index}}" value="{{manageAmount}}" oninput="calcManageAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="保证金" type="number" id="depositAmount_{{index}}" name="depositAmount_{{index}}" value="{{depositAmount}}" oninput="calcDepositAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
     </tr>
 </script>

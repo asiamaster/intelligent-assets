@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
@@ -8,12 +9,17 @@ import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.IsRenewEnum;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
+import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -57,6 +63,8 @@ public class LeaseOrderController {
     PaymentOrderService paymentOrderService;
     @Autowired
     BusinessLogRpc businessLogRpc;
+    @Autowired
+    DataAuthService dataAuthService;
 
     /**
      * 跳转到LeaseOrder页面
@@ -187,7 +195,10 @@ public class LeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        leaseOrder.setMarketId(userTicket.getFirmId());
+     /*   List<Long> marketIdList = dataAuthService.getMarketDataAuth(userTicket);
+        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+        leaseOrder.setMarketIds(marketIdList);
+        leaseOrder.setDepartmentIds(departmentIdList);*/
 
         if (StringUtils.isNotBlank(leaseOrder.getBoothName())) {
             LeaseOrderItem leaseOrderItemCondition = DTOUtils.newDTO(LeaseOrderItem.class);
@@ -256,6 +267,7 @@ public class LeaseOrderController {
      * @param leaseOrder
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content="${logContent!}", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/saveLeaseOrder.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput saveLeaseOrder(LeaseOrderListDto leaseOrder){
         Calendar calendar = Calendar.getInstance();
@@ -265,7 +277,21 @@ public class LeaseOrderController {
         calendar.add(Calendar.SECOND,59);
         leaseOrder.setEndTime(calendar.getTime());
         try{
-            return leaseOrderService.saveLeaseOrder(leaseOrder);
+            BaseOutput output = leaseOrderService.saveLeaseOrder(leaseOrder);
+            //写业务日志
+            if (output.isSuccess()){
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                BusinessLog businessLog = new BusinessLog();
+                businessLog.setBusinessId(leaseOrder.getId());
+                businessLog.setBusinessCode(leaseOrder.getCode());
+                businessLog.setOperatorId(userTicket.getId());
+                businessLog.setOperatorName(userTicket.getRealName());
+                businessLog.setMarketId(userTicket.getFirmId());
+                businessLog.setNotes(leaseOrder.getNotes());
+                businessLog.setOperationType(leaseOrder.aget("operationType").toString());
+                LoggerUtil.buildLoggerContext(businessLog);
+            }
+            return output;
         }catch (BusinessException e){
             LOG.error("摊位租赁订单保存异常！", e);
             return BaseOutput.failure(e.getMessage());

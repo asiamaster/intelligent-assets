@@ -11,6 +11,7 @@ import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
@@ -111,10 +112,18 @@ public class CustomerAccountController {
         try {
             BaseOutput<RefundOrder> out = customerAccountService.addEarnestRefund(order);
             if (out.isSuccess()){
+                RefundOrder refundOrder = out.getData();
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
                 LoggerContext.put("amountYuan", MoneyUtils.centToYuan(order.getPayeeAmount()));
                 //记录业务日志
-                LoggerUtil.buildLoggerContext(out.getData().getId(), out.getData().getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
+                BusinessLog businessLog = new BusinessLog();
+                businessLog.setBusinessId(refundOrder.getId());
+                businessLog.setBusinessCode(refundOrder.getCode());
+                businessLog.setOperatorId(userTicket.getId());
+                businessLog.setOperatorName(userTicket.getRealName());
+                businessLog.setMarketId(userTicket.getFirmId());
+                businessLog.setNotes(order.getRefundReason());
+                LoggerUtil.buildLoggerContext(businessLog);
             }
             return out;
         } catch (BusinessException e) {
@@ -150,9 +159,17 @@ public class CustomerAccountController {
                 return transOutput;
             }
             if (transOutput.isSuccess()){
+                EarnestTransferOrder earnestTransferOrder = transOutput.getData();
                 LoggerContext.put("amountYuan", MoneyUtils.centToYuan(efDto.getAmount()));
                 //记录业务日志
-                LoggerUtil.buildLoggerContext(transOutput.getData().getId(), transOutput.getData().getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), efDto.getTransferReason());
+                BusinessLog businessLog = new BusinessLog();
+                businessLog.setBusinessId(earnestTransferOrder.getId());
+                businessLog.setBusinessCode(earnestTransferOrder.getCode());
+                businessLog.setOperatorId(userTicket.getId());
+                businessLog.setOperatorName(userTicket.getRealName());
+                businessLog.setMarketId(userTicket.getFirmId());
+                businessLog.setNotes(efDto.getTransferReason());
+                LoggerUtil.buildLoggerContext(businessLog);
 
             }
 

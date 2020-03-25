@@ -63,4 +63,14 @@ public interface LeaseOrderListDto extends LeaseOrder {
     @Operator(Operator.LITTLE_EQUAL_THAN)
     Date getEndTimeLT();
     void setEndTimeLT(Date endTimeLT);
+
+    @Operator(Operator.IN)
+    @Column(name = "market_id")
+    List<Long> getMarketIds();
+    void setMarketIds(List<Long> marketIds);
+
+    @Operator(Operator.IN)
+    @Column(name = "department_id")
+    List<Long> getDepartmentIds();
+    void setDepartmentIds(List<Long> departmentIds);
 }
