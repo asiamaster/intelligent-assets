@@ -16,7 +16,7 @@
         $(window).resize(function () {
             _grid.bootstrapTable('resetView')
         });
-        queryDataHandler();
+        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/earnestOrder/listPage.action'});
     });
 
     _grid.ready( function () {
@@ -48,7 +48,7 @@
     function queryDataHandler() {
         currentSelectRowIndex = undefined;
         $('#toolbar button').attr('disabled', false);
-        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/earnestOrder/listPage.action'});
+        _grid.bootstrapTable('refresh');
     }
 
     /**

@@ -30,7 +30,13 @@
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/booth/search.action',
-        selectFn: boothSelectHandler,
+        selectFn: function (suggestion, that) {
+            debugger
+            $(that).siblings('input').val(suggestion.id)
+        },
+        onSearchComplete: function (query, suggestions) {
+            console.log(suggestions)
+        },
         transformResult: function (result) {
             return {
                 suggestions: $.map(result, function (dataItem) {
@@ -41,13 +47,6 @@
                 })
             }
         }
-    }
-
-    /**
-     * 摊位选择事件Handler
-     * */
-    function boothSelectHandler(suggestion,element) {
-        return ;
     }
 
     /**
@@ -84,6 +83,7 @@
         });
 
         $.extend(formData,{earnestOrderdetails});
+        debugger
         return formData;
     }
 

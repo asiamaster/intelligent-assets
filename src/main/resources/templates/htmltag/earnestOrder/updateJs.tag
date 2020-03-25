@@ -25,7 +25,10 @@
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/booth/search.action',
-        selectFn: boothSelectHandler,
+        selectFn: function (suggestion, that) {
+            debugger
+            $(that).siblings('input').val(suggestion.id)
+        },
         transformResult: function (result) {
             return {
                 suggestions: $.map(result, function (dataItem) {
@@ -40,10 +43,7 @@
     /**
      * 摊位选择事件Handler
      * */
-    function boothSelectHandler(suggestion,element) {
-        return ;
-    }
-    /******************************驱动执行区 begin***************************/
+      /******************************驱动执行区 begin***************************/
     $(function () {
         <% if(isNotEmpty(earnestOrderDetails)){ %>
         let earnestOrderDetails = JSON.parse('${earnestOrderDetails}');
@@ -101,6 +101,7 @@
         });
 
         $.extend(formData,{earnestOrderdetails});
+        debugger
         return formData;
     }
 

@@ -47,6 +47,7 @@
                 <label for="" class="">退款方式</label>
                 <input type="text" class="form-control" value="${@com.dili.ia.glossary.RefundTypeEnum.getRefundTypeEnum(refundOrder.refundType).getName()}" disabled />
             </div>
+            <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == 3){ %>
             <div class="form-group col">
                 <label for="" class="">开户行</label>
                 <input type="text" class="form-control" value="${refundOrder.bank!}" disabled />
@@ -55,6 +56,7 @@
                 <label for="" class="">银行账号</label>
                 <input type="text" class="form-control" value="${refundOrder.bankCardNo!}" disabled />
             </div>
+            <% }%>
         </div>
         <div class="row">
             <div class="form-group col-8">
