@@ -1,6 +1,5 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.RefundOrderDto;
@@ -10,11 +9,10 @@ import com.dili.ia.glossary.RefundOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
-import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
-import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -142,7 +140,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="refund_order", content="${businessCode!}", operationType="submit", notes = "${refundReason!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="refund_order", content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
@@ -153,15 +151,9 @@ public class RefundOrderController {
             BaseOutput out = refundOrderService.doSubmitDispatcher(refundOrder);
 
             if (out.isSuccess()){
+                //记录业务日志
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
-                LoggerContext.put("refundReason", refundOrder.getRefundReason());
-                if(userTicket != null) {
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                }
+                LoggerUtil.buildLoggerContext(refundOrder.getId(), refundOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrder.getRefundReason());
             }
 
             return out;
@@ -189,13 +181,7 @@ public class RefundOrderController {
 
             if (out.isSuccess()){
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
-                if(userTicket != null) {
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                }
+                LoggerUtil.buildLoggerContext(refundOrder.getId(), refundOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             }
             return out;
         } catch (RuntimeException e) {
@@ -221,13 +207,8 @@ public class RefundOrderController {
 
         if (output.isSuccess()){
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
-            if(userTicket != null) {
-                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-                LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-            }
+            LoggerUtil.buildLoggerContext(refundOrder.getId(), refundOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+
         }
         return BaseOutput.success("取消成功");
     }

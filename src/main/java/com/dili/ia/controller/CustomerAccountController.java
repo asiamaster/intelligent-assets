@@ -7,9 +7,9 @@ import com.dili.ia.domain.dto.CustomerAccountListDto;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DataAuthService;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
-import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
@@ -118,15 +118,9 @@ public class CustomerAccountController {
             BaseOutput<RefundOrder> out = customerAccountService.addEarnestRefund(order);
             if (out.isSuccess()){
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, out.getData().getCode());
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, out.getData().getId());
                 LoggerContext.put("amountYuan", MoneyUtils.centToYuan(order.getPayeeAmount()));
-                LoggerContext.put("refundReason", order.getRefundReason());
-                if(userTicket != null) {
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                }
+                //记录业务日志
+                LoggerUtil.buildLoggerContext(out.getData().getId(), out.getData().getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
             }
             return out;
         } catch (BusinessException e) {
@@ -162,15 +156,10 @@ public class CustomerAccountController {
                 return transOutput;
             }
             if (transOutput.isSuccess()){
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transOutput.getData().getCode());
-                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transOutput.getData().getId());
                 LoggerContext.put("amountYuan", MoneyUtils.centToYuan(efDto.getAmount()));
-                LoggerContext.put("transferReason", efDto.getTransferReason());
-                if(userTicket != null) {
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-                    LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-                    LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                }
+                //记录业务日志
+                LoggerUtil.buildLoggerContext(transOutput.getData().getId(), transOutput.getData().getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), efDto.getTransferReason());
+
             }
 
             return BaseOutput.success("转移成功！");
