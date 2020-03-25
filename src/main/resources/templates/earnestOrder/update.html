@@ -3,6 +3,7 @@
 <div class="container-fluid">
     <form id="updateForm" role="form" novalidate>
         <input type="hidden" name="id" value="${earnestOrder.id!}">
+        <input type="hidden" name="version" value="${earnestOrder.version!}">
         <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
              aria-controls="customerInfo">
             客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
