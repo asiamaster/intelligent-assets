@@ -281,15 +281,13 @@ public class LeaseOrderController {
             //写业务日志
             if (output.isSuccess()){
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                BusinessLog businessLog = new BusinessLog();
-                businessLog.setBusinessId(leaseOrder.getId());
-                businessLog.setBusinessCode(leaseOrder.getCode());
-                businessLog.setOperatorId(userTicket.getId());
-                businessLog.setOperatorName(userTicket.getRealName());
-                businessLog.setMarketId(userTicket.getFirmId());
-                businessLog.setNotes(leaseOrder.getNotes());
-                businessLog.setOperationType(leaseOrder.aget("operationType").toString());
-                LoggerUtil.buildLoggerContext(businessLog);
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, leaseOrder.getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, leaseOrder.getId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY,leaseOrder.aget("operationType").toString());
+                LoggerContext.put("notes", leaseOrder.getNotes());
             }
             return output;
         }catch (BusinessException e){
