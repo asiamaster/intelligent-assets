@@ -6,29 +6,24 @@ import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
-import com.dili.ia.glossary.*;
+import com.dili.ia.glossary.IsRenewEnum;
+import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.util.LogBizTypeConst;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +34,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import tk.mybatis.mapper.entity.Example;
+
+import java.util.Calendar;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -100,7 +98,7 @@ public class LeaseOrderController {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(id);
-            businessLogQueryInput.setBusinessType(LogBizTypeEnum.BOOTH_LEASE.getCode());
+            businessLogQueryInput.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if(businessLogOutput.isSuccess()){
                 modelMap.put("logs",businessLogOutput.getData());

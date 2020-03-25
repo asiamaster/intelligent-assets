@@ -4,11 +4,11 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.LogBizTypeEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.domain.BusinessLog;
@@ -22,6 +22,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,15 +85,22 @@ public class RefundOrderController {
      */
     @ApiOperation("跳转到退款单-查看页面")
     @RequestMapping(value="/view.html", method = RequestMethod.GET)
-    public String view(ModelMap modelMap, Long id) {
-        RefundOrder refundOrder = refundOrderService.get(id);
-        if(null != id && refundOrder != null){
+    public String view(ModelMap modelMap, Long id, String businessCode) {
+        RefundOrder refundOrder = null;
+        if(null != id) {
+            refundOrder = refundOrderService.get(id);
+        }else if(StringUtils.isNotBlank(businessCode)){
+            RefundOrder query = DTOUtils.newInstance(RefundOrder.class);
+            query.setCode(businessCode);
+            refundOrder = refundOrderService.get(refundOrderService.listByExample(query).stream().findFirst().orElse(null).getId());
+        }
+        if(null != refundOrder){
             modelMap.put("refundOrder",refundOrder);
             try{
                 //日志查询
                 BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
                 businessLogQueryInput.setBusinessId(id);
-                businessLogQueryInput.setBusinessType(LogBizTypeEnum.REFUND_ORDER.getCode());
+                businessLogQueryInput.setBusinessType(LogBizTypeConst.REFUND_ORDER);
                 BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
                 if(businessLogOutput.isSuccess()){
                     modelMap.put("logs",businessLogOutput.getData());
@@ -140,7 +148,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="refund_order", content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
@@ -169,7 +177,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="refund_order", content="${businessCode!}", operationType="withdraw", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -196,7 +204,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="refund_order", content="${businessCode!}", operationType="cancel", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         RefundOrder refundOrder = refundOrderService.get(id);

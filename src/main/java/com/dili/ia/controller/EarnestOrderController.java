@@ -7,11 +7,11 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
-import com.dili.ia.glossary.LogBizTypeEnum;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.domain.BusinessLog;
@@ -118,7 +118,7 @@ public class EarnestOrderController {
                 //日志查询
                 BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
                 businessLogQueryInput.setBusinessId(id);
-                businessLogQueryInput.setBusinessType(LogBizTypeEnum.EARNEST_ORDER.getCode());
+                businessLogQueryInput.setBusinessType(LogBizTypeConst.EARNEST_ORDER);
                 BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
                 if(businessLogOutput.isSuccess()){
                     modelMap.put("logs",businessLogOutput.getData());
@@ -171,7 +171,7 @@ public class EarnestOrderController {
      * @param earnestOrder
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
         if (null != earnestOrder.getEndTime()){
@@ -232,7 +232,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
@@ -256,7 +256,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="withdraw", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -279,7 +279,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType="earnest_order", content="${businessCode!}", operationType="cancel", notes = "", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         EarnestOrder earnestOrder = earnestOrderService.get(id);
