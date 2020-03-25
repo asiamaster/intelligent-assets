@@ -7,11 +7,11 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
-import com.dili.ia.glossary.LogBizTypeEnum;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.domain.BusinessLog;
@@ -118,7 +118,7 @@ public class EarnestOrderController {
                 //日志查询
                 BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
                 businessLogQueryInput.setBusinessId(id);
-                businessLogQueryInput.setBusinessType(LogBizTypeEnum.EARNEST_ORDER.getCode());
+                businessLogQueryInput.setBusinessType(LogBizTypeConst.EARNEST_ORDER);
                 BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
                 if(businessLogOutput.isSuccess()){
                     modelMap.put("logs",businessLogOutput.getData());

@@ -488,6 +488,7 @@
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
                     parent.closeDialog(parent.dia);
+                    Log.operatorLog({content:Log.buildUpdateContent()})
                 }
             },
             error: function (a, b, c) {
