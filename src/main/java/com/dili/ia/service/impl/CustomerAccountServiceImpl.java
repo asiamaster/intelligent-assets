@@ -142,7 +142,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public BaseOutput<CustomerAccount> addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            return BaseOutput.failure("未登陆");
+            return BaseOutput.failure("未登录");
         }
         BaseOutput<Customer> out= customerRpc.get(customerId, userTicket.getFirmId());
         if(!out.isSuccess()){
@@ -219,7 +219,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public BaseOutput<EarnestTransferOrder> addEarnestTransferOrder(EarnestTransferDto efDto){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            return BaseOutput.failure("未登陆");
+            return BaseOutput.failure("未登录");
         }
         CustomerAccount customerAccount = this.get(efDto.getPayerCustomerAccountId());
         if (customerAccount.getEarnestAvailableBalance() < efDto.getAmount()){
@@ -497,7 +497,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (null == ca){
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             if (userTicket == null) {
-                throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
+                throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登录");
             }
             BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
             if(!out.isSuccess()){

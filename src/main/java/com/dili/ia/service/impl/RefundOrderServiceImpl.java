@@ -91,7 +91,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     public BaseOutput doAddHandler(RefundOrder order) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            return BaseOutput.failure("未登陆");
+            return BaseOutput.failure("未登录");
         }
         BaseOutput checkResult = checkParams(order);
         if (!checkResult.isSuccess()){
