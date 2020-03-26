@@ -103,10 +103,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         order.setMarketCode(userTicket.getFirmCode());
         order.setState(RefundOrderStateEnum.CREATED.getCode());
         order.setVersion(0);
-        int count = refundOrderService.insertSelective(order);
-        if (count != 1){
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款单保存失败！");
-        }
+        refundOrderService.insertSelective(order);
         return BaseOutput.success().setData(order);
     }
     private BaseOutput checkParams(RefundOrder order){

@@ -49,10 +49,7 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
         //写入 定金，转抵，保证金对应 sceneType 的流水 --- 抵扣项为 null 或者 0 元 不写入流水记录
         if (null != amount && amount > 0){ //定金流水
             TransactionDetails earnestUnfrozenDetail = this.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId);
-            int count = this.insertSelective(earnestUnfrozenDetail);
-            if (count != 1){
-                throw new BusinessException(ResultCode.DATA_ERROR, "写入流水记录失败");
-            }
+            this.insertSelective(earnestUnfrozenDetail);
         }
     }
 

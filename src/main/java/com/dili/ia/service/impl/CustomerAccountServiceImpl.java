@@ -168,9 +168,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setTransferBalance(0L);
         customerAccount.setTransferFrozenAmount(0L);
         customerAccount.setVersion(0L);
-        if (this.insertSelective(customerAccount) != 1){
-            return BaseOutput.failure("新增客户账户失败！");
-        }
+        this.insertSelective(customerAccount);
         return BaseOutput.success().setData(customerAccount);
     }
 
@@ -249,9 +247,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         efDto.setCreator(userTicket.getRealName());
         efDto.setMarketId(userTicket.getFirmId());
         efDto.setVersion(0L);
-        if (earnestTransferOrderService.insertSelective(efDto) != 1){
-            return BaseOutput.failure("新增转移单失败！");
-        }
+        earnestTransferOrderService.insertSelective(efDto);
         return BaseOutput.success().setData(efDto);
     }
 

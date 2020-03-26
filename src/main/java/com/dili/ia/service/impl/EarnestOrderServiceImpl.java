@@ -172,10 +172,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
 
         PaymentOrder pb = this.buildPaymentOrder(userTicket, ea);
-        if (paymentOrderService.insertSelective(pb) != 1) {
-            LOG.info("提交【保存缴费单】失败 -- 记录数不为 1 ，多人操作，请重试！");
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
+        paymentOrderService.insertSelective(pb);
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, ea, pb));
@@ -321,10 +318,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         customerAccountService.paySuccessEarnest(ea.getCustomerId(), ea.getMarketId(), ea.getAmount());
         //插入客户账户定金资金动账流水
         TransactionDetails details = transactionDetailsService.buildByConditions(settleOrder ,TransactionSceneTypeEnum.PAYMENT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), ea.getAmount(), ea.getId(), ea.getCode(), ea.getCustomerId(), ea.getCode(), ea.getMarketId());
-        if (transactionDetailsService.insertSelective(details) != 1) {
-            LOG.info("缴费单成功回调 -- 插入【缴费成功流水】不为 1 ，失败，多人操作，请重试！");
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
+        transactionDetailsService.insertSelective(details);
 
         return BaseOutput.success().setData(ea);
     }
