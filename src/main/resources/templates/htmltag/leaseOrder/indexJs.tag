@@ -93,7 +93,7 @@
 
         dia = bs4pop.dialog({
             title: '摊位租赁详情',
-            content: '/leaseOrder/view.html?id='+id,
+            content: '/leaseOrder/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
