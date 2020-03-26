@@ -205,6 +205,7 @@ public class EarnestOrderController {
      * @param earnestOrder
      * @return BaseOutput
      */
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doUpdate(EarnestOrderListDto earnestOrder) {
         if (null != earnestOrder.getEndTime()){
@@ -216,7 +217,14 @@ public class EarnestOrderController {
             earnestOrder.setEndTime(calendar.getTime());
         }
         try{
-           return earnestOrderService.updateEarnestOrder(earnestOrder);
+           BaseOutput<EarnestOrder> output = earnestOrderService.updateEarnestOrder(earnestOrder);
+            //写业务日志
+            if (output.isSuccess()){
+                EarnestOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getNotes());
+            }
+            return output;
         }catch (BusinessException e){
             LOG.error("定金单修改异常！", e.getErrorMsg());
             return BaseOutput.failure(e.getErrorMsg());

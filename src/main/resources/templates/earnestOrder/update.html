@@ -11,14 +11,14 @@
         <div class="row row-cols-4" id="customerInfo">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
-                <#bautoCompleteProvider _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _placeholder="" _validatorMethod="isSelected" _value="${earnestOrder.customerId!}" _text="${earnestOrder.customerName!}" _optionVariable="customerNameAutoCompleteOption" _required="true"/>
+                <#bautoCompleteProvider _log="客户名称" _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _placeholder="" _validatorMethod="isSelected" _value="${earnestOrder.customerId!}" _text="${earnestOrder.customerName!}" _optionVariable="customerNameAutoCompleteOption" _required="true"/>
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">证件号码<i class="red">*</i></label>
-                <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" _placeholder="" _validatorMethod="isSelected" _value="${earnestOrder.certificateNumber!}" _text="${earnestOrder.certificateNumber!}" _optionVariable="certificateNumberAutoCompleteOption" _required="true"/>
+                <#bautoCompleteProvider  _log="证件号码" _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" _placeholder="" _validatorMethod="isSelected" _value="${earnestOrder.certificateNumber!}" _text="${earnestOrder.certificateNumber!}" _optionVariable="certificateNumberAutoCompleteOption" _required="true"/>
             </div>
             <div class="form-group col">
-                <label for="">联系电话<i class="red">*</i></label>
+                <label _log for="customerCellphone">联系电话<i class="red">*</i></label>
                 <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${earnestOrder.customerCellphone!}" required />
             </div>
         </div>
@@ -27,7 +27,7 @@
             对应摊位
         </div>
         <div id="boothInfo">
-            <table class="table table-bordered table-hover table-striped" id="boothTable">
+            <table class="table table-bordered table-hover table-striped" id="boothTable"  _logTable="摊位项">
                 <thead>
                 <tr>
                     <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
@@ -44,16 +44,16 @@
         </div>
         <div class="row row-cols-4 collapse show" id="otherInfo">
             <div class="form-group col">
-                <label for="startTime">开始日期</label>
+                <label for="startTime" _log>开始日期</label>
                 <input type="text" id="startTime" name="startTime" class="form-control laydate laystart" value="${earnestOrder.startTime!,dateFormat='yyyy-MM-dd'}">
             </div>
-            <div class="form-group col">
+            <div class="form-group col" _log>
                 <label for="endTime">结束日期</label>
                 <input type="text" id="endTime" name="endTime" class="form-control laydate layend" value="${earnestOrder.endTime!,dateFormat='yyyy-MM-dd'}">
             </div>
             <div class="form-group col">
                 <label for="departmentId">业务所属部门</label>
-                <select id="departmentId"  name="departmentId" class="form-control" required></select>
+                <select id="departmentId" _log="业务所属部门"  name="departmentId" class="form-control" required></select>
                 <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _value="${earnestOrder.departmentId!}"/>
 
             </div>
@@ -63,13 +63,13 @@
         </div>
         <div class="row  row-cols-4 collapse show" id="moneyInfo">
             <div class="form-group col">
-                <label for="amount" class="">合计金额<i class="red">*</i></label>
+                <label for="amount" _log class="">合计金额<i class="red">*</i></label>
                 <input id="amount" type="number" class="form-control floatReserve money" name="amount" range="0 9999999.99" value="<#centToYuan value='${earnestOrder.amount!0}'/>" required />
             </div>
         </div>
         <div class="row">
             <div class="form-group col-8">
-                <label for="notes">备注</label>
+                <label for="notes" _log>备注</label>
                 <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100">${earnestOrder.notes!}</textarea>
             </div>
         </div>
@@ -90,7 +90,7 @@
     <tr data-index="{{index}}">
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
+            <#bautoCompleteProvider _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}"  _valueField="id" _textField="name" _value="{{boothId}}" _text="{{boothName}}" _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
         </td>
 
     </tr>
@@ -100,7 +100,7 @@
     <tr data-index="{{index}}">
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}"  _valueField="id" _textField="name" _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
+            <#bautoCompleteProvider _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}"  _valueField="id" _textField="name" _value="{{assetsId}}" _text="{{assetsName}}" _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
         </td>
 
     </tr>

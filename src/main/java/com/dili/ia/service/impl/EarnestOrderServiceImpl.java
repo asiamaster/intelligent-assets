@@ -119,7 +119,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput updateEarnestOrder(EarnestOrderListDto earnestOrder) {
+    public BaseOutput<EarnestOrder> updateEarnestOrder(EarnestOrderListDto earnestOrder) {
         if (earnestOrder.getId() == null){
             return BaseOutput.failure("Id不能为空！");
         }
@@ -129,7 +129,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         this.deleteEarnestOrderDetailByEarnestOrderId(earnestOrder.getId());
         //根据摊位ID插入到定金详情里面
         this.insertEarnestOrderDetails(earnestOrder);
-        return BaseOutput.success("修改成功！");
+        return BaseOutput.success("修改成功！").setData(earnestOrder);
     }
 
     private EarnestOrderDetail bulidEarnestOrderDetail(Long earnestOrderId, Long assetsId, String assetsName){

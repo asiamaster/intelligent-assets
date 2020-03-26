@@ -24,7 +24,7 @@ public interface EarnestOrderService extends BaseService<EarnestOrder, Long> {
      * @param earnestOrder 修改对象
      * @return BaseOutput
      * */
-    BaseOutput updateEarnestOrder(EarnestOrderListDto earnestOrder);
+    BaseOutput<EarnestOrder> updateEarnestOrder(EarnestOrderListDto earnestOrder);
 
     /**
      * 定金单 --提交
