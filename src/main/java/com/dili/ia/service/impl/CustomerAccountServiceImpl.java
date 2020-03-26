@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -535,33 +536,22 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     private void addTransactionDetails(Integer sceneType,Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId){
         Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
+        List<TransactionDetails> listDetails = new ArrayList<>();
         //写入 定金，转抵，保证金对应 sceneType 的流水 --- 抵扣项为 null 或者 0 元 不写入流水记录
         if (earnestDeduction != null && !earnestDeduction.equals(0L)){ //定金流水
             Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
             TransactionDetails earnestDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            int count = transactionDetailsService.insertSelective(earnestDetail);
-            if ( count != 1){
-                LOGGER.info("写入定金流水记录失败{}",earnestDeduction);
-//                throw new BusinessException(ResultCode.DATA_ERROR, "写入定金流水记录失败");
-            }
+            transactionDetailsService.insertSelective(earnestDetail);
         }
         if (transferDeduction != null && !transferDeduction.equals(0L)){//转抵流水
             Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
             TransactionDetails transferDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            int count = transactionDetailsService.insertSelective(transferDetail);
-            if (count != 1){
-                LOGGER.info("写入转抵流水记录失败{}",earnestDeduction);
-//                throw new BusinessException(ResultCode.DATA_ERROR, "写入转抵流水记录失败");
-            }
+            transactionDetailsService.insertSelective(transferDetail);
         }
         if (depositDeduction != null && !depositDeduction.equals(0L)){//保证金流水
             Integer itemType = TransactionItemTypeEnum.DEPOSIT.getCode();
             TransactionDetails depositDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            int count = transactionDetailsService.insertSelective(depositDetail);
-            if (count != 1){
-                LOGGER.info("写入保证金流水记录失败{}",earnestDeduction);
-//                throw new BusinessException(ResultCode.DATA_ERROR, "写入保证金流水记录失败");
-            }
+            transactionDetailsService.insertSelective(depositDetail);
         }
         return;
     }
