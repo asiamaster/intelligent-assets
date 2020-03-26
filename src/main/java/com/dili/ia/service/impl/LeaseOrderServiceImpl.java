@@ -206,6 +206,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Transactional
     @GlobalTransactional
     public BaseOutput<Boolean> updateLeaseOrderBySettleInfo(SettleOrder settleOrder) {
+        /*****************************更新缴费单相关字段 begin***********************/
         PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
         condition.setCode(settleOrder.getBusinessCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
@@ -220,20 +221,28 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
             throw new RuntimeException("多人操作，请重试！");
         }
+        /*****************************更新缴费单相关字段 end*************************/
 
-        //摊位租赁摊位租赁单及摊位租赁单项相关信息改动
         LeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
+        //第一次消费，需要抵扣保证金、定金、转低金
         if (LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             //第一笔消费抵扣保证金
             deductionLeaseOrderItemDepositAmount(leaseOrder.getId());
             //消费定金、转低
-            BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(), leaseOrder.getMarketId());
+            BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(
+                    leaseOrder.getId(), leaseOrder.getCode(),
+                    leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(),
+                    leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
+                    leaseOrder.getMarketId(),settleOrder.getOperatorId(),settleOrder.getOperatorName());
             if(!customerAccountOutput.isSuccess()){
                 throw new RuntimeException(customerAccountOutput.getMessage());
             }
             //解冻出租摊位
             leaseBooth(leaseOrder);
         }
+
+        /***************************更新租赁单及其订单项相关字段 begin*********************/
+        //此次缴费后若已交清，需要根据租赁时间和当前时间比对，单子是未生效、已生效、还是已过期
         if ((leaseOrder.getWaitAmount() - paymentOrderPO.getAmount()) == 0L) {
             leaseOrder.setPayState(PayStateEnum.PAID.getCode());
             Date now = new Date();
@@ -250,8 +259,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrder.setWaitAmount(leaseOrder.getWaitAmount() - paymentOrderPO.getAmount());
         leaseOrder.setPaidAmount(leaseOrder.getPaidAmount() + paymentOrderPO.getAmount());
         leaseOrder.setPaymentId(0L);
-
-        //更新租赁单及子单相关状态
         if (updateSelective(leaseOrder) == 0) {
             LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
             throw new RuntimeException("多人操作，请重试");
@@ -262,6 +269,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderItems.stream().forEach(o -> {
             o.setState(leaseOrder.getState());
             o.setPayState(leaseOrder.getPayState());
+            //只有租赁单费用交清后，摊位项保证金才真正划入摊位上，才可用于其他订单保证金抵扣
             if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())){
                 o.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
             }
@@ -269,6 +277,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
             throw new RuntimeException("多人操作，请重试！");
         }
+        /***************************更新租赁单及其订单项相关字段 end*********************/
         return BaseOutput.success().setData(true);
     }
 
@@ -313,7 +322,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             //检查摊位状态
             checkBoothState(o.getBoothId());
         });
-        //检查提交付款
+        //检查是否可以进行提交付款
         checkSubmitPayment(id, amount, waitAmount, leaseOrder);
 
         //新增缴费单
@@ -325,7 +334,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             //冻结保证金
             frozenLeaseOrderItemDepositAmount(id);
             //冻结定金和转低
-            BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(), leaseOrder.getMarketId());
+            BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
+                    leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
+                    leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
+                    leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
             if(!customerAccountOutput.isSuccess()){
                 if(ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())){
                     throw new RuntimeException("客户定金可用金额不足，请核实修改后重新保存");
@@ -687,7 +699,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         //解冻摊位保证金
         unFrozenLeaseOrderItemDepositAmount(id);
         //解冻定金、转抵
-        BaseOutput customerAccountOutput = customerAccountService.withdrawLeaseOrderCustomerAmountUnFrozen(leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(), leaseOrder.getMarketId());
+        BaseOutput customerAccountOutput = customerAccountService.withdrawLeaseOrderCustomerAmountUnFrozen(
+                leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
+                leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
+                leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
         if(!customerAccountOutput.isSuccess()){
             throw new RuntimeException(customerAccountOutput.getMessage());
         }
@@ -1112,7 +1127,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){
             transferDeductionItems.forEach(o->{
-                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(refundOrder.getId(),refundOrder.getCode(),refundOrder.getCustomerId(),o.getPayeeAmount(),refundOrder.getMarketId());
+                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
+                        refundOrder.getId(),refundOrder.getCode(),refundOrder.getCustomerId(),o.getPayeeAmount(),
+                        refundOrder.getMarketId(),refundOrder.getRefundOperatorId(),refundOrder.getRefundOperator());
                 if(!accountOutput.isSuccess()){
                     LOG.error("退款单转低异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】",refundOrder.getCode(),o.getPayee(),o.getPayeeAmount(),accountOutput.getMessage());
                     throw new RuntimeException(accountOutput.getMessage());
