@@ -31,6 +31,7 @@ import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @Override
     public BaseOutput<EarnestOrder> addEarnestOrder(EarnestOrderListDto earnestOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if(null == userTicket){
+            return BaseOutput.failure("未登录");
+        }
         //检查客户状态
         checkCustomerState(earnestOrder.getCustomerId(),userTicket.getFirmId());
         earnestOrder.getEarnestOrderdetails().forEach(o->{
@@ -201,14 +205,24 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput<EarnestOrder> submitEarnestOrder(Long earnestOrderId) {
-        //@TODO改状态，创建缴费单，提交到结算中心
         EarnestOrder ea = this.get(earnestOrderId);
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if(null == userTicket){
+            return BaseOutput.failure("未登录");
+        }
+        //检查客户状态
+        checkCustomerState(ea.getCustomerId(),userTicket.getFirmId());
+        EarnestOrderDetail query = DTOUtils.newInstance(EarnestOrderDetail.class);
+        query.setEarnestOrderId(ea.getId());
+        List<EarnestOrderDetail> detailList = earnestOrderDetailService.listByExample(query);
+        if (CollectionUtils.isNotEmpty(detailList)){
+            detailList.forEach(o->{
+                //检查摊位状态
+                checkBoothState(o.getAssetsId());
+            });
+        }
         if (null == ea || !ea.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("提交失败，状态已变更！");
-        }
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null) {
-            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
         }
         ea.setState(EarnestOrderStateEnum.SUBMITTED.getCode());
         ea.setSubmitterId(userTicket.getId());
