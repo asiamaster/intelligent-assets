@@ -45,39 +45,12 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
     @Autowired
     FirmRpc firmRpc;
 
-    private void addTransactionDetails(Integer sceneType, Integer bizType, Integer itemType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId){
-        //写入 定金，转抵，保证金对应 sceneType 的流水 --- 抵扣项为 null 或者 0 元 不写入流水记录
-        if (null != amount && amount > 0){ //定金流水
-            TransactionDetails earnestUnfrozenDetail = this.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId);
-            this.insertSelective(earnestUnfrozenDetail);
-        }
-    }
-
     @Override
-    public TransactionDetails buildByConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null) {
-            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
-        }
+    public TransactionDetails buildByConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId, Long operaterId, String operatorName) {
         TransactionDetails tds = this.buildCommonConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, notes, marketId);
         //固定构建参数
-        tds.setCreator(userTicket.getRealName());
-        tds.setCreatorId(userTicket.getId());
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
-        }
-        tds.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
-        return tds;
-    }
-
-    @Override
-    public TransactionDetails buildByConditions(SettleOrder settleOrder, Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId) {
-        TransactionDetails tds = this.buildCommonConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, notes, marketId);
-        //固定构建参数
-        tds.setCreator(settleOrder.getOperatorName());
-        tds.setCreatorId(settleOrder.getOperatorId());
+        tds.setCreator(operatorName);
+        tds.setCreatorId(operaterId);
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
         if(!bizNumberOutput.isSuccess()){
             LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());

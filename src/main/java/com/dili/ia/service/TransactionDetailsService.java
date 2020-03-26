@@ -20,25 +20,11 @@ public interface TransactionDetailsService extends BaseService<TransactionDetail
      * @param customerId 客户ID
      * @param notes 详情
      * @param marketId 市场ID
+     * @param operaterId 操作员ID
+     * @param operatorName 操作员名字
      * @return TransactionDetails
      *
      */
-    TransactionDetails buildByConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId);
-
-    /**构建业务流水对象 --- 结算回调构建记录，因为回调接口拿不到登录人UserTicket
-     * @param settleOrder 结算单
-     * @param sceneType 场景类型
-     * @param bizType 业务类型
-     * @param itemType 业务场景
-     * @param amount 交易金额
-     * @param orderId 订单ID
-     * @param orderCode 订单code
-     * @param customerId 客户ID
-     * @param notes 详情
-     * @param marketId 市场ID
-     * @return TransactionDetails
-     *
-     */
-    TransactionDetails buildByConditions(SettleOrder settleOrder, Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId);
+    TransactionDetails buildByConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId, Long operaterId, String operatorName);
 
 }
