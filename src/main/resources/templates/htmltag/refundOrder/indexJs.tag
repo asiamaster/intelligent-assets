@@ -69,7 +69,7 @@
 
         dia = bs4pop.dialog({
             title: '退款详情',//对话框title
-            content: '${contextPath}/refundOrder/view.html?id='+id, //对话框内容，可以是 string、element，$object
+            content: '${contextPath}/refundOrder/view.action?id='+id, //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
             height: '95%',//高度
             isIframe: true,//默认是页面层，非iframe
