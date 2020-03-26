@@ -116,9 +116,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             if (!bizNumberOutput.isSuccess()) {
                 throw new RuntimeException("编号生成器微服务异常");
             }
-            dto.setCode(bizNumberOutput.getData());
+            dto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
             dto.setState(LeaseOrderStateEnum.CREATED.getCode());
-            dto.setDepartmentId(userTicket.getDepartmentId());
             dto.setPayState(PayStateEnum.NOT_PAID.getCode());
             dto.setWaitAmount(dto.getPayAmount());
             insertSelective(dto);
@@ -576,7 +575,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (!bizNumberOutput.isSuccess()) {
             throw new RuntimeException("编号生成器微服务异常");
         }
-        paymentOrder.setCode(bizNumberOutput.getData());
+        paymentOrder.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         paymentOrder.setBusinessCode(leaseOrder.getCode());
         paymentOrder.setBusinessId(leaseOrder.getId());
         paymentOrder.setMarketId(userTicket.getFirmId());
@@ -981,7 +980,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (!bizNumberOutput.isSuccess()) {
             throw new RuntimeException("编号生成器微服务异常");
         }
-        refundOrderDto.setCode(bizNumberOutput.getData());
+        refundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         if(!refundOrderService.doAddHandler(refundOrderDto).isSuccess()){
             throw new RuntimeException("退款单新增异常");
         }

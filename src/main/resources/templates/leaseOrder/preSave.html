@@ -3,6 +3,7 @@
     <div class="container-fluid">
         <form id="saveForm" role="form" novalidate>
             <input type="hidden" id="id" name="id" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.id!}">
+            <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
             <input type="hidden" name="isRenew" value="${isRenew!}">
             <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                 aria-controls="customerInfo">
