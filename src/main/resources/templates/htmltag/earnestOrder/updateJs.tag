@@ -100,7 +100,7 @@
             earnestOrderdetails.push(earnestOrderdetail);
         });
 
-        $.extend(formData,{earnestOrderdetails});
+        $.extend(formData,{earnestOrderdetails,logContent: $('#id').val() ? Log.buildUpdateContent() : ''});
         debugger
         return formData;
     }
