@@ -3,29 +3,19 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.TransactionDetails;
 import com.dili.ia.glossary.BizNumberTypeEnum;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.TransactionItemTypeEnum;
 import com.dili.ia.mapper.TransactionDetailsMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.TransactionDetailsService;
-import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.Firm;
-import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.FirmRpc;
-import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -47,25 +37,6 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
 
     @Override
     public TransactionDetails buildByConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId, Long operaterId, String operatorName) {
-        TransactionDetails tds = this.buildCommonConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, notes, marketId);
-        //固定构建参数
-        tds.setCreator(operatorName);
-        tds.setCreatorId(operaterId);
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
-        }
-        BaseOutput<Firm> marketOut = firmRpc.getById(marketId);
-        if (!marketOut.isSuccess() || marketOut.getData() == null){
-            LOGGER.info("获取市场code失败！市场ID{}",marketId);
-            throw new BusinessException(ResultCode.DATA_ERROR ,"获取市场code失败！");
-        }
-        tds.setCode(marketOut.getData().getCode().toUpperCase() + bizNumberOutput.getData());
-        return tds;
-    }
-
-    private TransactionDetails buildCommonConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId){
         TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
         BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
         if(!out.isSuccess()){
@@ -90,6 +61,20 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
         tds.setSceneType(sceneType);
         tds.setItemType(itemType);
         tds.setMarketId(marketId);
+        //固定构建参数
+        tds.setCreator(operatorName);
+        tds.setCreatorId(operaterId);
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+        }
+        BaseOutput<Firm> marketOut = firmRpc.getById(marketId);
+        if (!marketOut.isSuccess() || marketOut.getData() == null){
+            LOGGER.info("获取市场code失败！市场ID{}",marketId);
+            throw new BusinessException(ResultCode.DATA_ERROR ,"获取市场code失败！");
+        }
+        tds.setCode(marketOut.getData().getCode().toUpperCase() + bizNumberOutput.getData());
         return tds;
     }
 }
