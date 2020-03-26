@@ -539,25 +539,28 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (earnestDeduction != null && !earnestDeduction.equals(0L)){ //定金流水
             Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
             TransactionDetails earnestDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            if (transactionDetailsService.insertSelective(earnestDetail) != 1){
+            int count = transactionDetailsService.insertSelective(earnestDetail);
+            if ( count != 1){
                 LOGGER.info("写入定金流水记录失败{}",earnestDeduction);
-                throw new BusinessException(ResultCode.DATA_ERROR, "写入定金流水记录失败");
+//                throw new BusinessException(ResultCode.DATA_ERROR, "写入定金流水记录失败");
             }
         }
         if (transferDeduction != null && !transferDeduction.equals(0L)){//转抵流水
             Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
             TransactionDetails transferDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            if (transactionDetailsService.insertSelective(transferDetail) != 1){
+            int count = transactionDetailsService.insertSelective(transferDetail);
+            if (count != 1){
                 LOGGER.info("写入转抵流水记录失败{}",earnestDeduction);
-                throw new BusinessException(ResultCode.DATA_ERROR, "写入转抵流水记录失败");
+//                throw new BusinessException(ResultCode.DATA_ERROR, "写入转抵流水记录失败");
             }
         }
         if (depositDeduction != null && !depositDeduction.equals(0L)){//保证金流水
             Integer itemType = TransactionItemTypeEnum.DEPOSIT.getCode();
             TransactionDetails depositDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            if (transactionDetailsService.insertSelective(depositDetail) != 1){
+            int count = transactionDetailsService.insertSelective(depositDetail);
+            if (count != 1){
                 LOGGER.info("写入保证金流水记录失败{}",earnestDeduction);
-                throw new BusinessException(ResultCode.DATA_ERROR, "写入保证金流水记录失败");
+//                throw new BusinessException(ResultCode.DATA_ERROR, "写入保证金流水记录失败");
             }
         }
         return;
