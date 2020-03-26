@@ -87,7 +87,7 @@ public class LeaseOrderController {
      * @return String
      */
     @ApiOperation("跳转到LeaseOrder查看页面")
-    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap,Long id,String businessCode) {
         LeaseOrder leaseOrder = null;
         if(null != id) {
