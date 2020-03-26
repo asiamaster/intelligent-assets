@@ -212,6 +212,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
 
         paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
+        paymentOrderPO.setSettlementWay(settleOrder.getWay());
+        paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
         paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
         if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
             throw new RuntimeException("多人操作，请重试！");
@@ -258,6 +260,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderItems.stream().forEach(o -> {
             o.setState(leaseOrder.getState());
             o.setPayState(leaseOrder.getPayState());
+            if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())){
+                o.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
+            }
         });
         if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
             throw new RuntimeException("多人操作，请重试！");
@@ -296,7 +301,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             throw new RuntimeException("未登录");
         }
 
-        //更新摊位租赁单状态
         LeaseOrder leaseOrder = get(id);
         LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
         condition.setLeaseOrderId(leaseOrder.getId());
@@ -333,6 +337,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             frozenBooth(leaseOrder,leaseOrderItems);
             leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
             leaseOrder.setPaymentId(paymentOrder.getId());
+            //更新摊位租赁单状态
             cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
         } else if (leaseOrder.getState().equals(LeaseOrderStateEnum.SUBMITTED.getCode())) {
             //判断缴费单是否需要撤回 需要撤回则撤回
@@ -340,6 +345,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 withdrawPaymentOrder(leaseOrder.getPaymentId());
             }
             leaseOrder.setPaymentId(paymentOrder.getId());
+            //更新摊位租赁单状态
             if (updateSelective(leaseOrder) == 0) {
                 LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
                 throw new RuntimeException("摊位租赁单提交状态更新失败");
@@ -611,7 +617,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         settleOrder.setMarketCode(userTicket.getFirmCode());
         settleOrder.setReturnUrl(settlerHandlerUrl);
         settleOrder.setSubmitterDepId(userTicket.getDepartmentId());
-        settleOrder.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+        settleOrder.setSubmitterDepName(null == userTicket.getDepartmentId() ? null : departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         settleOrder.setSubmitterId(userTicket.getId());
         settleOrder.setSubmitterName(userTicket.getRealName());
         settleOrder.setSubmitTime(LocalDateTime.now());
@@ -700,8 +706,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         PaymentOrder payingOrder = paymentOrderService.get(paymentId);
         if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
             String paymentCode = payingOrder.getCode();
-            Map<String, String> paramMap = Map.of("appId", String.valueOf(settlementAppId), "businessCode", paymentCode);
-            BaseOutput<SettleOrder> settleOrderBaseOutput = settlementRpc.get(paramMap);
+            BaseOutput<SettleOrder> settleOrderBaseOutput = settlementRpc.get(settlementAppId,paymentCode);
             if (!settleOrderBaseOutput.isSuccess()) {
                 LOG.info("结算单查询异常 【缴费单CODE {}】", paymentCode);
                 throw new RuntimeException("结算单查询异常");
@@ -709,7 +714,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             SettleOrder settleOrder = settleOrderBaseOutput.getData();
             //缴费单对应的结算单未处理
             if (settleOrder.getState().equals(SettleStateEnum.WAIT_DEAL.getCode())) {
-                if (!settlementRpc.cancelByCode(paymentCode).isSuccess()) {
+                if (!settlementRpc.cancel(settlementAppId,paymentCode).isSuccess()) {
                     LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
                     throw new RuntimeException("结算单撤回异常");
                 }
