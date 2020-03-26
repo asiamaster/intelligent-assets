@@ -23,11 +23,12 @@
             <input id="category_text" type="text" class="form-control input-sm input-control len224"
                    placeholder="品类名称/品类代码">
         </div>
+        <div class="col align-self-center mt-3">
+            <button type="button" onclick="queryClickHandler();return false;" class="btn btn-outline-primary mr-2"><i class="fa fa-search"></i> 查询</button>
+            <button class="btn btn-outline-primary" id="addButton" onclick="addClickHandler();return false;"><i class="fa fa-plus"></i> 新增</button>
+        </div>
     </div>
-    <div class="">
-        <button type="button" onclick="queryClickHandler();return false;" class="btn btn-primary">查询</button>
-        <button class="btn btn-primary" id="addButton" onclick="addClickHandler();return false;">新增</button>
-    </div>
+
 
     <div class="row">
         <div class="col-2">

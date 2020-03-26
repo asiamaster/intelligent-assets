@@ -1,17 +1,7 @@
 <#bs4Body>
-
 <div class="container-fluid">
-    <div class="row">
-        <nav class="col-12">
-            <ol class="breadcrumb"  data-toggle="collapse" data-target="#queryForm" aria-controls="queryForm">
-                <li class="breadcrumb-item active">
-                    定金管理 &nbsp;&nbsp;<a class="position-absolute" href="javascript:;"><i class="fa fa-angle-double-down fa-lg" aria-hidden="true"></i></a>
-                </li>
-            </ol>
-        </nav>
-    </div>
-
-    <form id="queryForm" role="form" class="collapse show" >
+    <#bs4nav>
+    <form id="queryForm" role="form" >
         <div class="row  row-cols-6">
             <div class="form-group col">
                 <label for="state">状态:</label>
@@ -53,13 +43,16 @@
                     </div>
                 </div>
             </div>
+            <div class="col align-self-center mt-3">
+                <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-refresh"></i> 清空</button>
+                <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+            </div>
         </div>
-        <div class="">
-            <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-refresh"></i> 清空</button>
-            <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
-        </div>
+
     </form>
-    <hr>
+
+</#bs4nav>
+
     <div class="row">
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
@@ -111,13 +104,13 @@
                     <th data-field="endTime" data-sortable="true" data-provider="dateProvider" data-align="center">
                         结束日期
                     </th>
-                    <th data-field="state" data-sortable="true" data-provider="earnestOrderStateProvider" data-align="center">
+                    <th data-field="state" data-sortable="true" data-provider="earnestOrderStateProvider" data-align="center" >
                         状态
                     </th>
                     <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
                         金额
                     </th>
-                    <th data-field="creator" data-sortable="true" data-align="center">
+                    <th data-field="creator" data-sortable="true" data-align="center" >
                         创建人
                     </th>
                     <th data-field="createTime" data-sortable="true" data-provider="datetimeProvider" data-align="center">
@@ -131,13 +124,8 @@
 </div>
 </div>
 
+
 </#bs4Body>
 <script type="text/javascript" src="${contextPath}/resources/js/bui/common.js"></script>
 <#earnestOrder_indexJs />
 
-<script>
-
-
-
-
-</script>

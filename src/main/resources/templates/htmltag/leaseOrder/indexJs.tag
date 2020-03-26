@@ -23,14 +23,11 @@
         $(window).resize(function () {
             _grid.bootstrapTable('resetView')
         });
-        queryDataHandler();
-    });
-
-    _grid.ready( function () {
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
         _grid.bootstrapTable('refreshOptions', {pageSize: parseInt(size)});
-    })
+        queryDataHandler();
+    });
 
 
     /******************************驱动执行区 end****************************/
@@ -424,7 +421,7 @@
     function queryDataHandler() {
         currentSelectRowIndex = undefined;
         $('#toolbar button').attr('disabled', false);
-        _grid.bootstrapTable('refreshOptions', {url: '/leaseOrder/listPage.action'});
+        _grid.bootstrapTable('refresh');
     }
 
     /**

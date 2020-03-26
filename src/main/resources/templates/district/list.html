@@ -33,11 +33,12 @@
                 <label for="">区域名称</label>
                 <input type="" class="form-control isNaturalNum" name="name" id="" placeholder="">
             </div>
+            <div class="col align-self-center mt-3">
+                <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-refresh"></i> 清空</button>
+                <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+            </div>
         </div>
-        <div class="">
-            <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-refresh"></i> 清空</button>
-            <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
-        </div>
+
     </form>
     <hr>
 
@@ -108,8 +109,9 @@
         $(window).resize(function () {
             _grid.bootstrapTable('resetView')
         });
-
-        _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action'});
+        let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
+        size = size > 10 ? size : 10;
+        _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action', pageSize: parseInt(size)});
     });
 
     function oneFormatter(value, row) {

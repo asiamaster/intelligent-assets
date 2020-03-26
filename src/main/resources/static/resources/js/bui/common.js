@@ -100,8 +100,15 @@ function isStartEndDatetime (date, el){
     }
 }
 
-
-
+/*气泡
+function formatterTooltip (value,row,index){
+    let temp = '<span data-toggle="tooltip" data-placement="top" title=' + value + '>' + value + '</span>';
+    return temp;
+}
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip("show")
+})
+*/
 
 /************ 初始化日期/时间 end **************/
 
