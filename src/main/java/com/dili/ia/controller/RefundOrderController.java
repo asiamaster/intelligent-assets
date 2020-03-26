@@ -84,7 +84,7 @@ public class RefundOrderController {
      * @return String
      */
     @ApiOperation("跳转到退款单-查看页面")
-    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap, Long id, String businessCode) {
         RefundOrder refundOrder = null;
         if(null != id) {

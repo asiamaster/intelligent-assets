@@ -97,7 +97,7 @@ public class EarnestOrderController {
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap,Long id,String businessCode) {
         EarnestOrder earnestOrder = null;
         if(null != id) {

@@ -34,20 +34,13 @@ public class CategoryProvider implements ValueProvider {
 
     @Override
     public List<ValuePair<?>> getLookupList(Object val, Map metaMap, FieldMeta fieldMeta) {
-//        CategoryDTO categoryDTO = new CategoryDTO();
-//        if(null == val){
-//            categoryDTO.setParent(0L);
-//        }else{
-//            categoryDTO.setKeyword(val.toString());
-//        }
-//        List<CategoryDTO> categoryList = assetsRpc.list(categoryDTO).getData();
-
-        List<CategoryDTO> categoryList = new ArrayList<>();
         CategoryDTO categoryDTO = new CategoryDTO();
-        categoryDTO.setId(1L);
-        categoryDTO.setName("蔬菜");
-        categoryList.add(categoryDTO);
-
+        if(null == val){
+            categoryDTO.setParent(0L);
+        }else{
+            categoryDTO.setKeyword(val.toString());
+        }
+        List<CategoryDTO> categoryList = assetsRpc.list(categoryDTO).getData();
         List<ValuePair<?>> buffer = new ArrayList<ValuePair<?>>();
         categoryList.forEach(o->{
             buffer.add(new ValuePairImpl(o.getName(),o.getId().toString()));
