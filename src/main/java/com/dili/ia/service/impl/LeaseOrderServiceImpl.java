@@ -910,6 +910,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Override
     @Transactional
     public BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            return BaseOutput.failure("未登录");
+        }
         if(null == refundOrderDto.getOrderItemId()){
             //主单上退款申请
             LeaseOrder leaseOrder = get(refundOrderDto.getOrderId());
