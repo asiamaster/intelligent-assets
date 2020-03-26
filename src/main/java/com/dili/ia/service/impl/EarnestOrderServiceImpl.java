@@ -123,11 +123,13 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (earnestOrder.getId() == null){
             return BaseOutput.failure("Id不能为空！");
         }
-        this.getActualDao().updateByPrimaryKeySelective(earnestOrder);
+        if (this.updateSelective(earnestOrder) != 1){
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
         this.deleteEarnestOrderDetailByEarnestOrderId(earnestOrder.getId());
         //根据摊位ID插入到定金详情里面
         this.insertEarnestOrderDetails(earnestOrder);
-        return BaseOutput.success();
+        return BaseOutput.success("修改成功！");
     }
 
     private EarnestOrderDetail bulidEarnestOrderDetail(Long earnestOrderId, Long assetsId, String assetsName){
@@ -142,11 +144,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         EarnestOrderDetail eod = DTOUtils.newDTO(EarnestOrderDetail.class);
         eod.setEarnestOrderId(earnestOrderId);
         List<EarnestOrderDetail> eodlist = earnestOrderDetailService.list(eod);
-        if (!CollectionUtils.isEmpty(eodlist) && eodlist.size() > 0){
-            for (EarnestOrderDetail ed : eodlist){
-                earnestOrderDetailService.delete(ed.getId());
-            }
-        }
+        eodlist.forEach(o -> {
+            earnestOrderDetailService.delete(o.getId());
+        });
         return;
     }
 

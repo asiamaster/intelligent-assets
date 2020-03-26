@@ -4,6 +4,8 @@ import com.dili.ss.dto.IBaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import tk.mybatis.mapper.annotation.Version;
+
 import java.util.Date;
 import javax.persistence.*;
 import javax.persistence.Column;
@@ -118,7 +120,7 @@ public interface CustomerAccount extends IBaseDomain {
     Long getMarketId();
 
     void setMarketId(Long marketId);
-
+    @Version
     @Column(name = "`version`")
     @FieldDef(label="版本控制,乐观锁")
     @EditMode(editor = FieldEditor.Number, required = false)

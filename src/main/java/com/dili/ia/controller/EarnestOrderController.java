@@ -216,8 +216,7 @@ public class EarnestOrderController {
             earnestOrder.setEndTime(calendar.getTime());
         }
         try{
-            earnestOrderService.updateEarnestOrder(earnestOrder);
-            return BaseOutput.success("修改成功");
+           return earnestOrderService.updateEarnestOrder(earnestOrder);
         }catch (BusinessException e){
             LOG.error("定金单修改异常！", e.getErrorMsg());
             return BaseOutput.failure(e.getErrorMsg());
