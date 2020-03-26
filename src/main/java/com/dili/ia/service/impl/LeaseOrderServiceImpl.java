@@ -112,6 +112,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         dto.setCreator(userTicket.getRealName());
 
         if (null == dto.getId()) {
+            //租赁单新增
             BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.LEASE_ORDER.getCode());
             if (!bizNumberOutput.isSuccess()) {
                 throw new RuntimeException("编号生成器微服务异常");
@@ -123,6 +124,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             insertSelective(dto);
             insertLeaseOrderItems(dto);
         } else {
+            //租赁单修改
             LeaseOrder oldLeaseOrder = get(dto.getId());
             dto.setVersion(oldLeaseOrder.getVersion());
             int rows = updateSelective(dto);
@@ -535,7 +537,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param stateEnum  isCascade为false时，此处可以传null
      */
     @Transactional
-    void cascadeUpdateLeaseOrderState(LeaseOrder leaseOrder, boolean isCascade, LeaseOrderItemStateEnum stateEnum) {
+    public void cascadeUpdateLeaseOrderState(LeaseOrder leaseOrder, boolean isCascade, LeaseOrderItemStateEnum stateEnum) {
         if (updateSelective(leaseOrder) == 0) {
             LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
             throw new RuntimeException("多人操作，请重试");
@@ -559,7 +561,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param settlementCode
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    void saveSettlementCode(Long paymentId, String settlementCode) {
+    public void saveSettlementCode(Long paymentId, String settlementCode) {
         PaymentOrder paymentOrderPo = paymentOrderService.get(paymentId);
         paymentOrderPo.setSettlementCode(settlementCode);
         paymentOrderService.updateSelective(paymentOrderPo);
@@ -761,7 +763,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param o
      */
     @Transactional
-    void leaseOrderEffectiveHandler(LeaseOrder o) {
+    public void leaseOrderEffectiveHandler(LeaseOrder o) {
         o.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
         if (updateSelective(o) == 0) {
             LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", o.getId());
@@ -821,7 +823,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param o
      */
     @Transactional
-    void leaseOrderExpiredHandler(LeaseOrder o) {
+    public void leaseOrderExpiredHandler(LeaseOrder o) {
         o.setState(LeaseOrderStateEnum.EXPIRED.getCode());
         if (updateSelective(o) == 0) {
             LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", o.getId());

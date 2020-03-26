@@ -164,7 +164,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
      * @param o
      */
     @Transactional
-    void stopRentLeaseOrderItemFromTimer(LeaseOrderItem o) {
+    public void stopRentLeaseOrderItemFromTimer(LeaseOrderItem o) {
         o.setStopTime(new Date());
         o.setState(LeaseOrderItemStateEnum.RENTED_OUT.getCode());
         o.setVersion(o.getVersion());
