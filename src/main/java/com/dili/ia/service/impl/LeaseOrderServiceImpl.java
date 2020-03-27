@@ -154,6 +154,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             o.setState(LeaseOrderStateEnum.CREATED.getCode());
             o.setDepositAmountFlag(DepositAmountFlagEnum.PRE_TRANSFER.getCode());
             o.setPayState(PayStateEnum.NOT_PAID.getCode());
+            o.setStopRentState(StopRentStateEnum.NO_APPLY.getCode());
             leaseOrderItemService.insertSelective(o);
         });
     }

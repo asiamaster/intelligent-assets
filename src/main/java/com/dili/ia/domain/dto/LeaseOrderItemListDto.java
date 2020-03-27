@@ -27,6 +27,11 @@ public interface LeaseOrderItemListDto extends LeaseOrderItem {
     Date getCreatedEnd();
     void setCreatedEnd(Date createdEnd);
 
+    @Column(name = "`stop_time`")
+    @Operator(Operator.LITTLE_EQUAL_THAN)
+    Date getStopTimeLet();
+    void setStopTimeLet(Date stopTimeLet);
+
     @Operator(Operator.IN)
     @Column(name = "code")
     List<String> getCodes();
