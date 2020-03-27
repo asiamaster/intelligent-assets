@@ -253,19 +253,28 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 async : false
-            }).done(function (data) {
-                if (data.code == "200") {
+            }).done(function (ret) {
+                if (ret.success) {
                     let depositAmount = 0;
-                    $.each(data.data,function (index,item) {
-                        depositAmount += item.depositAmount;
-                        let boothIdEl = $("table input[name^='boothId']").filter(function () {
-                            return this.value == item.boothId;
-                        });
-                        let trIndex = getIndex(boothIdEl.attr('id'));
-                        $('#depositAmountSourceId_'+trIndex).val(item.id);
+                    let sourceLeaseOrderItems = ret.data;
+                    $("table input[name^='boothId']").each(function () {
+                        let depositExist = false;
+                        let trIndex = getIndex($(this).attr('id'));
+                        for(let item of sourceLeaseOrderItems){
+                            if(this.value == item.boothId){
+                                depositAmount += item.depositAmount;
+                                $('#depositAmountSourceId_'+trIndex).val(item.id);
+                                depositExist = true;
+                                break;
+                            }
+                        }
+                        if(!depositExist){
+                            $('#depositAmountSourceId_'+trIndex).val('');
+                        }
+
                     });
                     if(isInitCheckDeduction){
-                        if($('#depositDeduction').val() != depositAmount.centToYuan()){
+                        if(Number($('#depositDeduction').val()) != Number(depositAmount.centToYuan())){
                             bs4pop.notice('保证金可抵扣额发生变化,已为您调整至最新值！', {position: 'bottomleft',autoClose: false})
                         }
                         isInitCheckDeduction = false;
@@ -299,23 +308,27 @@
             async : false,
             success: function (ret) {
                 if(ret.success){
-                    let data = ret.data;
                     let earnestDeductionEl$ = $('#earnestDeduction');
                     let transferDeductionEl$ = $('#transferDeduction');
-                    let earnestAvailableBalance = Number(data.earnestAvailableBalance).centToYuan();
-                    let transferAvailableBalance = Number(data.transferAvailableBalance).centToYuan();
-                    if(isInitCheckDeduction){
-                        if(Number(earnestDeductionEl$.val()) > earnestAvailableBalance){
-                            earnestDeductionEl$.val(earnestAvailableBalance);
-                            bs4pop.notice('定金可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
+                    let earnestAvailableBalance = 0;
+                    let transferAvailableBalance = 0;
+                    if(ret.data){
+                        let data = ret.data;
+                        earnestAvailableBalance = Number(data.earnestAvailableBalance).centToYuan();
+                        transferAvailableBalance = Number(data.transferAvailableBalance).centToYuan();
+                        if(isInitCheckDeduction){
+                            if(Number(earnestDeductionEl$.val()) > earnestAvailableBalance){
+                                earnestDeductionEl$.val(earnestAvailableBalance);
+                                bs4pop.notice('定金可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
+                            }
+                            if(Number(transferDeductionEl$.val()) > transferAvailableBalance){
+                                transferDeductionEl$.val(transferAvailableBalance);
+                                bs4pop.notice('转低可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
+                            }
+                        }else{
+                            earnestDeductionEl$.val('');
+                            $('#transferDeduction').val('');
                         }
-                        if(Number(transferDeductionEl$.val()) > transferAvailableBalance){
-                            transferDeductionEl$.val(transferAvailableBalance);
-                            bs4pop.notice('转低可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
-                        }
-                    }else{
-                        earnestDeductionEl$.val('');
-                        $('#transferDeduction').val('');
                     }
                     earnestDeductionEl$.attr('max',earnestAvailableBalance);
                     $('#earnestAmount').text('余额'+earnestAvailableBalance);
@@ -371,7 +384,7 @@
     function calcDepositAmount(isCascadeCalc){
         let depositAmount = 0;
         $("table input[name^='depositAmount']").filter(function () {
-            return this.value
+            return this.value;
         }).each(function (i) {
             depositAmount = Number(this.value).add(depositAmount);
         });

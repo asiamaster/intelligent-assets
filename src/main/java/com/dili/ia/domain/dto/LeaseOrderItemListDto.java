@@ -52,4 +52,9 @@ public interface LeaseOrderItemListDto extends LeaseOrderItem {
     List<Integer> getStates();
     void setStates(List<Integer> states);
 
+    @Column(name = "`deposit_amount`")
+    @Operator(Operator.GREAT_THAN)
+    Long getDepositAmountGt();
+    void setDepositAmountGt(Long depositAmountGt);
+
 }

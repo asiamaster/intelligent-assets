@@ -93,6 +93,7 @@ public class RefundOrderController {
             RefundOrder query = DTOUtils.newInstance(RefundOrder.class);
             query.setCode(businessCode);
             refundOrder = refundOrderService.get(refundOrderService.listByExample(query).stream().findFirst().orElse(null).getId());
+            id = refundOrder.getId();
         }
         if(null != refundOrder){
             modelMap.put("refundOrder",refundOrder);
