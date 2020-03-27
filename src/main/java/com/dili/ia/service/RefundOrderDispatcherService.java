@@ -47,7 +47,7 @@ public interface RefundOrderDispatcherService extends BaseService<RefundOrder, L
      * @param refundOrder 退款单
      * @return BaseOutput<RefundOrderPrintDto>
      */
-    BaseOutput<Map<String,Object>> buildBusinessPrintData(RefundOrder refundOrder);
+   BaseOutput<Map<String,Object>> buildBusinessPrintData(RefundOrder refundOrder);
 
     /**
      * 退款单 --获取业务类型

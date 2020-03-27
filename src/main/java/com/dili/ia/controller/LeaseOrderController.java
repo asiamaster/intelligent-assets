@@ -1,7 +1,6 @@
 package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
@@ -14,7 +13,6 @@ import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.util.LogBizTypeConst;
-import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
@@ -22,7 +20,6 @@ import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -31,7 +28,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +40,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -226,9 +221,12 @@ public class LeaseOrderController {
             leaseOrder.setVersion(oldLeaseOrder.getVersion());
             leaseOrderService.updateSelective(leaseOrder);
             return BaseOutput.success();
+        }catch (BusinessException e){
+            LOG.error("租赁订单信息补录异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
-            LOG.error("补录异常！", e);
-            return BaseOutput.failure("补录异常");
+            LOG.error("租赁订单信息补录异常！", e);
+            return BaseOutput.failure(e.getMessage());
         }
 
 
@@ -243,9 +241,12 @@ public class LeaseOrderController {
     public @ResponseBody BaseOutput cancelOrder(Long id){
         try {
             return leaseOrderService.cancelOrder(id);
+        }catch (BusinessException e){
+            LOG.error("租赁订单取消异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("租赁订单取消异常！", e);
-            return BaseOutput.failure("租赁订单取消异常");
+            return BaseOutput.failure(e.getMessage());
         }
 
 
@@ -260,12 +261,13 @@ public class LeaseOrderController {
     public @ResponseBody BaseOutput withdrawOrder(Long id){
         try {
             return leaseOrderService.withdrawOrder(id);
+        }catch (BusinessException e){
+            LOG.error("租赁订单撤回异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("租赁订单撤回异常！", e);
-            return BaseOutput.failure("租赁订单撤回异常");
+            return BaseOutput.failure(e.getMessage());
         }
-
-
     }
 
     /**
@@ -298,7 +300,7 @@ public class LeaseOrderController {
             return output;
         }catch (BusinessException e){
             LOG.error("摊位租赁订单保存异常！", e);
-            return BaseOutput.failure(e.getMessage());
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位租赁订单保存异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -321,7 +323,7 @@ public class LeaseOrderController {
             return leaseOrderService.submitPayment(id,amount,waitAmount);
         }catch (BusinessException e){
             LOG.error("摊位租赁订单提交付款异常！", e);
-            return BaseOutput.failure(e.getMessage());
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -340,7 +342,7 @@ public class LeaseOrderController {
             return leaseOrderService.createRefundOrder(refundOrderDto);
         }catch (BusinessException e){
             LOG.error("摊位租赁退款申请异常！", e);
-            return BaseOutput.failure(e.getMessage());
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位租赁退款申请异常！", e);
             return BaseOutput.failure(e.getMessage());

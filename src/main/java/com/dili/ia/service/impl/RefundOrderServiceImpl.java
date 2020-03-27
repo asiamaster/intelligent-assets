@@ -91,7 +91,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     public BaseOutput doAddHandler(RefundOrder order) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            return BaseOutput.failure("未登陆");
+            return BaseOutput.failure("未登录");
         }
         BaseOutput checkResult = checkParams(order);
         if (!checkResult.isSuccess()){
@@ -103,10 +103,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         order.setMarketCode(userTicket.getFirmCode());
         order.setState(RefundOrderStateEnum.CREATED.getCode());
         order.setVersion(0);
-        int count = refundOrderService.insertSelective(order);
-        if (count != 1){
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款单保存失败！");
-        }
+        refundOrderService.insertSelective(order);
         return BaseOutput.success().setData(order);
     }
     private BaseOutput checkParams(RefundOrder order){
@@ -181,7 +178,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
         if(service!=null){
             BaseOutput refundResult = service.submitHandler(refundOrder);
-            if (!refundResult.isSuccess()){
+            if (refundOrder != null && !refundResult.isSuccess()){
                 LOG.info("提交回调业务返回失败！" + refundResult.getMessage());
                 throw new RuntimeException("提交回调业务返回失败！" + refundResult.getMessage());
             }
@@ -268,6 +265,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         return BaseOutput.success("撤回成功");
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput<RefundOrder> doRefundSuccessHandler(SettleOrder settleOrder) {
         RefundOrder condition = DTOUtils.newInstance(RefundOrder.class);
@@ -275,7 +273,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         condition.setCode(settleOrder.getBusinessCode());
         RefundOrder refundOrder = this.listByExample(condition).stream().findFirst().orElse(null);
         if (RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) { //如果已退款，直接返回
-            return BaseOutput.success();
+            return BaseOutput.success().setData(refundOrder);
         }
         if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
             LOG.info("退款单状态已变更！状态为：" + RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.getState()).getName() );
