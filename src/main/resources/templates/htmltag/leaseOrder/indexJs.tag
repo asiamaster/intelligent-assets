@@ -337,11 +337,12 @@
             height : '78%',
             onShowEnd(){
                 let now = moment(new Date()).format("YYYY-MM-DD");
+                let minDate = moment(now).isBefore(leaseOrder.startTime)?leaseOrder.startTime : now;
                 laydate.render({
                         elem: '#stopTime',
                         type: 'date',
                         theme: '#007bff',
-                        min : now,
+                        min : minDate,
                         done: function(value, date){
                             $("#stopRentForm").validate().element($("#stopTime"));
                         }
@@ -349,7 +350,7 @@
                 $('#stopWay').on('change',':radio',function () {
                     $('#stopDateSelect').toggle();
                 });
-                $('#stopRentForm').validate({rules:{stopTime:{required: true,minDate:now}}});
+                $('#stopRentForm').validate({rules:{stopTime:{required: true,minDate:minDate}}});
             },
             btns: [
                 {
