@@ -243,19 +243,18 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
 
         /***************************更新租赁单及其订单项相关字段 begin*********************/
-        //此次缴费后若已交清，需要根据租赁时间和当前时间比对，单子是未生效、已生效、还是已过期
+        //根据租赁时间和当前时间比对，单子是未生效、已生效、还是已过期
+        Date now = new Date();
+        if (now.getTime() >= leaseOrder.getStartTime().getTime() &&
+                now.getTime() <= leaseOrder.getEndTime().getTime()) {
+            leaseOrder.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
+        } else if (now.getTime() < leaseOrder.getStartTime().getTime()) {
+            leaseOrder.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
+        } else if (now.getTime() > leaseOrder.getEndTime().getTime()) {
+            leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
+        }
         if ((leaseOrder.getWaitAmount() - paymentOrderPO.getAmount()) == 0L) {
             leaseOrder.setPayState(PayStateEnum.PAID.getCode());
-            Date now = new Date();
-            if (now.getTime() >= leaseOrder.getStartTime().getTime() &&
-                    now.getTime() <= leaseOrder.getEndTime().getTime()) {
-                leaseOrder.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
-            } else if (now.getTime() < leaseOrder.getStartTime().getTime()) {
-                leaseOrder.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
-            } else if (now.getTime() > leaseOrder.getEndTime().getTime()) {
-                leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
-            }
-
         }
         leaseOrder.setWaitAmount(leaseOrder.getWaitAmount() - paymentOrderPO.getAmount());
         leaseOrder.setPaidAmount(leaseOrder.getPaidAmount() + paymentOrderPO.getAmount());
