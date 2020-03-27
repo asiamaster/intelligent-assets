@@ -318,12 +318,14 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
 
         /***************************检查是否可以提交付款 begin*********************/
-        //检查客户状态
-        checkCustomerState(leaseOrder.getCustomerId(),leaseOrder.getMarketId());
-        leaseOrderItems.forEach(o->{
-            //检查摊位状态
-            checkBoothState(o.getBoothId());
-        });
+        if(leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())){
+            //检查客户状态
+            checkCustomerState(leaseOrder.getCustomerId(),leaseOrder.getMarketId());
+            leaseOrderItems.forEach(o->{
+                //检查摊位状态
+                checkBoothState(o.getBoothId());
+            });
+        }
         //检查是否可以进行提交付款
         checkSubmitPayment(id, amount, waitAmount, leaseOrder);
         /***************************检查是否可以提交付款 end*********************/
