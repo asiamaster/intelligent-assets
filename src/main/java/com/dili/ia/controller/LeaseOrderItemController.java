@@ -59,6 +59,7 @@ public class LeaseOrderItemController {
         leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
         leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
         leaseOrderItem.setPayState(PayStateEnum.PAID.getCode());
+        leaseOrderItem.setDepositAmountGt(0L);
         return BaseOutput.success().setData(leaseOrderItemService.listByExample(leaseOrderItem));
     }
 
