@@ -54,16 +54,6 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     }
 
     @Override
-    public BaseOutput submitHandler(RefundOrder refundOrder) {
-        return null;
-    }
-
-    @Override
-    public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-        return null;
-    }
-
-    @Override
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
         try{
             return leaseOrderService.settleSuccessRefundOrderHandler(refundOrder);
