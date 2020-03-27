@@ -64,6 +64,7 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         return BaseOutput.success();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
         //解冻客户资金，写入解冻记录
@@ -77,6 +78,7 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         return BaseOutput.success();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
         //解冻客户资金，扣除客户余额，写入解冻，扣除记录记录

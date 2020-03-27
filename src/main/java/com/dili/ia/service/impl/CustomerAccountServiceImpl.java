@@ -280,6 +280,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId, Long operaterId, String operatorName){
         try {
@@ -388,8 +389,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         return BaseOutput.success();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     //租赁单提交调用接口，另起事务使其不影响原有事务
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void submitChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId,Long operaterId,String operatorName) {
         //写入 定金，转抵，保证金的【冻结】流水
         this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId, operaterId, operatorName );
@@ -412,7 +413,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     //租赁单撤回调用接口，另起事务使其不影响原有事务
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Exception.class)
     public void withdrawChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId,Long operaterId,String operatorName) {
         //写入 定金，转抵，保证金的【冻结】流水
         this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId, operaterId, operatorName );
@@ -438,7 +439,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     //租赁单提交成功调用接口，另起事务使其不影响原有事务
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Exception.class)
     public void payChangeCustomerAmountAndDetails(Long orderId, String orderCode, CustomerAccount ca, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId,Long operaterId,String operatorName) {
         Integer unfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
         Integer deductUse = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
@@ -462,7 +463,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     //租赁单退款调用接口--充值转抵金，另起事务使其不影响原有事务
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput leaseOrderRechargTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
         if (null == amount || amount < 0){
@@ -523,7 +524,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             customerAccount.setTransferBalance(null == amount?0L:amount);
             customerAccount.setTransferFrozenAmount(0L);
             customerAccount.setVersion(0L);
-            this.getActualDao().insertSelective(customerAccount);
+            this.insertSelective(customerAccount);
         }else {
             ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() + amount);
             ca.setTransferBalance(ca.getTransferBalance() + amount);
