@@ -67,7 +67,11 @@ public class LeaseOrderApi {
         categoryDTO.setCreateTime(new Date());
         categoryDTO.setModifyTime(new Date());
         categoryDTO.setState(1);
-        assetsRpc.save(categoryDTO);
+        try {
+            assetsRpc.save(categoryDTO);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         //新增结算单
         SettleOrderDto settleOrderDto = new SettleOrderDto();
@@ -101,7 +105,11 @@ public class LeaseOrderApi {
         settleOrderDto.setNotes("test info");
         settleOrderDto.setBusinessName("test");
         settleOrderDto.setReturnUrl("http://www.baidu.com");
-        settlementRpc.submit(settleOrderDto);
+        try {
+            settlementRpc.submit(settleOrderDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //主动抛异常回滚事务
         if(true){
             throw new AppException("测试事务回滚");
