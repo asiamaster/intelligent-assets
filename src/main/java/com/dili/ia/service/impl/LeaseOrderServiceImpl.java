@@ -316,6 +316,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
         condition.setLeaseOrderId(leaseOrder.getId());
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+
+        /***************************检查是否可以提交付款 begin*********************/
         //检查客户状态
         checkCustomerState(leaseOrder.getCustomerId(),leaseOrder.getMarketId());
         leaseOrderItems.forEach(o->{
@@ -324,13 +326,14 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         });
         //检查是否可以进行提交付款
         checkSubmitPayment(id, amount, waitAmount, leaseOrder);
+        /***************************检查是否可以提交付款 end*********************/
 
         //新增缴费单
         PaymentOrder paymentOrder = buildPaymentOrder(leaseOrder);
         paymentOrder.setAmount(amount);
         paymentOrderService.insertSelective(paymentOrder);
 
-        if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
+        if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
             //冻结保证金
             frozenLeaseOrderItemDepositAmount(id);
             //冻结定金和转低
@@ -353,7 +356,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrder.setPaymentId(paymentOrder.getId());
             //更新摊位租赁单状态
             cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
-        } else if (leaseOrder.getState().equals(LeaseOrderStateEnum.SUBMITTED.getCode())) {
+        } else if (leaseOrder.getState().equals(LeaseOrderStateEnum.SUBMITTED.getCode())) {//非第一次付款，相关业务实现
             //判断缴费单是否需要撤回 需要撤回则撤回
             if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
                 withdrawPaymentOrder(leaseOrder.getPaymentId());
