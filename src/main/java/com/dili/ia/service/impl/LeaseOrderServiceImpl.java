@@ -377,7 +377,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         settleOrder.setBusinessCode(paymentOrder.getCode());
         BaseOutput<SettleOrder> settlementOutput = settlementRpc.submit(settleOrder);
         if (settlementOutput.isSuccess()) {
-            //冗余结算编号 另起事务使其不影响原有事务
             try {
                 saveSettlementCode(paymentOrder.getId(), settlementOutput.getData().getCode());
             } catch (Exception e) {
@@ -578,7 +577,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param paymentId
      * @param settlementCode
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveSettlementCode(Long paymentId, String settlementCode) {
         PaymentOrder paymentOrderPo = paymentOrderService.get(paymentId);
         paymentOrderPo.setSettlementCode(settlementCode);
@@ -1027,7 +1025,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public BaseOutput cancelRefundOrderHandler(Long leaseOrderId,Long leaseOrderItemId) {
         if(null == leaseOrderItemId){
             LeaseOrder leaseOrder = get(leaseOrderId);
@@ -1068,7 +1066,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public BaseOutput settleSuccessRefundOrderHandler(RefundOrder refundOrder) {
         LeaseOrder leaseOrder = get(refundOrder.getOrderId());
         if(null == refundOrder.getOrderItemId()){
