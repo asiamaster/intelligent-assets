@@ -350,8 +350,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         //结算单code唯一
         condition.setCode(settleOrder.getBusinessCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
+        EarnestOrder ea = this.getActualDao().selectByPrimaryKey(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
-            return BaseOutput.success();
+            return BaseOutput.success().setData(ea);
         }
         if (!paymentOrderPO.getState().equals(PaymentOrderStateEnum.NOT_PAID.getCode())){
             LOG.info("缴费单状态已变更！状态为：" + PaymentOrderStateEnum.getPaymentOrderStateEnum(paymentOrderPO.getState()).getName() );
@@ -369,7 +370,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
 
         //修改订单状态
-        EarnestOrder ea = this.getActualDao().selectByPrimaryKey(paymentOrderPO.getBusinessId());
         ea.setState(EarnestOrderStateEnum.PAID.getCode());
         if (this.updateSelective(ea) != 1) {
             LOG.info("缴费单成功回调 -- 更新【租赁单】状态记录数不为 1 ，多人操作，请重试！");

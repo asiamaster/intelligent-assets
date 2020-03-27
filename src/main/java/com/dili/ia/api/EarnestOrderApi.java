@@ -46,6 +46,7 @@ public class EarnestOrderApi {
             if (output.isSuccess()){
                 //记录业务日志
                 LoggerUtil.buildLoggerContext(output.getData().getId(), output.getData().getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), output.getData().getMarketId(), null);
+                return BaseOutput.success().setData(true);
             }
             return output;
         }catch (BusinessException e){

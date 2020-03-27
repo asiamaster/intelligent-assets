@@ -272,7 +272,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         condition.setCode(settleOrder.getBusinessCode());
         RefundOrder refundOrder = this.listByExample(condition).stream().findFirst().orElse(null);
         if (RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) { //如果已退款，直接返回
-            return BaseOutput.success();
+            return BaseOutput.success().setData(refundOrder);
         }
         if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
             LOG.info("退款单状态已变更！状态为：" + RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.getState()).getName() );
