@@ -47,9 +47,10 @@ public interface SettlementRpc {
 
     /**
      * 【撤回】结算单 ---结算单查询
-     * @param map {businessCode,appId}
+     * @param appId
+     * @param businessCode
      * @return
      */
     @RequestMapping(value = "/api/settleOrder/get", method = RequestMethod.POST)
-    BaseOutput<SettleOrder> get(Map<String,String> map);
+    BaseOutput<SettleOrder> get(@RequestParam("appId") Long appId, @RequestParam("businessCode") String businessCode);
 }

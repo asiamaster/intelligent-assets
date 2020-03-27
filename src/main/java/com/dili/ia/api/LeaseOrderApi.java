@@ -21,10 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 摊位租赁api
@@ -114,7 +111,7 @@ public class LeaseOrderApi {
      * @return
      */
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(SettleOrder settleOrder){
+    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
             return leaseOrderService.updateLeaseOrderBySettleInfo(settleOrder);
         }catch (Exception e){

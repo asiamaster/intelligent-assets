@@ -1,6 +1,5 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.glossary.DepositAmountFlagEnum;
@@ -9,6 +8,7 @@ import com.dili.ia.glossary.RefundStateEnum;
 import com.dili.ia.glossary.StopWayEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -77,9 +77,12 @@ public class LeaseOrderItemController {
                 return BaseOutput.failure("参数错误");
             }
             return leaseOrderItemService.stopRent(leaseOrderItem);
+        }catch (BusinessException e){
+            LOG.error("摊位停租异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位停租异常！", e);
-            return BaseOutput.failure("摊位停租异常");
+            return BaseOutput.failure(e.getMessage());
         }
 
 

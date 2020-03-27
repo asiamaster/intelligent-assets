@@ -110,7 +110,7 @@
 
         dia = bs4pop.dialog({
             title: '定金详情',
-            content: '/earnestOrder/view.html?id='+id,
+            content: '/earnestOrder/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',

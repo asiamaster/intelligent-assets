@@ -173,7 +173,7 @@ public class CustomerAccountController {
     public @ResponseBody BaseOutput getCustomerAccountByCustomerId(Long customerId) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            return BaseOutput.failure("未登陆");
+            return BaseOutput.failure("未登录");
         }
         return BaseOutput.success().setData(customerAccountService.getCustomerAccountByCustomerId(customerId,userTicket.getFirmId()));
     }
