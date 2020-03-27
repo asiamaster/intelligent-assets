@@ -358,30 +358,30 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             return BaseOutput.failure().setCode(ResultCodeConst.CUSTOMER_ACCOUNT_ERROR).setMessage("客户在该市场不存在客户余额！");
         }
         if (sceneType.equals(TransactionSceneTypeEnum.UNFROZEN.getCode())){
-            if (customerAccount.getEarnestFrozenAmount() < earnestDeduction){
+            if (null != earnestDeduction && customerAccount.getEarnestFrozenAmount() < earnestDeduction){
                 return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户定金冻结总金额小于解冻金额！");
             }
-            if (customerAccount.getTransferFrozenAmount() < transferDeduction){
+            if (null != transferDeduction && customerAccount.getTransferFrozenAmount() < transferDeduction){
                 return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户转抵冻结总金额小于解冻金额！");
             }
         }else if (sceneType.equals(TransactionSceneTypeEnum.FROZEN.getCode())){
-            if (customerAccount.getEarnestAvailableBalance() < earnestDeduction){
+            if (null != earnestDeduction && customerAccount.getEarnestAvailableBalance() < earnestDeduction){
                 return BaseOutput.failure().setCode(ResultCodeConst.EARNEST_ERROR).setMessage( "客户定金可用余额不足！");
             }
-            if (customerAccount.getTransferAvailableBalance() < transferDeduction){
+            if (null != transferDeduction && customerAccount.getTransferAvailableBalance() < transferDeduction){
                 return BaseOutput.failure().setCode(ResultCodeConst.TRANSFER_ERROR).setMessage("客户转抵可用余额不足！");
             }
         }else if (sceneType.equals(TransactionSceneTypeEnum.DEDUCT_USE.getCode())){
-            if (customerAccount.getEarnestFrozenAmount() < earnestDeduction){
+            if (null != earnestDeduction && customerAccount.getEarnestFrozenAmount() < earnestDeduction){
                 return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户定金冻结总金额小于解冻金额！");
             }
-            if (customerAccount.getTransferFrozenAmount() < transferDeduction){
+            if (null != transferDeduction && customerAccount.getTransferFrozenAmount() < transferDeduction){
                 return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户转抵冻结总金额小于解冻金额！");
             }
-            if (customerAccount.getEarnestBalance() < earnestDeduction){
+            if (null != earnestDeduction && customerAccount.getEarnestBalance() < earnestDeduction){
                 return BaseOutput.failure().setCode(ResultCodeConst.EARNEST_ERROR).setMessage( "客户定金余额不足！");
             }
-            if (customerAccount.getTransferBalance() < transferDeduction){
+            if (null != transferDeduction && customerAccount.getTransferBalance() < transferDeduction){
                 return BaseOutput.failure().setCode(ResultCodeConst.TRANSFER_ERROR).setMessage("客户转抵余额不足！");
             }
         }
