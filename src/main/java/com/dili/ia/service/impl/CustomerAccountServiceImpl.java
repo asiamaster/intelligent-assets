@@ -496,10 +496,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
         //判断转入方客户账户是否存在,不存在先创建客户账户
         if (null == ca){
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            if (userTicket == null) {
-                throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登录");
-            }
             BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
             if(!out.isSuccess()){
                 LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
@@ -512,7 +508,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             }
 
             CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
-            customerAccount.setMarketId(userTicket.getFirmId());
+            customerAccount.setMarketId(marketId);
             customerAccount.setCustomerId(customerId);
             customerAccount.setCustomerCellphone(customer.getContactsPhone());
             customerAccount.setCertificateNumber(customer.getCertificateNumber());
