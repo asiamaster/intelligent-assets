@@ -38,9 +38,9 @@ class CusromerAccountTests {
         Long depositDeduction = 100L;
         Long marketId = 1L;
 
-        BaseOutput out = customerAccountService.submitLeaseOrderCustomerAmountFrozen(orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
+//        BaseOutput out = customerAccountService.submitLeaseOrderCustomerAmountFrozen(orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId, 1L,"克兰");
 
-        System.out.println("----------------" + out.isSuccess() + out.getMessage());
+//        System.out.println("----------------" + out.isSuccess() + out.getMessage());
     }
 
     @Test
