@@ -20,17 +20,13 @@ public interface RefundOrderDispatcherService extends BaseService<RefundOrder, L
      * @param refundOrder 退款单
      * @return BaseOutput
      * */
-    default BaseOutput submitHandler(RefundOrder refundOrder){
-        return  BaseOutput.success().setData(refundOrder);
-    };
+    BaseOutput submitHandler(RefundOrder refundOrder);
     /**
      * 退款单 --撤回
      * @param refundOrder 退款单
      * @return BaseOutput
      * */
-    default BaseOutput withdrawHandler(RefundOrder refundOrder){
-        return  BaseOutput.success().setData(refundOrder);
-    };
+    BaseOutput withdrawHandler(RefundOrder refundOrder);
 
     /**
      * 退款单 --退款成功回调
@@ -38,17 +34,13 @@ public interface RefundOrderDispatcherService extends BaseService<RefundOrder, L
      * @param refundOrder 退款单
      * @return BaseOutput
      * */
-    default BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder){
-        return  BaseOutput.success().setData(refundOrder);
-    };
+    BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder);
     /**
      * 退款单 --取消
      * @param refundOrder 退款单
      * @return BaseOutput
      * */
-    default BaseOutput cancelHandler(RefundOrder refundOrder){
-        return  BaseOutput.success().setData(refundOrder);
-    };
+    BaseOutput cancelHandler(RefundOrder refundOrder);
 
     /**
      * 票据打印  --- 业务数据加载
