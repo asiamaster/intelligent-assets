@@ -1132,7 +1132,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){
             transferDeductionItems.forEach(o->{
                 BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
-                        refundOrder.getId(),refundOrder.getCode(),refundOrder.getCustomerId(),o.getPayeeAmount(),
+                        refundOrder.getId(),refundOrder.getCode(),o.getPayeeId(),o.getPayeeAmount(),
                         refundOrder.getMarketId(),refundOrder.getRefundOperatorId(),refundOrder.getRefundOperator());
                 if(!accountOutput.isSuccess()){
                     LOG.error("退款单转低异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】",refundOrder.getCode(),o.getPayee(),o.getPayeeAmount(),accountOutput.getMessage());
