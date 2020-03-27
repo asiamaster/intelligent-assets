@@ -433,13 +433,14 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param leaseOrder
      */
     private void checkSubmitPayment(Long id, Long amount, Long waitAmount, LeaseOrder leaseOrder) {
-
-        //提交付款条件：已创建状态或已提交状态
-        if (!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState()) &&
-                !LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
-            String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
-            LOG.info("租赁单编号【{}】 状态为【{}】，不可以进行提交付款操作", leaseOrder.getCode(), stateName);
-            throw new BusinessException(ResultCode.DATA_ERROR,"租赁单状态为【" + stateName + "】，不可以进行提交付款操作");
+        //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
+        if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
+            LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已交清，不可以进行提交付款操作");
+        }
+        if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
+            LOG.info("租赁单编号【{}】已发起退款，不可以进行提交付款操作", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已发起退款，不可以进行提交付款操作");
         }
         if (leaseOrder.getWaitAmount().equals(0L)) {
             throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单费用已结清");
