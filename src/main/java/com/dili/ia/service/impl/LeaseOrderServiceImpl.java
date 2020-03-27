@@ -228,7 +228,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         //第一次消费，需要抵扣保证金、定金、转低金
         if (LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             //第一笔消费抵扣保证金
-            deductionLeaseOrderItemDepositAmount(leaseOrder.getId());
+            if(leaseOrder.getDepositDeduction() > 0L){
+                deductionLeaseOrderItemDepositAmount(leaseOrder.getId());
+            }
             //消费定金、转低
             BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(
                     leaseOrder.getId(), leaseOrder.getCode(),
@@ -270,7 +272,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             o.setState(leaseOrder.getState());
             o.setPayState(leaseOrder.getPayState());
             //只有租赁单费用交清后，摊位项保证金才真正划入摊位上，才可用于其他订单保证金抵扣
-            if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())){
+            if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState()) && o.getDepositAmount() > 0L){
                 o.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
             }
         });
@@ -337,7 +339,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
             //冻结保证金
-            frozenLeaseOrderItemDepositAmount(id);
+            if(leaseOrder.getDepositDeduction() > 0L){
+                frozenLeaseOrderItemDepositAmount(id);
+            }
             //冻结定金和转低
             BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
                     leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
@@ -463,7 +467,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
         condition.setLeaseOrderId(id);
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
-        List<Long> depositAmountSourceIds = leaseOrderItems.stream().map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
+        List<Long> depositAmountSourceIds = leaseOrderItems.stream().filter(o-> null != o.getDepositAmountSourceId()).map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
 
         LeaseOrderItemListDto depositAmountSourceCondition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
         depositAmountSourceCondition.setIds(depositAmountSourceIds);
@@ -492,7 +496,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
         condition.setLeaseOrderId(id);
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
-        List<Long> depositAmountSourceIds = leaseOrderItems.stream().map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
+        List<Long> depositAmountSourceIds = leaseOrderItems.stream().filter(o-> null != o.getDepositAmountSourceId()).map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
 
         LeaseOrderItemListDto depositAmountSourceCondition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
         depositAmountSourceCondition.setIds(depositAmountSourceIds);
@@ -525,7 +529,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
         condition.setLeaseOrderId(id);
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
-        List<Long> depositAmountSourceIds = leaseOrderItems.stream().map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
+        List<Long> depositAmountSourceIds = leaseOrderItems.stream().filter(o-> null != o.getDepositAmountSourceId()).map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
 
         LeaseOrderItemListDto depositAmountSourceCondition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
         depositAmountSourceCondition.setIds(depositAmountSourceIds);
@@ -701,7 +705,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.CREATED);
 
         //解冻摊位保证金
-        unFrozenLeaseOrderItemDepositAmount(id);
+        if(leaseOrder.getDepositDeduction() > 0L){
+            unFrozenLeaseOrderItemDepositAmount(id);
+        }
         //解冻定金、转抵
         BaseOutput customerAccountOutput = customerAccountService.withdrawLeaseOrderCustomerAmountUnFrozen(
                 leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
