@@ -265,6 +265,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         return BaseOutput.success("撤回成功");
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput<RefundOrder> doRefundSuccessHandler(SettleOrder settleOrder) {
         RefundOrder condition = DTOUtils.newInstance(RefundOrder.class);
