@@ -295,7 +295,7 @@
                    data-sort-order="desc">
                 <thead>
                 <tr>
-                    <th data-field="name" data-align="center" data-sortable="true">
+                    <th data-field="name" data-align="center" data-sortable="true" data-formatter="formatterView">
                         摊位编号
                     </th>
                     <th data-field="number" data-align="center" data-sortable="true">
@@ -380,6 +380,10 @@
         } else {
             return oprate.join("");
         }
+    }
+
+    function formatterView(value, row, index) {
+        return '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">' + value + '</a>'
     }
 
 </script>
