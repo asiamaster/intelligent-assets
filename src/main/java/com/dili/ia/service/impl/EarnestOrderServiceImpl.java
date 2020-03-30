@@ -98,15 +98,18 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setCreatorId(userTicket.getId());
         earnestOrder.setCreator(userTicket.getRealName());
         earnestOrder.setMarketId(userTicket.getFirmId());
-        BaseOutput<Department> depOut = departmentRpc.get(userTicket.getDepartmentId());
-        if(depOut.isSuccess()){
-            earnestOrder.setDepartmentName(depOut.getData().getName());
+        BaseOutput<Department> depOut = departmentRpc.get(earnestOrder.getDepartmentId());
+        if(!depOut.isSuccess()){
+            LOGGER.info("获取部门失败！" + depOut.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
+        earnestOrder.setDepartmentName(depOut.getData().getName());
         earnestOrder.setState(EarnestOrderStateEnum.CREATED.getCode());
         earnestOrder.setAssetsType(AssetsTypeEnum.BOOTH.getCode());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+            LOGGER.info("编号生成失败!" + depOut.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成失败!");
         }
         earnestOrder.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         earnestOrder.setVersion(0L);
@@ -180,7 +183,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (earnestOrder.getId() == null){
             return BaseOutput.failure("Id不能为空！");
         }
-        if (this.updateSelective(earnestOrder) != 1){
+
+        if (this.update(this.buildUpdateDto(earnestOrder)) != 1){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         this.deleteEarnestOrderDetailByEarnestOrderId(earnestOrder.getId());
@@ -199,6 +203,25 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             });
         }
         return;
+    }
+
+    private EarnestOrder buildUpdateDto(EarnestOrder dto){
+        EarnestOrder earnestOrder = this.get(dto.getId());
+        earnestOrder.setCustomerId(dto.getCustomerId());
+        earnestOrder.setCustomerName(dto.getCustomerName());
+        earnestOrder.setCertificateNumber(dto.getCertificateNumber());
+        earnestOrder.setCustomerCellphone(dto.getCustomerCellphone());
+        earnestOrder.setStartTime(dto.getStartTime());
+        earnestOrder.setEndTime(dto.getEndTime());
+        earnestOrder.setDepartmentId(dto.getDepartmentId());
+        BaseOutput<Department> depOut = departmentRpc.get(dto.getDepartmentId());
+        earnestOrder.setDepartmentName(depOut.getData().getName());
+        earnestOrder.setAmount(dto.getAmount());
+        earnestOrder.setNotes(dto.getNotes());
+        earnestOrder.setModifyTime(new Date());
+        earnestOrder.setVersion(dto.getVersion());
+
+        return earnestOrder;
     }
 
     @Transactional(rollbackFor = Exception.class)
