@@ -20,11 +20,9 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -67,9 +65,9 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
         customerAccount.setCustomerId(customerId);
         customerAccount.setMarketId(marketId);
-        List<CustomerAccount> list = getActualDao().select(customerAccount);
+        List<CustomerAccount> list = getActualDao().selectByExample(customerAccount);
         if (CollectionUtils.isEmpty(list) || list.size() != 1){
-            LOGGER.info("当前【客户账户】不存在，或者一个客户同一市场存在多个客户账户！customerId={}，marketId={}", customerId, marketId);
+            LOGGER.info("当前【客户账户】不存在，或者一个客户同一市场存在多个【客户账户】！customerId={}，marketId={}", customerId, marketId);
             return null;
         }
        return list.get(0);
