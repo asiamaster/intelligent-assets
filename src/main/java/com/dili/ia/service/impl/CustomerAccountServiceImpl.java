@@ -65,7 +65,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
         customerAccount.setCustomerId(customerId);
         customerAccount.setMarketId(marketId);
-        List<CustomerAccount> list = getActualDao().selectByExample(customerAccount);
+        List<CustomerAccount> list = this.listByExample(customerAccount);
         if (CollectionUtils.isEmpty(list) || list.size() != 1){
             LOGGER.info("当前【客户账户】不存在，或者一个客户同一市场存在多个【客户账户】！customerId={}，marketId={}", customerId, marketId);
             return null;
