@@ -3,10 +3,15 @@ package com.dili.ia.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BoothDTO;
+import com.dili.assets.sdk.dto.DistrictDTO;
+import com.dili.commons.glossary.EnabledStateEnum;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.rpc.AssetsMockRpc;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +34,7 @@ public class BoothController {
     private AssetsRpc assetsRpc;
 
     @Autowired
-    private AssetsMockRpc assetsMockRpc;
+    private UserRpc userRpc;
 
 
     /**
@@ -51,6 +56,11 @@ public class BoothController {
     @RequestMapping("/listPage.action")
     @ResponseBody
     public String listPage(BoothDTO input) {
+        if (input == null) {
+            input = new BoothDTO();
+        }
+        input.setIsDelete(YesOrNoEnum.NO.getCode());
+        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
         return assetsRpc.listPage(input);
     }
 
@@ -95,7 +105,14 @@ public class BoothController {
      */
     @RequestMapping("/view.html")
     public String view(Long id, ModelMap map) {
-        map.put("obj", assetsRpc.getBoothById(id).getData());
+        BoothDTO data = assetsRpc.getBoothById(id).getData();
+        if (data != null && data.getCreatorId() != null) {
+            BaseOutput<User> userBaseOutput = userRpc.get(data.getCreatorId());
+            if (userBaseOutput.isSuccess()) {
+                data.setCreatorUser(userBaseOutput.getData().getRealName());
+            }
+        }
+        map.put("obj", data);
         return "booth/view";
     }
 
@@ -112,6 +129,7 @@ public class BoothController {
         input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
         input.setModifyTime(new Date());
         input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
+        input.setState(EnabledStateEnum.DISABLED.getCode());
         return assetsRpc.save(input);
     }
 

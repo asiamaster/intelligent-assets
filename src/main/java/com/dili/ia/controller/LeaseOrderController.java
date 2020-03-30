@@ -1,7 +1,6 @@
 package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
@@ -45,6 +44,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,6 +77,18 @@ public class LeaseOrderController {
     @ApiOperation("跳转到LeaseOrder页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
+        //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
+        Calendar c = Calendar.getInstance();
+        c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        c.add(Calendar.DAY_OF_MONTH, -2);
+        Date createdStart = c.getTime();
+
+        Calendar ce = Calendar.getInstance();
+        ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
+        Date  createdEnd = ce.getTime();
+
+        modelMap.put("createdStart", createdStart);
+        modelMap.put("createdEnd", createdEnd);
         return "leaseOrder/index";
     }
 
@@ -198,13 +210,13 @@ public class LeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        /*List<Long> marketIdList = dataAuthService.getMarketDataAuth(userTicket);
+        List<Long> marketIdList = dataAuthService.getMarketDataAuth(userTicket);
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
         if (CollectionUtils.isEmpty(marketIdList) || CollectionUtils.isEmpty(departmentIdList)){
             return new EasyuiPageOutput(0, Collections.emptyList()).toString();
         }
         leaseOrder.setMarketIds(marketIdList);
-        leaseOrder.setDepartmentIds(departmentIdList);*/
+        leaseOrder.setDepartmentIds(departmentIdList);
 
         if (StringUtils.isNotBlank(leaseOrder.getBoothName())) {
             LeaseOrderItem leaseOrderItemCondition = DTOUtils.newDTO(LeaseOrderItem.class);
@@ -219,16 +231,27 @@ public class LeaseOrderController {
      * @param leaseOrder
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${contractNo}",operationType="reNumber",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/supplement.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput supplement(LeaseOrder leaseOrder){
         try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            if (userTicket == null) {
+                throw new RuntimeException("未登录");
+            }
             LeaseOrder oldLeaseOrder = leaseOrderService.get(leaseOrder.getId());
             leaseOrder.setVersion(oldLeaseOrder.getVersion());
-            leaseOrderService.updateSelective(leaseOrder);
+            if (leaseOrderService.updateSelective(leaseOrder) == 0) {
+                return BaseOutput.failure("多人操作，请稍后重试");
+            }
+            LoggerUtil.buildLoggerContext(oldLeaseOrder.getId(),oldLeaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
             return BaseOutput.success();
+        }catch (BusinessException e){
+            LOG.error("租赁订单信息补录异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
-            LOG.error("补录异常！", e);
-            return BaseOutput.failure("补录异常");
+            LOG.error("租赁订单信息补录异常！", e);
+            return BaseOutput.failure(e.getMessage());
         }
 
 
@@ -239,13 +262,17 @@ public class LeaseOrderController {
      * @param id 订单ID
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType="cancel",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancelOrder.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput cancelOrder(Long id){
         try {
             return leaseOrderService.cancelOrder(id);
+        }catch (BusinessException e){
+            LOG.error("租赁订单取消异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("租赁订单取消异常！", e);
-            return BaseOutput.failure("租赁订单取消异常");
+            return BaseOutput.failure(e.getMessage());
         }
 
 
@@ -256,16 +283,18 @@ public class LeaseOrderController {
      * @param id 订单ID
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType="withdraw",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdrawOrder.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput withdrawOrder(Long id){
         try {
             return leaseOrderService.withdrawOrder(id);
+        }catch (BusinessException e){
+            LOG.error("租赁订单撤回异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("租赁订单撤回异常！", e);
-            return BaseOutput.failure("租赁订单撤回异常");
+            return BaseOutput.failure(e.getMessage());
         }
-
-
     }
 
     /**
@@ -298,7 +327,7 @@ public class LeaseOrderController {
             return output;
         }catch (BusinessException e){
             LOG.error("摊位租赁订单保存异常！", e);
-            return BaseOutput.failure(e.getMessage());
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位租赁订单保存异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -312,6 +341,7 @@ public class LeaseOrderController {
      * @param amount
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${amount}",operationType="submitPayment",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput submitPayment(@RequestParam Long id,@RequestParam Long amount,@RequestParam Long waitAmount){
         try{
@@ -321,7 +351,7 @@ public class LeaseOrderController {
             return leaseOrderService.submitPayment(id,amount,waitAmount);
         }catch (BusinessException e){
             LOG.error("摊位租赁订单提交付款异常！", e);
-            return BaseOutput.failure(e.getMessage());
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -333,14 +363,22 @@ public class LeaseOrderController {
      * @param refundOrderDto
      * @return BaseOutput
      */
-    @ApiOperation("摊位租赁退款申请")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${totalRefundAmount}",operationType="refundApply",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/createRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         try{
-            return leaseOrderService.createRefundOrder(refundOrderDto);
+            BaseOutput output = leaseOrderService.createRefundOrder(refundOrderDto);
+            if(output.isSuccess()){
+                LoggerUtil.buildLoggerContext(refundOrderDto.getOrderId(),refundOrderDto.getOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),refundOrderDto.getRefundReason());
+            }
+            return output;
         }catch (BusinessException e){
             LOG.error("摊位租赁退款申请异常！", e);
-            return BaseOutput.failure(e.getMessage());
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位租赁退款申请异常！", e);
             return BaseOutput.failure(e.getMessage());

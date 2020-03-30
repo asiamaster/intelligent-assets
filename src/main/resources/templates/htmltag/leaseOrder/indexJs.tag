@@ -339,11 +339,12 @@
             height : '78%',
             onShowEnd(){
                 let now = moment(new Date()).format("YYYY-MM-DD");
+                let minDate = moment(now).isBefore(leaseOrder.startTime)?leaseOrder.startTime : now;
                 laydate.render({
                         elem: '#stopTime',
                         type: 'date',
                         theme: '#007bff',
-                        min : now,
+                        min : minDate,
                         done: function(value, date){
                             $("#stopRentForm").validate().element($("#stopTime"));
                         }
@@ -351,7 +352,7 @@
                 $('#stopWay').on('change',':radio',function () {
                     $('#stopDateSelect').toggle();
                 });
-                $('#stopRentForm').validate({rules:{stopTime:{required: true,minDate:now}}});
+                $('#stopRentForm').validate({rules:{stopTime:{required: true,minDate:minDate}}});
             },
             btns: [
                 {
@@ -540,7 +541,7 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
-            if(row.waitAmount > 0){
+            if(row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){
                 $('#btn_submit').attr('disabled', false);
             }
             $('#btn_withdraw').attr('disabled', false);
@@ -552,8 +553,11 @@
             $('#btn_supplement').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
 
+            if(row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){
+                $('#btn_submit').attr('disabled', false);
+            }
             //未交清且未发起过退款申请
-            if (row.waitAmount > 0 && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}) {
+            if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()} && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}) {
                 $('#btn_refund_apply').attr('disabled', false);
             }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {

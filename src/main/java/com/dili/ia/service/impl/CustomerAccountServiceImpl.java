@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -141,7 +142,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public BaseOutput<CustomerAccount> addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            return BaseOutput.failure("未登陆");
+            return BaseOutput.failure("未登录");
         }
         BaseOutput<Customer> out= customerRpc.get(customerId, userTicket.getFirmId());
         if(!out.isSuccess()){
@@ -167,9 +168,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setTransferBalance(0L);
         customerAccount.setTransferFrozenAmount(0L);
         customerAccount.setVersion(0L);
-        if (this.insertSelective(customerAccount) != 1){
-            return BaseOutput.failure("新增客户账户失败！");
-        }
+        this.insertSelective(customerAccount);
         return BaseOutput.success().setData(customerAccount);
     }
 
@@ -197,9 +196,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
         String notesPayer = "转出到：" + order.getPayeeName() + "；转移原因：" + order.getTransferReason();
         String notesPayee = "来源：" + order.getPayerName() + "；转移原因：" + order.getTransferReason();
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         //记录定金转出转入流水
-        TransactionDetails tdIn = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), order.getCode(), order.getPayeeId(), notesPayee, order.getMarketId());
-        TransactionDetails tdOut = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_OUT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), order.getCode(), order.getPayerId(), notesPayer, order.getMarketId());
+        TransactionDetails tdIn = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), order.getCode(), order.getPayeeId(), notesPayee, order.getMarketId(), userTicket.getId(), userTicket.getRealName());
+        TransactionDetails tdOut = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_OUT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), order.getCode(), order.getPayerId(), notesPayer, order.getMarketId(), userTicket.getId(), userTicket.getRealName());
         transactionDetailsService.insertSelective(tdIn);
         transactionDetailsService.insertSelective(tdOut);
         //回写转入转出流水号
@@ -219,7 +219,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public BaseOutput<EarnestTransferOrder> addEarnestTransferOrder(EarnestTransferDto efDto){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            return BaseOutput.failure("未登陆");
+            return BaseOutput.failure("未登录");
         }
         CustomerAccount customerAccount = this.get(efDto.getPayerCustomerAccountId());
         if (customerAccount.getEarnestAvailableBalance() < efDto.getAmount()){
@@ -248,9 +248,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         efDto.setCreator(userTicket.getRealName());
         efDto.setMarketId(userTicket.getFirmId());
         efDto.setVersion(0L);
-        if (earnestTransferOrderService.insertSelective(efDto) != 1){
-            return BaseOutput.failure("新增转移单失败！");
-        }
+        earnestTransferOrderService.insertSelective(efDto);
         return BaseOutput.success().setData(efDto);
     }
 
@@ -282,8 +280,9 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId){
+    public BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId, Long operaterId, String operatorName){
         try {
             Integer sceneType = TransactionSceneTypeEnum.FROZEN.getCode();
             BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
@@ -295,7 +294,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             if (!caCheckOut.isSuccess()){
                 return caCheckOut;
             }
-            this.submitChangeCustomerAmountAndDetails(sceneType, orderId, orderCode, ca, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
+            this.submitChangeCustomerAmountAndDetails(sceneType, orderId, orderCode, ca, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId, operaterId, operatorName);
             return BaseOutput.success();
         } catch (BusinessException e) {
             return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
@@ -305,7 +304,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public BaseOutput withdrawLeaseOrderCustomerAmountUnFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
+    public BaseOutput withdrawLeaseOrderCustomerAmountUnFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId, Long operaterId, String operatorName) {
         try {
             Integer sceneType = TransactionSceneTypeEnum.UNFROZEN.getCode();
 
@@ -319,7 +318,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
                 return caCheckOut;
             }
 
-            this.withdrawChangeCustomerAmountAndDetails(sceneType, orderId, orderCode, ca,customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
+            this.withdrawChangeCustomerAmountAndDetails(sceneType, orderId, orderCode, ca,customerId, earnestDeduction, transferDeduction, depositDeduction, marketId, operaterId, operatorName);
             return BaseOutput.success("处理成功！");
         } catch (BusinessException e) {
             return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
@@ -329,7 +328,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
+    public BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId, Long operaterId, String operatorName) {
         try {
             Integer sceneType = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
             BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
@@ -341,7 +340,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             if (!caCheckOut.isSuccess()){
                 return caCheckOut;
             }
-            this.payChangeCustomerAmountAndDetails(orderId, orderCode, ca, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
+            this.payChangeCustomerAmountAndDetails(orderId, orderCode, ca, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId, operaterId, operatorName);
             return BaseOutput.success("处理成功！");
         } catch (BusinessException e) {
             return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
@@ -359,30 +358,30 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             return BaseOutput.failure().setCode(ResultCodeConst.CUSTOMER_ACCOUNT_ERROR).setMessage("客户在该市场不存在客户余额！");
         }
         if (sceneType.equals(TransactionSceneTypeEnum.UNFROZEN.getCode())){
-            if (customerAccount.getEarnestFrozenAmount() < earnestDeduction){
+            if (null != earnestDeduction && customerAccount.getEarnestFrozenAmount() < earnestDeduction){
                 return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户定金冻结总金额小于解冻金额！");
             }
-            if (customerAccount.getTransferFrozenAmount() < transferDeduction){
+            if (null != transferDeduction && customerAccount.getTransferFrozenAmount() < transferDeduction){
                 return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户转抵冻结总金额小于解冻金额！");
             }
         }else if (sceneType.equals(TransactionSceneTypeEnum.FROZEN.getCode())){
-            if (customerAccount.getEarnestAvailableBalance() < earnestDeduction){
+            if (null != earnestDeduction && customerAccount.getEarnestAvailableBalance() < earnestDeduction){
                 return BaseOutput.failure().setCode(ResultCodeConst.EARNEST_ERROR).setMessage( "客户定金可用余额不足！");
             }
-            if (customerAccount.getTransferAvailableBalance() < transferDeduction){
+            if (null != transferDeduction && customerAccount.getTransferAvailableBalance() < transferDeduction){
                 return BaseOutput.failure().setCode(ResultCodeConst.TRANSFER_ERROR).setMessage("客户转抵可用余额不足！");
             }
         }else if (sceneType.equals(TransactionSceneTypeEnum.DEDUCT_USE.getCode())){
-            if (customerAccount.getEarnestFrozenAmount() < earnestDeduction){
+            if (null != earnestDeduction && customerAccount.getEarnestFrozenAmount() < earnestDeduction){
                 return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户定金冻结总金额小于解冻金额！");
             }
-            if (customerAccount.getTransferFrozenAmount() < transferDeduction){
+            if (null != transferDeduction && customerAccount.getTransferFrozenAmount() < transferDeduction){
                 return BaseOutput.failure().setCode(ResultCode.DATA_ERROR).setMessage("客户转抵冻结总金额小于解冻金额！");
             }
-            if (customerAccount.getEarnestBalance() < earnestDeduction){
+            if (null != earnestDeduction && customerAccount.getEarnestBalance() < earnestDeduction){
                 return BaseOutput.failure().setCode(ResultCodeConst.EARNEST_ERROR).setMessage( "客户定金余额不足！");
             }
-            if (customerAccount.getTransferBalance() < transferDeduction){
+            if (null != transferDeduction && customerAccount.getTransferBalance() < transferDeduction){
                 return BaseOutput.failure().setCode(ResultCodeConst.TRANSFER_ERROR).setMessage("客户转抵余额不足！");
             }
         }
@@ -390,11 +389,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         return BaseOutput.success();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     //租赁单提交调用接口，另起事务使其不影响原有事务
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-    public void submitChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
+    public void submitChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId,Long operaterId,String operatorName) {
         //写入 定金，转抵，保证金的【冻结】流水
-        this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
+        this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId, operaterId, operatorName );
         if (null == ca){ //如果【客户账户】不存在，就不用修改客户账户金额信息
             return;
         }
@@ -414,10 +413,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     //租赁单撤回调用接口，另起事务使其不影响原有事务
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-    public void withdrawChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void withdrawChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId,Long operaterId,String operatorName) {
         //写入 定金，转抵，保证金的【冻结】流水
-        this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
+        this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId, operaterId, operatorName );
         if (null == ca){ //如果【客户账户】不存在，就不用修改客户账户金额信息
             return;
         }
@@ -440,14 +439,14 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     //租赁单提交成功调用接口，另起事务使其不影响原有事务
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-    public void payChangeCustomerAmountAndDetails(Long orderId, String orderCode, CustomerAccount ca, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void payChangeCustomerAmountAndDetails(Long orderId, String orderCode, CustomerAccount ca, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId,Long operaterId,String operatorName) {
         Integer unfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
         Integer deductUse = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
 
         //写入 定金，转抵，保证金的【解冻】【抵扣消费】流水
-        this.addTransactionDetails(unfrozen, orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
-        this.addTransactionDetails(deductUse, orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId);
+        this.addTransactionDetails(unfrozen, orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId,operaterId, operatorName);
+        this.addTransactionDetails(deductUse, orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId,operaterId, operatorName);
         //客户账户余额变动
         if (earnestDeduction != null && !earnestDeduction.equals(0L)){ // 解冻 + 抵扣消费 = 冻结金额减少 + 余额减少
             ca.setEarnestBalance(ca.getEarnestBalance() - earnestDeduction);
@@ -464,9 +463,9 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     //租赁单退款调用接口--充值转抵金，另起事务使其不影响原有事务
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput leaseOrderRechargTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId){
+    public BaseOutput leaseOrderRechargTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
         if (null == amount || amount < 0){
             return BaseOutput.failure("转抵充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
         }
@@ -482,7 +481,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             Integer sceneType = TransactionSceneTypeEnum.TRANSFER_IN.getCode();
             Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
             Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
-            TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId);
+            TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
             transactionDetailsService.insertSelective(detail);
             return BaseOutput.success("处理成功！");
         } catch (BusinessException e) {
@@ -497,10 +496,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
         //判断转入方客户账户是否存在,不存在先创建客户账户
         if (null == ca){
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            if (userTicket == null) {
-                throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登陆");
-            }
             BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
             if(!out.isSuccess()){
                 LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
@@ -513,7 +508,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             }
 
             CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
-            customerAccount.setMarketId(userTicket.getFirmId());
+            customerAccount.setMarketId(marketId);
             customerAccount.setCustomerId(customerId);
             customerAccount.setCustomerCellphone(customer.getContactsPhone());
             customerAccount.setCertificateNumber(customer.getCertificateNumber());
@@ -525,7 +520,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             customerAccount.setTransferBalance(null == amount?0L:amount);
             customerAccount.setTransferFrozenAmount(0L);
             customerAccount.setVersion(0L);
-            this.getActualDao().insertSelective(customerAccount);
+            this.insertSelective(customerAccount);
         }else {
             ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() + amount);
             ca.setTransferBalance(ca.getTransferBalance() + amount);
@@ -533,35 +528,23 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
     }
 
-    private void addTransactionDetails(Integer sceneType,Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId){
+    private void addTransactionDetails(Integer sceneType,Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId, Long operaterId, String operatorName){
         Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
         //写入 定金，转抵，保证金对应 sceneType 的流水 --- 抵扣项为 null 或者 0 元 不写入流水记录
         if (earnestDeduction != null && !earnestDeduction.equals(0L)){ //定金流水
             Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
-            TransactionDetails earnestDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, earnestDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            int count = transactionDetailsService.insertSelective(earnestDetail);
-            if ( count != 1){
-                LOGGER.info("写入定金流水记录失败{}",earnestDeduction);
-//                throw new BusinessException(ResultCode.DATA_ERROR, "写入定金流水记录失败");
-            }
+            TransactionDetails earnestDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, earnestDeduction, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
+            transactionDetailsService.insertSelective(earnestDetail);
         }
         if (transferDeduction != null && !transferDeduction.equals(0L)){//转抵流水
             Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
-            TransactionDetails transferDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, transferDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            int count = transactionDetailsService.insertSelective(transferDetail);
-            if (count != 1){
-                LOGGER.info("写入转抵流水记录失败{}",earnestDeduction);
-//                throw new BusinessException(ResultCode.DATA_ERROR, "写入转抵流水记录失败");
-            }
+            TransactionDetails transferDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, transferDeduction, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
+            transactionDetailsService.insertSelective(transferDetail);
         }
         if (depositDeduction != null && !depositDeduction.equals(0L)){//保证金流水
             Integer itemType = TransactionItemTypeEnum.DEPOSIT.getCode();
-            TransactionDetails depositDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, depositDeduction, orderId, orderCode, customerId, orderCode, marketId);
-            int count = transactionDetailsService.insertSelective(depositDetail);
-            if (count != 1){
-                LOGGER.info("写入保证金流水记录失败{}",earnestDeduction);
-//                throw new BusinessException(ResultCode.DATA_ERROR, "写入保证金流水记录失败");
-            }
+            TransactionDetails depositDetail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, depositDeduction, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
+            transactionDetailsService.insertSelective(depositDetail);
         }
         return;
     }

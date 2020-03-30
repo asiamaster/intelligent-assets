@@ -27,6 +27,11 @@ public interface LeaseOrderItemListDto extends LeaseOrderItem {
     Date getCreatedEnd();
     void setCreatedEnd(Date createdEnd);
 
+    @Column(name = "`stop_time`")
+    @Operator(Operator.LITTLE_EQUAL_THAN)
+    Date getStopTimeLet();
+    void setStopTimeLet(Date stopTimeLet);
+
     @Operator(Operator.IN)
     @Column(name = "code")
     List<String> getCodes();
@@ -51,5 +56,10 @@ public interface LeaseOrderItemListDto extends LeaseOrderItem {
     @Column(name = "`state`")
     List<Integer> getStates();
     void setStates(List<Integer> states);
+
+    @Column(name = "`deposit_amount`")
+    @Operator(Operator.GREAT_THAN)
+    Long getDepositAmountGt();
+    void setDepositAmountGt(Long depositAmountGt);
 
 }

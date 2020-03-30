@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "assets-service", url = "http://10.28.1.11:8182")
+@FeignClient(name = "assets-service")
 public interface AssetsRpc {
 
     /**

@@ -196,7 +196,7 @@ public class EarnestOrderController {
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("定金单保存异常！", e);
-            return BaseOutput.failure(e.getMessage());
+            return BaseOutput.failure("定金单保存异常！");
         }
     }
 

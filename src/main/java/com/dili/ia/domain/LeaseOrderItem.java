@@ -52,6 +52,13 @@ public interface LeaseOrderItem extends IBaseDomain {
 
     void setLeaseOrderId(Long leaseOrderId);
 
+    @Column(name = "`lease_order_code`")
+    @FieldDef(label="租赁单编号", maxLength = 30)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getLeaseOrderCode();
+
+    void setLeaseOrderCode(String leaseOrderCode);
+
     @Column(name = "`booth_id`")
     @FieldDef(label="摊位ID")
     @EditMode(editor = FieldEditor.Number, required = false)

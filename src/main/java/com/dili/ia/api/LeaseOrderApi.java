@@ -1,4 +1,6 @@
 package com.dili.ia.api;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.exception.AppException;
 import com.google.common.collect.Lists;
 import java.util.Map;
@@ -21,10 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 摊位租赁api
@@ -67,7 +66,11 @@ public class LeaseOrderApi {
         categoryDTO.setCreateTime(new Date());
         categoryDTO.setModifyTime(new Date());
         categoryDTO.setState(1);
-        assetsRpc.save(categoryDTO);
+        try {
+            assetsRpc.save(categoryDTO);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         //新增结算单
         SettleOrderDto settleOrderDto = new SettleOrderDto();
@@ -101,7 +104,11 @@ public class LeaseOrderApi {
         settleOrderDto.setNotes("test info");
         settleOrderDto.setBusinessName("test");
         settleOrderDto.setReturnUrl("http://www.baidu.com");
-        settlementRpc.submit(settleOrderDto);
+        try {
+            settlementRpc.submit(settleOrderDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //主动抛异常回滚事务
         if(true){
             throw new AppException("测试事务回滚");
@@ -113,8 +120,9 @@ public class LeaseOrderApi {
      * @param settleOrder
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType="cancel",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(SettleOrder settleOrder){
+    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
             return leaseOrderService.updateLeaseOrderBySettleInfo(settleOrder);
         }catch (Exception e){
@@ -128,10 +136,10 @@ public class LeaseOrderApi {
      * cron 0 0 0 * * ?
      * @return
      */
-    @RequestMapping(value="/scanNotActiveLeaseOrder")
-    public @ResponseBody BaseOutput<Boolean> scanNotActiveLeaseOrder(){
+    @RequestMapping(value="/scanEffectiveLeaseOrder")
+    public @ResponseBody BaseOutput<Boolean> scanEffectiveLeaseOrder(){
         try{
-            return leaseOrderService.scanNotActiveLeaseOrder();
+            return leaseOrderService.scanEffectiveLeaseOrder();
         }catch (Exception e){
             LOG.error("扫描已生效但状态未变更的单子异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);

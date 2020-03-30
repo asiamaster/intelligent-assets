@@ -72,6 +72,7 @@ public class DistrictController {
         input.setCreateTime(new Date());
         input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
         input.setModifyTime(new Date());
+        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
         return assetsRpc.addDistrict(input);
     }
 
@@ -96,6 +97,7 @@ public class DistrictController {
     @ResponseBody
     public BaseOutput edit(DistrictDTO input) {
         input.setModifyTime(new Date());
+        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
         return assetsRpc.editDistrict(input);
     }
 
@@ -108,6 +110,10 @@ public class DistrictController {
     @RequestMapping("/listPage.action")
     @ResponseBody
     public String listPage(DistrictDTO input) {
+        if (input == null) {
+            input = new DistrictDTO();
+        }
+        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
         return assetsRpc.listDistrictPage(input);
     }
 
@@ -127,6 +133,10 @@ public class DistrictController {
     @RequestMapping("search.action")
     @ResponseBody
     public BaseOutput<List<DistrictDTO>> search(DistrictDTO input) {
+        if (input == null) {
+            input = new DistrictDTO();
+        }
+        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
         return assetsRpc.searchDistrict(input);
     }
 

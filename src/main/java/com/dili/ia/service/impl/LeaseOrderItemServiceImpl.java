@@ -4,6 +4,7 @@ import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.ia.controller.LeaseOrderItemController;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
+import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.glossary.LeaseOrderItemStateEnum;
 import com.dili.ia.glossary.LeaseOrderStateEnum;
@@ -16,6 +17,7 @@ import com.dili.ia.service.LeaseOrderService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
@@ -63,14 +65,15 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         leaseOrderItem.setStopOperatorId(userTicket.getId());
         leaseOrderItem.setStopOperatorName(userTicket.getRealName());
         LeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
-        if(StopWayEnum.IMMEDIATELY.getCode().equals(leaseOrderItem.getStopWay())){
+        if(StopWayEnum.IMMEDIATELY.getCode().equals(leaseOrderItem.getStopWay())){//立即停租
             leaseOrderItem.setStopTime(new Date());
             leaseOrderItem.setState(LeaseOrderItemStateEnum.RENTED_OUT.getCode());
             leaseOrderItem.setVersion(leaseOrderItemOld.getVersion());
+            leaseOrderItem.setStopRentState(StopRentStateEnum.RENTED_OUT.getCode());
 
             //检查子项状态，看是否需要联动订单状态
             stopRentCascadeLeaseOrderState(leaseOrderItemOld);
-        }else{
+        }else{//未来停租
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(leaseOrderItem.getStopTime());
             calendar.add(Calendar.HOUR_OF_DAY,23);
@@ -138,8 +141,9 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
     @Override
     public BaseOutput<Boolean> scanWaitStopRentLeaseOrder() {
         while (true) {
-            LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+            LeaseOrderItemListDto condition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
             condition.setStopRentState(StopRentStateEnum.WAIT_TIMER_EXE.getCode());
+            condition.setStopTimeLet(new Date());
             condition.setRows(100);
             condition.setPage(1);
             List<LeaseOrderItem> leaseOrderItems = listByExample(condition);
@@ -164,7 +168,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
      * @param o
      */
     @Transactional
-    void stopRentLeaseOrderItemFromTimer(LeaseOrderItem o) {
+    public void stopRentLeaseOrderItemFromTimer(LeaseOrderItem o) {
         o.setStopTime(new Date());
         o.setState(LeaseOrderItemStateEnum.RENTED_OUT.getCode());
         o.setVersion(o.getVersion());

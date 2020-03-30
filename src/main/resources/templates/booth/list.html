@@ -292,29 +292,30 @@
                 </button>
                 <%}%>
             </div>
-            <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-parent-id-field="parentId" data-query-params="queryParams">
+            <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-parent-id-field="parentId" data-query-params="queryParams" data-sort-name="id"
+                   data-sort-order="desc">
                 <thead>
                 <tr>
-                    <th data-field="name" data-align="center">
+                    <th data-field="name" data-align="center" data-sortable="true" data-formatter="formatterView">
                         摊位编号
                     </th>
-                    <th data-field="number" data-align="center">
+                    <th data-field="number" data-align="center" data-sortable="true">
                         数量
                     </th>
-                    <th data-field="unit" data-align="center" data-provider="dataDictionaryValueProvider">
+                    <th data-field="unit" data-align="center" data-provider="dataDictionaryValueProvider" data-sortable="true">
                         单位
                     </th>
-                    <th data-field="area" data-align="center" data-provider="districtProvider">
+                    <th data-field="area" data-align="center" data-provider="districtProvider" data-sortable="true">
                         区域
                     </th>
-                    <th data-field="departmentId" data-align="center" data-provider="departmentProvider">
+                    <th data-field="departmentId" data-align="center" data-provider="departmentProvider" data-sortable="true" data-sort-name="department_id">
                         部门
                     </th>
-                    <th data-field="createTime" data-align="center"
-                        data-provider="datetimeProvider">
+                    <th data-field="createTime" data-align="center" data-sort-name="create_time"
+                        data-provider="datetimeProvider" data-sortable="true">
                         创建时间
                     </th>
-                    <th data-field="state" data-align="center" data-provider="boothStateProvider">
+                    <th data-field="state" data-align="center" data-provider="boothStateProvider" data-sortable="true">
                         状态
                     </th>
                     <th data-align="center" data-formatter="operateFormatter">
@@ -371,7 +372,7 @@
             '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(1,' + row.id + ')" title="Remove">',
             '启用',
             '</a>  ',
-            '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(0,' + row.id + ')" title="Remove">',
+            '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(2,' + row.id + ')" title="Remove">',
             '禁用',
             '</a>  '
         ];
@@ -380,6 +381,10 @@
         } else {
             return oprate.join("");
         }
+    }
+
+    function formatterView(value, row, index) {
+        return '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">' + value + '</a>'
     }
 
 </script>
