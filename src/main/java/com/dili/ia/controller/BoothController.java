@@ -9,7 +9,9 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.rpc.AssetsMockRpc;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,7 @@ public class BoothController {
     private AssetsRpc assetsRpc;
 
     @Autowired
-    private AssetsMockRpc assetsMockRpc;
+    private UserRpc userRpc;
 
 
     /**
@@ -103,7 +105,14 @@ public class BoothController {
      */
     @RequestMapping("/view.html")
     public String view(Long id, ModelMap map) {
-        map.put("obj", assetsRpc.getBoothById(id).getData());
+        BoothDTO data = assetsRpc.getBoothById(id).getData();
+        if (data != null && data.getCreatorId() != null) {
+            BaseOutput<User> userBaseOutput = userRpc.get(data.getCreatorId());
+            if (userBaseOutput.isSuccess()) {
+                data.setCreatorUser(userBaseOutput.getData().getRealName());
+            }
+        }
+        map.put("obj", data);
         return "booth/view";
     }
 
