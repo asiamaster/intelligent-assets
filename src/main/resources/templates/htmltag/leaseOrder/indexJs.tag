@@ -25,7 +25,7 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {url: '/leaseOrder/listPage.action',pageSize: parseInt(size)});
         queryDataHandler();
     });
 
@@ -128,7 +128,7 @@
             closeBtn: true,
             backdrop : 'static',
             width: '40%',
-            height : '60%',
+            height : '200px',
             btns: [
                 {
                     label: '确定', className: 'btn-primary', onClick(e) {

@@ -125,6 +125,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             //租赁单新增
             BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.LEASE_ORDER.getCode());
             if (!bizNumberOutput.isSuccess()) {
+                LOG.info("租赁单编号生成异常");
                 throw new BusinessException(ResultCode.DATA_ERROR,"编号生成器微服务异常");
             }
             dto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
@@ -324,7 +325,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         boothRentDTO.setOrderId(leaseOrder.getId().toString());
         BaseOutput assetsOutput = assetsRpc.rentBoothRent(boothRentDTO);
         if(!assetsOutput.isSuccess()){
-            LOG.error("摊位解冻出租异常{}",assetsOutput.getMessage());
+            LOG.info("摊位解冻出租异常{}",assetsOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
         }
     }
@@ -380,6 +381,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                     leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
                     leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
             if(!customerAccountOutput.isSuccess()){
+                LOG.info("冻结定金和转低异常【code:{}】", leaseOrder.getCode());
                 if(ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())){
                     throw new BusinessException(ResultCode.DATA_ERROR,"客户定金可用金额不足，请核实修改后重新保存");
                 }else if(ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())){
@@ -419,6 +421,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 LOG.error("结算编号冗余异常 租赁单【code:{}】缴费单【code:{}】 异常信息{}", leaseOrder.getCode(), paymentOrder.getCode(), e.getMessage());
             }
         } else {
+            LOG.info("提交付款调用结算异常【code:{}】", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR,settlementOutput.getMessage());
         }
 
@@ -440,6 +443,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             boothRentDTO.setOrderId(leaseOrder.getId().toString());
             BaseOutput assetsOutput = assetsRpc.addBoothRent(boothRentDTO);
             if(!assetsOutput.isSuccess()){
+                LOG.info("冻结摊位【code:{}】", leaseOrder.getCode());
                 if(assetsOutput.getCode().equals("2500")){
                     throw new BusinessException(ResultCode.DATA_ERROR,o.getBoothName()+"选择的时间期限重复，请修改后重新保存");
                 }else{
@@ -458,7 +462,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         boothRentDTO.setOrderId(leaseOrder.getId().toString());
         BaseOutput assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
         if(!assetsOutput.isSuccess()){
-            LOG.error("摊位解冻异常{}",assetsOutput.getMessage());
+            LOG.info("摊位解冻异常{}",assetsOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
         }
     }
@@ -636,6 +640,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
         if (!bizNumberOutput.isSuccess()) {
+            LOG.info("缴费单编号生成异常");
             throw new BusinessException(ResultCode.DATA_ERROR,"编号生成器微服务异常");
         }
         paymentOrder.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
@@ -750,6 +755,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
                 leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
         if(!customerAccountOutput.isSuccess()){
+            LOG.info("租赁单撤回异常【code:{}】",leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
         }
         //解冻摊位
@@ -784,6 +790,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             } else {
                 String stateName = SettleStateEnum.getNameByCode(settleOrder.getState());
+                LOG.info("结算单【缴费单CODE:{}】撤回异常 状态已发生变更，目前状态【{}】不能进行撤回，等结算数据同步后再操作",paymentCode, stateName);
                 throw new BusinessException(ResultCode.DATA_ERROR,"状态已发生变更，目前状态【" + stateName + "】不能进行撤回，等结算数据同步后再操作");
             }
         }
@@ -1178,7 +1185,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                         refundOrder.getId(),refundOrder.getCode(),o.getPayeeId(),o.getPayeeAmount(),
                         refundOrder.getMarketId(),refundOrder.getRefundOperatorId(),refundOrder.getRefundOperator());
                 if(!accountOutput.isSuccess()){
-                    LOG.error("退款单转低异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】",refundOrder.getCode(),o.getPayee(),o.getPayeeAmount(),accountOutput.getMessage());
+                    LOG.info("退款单转低异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】",refundOrder.getCode(),o.getPayee(),o.getPayeeAmount(),accountOutput.getMessage());
                     throw new BusinessException(ResultCode.DATA_ERROR,accountOutput.getMessage());
                 }
             });
