@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.assets.sdk.dto.DistrictDTO;
+import com.dili.commons.glossary.EnabledStateEnum;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.rpc.AssetsMockRpc;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
@@ -55,6 +57,7 @@ public class BoothController {
         if (input == null) {
             input = new BoothDTO();
         }
+        input.setIsDelete(YesOrNoEnum.NO.getCode());
         input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
         return assetsRpc.listPage(input);
     }
@@ -117,6 +120,7 @@ public class BoothController {
         input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
         input.setModifyTime(new Date());
         input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
+        input.setState(EnabledStateEnum.DISABLED.getCode());
         return assetsRpc.save(input);
     }
 
