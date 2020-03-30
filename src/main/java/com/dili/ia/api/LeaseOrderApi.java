@@ -133,10 +133,10 @@ public class LeaseOrderApi {
      * cron 0 0 0 * * ?
      * @return
      */
-    @RequestMapping(value="/scanNotActiveLeaseOrder")
-    public @ResponseBody BaseOutput<Boolean> scanNotActiveLeaseOrder(){
+    @RequestMapping(value="/scanEffectiveLeaseOrder")
+    public @ResponseBody BaseOutput<Boolean> scanEffectiveLeaseOrder(){
         try{
-            return leaseOrderService.scanNotActiveLeaseOrder();
+            return leaseOrderService.scanEffectiveLeaseOrder();
         }catch (Exception e){
             LOG.error("扫描已生效但状态未变更的单子异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);

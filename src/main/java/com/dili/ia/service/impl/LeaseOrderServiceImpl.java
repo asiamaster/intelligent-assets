@@ -759,7 +759,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @return
      */
     @Override
-    public BaseOutput<Boolean> scanNotActiveLeaseOrder() {
+    public BaseOutput<Boolean> scanEffectiveLeaseOrder() {
         while (true) {
             LeaseOrderListDto condition = DTOUtils.newInstance(LeaseOrderListDto.class);
             condition.setStartTimeLT(new Date());

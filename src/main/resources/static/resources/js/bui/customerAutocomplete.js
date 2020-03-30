@@ -73,7 +73,7 @@ function initSwipeCard(option){
         $.ajax({
             type: "POST",
             url: "/customer/list.action",
-            // data: {certificateNumber : user.IDCardNo},
+            data: {certificateNumber : user.IDCardNo},
             dataType: "json",
             success: function (data) {
                 let customer = data[0];
