@@ -89,11 +89,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         //检查客户状态
         checkCustomerState(earnestOrder.getCustomerId(),userTicket.getFirmId());
-        earnestOrder.getEarnestOrderdetails().forEach(o->{
-            //检查摊位状态
-            checkBoothState(o.getAssetsId());
-        });
-
+        if(CollectionUtils.isNotEmpty(earnestOrder.getEarnestOrderdetails())){
+            earnestOrder.getEarnestOrderdetails().forEach(o->{
+                //检查摊位状态
+                checkBoothState(o.getAssetsId());
+            });
+        }
         earnestOrder.setCreatorId(userTicket.getId());
         earnestOrder.setCreator(userTicket.getRealName());
         earnestOrder.setMarketId(userTicket.getFirmId());
@@ -112,7 +113,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         this.insertSelective(earnestOrder);
         insertEarnestOrderDetails(earnestOrder);
 
-        if (!customerAccountService.checkCustomerAccountExist(earnestOrder.getCustomerId(), userTicket.getFirmId())){ //如果客户账户不存在，创建客户账户
+        if (!customerAccountService.checkCustomerAccountExist(earnestOrder.getCustomerId(), userTicket.getFirmId())){
+            //如果客户账户不存在，创建客户账户
            BaseOutput<CustomerAccount> addCusOut = customerAccountService.addCustomerAccountByCustomerInfo(earnestOrder.getCustomerId(), earnestOrder.getCustomerName(), earnestOrder.getCustomerCellphone(), earnestOrder.getCertificateNumber());
            if (!addCusOut.isSuccess()){
                return BaseOutput.failure(addCusOut.getMessage());
@@ -163,6 +165,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
      * @param dto
      */
     private void insertEarnestOrderDetails(EarnestOrderListDto dto) {
+        if (CollectionUtils.isEmpty(dto.getEarnestOrderdetails())){
+            return;
+        }
         dto.getEarnestOrderdetails().forEach(o -> {
             o.setEarnestOrderId(dto.getId());
             earnestOrderDetailService.insertSelective(o);
@@ -184,21 +189,15 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return BaseOutput.success("修改成功！").setData(earnestOrder);
     }
 
-    private EarnestOrderDetail bulidEarnestOrderDetail(Long earnestOrderId, Long assetsId, String assetsName){
-        EarnestOrderDetail eod = DTOUtils.newDTO(EarnestOrderDetail.class);
-        eod.setEarnestOrderId(earnestOrderId);
-        eod.setAssetsId(assetsId);
-        eod.setAssetsName(assetsName);
-        return eod;
-    }
-
     private void deleteEarnestOrderDetailByEarnestOrderId(Long earnestOrderId){
         EarnestOrderDetail eod = DTOUtils.newDTO(EarnestOrderDetail.class);
         eod.setEarnestOrderId(earnestOrderId);
         List<EarnestOrderDetail> eodlist = earnestOrderDetailService.list(eod);
-        eodlist.forEach(o -> {
-            earnestOrderDetailService.delete(o.getId());
-        });
+        if (CollectionUtils.isNotEmpty(eodlist)){
+            eodlist.forEach(o -> {
+                earnestOrderDetailService.delete(o.getId());
+            });
+        }
         return;
     }
 

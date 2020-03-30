@@ -31,7 +31,6 @@
         displayFieldName: 'name',
         serviceUrl: '/booth/search.action',
         selectFn: function (suggestion, that) {
-            debugger
             $(that).siblings('input').val(suggestion.id)
         },
         onSearchComplete: function (query, suggestions) {
@@ -77,13 +76,16 @@
             let earnestOrderdetail = {};
             $(this).find("input").each(function(t,el){
                 let fieldName = $(this).attr("name").split('_')[0];
-                earnestOrderdetail[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+                if ($(this).val() != ""){
+                    earnestOrderdetail[fieldName] = $(this).val();
+                }
             });
-            earnestOrderdetails.push(earnestOrderdetail);
+            if (earnestOrderdetail != {}){
+                earnestOrderdetails.push(earnestOrderdetail);
+            }
         });
 
         $.extend(formData,{earnestOrderdetails});
-        debugger
         return formData;
     }
 
