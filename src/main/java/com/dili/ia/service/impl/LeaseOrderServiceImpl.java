@@ -14,7 +14,14 @@ import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.ResultCodeConst;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.logger.sdk.glossary.LoggerConstant;
+import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -81,6 +88,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     private RefundOrderService refundOrderService;
     @Autowired
     private CustomerRpc customerRpc;
+    @Autowired
+    private BusinessLogRpc businessLogRpc;
 
     /**
      * 摊位租赁单保存
@@ -198,6 +207,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
     }
 
+
     /**
      * 结算成功，同步更新租赁单相关信息
      *
@@ -281,7 +291,27 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
+
+        recordPayLog(settleOrder,leaseOrder);
         return BaseOutput.success().setData(true);
+    }
+
+    /**
+     * 记录交费日志
+     * @param settleOrder
+     * @param leaseOrder
+     */
+    public void recordPayLog(SettleOrder settleOrder, LeaseOrder leaseOrder) {
+        BusinessLog businessLog = new BusinessLog();
+        businessLog.setBusinessId(leaseOrder.getId());
+        businessLog.setBusinessCode(leaseOrder.getCode());
+        businessLog.setContent(settleOrder.getCode());
+        businessLog.setOperationType("pay");
+        businessLog.setMarketId(settleOrder.getMarketId());
+        businessLog.setOperatorId(settleOrder.getOperatorId());
+        businessLog.setOperatorName(settleOrder.getOperatorName());
+        businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
+        businessLog.setSystemCode("INTELLIGENT_ASSETS");
     }
 
     /**
@@ -390,6 +420,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         } else {
             throw new BusinessException(ResultCode.DATA_ERROR,settlementOutput.getMessage());
         }
+
+        //日志上下文构建
+        LoggerUtil.buildLoggerContext(leaseOrder.getId(),leaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),leaseOrder.getMarketId(),null);
         return settlementOutput;
     }
 
@@ -674,7 +707,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         //联动摊位租赁单项状态 取消
         cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.CANCELD);
-
+        //日志上下文构建
+        LoggerUtil.buildLoggerContext(leaseOrder.getId(),leaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
         return BaseOutput.success();
     }
 
@@ -719,7 +753,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
         //解冻摊位
         unFrozenBooth(leaseOrder);
-
+        //日志上下文构建
+        LoggerUtil.buildLoggerContext(leaseOrder.getId(),leaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
         return BaseOutput.success();
     }
 
@@ -1147,6 +1182,26 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             });
         }
+        //记录退款日志
+        recordRefundLog(refundOrder,leaseOrder);
         return BaseOutput.success();
+    }
+
+    /**
+     * 记录退款日志
+     * @param refundOrder
+     * @param leaseOrder
+     */
+    public void recordRefundLog(RefundOrder refundOrder, LeaseOrder leaseOrder) {
+        BusinessLog businessLog = new BusinessLog();
+        businessLog.setBusinessId(leaseOrder.getId());
+        businessLog.setBusinessCode(leaseOrder.getCode());
+        businessLog.setContent(refundOrder.getSettlementCode());
+        businessLog.setOperationType("refund");
+        businessLog.setMarketId(refundOrder.getMarketId());
+        businessLog.setOperatorId(refundOrder.getRefundOperatorId();
+        businessLog.setOperatorName(refundOrder.getRefundOperator());
+        businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
+        businessLog.setSystemCode("INTELLIGENT_ASSETS");
     }
 }

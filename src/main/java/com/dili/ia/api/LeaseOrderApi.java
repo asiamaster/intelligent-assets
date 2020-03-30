@@ -1,4 +1,6 @@
 package com.dili.ia.api;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.exception.AppException;
 import com.google.common.collect.Lists;
 import java.util.Map;
@@ -118,6 +120,7 @@ public class LeaseOrderApi {
      * @param settleOrder
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType="cancel",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{

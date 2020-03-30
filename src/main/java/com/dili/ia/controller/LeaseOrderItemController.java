@@ -7,8 +7,13 @@ import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.glossary.RefundStateEnum;
 import com.dili.ia.glossary.StopWayEnum;
 import com.dili.ia.service.LeaseOrderItemService;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -68,16 +73,23 @@ public class LeaseOrderItemController {
      * @param leaseOrderItem
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${boothName}",operationType="stopLease",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/stopRent.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput stopRent(LeaseOrderItem leaseOrderItem){
         try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            if (userTicket == null) {
+                throw new RuntimeException("未登录");
+            }
             if(null == leaseOrderItem.getStopWay()|| null == leaseOrderItem.getId()){
                 return BaseOutput.failure("参数错误");
             }
             if(StopWayEnum.TIMING.getCode().equals(leaseOrderItem.getStopWay()) && null == leaseOrderItem.getStopTime()){
                 return BaseOutput.failure("参数错误");
             }
-            return leaseOrderItemService.stopRent(leaseOrderItem);
+            BaseOutput output = leaseOrderItemService.stopRent(leaseOrderItem);
+            LoggerUtil.buildLoggerContext(leaseOrderItem.getId(),leaseOrderItem.getLeaseOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),leaseOrderItem.getStopReason());
+            return output;
         }catch (BusinessException e){
             LOG.error("摊位停租异常！", e);
             return BaseOutput.failure(e.getErrorMsg());

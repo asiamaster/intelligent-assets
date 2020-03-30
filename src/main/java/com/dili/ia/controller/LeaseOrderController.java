@@ -13,6 +13,7 @@ import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
@@ -230,12 +231,20 @@ public class LeaseOrderController {
      * @param leaseOrder
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${contractNo}",operationType="reNumber",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/supplement.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput supplement(LeaseOrder leaseOrder){
         try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            if (userTicket == null) {
+                throw new RuntimeException("未登录");
+            }
             LeaseOrder oldLeaseOrder = leaseOrderService.get(leaseOrder.getId());
             leaseOrder.setVersion(oldLeaseOrder.getVersion());
-            leaseOrderService.updateSelective(leaseOrder);
+            if (leaseOrderService.updateSelective(leaseOrder) == 0) {
+                return BaseOutput.failure("多人操作，请稍后重试");
+            }
+            LoggerUtil.buildLoggerContext(oldLeaseOrder.getId(),oldLeaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.error("租赁订单信息补录异常！", e);
@@ -253,6 +262,7 @@ public class LeaseOrderController {
      * @param id 订单ID
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType="cancel",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancelOrder.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput cancelOrder(Long id){
         try {
@@ -273,6 +283,7 @@ public class LeaseOrderController {
      * @param id 订单ID
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType="withdraw",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdrawOrder.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput withdrawOrder(Long id){
         try {
@@ -330,6 +341,7 @@ public class LeaseOrderController {
      * @param amount
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${amount}",operationType="submitPayment",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput submitPayment(@RequestParam Long id,@RequestParam Long amount,@RequestParam Long waitAmount){
         try{
@@ -351,11 +363,19 @@ public class LeaseOrderController {
      * @param refundOrderDto
      * @return BaseOutput
      */
-    @ApiOperation("摊位租赁退款申请")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${totalRefundAmount}",operationType="refundApply",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/createRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         try{
-            return leaseOrderService.createRefundOrder(refundOrderDto);
+            BaseOutput output = leaseOrderService.createRefundOrder(refundOrderDto);
+            if(output.isSuccess()){
+                LoggerUtil.buildLoggerContext(refundOrderDto.getOrderId(),refundOrderDto.getOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),refundOrderDto.getRefundReason());
+            }
+            return output;
         }catch (BusinessException e){
             LOG.error("摊位租赁退款申请异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
