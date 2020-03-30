@@ -158,6 +158,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     private void insertLeaseOrderItems(LeaseOrderListDto dto) {
         dto.getLeaseOrderItems().forEach(o -> {
             o.setLeaseOrderId(dto.getId());
+            o.setLeaseOrderCode(dto.getCode());
             o.setCustomerId(dto.getCustomerId());
             o.setCustomerName(dto.getCustomerName());
             o.setState(LeaseOrderStateEnum.CREATED.getCode());
