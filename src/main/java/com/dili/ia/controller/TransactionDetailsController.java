@@ -80,49 +80,4 @@ public class TransactionDetailsController {
         transactionDetails.setMarketIds(marketIdList);
         return transactionDetailsService.listEasyuiPageByExample(transactionDetails, true).toString();
     }
-
-    /**
-     * 新增TransactionDetails
-     * @param transactionDetails
-     * @return BaseOutput
-     */
-    @ApiOperation("新增TransactionDetails")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="TransactionDetails", paramType="form", value = "TransactionDetails的form信息", required = true, dataType = "string")
-	})
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(TransactionDetails transactionDetails) {
-        transactionDetailsService.insertSelective(transactionDetails);
-        return BaseOutput.success("新增成功");
-    }
-
-    /**
-     * 修改TransactionDetails
-     * @param transactionDetails
-     * @return BaseOutput
-     */
-    @ApiOperation("修改TransactionDetails")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="TransactionDetails", paramType="form", value = "TransactionDetails的form信息", required = true, dataType = "string")
-	})
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(TransactionDetails transactionDetails) {
-        transactionDetailsService.updateSelective(transactionDetails);
-        return BaseOutput.success("修改成功");
-    }
-
-    /**
-     * 删除TransactionDetails
-     * @param id
-     * @return BaseOutput
-     */
-    @ApiOperation("删除TransactionDetails")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="id", paramType="form", value = "TransactionDetails的主键", required = true, dataType = "long")
-	})
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        transactionDetailsService.delete(id);
-        return BaseOutput.success("删除成功");
-    }
 }

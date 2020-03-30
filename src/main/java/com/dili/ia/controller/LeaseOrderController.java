@@ -20,6 +20,7 @@ import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -28,6 +29,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -206,13 +209,13 @@ public class LeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        /*List<Long> marketIdList = dataAuthService.getMarketDataAuth(userTicket);
+        List<Long> marketIdList = dataAuthService.getMarketDataAuth(userTicket);
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
         if (CollectionUtils.isEmpty(marketIdList) || CollectionUtils.isEmpty(departmentIdList)){
             return new EasyuiPageOutput(0, Collections.emptyList()).toString();
         }
         leaseOrder.setMarketIds(marketIdList);
-        leaseOrder.setDepartmentIds(departmentIdList);*/
+        leaseOrder.setDepartmentIds(departmentIdList);
 
         if (StringUtils.isNotBlank(leaseOrder.getBoothName())) {
             LeaseOrderItem leaseOrderItemCondition = DTOUtils.newDTO(LeaseOrderItem.class);

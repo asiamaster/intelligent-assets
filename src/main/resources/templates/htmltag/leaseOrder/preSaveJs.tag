@@ -349,7 +349,7 @@
      * */
     function calcRentAmount(isCascadeCalc){
         let rentAmount = 0;
-        $("table input[name^='rentAmount']").filter(function () {
+        $("table input[name^='rentAmount_']").filter(function () {
             return this.value
         }).each(function (i) {
             rentAmount = Number(this.value).add(rentAmount);
@@ -366,7 +366,7 @@
      * */
     function calcManageAmount(isCascadeCalc){
         let manageAmount = 0;
-        $("table input[name^='manageAmount']").filter(function () {
+        $("table input[name^='manageAmount_']").filter(function () {
             return this.value
         }).each(function (i) {
             manageAmount = Number(this.value).add(manageAmount);
@@ -383,7 +383,7 @@
      * */
     function calcDepositAmount(isCascadeCalc){
         let depositAmount = 0;
-        $("table input[name^='depositAmount']").filter(function () {
+        $("table input[name^='depositAmount_']").filter(function () {
             return this.value;
         }).each(function (i) {
             depositAmount = Number(this.value).add(depositAmount);
