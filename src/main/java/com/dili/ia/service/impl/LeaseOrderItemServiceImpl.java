@@ -15,8 +15,10 @@ import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -91,11 +93,11 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         boothRentDTO.setEnd(leaseOrderItem.getStopTime());
         BaseOutput assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
         if(!assetsOutput.isSuccess()){
-            LOG.error("摊位 {} 停租异常{}",leaseOrderItemOld.getBoothName(),assetsOutput.getMessage());
-            throw new RuntimeException(assetsOutput.getMessage());
+            LOG.info("摊位 {} 停租异常{}",leaseOrderItemOld.getBoothName(),assetsOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
         }
         if(updateSelective(leaseOrderItem) == 0){
-            throw new RuntimeException("多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
         return BaseOutput.success();
     }
@@ -130,7 +132,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
 
         //租赁单状态不更新为停租也需要版本号+1，状态的联动需要 各订单项需要共同一把锁
         if(leaseOrderService.updateSelective(leaseOrder) == 0){
-            throw new RuntimeException("多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
     }
 
@@ -174,7 +176,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         o.setVersion(o.getVersion());
         o.setStopRentState(StopRentStateEnum.RENTED_OUT.getCode());
         if(updateSelective(o) == 0){
-            throw new RuntimeException("多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
         stopRentCascadeLeaseOrderState(o);
     }
