@@ -1200,7 +1200,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         businessLog.setContent(refundOrder.getSettlementCode());
         businessLog.setOperationType("refund");
         businessLog.setMarketId(refundOrder.getMarketId());
-        businessLog.setOperatorId(refundOrder.getRefundOperatorId();
+        businessLog.setOperatorId(refundOrder.getRefundOperatorId());
         businessLog.setOperatorName(refundOrder.getRefundOperator());
         businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
         businessLog.setSystemCode("INTELLIGENT_ASSETS");
