@@ -17,7 +17,7 @@
                 <input type="text" class="form-control" name="certificateNumber" id="certificateNumber" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
-                <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-refresh"></i> 清空</button>
+                <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
                 <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
             </div>
         </div>
