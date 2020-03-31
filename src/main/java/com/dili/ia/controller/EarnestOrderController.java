@@ -252,8 +252,10 @@ public class EarnestOrderController {
             }
             return output;
         } catch (BusinessException e) {
+            LOG.info("提交失败！", e.getErrorMsg());
             return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
+            LOG.error("submit 提交出错!" ,e);
             return BaseOutput.failure("提交出错！");
         }
     }
