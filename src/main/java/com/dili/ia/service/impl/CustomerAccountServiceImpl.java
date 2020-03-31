@@ -66,7 +66,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setCustomerId(customerId);
         customerAccount.setMarketId(marketId);
         List<CustomerAccount> list = this.listByExample(customerAccount);
-        if (CollectionUtils.isEmpty(list) || list.size() != 1){
+        if (CollectionUtils.isEmpty(list) || list.size() == 0){
             LOGGER.info("当前【客户账户】不存在，或者一个客户同一市场存在多个【客户账户】！customerId={}，marketId={}", customerId, marketId);
             return null;
         }
@@ -116,7 +116,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + amount);
 
         Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
-        if (count != 1){
+        if (count == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
     }
@@ -179,7 +179,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         payerCustomerAccount.setEarnestBalance(payerCustomerAccount.getEarnestBalance() - order.getAmount());
         payerCustomerAccount.setEarnestAvailableBalance(payerCustomerAccount.getEarnestAvailableBalance() - order.getAmount());
         int countPayer = this.getActualDao().updateAmountByAccountIdAndVersion(payerCustomerAccount);
-        if (countPayer != 1){
+        if (countPayer == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户账户正在被多人操作，稍后再试");
         }
 
@@ -188,7 +188,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         payeeCustomerAccount.setEarnestBalance(payeeCustomerAccount.getEarnestBalance() + order.getAmount());
         payeeCustomerAccount.setEarnestAvailableBalance(payeeCustomerAccount.getEarnestAvailableBalance() + order.getAmount());
         int countPayee = this.getActualDao().updateAmountByAccountIdAndVersion(payeeCustomerAccount);
-        if (countPayee != 1){
+        if (countPayee == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户账户正在被多人操作，稍后再试");
         }
 
@@ -206,7 +206,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         order.setPayeeTransactionCode(tdIn.getCode());
         order.setTransferTime(new Date());
         int count = earnestTransferOrderService.updateSelective(order);
-        if (count != 1){
+        if (count == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "转移单被多人操作，稍后再试");
         }
 
@@ -430,7 +430,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         //只有定金或者转抵有金额变动，才执行更新客户账户
         if ((earnestDeduction != null && !earnestDeduction.equals(0L)) || (transferDeduction != null && !transferDeduction.equals(0L))){
             int count = this.getActualDao().updateAmountByAccountIdAndVersion(ca);
-            if (count != 1){
+            if (count == 0){
                 throw new BusinessException(ResultCode.DATA_ERROR, "更新客户账户失败，客户账户多人操作！");
             }
         }
