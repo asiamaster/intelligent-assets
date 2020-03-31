@@ -16,6 +16,7 @@ import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
@@ -180,9 +181,9 @@ public class RefundOrderController {
             }
 
             return out;
-        } catch (RuntimeException e) {
+        } catch (BusinessException e) {
             LOG.error("退款单提交失败！", e);
-            return BaseOutput.failure(e.getMessage());
+            return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
             LOG.error("退款单提交出错！", e);
             return BaseOutput.failure("提交出错！");
@@ -209,9 +210,9 @@ public class RefundOrderController {
                 LoggerUtil.buildLoggerContext(refundOrder.getId(), refundOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             }
             return out;
-        } catch (RuntimeException e) {
+        } catch (BusinessException e) {
             LOG.error("退款单测回失败！", e);
-            return BaseOutput.failure(e.getMessage());
+            return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
             LOG.error("退款单测回出错！", e);
             return BaseOutput.failure("撤回出错！");
