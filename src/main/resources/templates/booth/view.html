@@ -6,18 +6,17 @@
         <div class="row row-cols-4" id="baseInfo">
             <div class="form-group col">
                 <label for="">摊位类型<i class="red">*</i></label>
-                <select class="form-control" id="type" name="type" disabled>
-                    <option value="11">固定摊位</option>
-                    <option value="22">流动摊位</option>
+                <select class="form-control" id="typeView" name="type" disabled>
                 </select>
+                <#bcomboProvider _id="typeView" _provider="dataDictionaryValueProvider" _value="${obj.type!}" _queryParams='{dd_code:"booth_type", required:true}'/>
                 <div class="valid-feedback">error tips</div>
             </div>
             <div class="form-group col">
                 <label for="editDepartmentId">所属部门</label>
-                <select id="editDepartmentId" name="departmentId" class="form-control w-200px" disabled></select>
+                <select id="editDepartmentId" name="departmentId" class="form-control" disabled></select>
                 <#bcomboProvider _id="editDepartmentId" _provider="authDepartmentProvider" _value="${obj.departmentId!}"/>
             </div>
-            <div class="form-group col">
+            <div class="form-group col col-auto">
                 <label for="">区域<i class="red">*</i></label>
                 <div class="input-group">
                     <select class="form-control" id="areaOne" name="area" disabled>
