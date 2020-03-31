@@ -1,5 +1,6 @@
 package com.dili.ia.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BoothDTO;
@@ -21,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 摊位控制器
@@ -81,7 +84,14 @@ public class BoothController {
      */
     @RequestMapping("/split.html")
     public String split(Long id, ModelMap map) {
-        map.put("obj", assetsRpc.getBoothById(id).getData());
+        BoothDTO data = assetsRpc.getBoothById(id).getData();
+        if (data != null && data.getCreatorId() != null) {
+            BaseOutput<User> userBaseOutput = userRpc.get(data.getCreatorId());
+            if (userBaseOutput.isSuccess()) {
+                data.setCreatorUser(userBaseOutput.getData().getRealName());
+            }
+        }
+        map.put("obj", data);
         BaseOutput<Double> boothBalance = assetsRpc.getBoothBalance(id);
         map.put("number", boothBalance.getData());
         return "booth/split";
@@ -94,7 +104,14 @@ public class BoothController {
      */
     @RequestMapping("/update.html")
     public String update(Long id, ModelMap map) {
-        map.put("obj", assetsRpc.getBoothById(id).getData());
+        BoothDTO data = assetsRpc.getBoothById(id).getData();
+        if (data != null && data.getCreatorId() != null) {
+            BaseOutput<User> userBaseOutput = userRpc.get(data.getCreatorId());
+            if (userBaseOutput.isSuccess()) {
+                data.setCreatorUser(userBaseOutput.getData().getRealName());
+            }
+        }
+        map.put("obj", data);
         return "booth/edit";
     }
 
@@ -180,7 +197,20 @@ public class BoothController {
         JSONObject json = new JSONObject();
         json.put("keyword", keyword);
         json.put("marketId", userTicket.getFirmId());
-        return JSON.toJSONString(assetsRpc.searchBooth(json).getData());
-//        return "[{\"id\":1,\"name\":\"三号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":2,\"name\":\"四号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":3,\"name\":\"五号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":4,\"name\":\"六号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"}]";
+        List<BoothDTO> data = assetsRpc.searchBooth(json).getData();
+        List<BoothDTO> result = new ArrayList<>();
+        if (CollUtil.isNotEmpty(data)) {
+            for (BoothDTO dto : data) {
+                if (dto.getParentId() != 0) {
+                    result.add(dto);
+                } else {
+                    boolean anyMatch = data.stream().anyMatch(obj -> obj.getParentId().equals(dto.getId()));
+                    if (!anyMatch) {
+                        result.add(dto);
+                    }
+                }
+            }
+        }
+        return JSON.toJSONString(result);
     }
 }

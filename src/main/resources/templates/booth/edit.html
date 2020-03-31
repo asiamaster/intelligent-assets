@@ -7,10 +7,9 @@
         <div class="row row-cols-4" id="baseInfo">
             <div class="form-group col">
                 <label for="">摊位类型<i class="red">*</i></label>
-                <select class="form-control" id="type" name="type">
-                    <option value="11">固定摊位</option>
-                    <option value="22">流动摊位</option>
+                <select class="form-control" id="type" name="typeUpdate">
                 </select>
+                <#bcomboProvider _id="typeUpdate" _provider="dataDictionaryValueProvider" _value="${obj.type!}" _queryParams='{dd_code:"booth_type", required:true}'/>
                 <div class="valid-feedback">error tips</div>
             </div>
             <div class="form-group col">
@@ -65,11 +64,11 @@
         <div class="row row-cols-4" id="createInfo">
             <div class="form-group col">
                 <label for="">创建人<i class="red">*</i></label>
-                <input type="text" class="form-control" value="${obj.creatorId!}" disabled/>
+                <input type="text" class="form-control" value="${obj.creatorUser!}" disabled/>
             </div>
             <div class="form-group col">
                 <label for="">创建时间<i class="red">*</i></label>
-                <input type="text" class="form-control" value="${obj.createTime!}" disabled/>
+                <input type="text" class="form-control" value="${obj.createTime!,'yyyy-MM-dd HH:mm:ss'}" disabled/>
             </div>
         </div>
 

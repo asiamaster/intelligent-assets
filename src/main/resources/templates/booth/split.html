@@ -7,7 +7,9 @@
         <div class="row row-cols-4" id="baseInfo">
             <div class="form-group col">
                 <label for="">摊位类型<i class="red">*</i></label>
-                <input type="text" value="${obj.type!}" class="form-control" disabled/>
+                <select class="form-control" id="typeSplit" name="type" disabled>
+                </select>
+                <#bcomboProvider _id="typeSplit" _provider="dataDictionaryValueProvider" _value="${obj.type!}" _queryParams='{dd_code:"booth_type", required:true}'/>
             </div>
             <div class="form-group col">
                 <label for="">所属部门</label>
