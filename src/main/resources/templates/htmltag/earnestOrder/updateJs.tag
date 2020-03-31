@@ -21,7 +21,6 @@
     });
 
     var boothAutoCompleteOption = {
-        width: '350',
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/booth/search.action',

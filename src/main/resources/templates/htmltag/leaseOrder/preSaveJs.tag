@@ -37,7 +37,6 @@
 
     //摊位搜索自动完成
     var boothAutoCompleteOption = {
-        width: '350',
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/booth/search.action',

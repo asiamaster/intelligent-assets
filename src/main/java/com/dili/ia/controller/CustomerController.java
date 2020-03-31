@@ -56,7 +56,10 @@ public class CustomerController {
             customerQuery.setKeyword(keyword);
         }
         customerQuery.setMarketId(userTicket.getFirmId());
-        List<Customer> list = customerRpc.list(customerQuery).getData();
-        return list;
+        try{
+            return customerRpc.list(customerQuery).getData();
+        }catch (Exception e){
+            return new ArrayList<>();
+        }
     }
 }

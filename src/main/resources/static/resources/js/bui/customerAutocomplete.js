@@ -16,7 +16,6 @@ var registerDia;
 /************* 刷卡获取客户信息  start *****************/
 // 客户名称
 var customerNameAutoCompleteOption = {
-    width: 350,
     serviceUrl: '/customer/list.action',
     paramName: 'likeName',
     displayFieldName: 'name',
@@ -40,7 +39,6 @@ var customerNameAutoCompleteOption = {
 };
 // 证件号码
 var certificateNumberAutoCompleteOption = {
-    width: 350,
     minChars: 6,
     serviceUrl: '/customer/list.action',
     paramName: 'certificateNumberMatch',

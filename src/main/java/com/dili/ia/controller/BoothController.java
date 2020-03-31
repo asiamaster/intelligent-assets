@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -180,7 +181,10 @@ public class BoothController {
         JSONObject json = new JSONObject();
         json.put("keyword", keyword);
         json.put("marketId", userTicket.getFirmId());
-        return JSON.toJSONString(assetsRpc.searchBooth(json).getData());
-//        return "[{\"id\":1,\"name\":\"三号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":2,\"name\":\"四号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":3,\"name\":\"五号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"},{\"id\":4,\"name\":\"六号摊位\",\"number\":2000,\"unit\":\"001\",\"unitName\":\"平\",\"area\":1,\"areaName\":\"一号区域\",\"cornerName\":\"是\"}]";
+        try {
+            return JSON.toJSONString(assetsRpc.searchBooth(json).getData());
+        }catch (Exception e){
+            return "[]";
+        }
     }
 }
