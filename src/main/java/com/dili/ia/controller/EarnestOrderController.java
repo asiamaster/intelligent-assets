@@ -277,8 +277,10 @@ public class EarnestOrderController {
             }
             return BaseOutput.success("修改成功");
         } catch (BusinessException e) {
+            LOG.info("撤回出错！", e.getErrorMsg());
             return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
+            LOG.error("withdraw 撤回出错!" ,e);
             return BaseOutput.failure("撤回出错！");
         }
     }
@@ -313,6 +315,7 @@ public class EarnestOrderController {
 
             return BaseOutput.success("取消成功");
         } catch (Exception e) {
+            LOG.error("cancel 取消出错!" ,e);
             return BaseOutput.failure("取消出错！");
         }
     }

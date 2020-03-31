@@ -20,6 +20,8 @@ import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -38,6 +40,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/customerAccount")
 public class CustomerAccountController {
+    private final static Logger LOG = LoggerFactory.getLogger(EarnestOrderController.class);
     @Autowired
     CustomerAccountService customerAccountService;
     @Autowired
@@ -118,6 +121,7 @@ public class CustomerAccountController {
             }
             return out;
         } catch (BusinessException e) {
+            LOG.info("创建退款失败！", e.getErrorMsg(),e);
             return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
             return BaseOutput.failure("创建退款出错！");
