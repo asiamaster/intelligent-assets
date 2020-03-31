@@ -286,8 +286,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         settleOrder.setBusinessDepName(departmentRpc.get(ea.getDepartmentId()).getData().getName());//"业务部门名称
         settleOrder.setSubmitterId(userTicket.getId());// "提交人ID
         settleOrder.setSubmitterName(userTicket.getRealName());// "提交人姓名
-        settleOrder.setSubmitterDepId(userTicket.getDepartmentId()); //"提交人部门ID
-        settleOrder.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+        if (userTicket.getDepartmentId() != null){
+            settleOrder.setSubmitterDepId(userTicket.getDepartmentId()); //"提交人部门ID
+            settleOrder.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+        }
         settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
         settleOrder.setBusinessType(BizTypeEnum.EARNEST.getCode()); // 业务类型
@@ -376,7 +378,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         //结算单code唯一
         condition.setCode(settleOrder.getBusinessCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
-        EarnestOrder ea = this.getActualDao().selectByPrimaryKey(paymentOrderPO.getBusinessId());
+        EarnestOrder ea = this.get(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
             return BaseOutput.success().setData(ea);
         }

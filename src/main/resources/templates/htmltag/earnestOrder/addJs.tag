@@ -32,9 +32,6 @@
         selectFn: function (suggestion, that) {
             $(that).siblings('input').val(suggestion.id)
         },
-        onSearchComplete: function (query, suggestions) {
-            console.log(suggestions)
-        },
         transformResult: function (result) {
             return {
                 suggestions: $.map(result, function (dataItem) {
@@ -122,7 +119,6 @@
             bs4pop.alert('存在重复摊位，请检查！');
             return false;
         }
-
         bui.loading.show('努力提交中，请稍候。。。');
         // let _formData = new FormData($('#saveForm')[0]);
         $.ajax({
