@@ -80,6 +80,9 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
             throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
         }
+        if (customerAccount.getEarnestAvailableBalance() < amount){
+            throw new BusinessException(ResultCode.DATA_ERROR,"客户可用余额不足！");
+        }
         customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() - amount);
         customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() + amount);
 
@@ -95,6 +98,9 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (null == customerAccount){
             LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
             throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
+        }
+        if (customerAccount.getEarnestFrozenAmount() < amount){
+            throw new BusinessException(ResultCode.DATA_ERROR,"客户解冻结金额小于冻结金额！");
         }
         customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
         customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
@@ -126,6 +132,12 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (null == customerAccount){
             LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
             throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
+        }
+        if (customerAccount.getEarnestBalance() < amount){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户余额不足！");
+        }
+        if (customerAccount.getEarnestFrozenAmount() < amount){
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款成功回调出错，客户冻结金额小于解冻金额！");
         }
         customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() - amount);
         customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
@@ -180,6 +192,12 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         //转出方
         CustomerAccount payerCustomerAccount = this.get(order.getPayerCustomerAccountId());
+        if (payerCustomerAccount.getEarnestBalance() < order.getAmount()){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户余额不足！");
+        }
+        if (payerCustomerAccount.getEarnestAvailableBalance() < order.getAmount()){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户可用余额不足！");
+        }
         payerCustomerAccount.setEarnestBalance(payerCustomerAccount.getEarnestBalance() - order.getAmount());
         payerCustomerAccount.setEarnestAvailableBalance(payerCustomerAccount.getEarnestAvailableBalance() - order.getAmount());
         int countPayer = this.getActualDao().updateAmountByAccountIdAndVersion(payerCustomerAccount);
