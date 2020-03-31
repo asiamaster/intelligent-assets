@@ -301,8 +301,8 @@ public class EarnestOrderController {
             earnestOrder.setCancelerId(userTicket.getId());
             earnestOrder.setCanceler(userTicket.getRealName());
             earnestOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
-            if (earnestOrderService.updateSelective(earnestOrder) != 1){
-                LOG.info("取消失败，取消更新状态记录数不为 1，取消单定金单ID【{}】", id);
+            if (earnestOrderService.updateSelective(earnestOrder) == 0){
+                LOG.info("取消失败，取消更新状态记录数为 0，取消单定金单ID【{}】", id);
                 return BaseOutput.failure("取消失败！");
             }
 

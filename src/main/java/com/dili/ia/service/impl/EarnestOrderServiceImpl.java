@@ -184,7 +184,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             return BaseOutput.failure("Id不能为空！");
         }
 
-        if (this.update(this.buildUpdateDto(earnestOrder)) != 1){
+        if (this.update(this.buildUpdateDto(earnestOrder)) == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         this.deleteEarnestOrderDetailByEarnestOrderId(earnestOrder.getId());
@@ -228,6 +228,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @Override
     public BaseOutput<EarnestOrder> submitEarnestOrder(Long earnestOrderId) {
         EarnestOrder ea = this.get(earnestOrderId);
+        if (null == ea){
+            LOG.info("提交失败，没有查询到定金单！id={}", earnestOrderId);
+            return BaseOutput.failure("提交失败，没有查询到定金单！");
+        }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
             return BaseOutput.failure("未登录");
@@ -243,15 +247,15 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
                 checkBoothState(o.getAssetsId());
             });
         }
-        if (null == ea || !ea.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){
-            return BaseOutput.failure("提交失败，状态已变更！");
+        if (!ea.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){
+            return BaseOutput.failure("提交失败,多人操作，状态已变更！");
         }
         ea.setState(EarnestOrderStateEnum.SUBMITTED.getCode());
         ea.setSubmitterId(userTicket.getId());
         ea.setSubmitter(userTicket.getRealName());
         ea.setSubDate(new Date());
-        if (this.updateSelective(ea) != 1) {
-            LOG.info("提交定金【修改定金单状态】失败 -- 记录数不为 1 ，多人操作，请重试！");
+        if (this.updateSelective(ea) == 0) {
+            LOG.info("提交定金【修改定金单状态】失败 -- 记录数为 0 ，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
@@ -344,14 +348,14 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setState(EarnestOrderStateEnum.CREATED.getCode());
         ea.setWithdrawOperatorId(userTicket.getId());
         ea.setWithdrawOperator(userTicket.getRealName());
-        if (this.updateSelective(ea) != 1) {
-            LOG.info("撤回定金【修改定金单状态】失败 -- 记录数不为 1 ，多人操作，请重试！");
+        if (this.updateSelective(ea) == 0) {
+            LOG.info("撤回定金【修改定金单状态】失败 -- 记录数为 0 ，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         PaymentOrder pb = this.findPaymentOrder(userTicket, ea.getId(), ea.getCode());
-        if (paymentOrderService.delete(pb.getId()) != 1) {
-            LOG.info("撤回定金【删除缴费单】失败 -- 记录数不为 1 ，多人操作，请重试！");
+        if (paymentOrderService.delete(pb.getId()) == 0) {
+            LOG.info("撤回定金【删除缴费单】失败 -- 记录数为 0 ，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         BaseOutput<String>  setOut = settlementRpc.cancel(settlementAppId, pb.getCode());
@@ -386,15 +390,15 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         paymentOrderPO.setSettlementCode(settleOrder.getCode());
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
-        if (paymentOrderService.updateSelective(paymentOrderPO) != 1) {
-            LOG.info("缴费单成功回调 -- 更新【缴费单】状态记录数不为 1 ，多人操作，请重试！");
+        if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
+            LOG.info("缴费单成功回调 -- 更新【缴费单】状态记录数为 0 ，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         //修改订单状态
         ea.setState(EarnestOrderStateEnum.PAID.getCode());
-        if (this.updateSelective(ea) != 1) {
-            LOG.info("缴费单成功回调 -- 更新【租赁单】状态记录数不为 1 ，多人操作，请重试！");
+        if (this.updateSelective(ea) == 0) {
+            LOG.info("缴费单成功回调 -- 更新【租赁单】状态记录数为 0 ，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
