@@ -113,13 +113,12 @@
                     });
                     if (array.length == 0) {
                         $('#areaOne').html("")
-                    }
-                    $("#areaOne").select2({
-                        width: '150',
-                        data: array,
-                        minimumResultsForSearch: Infinity
-                    });
-                    $('#areaOne').trigger('change');
+                    } else {
+                        $("#areaOne").select2({
+                            data: array,
+                            minimumResultsForSearch: Infinity
+                        });
+                        $('#areaOne').trigger('change');
                     }
                 }
             }
