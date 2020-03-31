@@ -112,10 +112,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             checkBoothState(o.getBoothId());
         });
 
-        BaseOutput<Department> depOut = departmentRpc.get(dto.getDepartmentId());
-        if (depOut.isSuccess()) {
-            dto.setDepartmentName(depOut.getData().getName());
-        }
         dto.setMarketId(userTicket.getFirmId());
         dto.setMarketCode(userTicket.getFirmCode());
         dto.setCreatorId(userTicket.getId());
