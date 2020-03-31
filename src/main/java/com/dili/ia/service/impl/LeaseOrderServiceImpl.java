@@ -112,7 +112,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             checkBoothState(o.getBoothId());
         });
 
-        BaseOutput<Department> depOut = departmentRpc.get(userTicket.getDepartmentId());
+        BaseOutput<Department> depOut = departmentRpc.get(dto.getDepartmentId());
         if (depOut.isSuccess()) {
             dto.setDepartmentName(depOut.getData().getName());
         }
@@ -138,8 +138,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             //租赁单修改
             LeaseOrder oldLeaseOrder = get(dto.getId());
             dto.setVersion(oldLeaseOrder.getVersion());
-            int rows = updateSelective(dto);
-            if (rows == 0) {
+            if (updateSelective(dto) == 0) {
+                LOG.info("摊位租赁单修改异常,乐观锁生效 【租赁单编号:{}】", dto.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
 
@@ -233,6 +233,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
         paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
         if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
+            LOG.info("结算成功，缴费单同步数据异常,乐观锁生效 【缴费单编号:{}】", settleOrder.getBusinessCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
         /*****************************更新缴费单相关字段 end*************************/
@@ -251,6 +252,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                     leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
                     leaseOrder.getMarketId(),settleOrder.getOperatorId(),settleOrder.getOperatorName());
             if(!customerAccountOutput.isSuccess()){
+                LOG.info("结算成功，消费定金、转低接口异常 【租赁单编号:{},定金:{},转抵:{}】", leaseOrder.getCode(),leaseOrder.getEarnestDeduction(),leaseOrder.getTransferDeduction());
                 throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
             }
             //解冻出租摊位
@@ -515,12 +517,12 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             if (DepositAmountFlagEnum.FROZEN.getCode().equals(o.getDepositAmountFlag())) {
                 o.setDepositAmountFlag(DepositAmountFlagEnum.DEDUCTION.getCode());
             } else {
-                LOG.info("{}保证金已被抵扣,不可重复操作", o.getBoothName());
+                LOG.info("摊位租赁单保证金已被抵扣,不可重复操作,【租赁单ID:{}，摊位:{}】", id, o.getBoothName());
                 throw new BusinessException(ResultCode.DATA_ERROR,o.getBoothName() + "保证金已被抵扣,不可重复操作");
             }
         });
         if (leaseOrderItemService.batchUpdateSelective(depositAmountSourceItems) != depositAmountSourceItems.size()) {
-            LOG.info("源摊位租赁单项抵扣失败 【租赁单id={}】", id);
+            LOG.info("源摊位租赁单项抵扣失败，乐观锁生效 【租赁单id={}】", id);
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
 
@@ -553,7 +555,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             }
         });
         if (leaseOrderItemService.batchUpdateSelective(depositAmountSourceItems) != depositAmountSourceItems.size()) {
-            LOG.info("源摊位租赁单项冻结失败 【租赁单id={}】", id);
+            LOG.info("源摊位租赁单项冻结失败，乐观锁生效 【租赁单id={}】", id);
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
 
@@ -578,12 +580,12 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 o.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
             } else {
                 String operateName = DepositAmountFlagEnum.getDepositAmountFlagEnum(o.getDepositAmountFlag()).getOperateName();
-                LOG.info("{}保证金已被解冻,不可重复操作", o.getBoothName());
+                LOG.info("摊位保证金已被解冻,不可重复操作,【租赁单ID:{},摊位:{}】", o.getId(), o.getBoothName());
                 throw new BusinessException(ResultCode.DATA_ERROR,o.getBoothName() + "保证金已被解冻,不可重复操作");
             }
         });
         if (leaseOrderItemService.batchUpdateSelective(depositAmountSourceItems) != depositAmountSourceItems.size()) {
-            LOG.info("源摊位租赁单项解冻失败 【租赁单id={}】", id);
+            LOG.info("源摊位租赁单项解冻失败,乐观锁生效 【租赁单id={}】", id);
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
 
@@ -609,6 +611,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
             leaseOrderItems.stream().forEach(o -> o.setState(stateEnum.getCode()));
             if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
+                LOG.info("级联更新摊位租赁订单状态失败,乐观锁生效 【租赁单编号:{},变更目标状态:{}】", leaseOrder.getCode(), stateEnum.getName());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
         }
@@ -755,7 +758,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
                 leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
         if(!customerAccountOutput.isSuccess()){
-            LOG.info("租赁单撤回异常【code:{}】",leaseOrder.getCode());
+            LOG.info("租赁单撤回 解冻定金、转抵异常【code:{},MSG:{}】", leaseOrder.getCode(), customerAccountOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
         }
         //解冻摊位
@@ -771,8 +774,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      *
      * @param paymentId
      */
-    @GlobalTransactional
-    private void withdrawPaymentOrder(Long paymentId) {
+    public void withdrawPaymentOrder(Long paymentId) {
         PaymentOrder payingOrder = paymentOrderService.get(paymentId);
         if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
             String paymentCode = payingOrder.getCode();
@@ -792,6 +794,12 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 String stateName = SettleStateEnum.getNameByCode(settleOrder.getState());
                 LOG.info("结算单【缴费单CODE:{}】撤回异常 状态已发生变更，目前状态【{}】不能进行撤回，等结算数据同步后再操作",paymentCode, stateName);
                 throw new BusinessException(ResultCode.DATA_ERROR,"状态已发生变更，目前状态【" + stateName + "】不能进行撤回，等结算数据同步后再操作");
+            }
+
+            payingOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
+            if(paymentOrderService.updateSelective(payingOrder) == 0){
+                LOG.info("撤回缴费单异常，乐观锁生效，【缴费单编号:{}】",payingOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
         }
     }
@@ -823,6 +831,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             });
         }
+        LOG.info("摊位租赁生效处理调度执行完毕");
         return BaseOutput.success().setData(true);
     }
 
@@ -835,7 +844,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     public void leaseOrderEffectiveHandler(LeaseOrder o) {
         o.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
         if (updateSelective(o) == 0) {
-            LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", o.getId());
+            LOG.info("租赁单生效处理异常,乐观锁生效 【租赁单ID {}】", o.getId());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试");
         }
 
@@ -852,6 +861,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             }
         });
         if (leaseOrderItemService.batchUpdateSelective(waitItems) != waitItems.size()) {
+            LOG.info("租赁单生效处理异常,级联批量处理摊位订单项乐观锁生效【订单ID:{}", o.getId());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
     }
@@ -883,6 +893,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             });
         }
+        LOG.info("摊位租赁到期处理调度执行完毕");
         return BaseOutput.success().setData(true);
     }
 
@@ -895,7 +906,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     public void leaseOrderExpiredHandler(LeaseOrder o) {
         o.setState(LeaseOrderStateEnum.EXPIRED.getCode());
         if (updateSelective(o) == 0) {
-            LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", o.getId());
+            LOG.info("租赁单到期处理异常 乐观锁生效 【租赁单ID {}】", o.getId());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试");
         }
 
@@ -912,6 +923,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             }
         });
         if (leaseOrderItemService.batchUpdateSelective(waitItems) != waitItems.size()) {
+            LOG.info("租赁单到期处理异常,级联批量处理摊位订单项乐观锁生效【订单ID:{}", o.getId());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
     }
@@ -1012,12 +1024,14 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrder.setRefundState(RefundStateEnum.REFUNDING.getCode());
             leaseOrder.setRefundAmount(refundOrderDto.getTotalRefundAmount());
             if(updateSelective(leaseOrder) == 0){
+                LOG.info("租赁单退款申请异常 租赁单更新乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
 
             //级联订单项退款状态
             leaseOrderItems.stream().forEach(o -> o.setRefundState(RefundStateEnum.REFUNDING.getCode()));
             if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
+                LOG.info("租赁单退款申请异常 级联批量摊位租赁单项更新乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
         }else{
@@ -1053,6 +1067,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrderItem.setRentRefundAmount(refundOrderDto.getRentRefundAmount());
             leaseOrderItem.setManageRefundAmount(refundOrderDto.getManageRefundAmount());
             if(leaseOrderItemService.updateSelective(leaseOrderItem) == 0){
+                LOG.info("摊位租赁订单项退款申请异常 更新乐观锁生效 【租赁单项ID {}】", leaseOrderItem.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
         }
@@ -1090,6 +1105,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrder.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
             leaseOrder.setRefundAmount(0L);
             if(updateSelective(leaseOrder) == 0){
+                LOG.info("摊位租赁单取消退款申请异常 更新租赁单乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
 
@@ -1099,6 +1115,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
             leaseOrderItems.stream().forEach(o -> o.setRefundState(RefundStateEnum.WAIT_APPLY.getCode()));
             if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
+                LOG.info("摊位租赁单取消退款申请异常 级联批量更新租赁单订单项乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
         }else{
@@ -1115,6 +1132,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrderItem.setRentRefundAmount(0L);
             leaseOrderItem.setManageRefundAmount(0L);
             if(leaseOrderItemService.updateSelective(leaseOrderItem) == 0){
+                LOG.info("摊位租赁单订单项取消退款申请异常 更新租赁单订单项乐观锁生效 【摊位租赁订单项ID {}】", leaseOrderItem.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
         }
@@ -1133,6 +1151,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrder.setRefundState(RefundStateEnum.REFUNDED.getCode());
             leaseOrder.setState(LeaseOrderStateEnum.REFUNDED.getCode());
             if(updateSelective(leaseOrder) == 0){
+                LOG.info("租赁单退款申请结算退款成功 更新租赁单乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
 
@@ -1145,6 +1164,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 o.setState(LeaseOrderItemStateEnum.REFUNDED.getCode());
             });
             if (leaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
+                LOG.info("租赁单退款申请结算退款成功 级联批量更新租赁单订单项乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
         }else{
@@ -1157,6 +1177,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrderItem.setRefundState(RefundStateEnum.REFUNDED.getCode());
 
             if(leaseOrderItemService.updateSelective(leaseOrderItem) == 0){
+                LOG.info("摊位租赁单订单项退款申请结算退款成功 更新租赁单订单项乐观锁生效 【租赁单订单项ID {}】", leaseOrderItem.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
 
@@ -1176,7 +1197,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             if(isUpdateLeaseOrderState){
                 leaseOrder.setState(LeaseOrderStateEnum.REFUNDED.getCode());
                 if(updateSelective(leaseOrder) == 0){
-                    throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
+                    LOG.info("摊位租赁单订单项退款申请结算退款成功 级联更新租赁单乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
+                    throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
                 }
             }
         }
