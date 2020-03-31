@@ -379,7 +379,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                     leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
                     leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
             if(!customerAccountOutput.isSuccess()){
-                LOG.info("冻结定金和转低异常【code:{}】", leaseOrder.getCode());
+                LOG.info("冻结定金和转低异常【编号：{}】", leaseOrder.getCode());
                 if(ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())){
                     throw new BusinessException(ResultCode.DATA_ERROR,"客户定金可用金额不足，请核实修改后重新保存");
                 }else if(ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())){
@@ -416,10 +416,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             try {
                 saveSettlementCode(paymentOrder.getId(), settlementOutput.getData().getCode());
             } catch (Exception e) {
-                LOG.error("结算编号冗余异常 租赁单【code:{}】缴费单【code:{}】 异常信息{}", leaseOrder.getCode(), paymentOrder.getCode(), e.getMessage());
+                LOG.error("结算编号冗余异常 租赁单【编号：{}】缴费单【编号：{}】 异常信息{}", leaseOrder.getCode(), paymentOrder.getCode(), e.getMessage());
             }
         } else {
-            LOG.info("提交付款调用结算异常【code:{}】", leaseOrder.getCode());
+            LOG.info("提交付款调用结算异常【编号：{}】", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR,settlementOutput.getMessage());
         }
 
@@ -441,7 +441,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             boothRentDTO.setOrderId(leaseOrder.getId().toString());
             BaseOutput assetsOutput = assetsRpc.addBoothRent(boothRentDTO);
             if(!assetsOutput.isSuccess()){
-                LOG.info("冻结摊位【code:{}】", leaseOrder.getCode());
+                LOG.info("冻结摊位异常【编号：{}】", leaseOrder.getCode());
                 if(assetsOutput.getCode().equals("2500")){
                     throw new BusinessException(ResultCode.DATA_ERROR,o.getBoothName()+"选择的时间期限重复，请修改后重新保存");
                 }else{
@@ -639,7 +639,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
         if (!bizNumberOutput.isSuccess()) {
-            LOG.info("租赁单【code:{}】,缴费单编号生成异常",leaseOrder.getCode());
+            LOG.info("租赁单【编号：{}】,缴费单编号生成异常",leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"编号生成器微服务异常");
         }
         paymentOrder.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
@@ -703,7 +703,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         LeaseOrder leaseOrder = get(id);
         if (!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState())) {
             String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
-            LOG.info("租赁单【code:{}】状态为【{}】，不可以进行取消操作", leaseOrder.getCode(), stateName);
+            LOG.info("租赁单【编号：{}】状态为【{}】，不可以进行取消操作", leaseOrder.getCode(), stateName);
             throw new BusinessException(ResultCode.DATA_ERROR,"租赁单状态为【" + stateName + "】，不可以进行取消操作");
         }
         leaseOrder.setState(LeaseOrderStateEnum.CANCELD.getCode());
@@ -734,7 +734,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         LeaseOrder leaseOrder = get(id);
         if (!LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
-            LOG.info("租赁单【code:{}】状态为【{}】，不可以进行撤回操作", leaseOrder.getCode(), stateName);
+            LOG.info("租赁单【编号：{}】状态为【{}】，不可以进行撤回操作", leaseOrder.getCode(), stateName);
             throw new BusinessException(ResultCode.DATA_ERROR,"租赁单状态为【" + stateName + "】，不可以进行撤回操作");
         }
         if (null != leaseOrder.getPaymentId() && 0L != leaseOrder.getPaymentId()) {
@@ -754,7 +754,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
                 leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
         if(!customerAccountOutput.isSuccess()){
-            LOG.info("租赁单撤回 解冻定金、转抵异常【code:{},MSG:{}】", leaseOrder.getCode(), customerAccountOutput.getMessage());
+            LOG.info("租赁单撤回 解冻定金、转抵异常【编号：{},MSG:{}】", leaseOrder.getCode(), customerAccountOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
         }
         //解冻摊位
@@ -822,7 +822,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 try {
                     leaseOrderEffectiveHandler(o);
                 } catch (Exception e) {
-                    LOG.error("租赁单【code:{}】变更生效异常。{}", o.getCode(), e.getMessage());
+                    LOG.error("租赁单【编号：{}】变更生效异常。{}", o.getCode(), e.getMessage());
                     LOG.error("租赁单变更生效异常", e);
                 }
             });
@@ -884,7 +884,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 try {
                     leaseOrderExpiredHandler(o);
                 } catch (Exception e) {
-                    LOG.error("租赁单【code:{}】变更到期异常。{}", o.getCode(), e.getMessage());
+                    LOG.error("租赁单【编号：{}】变更到期异常。{}", o.getCode(), e.getMessage());
                     LOG.error("租赁单变更到期异常", e);
                 }
             });
@@ -1071,12 +1071,12 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         refundOrderDto.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode());
         if (!bizNumberOutput.isSuccess()) {
-            LOG.info("租赁单【code:{}】退款单编号生成异常",refundOrderDto.getOrderCode());
+            LOG.info("租赁单【编号：{}】退款单编号生成异常",refundOrderDto.getOrderCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"编号生成器微服务异常");
         }
         refundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         if(!refundOrderService.doAddHandler(refundOrderDto).isSuccess()){
-            LOG.info("租赁单【code:{}】退款申请接口异常",refundOrderDto.getOrderCode());
+            LOG.info("租赁单【编号：{}】退款申请接口异常",refundOrderDto.getOrderCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"退款申请接口异常");
         }
 
@@ -1095,7 +1095,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if(null == leaseOrderItemId){
             LeaseOrder leaseOrder = get(leaseOrderId);
             if(!RefundStateEnum.REFUNDING.getCode().equals(leaseOrder.getRefundState())){
-                LOG.info("租赁单【code:{}】退款状态已发生变更，不能取消退款",leaseOrder.getCode());
+                LOG.info("租赁单【编号：{}】退款状态已发生变更，不能取消退款",leaseOrder.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR,"退款状态已发生变更，不能取消退款");
             }
             leaseOrder.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
@@ -1118,7 +1118,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             //订单项退款申请
             LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(leaseOrderItemId);
             if(!RefundStateEnum.REFUNDING.getCode().equals(leaseOrderItem.getRefundState())){
-                LOG.info("租赁单【code:{}】退款状态已发生变更，不能取消退款",leaseOrderItem.getLeaseOrderCode());
+                LOG.info("租赁单【编号：{}】退款状态已发生变更，不能取消退款",leaseOrderItem.getLeaseOrderCode());
                 throw new BusinessException(ResultCode.DATA_ERROR,"退款状态已发生变更，不能取消退款");
             }
 
