@@ -11,11 +11,11 @@
             </div>
             <div class="form-group col">
                 <label for="">所属部门</label>
-                <select id="splitDepartmentId" name="departmentId" class="form-control w-200px" required
+                <select id="splitDepartmentId" name="departmentId" class="form-control" required
                         disabled></select>
                 <#bcomboProvider _id="splitDepartmentId" _provider="authDepartmentProvider" _value="${obj.departmentId!}"/>
             </div>
-            <div class="form-group col-4">
+            <div class="form-group col col-auto">
                 <label for="">区域<i class="red">*</i></label>
                 <div class="input-group">
                     <select disabled class="form-control" id="areaOneSplit" name="area" required>
