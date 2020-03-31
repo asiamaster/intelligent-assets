@@ -11,10 +11,12 @@ package com.dili.ia.provider;
 
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.ia.rpc.AssetsRpc;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
 import com.dili.ss.metadata.ValueProvider;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,11 +42,20 @@ public class CategoryProvider implements ValueProvider {
         }else{
             categoryDTO.setKeyword(val.toString());
         }
-        List<CategoryDTO> categoryList = assetsRpc.list(categoryDTO).getData();
+//        BaseOutput<List<CategoryDTO>> output = assetsRpc.list(categoryDTO);
+//        if(){
+//
+//        }
+
         List<ValuePair<?>> buffer = new ArrayList<ValuePair<?>>();
-        categoryList.forEach(o->{
-            buffer.add(new ValuePairImpl(o.getName(),o.getId().toString()));
-        });
+        try{
+            List<CategoryDTO> categoryList = assetsRpc.list(categoryDTO).getData();
+            if(CollectionUtils.isNotEmpty(categoryList)){
+                categoryList.forEach(o->{
+                    buffer.add(new ValuePairImpl(o.getName(),o.getId().toString()));
+                });
+            }
+        }catch (Exception e){}
         return buffer;
     }
 

@@ -10,7 +10,6 @@
         //行索引计数器
         let itemIndex = 0;
         var customerNameAutoCompleteOption = {
-            width : 350,
             serviceUrl: '/customer/list.action',
             paramName : 'keyword',
             displayFieldName : 'name',

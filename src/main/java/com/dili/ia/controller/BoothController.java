@@ -4,10 +4,8 @@ import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BoothDTO;
-import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.rpc.AssetsMockRpc;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.User;
@@ -197,20 +195,25 @@ public class BoothController {
         JSONObject json = new JSONObject();
         json.put("keyword", keyword);
         json.put("marketId", userTicket.getFirmId());
-        List<BoothDTO> data = assetsRpc.searchBooth(json).getData();
-        List<BoothDTO> result = new ArrayList<>();
-        if (CollUtil.isNotEmpty(data)) {
-            for (BoothDTO dto : data) {
-                if (dto.getParentId() != 0) {
-                    result.add(dto);
-                } else {
-                    boolean anyMatch = data.stream().anyMatch(obj -> obj.getParentId().equals(dto.getId()));
-                    if (!anyMatch) {
+        try {
+            List<BoothDTO> data = assetsRpc.searchBooth(json).getData();
+            List<BoothDTO> result = new ArrayList<>();
+            if (CollUtil.isNotEmpty(data)) {
+                for (BoothDTO dto : data) {
+                    if (dto.getParentId() != 0) {
                         result.add(dto);
+                    } else {
+                        boolean anyMatch = data.stream().anyMatch(obj -> obj.getParentId().equals(dto.getId()));
+                        if (!anyMatch) {
+                            result.add(dto);
+                        }
                     }
                 }
             }
+            return JSON.toJSONString(result);
+        }catch (Exception e){
+            return "[]";
         }
-        return JSON.toJSONString(result);
+
     }
 }
