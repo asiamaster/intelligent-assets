@@ -51,10 +51,10 @@ public class EarnestOrderApi {
             return output;
         }catch (BusinessException e){
             LOG.error("定金结算成功回调异常！", e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(ResultCode.DATA_ERROR);
+            return BaseOutput.failure(e.getErrorMsg()).setData(false);
         }catch (Exception e){
             LOG.error("定金结算成功回调异常！", e);
-            return BaseOutput.failure(e.getMessage()).setData(ResultCode.DATA_ERROR);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }
     }
 
