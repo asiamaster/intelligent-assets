@@ -66,7 +66,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setCustomerId(customerId);
         customerAccount.setMarketId(marketId);
         List<CustomerAccount> list = this.listByExample(customerAccount);
-        if (CollectionUtils.isEmpty(list) || list.size() == 0){
+        if (CollectionUtils.isEmpty(list) || list.size() != 1){
             LOGGER.info("当前【客户账户】不存在，或者一个客户同一市场存在多个【客户账户】！customerId={}，marketId={}", customerId, marketId);
             return null;
         }
@@ -131,7 +131,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
 
         Integer count = this.getActualDao().updateAmountByAccountIdAndVersion(customerAccount);
-        if (count < 1){
+        if (count == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
     }
@@ -144,7 +144,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         BaseOutput<Customer> out= customerRpc.get(customerId, userTicket.getFirmId());
         if(!out.isSuccess()){
-            LOGGER.info("客户微服务调用返回失败！【customerId={}; marketId={}】{}", customerId, userTicket.getFirmId(), out.getMessage());
+            LOGGER.info("客户微服务调用返回失败！【customerId={}; marketId={}】,{}", customerId, userTicket.getFirmId(), out.getMessage());
             return BaseOutput.failure(out.getMessage());
         }
         Customer customer = out.getData();
@@ -174,7 +174,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput<EarnestTransferOrder> earnestTransfer(EarnestTransferOrder order) {
-        //修改准入方转出方余额，
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (null == userTicket){
+            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登录");
+        }
+        //转出方
         CustomerAccount payerCustomerAccount = this.get(order.getPayerCustomerAccountId());
         payerCustomerAccount.setEarnestBalance(payerCustomerAccount.getEarnestBalance() - order.getAmount());
         payerCustomerAccount.setEarnestAvailableBalance(payerCustomerAccount.getEarnestAvailableBalance() - order.getAmount());
@@ -182,8 +186,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (countPayer == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户账户正在被多人操作，稍后再试");
         }
-
-
+        //转入方（收款人）
         CustomerAccount payeeCustomerAccount = this.get(order.getPayeeCustomerAccountId());
         payeeCustomerAccount.setEarnestBalance(payeeCustomerAccount.getEarnestBalance() + order.getAmount());
         payeeCustomerAccount.setEarnestAvailableBalance(payeeCustomerAccount.getEarnestAvailableBalance() + order.getAmount());
@@ -194,7 +197,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
         String notesPayer = "转出到：" + order.getPayeeName() + "；转移原因：" + order.getTransferReason();
         String notesPayee = "来源：" + order.getPayerName() + "；转移原因：" + order.getTransferReason();
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         //记录定金转出转入流水
         TransactionDetails tdIn = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_IN.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), order.getCode(), order.getPayeeId(), notesPayee, order.getMarketId(), userTicket.getId(), userTicket.getRealName());
         TransactionDetails tdOut = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.EARNEST_OUT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), order.getAmount(), order.getId(), order.getCode(), order.getPayerId(), notesPayer, order.getMarketId(), userTicket.getId(), userTicket.getRealName());
@@ -205,8 +207,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         order.setPayerTransactionDetailsCode(tdOut.getCode());
         order.setPayeeTransactionCode(tdIn.getCode());
         order.setTransferTime(new Date());
-        int count = earnestTransferOrderService.updateSelective(order);
-        if (count == 0){
+        if (earnestTransferOrderService.updateSelective(order) == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "转移单被多人操作，稍后再试");
         }
 

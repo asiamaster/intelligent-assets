@@ -376,7 +376,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         //结算单code唯一
         condition.setCode(settleOrder.getBusinessCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
-        EarnestOrder ea = this.getActualDao().selectByPrimaryKey(paymentOrderPO.getBusinessId());
+        EarnestOrder ea = this.get(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
             return BaseOutput.success().setData(ea);
         }
