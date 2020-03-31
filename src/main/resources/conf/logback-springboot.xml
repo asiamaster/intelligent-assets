@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration >
-    <!--<include resource="org/springframework/boot/logging/logback/base.xml"/>-->
-
+    <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
+    <property name="LOG_HOME" value="logs"/>
+    <!-- 日志前缀 -->
+    <property name="LOG_NAME_PREFIX" value="dili-ia" />
     <!-- 文件输出格式 -->
-    <property name="PATTERN" value="[ia-dev]%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
+    <property name="PATTERN" value="[${LOG_NAME_PREFIX}]%-12(%date) [%thread] %-5level %logger{50}  [%file:%line] %msg%n"/>
+
 
     <!-- 开发环境 -->
     <springProfile name="dev">
@@ -12,38 +15,112 @@
                 <pattern>${PATTERN}</pattern>
             </encoder>
         </appender>
+        <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+            <file>${LOG_HOME}/${LOG_NAME_PREFIX}.log</file>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>[${LOG_NAME_PREFIX}-dev]%-12(%date) |-%-5level [%thread] %c [%L] -| %msg%n</pattern>
+            </encoder>
+        </appender>
         <logger name="org.springframework.web" level="INFO"/>
         <logger name="com.dili.ia" level="DEBUG"/>
-
+        <jmxConfigurator/>
     </springProfile>
 
     <!-- 测试环境 -->
     <springProfile name="test">
         <appender name="appender" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
-                <pattern>[ia-test]%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n</pattern>
+                <pattern>${PATTERN}</pattern>
             </encoder>
         </appender>
         <!-- 每天产生一个文件 -->
-        <appender name="fileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <!-- 文件路径 -->
-            <!--<file>D:/logs-test</file>-->
-            <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
-                <!--&lt;!&ndash; 文件名称 &ndash;&gt;-->
-                <!--<fileNamePattern>D:/logs-test/info.%d{yyyy-MM-dd}.log</fileNamePattern>-->
-                <!--&lt;!&ndash; 文件最大保存历史数量 &ndash;&gt;-->
-                <!--<MaxHistory>100</MaxHistory>-->
-            <!--</rollingPolicy>-->
+        <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_HOME}/${LOG_NAME_PREFIX}.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名-->
+                <FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${LOG_NAME_PREFIX}_%i.log.zip</FileNamePattern>
+                <!--日志文件保留天数-->
+                <MaxHistory>30</MaxHistory>
+                <timeBasedFileNamingAndTriggeringPolicy
+                        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>10MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+                <pattern>%date [%thread] %-5level %logger{50}  [%file:%line] %msg%n</pattern>
+            </encoder>
+        </appender>
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="com.dili.ia" level="DEBUG"/>
+        <jmxConfigurator/>
+    </springProfile>
 
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>+++%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n</pattern>
-            </layout>
+    <!-- 灰度环境 -->
+    <springProfile name="pre">
+        <appender name="appender" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${PATTERN}</pattern>
+            </encoder>
+        </appender>
+        <!-- 按照每天生成日志文件 -->
+        <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_HOME}/${LOG_NAME_PREFIX}.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名-->
+                <FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${LOG_NAME_PREFIX}_%i.log.zip</FileNamePattern>
+                <!--日志文件保留天数-->
+                <MaxHistory>30</MaxHistory>
+                <timeBasedFileNamingAndTriggeringPolicy
+                        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>10MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+                <pattern>%date [%thread] %-5level %logger{50}  [%file:%line]  %msg%n</pattern>
+            </encoder>
+
         </appender>
         <logger name="org.springframework.web" level="INFO"/>
         <logger name="com.dili.ia" level="INFO"/>
+        <jmxConfigurator/>
+    </springProfile>
+
+    <!-- 生产环境 -->
+    <springProfile name="prod">
+        <appender name="appender" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${PATTERN}</pattern>
+            </encoder>
+        </appender>
+        <!-- 按照每天生成日志文件 -->
+        <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_HOME}/${LOG_NAME_PREFIX}.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名-->
+                <FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${LOG_NAME_PREFIX}_%i.log.zip</FileNamePattern>
+                <!--日志文件保留天数-->
+                <MaxHistory>30</MaxHistory>
+                <timeBasedFileNamingAndTriggeringPolicy
+                        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>10MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+                <pattern>%date [%thread] %-5level %logger{50}  [%file:%line]  %msg%n</pattern>
+            </encoder>
+        </appender>
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="com.dili.ia" level="INFO"/>
+        <jmxConfigurator/>
     </springProfile>
 
     <root level="info">
         <appender-ref ref="appender" />
+        <appender-ref ref="FILE" />
     </root>
+
 </configuration>
