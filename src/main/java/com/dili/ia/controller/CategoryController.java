@@ -114,8 +114,7 @@ public class CategoryController {
         List<CategoryDTO> list = assetsRpc.list(input).getData();
         results.addAll(list);
         map.put("obj", results);
-        System.out.println("进入表格完毕，准备返回页面");
-        return new ModelAndView("/category/table", map);
+        return new ModelAndView("category/table", map);
     }
 
     /**
