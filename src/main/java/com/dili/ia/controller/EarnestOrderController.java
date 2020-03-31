@@ -192,7 +192,7 @@ public class EarnestOrderController {
             }
             return output;
         }catch (BusinessException e){
-            LOG.error("定金单保存异常！", e.getErrorMsg());
+            LOG.error("定金单保存异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("定金单保存异常！", e);
@@ -226,7 +226,7 @@ public class EarnestOrderController {
             }
             return output;
         }catch (BusinessException e){
-            LOG.error("定金单修改异常！", e.getErrorMsg());
+            LOG.error("定金单修改异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("定金单修改异常！", e);
@@ -252,10 +252,10 @@ public class EarnestOrderController {
             }
             return output;
         } catch (BusinessException e) {
-            LOG.info("提交失败！", e.getErrorMsg());
+            LOG.error("定金单提交失败！", e);
             return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
-            LOG.error("submit 提交出错!" ,e);
+            LOG.error("submit 定金单提交出错!" ,e);
             return BaseOutput.failure("提交出错！");
         }
     }
@@ -277,10 +277,10 @@ public class EarnestOrderController {
             }
             return BaseOutput.success("修改成功");
         } catch (BusinessException e) {
-            LOG.info("撤回出错！", e.getErrorMsg());
+            LOG.error("定金单撤回出错！", e);
             return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
-            LOG.error("withdraw 撤回出错!" ,e);
+            LOG.error("withdraw 定金单撤回出错!" ,e);
             return BaseOutput.failure("撤回出错！");
         }
     }
@@ -306,7 +306,7 @@ public class EarnestOrderController {
             earnestOrder.setCanceler(userTicket.getRealName());
             earnestOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
             if (earnestOrderService.updateSelective(earnestOrder) == 0){
-                LOG.info("取消失败，取消更新状态记录数为 0，取消单定金单ID【{}】", id);
+                LOG.error("定金单取消失败，取消更新状态记录数为 0，取消单定金单ID【{}】", id);
                 return BaseOutput.failure("取消失败！");
             }
 
@@ -315,7 +315,7 @@ public class EarnestOrderController {
 
             return BaseOutput.success("取消成功");
         } catch (Exception e) {
-            LOG.error("cancel 取消出错!" ,e);
+            LOG.error("cancel 定金单取消出错!" ,e);
             return BaseOutput.failure("取消出错！");
         }
     }
