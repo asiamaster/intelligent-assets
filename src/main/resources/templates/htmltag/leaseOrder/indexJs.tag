@@ -251,7 +251,10 @@
 
         bs4pop.dialog({
             title: '提交付款',
-            content: template('submitPaymentTpl',{waitAmount:rows[0].waitAmount}),
+            content: template('submitPaymentTpl', {
+                waitAmount: rows[0].waitAmount,
+                minAmount: rows[0].$_waitAmount == 0 ? 0 : 0.01
+            }),
             closeBtn: true,
             backdrop : 'static',
             width: '550px',

@@ -345,8 +345,14 @@ public class LeaseOrderController {
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput submitPayment(@RequestParam Long id,@RequestParam Long amount,@RequestParam Long waitAmount,@RequestParam String amountFormatStr){
         try{
-            if(amount < 0L){
-                return BaseOutput.failure("支付金额必须不小于0");
+            if(waitAmount > 0L){
+                if(amount <= 0L){
+                    return BaseOutput.failure("支付金额必须大于0");
+                }
+            }else if(waitAmount.equals(0L)){
+                if(!amount.equals(0L)){
+                    return BaseOutput.failure("支付金额必须等于0");
+                }
             }
             return leaseOrderService.submitPayment(id,amount,waitAmount);
         }catch (BusinessException e){
