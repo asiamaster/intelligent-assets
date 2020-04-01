@@ -16,19 +16,25 @@ var registerDia;
 /************* 刷卡获取客户信息  start *****************/
 // 客户名称
 var customerNameAutoCompleteOption = {
-    serviceUrl: '/customer/list.action',
+    serviceUrl: '/customer/listNormal.action',
     paramName: 'likeName',
     displayFieldName: 'name',
     showNoSuggestionNotice: true,
     noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>',
     transformResult: function (result) {
-        return {
-            suggestions: $.map(result, function (dataItem) {
-                return $.extend(dataItem, {
-                        value: dataItem.name + '（' + dataItem.certificateNumber + '）'
-                    }
-                );
-            })
+        if(result.success){
+            let data = result.data;
+            return {
+                suggestions: $.map(data, function (dataItem) {
+                    return $.extend(dataItem, {
+                            value: dataItem.name + '（' + dataItem.certificateNumber + '）'
+                        }
+                    );
+                })
+            }
+        }else{
+            bs4pop.alert(result.message, {type: 'error'});
+            return;
         }
     },
     selectFn: function (suggestion) {
@@ -41,17 +47,25 @@ var customerNameAutoCompleteOption = {
 // 证件号码
 var certificateNumberAutoCompleteOption = {
     minChars: 6,
-    serviceUrl: '/customer/list.action',
+    serviceUrl: '/customer/listNormal.action',
     paramName: 'certificateNumberMatch',
     displayFieldName: 'certificateNumber',
+    showNoSuggestionNotice: true,
+    noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>',
     transformResult: function (result) {
-        return {
-            suggestions: $.map(result, function (dataItem) {
-                return $.extend(dataItem, {
-                        value: dataItem.name + '（' + dataItem.certificateNumber + '）'
-                    }
-                );
-            })
+        if(result.success){
+            let data = result.data;
+            return {
+                suggestions: $.map(data, function (dataItem) {
+                    return $.extend(dataItem, {
+                            value: dataItem.name + '（' + dataItem.certificateNumber + '）'
+                        }
+                    );
+                })
+            }
+        }else{
+            bs4pop.alert(result.message, {type: 'error'});
+            return;
         }
     },
     selectFn: function (suggestion) {
@@ -72,17 +86,21 @@ function initSwipeCard(option){
         let user = reader();
         $.ajax({
             type: "POST",
-            url: "/customer/list.action",
+            url: "/customer/listNormal.action",
             data: {certificateNumber : user.IDCardNo},
             dataType: "json",
             success: function (data) {
-                let customer = data[0];
-                $('#customerName').val(customer.name);
-                $('#customerId').val(customer.id);
-                $('#certificateNumber').val(customer.certificateNumber);
-                $('#_certificateNumber').val(customer.certificateNumber);
-                $('#customerCellphone').val(customer.contactsPhone);
-                option.onLoadSuccess && option.onLoadSuccess(customer);
+                if(data && data.length > 0){
+                    let customer = data[0];
+                    $('#customerName').val(customer.name);
+                    $('#customerId').val(customer.id);
+                    $('#certificateNumber').val(customer.certificateNumber);
+                    $('#_certificateNumber').val(customer.certificateNumber);
+                    $('#customerCellphone').val(customer.contactsPhone);
+                    option.onLoadSuccess && option.onLoadSuccess(customer);
+                }else{
+                    bs4pop.alert('无此客户，请注册')
+                }
             },
             error: function (a, b, c) {
                 bs4pop.alert('远程访问失败', {type: 'error'});

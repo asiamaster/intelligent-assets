@@ -44,13 +44,19 @@
         serviceUrl: '/booth/search.action',
         selectFn: boothSelectHandler,
         transformResult: function (result) {
-            return {
-                suggestions: $.map(result, function (dataItem) {
-                    return $.extend(dataItem, {
-                            value: dataItem.name + '(' + (dataItem.secondAreaName?dataItem.secondAreaName : dataItem.areaName) + ')'
-                        }
-                    );
-                })
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '(' + (dataItem.secondAreaName?dataItem.secondAreaName : dataItem.areaName) + ')'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return;
             }
         }
     }
@@ -65,6 +71,19 @@
             onLoadSuccess:function(customer){
                 queryCustomerAccount();
                 queryCustomerDepositDeduction(true);
+            }
+        });
+
+        //监听客户注册
+        initMsg(function(message){
+            let msgData = JSON.parse(message);
+            if(msgData.topic == 'customerRegister'){
+                let customer = msgData.content;
+                $('#certificateNumber').val(customer.certificateNumber);
+                $('#_certificateNumber').val(customer.certificateNumber);
+                $('#customerName').val(customer.name);
+                $('#customerId').val(customer.customerId);
+                $('#customerCellphone').val(customer.contactsPhone);
             }
         });
 

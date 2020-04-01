@@ -3,7 +3,9 @@ package com.dili.ia.controller;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.dto.CustomerQuery;
 import com.dili.ia.rpc.CustomerRpc;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
@@ -39,11 +41,11 @@ public class CustomerController {
      * @throws CloneNotSupportedException
      */
     @ApiOperation("查询CustomerOrder")
-    @RequestMapping(value="/list.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<Customer> list(String likeName, String certificateNumberMatch,String certificateNumber,String keyword) throws CloneNotSupportedException {
+    @RequestMapping(value="/listNormal.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput<List<Customer>> listNormal(String likeName, String certificateNumberMatch,String certificateNumber,String keyword) throws CloneNotSupportedException {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            return null;
+            return BaseOutput.failure("未登录");
         }
         CustomerQuery customerQuery = new CustomerQuery();
         if(StringUtils.isNotBlank(likeName)){
@@ -56,10 +58,6 @@ public class CustomerController {
             customerQuery.setKeyword(keyword);
         }
         customerQuery.setMarketId(userTicket.getFirmId());
-        try{
-            return customerRpc.list(customerQuery).getData();
-        }catch (Exception e){
-            return new ArrayList<>();
-        }
+        return customerRpc.listNormalPage(customerQuery);
     }
 }

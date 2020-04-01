@@ -20,6 +20,13 @@ public interface CustomerRpc {
     @RequestMapping(value = "/api/customer/list", method = RequestMethod.POST)
     BaseOutput<List<Customer>> list(CustomerQuery customer);
 
+    /** 获取有效客户列表信息
+     * @param customer
+     * @return
+             */
+    @RequestMapping(value = "/api/customer/listNormalPage", method = RequestMethod.POST)
+    BaseOutput<List<Customer>> listNormalPage(CustomerQuery customer);
+
     /** 根据市场ID和客户ID，获取客户
      * @param id 客户ID
      * @param marketId 市场ID
