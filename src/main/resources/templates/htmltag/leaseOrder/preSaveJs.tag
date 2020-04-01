@@ -15,6 +15,7 @@
             $('#certificateNumber').val(suggestion.certificateNumber);
             $('#_certificateNumber').val(suggestion.certificateNumber);
             $('#customerCellphone').val(suggestion.contactsPhone);
+            $("#_certificateNumber,#customerCellphone").valid();
 
             //获取保证金抵扣余额
             queryCustomerDepositDeduction(true);
@@ -24,9 +25,10 @@
     });
     $.extend(certificateNumberAutoCompleteOption,{
         selectFn: function (suggestion) {
-            $('#certificateNumber').val(suggestion.certificateNumber);
-            $('#_certificateNumber').val(suggestion.certificateNumber);
+            $('#customerName').val(suggestion.name);
+            $('#customerId').val(suggestion.id);
             $('#customerCellphone').val(suggestion.contactsPhone);
+            $("#customerName,#customerCellphone").valid();
 
             //获取保证金抵扣余额
             queryCustomerDepositDeduction(true);
