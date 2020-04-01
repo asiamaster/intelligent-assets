@@ -24,11 +24,7 @@
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/booth/search.action',
-        selectFn: function (suggestion, that) {
-            debugger
-            $(that).siblings('input').val(suggestion.id)
-        },
-        transformResult: function (result) {
+                transformResult: function (result) {
             return {
                 suggestions: $.map(result, function (dataItem) {
                     return $.extend(dataItem, {
