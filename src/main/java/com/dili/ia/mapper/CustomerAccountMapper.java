@@ -5,5 +5,4 @@ import com.dili.ss.base.MyMapper;
 
 public interface CustomerAccountMapper extends MyMapper<CustomerAccount> {
 
-    Integer updateAmountByAccountIdAndVersion(CustomerAccount customerAccount);
 }

@@ -89,30 +89,4 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateAmountByAccountIdAndVersion" parameterType="com.dili.ia.domain.CustomerAccount">
-    update customer_account
-    <set>
-      <if test="earnestBalance != null">
-        earnest_balance = #{earnestBalance,jdbcType=BIGINT},
-      </if>
-      <if test="transferBalance != null">
-        transfer_balance = #{transferBalance,jdbcType=BIGINT},
-      </if>
-      <if test="earnestAvailableBalance != null">
-        earnest_available_balance = #{earnestAvailableBalance,jdbcType=BIGINT},
-      </if>
-      <if test="transferAvailableBalance != null">
-        transfer_available_balance = #{transferAvailableBalance,jdbcType=BIGINT},
-      </if>
-      <if test="earnestFrozenAmount != null">
-        earnest_frozen_amount = #{earnestFrozenAmount,jdbcType=BIGINT},
-      </if>
-      <if test="transferFrozenAmount != null">
-        transfer_frozen_amount = #{transferFrozenAmount,jdbcType=BIGINT},
-      </if>
-      version = #{version,jdbcType=BIGINT} + 1,
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-    and version = #{version,jdbcType=BIGINT}
-  </update>
 </mapper>
