@@ -34,6 +34,7 @@ var customerNameAutoCompleteOption = {
     selectFn: function (suggestion) {
         $('#certificateNumber').val(suggestion.certificateNumber);
         $('#_certificateNumber').val(suggestion.certificateNumber);
+        $('#certificateNumber, #customerCellphone').valid();
         $('#customerCellphone').val(suggestion.contactsPhone);
     }
 };
@@ -56,7 +57,9 @@ var certificateNumberAutoCompleteOption = {
     selectFn: function (suggestion) {
         $('#customerName').val(suggestion.name);
         $('#customerId').val(suggestion.id);
+        $('#customerName, #customerCellphone').valid();
         $('#customerCellphone').val(suggestion.contactsPhone);
+
     }
 };
 
