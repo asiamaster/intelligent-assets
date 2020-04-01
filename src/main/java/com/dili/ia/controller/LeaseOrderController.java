@@ -341,12 +341,12 @@ public class LeaseOrderController {
      * @param amount
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${@com.dili.ss.util.MoneyUtils.centToYuan(amount)}",operationType="submitPayment",systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${amountFormatStr}",operationType="submitPayment",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id,@RequestParam Long amount,@RequestParam Long waitAmount){
+    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id,@RequestParam Long amount,@RequestParam Long waitAmount,@RequestParam String amountFormatStr){
         try{
-            if(amount <= 0L){
-                return BaseOutput.failure("支付金额必须大于0");
+            if(amount < 0L){
+                return BaseOutput.failure("支付金额必须不小于0");
             }
             return leaseOrderService.submitPayment(id,amount,waitAmount);
         }catch (BusinessException e){

@@ -269,7 +269,8 @@
                             data: {
                                 id: rows[0].id,
                                 waitAmount: rows[0].$_waitAmount,
-                                amount: Number($('#amount').val()).mul(100)
+                                amount: Number($('#amount').val()).mul(100),
+                                amountFormatStr:$('#amount').val()
                             },
                             dataType: "json",
                             async : false,
