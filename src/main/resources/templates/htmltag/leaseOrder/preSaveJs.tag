@@ -97,6 +97,7 @@
                 value: new Date(),
             <% }%>
             done: function(value, date){
+                $('#startTime').val(value);
                 startTimeChangeHandler();
                 $("#saveForm").validate().element($("#startTime"));
                 $("#saveForm").validate().element($("#days"));
@@ -107,6 +108,7 @@
             type: 'date',
             theme: '#007bff',
             done: function(value, date){
+                $('#endTime').val(value);
                 endTimeChangeHandler();
                 $("#saveForm").validate().element($("#endTime"));
                 $("#saveForm").validate().element($("#days"));
