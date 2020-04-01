@@ -7,6 +7,8 @@
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#transferoutInfo" aria-expanded="true" aria-controls="transferoutInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
         <div id="transferoutInfo" class="row row-cols-4 collapse show">
+        <div class="row row-cols-4">
+            <input type="hidden" name="payerAccountVersion" value="${customerAccount.version!}">
             <input type="hidden" name="payerCustomerAccountId" value="${customerAccount.id!}">
             <input type="hidden" name="payerId" value="${customerAccount.customerId!}">
             <div class="form-group col">
@@ -63,6 +65,5 @@
 
 
 </#bs4Body>
-<script type="text/javascript" src="${contextPath}/resources/js/bui/common.js?v=1.0"></script>
 <script type="text/javascript" src="${contextPath}/resources/bui/js/customerAutocomplete.js?v=1.1"></script>
 <#customerAccount_earnestTransferJs />

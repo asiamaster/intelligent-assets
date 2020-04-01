@@ -215,6 +215,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setEndTime(dto.getEndTime());
         earnestOrder.setDepartmentId(dto.getDepartmentId());
         BaseOutput<Department> depOut = departmentRpc.get(dto.getDepartmentId());
+        if(!depOut.isSuccess()){
+            LOGGER.info("获取部门失败！" + depOut.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
+        }
         earnestOrder.setDepartmentName(depOut.getData().getName());
         earnestOrder.setAmount(dto.getAmount());
         earnestOrder.setNotes(dto.getNotes());

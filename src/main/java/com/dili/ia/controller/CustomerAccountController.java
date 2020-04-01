@@ -152,7 +152,7 @@ public class CustomerAccountController {
             if (!output.isSuccess()){
                 return output;
             }
-            BaseOutput<EarnestTransferOrder> transOutput = customerAccountService.earnestTransfer(output.getData());
+            BaseOutput<EarnestTransferOrder> transOutput = customerAccountService.earnestTransfer(output.getData(), efDto.getPayerAccountVersion());
             if (!transOutput.isSuccess()){
                 return transOutput;
             }
