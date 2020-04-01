@@ -6,6 +6,7 @@
             转出方
         </div>
         <div class="row row-cols-4">
+            <input type="hidden" name="payerAccountVersion" value="${customerAccount.version!}">
             <input type="hidden" name="payerCustomerAccountId" value="${customerAccount.id!}">
             <input type="hidden" name="payerId" value="${customerAccount.customerId!}">
             <div class="form-group col">

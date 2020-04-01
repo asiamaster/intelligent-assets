@@ -5,6 +5,7 @@ import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 
+import javax.persistence.Column;
 import javax.persistence.Transient;
 
 /**
@@ -43,4 +44,12 @@ public interface EarnestTransferDto extends EarnestTransferOrder {
     String getCertificateNumber();
 
     void setCertificateNumber(String certificateNumber);
+
+
+    @Transient
+    @FieldDef(label="CustomerAccount页面打开时的版本号version")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getPayerAccountVersion();
+
+    void setPayerAccountVersion(Long version);
 }

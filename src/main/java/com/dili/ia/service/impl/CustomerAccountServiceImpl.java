@@ -185,7 +185,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<EarnestTransferOrder> earnestTransfer(EarnestTransferOrder order) {
+    public BaseOutput<EarnestTransferOrder> earnestTransfer(EarnestTransferOrder order, Long payerAccountVersion) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (null == userTicket){
             throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登录");
@@ -200,6 +200,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         payerCustomerAccount.setEarnestBalance(payerCustomerAccount.getEarnestBalance() - order.getAmount());
         payerCustomerAccount.setEarnestAvailableBalance(payerCustomerAccount.getEarnestAvailableBalance() - order.getAmount());
+        //乐观锁控制，防止重复点击转移按钮发生多次转移
+        payerCustomerAccount.setVersion(payerAccountVersion);
         int countPayer = this.updateSelective(payerCustomerAccount);
         if (countPayer == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户账户正在被多人操作，稍后再试");
