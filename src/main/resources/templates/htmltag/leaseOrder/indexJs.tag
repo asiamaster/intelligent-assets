@@ -254,8 +254,8 @@
             content: template('submitPaymentTpl',{waitAmount:rows[0].waitAmount}),
             closeBtn: true,
             backdrop : 'static',
-            width: '40%',
-            height : '40%',
+            width: '550px',
+            height : '250px',
             btns: [
                 {
                     label: '确定', className: 'btn-primary', onClick(e) {
