@@ -2,8 +2,9 @@
 
 <div class="container-fluid">
     <form id="saveForm" role="form" novalidate>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#orderInfo" aria-controls="orderInfo">
+        <div class="breadcrumb">
             订单信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#orderInfo" aria-expanded="true" aria-controls="orderInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
         <div class="row  row-cols-4 collapse show" id="orderInfo">
             <div class="form-group col">
@@ -22,7 +23,7 @@
         <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
              aria-controls="customerInfo">客户信息
         </div>
-        <div class="row row-cols-4" id="customerInfo">
+        <div class="row row-cols-4 collapse show" id="customerInfo">
             <div class="form-group col">
                 <label for="">客户名称</label>
                 <input type="text" class="form-control" value="${earnestOrder.customerName!}" disabled />
@@ -38,12 +39,12 @@
                 <input type="text" class="form-control" value="${earnestOrder.customerCellphone!}" disabled />
             </div>
         </div>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true"
-             aria-controls="boothInfo">
+        <div class="breadcrumb">
             对应摊位
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true" aria-controls="boothInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div id="boothInfo">
-            <table class="table table-bordered table-hover table-striped" id="boothTable">
+        <div id="boothInfo" class="collapse show">
+            <table class="table table-bordered table-hover table-striped" id="boothTable" style="width: 500px">
                 <thead>
                 <tr>
                     <th class="text-center align-middle" style="width: 5%"><a id="addStall" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
@@ -64,8 +65,9 @@
                 </tbody>
             </table>
         </div>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#otherInfo" aria-controls="otherInfo">
+        <div class="breadcrumb">
             补充信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#otherInfo" aria-expanded="true" aria-controls="otherInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
         <div class="row row-cols-4 collapse show" id="otherInfo">
             <div class="form-group col col">
@@ -77,8 +79,9 @@
                 <input type="text" class="form-control" value="${earnestOrder.endTime!,dateFormat='yyyy-MM-dd'}" disabled />
             </div>
         </div>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#moneyInfo" aria-controls="moneyInfo">
+        <div class="breadcrumb">
             金额信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
         <div class="row  row-cols-4 collapse show" id="moneyInfo">
             <div class="form-group col">
@@ -93,8 +96,9 @@
             </div>
         </div>
         <%if(isNotEmpty(logs) && logs.~size>0){ %>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#recordInfo" aria-controls="recordInfo">
-            业务记录 <a href="javascript:;" class="ml-2" >点击查看</a>
+        <div class="breadcrumb">
+            业务记录
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#recordInfo" aria-expanded="true" aria-controls="recordInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
         </div>
         <div class="collapse" id="recordInfo">
             <table data-toggle="table">

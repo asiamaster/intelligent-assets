@@ -26,7 +26,10 @@ public class TransactionItemTypeProvider implements ValueProvider {
     private static final List<ValuePair<?>> BUFFER = new ArrayList<>();
 
     static {
-        BUFFER.addAll(Stream.of(TransactionItemTypeEnum.values())
+        TransactionItemTypeEnum arr[] = new TransactionItemTypeEnum[2];
+        arr[0] = TransactionItemTypeEnum.EARNEST;
+        arr[1] = TransactionItemTypeEnum.TRANSFER;
+        BUFFER.addAll(Stream.of(arr)
                 .map(e -> new ValuePairImpl<>(e.getName(), e.getCode().toString()))
                 .collect(Collectors.toList()));
     }

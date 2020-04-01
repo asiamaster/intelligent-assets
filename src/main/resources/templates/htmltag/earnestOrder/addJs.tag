@@ -29,9 +29,6 @@
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/booth/search.action',
-        selectFn: function (suggestion, that) {
-            $(that).siblings('input').val(suggestion.id)
-        },
         transformResult: function (result) {
             if(result.success){
                 let data = result.data;

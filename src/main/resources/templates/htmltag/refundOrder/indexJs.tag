@@ -20,7 +20,6 @@
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
         _grid.bootstrapTable('refreshOptions', {url: '/refundOrder/listPage.action',pageSize: parseInt(size)});
-        queryDataHandler();
     });
 
     /******************************驱动执行区 end****************************/

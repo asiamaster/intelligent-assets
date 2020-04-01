@@ -5,11 +5,12 @@
             <input type="hidden" id="id" name="id" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.id!}">
             <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
             <input type="hidden" name="isRenew" value="${isRenew!}">
-            <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
-                aria-controls="customerInfo">
+            <div class="breadcrumb" >
                 客户信息 ${isNotEmpty(isRenew) && isRenew == 1?'':'<a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>'}
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
+                   aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
-            <div class="row row-cols-4" id="customerInfo">
+            <div class="row row-cols-4 collapse show" id="customerInfo">
                 <div class="form-group col">
                     <label for="customerName">客户名称<i class="red">*</i></label>
                     <#bautoCompleteProvider _log="客户名称" _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _value="${leaseOrder.customerId!}" _text="${leaseOrder.customerName!}" _required="true" _readonly="${isNotEmpty(isRenew) && isRenew == 1?'true':'false'}" _optionVariable="customerNameAutoCompleteOption"/>
@@ -24,11 +25,11 @@
                     <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${leaseOrder.customerCellphone!}" required ${isNotEmpty(isRenew) && isRenew == 1?'readonly':''}/>
                 </div>
             </div>
-            <div class="breadcrumb" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true"
-                aria-controls="boothInfo">
+            <div class="breadcrumb">
                 摊位信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true" aria-controls="boothInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
-            <div id="boothInfo1">
+            <div id="boothInfo" class="collapse show">
                 <table class="table table-bordered table-hover table-striped" id="boothTable" _logTable="摊位项">
                     <thead>
                     <tr>
@@ -50,11 +51,11 @@
                 </table>
 
             </div>
-            <div class="breadcrumb" data-toggle="collapse" data-target="#leaseInfo" aria-expanded="true"
-                aria-controls="leaseInfo">
+            <div class="breadcrumb">
                 出租信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#leaseInfo" aria-expanded="true" aria-controls="leaseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
-            <div class="row row-cols-4" id="leaseInfo">
+            <div class="row row-cols-4 collapse show" id="leaseInfo">
                 <div class="form-group col">
                     <label for="engageCode">经营范围<i class="red">*</i></label>
                     <select id="engageCode" name="engageCode" class="form-control" required></select>
@@ -92,8 +93,9 @@
 
                 </div>
             </div>
-            <div class="breadcrumb" data-toggle="collapse" data-target="#moneyInfo" aria-controls="moneyInfo">
+            <div class="breadcrumb">
                 金额信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
             <div class="row  row-cols-4 collapse show" id="moneyInfo">
                 <div class="form-group col">
@@ -113,8 +115,9 @@
                     <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>"  readonly uncheck/>
                 </div>
             </div>
-            <div class="breadcrumb" data-toggle="collapse" data-target="#deductInfo" aria-controls="deductInfo">
+            <div class="breadcrumb">
                 抵扣项
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#deductInfo" aria-expanded="true" aria-controls="deductInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
             <div class="row row-cols-4 collapse show" id="deductInfo">
                 <div class="form-group col">
@@ -160,7 +163,7 @@
     </div>
 
 </#bs4Body>
-<script type="text/javascript" src="${contextPath}/resources/js/bui/customerAutocomplete.js?v=1.6"></script>
+<script type="text/javascript" src="${contextPath}/resources/bui/js/customerAutocomplete.js?v=1.1"></script>
 <#leaseOrder_preSaveJs />
 <script  id="boothItem"  type="text/html">
     <tr data-index="{{index}}">

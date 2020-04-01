@@ -1,9 +1,10 @@
 <div class="container-fluid">
     <form class="form">
-        <div class="breadcrumb" data-toggle="collapse" data-target="#baseInfo" aria-controls="baseInfo">
+        <div class="breadcrumb">
             基本信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-4" id="baseInfo">
+        <div id="baseInfo" class="row row-cols-4 collapse show">
             <div class="form-group col">
                 <label for="">摊位类型<i class="red">*</i></label>
                 <select class="form-control" id="typeView" name="type" disabled>
@@ -55,10 +56,11 @@
             </div>
         </div>
 
-        <div class="breadcrumb" data-toggle="collapse" data-target="#createInfo" aria-controls="createInfo">
+        <div class="breadcrumb">
             创建信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#createInfo" aria-expanded="true" aria-controls="createInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-4" id="createInfo">
+        <div class="row row-cols-4 collapse show" id="createInfo">
             <div class="form-group col">
                 <label for="">创建人<i class="red">*</i></label>
                 <input type="text" class="form-control" value="${obj.creatorUser!}" disabled/>

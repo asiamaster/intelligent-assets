@@ -1,8 +1,11 @@
 <#bs4Body>
+<style>
+
+</style>
 <div class="container-fluid">
     <#bs4nav>
     <form id="queryForm" role="form" >
-        <div class="row  row-cols-6">
+        <div class="row row-cols-6">
             <div class="form-group col">
                 <label for="state">状态:</label>
                 <select id="state" name="state" class="form-control"></select>
@@ -12,7 +15,6 @@
                 <label for="departmentId">业务所属部门:</label>
                 <select id="departmentId" name="departmentId" class="form-control"></select>
                 <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider"/>
-
             </div>
             <div class="form-group col">
                 <label for="likeCustomerName">客户名称:</label>
@@ -124,6 +126,6 @@
 
 
 </#bs4Body>
-<script type="text/javascript" src="${contextPath}/resources/js/bui/common.js"></script>
+
 <#earnestOrder_indexJs />
 

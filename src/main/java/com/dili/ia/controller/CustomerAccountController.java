@@ -5,6 +5,7 @@ import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.CustomerAccountListDto;
 import com.dili.ia.domain.dto.EarnestTransferDto;
+import com.dili.ia.glossary.TransactionItemTypeEnum;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -150,7 +152,7 @@ public class CustomerAccountController {
             if (!output.isSuccess()){
                 return output;
             }
-            BaseOutput<EarnestTransferOrder> transOutput = customerAccountService.earnestTransfer(output.getData());
+            BaseOutput<EarnestTransferOrder> transOutput = customerAccountService.earnestTransfer(output.getData(), efDto.getPayerAccountVersion());
             if (!transOutput.isSuccess()){
                 return transOutput;
             }

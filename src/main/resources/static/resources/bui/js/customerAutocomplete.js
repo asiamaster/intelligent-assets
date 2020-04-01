@@ -41,6 +41,7 @@ var customerNameAutoCompleteOption = {
         $('#certificateNumber').val(suggestion.certificateNumber);
         $('#_certificateNumber').val(suggestion.certificateNumber);
         $('#customerCellphone').val(suggestion.contactsPhone);
+        $('#certificateNumber, #_certificateNumber, #customerCellphone').valid();
     }
 };
 // 证件号码
@@ -69,6 +70,7 @@ var certificateNumberAutoCompleteOption = {
         $('#customerName').val(suggestion.name);
         $('#customerId').val(suggestion.id);
         $('#customerCellphone').val(suggestion.contactsPhone);
+        $('#customerName, #customerCellphone').valid();
     }
 };
 

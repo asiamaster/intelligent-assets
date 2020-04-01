@@ -4,11 +4,12 @@
     <form id="updateForm" role="form" novalidate>
         <input type="hidden" name="id" value="${earnestOrder.id!}">
         <input type="hidden" name="version" value="${earnestOrder.version!}">
-        <div class="breadcrumb" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
-             aria-controls="customerInfo">
+        <div class="breadcrumb" >
             客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
+            <a href="javascript:;" class="_collapsecustomerInfo ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
+               aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-4" id="customerInfo">
+        <div class="row row-cols-4 " id="customerInfo">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
                 <#bautoCompleteProvider _log="客户名称" _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _value="${earnestOrder.customerId!}" _text="${earnestOrder.customerName!}" _required="true"  _optionVariable="customerNameAutoCompleteOption"/>
@@ -22,11 +23,11 @@
                 <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${earnestOrder.customerCellphone!}" required />
             </div>
         </div>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true"
-             aria-controls="boothInfo">
+        <div class="breadcrumb">
             对应摊位
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true" aria-controls="boothInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div id="boothInfo">
+        <div id="boothInfo" class="collapse show">
             <table class="table table-bordered table-hover table-striped" id="boothTable"  _logTable="摊位项">
                 <thead>
                 <tr>
@@ -58,8 +59,9 @@
 
             </div>
         </div>
-        <div class="breadcrumb" data-toggle="collapse" data-target="#moneyInfo" aria-controls="moneyInfo">
+        <div class="breadcrumb">
             金额信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
         <div class="row  row-cols-4 collapse show" id="moneyInfo">
             <div class="form-group col">
@@ -82,8 +84,8 @@
 
 </#bs4Body>
 
-<script type="text/javascript" src="${contextPath}/resources/js/bui/common.js"></script>
-<script type="text/javascript" src="${contextPath}/resources/js/bui/customerAutocomplete.js"></script>
+
+<script type="text/javascript" src="${contextPath}/resources/bui/js/customerAutocomplete.js?v=1.1"></script>
 <#earnestOrder_updateJs />
 
 <script  id="boothItem"  type="text/html">

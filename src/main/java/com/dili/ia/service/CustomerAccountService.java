@@ -30,9 +30,10 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     /**
      * 客户账户 -- 定金转移
      * @param earnestTransferOrder
+     * @param payerAccountVersion 定金转移打开页面时付款客户账户（发起转移客户账户）的版本号，乐观锁控制
      * @return
      * */
-    BaseOutput<EarnestTransferOrder> earnestTransfer(EarnestTransferOrder earnestTransferOrder);
+    BaseOutput<EarnestTransferOrder> earnestTransfer(EarnestTransferOrder earnestTransferOrder, Long payerAccountVersion);
     /**
      * 客户账户定金退款单创建
      * @param order
