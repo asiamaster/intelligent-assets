@@ -95,12 +95,25 @@ function isStartEndDatetime (el){
             bs4pop.alert('结束时间不能小于开始时间',{} ,function () {$(el).val('')});
         }
     } else if (start && $(el).attr('class').indexOf('layend')>-1 ) {
-        debugger
         if (start.isAfter(end)) {
             bs4pop.alert('结束时间不能小于开始时间',{} ,function () {$(el).val('')});
         }
     }
 }
+/************ 初始化日期/时间 end **************/
+
+
+/*展开收起*/
+$('form .collapse').on('hide.bs.collapse', function () {
+    let id = $(this).attr('id');
+    $('[data-target="#'+ id +'"]').html('展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i>');
+});
+$('form .collapse').on('show.bs.collapse', function () {
+    debugger
+    let id = $(this).attr('id');
+    $('[data-target="#'+ id +'"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+});
+
 
 /*气泡
 function formatterTooltip (value,row,index){
@@ -112,7 +125,6 @@ $(function () {
 })
 */
 
-/************ 初始化日期/时间 end **************/
 
 
 

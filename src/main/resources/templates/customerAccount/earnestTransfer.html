@@ -4,8 +4,9 @@
     <form id="saveForm" role="form" action="">
         <div class="breadcrumb">
             转出方
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#transferoutInfo" aria-expanded="true" aria-controls="transferoutInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-4">
+        <div id="transferoutInfo" class="row row-cols-4 collapse show">
             <input type="hidden" name="payerCustomerAccountId" value="${customerAccount.id!}">
             <input type="hidden" name="payerId" value="${customerAccount.customerId!}">
             <div class="form-group col">
@@ -21,10 +22,12 @@
                 <input type="text" class="form-control" name="payerCellphone" value="${customerAccount.customerCellphone!}" readonly />
             </div>
         </div>
+
         <div class="breadcrumb">
             转入方 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#transferinInfo" aria-expanded="true" aria-controls="transferinInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-4">
+        <div id="transferinInfo" class="row row-cols-4 collapse show">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
                 <#bautoCompleteProvider _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _optionVariable="customerNameAutoCompleteOption" _required="true"/>
@@ -61,5 +64,5 @@
 
 </#bs4Body>
 <script type="text/javascript" src="${contextPath}/resources/js/bui/common.js?v=1.0"></script>
-<script type="text/javascript" src="${contextPath}/resources/js/bui/customerAutocomplete.js?v=1.0"></script>
+<script type="text/javascript" src="${contextPath}/resources/bui/js/customerAutocomplete.js?v=1.1"></script>
 <#customerAccount_earnestTransferJs />
