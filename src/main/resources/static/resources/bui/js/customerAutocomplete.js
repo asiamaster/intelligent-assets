@@ -50,6 +50,8 @@ var certificateNumberAutoCompleteOption = {
     serviceUrl: '/customer/listNormal.action',
     paramName: 'certificateNumberMatch',
     displayFieldName: 'certificateNumber',
+    showNoSuggestionNotice: true,
+    noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>',
     transformResult: function (result) {
         if(result.success){
             let data = result.data;
