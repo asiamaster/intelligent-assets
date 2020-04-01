@@ -44,13 +44,19 @@
         serviceUrl: '/booth/search.action',
         selectFn: boothSelectHandler,
         transformResult: function (result) {
-            return {
-                suggestions: $.map(result, function (dataItem) {
-                    return $.extend(dataItem, {
-                            value: dataItem.name + '(' + (dataItem.secondAreaName?dataItem.secondAreaName : dataItem.areaName) + ')'
-                        }
-                    );
-                })
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '(' + (dataItem.secondAreaName?dataItem.secondAreaName : dataItem.areaName) + ')'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return;
             }
         }
     }

@@ -190,7 +190,7 @@ public class BoothController {
     @ApiOperation("新增booth")
     @RequestMapping(value = "/search.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
-    String search(String keyword) {
+    BaseOutput<List<BoothDTO>> search(String keyword) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         JSONObject json = new JSONObject();
         json.put("keyword", keyword);
@@ -210,9 +210,9 @@ public class BoothController {
                     }
                 }
             }
-            return JSON.toJSONString(result);
+            return BaseOutput.success().setData(result);
         }catch (Exception e){
-            return "[]";
+            return BaseOutput.success().setData(new ArrayList<>());
         }
 
     }

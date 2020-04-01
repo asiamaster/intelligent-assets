@@ -42,10 +42,6 @@ public class CategoryProvider implements ValueProvider {
         }else{
             categoryDTO.setKeyword(val.toString());
         }
-//        BaseOutput<List<CategoryDTO>> output = assetsRpc.list(categoryDTO);
-//        if(){
-//
-//        }
 
         List<ValuePair<?>> buffer = new ArrayList<ValuePair<?>>();
         try{
