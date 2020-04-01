@@ -177,11 +177,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
         BoothDTO booth = output.getData();
         if(null == booth){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位不存在，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR,"摊位"+booth.getName()+"不存在，请核实和修改后再保存");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位已禁用，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR,"摊位"+booth.getName()+"已禁用，请核实和修改后再保存");
         }else if(YesOrNoEnum.YES.getCode().equals(booth.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位已删除，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR,"摊位"+booth.getName()+"已删除，请核实和修改后再保存");
         }
     }
 
