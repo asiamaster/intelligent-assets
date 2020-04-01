@@ -139,25 +139,6 @@ public class RefundOrderController {
         }
         return "refundOrder/leaseRefundOrderView";
     }
-    /**
-     * 跳转到退款单-修改页面
-     * @param modelMap
-     * @return String
-     */
-    @ApiOperation("跳转到退款单-修改页面")
-    @RequestMapping(value="/update.html", method = RequestMethod.GET)
-    public String update(ModelMap modelMap, Long id) {
-        RefundOrder refundOrder = refundOrderService.get(id);
-        if(null != id && refundOrder != null){
-            modelMap.put("refundOrder",refundOrder);
-            if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
-                return "refundOrder/earnestRefundOrderUpdate";
-            }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
-                return "refundOrder/leaseRefundOrderUpdate";
-            }
-        }
-        return "refundOrder/leaseRefundOrderUpdate";
-    }
 
     /**
      * 退款单--提交
@@ -228,9 +209,6 @@ public class RefundOrderController {
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         RefundOrder refundOrder = refundOrderService.get(id);
-        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
-            return BaseOutput.failure("取消失败，定金单状态已变更！");
-        }
         BaseOutput output = refundOrderService.doCancelDispatcher(refundOrder);
 
         if (output.isSuccess()){

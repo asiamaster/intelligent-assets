@@ -184,7 +184,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             return BaseOutput.failure("Id不能为空！");
         }
 
+        //修改有清空修改，所以使用update
         if (this.update(this.buildUpdateDto(earnestOrder)) == 0){
+            LOG.info("修改定金单失败,乐观锁生效【客户名称：{}】 【定金单ID:{}】", earnestOrder.getCustomerName(), earnestOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         this.deleteEarnestOrderDetailByEarnestOrderId(earnestOrder.getId());
@@ -252,14 +254,14 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             });
         }
         if (!ea.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){
-            return BaseOutput.failure("提交失败,多人操作，状态已变更！");
+            return BaseOutput.failure("提交失败，状态已变更！");
         }
         ea.setState(EarnestOrderStateEnum.SUBMITTED.getCode());
         ea.setSubmitterId(userTicket.getId());
         ea.setSubmitter(userTicket.getRealName());
         ea.setSubDate(new Date());
         if (this.updateSelective(ea) == 0) {
-            LOG.info("提交定金【修改定金单状态】失败 -- 记录数为 0 ，多人操作，请重试！");
+            LOG.info("提交定金【修改定金单状态】失败 ,乐观锁生效！【定金单ID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
@@ -319,6 +321,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setVersion(0);
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
+            LOG.info("编号生成器异常，{}】", bizNumberOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
         }
         pb.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
@@ -334,6 +337,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
         PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
         if (null == order) {
+            LOG.info("没有查询到付款单PaymentOrder【业务单businessId：{}】 【业务单businessCode:{}】", businessId, businessCode);
             throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到付款单！");
         }
         return order;
@@ -355,13 +359,13 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setWithdrawOperatorId(userTicket.getId());
         ea.setWithdrawOperator(userTicket.getRealName());
         if (this.updateSelective(ea) == 0) {
-            LOG.info("撤回定金【修改定金单状态】失败 -- 记录数为 0 ，多人操作，请重试！");
+            LOG.info("撤回定金【修改定金单状态】失败,乐观锁生效。【定金单ID：】" + earnestOrderId);
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         PaymentOrder pb = this.findPaymentOrder(userTicket, ea.getId(), ea.getCode());
         if (paymentOrderService.delete(pb.getId()) == 0) {
-            LOG.info("撤回定金【删除缴费单】失败 -- 记录数为 0 ，多人操作，请重试！");
+            LOG.info("撤回定金【删除缴费单】失败.");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         BaseOutput<String>  setOut = settlementRpc.cancel(settlementAppId, pb.getCode());
@@ -397,14 +401,14 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
         if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
-            LOG.info("缴费单成功回调 -- 更新【缴费单】状态记录数为 0 ，多人操作，请重试！");
+            LOG.info("缴费单成功回调 -- 更新【缴费单】,乐观锁生效！【付款单paymentOrderID:{}】", paymentOrderPO.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         //修改订单状态
         ea.setState(EarnestOrderStateEnum.PAID.getCode());
         if (this.updateSelective(ea) == 0) {
-            LOG.info("缴费单成功回调 -- 更新【租赁单】状态记录数为 0 ，多人操作，请重试！");
+            LOG.info("缴费单成功回调 -- 更新【租赁单】状态,乐观锁生效！【定金单EarnestOrderID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 

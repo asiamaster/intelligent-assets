@@ -18,6 +18,8 @@ import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ import java.util.List;
  */
 @Service
 public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount, Long> implements CustomerAccountService {
+    private final static Logger LOG = LoggerFactory.getLogger(CustomerAccountServiceImpl.class);
 
     public CustomerAccountMapper getActualDao() {
         return (CustomerAccountMapper)getDao();
@@ -67,7 +70,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setMarketId(marketId);
         List<CustomerAccount> list = this.listByExample(customerAccount);
         if (CollectionUtils.isEmpty(list) || list.size() != 1){
-            LOGGER.info("当前【客户账户】不存在，或者一个客户同一市场存在多个【客户账户】！customerId={}，marketId={}", customerId, marketId);
+            LOG.info("当前【客户账户】不存在，或者一个客户同一市场存在多个【客户账户】！customerId={}，marketId={}", customerId, marketId);
             return null;
         }
        return list.get(0);
@@ -77,7 +80,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public void frozenEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
         if (null == customerAccount){
-            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
+            LOG.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
             throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
         }
         if (customerAccount.getEarnestAvailableBalance() < amount){
@@ -86,9 +89,9 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() - amount);
         customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() + amount);
 
-        Integer count = this.updateSelective(customerAccount);
-        if (count < 1){
-            throw new BusinessException(ResultCode.DATA_ERROR,"当前数据正已被其他用户操作，更新失败！");
+        if (this.updateSelective(customerAccount) == 0){
+            LOG.info("定金冻结失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", customerAccount.getCustomerName(), customerAccount.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作客户账户，请重试！");
         }
     }
 
@@ -96,18 +99,18 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public void unfrozenEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
         if (null == customerAccount){
-            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
+            LOG.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
             throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
         }
         if (customerAccount.getEarnestFrozenAmount() < amount){
-            throw new BusinessException(ResultCode.DATA_ERROR,"客户解冻结金额小于冻结金额！");
+            throw new BusinessException(ResultCode.DATA_ERROR,"客户冻结金额小于解冻金额！");
         }
         customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
         customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
 
-        Integer count = this.updateSelective(customerAccount);
-        if (count < 1){
-            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
+        if (this.updateSelective(customerAccount) == 0){
+            LOG.info("定金解冻失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", customerAccount.getCustomerName(), customerAccount.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作客户账户，请重试！");
         }
     }
 
@@ -115,14 +118,14 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public void paySuccessEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
         if (null == customerAccount){
-            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
+            LOG.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
             throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
         }
         customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
         customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + amount);
 
-        Integer count = this.updateSelective(customerAccount);
-        if (count == 0){
+        if (this.updateSelective(customerAccount) == 0){
+            LOG.info("定金付款成功回调修改客户账户失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", customerAccount.getCustomerName(), customerAccount.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
     }
@@ -130,7 +133,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public void refundSuccessEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
         if (null == customerAccount){
-            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
+            LOG.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
             throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
         }
         if (customerAccount.getEarnestBalance() < amount){
@@ -142,9 +145,9 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() - amount);
         customerAccount.setEarnestFrozenAmount(customerAccount.getEarnestFrozenAmount() - amount);
 
-        Integer count = this.updateSelective(customerAccount);
-        if (count == 0){
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        if (this.updateSelective(customerAccount) == 0){
+            LOG.info("定金退款成功回调修改客户账户失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", customerAccount.getCustomerName(), customerAccount.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作客户账户，请重试！");
         }
     }
 
@@ -156,12 +159,12 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         BaseOutput<Customer> out= customerRpc.get(customerId, userTicket.getFirmId());
         if(!out.isSuccess()){
-            LOGGER.info("客户微服务调用返回失败！【customerId={}; marketId={}】,{}", customerId, userTicket.getFirmId(), out.getMessage());
+            LOG.info("客户微服务调用返回失败！【customerId={}; marketId={}】,{}", customerId, userTicket.getFirmId(), out.getMessage());
             return BaseOutput.failure(out.getMessage());
         }
         Customer customer = out.getData();
         if (null == customer){
-            LOGGER.info("客户不存在！【customerId={}; marketId={}】", customerId,userTicket.getFirmId());
+            LOG.info("客户不存在！【customerId={}; marketId={}】", customerId,userTicket.getFirmId());
             return BaseOutput.failure("客户不存在！");
         }
 
@@ -202,16 +205,16 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         payerCustomerAccount.setEarnestAvailableBalance(payerCustomerAccount.getEarnestAvailableBalance() - order.getAmount());
         //乐观锁控制，防止重复点击转移按钮发生多次转移
         payerCustomerAccount.setVersion(payerAccountVersion);
-        int countPayer = this.updateSelective(payerCustomerAccount);
-        if (countPayer == 0){
+        if (this.updateSelective(payerCustomerAccount) == 0){
+            LOG.info("定金转移修改付款人客户账户失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", payerCustomerAccount.getCustomerName(), payerCustomerAccount.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "客户账户正在被多人操作，稍后再试");
         }
         //转入方（收款人）
         CustomerAccount payeeCustomerAccount = this.get(order.getPayeeCustomerAccountId());
         payeeCustomerAccount.setEarnestBalance(payeeCustomerAccount.getEarnestBalance() + order.getAmount());
         payeeCustomerAccount.setEarnestAvailableBalance(payeeCustomerAccount.getEarnestAvailableBalance() + order.getAmount());
-        int countPayee = this.updateSelective(payeeCustomerAccount);
-        if (countPayee == 0){
+        if (this.updateSelective(payeeCustomerAccount) == 0){
+            LOG.info("定金转移修改收款人客户账户失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", payeeCustomerAccount.getCustomerName(), payeeCustomerAccount.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "客户账户正在被多人操作，稍后再试");
         }
         String transferReason = order.getTransferReason()==null ? "": "；转移原因：" + order.getTransferReason();
@@ -228,6 +231,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         order.setPayeeTransactionCode(tdIn.getCode());
         order.setTransferTime(new Date());
         if (earnestTransferOrderService.updateSelective(order) == 0){
+            LOG.info("定金转移回写转移单转入转出流水失败,乐观锁生效【转移单ID：{}】", order.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "转移单被多人操作，稍后再试");
         }
 
@@ -247,7 +251,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
         CustomerAccount payeeCustomerAccount = this.getCustomerAccountByCustomerId(efDto.getCustomerId(), userTicket.getFirmId());
         if (null == customerAccount){
-            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", efDto.getCustomerId(), userTicket.getFirmId());
+            LOG.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", efDto.getCustomerId(), userTicket.getFirmId());
             return BaseOutput.failure("客户账户不存在！");
         }
         //保存定金转移单
@@ -259,6 +263,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         efDto.setState(EarnestTransferOrderStateEnum.CREATED.getCode());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
+            LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
             return BaseOutput.failure("编号生成器微服务异常");
         }
         efDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
@@ -275,6 +280,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     public BaseOutput addEarnestRefund(RefundOrder order) {
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
+            LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
            return BaseOutput.failure("编号生成器微服务异常");
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -283,7 +289,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(order.getCustomerId(), userTicket.getFirmId());
         if (null == customerAccount){
-            LOGGER.info("客户账户退款申请，客户账户【{}】在市场【{}:{}】不存在！", order.getCustomerId(), userTicket.getFirmId(), userTicket.getFirmCode());
+            LOG.info("客户账户退款申请，客户账户【{}】在市场【{}:{}】不存在！", order.getCustomerId(), userTicket.getFirmId(), userTicket.getFirmCode());
             return BaseOutput.failure("客户账户不存在！");
         }
         if (customerAccount.getEarnestAvailableBalance() < order.getPayeeAmount()){
@@ -427,7 +433,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         //只有定金或者转抵有金额变动，才执行更新客户账户
         if ((earnestDeduction != null && !earnestDeduction.equals(0L)) || (transferDeduction != null && !transferDeduction.equals(0L))){
-            this.updateSelective(ca);
+            if(this.updateSelective(ca) == 0){
+                LOG.info("摊位租赁提交调用接口异常，冻结修改客户账户金额失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作客户账户，请重试");
+            }
+
         }
     }
 
@@ -439,7 +449,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (null == ca){ //如果【客户账户】不存在，就不用修改客户账户金额信息
             return;
         }
-        //客户账户金额修改
+        //客户账户金额修改 -- 客户检查已判断金额合法性
         if (earnestDeduction != null && !earnestDeduction.equals(0L)){
             ca.setEarnestAvailableBalance(ca.getEarnestAvailableBalance() + earnestDeduction);
             ca.setEarnestFrozenAmount(ca.getEarnestFrozenAmount() - earnestDeduction);
@@ -450,14 +460,14 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         //只有定金或者转抵有金额变动，才执行更新客户账户
         if ((earnestDeduction != null && !earnestDeduction.equals(0L)) || (transferDeduction != null && !transferDeduction.equals(0L))){
-            int count = this.updateSelective(ca);
-            if (count == 0){
+            if (this.updateSelective(ca) == 0){
+                LOG.info("摊位租赁撤回调用接口异常，解冻修改客户账户金额失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR, "更新客户账户失败，客户账户多人操作！");
             }
         }
     }
 
-    //租赁单提交成功调用接口，另起事务使其不影响原有事务
+    //租赁单提交成功调用接口
     @Transactional(rollbackFor = Exception.class)
     public void payChangeCustomerAmountAndDetails(Long orderId, String orderCode, CustomerAccount ca, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId,Long operaterId,String operatorName) {
         Integer unfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
@@ -477,7 +487,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         //只有定金或者转抵有金额变动，才执行更新客户账户
         if ((earnestDeduction != null && !earnestDeduction.equals(0L)) || (transferDeduction != null && !transferDeduction.equals(0L))){
-            this.updateSelective(ca);
+            if(this.updateSelective(ca) == 0){
+                LOG.info("摊位租赁付款成功回调调用接口异常，解冻，消费修改客户账户金额失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "更新客户账户失败，客户账户多人操作！");
+            }
         }
     }
 
@@ -517,16 +530,16 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (null == ca){
             BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
             if(!out.isSuccess()){
-                LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
+                LOG.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
                 throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
             }
             Customer customer = out.getData();
             if (null == customer){
-                LOGGER.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
+                LOG.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
                 throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
             }
 
-            CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
+            CustomerAccount customerAccount = DTOUtils.newInstance(CustomerAccount.class);
             customerAccount.setMarketId(marketId);
             customerAccount.setCustomerId(customerId);
             customerAccount.setCustomerCellphone(customer.getContactsPhone());
@@ -543,11 +556,15 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }else {
             ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() + amount);
             ca.setTransferBalance(ca.getTransferBalance() + amount);
-            this.updateSelective(ca);
+            if(this.updateSelective(ca) == 0){
+                LOG.info("摊位租赁转抵充值调用接口异常，转抵金额充值修改客户账户金额失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
+            }
         }
     }
 
-    private void addTransactionDetails(Integer sceneType,Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId, Long operaterId, String operatorName){
+    @Transactional
+    public void addTransactionDetails(Integer sceneType,Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId, Long operaterId, String operatorName){
         Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
         //写入 定金，转抵，保证金对应 sceneType 的流水 --- 抵扣项为 null 或者 0 元 不写入流水记录
         if (earnestDeduction != null && !earnestDeduction.equals(0L)){ //定金流水

@@ -142,6 +142,9 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if (userTicket == null){
             return BaseOutput.failure("未登录！");
         }
+        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
+            return BaseOutput.failure("取消失败，退款单状态已变更！");
+        }
         refundOrder.setCancelerId(userTicket.getId());
         refundOrder.setCanceler(userTicket.getRealName());
         refundOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
@@ -172,7 +175,9 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         refundOrder.setSubmitTime(new Date());
         refundOrder.setSubmitterId(userTicket.getId());
         refundOrder.setSubmitter(userTicket.getRealName());
-        refundOrderService.update(refundOrder);
+        if (refundOrderService.updateSelective(refundOrder) == 0){
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
+        }
 
         //获取业务service,调用业务实现
         RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
@@ -236,7 +241,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @Override
     public BaseOutput doWithdrawDispatcher(RefundOrder refundOrder) {
         if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
-            return BaseOutput.failure("撤回失败，状态已变更！");
+            return BaseOutput.failure("撤回失败，状态已变更！请刷新");
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
@@ -245,7 +250,9 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         refundOrder.setState(RefundOrderStateEnum.CREATED.getCode());
         refundOrder.setWithdrawOperator(userTicket.getRealName());
         refundOrder.setWithdrawOperatorId(userTicket.getId());
-        refundOrderService.update(refundOrder);
+        if (refundOrderService.updateSelective(refundOrder) == 0){
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
+        }
 
         //获取业务service,调用业务实现
         RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
@@ -289,7 +296,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         refundOrder.setRefundType(settleOrder.getWay());
         if (refundOrderService.updateSelective(refundOrder) == 0) {
             LOG.info("退款成功后--回调更新退款单状态记录数为0，多人操作，请重试！");
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款单多人操作，请重试！");
         }
 
         //获取业务service,调用业务实现
@@ -320,7 +327,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
             RefundOrderPrintDto refundOrderPrintDto = buildCommonPrintDate(refundOrder, reprint);
             Map<String,Object> resultMap = BeanMapUtil.beanToMap(refundOrderPrintDto);
-            //获取业务service,调用业务实现 ---- 业务专业的
+            //获取业务service,调用业务实现 ---- 业务专有的数据组装
             RefundOrderDispatcherService service=refundBiz.get(refundOrder.getBizType());
             if(service!=null){
                 BaseOutput<Map<String,Object>> result = service.buildBusinessPrintData(refundOrder);
