@@ -50,12 +50,17 @@
 
     // 添加摊位
     $('#addBooth').on('click', function () {
-        addBoothItem();
+        if ($('#boothTable tr').length < 11) {
+            debugger
+            addBoothItem();
+        } else {
+            bs4pop.notice('最多10个摊位', {position: 'leftcenter', type: 'warning'})
+        }
     })
 
     //删除行事件 （删除摊位行）
     $(document).on('click', '.item-del', function () {
-        if ($('#boothTable tr').length > 2) {
+        if ($('#boothTable tr').length > 1) {
             $(this).closest('tr').remove();
         }
     });
