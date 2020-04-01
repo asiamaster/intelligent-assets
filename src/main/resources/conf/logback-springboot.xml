@@ -37,15 +37,12 @@
         <!-- 每天产生一个文件 -->
         <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_HOME}/${LOG_NAME_PREFIX}.log</file>
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                 <!--日志文件输出的文件名-->
                 <FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${LOG_NAME_PREFIX}_%i.log.zip</FileNamePattern>
                 <!--日志文件保留天数-->
                 <MaxHistory>30</MaxHistory>
-                <timeBasedFileNamingAndTriggeringPolicy
-                        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                    <maxFileSize>10MB</maxFileSize>
-                </timeBasedFileNamingAndTriggeringPolicy>
+                <maxFileSize>10MB</maxFileSize>
             </rollingPolicy>
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                 <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
@@ -67,15 +64,12 @@
         <!-- 按照每天生成日志文件 -->
         <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_HOME}/${LOG_NAME_PREFIX}.log</file>
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                 <!--日志文件输出的文件名-->
                 <FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${LOG_NAME_PREFIX}_%i.log.zip</FileNamePattern>
                 <!--日志文件保留天数-->
                 <MaxHistory>30</MaxHistory>
-                <timeBasedFileNamingAndTriggeringPolicy
-                        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                    <maxFileSize>10MB</maxFileSize>
-                </timeBasedFileNamingAndTriggeringPolicy>
+                <maxFileSize>10MB</maxFileSize>
             </rollingPolicy>
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                 <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
@@ -98,15 +92,12 @@
         <!-- 按照每天生成日志文件 -->
         <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_HOME}/${LOG_NAME_PREFIX}.log</file>
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                 <!--日志文件输出的文件名-->
                 <FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${LOG_NAME_PREFIX}_%i.log.zip</FileNamePattern>
                 <!--日志文件保留天数-->
                 <MaxHistory>30</MaxHistory>
-                <timeBasedFileNamingAndTriggeringPolicy
-                        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                    <maxFileSize>10MB</maxFileSize>
-                </timeBasedFileNamingAndTriggeringPolicy>
+                <maxFileSize>10MB</maxFileSize>
             </rollingPolicy>
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                 <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
