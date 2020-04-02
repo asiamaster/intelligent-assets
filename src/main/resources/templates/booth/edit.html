@@ -8,7 +8,7 @@
         <div id="baseInfo" class="row row-cols-4 collapse show">
             <div class="form-group col">
                 <label for="">摊位类型<i class="red">*</i></label>
-                <select class="form-control" id="type" name="typeUpdate">
+                <select class="form-control" id="typeUpdate" name="type">
                 </select>
                 <#bcomboProvider _id="typeUpdate" _provider="dataDictionaryValueProvider" _value="${obj.type!}" _queryParams='{dd_code:"booth_type", required:true}'/>
                 <div class="valid-feedback">error tips</div>
@@ -21,10 +21,10 @@
             <div class="form-group col col-auto">
                 <label for="">区域<i class="red">*</i></label>
                 <div class="input-group">
-                    <select class="form-control" id="areaOne" name="area" required>
+                    <select class="form-control" id="areaOneEdit" name="area" required>
 
                     </select>
-                    <select class="form-control" id="areaTwo" name="secondArea">
+                    <select class="form-control" id="areaTwoEdit" name="secondArea">
 
                     </select>
                 </div>
@@ -88,6 +88,16 @@
     var isInit = false;
 
     $(function () {
+        $("#areaOneEdit").select2({
+            data: [],
+            language:'zh-CN',
+            minimumResultsForSearch: Infinity
+        });
+        $("#areaTwoEdit").select2({
+            data: [],
+            language:'zh-CN',
+            minimumResultsForSearch: Infinity
+        });
         loadArea();
     });
 
@@ -103,14 +113,15 @@
                         return obj;
                     });
                     if (array.length == 0) {
-                        $('#areaOne').html("")
+                        $('#areaOneEdit').html("")
                     } else {
-                        $("#areaOne").select2({
+                        $("#areaOneEdit").select2({
                             data: array,
+                            language:'zh-CN',
                             minimumResultsForSearch: Infinity
                         });
-                        $('#areaOne').val(area);
-                        $('#areaOne').trigger('change');
+                        $('#areaOneEdit').val(area);
+                        $('#areaOneEdit').trigger('change');
                     }
                 }
             }
@@ -163,20 +174,21 @@
                         return obj;
                     });
                     if (array.length == 0) {
-                        $('#areaOne').html("");
-                        $('#areaTwo').html("");
+                        $('#areaOneEdit').html("");
+                        $('#areaTwoEdit').html("");
                     } else {
-                        $("#areaOne").select2({
+                        $("#areaOneEdit").select2({
                             data: array,
+                            language:'zh-CN',
                             minimumResultsForSearch: Infinity
                         });
-                        $('#areaOne').trigger('change');
+                        $('#areaOneEdit').trigger('change');
                     }
                 }
             }
         });
     });
-    $("#areaOne").change(function () {
+    $("#areaOneEdit").change(function () {
         $.ajax({
             type: "POST",
             url: "/district/search.action",
@@ -188,10 +200,11 @@
                         return obj;
                     });
                     if (array.length == 0) {
-                        $('#areaTwo').html("")
+                        $('#areaTwoEdit').html("")
                     } else {
-                        $("#areaTwo").select2({
+                        $("#areaTwoEdit").select2({
                             data: array,
+                            language:'zh-CN',
                             minimumResultsForSearch: Infinity
                         })
                     }
@@ -205,7 +218,7 @@
 
     function initArea() {
         if (!isInit) {
-            $("#areaTwo").val(se_area);
+            $("#areaTwoEdit").val(se_area);
             isInit = true;
         }
     }
