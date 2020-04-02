@@ -271,12 +271,14 @@
                 if (ret.success) {
                     let depositAmount = 0;
                     let sourceLeaseOrderItems = ret.data;
+                    for(let item of sourceLeaseOrderItems){
+                        depositAmount += item.depositAmount;
+                    }
                     $("table input[name^='boothId']").each(function () {
                         let depositExist = false;
                         let trIndex = getIndex($(this).attr('id'));
                         for(let item of sourceLeaseOrderItems){
                             if(this.value == item.boothId){
-                                depositAmount += item.depositAmount;
                                 $('#depositAmountSourceId_'+trIndex).val(item.id);
                                 depositExist = true;
                                 break;
@@ -319,7 +321,6 @@
             url: "/customerAccount/getCustomerAccountByCustomerId.action",
             data: {customerId},
             dataType: "json",
-            async : false,
             success: function (ret) {
                 if(ret.success){
                     let earnestDeductionEl$ = $('#earnestDeduction');
@@ -519,7 +520,6 @@
             url: "/leaseOrder/saveLeaseOrder.action",
             data: buildFormData(),
             dataType: "json",
-            async : false,
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
@@ -536,7 +536,11 @@
 
     //摊位新增事件
     $('#addBooth').on('click', function(){
-        addBoothItem({index: ++itemIndex});
+        if ($('#boothTable tr').length < 11) {
+            addBoothItem({index: ++itemIndex});
+        } else {
+            bs4pop.notice('最多10个摊位', {position: 'leftcenter', type: 'warning'})
+        }
     });
 
     //摊位删除事件
