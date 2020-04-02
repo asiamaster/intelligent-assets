@@ -801,22 +801,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         PaymentOrder payingOrder = paymentOrderService.get(paymentId);
         if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
             String paymentCode = payingOrder.getCode();
-            BaseOutput<SettleOrder> settleOrderBaseOutput = settlementRpc.get(settlementAppId,paymentCode);
-            if (!settleOrderBaseOutput.isSuccess()) {
-                LOG.info("结算单查询异常 【缴费单CODE {}】", paymentCode);
-                throw new BusinessException(ResultCode.DATA_ERROR,"结算单查询异常");
-            }
-            SettleOrder settleOrder = settleOrderBaseOutput.getData();
-            //缴费单对应的结算单未处理
-            if (settleOrder.getState().equals(SettleStateEnum.WAIT_DEAL.getCode())) {
-                if (!settlementRpc.cancel(settlementAppId,paymentCode).isSuccess()) {
-                    LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
-                    throw new BusinessException(ResultCode.DATA_ERROR,"结算单撤回异常");
-                }
-            } else {
-                String stateName = SettleStateEnum.getNameByCode(settleOrder.getState());
-                LOG.info("结算单【缴费单CODE:{}】撤回异常 状态已发生变更，目前状态【{}】不能进行撤回，等结算数据同步后再操作",paymentCode, stateName);
-                throw new BusinessException(ResultCode.DATA_ERROR,"状态已发生变更，目前状态【" + stateName + "】不能进行撤回，等结算数据同步后再操作");
+            BaseOutput output = settlementRpc.cancel(settlementAppId,paymentCode);
+            if (!output.isSuccess()) {
+                LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
+                throw new BusinessException(ResultCode.DATA_ERROR,output.getMessage());
             }
 
             payingOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
