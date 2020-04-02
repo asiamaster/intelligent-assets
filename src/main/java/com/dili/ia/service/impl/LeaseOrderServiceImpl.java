@@ -218,7 +218,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     public BaseOutput<Boolean> updateLeaseOrderBySettleInfo(SettleOrder settleOrder) {
         /*****************************更新缴费单相关字段 begin***********************/
         PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
-        condition.setCode(settleOrder.getBusinessCode());
+        condition.setCode(settleOrder.getOrderCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) {
             return BaseOutput.success().setData(true);
@@ -410,7 +410,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         //新增结算单
         SettleOrderDto settleOrder = buildSettleOrderDto(leaseOrder);
         settleOrder.setAmount(amount);
-        settleOrder.setBusinessCode(paymentOrder.getCode());
+        settleOrder.setOrderCode(paymentOrder.getCode());//订单号
+        settleOrder.setBusinessCode(paymentOrder.getBusinessCode());//业务单号
         BaseOutput<SettleOrder> settlementOutput = settlementRpc.submit(settleOrder);
         if (settlementOutput.isSuccess()) {
             try {
@@ -925,16 +926,16 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     @Override
-    public BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint) {
+    public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
         PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
-        paymentOrderCondition.setCode(businessCode);
+        paymentOrderCondition.setCode(orderCode);
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
         if (null == paymentOrder) {
-            LOG.info("租赁单打印异常 【businessCode:{}】无效",businessCode);
+            LOG.info("租赁单打印异常 【businessCode:{}】无效",orderCode);
             throw new BusinessException(ResultCode.DATA_ERROR,"businessCode无效");
         }
         if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
-            LOG.info("租赁单打印异常 【businessCode:{}】此单未支付",businessCode);
+            LOG.info("租赁单打印异常 【businessCode:{}】此单未支付",orderCode);
             return BaseOutput.failure("此单未支付");
         }
 
@@ -966,7 +967,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);
         Long totalPayAmountExcludeLast = 0L;
         for (PaymentOrder order : paymentOrders) {
-            if (!order.getCode().equals(businessCode) && order.getState().equals(PaymentOrderStateEnum.PAID.getCode())) {
+            if (!order.getCode().equals(orderCode) && order.getState().equals(PaymentOrderStateEnum.PAID.getCode())) {
                 totalPayAmountExcludeLast += order.getAmount();
             }
         }

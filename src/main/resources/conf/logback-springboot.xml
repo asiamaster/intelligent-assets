@@ -23,7 +23,7 @@
                 <maxFileSize>10MB</maxFileSize>
             </rollingPolicy>
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>[${LOG_NAME}-dev] %d |-%highlight(%-5level) [%t] %highlight(%c) [%L] -| %msg%n</pattern>
+                <pattern>[${LOG_NAME}-dev] %d |- %-5level [%t] %c [%L] -| %msg%n</pattern>
             </encoder>
         </appender>
         <!--        <logger name="org.springframework.web" level="INFO"/>-->
@@ -48,7 +48,7 @@
                 <maxFileSize>10MB</maxFileSize>
             </rollingPolicy>
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>[${LOG_NAME}-test] %d |-%highlight(%-5level) [%t] %highlight(%c) [%L] -| %msg%n</pattern>
+                <pattern>[${LOG_NAME}-test] %d |- %-5level [%t] %c [%L] -| %msg%n</pattern>
             </encoder>
         </appender>
         <jmxConfigurator/>
@@ -72,7 +72,7 @@
                 <maxFileSize>10MB</maxFileSize>
             </rollingPolicy>
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>[${LOG_NAME}-pre] %d |-%highlight(%-5level) [%t] %highlight(%c) [%L] -| %msg%n</pattern>
+                <pattern>[${LOG_NAME}-pre] %d |- %-5level [%t] %c [%L] -| %msg%n</pattern>
             </encoder>
         </appender>
     </springProfile>
@@ -95,7 +95,7 @@
                 <maxFileSize>10MB</maxFileSize>
             </rollingPolicy>
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>[${LOG_NAME}-prod] %d |-%highlight(%-5level) [%t] %highlight(%c) [%L] -| %msg%n</pattern>
+                <pattern>[${LOG_NAME}-prod] %d |- %-5level [%t] %c [%L] -| %msg%n</pattern>
             </encoder>
         </appender>
     </springProfile>
