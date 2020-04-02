@@ -18,7 +18,7 @@
                 <select id="editDepartmentId" name="departmentId" class="form-control"></select>
                 <#bcomboProvider _id="editDepartmentId" _provider="authDepartmentProvider" _value="${obj.departmentId!}"/>
             </div>
-            <div class="form-group col col-auto">
+            <div class="form-group col-6">
                 <label for="">区域<i class="red">*</i></label>
                 <div class="input-group">
                     <select class="form-control" id="areaOneEdit" name="area" required>
@@ -36,7 +36,7 @@
             </div>
             <div class="form-group col">
                 <label for="">数量<i class="red">*</i></label>
-                <input type="text" id="number" name="number" class="form-control" maxlength="20" value="${obj.number!}"
+                <input type="text" id="number" name="number" class="form-control  floatReserve" range="0-999999.00" value="${obj.number!}"
                        required/>
             </div>
             <div class="form-group col">
@@ -108,6 +108,7 @@
                         $("#areaOneEdit").select2({
                             data: array,
                             language:'zh-CN',
+                            width: "50%",
                             minimumResultsForSearch: Infinity
                         });
                         $('#areaOneEdit').val(area);
@@ -174,6 +175,7 @@
                             $("#areaTwoEdit").select2({
                                 language:'zh-CN',
                                 data: array,
+                                width: "50%",
                                 minimumResultsForSearch: Infinity
                             })
                         }

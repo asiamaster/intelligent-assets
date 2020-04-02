@@ -18,7 +18,7 @@
                         disabled></select>
                 <#bcomboProvider _id="splitDepartmentId" _provider="authDepartmentProvider" _value="${obj.departmentId!}"/>
             </div>
-            <div class="form-group col col-auto">
+            <div class="form-group col-6">
                 <label for="">区域<i class="red">*</i></label>
                 <div class="input-group">
                     <select disabled class="form-control" id="areaOneSplit" name="area" required>
@@ -112,6 +112,7 @@
                     } else {
                         $("#areaOneSplit").select2({
                             data: array,
+                            width: "50%",
                             minimumResultsForSearch: Infinity
                         });
                         $('#areaOneSplit').val(area);
@@ -138,6 +139,7 @@
                     } else {
                         $("#areaTwoSplit").select2({
                             data: array,
+                            width: "50%",
                             minimumResultsForSearch: Infinity
                         })
                     }
