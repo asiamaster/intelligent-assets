@@ -182,12 +182,12 @@ public class LeaseOrderApi {
      * @return
      */
     @RequestMapping(value="/queryPrintData")
-    public @ResponseBody BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint){
+    public @ResponseBody BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint){
         try{
-            if(StringUtils.isBlank(businessCode) || null == reprint){
+            if(StringUtils.isBlank(orderCode) || null == reprint){
                 return BaseOutput.failure("参数错误");
             }
-            return leaseOrderService.queryPrintData(businessCode,reprint);
+            return leaseOrderService.queryPrintData(orderCode,reprint);
         }catch (Exception e){
             LOG.error("扫描等待停租的摊位异常！", e);
             return BaseOutput.failure(e.getMessage());

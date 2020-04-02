@@ -47,10 +47,10 @@ public interface RefundOrderService extends BaseService<RefundOrder, Long> {
     BaseOutput doAddHandler(RefundOrder refundOrder);
     /**
      * 票据打印数据加载
-     * @param businessCode 业务编码
+     * @param orderCode 订单号
      * @param reprint 是否补打标记
      * @return BaseOutput<PrintDataDto>
      */
-    BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint);
+    BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint);
 
 }

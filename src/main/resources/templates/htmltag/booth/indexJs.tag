@@ -114,7 +114,7 @@
     function doEnableHandler(enable, id) {
 
         //table选择模式是单选时可用
-        let msg = (enable || 'true' == enable) ? '确定要启用该摊位吗？' : '确定要禁用该摊位吗？';
+        let msg = enable == 1 ? '确定要启用该摊位吗？' : '确定要禁用该摊位吗？';
 
         bs4pop.confirm(msg, undefined, function (sure) {
             if (sure) {

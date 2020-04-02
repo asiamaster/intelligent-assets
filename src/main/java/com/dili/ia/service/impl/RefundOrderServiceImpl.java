@@ -205,6 +205,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //以下是提交到结算中心的必填字段
         settleOrder.setMarketId(ro.getMarketId()); //市场ID
         settleOrder.setMarketCode(userTicket.getFirmCode());
+        settleOrder.setOrderCode(ro.getCode());
         settleOrder.setBusinessCode(ro.getCode()); //业务单号
         //收款人信息
         settleOrder.setCustomerId(ro.getPayeeId());//客户ID
@@ -279,7 +280,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     public BaseOutput<RefundOrder> doRefundSuccessHandler(SettleOrder settleOrder) {
         RefundOrder condition = DTOUtils.newInstance(RefundOrder.class);
         //结算单code唯一
-        condition.setCode(settleOrder.getBusinessCode());
+        condition.setCode(settleOrder.getOrderCode());
         RefundOrder refundOrder = this.listByExample(condition).stream().findFirst().orElse(null);
         if (RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) { //如果已退款，直接返回
             return BaseOutput.success().setData(refundOrder);
@@ -313,13 +314,13 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
     @Override
-    public BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint) {
+    public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
         try {
             RefundOrder refundOrderCondition = DTOUtils.newDTO(RefundOrder.class);
-            refundOrderCondition.setCode(businessCode);
+            refundOrderCondition.setCode(orderCode);
             RefundOrder refundOrder = refundOrderService.list(refundOrderCondition).stream().findFirst().orElse(null);
             if (null == refundOrder){
-                return BaseOutput.failure("没有获取到结算单【" + businessCode + "】");
+                return BaseOutput.failure("没有获取到结算单【" + orderCode + "】");
             }
             if (!RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) {
                 return BaseOutput.failure("此单未退款");
