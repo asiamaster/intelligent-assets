@@ -379,7 +379,7 @@ public class LeaseOrderController {
         try{
             BaseOutput output = leaseOrderService.createRefundOrder(refundOrderDto);
             if(output.isSuccess()){
-                LoggerUtil.buildLoggerContext(refundOrderDto.getOrderId(),refundOrderDto.getOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),refundOrderDto.getRefundReason());
+                LoggerUtil.buildLoggerContext(refundOrderDto.getOrderId(),refundOrderDto.getBusinessCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),refundOrderDto.getRefundReason());
             }
             return output;
         }catch (BusinessException e){

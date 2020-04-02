@@ -1072,12 +1072,12 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         refundOrderDto.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode());
         if (!bizNumberOutput.isSuccess()) {
-            LOG.info("租赁单【编号：{}】退款单编号生成异常",refundOrderDto.getOrderCode());
+            LOG.info("租赁单【编号：{}】退款单编号生成异常",refundOrderDto.getBusinessCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"编号生成器微服务异常");
         }
         refundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         if(!refundOrderService.doAddHandler(refundOrderDto).isSuccess()){
-            LOG.info("租赁单【编号：{}】退款申请接口异常",refundOrderDto.getOrderCode());
+            LOG.info("租赁单【编号：{}】退款申请接口异常",refundOrderDto.getBusinessCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"退款申请接口异常");
         }
 
