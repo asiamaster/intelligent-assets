@@ -283,7 +283,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         //以下是提交到结算中心的必填字段
         settleOrder.setMarketId(ea.getMarketId()); //市场ID
         settleOrder.setMarketCode(userTicket.getFirmCode());
-        settleOrder.setBusinessCode(paymentOrder.getCode()); //缴费单业务单号
+        settleOrder.setOrderCode(paymentOrder.getCode());//订单号 唯一
+        settleOrder.setBusinessCode(paymentOrder.getBusinessCode()); //缴费单业务单号
         settleOrder.setCustomerId(ea.getCustomerId());//客户ID
         settleOrder.setCustomerName(ea.getCustomerName());// "客户姓名
         settleOrder.setCustomerPhone(ea.getCustomerCellphone());//"客户手机号
@@ -384,7 +385,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
         //结算单code唯一
-        condition.setCode(settleOrder.getBusinessCode());
+        condition.setCode(settleOrder.getOrderCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
         EarnestOrder ea = this.get(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
@@ -422,9 +423,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     @Override
-    public BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint) {
+    public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
         PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
-        paymentOrderCondition.setCode(businessCode);
+        paymentOrderCondition.setCode(orderCode);
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
         if (null == paymentOrder) {
             throw new RuntimeException("businessCode无效");

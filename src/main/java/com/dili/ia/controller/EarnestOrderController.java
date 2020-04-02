@@ -98,13 +98,13 @@ public class EarnestOrderController {
      * @return String
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
-    public String view(ModelMap modelMap,Long id,String businessCode) {
+    public String view(ModelMap modelMap,Long id,String orderCode) {
         EarnestOrder earnestOrder = null;
         if(null != id) {
             earnestOrder = earnestOrderService.get(id);
-        }else if(StringUtils.isNotBlank(businessCode)){
+        }else if(StringUtils.isNotBlank(orderCode)){
             PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
-            paymentOrder.setCode(businessCode);
+            paymentOrder.setCode(orderCode);
             paymentOrder.setBizType(BizTypeEnum.EARNEST.getCode());
             earnestOrder = earnestOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
             id = earnestOrder.getId();

@@ -60,18 +60,18 @@ public class EarnestOrderApi {
 
     /**
      * 定金票据打印数据加载
-     * @param businessCode 业务编码
+     * @param orderCode 订单号
      * @param reprint 是否补打标记
      * @return BaseOutput<PrintDataDto>
      */
     @RequestMapping(value="/queryPrintData", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
-    BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint){
+    BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint){
         try{
-            if(StringUtils.isBlank(businessCode) || null == reprint){
+            if(StringUtils.isBlank(orderCode) || null == reprint){
                 return BaseOutput.failure("参数错误");
             }
-            return earnestOrderService.queryPrintData(businessCode,reprint);
+            return earnestOrderService.queryPrintData(orderCode,reprint);
         }catch (Exception e){
             LOG.error("获取打印数据异常！", e);
             return BaseOutput.failure(e.getMessage());

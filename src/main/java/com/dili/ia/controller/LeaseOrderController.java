@@ -95,18 +95,18 @@ public class LeaseOrderController {
     /**
      * 跳转到LeaseOrder查看页面
      * @param modelMap
-     * @param businessCode 缴费单CODE
+     * @param orderCode 缴费单CODE
      * @return String
      */
     @ApiOperation("跳转到LeaseOrder查看页面")
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
-    public String view(ModelMap modelMap,Long id,String businessCode) {
+    public String view(ModelMap modelMap,Long id,String orderCode) {
         LeaseOrder leaseOrder = null;
         if(null != id) {
             leaseOrder = leaseOrderService.get(id);
-        }else if(StringUtils.isNotBlank(businessCode)){
+        }else if(StringUtils.isNotBlank(orderCode)){
             PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
-            paymentOrder.setCode(businessCode);
+            paymentOrder.setCode(orderCode);
             leaseOrder = leaseOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
             id = leaseOrder.getId();
         }
