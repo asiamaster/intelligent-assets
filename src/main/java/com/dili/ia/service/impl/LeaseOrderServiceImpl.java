@@ -119,6 +119,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         if (null == dto.getId()) {
             //租赁单新增
+            checkContractNo(dto,true);//合同编号验证重复
             BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.LEASE_ORDER.getCode());
             if (!bizNumberOutput.isSuccess()) {
                 LOG.info("租赁单编号生成异常");
@@ -132,7 +133,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             insertLeaseOrderItems(dto);
         } else {
             //租赁单修改
+            checkContractNo(dto,false);//合同编号验证重复
             LeaseOrder oldLeaseOrder = get(dto.getId());
+            dto.setWaitAmount(dto.getPayAmount());
             dto.setVersion(oldLeaseOrder.getVersion());
             if (updateSelective(dto) == 0) {
                 LOG.info("摊位租赁单修改异常,乐观锁生效 【租赁单编号:{}】", dto.getCode());
@@ -164,6 +167,29 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             o.setStopRentState(StopRentStateEnum.NO_APPLY.getCode());
             leaseOrderItemService.insertSelective(o);
         });
+    }
+
+    /**
+     * 合同编号验重
+     * @param dto
+     * @param isAdd
+     */
+    private void checkContractNo(LeaseOrderListDto dto,Boolean isAdd){
+        LeaseOrder condition = DTOUtils.newInstance(LeaseOrder.class);
+        condition.setContractNo(dto.getContractNo());
+        List<LeaseOrder> leaseOrders = list(condition);
+        if(isAdd && CollectionUtils.isNotEmpty(leaseOrders)){
+            throw new BusinessException(ResultCode.DATA_ERROR,"合同编号不允许重复使用，请修改");
+        }else {
+            if(leaseOrders.size() == 1){
+                LeaseOrder leaseOrder = leaseOrders.get(0);
+                if(!leaseOrder.getId().equals(dto.getId())){
+                    throw new BusinessException(ResultCode.DATA_ERROR,"合同编号不允许重复使用，请修改");
+                }
+            }
+        }
+
+
     }
 
     /**

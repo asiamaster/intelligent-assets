@@ -271,12 +271,14 @@
                 if (ret.success) {
                     let depositAmount = 0;
                     let sourceLeaseOrderItems = ret.data;
+                    for(let item of sourceLeaseOrderItems){
+                        depositAmount += item.depositAmount;
+                    }
                     $("table input[name^='boothId']").each(function () {
                         let depositExist = false;
                         let trIndex = getIndex($(this).attr('id'));
                         for(let item of sourceLeaseOrderItems){
                             if(this.value == item.boothId){
-                                depositAmount += item.depositAmount;
                                 $('#depositAmountSourceId_'+trIndex).val(item.id);
                                 depositExist = true;
                                 break;
