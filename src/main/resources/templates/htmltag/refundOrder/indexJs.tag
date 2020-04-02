@@ -23,17 +23,6 @@
     });
 
     /******************************驱动执行区 end****************************/
-
-    function isSelectRow() {
-        let rows = _grid.bootstrapTable('getSelections');
-        let isSelectFlag = true;
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            isSelectFlag = false;
-        }
-        return isSelectFlag
-    }
-
     /**
      * table参数组装
      * 可修改queryParams向服务器发送其余的参数

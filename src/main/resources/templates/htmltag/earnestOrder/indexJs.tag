@@ -56,16 +56,6 @@
         queryDataHandler();
     }
 
-    function isSelectRow() {
-        let rows = _grid.bootstrapTable('getSelections');
-        let isSelectFlag = true;
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            isSelectFlag = false;
-        }
-        return isSelectFlag
-    }
-
     /**
      打开新增窗口
      */
