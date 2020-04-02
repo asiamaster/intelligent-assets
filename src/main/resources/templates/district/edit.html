@@ -1,6 +1,6 @@
 <form id="editForm">
     <input name="id" type="hidden" value="${obj.id!}">
-    <div class="row row-cols-1">
+    <div class="row row-cols-1  mx-auto w-50">
         <div class="form-group col">
             <label for="number">区域编号</label>
                 <input type="text" class="form-control" name="number" id="number" value="${obj.number!}" digits="true"
@@ -13,17 +13,18 @@
         </div>
         <div class="form-group col">
             <label for="editDepartmentId">部门</label>
-                <select id="editDepartmentId"  name="departmentId" class="form-control w-200px"></select>
+                <select id="editDepartmentId"  name="departmentId" class="form-control"></select>
                 <#bcomboProvider _id="editDepartmentId" _value="${obj.departmentId}" _provider="authDepartmentProvider"/>
         </div>
         <div class="form-group col">
             <label for="notes">备注</label>
-            <textarea class="form-control" id="notes" name="notes" rows="1">${obj.notes!}</textarea>
+            <textarea class="form-control" id="notes" name="notes" rows="1" maxlength="100">${obj.notes!}</textarea>
         </div>
-        <div class="text-right">
-            <button type="button" class="btn btn-secondary px-5" data-dismiss="modal" id="cancel">取消</button>
-            <button type="button" class="btn btn-primary px-5" id="form-submit" onclick="saveOrUpdateHandler()">提交</button>
-        </div>
+    </div>
+    <br>
+    <div class="text-right">
+        <button type="button" class="btn btn-secondary px-5" data-dismiss="modal" id="cancel">取消</button>
+        <button type="button" class="btn btn-primary px-5" id="form-submit" onclick="saveOrUpdateHandler()">提交</button>
     </div>
 
 </form>

@@ -19,10 +19,10 @@
                 <select id="addDepartmentId" name="departmentId" class="form-control"></select>
                 <#bcomboProvider _id="addDepartmentId" _provider="authDepartmentProvider"/>
             </div>
-            <div class="form-group col col-auto">
+            <div class="form-group col-6">
                 <label for="">区域<i class="red">*</i></label>
                 <div class="input-group">
-                    <select class="form-control" id="areaOne" name="area" required>
+                    <select class="form-control w-25" id="areaOne" name="area" required>
                         <option value="" selected="">-- 请选择 --</option>
                     </select>
                     <select class="form-control" id="areaTwo" name="secondArea" >
@@ -37,7 +37,7 @@
             </div>
             <div class="form-group col">
                 <label for="">数量<i class="red">*</i></label>
-                <input type="number" id="number" name="number" class="form-control" maxlength="20"
+                <input type="number" id="number" name="number" class="form-control floatReserve" range="0-999999.00"
                        required/>
             </div>
             <div class="form-group col">
@@ -86,6 +86,7 @@
                         $("#areaOne").select2({
                             data: array,
                             language:'zh-CN',
+                            width: "50%",
                             minimumResultsForSearch: Infinity
                         });
                         $('#areaOne').trigger('change');
@@ -102,6 +103,7 @@
         $("#areaTwo").select2({
             data: [],
             language:'zh-CN',
+            width: "50%",
             minimumResultsForSearch: Infinity
         });
     });
@@ -161,6 +163,7 @@
                             $("#areaTwo").select2({
                                 language:'zh-CN',
                                 data: array,
+                                width: "50%",
                                 minimumResultsForSearch: Infinity
                             })
                         }
