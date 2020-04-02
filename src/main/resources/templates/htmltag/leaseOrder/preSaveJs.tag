@@ -203,10 +203,6 @@
                 $('#endTime').val(moment(startTime).add(days-1,"days").format("YYYY-MM-DD"));
                 return;
             }
-        }else{
-            if(endTime && days){
-                $('#startTime').val(moment(endTime).subtract(days-1,"days").format("YYYY-MM-DD"));
-            }
         }
     }
 
@@ -231,10 +227,6 @@
             if(days){
                 $('#startTime').val(moment(endTime).subtract(days-1,"days").format("YYYY-MM-DD"));
                 return;
-            }
-        }else{
-            if(startTime && days){
-                $('#endTime').val(moment(startTime).add(days-1,"days").format("YYYY-MM-DD"));
             }
         }
     }
