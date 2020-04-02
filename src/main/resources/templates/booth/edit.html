@@ -15,7 +15,7 @@
             </div>
             <div class="form-group col">
                 <label for="editDepartmentId">所属部门</label>
-                <select id="editDepartmentId" name="departmentId" class="form-control" required></select>
+                <select id="editDepartmentId" name="departmentId" class="form-control"></select>
                 <#bcomboProvider _id="editDepartmentId" _provider="authDepartmentProvider" _value="${obj.departmentId!}"/>
             </div>
             <div class="form-group col col-auto">
@@ -88,16 +88,6 @@
     var isInit = false;
 
     $(function () {
-        $("#areaOneEdit").select2({
-            data: [],
-            language:'zh-CN',
-            minimumResultsForSearch: Infinity
-        });
-        $("#areaTwoEdit").select2({
-            data: [],
-            language:'zh-CN',
-            minimumResultsForSearch: Infinity
-        });
         loadArea();
     });
 
@@ -105,7 +95,7 @@
         $.ajax({
             type: "POST",
             url: "/district/search.action",
-            data: {departmentId: '${obj.departmentId!}', parentId: 0},
+            data: {parentId: 0},
             success: function (data) {
                 if (data.code == "200") {
                     var array = $.map(data.data, function (obj) {
@@ -162,56 +152,37 @@
             });
         }
     });
-    $("#editDepartmentId").change(function () {
-        $.ajax({
-            type: "POST",
-            url: "/district/search.action",
-            data: {departmentId: $(this).val(), parentId: 0},
-            success: function (data) {
-                if (data.code == "200") {
-                    var array = $.map(data.data, function (obj) {
-                        obj.text = obj.text || obj.name;
-                        return obj;
-                    });
-                    if (array.length == 0) {
-                        $('#areaOneEdit').html("");
-                        $('#areaTwoEdit').html("");
-                    } else {
-                        $("#areaOneEdit").select2({
-                            data: array,
-                            language:'zh-CN',
-                            minimumResultsForSearch: Infinity
-                        });
-                        $('#areaOneEdit').trigger('change');
-                    }
-                }
-            }
-        });
-    });
+
+
     $("#areaOneEdit").change(function () {
-        $.ajax({
-            type: "POST",
-            url: "/district/search.action",
-            data: {parentId: $(this).val()},
-            success: function (data) {
-                if (data.code == "200") {
-                    var array = $.map(data.data, function (obj) {
-                        obj.text = obj.text || obj.name;
-                        return obj;
-                    });
-                    if (array.length == 0) {
-                        $('#areaTwoEdit').html("")
-                    } else {
-                        $("#areaTwoEdit").select2({
-                            data: array,
-                            language:'zh-CN',
-                            minimumResultsForSearch: Infinity
-                        })
+        var id = $(this).val();
+        if(id && id!==''){
+            $.ajax({
+                type: "POST",
+                url: "/district/search.action",
+                data: {parentId: $(this).val()},
+                success: function (data) {
+                    if (data.code == "200") {
+                        var array = $.map(data.data, function (obj) {
+                            obj.text = obj.text || obj.name;
+                            return obj;
+                        });
+                        if (array.length == 0) {
+                            $('#areaTwoEdit').html("")
+                        } else {
+                            $('#areaTwoEdit').html("")
+                            $("#areaTwoEdit").select2({
+                                language:'zh-CN',
+                                data: array,
+                                minimumResultsForSearch: Infinity
+                            })
+                        }
                     }
-                    initArea();
                 }
-            }
-        });
+            });
+        }else{
+            $('#areaTwoEdit').html("")
+        }
     });
 
 

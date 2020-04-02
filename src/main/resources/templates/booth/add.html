@@ -16,7 +16,7 @@
             </div>
             <div class="form-group col">
                 <label for="">所属部门</label>
-                <select id="addDepartmentId" name="departmentId" class="form-control" required></select>
+                <select id="addDepartmentId" name="departmentId" class="form-control"></select>
                 <#bcomboProvider _id="addDepartmentId" _provider="authDepartmentProvider"/>
             </div>
             <div class="form-group col col-auto">
@@ -69,6 +69,31 @@
 <script>
 
     $(function () {
+        $.ajax({
+            type: "POST",
+            url: "/district/search.action",
+            data: {parentId: 0},
+            success: function (data) {
+                if (data.code == "200") {
+                    var array = $.map(data.data, function (obj) {
+                        obj.text = obj.text || obj.name;
+                        return obj;
+                    });
+                    if (array.length == 0) {
+                        $('#areaOne').html("");
+                        $('#areaTwo').html("");
+                    } else {
+                        $("#areaOne").select2({
+                            data: array,
+                            language:'zh-CN',
+                            minimumResultsForSearch: Infinity
+                        });
+                        $('#areaOne').trigger('change');
+                    }
+                }
+            }
+        });
+
         $("#areaOne").select2({
             data: [],
             language:'zh-CN',
@@ -114,32 +139,8 @@
             });
         }
     });
-    $("#addDepartmentId").change(function () {
-        $.ajax({
-            type: "POST",
-            url: "/district/search.action",
-            data: {departmentId: $(this).val(), parentId: 0},
-            success: function (data) {
-                if (data.code == "200") {
-                    var array = $.map(data.data, function (obj) {
-                        obj.text = obj.text || obj.name;
-                        return obj;
-                    });
-                    if (array.length == 0) {
-                        $('#areaOne').html("");
-                        $('#areaTwo').html("");
-                    } else {
-                        $("#areaOne").select2({
-                            data: array,
-                            language:'zh-CN',
-                            minimumResultsForSearch: Infinity
-                        });
-                        $('#areaOne').trigger('change');
-                    }
-                }
-            }
-        });
-    });
+
+
     $("#areaOne").change(function () {
         var id = $(this).val();
         if(id && id!==''){
@@ -156,6 +157,7 @@
                         if (array.length == 0) {
                             $('#areaTwo').html("")
                         } else {
+                            $('#areaTwo').html("")
                             $("#areaTwo").select2({
                                 language:'zh-CN',
                                 data: array,
@@ -165,6 +167,8 @@
                     }
                 }
             });
+        }else{
+            $('#areaTwo').html("")
         }
     });
 </script>
