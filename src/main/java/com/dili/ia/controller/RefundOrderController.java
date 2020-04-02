@@ -100,13 +100,13 @@ public class RefundOrderController {
      */
     @ApiOperation("跳转到退款单-查看页面")
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
-    public String view(ModelMap modelMap, Long id, String businessCode) {
+    public String view(ModelMap modelMap, Long id, String orderCode) {
         RefundOrder refundOrder = null;
         if(null != id) {
             refundOrder = refundOrderService.get(id);
-        }else if(StringUtils.isNotBlank(businessCode)){
+        }else if(StringUtils.isNotBlank(orderCode)){
             RefundOrder query = DTOUtils.newInstance(RefundOrder.class);
-            query.setCode(businessCode);
+            query.setCode(orderCode);
             refundOrder = refundOrderService.get(refundOrderService.listByExample(query).stream().findFirst().orElse(null).getId());
             id = refundOrder.getId();
         }

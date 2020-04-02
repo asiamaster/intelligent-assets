@@ -76,11 +76,11 @@
                 </div>
                 <div class="form-group col col">
                     <label for="startTime" _log>开始日期<i class="red">*</i></label>
-                    <input type="text" id="startTime" name="startTime" class="form-control" oninput="startTimeChangeHandler()" value="${leaseOrder.startTime!,dateFormat='yyyy-MM-dd'}" required>
+                    <input type="text" id="startTime" name="startTime" class="form-control" oninput="startTimeChangeHandler()" value="${leaseOrder.startTime!,dateFormat='yyyy-MM-dd'}" autocomplete="off" required>
                 </div>
                 <div class="form-group col col">
                     <label for="endTime" _log>结束日期<i class="red">*</i></label>
-                    <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()" value="${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}" required>
+                    <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()" value="${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}" autocomplete="off" required>
                 </div>
                 <div class="form-group col">
                     <label for="contractNo" _log>合同编号</label>

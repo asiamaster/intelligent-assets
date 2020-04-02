@@ -66,11 +66,11 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
 
     /**
      * 查询打印数据
-     * @param businessCode
+     * @param orderCode
      * @param reprint
      * @return
      */
-    BaseOutput<PrintDataDto> queryPrintData(String businessCode, Integer reprint);
+    BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint);
 
     /**
      * 退款申请

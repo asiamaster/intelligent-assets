@@ -78,12 +78,11 @@ public interface RefundOrder extends IBaseDomain {
 
     void setOrderId(Long orderId);
 
-    @Column(name = "`order_code`")
+    @Column(name = "`business_code`")
     @FieldDef(label="业务单编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getOrderCode();
-
-    void setOrderCode(String orderCode);
+    String getBusinessCode();
+    void setBusinessCode(String businessCode);
 
     @Column(name = "`customer_id`")
     @FieldDef(label="客户ID")
