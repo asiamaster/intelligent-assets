@@ -34,7 +34,7 @@ var customerNameAutoCompleteOption = {
             }
         }else{
             bs4pop.alert(result.message, {type: 'error'});
-            return;
+            return false;
         }
     },
     selectFn: function (suggestion) {

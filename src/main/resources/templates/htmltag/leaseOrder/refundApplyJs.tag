@@ -10,17 +10,25 @@
         //行索引计数器
         let itemIndex = 0;
         var customerNameAutoCompleteOption = {
-            serviceUrl: '/customer/list.action',
+            serviceUrl: '/customer/listNormal.action',
             paramName : 'keyword',
             displayFieldName : 'name',
+            showNoSuggestionNotice: true,
+            noSuggestionNotice: '无匹配结果',
             transformResult: function (result) {
-                return {
-                    suggestions: $.map(result, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '（' + dataItem.certificateNumber + '）'
-                            }
-                        );
-                    })
+                if(result.success){
+                    let data = result.data;
+                    return {
+                        suggestions: $.map(data, function (dataItem) {
+                            return $.extend(dataItem, {
+                                    value: dataItem.name + '（' + dataItem.certificateNumber + '）'
+                                }
+                            );
+                        })
+                    }
+                }else{
+                    bs4pop.alert(result.message, {type: 'error'});
+                    return false;
                 }
             },
             selectFn: function (suggestion) {
