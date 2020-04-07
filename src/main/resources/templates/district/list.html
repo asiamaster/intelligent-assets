@@ -174,30 +174,24 @@
     }
 
 
-    function delHandler() {
-        //获取选中行的数据
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            return;
-        }
+    function openDeleteHandler(id) {
+
         bs4pop.confirm("确定要删除吗", {title: "确认提示"}, function (sure) {
             if (sure) {
                 $.ajax({
                     type: "POST",
                     dataType: "json",
                     url: '/district/delete.action',
-                    data: {id: rows[0].id},
+                    data: {id: id},
                     success: function (data) {
                         bui.loading.hide();
                         if (data.code != '200') {
                             bs4pop.alert(data.message, {type: 'error'});
                             return;
                         }
-                        // bs4pop.alert('成功', {type: 'success '}, function () {
-                        //     window.location.reload();
-                        // });
-                        window.location.reload();
+                        bs4pop.alert('成功', {type: 'success'}, function () {
+                            window.location.reload();
+                        });
                     },
                     error: function () {
                         bui.loading.hide();
@@ -221,41 +215,6 @@
             order: params.order
         }
         return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
-    }
-
-    function delSubHandler(index) {
-        //获取选中行的数据
-        let rows = $("#grid" + index).bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            return;
-        }
-
-        bs4pop.confirm("确定要删除吗", {title: "确认提示"}, function (sure) {
-            if (sure) {
-                $.ajax({
-                    type: "POST",
-                    dataType: "json",
-                    url: '/district/delete.action',
-                    data: {id: rows[0].id},
-                    success: function (data) {
-                        bui.loading.hide();
-                        if (data.code != '200') {
-                            bs4pop.alert(data.message, {type: 'error'});
-                            return;
-                        }
-                        // bs4pop.alert('成功', {type: 'success '}, function () {
-                        //     window.location.reload();
-                        // });
-                        window.location.reload();
-                    },
-                    error: function () {
-                        bui.loading.hide();
-                        bs4pop.alert("区域信息删除失败!", {type: 'error'});
-                    }
-                });
-            }
-        });
     }
 
     function openDivisionHandler(id) {

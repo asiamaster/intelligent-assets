@@ -222,6 +222,9 @@ public class LeaseOrderController {
             LeaseOrderItem leaseOrderItemCondition = DTOUtils.newDTO(LeaseOrderItem.class);
             leaseOrderItemCondition.setBoothName(leaseOrder.getBoothName());
             leaseOrder.setIds(leaseOrderItemService.list(leaseOrderItemCondition).stream().map(LeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
+            if(CollectionUtils.isEmpty(leaseOrder.getIds())){
+                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+            }
         }
         return leaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
     }
