@@ -106,7 +106,7 @@
             },
             {
               "name": "notes",
-              "type": "DefaultString",
+              "type": "Intro",
               "chnname": "备注",
               "remark": "",
               "pk": false,
@@ -454,7 +454,7 @@
             },
             {
               "name": "notes",
-              "type": "DefaultString",
+              "type": "Intro",
               "chnname": "备注",
               "remark": "",
               "pk": false,
@@ -1340,7 +1340,7 @@
     ],
     "defaultFieldsType": "1",
     "javaConfig": {
-      "JAVA_HOME": "D:\\zulu13.29.9-ca-jdk13.0.2-win_x64",
+      "JAVA_HOME": "/Library/Java/JavaVirtualMachines/zulu-13.jdk/Contents/Home",
       "DB_DRIVE": []
     },
     "sqlConfig": ";",
