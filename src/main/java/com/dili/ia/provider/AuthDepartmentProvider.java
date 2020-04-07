@@ -9,14 +9,12 @@ package com.dili.ia.provider;
  * @createTime 2018/11/1 17:17
  */
 
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
 import com.dili.ss.metadata.ValueProvider;
 import com.dili.uap.sdk.domain.Department;
-import com.dili.uap.sdk.domain.dto.DepartmentDto;
-import com.dili.uap.sdk.glossary.DataAuthType;
+import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 城市提供者
@@ -38,13 +35,8 @@ public class AuthDepartmentProvider implements ValueProvider {
 
     @Override
     public List<ValuePair<?>> getLookupList(Object val, Map metaMap, FieldMeta fieldMeta) {
-        SessionContext sessionContext = SessionContext.getSessionContext();
-        //获取指定类型的数据权限
-        List<Map> typeDataAuthes = sessionContext.dataAuth(DataAuthType.DEPARTMENT.getCode());
-        List<String> depIds = typeDataAuthes.stream().map(o->(String.valueOf(o.get("value")))).collect(Collectors.toList());
-        DepartmentDto department = DTOUtils.newInstance(DepartmentDto.class);
-        department.setIds(depIds);
-        List<Department> departments = departmentRpc.listByExample(department).getData();
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        List<Department> departments = departmentRpc.listUserAuthDepartmentByFirmId(userTicket.getId(), userTicket.getFirmId()).getData();
         List<ValuePair<?>> buffer = new ArrayList<ValuePair<?>>();
         departments.forEach(o->{
             buffer.add(new ValuePairImpl(o.getName(),o.getId()));
