@@ -87,7 +87,7 @@
                     <th data-field="customerCellphone" data-sortable="true" data-align="center">
                         联系电话
                     </th>
-                    <th data-field="notes" data-sortable="true" data-align="center">
+                    <th data-field="notes" data-sortable="true" data-align="center" data-formatter="dataFormatterTip">
                         详情
                     </th>
                 </tr>
@@ -103,8 +103,11 @@
 <#transactionDetails_indexJs />
 
 <script>
-
-
-
-
+    function dataFormatterTip(value,row,index) {
+        if (value) {
+            return '<span title="' + value + '">' + value + '</span>';
+        } else {
+            return "";
+        }
+    }
 </script>

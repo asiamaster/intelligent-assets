@@ -37,11 +37,6 @@ public interface TransactionDetailsListDto extends TransactionDetails {
     void setLikeCustomerName(String likeCustomerName);
 
     @Operator(Operator.IN)
-    @Column(name = "market_id")
-    List<Long> getMarketIds();
-    void setMarketIds(List<Long> marketIds);
-
-    @Operator(Operator.IN)
     @Column(name = "item_type")
     List<Integer> getItemTypes();
     void setItemTypes(List<Integer> itemTypes);

@@ -4,13 +4,12 @@ import com.dili.ia.domain.dto.TransactionDetailsListDto;
 import com.dili.ia.glossary.TransactionItemTypeEnum;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.TransactionDetailsService;
-import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -18,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -67,11 +69,8 @@ public class TransactionDetailsController {
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(TransactionDetailsListDto transactionDetails) throws Exception {
-        List<Long> marketIdList = dataAuthService.getMarketDataAuth(SessionContext.getSessionContext().getUserTicket());
-        if (CollectionUtils.isEmpty(marketIdList)){
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
-        }
-        transactionDetails.setMarketIds(marketIdList);
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        transactionDetails.setMarketId(userTicket.getFirmId());
         //只显示客户【定金】【转抵】的流水记录
         List<Integer> itemTypes = new ArrayList<>();
         itemTypes.add(TransactionItemTypeEnum.EARNEST.getCode());

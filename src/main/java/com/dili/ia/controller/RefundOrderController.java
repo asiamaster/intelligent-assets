@@ -90,6 +90,8 @@ public class RefundOrderController {
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(RefundOrderDto refundOrder) throws Exception {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        refundOrder.setMarketId(userTicket.getFirmId());
         return refundOrderService.listEasyuiPageByExample(refundOrder, true).toString();
     }
 

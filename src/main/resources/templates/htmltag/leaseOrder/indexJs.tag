@@ -262,10 +262,11 @@
             btns: [
                 {
                     label: '确定', className: 'btn-primary', onClick(e) {
+                        bui.loading.show();
                         if (!$('#submitPaymentForm').valid()) {
+                            bui.loading.hide();
                             return false;
                         }
-                        bui.loading.show();
                         $.ajax({
                             type: "POST",
                             url: "${contextPath}/leaseOrder/submitPayment.action",

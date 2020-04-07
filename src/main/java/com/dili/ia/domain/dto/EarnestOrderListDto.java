@@ -39,11 +39,6 @@ public interface EarnestOrderListDto extends EarnestOrder {
     void setLikeCustomerName(String likeCustomerName);
 
     @Operator(Operator.IN)
-    @Column(name = "market_id")
-    List<Long> getMarketIds();
-    void setMarketIds(List<Long> marketIds);
-
-    @Operator(Operator.IN)
     @Column(name = "department_id")
     List<Long> getDepartmentIds();
     void setDepartmentIds(List<Long> departmentIds);
