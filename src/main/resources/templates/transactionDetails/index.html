@@ -24,12 +24,12 @@
             <div class="form-group col">
                 <label for="itemType">类型:</label>
                 <select id="itemType" name="itemType" class="form-control"></select>
-                <#bcomboProvider _id="itemType" _provider="transactionItemTypeProvider" _value=""/>
+                <#bcomboProvider _id="itemType" _provider="transactionItemTypeProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
                 <label for="sceneType">场景:</label>
                 <select id="sceneType" name="sceneType" class="form-control"></select>
-                <#bcomboProvider _id="sceneType" _provider="transactionSceneTypeProvider"/>
+                <#bcomboProvider _id="sceneType" _provider="transactionSceneTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
 
             </div>
             <div class="form-group col">

@@ -19,12 +19,12 @@
                     <div class="form-group col">
                         <label for="state">业务状态</label>
                         <select id="state" name="state" class="form-control"></select>
-                        <#bcomboProvider _id="state" _provider="leaseOrderStateProvider" _value=""/>
+                        <#bcomboProvider _id="state" _provider="leaseOrderStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
                     </div>
                     <div class="form-group col">
                         <label for="payState">交费状态</label>
                         <select id="payState" name="payState" class="form-control"></select>
-                        <#bcomboProvider _id="payState" _provider="payStateProvider" _value=""/>
+                        <#bcomboProvider _id="payState" _provider="payStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
                     </div>
                     <div class="form-group col">
                         <label for="likeCustomerName">客户名称</label>
