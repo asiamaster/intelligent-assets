@@ -18,11 +18,13 @@ import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -154,6 +157,9 @@ public class EarnestOrderController {
     public @ResponseBody String listPage(EarnestOrderListDto earnestOrderListDto) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+        if (CollectionUtils.isEmpty(departmentIdList)){
+            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+        }
         earnestOrderListDto.setMarketId(userTicket.getFirmId());
         earnestOrderListDto.setDepartmentIds(departmentIdList);
         return earnestOrderService.listEasyuiPageByExample(earnestOrderListDto, true).toString();

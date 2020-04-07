@@ -211,6 +211,9 @@ public class LeaseOrderController {
             throw new RuntimeException("未登录");
         }
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+        if (CollectionUtils.isEmpty(departmentIdList)){
+            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+        }
         leaseOrder.setMarketId(userTicket.getFirmId());
         leaseOrder.setDepartmentIds(departmentIdList);
 
