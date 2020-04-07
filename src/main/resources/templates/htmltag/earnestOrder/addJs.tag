@@ -113,7 +113,13 @@
 
     // 提交保存
     $('#formSubmit').on('click', function (e) {
-        if (!$('#saveForm').valid()) {
+        let validator = $('#saveForm').validate({ignore:''})
+        if (!validator.form()) {
+            /*$(this).find('.collapse').each(function (index, element) {
+                $(element).trigger('show.bs.collapse');
+            });*/
+            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+            $('.collapse:not(.show)').addClass('show');
             return false;
         }
 
