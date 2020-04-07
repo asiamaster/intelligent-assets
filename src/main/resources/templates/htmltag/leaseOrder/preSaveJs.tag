@@ -295,7 +295,6 @@
                         if(Number($('#depositDeduction').val()) != Number(depositAmount.centToYuan())){
                             bs4pop.notice('保证金可抵扣额发生变化,已为您调整至最新值！', {position: 'bottomleft',autoClose: false})
                         }
-                        isInitCheckDeduction = false;
                     }
                     $('#depositDeduction').val(Number(depositAmount).centToYuan())
                 } else {

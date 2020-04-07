@@ -90,7 +90,7 @@
         $.ajax({
             type: "POST",
             url: "/district/search.action",
-            data: {departmentId: '${obj.departmentId!}', parentId: 0},
+            data: {parentId: 0},
             success: function (data) {
                 if (data.code == "200") {
                     var array = $.map(data.data, function (obj) {
