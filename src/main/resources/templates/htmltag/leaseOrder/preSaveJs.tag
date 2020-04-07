@@ -76,6 +76,7 @@
 
         //监听客户注册
         initMsg(function(message){
+            debugger
             let msgData = JSON.parse(message);
             if(msgData.topic == 'customerRegister'){
                 let customer = msgData.content;
@@ -84,6 +85,7 @@
                 $('#customerName').val(customer.name);
                 $('#customerId').val(customer.customerId);
                 $('#customerCellphone').val(customer.contactsPhone);
+                $('#customerName').autocomplete('hide')
             }
         });
 
