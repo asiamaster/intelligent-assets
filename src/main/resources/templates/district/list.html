@@ -52,7 +52,7 @@
                             class="fa fa-plus"></i> 新增
                     </button>
                 </div>
-                <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-parent-id-field="parentId" data-query-params="queryParams">
+                <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-root-parent-id="parentId" data-parent-id-field="parentId" data-query-params="queryParams">
                     <thead>
                     <tr>
                         <th data-field="name" data-align="center">
@@ -83,7 +83,10 @@
 </div>
 
 </#bs4Body>
-<#btreegrid/>
+<link rel="stylesheet" href="/resources/bui/lib/jquery-treegrid/css/jquery.treegrid.css">
+<script src="/resources/bui/lib/jquery-treegrid/js/jquery.treegrid.min.js"></script>
+<script src="/resources/bui/js/bootstrap-table-treegrid.js"></script>
+<!--<#btreegrid/>-->
 <div class="modal fade" id="_modal" data-backdrop="static" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true">
     <!--modal-lg modal-sm(默认) 通过设置mw大小调整宽度（如mw-100） modal-dialog-centered垂直居中-->
