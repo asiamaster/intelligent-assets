@@ -38,7 +38,7 @@ var customerNameAutoCompleteOption = {
         }
     },
     selectFn: function (suggestion) {
-        $('#certificateNumber， #_certificateNumber').val(customer.certificateNumber);
+        $('#certificateNumber, #_certificateNumber').val(customer.certificateNumber);
         $('#customerCellphone').val(suggestion.contactsPhone);
         $('#certificateNumber, #_certificateNumber, #customerCellphone').valid();
     }
