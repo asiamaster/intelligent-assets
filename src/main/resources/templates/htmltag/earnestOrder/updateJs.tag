@@ -130,7 +130,10 @@
     }
     // 提交保存
     $('#formSubmit').on('click', function (e) {
-        if (!$('#updateForm').valid()) {
+        let validator = $('#updateForm').validate({ignore:''})
+        if (!validator.form()) {
+            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+            $('.collapse:not(.show)').addClass('show');
             return false;
         }
         let boothIds = $("table input[name^='assetsId']").filter(function () {
