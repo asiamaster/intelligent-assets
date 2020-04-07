@@ -1,6 +1,8 @@
 <#bs4Body>
 
 <div class="container-fluid">
+    <input type="hidden" id="_sourceChannel" value="<#config name='is.source.channel.booth_lease'/>">
+
     <form id="saveForm" role="form" action="">
         <div class="breadcrumb">
             转出方
@@ -64,5 +66,5 @@
 
 
 </#bs4Body>
-<script type="text/javascript" src="${contextPath}/resources/bui/js/customerAutocomplete.js?v=1.1"></script>
+<#js_customerAutocompleteJs/>
 <#customerAccount_earnestTransferJs />
