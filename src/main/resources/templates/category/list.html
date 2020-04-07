@@ -122,7 +122,7 @@
             url: '/category/getTree.action',
             success: function (data) {
                 if (data.code != '200') {
-                    tips("提示", data.msg);
+                    tips("提示", data.message);
                     return;
                 }
                 if (data.data) {

@@ -79,7 +79,11 @@ public class CategoryController {
     @RequestMapping(value = "/getTree.action")
     @ResponseBody
     public BaseOutput<List<CategoryDTO>> getTree(CategoryDTO input) {
-        return assetsRpc.list(input);
+        try {
+            return assetsRpc.list(input);
+        }catch (Exception e){
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
     /**
