@@ -40,6 +40,7 @@ import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,21 +176,21 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param isAdd
      */
     private void checkContractNo(LeaseOrderListDto dto,Boolean isAdd){
-        LeaseOrder condition = DTOUtils.newInstance(LeaseOrder.class);
-        condition.setContractNo(dto.getContractNo());
-        List<LeaseOrder> leaseOrders = list(condition);
-        if(isAdd && CollectionUtils.isNotEmpty(leaseOrders)){
-            throw new BusinessException(ResultCode.DATA_ERROR,"合同编号不允许重复使用，请修改");
-        }else {
-            if(leaseOrders.size() == 1){
-                LeaseOrder leaseOrder = leaseOrders.get(0);
-                if(!leaseOrder.getId().equals(dto.getId())){
-                    throw new BusinessException(ResultCode.DATA_ERROR,"合同编号不允许重复使用，请修改");
+        if(StringUtils.isNotBlank(dto.getContractNo())){
+            LeaseOrder condition = DTOUtils.newInstance(LeaseOrder.class);
+            condition.setContractNo(dto.getContractNo());
+            List<LeaseOrder> leaseOrders = list(condition);
+            if(isAdd && CollectionUtils.isNotEmpty(leaseOrders)){
+                throw new BusinessException(ResultCode.DATA_ERROR,"合同编号不允许重复使用，请修改");
+            }else {
+                if(leaseOrders.size() == 1){
+                    LeaseOrder leaseOrder = leaseOrders.get(0);
+                    if(!leaseOrder.getId().equals(dto.getId())){
+                        throw new BusinessException(ResultCode.DATA_ERROR,"合同编号不允许重复使用，请修改");
+                    }
                 }
             }
         }
-
-
     }
 
     /**
@@ -736,6 +737,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrder.setState(LeaseOrderStateEnum.CANCELD.getCode());
         leaseOrder.setCancelerId(userTicket.getId());
         leaseOrder.setCanceler(userTicket.getRealName());
+
+        String formatNow = DateUtils.format(new Date(),"yyyyMMddHHmmssSSS");
+        leaseOrder.setContractNo(leaseOrder.getContractNo() + "_" + formatNow);
 
         //联动摊位租赁单项状态 取消
         cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.CANCELD);
