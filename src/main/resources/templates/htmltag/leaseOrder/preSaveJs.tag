@@ -295,7 +295,6 @@
                         if(Number($('#depositDeduction').val()) != Number(depositAmount.centToYuan())){
                             bs4pop.notice('保证金可抵扣额发生变化,已为您调整至最新值！', {position: 'bottomleft',autoClose: false})
                         }
-                        isInitCheckDeduction = false;
                     }
                     $('#depositDeduction').val(Number(depositAmount).centToYuan())
                 } else {
@@ -492,7 +491,10 @@
 
     /*****************************************自定义事件区 begin************************************/
     $('#formSubmit').on('click', function (e) {
-        if (!$('#saveForm').valid()) {
+        let validator = $('#saveForm').validate({ignore:''})
+        if (!validator.form()) {
+            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+            $('.collapse:not(.show)').addClass('show');
             return false;
         }
 

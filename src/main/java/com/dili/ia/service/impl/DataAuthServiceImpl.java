@@ -2,14 +2,9 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.service.DataAuthService;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
-import com.dili.uap.sdk.domain.Firm;
-import com.dili.uap.sdk.domain.UserDataAuth;
+import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.domain.dto.FirmDto;
-import com.dili.uap.sdk.glossary.DataAuthType;
-import com.dili.uap.sdk.rpc.DataAuthRpc;
-import com.dili.uap.sdk.rpc.FirmRpc;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -31,48 +25,17 @@ import java.util.stream.Collectors;
 @Service
 public class DataAuthServiceImpl implements DataAuthService {
     @Autowired
-    DataAuthRpc dataAuthRpc;
-    @Autowired
-    FirmRpc firmRpc;
-
-    @Override
-    public List<Long> getMarketDataAuth(UserTicket userTicket){
-        if (null == userTicket){
-            return Collections.emptyList();
-        }
-        UserDataAuth userDataAuth = DTOUtils.newInstance(UserDataAuth.class);
-        userDataAuth.setUserId(userTicket.getId());
-        userDataAuth.setRefCode(DataAuthType.MARKET.getCode());
-        BaseOutput<List<Map>> out = dataAuthRpc.listUserDataAuthDetail(userDataAuth);
-
-        List<Long> malist = new ArrayList<>();
-        if (out.isSuccess() && CollectionUtils.isNotEmpty(out.getData())){
-            List<String> firmCodeList = (List<String>) out.getData().stream().flatMap(m -> m.keySet().stream()).collect(Collectors.toList());
-            FirmDto firmDto = DTOUtils.newInstance(FirmDto.class);
-            firmDto.setCodes(firmCodeList);
-            BaseOutput<List<Firm>> listBaseOutput = firmRpc.listByExample(firmDto);
-            if (listBaseOutput.isSuccess() && CollectionUtils.isNotEmpty(listBaseOutput.getData())){
-                List<Firm> data = listBaseOutput.getData();
-                for (Firm firm : data){
-                    malist.add(firm.getId());
-                }
-            }
-        }
-        return malist;
-    }
+    DepartmentRpc departmentRpc;
 
     @Override
     public List<Long> getDepartmentDataAuth(UserTicket userTicket){
         if (null == userTicket){
             return Collections.emptyList();
         }
-        UserDataAuth userDataAuth = DTOUtils.newInstance(UserDataAuth.class);
-        userDataAuth.setUserId(userTicket.getId());
-        userDataAuth.setRefCode(DataAuthType.DEPARTMENT.getCode());
-        BaseOutput<List<Map>> out = dataAuthRpc.listUserDataAuthDetail(userDataAuth);
+        BaseOutput<List<Department>> out =departmentRpc.listUserAuthDepartmentByFirmId(userTicket.getId(), userTicket.getFirmId());
         List<Long> malist = new ArrayList<>();
         if (out.isSuccess() && CollectionUtils.isNotEmpty(out.getData())){
-            List<Long> departmentCodeList = (List<Long>) out.getData().stream().flatMap(m -> m.keySet().stream()).collect(Collectors.toList());
+            List<Long> departmentCodeList = (List<Long>) out.getData().stream().map(m -> m.getId()).collect(Collectors.toList());
             malist.addAll(departmentCodeList);
         }
         return malist;
