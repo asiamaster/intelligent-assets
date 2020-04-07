@@ -38,8 +38,7 @@ var customerNameAutoCompleteOption = {
         }
     },
     selectFn: function (suggestion) {
-        $('#certificateNumber').val(suggestion.certificateNumber);
-        $('#_certificateNumber').val(suggestion.certificateNumber);
+        $('#certificateNumber， #_certificateNumber').val(customer.certificateNumber);
         $('#customerCellphone').val(suggestion.contactsPhone);
         $('#certificateNumber, #_certificateNumber, #customerCellphone').valid();
     }
@@ -94,8 +93,7 @@ function initSwipeCard(option){
                     let customer = data[0];
                     $('#customerName').val(customer.name);
                     $('#customerId').val(customer.id);
-                    $('#certificateNumber').val(customer.certificateNumber);
-                    $('#_certificateNumber').val(customer.certificateNumber);
+                    $('#certificateNumber， #_certificateNumber').val(customer.certificateNumber);
                     $('#customerCellphone').val(customer.contactsPhone);
                     option.onLoadSuccess && option.onLoadSuccess(customer);
                 }else{
@@ -154,9 +152,22 @@ initMsg(function (data) {
     }
 });
 
+// 无此客户点击注册
 $(document).on('click','#goCustomerRegister', function(){
     openCustomerRegister();
 });
 
 
-
+//监听客户注册，回显客户信息
+initMsg(function(message){
+    debugger
+    let msgData = JSON.parse(message);
+    if(msgData.topic == 'customerRegister'){
+        let customer = msgData.content;
+        $('#certificateNumber， #_certificateNumber').val(customer.certificateNumber);
+        $('#customerName').val(customer.name);
+        $('#customerId').val(customer.customerId);
+        $('#customerCellphone').val(customer.contactsPhone);
+        $('#customerName').autocomplete('hide')
+    }
+});
