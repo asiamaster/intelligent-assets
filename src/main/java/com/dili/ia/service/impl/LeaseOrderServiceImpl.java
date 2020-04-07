@@ -510,7 +510,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             LOG.info("租赁单编号【{}】已发起退款，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已发起退款，不可以进行提交付款操作");
         }
-        if (leaseOrder.getWaitAmount().equals(0L)) {
+        if (amount.equals(0L) && !waitAmount.equals(0L)) {
             throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单费用已结清");
         }
         if (amount > leaseOrder.getWaitAmount()) {
