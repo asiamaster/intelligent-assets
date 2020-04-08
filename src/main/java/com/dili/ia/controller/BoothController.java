@@ -165,8 +165,12 @@ public class BoothController {
     @RequestMapping("/split.action")
     @ResponseBody
     public BaseOutput split(Long parentId, String[] names, String notes, String[] numbers) {
-        assetsRpc.boothSplit(parentId, names, notes, numbers);
-        return BaseOutput.success();
+        try {
+            BaseOutput baseOutput = assetsRpc.boothSplit(parentId, names, notes, numbers);
+            return baseOutput;
+        }catch (Exception e){
+            return BaseOutput.failure("系统异常,请稍后重试！");
+        }
     }
 
 
@@ -202,7 +206,7 @@ public class BoothController {
                         result.add(dto);
                     } else {
                         boolean anyMatch = data.stream().anyMatch(obj -> obj.getParentId().equals(dto.getId()));
-                        if (!anyMatch) {
+                        if (!anyMatch && dto.getParentId() == 0) {
                             result.add(dto);
                         }
                     }

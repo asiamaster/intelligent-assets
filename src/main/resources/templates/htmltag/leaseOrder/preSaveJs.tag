@@ -17,10 +17,10 @@
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#_certificateNumber,#customerCellphone").valid();
 
-            //获取保证金抵扣余额
-            queryCustomerDepositDeduction(true);
             //账户余额查询
             queryCustomerAccount();
+            //获取保证金抵扣余额
+            queryCustomerDepositDeduction(true);
         }
     });
     $.extend(certificateNumberAutoCompleteOption,{
@@ -30,10 +30,10 @@
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#customerName,#customerCellphone").valid();
 
-            //获取保证金抵扣余额
-            queryCustomerDepositDeduction(true);
             //账户余额查询
             queryCustomerAccount();
+            //获取保证金抵扣余额
+            queryCustomerDepositDeduction(true);
         }
     });
 
@@ -75,18 +75,7 @@
         });
 
         //监听客户注册
-        initMsg(function(message){
-            debugger
-            let msgData = JSON.parse(message);
-            if(msgData.topic == 'customerRegister'){
-                let customer = msgData.content;
-                $('#certificateNumber').val(customer.certificateNumber);
-                $('#_certificateNumber').val(customer.certificateNumber);
-                $('#customerName').val(customer.name);
-                $('#customerId').val(customer.customerId);
-                $('#customerCellphone').val(customer.contactsPhone);
-            }
-        });
+        registerMsg();
 
         laydate.render({
                 elem: '#startTime',
@@ -321,6 +310,7 @@
             url: "/customerAccount/getCustomerAccountByCustomerId.action",
             data: {customerId},
             dataType: "json",
+            async : false,
             success: function (ret) {
                 if(ret.success){
                     let earnestDeductionEl$ = $('#earnestDeduction');
