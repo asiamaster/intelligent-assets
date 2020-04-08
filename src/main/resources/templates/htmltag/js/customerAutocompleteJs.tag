@@ -96,7 +96,7 @@
                             let customer = data[0];
                             $('#customerName').val(customer.name);
                             $('#customerId').val(customer.id);
-                            $('#certificateNumber， #_certificateNumber').val(customer.certificateNumber);
+                            $('#certificateNumber,#_certificateNumber').val(customer.certificateNumber);
                             $('#customerCellphone').val(customer.contactsPhone);
                             option.onLoadSuccess && option.onLoadSuccess(customer);
                         }else{
