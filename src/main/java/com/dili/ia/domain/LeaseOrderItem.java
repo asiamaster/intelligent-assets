@@ -90,9 +90,9 @@ public interface LeaseOrderItem extends IBaseDomain {
     @Column(name = "`number`")
     @FieldDef(label="数量")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getNumber();
+    Double getNumber();
 
-    void setNumber(Long number);
+    void setNumber(Double number);
 
     @Column(name = "`is_corner`")
     @FieldDef(label="是否转角")
