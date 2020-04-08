@@ -160,6 +160,7 @@ initMsg(function (data) {
 
 // 无此客户点击注册
 $(document).on('click','#goCustomerRegister', function(){
+    $(this).parent().remove();
     openCustomerRegister();
 });
 
@@ -174,6 +175,5 @@ initMsg(function(message){
         $('#customerName').val(customer.name);
         $('#customerId').val(customer.customerId);
         $('#customerCellphone').val(customer.contactsPhone);
-        $('#customerName').autocomplete('hide')
     }
 });

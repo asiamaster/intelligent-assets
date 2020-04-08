@@ -85,7 +85,6 @@
                 $('#customerName').val(customer.name);
                 $('#customerId').val(customer.customerId);
                 $('#customerCellphone').val(customer.contactsPhone);
-                $('#customerName').autocomplete('hide')
             }
         });
 
