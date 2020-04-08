@@ -138,7 +138,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             LeaseOrder oldLeaseOrder = get(dto.getId());
             dto.setWaitAmount(dto.getPayAmount());
             dto.setVersion(oldLeaseOrder.getVersion());
-            if (updateSelective(dto) == 0) {
+            if (updateExact(dto) == 0) {
                 LOG.info("摊位租赁单修改异常,乐观锁生效 【租赁单编号:{}】", dto.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }

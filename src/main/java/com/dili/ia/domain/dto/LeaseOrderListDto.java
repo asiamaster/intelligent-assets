@@ -4,6 +4,7 @@ import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
+import com.dili.ss.dto.IMybatisForceParams;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
@@ -15,7 +16,7 @@ import java.util.List;
  * 租赁订单列表查询dto
  * This file was generated on 2020-02-11 15:54:49.
  */
-public interface LeaseOrderListDto extends LeaseOrder {
+public interface LeaseOrderListDto extends LeaseOrder, IMybatisForceParams {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
     Date getCreatedStart();
