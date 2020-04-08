@@ -75,18 +75,7 @@
         });
 
         //监听客户注册
-        initMsg(function(message){
-            debugger
-            let msgData = JSON.parse(message);
-            if(msgData.topic == 'customerRegister'){
-                let customer = msgData.content;
-                $('#certificateNumber').val(customer.certificateNumber);
-                $('#_certificateNumber').val(customer.certificateNumber);
-                $('#customerName').val(customer.name);
-                $('#customerId').val(customer.customerId);
-                $('#customerCellphone').val(customer.contactsPhone);
-            }
-        });
+        registerMsg();
 
         laydate.render({
                 elem: '#startTime',
