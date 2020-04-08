@@ -319,7 +319,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
 
-        recordPayLog(settleOrder,leaseOrder);
+        businessLogRpc.save(recordPayLog(settleOrder,leaseOrder));
         return BaseOutput.success().setData(true);
     }
 
@@ -328,14 +328,18 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param settleOrder
      * @param leaseOrder
      */
-    public void recordPayLog(SettleOrder settleOrder, LeaseOrder leaseOrder) {
+    public BusinessLog recordPayLog(SettleOrder settleOrder, LeaseOrder leaseOrder) {
         BusinessLog businessLog = new BusinessLog();
         businessLog.setBusinessId(leaseOrder.getId());
         businessLog.setBusinessCode(leaseOrder.getCode());
         businessLog.setContent(settleOrder.getCode());
+        businessLog.setOperationType("pay");
         businessLog.setMarketId(settleOrder.getMarketId());
         businessLog.setOperatorId(settleOrder.getOperatorId());
         businessLog.setOperatorName(settleOrder.getOperatorName());
+        businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
+        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        return businessLog;
     }
 
     /**
@@ -1232,7 +1236,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             });
         }
         //记录退款日志
-        recordRefundLog(refundOrder,leaseOrder);
+        businessLogRpc.save(recordRefundLog(refundOrder,leaseOrder));
         return BaseOutput.success();
     }
 
@@ -1241,7 +1245,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param refundOrder
      * @param leaseOrder
      */
-    public void recordRefundLog(RefundOrder refundOrder, LeaseOrder leaseOrder) {
+    public BusinessLog recordRefundLog(RefundOrder refundOrder, LeaseOrder leaseOrder) {
         BusinessLog businessLog = new BusinessLog();
         businessLog.setBusinessId(leaseOrder.getId());
         businessLog.setBusinessCode(leaseOrder.getCode());
@@ -1252,5 +1256,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         businessLog.setOperatorName(refundOrder.getRefundOperator());
         businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
         businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        return businessLog;
     }
 }

@@ -249,7 +249,7 @@ public class LeaseOrderController {
             LoggerUtil.buildLoggerContext(oldLeaseOrder.getId(),oldLeaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
             return BaseOutput.success();
         }catch (BusinessException e){
-            LOG.error("租赁订单信息补录异常！", e);
+            LOG.info("租赁订单信息补录异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("租赁订单信息补录异常！", e);
@@ -270,7 +270,7 @@ public class LeaseOrderController {
         try {
             return leaseOrderService.cancelOrder(id);
         }catch (BusinessException e){
-            LOG.error("租赁订单取消异常！", e);
+            LOG.info("租赁订单取消异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("租赁订单取消异常！", e);
@@ -291,7 +291,7 @@ public class LeaseOrderController {
         try {
             return leaseOrderService.withdrawOrder(id);
         }catch (BusinessException e){
-            LOG.error("租赁订单撤回异常！", e);
+            LOG.info("租赁订单撤回异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("租赁订单撤回异常！", e);
@@ -328,7 +328,7 @@ public class LeaseOrderController {
             }
             return output;
         }catch (BusinessException e){
-            LOG.error("摊位租赁订单保存异常！", e);
+            LOG.info("摊位租赁订单保存异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位租赁订单保存异常！", e);
@@ -358,7 +358,7 @@ public class LeaseOrderController {
             }
             return leaseOrderService.submitPayment(id,amount,waitAmount);
         }catch (BusinessException e){
-            LOG.error("摊位租赁订单提交付款异常！", e);
+            LOG.info("摊位租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位租赁订单提交付款异常！", e);
@@ -385,7 +385,7 @@ public class LeaseOrderController {
             }
             return output;
         }catch (BusinessException e){
-            LOG.error("摊位租赁退款申请异常！", e);
+            LOG.info("摊位租赁退款申请异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位租赁退款申请异常！", e);

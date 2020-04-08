@@ -2,6 +2,7 @@ package com.dili.ia.api;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.exception.AppException;
+import com.dili.ss.exception.BusinessException;
 import com.google.common.collect.Lists;
 import java.util.Map;
 import java.time.LocalDateTime;
@@ -120,11 +121,13 @@ public class LeaseOrderApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType="pay",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
             return leaseOrderService.updateLeaseOrderBySettleInfo(settleOrder);
+        }catch (BusinessException e){
+            LOG.info("摊位租赁结算成功回调异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位租赁结算成功回调异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);

@@ -91,7 +91,7 @@ public class LeaseOrderItemController {
             LoggerUtil.buildLoggerContext(leaseOrderItem.getId(),leaseOrderItem.getLeaseOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),leaseOrderItem.getStopReason());
             return output;
         }catch (BusinessException e){
-            LOG.error("摊位停租异常！", e);
+            LOG.info("摊位停租异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("摊位停租异常！", e);
