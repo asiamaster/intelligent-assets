@@ -333,12 +333,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         businessLog.setBusinessId(leaseOrder.getId());
         businessLog.setBusinessCode(leaseOrder.getCode());
         businessLog.setContent(settleOrder.getCode());
-        businessLog.setOperationType("pay");
         businessLog.setMarketId(settleOrder.getMarketId());
         businessLog.setOperatorId(settleOrder.getOperatorId());
         businessLog.setOperatorName(settleOrder.getOperatorName());
-        businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
     }
 
     /**
