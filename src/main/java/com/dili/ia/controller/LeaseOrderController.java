@@ -371,7 +371,7 @@ public class LeaseOrderController {
      * @param refundOrderDto
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${totalRefundAmount}",operationType="refundApply",systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${totalRefundAmountFormatStr}",operationType="refundApply",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/createRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

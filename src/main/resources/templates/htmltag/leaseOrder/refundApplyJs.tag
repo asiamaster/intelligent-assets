@@ -121,7 +121,7 @@
                 transferDeductionItems.push(transferDeductionItem);
             }
         });
-        return $.extend(formData,{transferDeductionItems});
+        return $.extend(formData, {transferDeductionItems, totalRefundAmountFormatStr: $('#totalRefundAmount').val()});
     }
 
     /**
