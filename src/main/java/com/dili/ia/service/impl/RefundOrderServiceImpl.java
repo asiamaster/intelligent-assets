@@ -13,6 +13,9 @@ import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.BeanMapUtil;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.EditEnableEnum;
@@ -88,6 +91,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
 
     @Override
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER,operationType="add",systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput doAddHandler(RefundOrder order) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
@@ -104,6 +108,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         order.setState(RefundOrderStateEnum.CREATED.getCode());
         order.setVersion(0);
         refundOrderService.insertSelective(order);
+        LoggerUtil.buildLoggerContext(order.getId(),order.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
         return BaseOutput.success().setData(order);
     }
     private BaseOutput checkParams(RefundOrder order){

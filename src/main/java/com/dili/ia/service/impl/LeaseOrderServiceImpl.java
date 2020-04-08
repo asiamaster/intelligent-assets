@@ -945,75 +945,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     @Override
-    public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
-        PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
-        paymentOrderCondition.setCode(orderCode);
-        PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
-        if (null == paymentOrder) {
-            LOG.info("租赁单打印异常 【businessCode:{}】无效",orderCode);
-            throw new BusinessException(ResultCode.DATA_ERROR,"businessCode无效");
-        }
-        if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
-            LOG.info("租赁单打印异常 【businessCode:{}】此单未支付",orderCode);
-            return BaseOutput.failure("此单未支付");
-        }
-
-        LeaseOrder leaseOrder = get(paymentOrder.getBusinessId());
-        PrintDataDto printDataDto = new PrintDataDto();
-        LeaseOrderPrintDto leaseOrderPrintDto = new LeaseOrderPrintDto();
-        leaseOrderPrintDto.setPrintTime(new Date());
-        leaseOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
-        leaseOrderPrintDto.setLeaseOrderCode(leaseOrder.getCode());
-        if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
-            leaseOrderPrintDto.setBusinessType(BizTypeEnum.BOOTH_LEASE.getName());
-            printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_PAID.getCode());
-        } else {
-            leaseOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
-            printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_NOT_PAID.getCode());
-        }
-        leaseOrderPrintDto.setCustomerName(leaseOrder.getCustomerName());
-        leaseOrderPrintDto.setCustomerCellphone(leaseOrder.getCustomerCellphone());
-        leaseOrderPrintDto.setStartTime(leaseOrder.getStartTime());
-        leaseOrderPrintDto.setEndTime(leaseOrder.getEndTime());
-        leaseOrderPrintDto.setIsRenew(IsRenewEnum.getIsRenewEnum(leaseOrder.getIsRenew()).getName());
-        leaseOrderPrintDto.setCategoryName(leaseOrder.getCategoryName());
-        leaseOrderPrintDto.setNotes(leaseOrder.getNotes());
-        leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
-        leaseOrderPrintDto.setDepositDeduction(MoneyUtils.centToYuan(leaseOrder.getDepositDeduction()));
-
-        PaymentOrder paymentOrderConditions = DTOUtils.newInstance(PaymentOrder.class);
-        paymentOrderConditions.setBusinessId(paymentOrder.getBusinessId());
-        List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);
-        Long totalPayAmountExcludeLast = 0L;
-        for (PaymentOrder order : paymentOrders) {
-            if (!order.getCode().equals(orderCode) && order.getState().equals(PaymentOrderStateEnum.PAID.getCode())) {
-                totalPayAmountExcludeLast += order.getAmount();
-            }
-        }
-        //除最后一次所交费用+定金抵扣 之和未总定金
-        leaseOrderPrintDto.setEarnestDeduction(MoneyUtils.centToYuan(leaseOrder.getEarnestDeduction() + totalPayAmountExcludeLast));
-        leaseOrderPrintDto.setTransferDeduction(MoneyUtils.centToYuan(leaseOrder.getTransferDeduction()));
-        leaseOrderPrintDto.setPayAmount(MoneyUtils.centToYuan(leaseOrder.getPayAmount()));
-        leaseOrderPrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount()));
-        leaseOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
-        leaseOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-        leaseOrderPrintDto.setSubmitter(paymentOrder.getCreator());
-
-        LeaseOrderItem leaseOrderItemCondition = DTOUtils.newInstance(LeaseOrderItem.class);
-        leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
-        List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
-        leaseOrderItemService.list(leaseOrderItemCondition).forEach(o -> {
-            leaseOrderItemPrintDtos.add(LeaseOrderRefundOrderServiceImpl.leaseOrderItem2PrintDto(o));
-        });
-        leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemPrintDtos);
-        printDataDto.setItem(BeanMapUtil.beanToMap(leaseOrderPrintDto));
-        return BaseOutput.success().setData(printDataDto);
-    }
-
-    @Autowired
-    private TransferDeductionItemService transferDeductionItemService;
-
-    @Override
     @Transactional
     public BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -1108,6 +1039,75 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
         return BaseOutput.success();
     }
+
+    @Override
+    public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
+        PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
+        paymentOrderCondition.setCode(orderCode);
+        PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
+        if (null == paymentOrder) {
+            LOG.info("租赁单打印异常 【businessCode:{}】无效",orderCode);
+            throw new BusinessException(ResultCode.DATA_ERROR,"businessCode无效");
+        }
+        if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
+            LOG.info("租赁单打印异常 【businessCode:{}】此单未支付",orderCode);
+            return BaseOutput.failure("此单未支付");
+        }
+
+        LeaseOrder leaseOrder = get(paymentOrder.getBusinessId());
+        PrintDataDto printDataDto = new PrintDataDto();
+        LeaseOrderPrintDto leaseOrderPrintDto = new LeaseOrderPrintDto();
+        leaseOrderPrintDto.setPrintTime(new Date());
+        leaseOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
+        leaseOrderPrintDto.setLeaseOrderCode(leaseOrder.getCode());
+        if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
+            leaseOrderPrintDto.setBusinessType(BizTypeEnum.BOOTH_LEASE.getName());
+            printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_PAID.getCode());
+        } else {
+            leaseOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
+            printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_NOT_PAID.getCode());
+        }
+        leaseOrderPrintDto.setCustomerName(leaseOrder.getCustomerName());
+        leaseOrderPrintDto.setCustomerCellphone(leaseOrder.getCustomerCellphone());
+        leaseOrderPrintDto.setStartTime(leaseOrder.getStartTime());
+        leaseOrderPrintDto.setEndTime(leaseOrder.getEndTime());
+        leaseOrderPrintDto.setIsRenew(IsRenewEnum.getIsRenewEnum(leaseOrder.getIsRenew()).getName());
+        leaseOrderPrintDto.setCategoryName(leaseOrder.getCategoryName());
+        leaseOrderPrintDto.setNotes(leaseOrder.getNotes());
+        leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
+        leaseOrderPrintDto.setDepositDeduction(MoneyUtils.centToYuan(leaseOrder.getDepositDeduction()));
+
+        PaymentOrder paymentOrderConditions = DTOUtils.newInstance(PaymentOrder.class);
+        paymentOrderConditions.setBusinessId(paymentOrder.getBusinessId());
+        List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);
+        Long totalPayAmountExcludeLast = 0L;
+        for (PaymentOrder order : paymentOrders) {
+            if (!order.getCode().equals(orderCode) && order.getState().equals(PaymentOrderStateEnum.PAID.getCode())) {
+                totalPayAmountExcludeLast += order.getAmount();
+            }
+        }
+        //除最后一次所交费用+定金抵扣 之和未总定金
+        leaseOrderPrintDto.setEarnestDeduction(MoneyUtils.centToYuan(leaseOrder.getEarnestDeduction() + totalPayAmountExcludeLast));
+        leaseOrderPrintDto.setTransferDeduction(MoneyUtils.centToYuan(leaseOrder.getTransferDeduction()));
+        leaseOrderPrintDto.setPayAmount(MoneyUtils.centToYuan(leaseOrder.getPayAmount()));
+        leaseOrderPrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount()));
+        leaseOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
+        leaseOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        leaseOrderPrintDto.setSubmitter(paymentOrder.getCreator());
+
+        LeaseOrderItem leaseOrderItemCondition = DTOUtils.newInstance(LeaseOrderItem.class);
+        leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
+        List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
+        leaseOrderItemService.list(leaseOrderItemCondition).forEach(o -> {
+            leaseOrderItemPrintDtos.add(LeaseOrderRefundOrderServiceImpl.leaseOrderItem2PrintDto(o));
+        });
+        leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemPrintDtos);
+        printDataDto.setItem(BeanMapUtil.beanToMap(leaseOrderPrintDto));
+        return BaseOutput.success().setData(printDataDto);
+    }
+
+    @Autowired
+    private TransferDeductionItemService transferDeductionItemService;
 
     @Override
     @Transactional
