@@ -39,7 +39,7 @@
             }
         },
         selectFn: function (suggestion) {
-            $('#certificateNumber, #_certificateNumber').val(customer.certificateNumber);
+            $('#certificateNumber, #_certificateNumber').val(suggestion.certificateNumber);
             $('#customerCellphone').val(suggestion.contactsPhone);
             $('#certificateNumber, #_certificateNumber, #customerCellphone').valid();
         }
