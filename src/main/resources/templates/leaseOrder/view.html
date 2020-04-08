@@ -66,7 +66,7 @@
                     if(leaseOrderItems.~size>0){
                     for(item in leaseOrderItems){%>
                         <tr>
-                            <td class="text-center align-middle" >${item.boothName!}</td>
+                            <td class="text-center align-middle" title="${item.boothName!}">${item.boothName!}</td>
                             <td class="text-center align-middle" >${item.number!}</td>
                             <td class="text-center align-middle" >${item.unitName!}</td>
                             <td class="text-center align-middle" >${item.isCorner!}</td>
@@ -167,6 +167,14 @@
                 <div class="form-group col">
                     <label for="payAmount">实付金额</label>
                     <input type="number" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="payAmount">已付金额</label>
+                    <input type="number" class="form-control money" value="<#centToYuan value='${leaseOrder.paidAmount!0}'/>" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="payAmount">待付金额</label>
+                    <input type="number" class="form-control money" value="<#centToYuan value='${leaseOrder.waitAmount!0}'/>" readonly/>
                 </div>
             </div>
             <div class="row">
