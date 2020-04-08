@@ -155,7 +155,7 @@ public interface RefundOrder extends IBaseDomain {
     void setBank(String bank);
 
     @Column(name = "`bank_card_no`")
-    @FieldDef(label="银行卡号", maxLength = 20)
+    @FieldDef(label="银行卡号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
     String getBankCardNo();
 
