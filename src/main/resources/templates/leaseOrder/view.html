@@ -4,6 +4,25 @@
         <form id="saveForm" role="form" novalidate>
             <input type="hidden" name="id" value="${leaseOrder.id!}">
             <div class="breadcrumb" >
+                订单信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#orderInfo" aria-expanded="true"
+                   aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-4 collapse show" id="orderInfo">
+                <div class="form-group col">
+                    <label>业务单号<i class="red">*</i></label>
+                    <input type="text" class="form-control" value="${leaseOrder.code!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label>业务状态<i class="red">*</i></label>
+                    <input type="text" class="form-control" value="${@com.dili.ia.glossary.LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.state).getName()}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label>交费状态<i class="red">*</i></label>
+                    <input type="text" class="form-control" value="${@com.dili.ia.glossary.PayStateEnum.getPayStateEnum(leaseOrder.payState).getName()}" readonly/>
+                </div>
+            </div>
+            <div class="breadcrumb" >
                 客户信息
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                    aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
