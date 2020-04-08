@@ -12,6 +12,7 @@
     //对应摊位
     $(function () {
         addBoothItem();
+        registerMsg();
     });
 
 
