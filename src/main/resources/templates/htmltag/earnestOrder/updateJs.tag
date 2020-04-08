@@ -56,6 +56,9 @@
             initBoothItem({index: ++itemIndex});
         }
         <% }%>
+
+        registerMsg();
+
     });
 
     /**

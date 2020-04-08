@@ -171,15 +171,27 @@
 
 
     //监听客户注册，回显客户信息
-    initMsg(function(message){
-        debugger
-        let msgData = JSON.parse(message);
-        if(msgData.topic == 'customerRegister'){
-            let customer = msgData.content;
-            $('#certificateNumber, #_certificateNumber').val(customer.certificateNumber);
-            $('#customerName').val(customer.name);
-            $('#customerId').val(customer.customerId);
-            $('#customerCellphone').val(customer.contactsPhone);
-        }
-    });
+    function registerMsg(fn, isBackShow = true, other){
+        window.addEventListener('message', function (e) {
+            // 是否回显客户信息
+            debugger
+            if (isBackShow) {
+                let msgData = JSON.parse(e.data);
+                if(msgData.topic == 'customerRegister'){
+                    let customer = msgData.content;
+                    $('#certificateNumber, #_certificateNumber').val(customer.certificateNumber);
+                    $('#customerName').val(customer.name);
+                    $('#customerId').val(customer.customerId);
+                    $('#customerCellphone').val(customer.contactsPhone);
+                }
+            }
+
+            if(typeof fn === "function"){
+                fn(e.data, other);
+            }
+        }, false);
+    }
+
+
+
 </script>
