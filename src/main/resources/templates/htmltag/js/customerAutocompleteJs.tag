@@ -160,6 +160,7 @@
 
     // 无此客户点击注册
     $(document).on('click','#goCustomerRegister', function(){
+        $(this).parent().remove();
         openCustomerRegister($('#_sourceChannel').val());
     });
 
