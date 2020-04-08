@@ -221,52 +221,62 @@
         $(this).find('.invalid-feedback').css('display', 'none');
     });
 
-    $("#departmentId").change(function () {
-        $.ajax({
-            type: "POST",
-            url: "/district/search.action",
-            data: {departmentId: $(this).val(), parentId: 0},
-            success: function (data) {
-                if (data.code == "200") {
-                    var array = $.map(data.data, function (obj) {
-                        obj.text = obj.text || obj.name;
-                        return obj;
+    $.ajax({
+        type: "POST",
+        url: "/district/search.action",
+        data: {parentId: 0},
+        success: function (data) {
+            if (data.code == "200") {
+                var array = $.map(data.data, function (obj) {
+                    obj.text = obj.text || obj.name;
+                    return obj;
+                });
+                array.push({text:"--全部--",id:""});
+                if (array.length == 0) {
+                    $('#areaOneList').html("");
+                    $('#areaTwoList').html("");
+                } else {
+                    $("#areaOneList").select2({
+                        data: array,
+                        language:'zh-CN',
+                        width: "50%",
+                        minimumResultsForSearch: Infinity
                     });
-                    if (array.length == 0) {
-                        $('#areaOneList').html("")
-                    } else {
-                        $("#areaOneList").select2({
-                            data: array,
-                            minimumResultsForSearch: Infinity
-                        });
-                        $('#areaOneList').trigger('change');
-                    }
+                    $('#areaOneList').trigger('change');
                 }
             }
-        });
+        }
     });
     $("#areaOneList").change(function () {
-        $.ajax({
-            type: "POST",
-            url: "/district/search.action",
-            data: {parentId: $(this).val()},
-            success: function (data) {
-                if (data.code == "200") {
-                    var array = $.map(data.data, function (obj) {
-                        obj.text = obj.text || obj.name;
-                        return obj;
-                    });
-                    if (array.length == 0) {
-                        $('#areaTwoList').html("")
-                    } else {
-                        $("#areaTwoList").select2({
-                            data: array,
-                            minimumResultsForSearch: Infinity
-                        })
+        if ($(this).val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/district/search.action",
+                data: {parentId: $(this).val()},
+                success: function (data) {
+                    if (data.code == "200") {
+                        var array = $.map(data.data, function (obj) {
+                            obj.text = obj.text || obj.name;
+                            return obj;
+                        });
+                        if (array.length == 0) {
+                            $('#areaTwoList').html("")
+                        } else {
+                            $('#areaTwoList').html("")
+                            $("#areaTwoList").select2({
+                                language: 'zh-CN',
+                                data: array,
+                                width: "50%",
+                                minimumResultsForSearch: Infinity
+                            })
+                        }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            $('#areaTwoList').html("")
+        }
+
     });
 
     _grid.on('post-body.bs.table', function (e,data){
