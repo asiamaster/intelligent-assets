@@ -10,15 +10,15 @@
             </div>
             <div class="row row-cols-4 collapse show" id="orderInfo">
                 <div class="form-group col">
-                    <label>业务单号<i class="red">*</i></label>
+                    <label>业务单号</label>
                     <input type="text" class="form-control" value="${leaseOrder.code!}" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label>业务状态<i class="red">*</i></label>
+                    <label>业务状态</label>
                     <input type="text" class="form-control" value="${@com.dili.ia.glossary.LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.state).getName()}" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label>交费状态<i class="red">*</i></label>
+                    <label>交费状态</label>
                     <input type="text" class="form-control" value="${@com.dili.ia.glossary.PayStateEnum.getPayStateEnum(leaseOrder.payState).getName()}" readonly/>
                 </div>
             </div>
@@ -29,15 +29,15 @@
             </div>
             <div class="row row-cols-4 collapse show" id="customerInfo">
                 <div class="form-group col">
-                    <label for="customerName">客户名称<i class="red">*</i></label>
+                    <label for="customerName">客户名称</label>
                     <input type="text" class="form-control" id="customerName" name="customerName" value="${leaseOrder.customerName!}" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="certificateNumber">证件号码<i class="red">*</i></label>
+                    <label for="certificateNumber">证件号码</label>
                     <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${leaseOrder.certificateNumber!}" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="customerCellphone">联系电话<i class="red">*</i></label>
+                    <label for="customerCellphone">联系电话</label>
                     <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${leaseOrder.customerCellphone!}" readonly/>
                 </div>
             </div>
@@ -49,10 +49,16 @@
                 <table class="table table-bordered table-hover table-striped" id="boothTable">
                     <thead>
                     <tr>
-                        <th class="text-center align-middle" style="width: 25%;font-weight:normal; ">摊位编号<i class="red">*</i></th>
-                        <th class="text-center align-middle"  style="width: 25%;font-weight:normal; ">租金<i class="red">*</i></th>
-                        <th class="text-center align-middle"  style="width: 22%;font-weight:normal; ">物业管理费<i class="red">*</i></th>
-                        <th class="text-center align-middle"  style="width: 23%;font-weight:normal; ">保证金<i class="red">*</i></th>
+                        <th class="text-center align-middle" style="font-weight:normal;">摊位编号</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">数量</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">单位</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">转角</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">单价</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">应交月数</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">优惠金额</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">租金</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">物业管理费</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">保证金</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -61,6 +67,12 @@
                     for(item in leaseOrderItems){%>
                         <tr>
                             <td class="text-center align-middle" >${item.boothName!}</td>
+                            <td class="text-center align-middle" >${item.number!}</td>
+                            <td class="text-center align-middle" >${item.unitName!}</td>
+                            <td class="text-center align-middle" >${item.isCorner!}</td>
+                            <td class="text-center align-middle" ><#centToYuan value='${item.unitPrice!0}'/></td>
+                            <td class="text-center align-middle" >${item.paymentMonth!}</td>
+                            <td class="text-center align-middle" ><#centToYuan value='${item.discountAmount!0}'/></td>
                             <td class="text-center align-middle" ><#centToYuan value='${item.rentAmount!}'/></td>
                             <td class="text-center align-middle" ><#centToYuan value='${item.manageAmount!}'/></td>
                             <td class="text-center align-middle" ><#centToYuan value='${item.depositAmount!}'/></td>
@@ -77,35 +89,35 @@
             </div>
             <div class="row row-cols-4 collapse show" id="leaseInfo">
                 <div class="form-group col">
-                    <label for="engageName">经营范围<i class="red">*</i></label>
+                    <label for="engageName">经营范围</label>
                     <input type="text" class="form-control" id="engageName" name="engageName" value="${leaseOrder.engageName!}" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="categoryName">经营品类<i class="red">*</i></label>
+                    <label for="categoryName">经营品类</label>
                     <input type="text" class="form-control" id="categoryName" name="categoryName" value="${leaseOrder.categoryName!}" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="leaseTermName">租赁期限<i class="red">*</i></label>
+                    <label for="leaseTermName">租赁期限</label>
                     <input type="text" class="form-control" id="leaseTermName" name="leaseTermName" value="${leaseOrder.leaseTermName!}" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="days">租赁天数<i class="red">*</i></label>
+                    <label for="days">租赁天数</label>
                     <input type="number" class="form-control" id="days" name="days" value="${leaseOrder.days!}" readonly/>
                 </div>
                 <div class="form-group col col">
-                    <label for="startTime">开始日期<i class="red">*</i></label>
+                    <label for="startTime">开始日期</label>
                     <input type="text" id="startTime" name="startTime" class="form-control" value="${leaseOrder.startTime!,dateFormat='yyyy-MM-dd'}" readonly>
                 </div>
                 <div class="form-group col col">
-                    <label for="endTime">结束日期<i class="red">*</i></label>
+                    <label for="endTime">结束日期</label>
                     <input type="text" id="endTime" name="endTime" class="form-control" value="${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}" readonly>
                 </div>
                 <div class="form-group col">
-                    <label for="contractNo">合同编号<i class="red">*</i></label>
+                    <label for="contractNo">合同编号</label>
                     <input type="text" class="form-control" id="contractNo" name="contractNo" value="${leaseOrder.contractNo!}" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="departmentName">业务所属部门<i class="red">*</i></label>
+                    <label for="departmentName">业务所属部门</label>
                     <input type="text" class="form-control" id="departmentName" name="departmentName" value="${leaseOrder.departmentName!}" readonly/>
                 </div>
             </div>
@@ -116,19 +128,19 @@
             </div>
             <div class="row  row-cols-4 collapse show" id="moneyInfo">
                 <div class="form-group col">
-                    <label for="rentAmount">租金<i class="red">*</i></label>
+                    <label for="rentAmount">租金</label>
                     <input type="number" class="form-control money" id="rentAmount" name="rentAmount" value="<#centToYuan value='${leaseOrder.rentAmount!0}'/>" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="manageAmount">物业管理费<i class="red">*</i></label>
+                    <label for="manageAmount">物业管理费</label>
                     <input type="number" class="form-control money" id="manageAmount" name="manageAmount" value="<#centToYuan value='${leaseOrder.manageAmount!0}'/>" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="depositAmount">保证金<i class="red">*</i></label>
+                    <label for="depositAmount">保证金</label>
                     <input type="number" class="form-control money" id="depositAmount" name="depositAmount" value="<#centToYuan value='${leaseOrder.depositAmount!0}'/>" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="totalAmount">合计金额<i class="red">*</i></label>
+                    <label for="totalAmount">合计金额</label>
                     <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>"  readonly/>
                 </div>
             </div>
@@ -139,7 +151,7 @@
             </div>
             <div class="row row-cols-4 collapse show" id="deductInfo">
                 <div class="form-group col">
-                    <label for="depositDeduction">保证金<i class="red">*</i></label>
+                    <label for="depositDeduction">保证金</label>
                     <input type="number" class="form-control money" id="depositDeduction" name="depositDeduction" value="<#centToYuan value='${leaseOrder.depositDeduction!0}'/>" readonly/>
                 </div>
                 <div class="form-group col">
@@ -153,7 +165,7 @@
             </div>
             <div class="row row-cols-4 collapse show" id="otherInfo">
                 <div class="form-group col">
-                    <label for="payAmount">实付金额<i class="red">*</i></label>
+                    <label for="payAmount">实付金额</label>
                     <input type="number" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" readonly/>
                 </div>
             </div>
