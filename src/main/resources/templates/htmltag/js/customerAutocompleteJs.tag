@@ -89,16 +89,21 @@
                 url: "/customer/listNormal.action",
                 data: {certificateNumber : user.IDCardNo},
                 dataType: "json",
-                success: function (data) {
-                    if(data && data.length > 0){
-                        let customer = data[0];
-                        $('#customerName').val(customer.name);
-                        $('#customerId').val(customer.id);
-                        $('#certificateNumber， #_certificateNumber').val(customer.certificateNumber);
-                        $('#customerCellphone').val(customer.contactsPhone);
-                        option.onLoadSuccess && option.onLoadSuccess(customer);
+                success: function (result) {
+                    if(result.success){
+                        let data = result.data;
+                        if(data && data.length > 0){
+                            let customer = data[0];
+                            $('#customerName').val(customer.name);
+                            $('#customerId').val(customer.id);
+                            $('#certificateNumber， #_certificateNumber').val(customer.certificateNumber);
+                            $('#customerCellphone').val(customer.contactsPhone);
+                            option.onLoadSuccess && option.onLoadSuccess(customer);
+                        }else{
+                            bs4pop.alert('无此客户，请注册');
+                        }
                     }else{
-                        bs4pop.alert('无此客户，请注册')
+                        bs4pop.alert('接口查询异常');
                     }
                 },
                 error: function (a, b, c) {
@@ -175,7 +180,6 @@
             $('#customerName').val(customer.name);
             $('#customerId').val(customer.customerId);
             $('#customerCellphone').val(customer.contactsPhone);
-            $('#customerName').autocomplete('hide')
         }
     });
 </script>
