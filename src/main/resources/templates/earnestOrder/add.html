@@ -1,6 +1,7 @@
 <#bs4Body>
 <!--<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>-->
     <div class="container-fluid">
+        <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.earnest_order'/>">
         <form id="saveForm" role="form" novalidate>
             <div class="breadcrumb" >
                 客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
@@ -83,7 +84,8 @@
 </#bs4Body>
 
 
-<script type="text/javascript" src="${contextPath}/resources/bui/js/customerAutocomplete.js?v=1.1"></script>
+<#js_customerAutocompleteJs/>
+
 <#earnestOrder_addJs />
 
 <script  id="boothItem"  type="text/html">

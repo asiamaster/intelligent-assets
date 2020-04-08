@@ -1,6 +1,7 @@
 <#bs4Body>
 
 <div class="container-fluid">
+    <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.earnest_order'/>">
     <form id="updateForm" role="form" novalidate>
         <input type="hidden" name="id" value="${earnestOrder.id!}">
         <input type="hidden" name="version" value="${earnestOrder.version!}">
@@ -85,7 +86,7 @@
 </#bs4Body>
 
 
-<script type="text/javascript" src="${contextPath}/resources/bui/js/customerAutocomplete.js?v=1.1"></script>
+<#js_customerAutocompleteJs/>
 <#earnestOrder_updateJs />
 
 <script  id="boothItem"  type="text/html">

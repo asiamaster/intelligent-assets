@@ -210,12 +210,11 @@ public class LeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        List<Long> marketIdList = dataAuthService.getMarketDataAuth(userTicket);
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
-        if (CollectionUtils.isEmpty(marketIdList) || CollectionUtils.isEmpty(departmentIdList)){
+        if (CollectionUtils.isEmpty(departmentIdList)){
             return new EasyuiPageOutput(0, Collections.emptyList()).toString();
         }
-        leaseOrder.setMarketIds(marketIdList);
+        leaseOrder.setMarketId(userTicket.getFirmId());
         leaseOrder.setDepartmentIds(departmentIdList);
 
         if (StringUtils.isNotBlank(leaseOrder.getBoothName())) {

@@ -140,9 +140,7 @@ public class BoothController {
     @RequestMapping("/save.action")
     @ResponseBody
     public BaseOutput save(BoothDTO input) {
-        input.setCreateTime(new Date());
         input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
-        input.setModifyTime(new Date());
         input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
         input.setState(EnabledStateEnum.DISABLED.getCode());
         return assetsRpc.save(input);
@@ -200,7 +198,7 @@ public class BoothController {
             List<BoothDTO> result = new ArrayList<>();
             if (CollUtil.isNotEmpty(data)) {
                 for (BoothDTO dto : data) {
-                    if (dto.getParentId() != 0) {
+                    if (dto.getParentId() != 0 && dto.getState().equals(EnabledStateEnum.ENABLED.getCode())) {
                         result.add(dto);
                     } else {
                         boolean anyMatch = data.stream().anyMatch(obj -> obj.getParentId().equals(dto.getId()));
