@@ -17,10 +17,10 @@
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#_certificateNumber,#customerCellphone").valid();
 
-            //获取保证金抵扣余额
-            queryCustomerDepositDeduction(true);
             //账户余额查询
             queryCustomerAccount();
+            //获取保证金抵扣余额
+            queryCustomerDepositDeduction(true);
         }
     });
     $.extend(certificateNumberAutoCompleteOption,{
@@ -30,10 +30,10 @@
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#customerName,#customerCellphone").valid();
 
-            //获取保证金抵扣余额
-            queryCustomerDepositDeduction(true);
             //账户余额查询
             queryCustomerAccount();
+            //获取保证金抵扣余额
+            queryCustomerDepositDeduction(true);
         }
     });
 
@@ -321,6 +321,7 @@
             url: "/customerAccount/getCustomerAccountByCustomerId.action",
             data: {customerId},
             dataType: "json",
+            async : false,
             success: function (ret) {
                 if(ret.success){
                     let earnestDeductionEl$ = $('#earnestDeduction');
