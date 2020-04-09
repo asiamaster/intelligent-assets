@@ -7,6 +7,9 @@ import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.rpc.AssetsRpc;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -139,11 +142,20 @@ public class BoothController {
      */
     @RequestMapping("/save.action")
     @ResponseBody
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH, content = "${name!}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput save(BoothDTO input) {
-        input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
-        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
-        input.setState(EnabledStateEnum.DISABLED.getCode());
-        return assetsRpc.save(input);
+        try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            input.setCreatorId(userTicket.getId());
+            input.setMarketId(userTicket.getFirmId());
+            input.setState(EnabledStateEnum.DISABLED.getCode());
+            LoggerUtil.buildLoggerContext(null, input.getName(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), input.getNotes());
+            BaseOutput save = assetsRpc.save(input);
+            LoggerUtil.buildLoggerContext(input.getId(), input.getName(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), input.getNotes());
+            return save;
+        } catch (Exception e) {
+            return BaseOutput.failure("系统异常");
+        }
     }
 
     /**
@@ -154,9 +166,17 @@ public class BoothController {
      */
     @RequestMapping("/update.action")
     @ResponseBody
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH, content = "${name!}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput update(BoothDTO input) {
-        input.setModifyTime(new Date());
-        return assetsRpc.updateBooth(input);
+        try {
+            input.setModifyTime(new Date());
+            BaseOutput baseOutput = assetsRpc.updateBooth(input);
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerUtil.buildLoggerContext(input.getId(), input.getName(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), input.getNotes());
+            return baseOutput;
+        }catch (Exception e){
+            return BaseOutput.failure("系统异常");
+        }
     }
 
     /**
@@ -164,11 +184,14 @@ public class BoothController {
      */
     @RequestMapping("/split.action")
     @ResponseBody
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH, operationType = "split", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput split(Long parentId, String[] names, String notes, String[] numbers) {
         try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             BaseOutput baseOutput = assetsRpc.boothSplit(parentId, names, notes, numbers);
+            LoggerUtil.buildLoggerContext(parentId, null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             return baseOutput;
-        }catch (Exception e){
+        } catch (Exception e) {
             return BaseOutput.failure("系统异常,请稍后重试！");
         }
     }
@@ -182,8 +205,16 @@ public class BoothController {
      */
     @RequestMapping("/delete.action")
     @ResponseBody
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH, operationType = "del", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput delete(Long id) {
-        return assetsRpc.delBoothById(id);
+        try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            BaseOutput baseOutput = assetsRpc.delBoothById(id);
+            LoggerUtil.buildLoggerContext(id, null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            return baseOutput;
+        }catch (Exception e){
+            return BaseOutput.failure("系统异常");
+        }
     }
 
     /**
@@ -213,7 +244,7 @@ public class BoothController {
                 }
             }
             return BaseOutput.success().setData(result);
-        }catch (Exception e){
+        } catch (Exception e) {
             return BaseOutput.success().setData(new ArrayList<>());
         }
 

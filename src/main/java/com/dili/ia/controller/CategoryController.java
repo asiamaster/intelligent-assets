@@ -2,8 +2,12 @@ package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.ia.rpc.AssetsRpc;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.PinyinUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -91,11 +95,19 @@ public class CategoryController {
      */
     @RequestMapping(value = "/save.action")
     @ResponseBody
+    @BusinessLogger(businessType = LogBizTypeConst.CATEGORY,content = "${contractNo}",operationType="add",systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput save(CategoryDTO input) {
-        input.setCreateTime(new Date());
-        input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
-        input.setModifyTime(new Date());
-        return assetsRpc.save(input);
+        try {
+            input.setCreateTime(new Date());
+            input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
+            input.setModifyTime(new Date());
+            BaseOutput save = assetsRpc.save(input);
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerUtil.buildLoggerContext(input.getId(), input.getName(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            return save;
+        }catch (Exception e){
+            return BaseOutput.failure("系统异常");
+        }
     }
 
     /**
@@ -129,7 +141,15 @@ public class CategoryController {
      */
     @RequestMapping(value = "/batchUpdate.action")
     @ResponseBody
+    @BusinessLogger(businessType = LogBizTypeConst.CATEGORY,content = "${contractNo}",operationType="edit",systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput batchUpdate(Long id, Integer value) {
-        return assetsRpc.batchUpdate(id, value);
+        try {
+            BaseOutput baseOutput = assetsRpc.batchUpdate(id, value);
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            return baseOutput;
+        }catch (Exception e){
+            return BaseOutput.failure("系统异常");
+        }
     }
 }

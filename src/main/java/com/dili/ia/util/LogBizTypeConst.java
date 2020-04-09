@@ -10,4 +10,10 @@ public class LogBizTypeConst {
     //退款单
     public static final String CUSTOMER_ACCOUNT="customer_account";
 
+    public static final String BOOTH="booth";
+    public static final String CATEGORY="category";
+    public static final String DISTRICT="district";
+
+
+
 }
