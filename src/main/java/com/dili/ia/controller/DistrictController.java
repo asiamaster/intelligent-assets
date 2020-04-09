@@ -3,7 +3,11 @@ package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.ia.rpc.AssetsRpc;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -68,12 +72,20 @@ public class DistrictController {
      */
     @RequestMapping("insert.action")
     @ResponseBody
+    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "${contractNo}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput save(DistrictDTO input) {
-        input.setCreateTime(new Date());
-        input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
-        input.setModifyTime(new Date());
-        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
-        return assetsRpc.addDistrict(input);
+        try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            input.setCreateTime(new Date());
+            input.setCreatorId(userTicket.getId());
+            input.setModifyTime(new Date());
+            input.setMarketId(userTicket.getFirmId());
+            BaseOutput baseOutput = assetsRpc.addDistrict(input);
+            LoggerUtil.buildLoggerContext(input.getId(), input.getNumber(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            return baseOutput;
+        } catch (Exception e) {
+            return BaseOutput.failure("系统异常");
+        }
     }
 
 
@@ -82,8 +94,16 @@ public class DistrictController {
      */
     @RequestMapping("divisionSave.action")
     @ResponseBody
+    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "${contractNo}", operationType = "split", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput divisionSave(Long parentId, String[] names, String[] notes, String[] numbers) {
-        return assetsRpc.divisionSave(parentId, names, notes, numbers);
+        try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            BaseOutput baseOutput = assetsRpc.divisionSave(parentId, names, notes, numbers);
+            LoggerUtil.buildLoggerContext(parentId, null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            return baseOutput;
+        } catch (Exception e) {
+            return BaseOutput.failure("系统异常");
+        }
     }
 
 
@@ -95,10 +115,17 @@ public class DistrictController {
      */
     @RequestMapping("edit.action")
     @ResponseBody
+    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "${contractNo}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput edit(DistrictDTO input) {
-        input.setModifyTime(new Date());
-        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
-        return assetsRpc.editDistrict(input);
+        try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            input.setModifyTime(new Date());
+            BaseOutput baseOutput = assetsRpc.editDistrict(input);
+            LoggerUtil.buildLoggerContext(input.getId(), input.getNumber(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            return baseOutput;
+        } catch (Exception e) {
+            return BaseOutput.failure("系统异常");
+        }
     }
 
     /**
@@ -123,8 +150,16 @@ public class DistrictController {
      */
     @RequestMapping("delete.action")
     @ResponseBody
+    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "${contractNo}", operationType = "del", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput delete(Long id) {
-        return assetsRpc.delDistrictById(id);
+        try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            BaseOutput baseOutput = assetsRpc.delDistrictById(id);
+            LoggerUtil.buildLoggerContext(id, null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            return baseOutput;
+        } catch (Exception e) {
+            return BaseOutput.failure("系统异常");
+        }
     }
 
     /**
