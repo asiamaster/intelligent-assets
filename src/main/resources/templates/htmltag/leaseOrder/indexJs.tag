@@ -65,7 +65,7 @@
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
-            width: '80%',
+            width: '95%',
             height : '95%',
             btns: []
         });
@@ -93,7 +93,7 @@
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
-            width: '80%',
+            width: '95%',
             height : '95%',
             btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
         });
@@ -314,7 +314,7 @@
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
-            width: '80%',
+            width: '95%',
             height : '95%',
             btns: []
         });
