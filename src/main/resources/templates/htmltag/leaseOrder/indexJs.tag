@@ -211,7 +211,7 @@
         }
 
         let selectedRow = rows[0];
-        bs4pop.confirm('确定撤回该业务单？', undefined, function (sure) {
+        bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', undefined, function (sure) {
             if(sure){
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
