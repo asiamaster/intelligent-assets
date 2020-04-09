@@ -229,6 +229,7 @@
         $('#number_'+index).val(suggestion.number);
         $('#unitCode_'+index).val(suggestion.unit);
         $('#unitName_'+index).val(suggestion.unitName);
+        $('#sku_'+index).val(suggestion.number+suggestion.unitName);
         $('#isCorner_'+index).val(suggestion.cornerName);
         $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
         $('#districtName_'+index).val(suggestion.secondAreaName?suggestion.secondAreaName : suggestion.areaName);

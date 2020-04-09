@@ -970,6 +970,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     @Override
     @Transactional
+    @GlobalTransactional
     public BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
@@ -992,6 +993,13 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             if (refundOrderDto.getTotalRefundAmount() > (leaseOrder.getPaidAmount() + leaseOrder.getDepositDeduction() + leaseOrder.getEarnestDeduction() + leaseOrder.getTransferDeduction())) {
                 throw new BusinessException(ResultCode.DATA_ERROR,"退款总金额不能大于可退金额");
             }
+
+            //判断缴费单是否需要撤回 需要撤回则撤回
+            if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
+                withdrawPaymentOrder(leaseOrder.getPaymentId());
+                leaseOrder.setPaymentId(0L);
+            }
+
             leaseOrder.setRefundState(RefundStateEnum.REFUNDING.getCode());
             leaseOrder.setRefundAmount(refundOrderDto.getTotalRefundAmount());
             if(updateSelective(leaseOrder) == 0){

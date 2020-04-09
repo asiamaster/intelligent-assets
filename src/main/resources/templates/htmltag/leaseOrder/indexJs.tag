@@ -505,10 +505,11 @@
             } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}
             || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()}) {
                 // 退款条件
-                // 1.已到期或已停租 AND 2.未发起过退款 AND 3.保证金未被冻结
+                // 1.已到期或已停租 AND 2.未发起过退款 AND 3.保证金未被冻结 4.订单费用已交清
                 $('#toolbar'+index+' button').attr('disabled', true);
                 if(row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}
-                    && row.depositAmountFlag != ${@com.dili.ia.glossary.DepositAmountFlagEnum.FROZEN.getCode()}){
+                    && row.depositAmountFlag != ${@com.dili.ia.glossary.DepositAmountFlagEnum.FROZEN.getCode()}
+                    && row.payState == ${@com.dili.ia.glossary.PayStateEnum.PAID.getCode()}){
                     $('#btn_refund_apply'+index).attr('disabled', false);
                 }
             } else{

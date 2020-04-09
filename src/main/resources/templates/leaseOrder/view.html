@@ -50,8 +50,7 @@
                     <thead>
                     <tr>
                         <th class="text-center align-middle" style="font-weight:normal;">摊位编号</th>
-                        <th class="text-center align-middle" style="font-weight:normal;">数量</th>
-                        <th class="text-center align-middle" style="font-weight:normal;">单位</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">规格</th>
                         <th class="text-center align-middle" style="font-weight:normal;">转角</th>
                         <th class="text-center align-middle" style="font-weight:normal;">单价</th>
                         <th class="text-center align-middle" style="font-weight:normal;">应交月数</th>
@@ -67,8 +66,7 @@
                     for(item in leaseOrderItems){%>
                         <tr>
                             <td class="text-center align-middle" title="${item.boothName!}">${item.boothName!}</td>
-                            <td class="text-center align-middle" >${item.number!}</td>
-                            <td class="text-center align-middle" >${item.unitName!}</td>
+                            <td class="text-center align-middle" >${item.number!}${item.unitName!}</td>
                             <td class="text-center align-middle" >${item.isCorner!}</td>
                             <td class="text-center align-middle" ><#centToYuan value='${item.unitPrice!0}'/></td>
                             <td class="text-center align-middle" >${item.paymentMonth!}</td>

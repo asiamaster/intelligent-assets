@@ -36,8 +36,7 @@
                     <tr>
                         <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
                         <th style="font-weight:normal;" >摊位编号<i class="red">*</i></th>
-                        <th style="font-weight:normal;width: 7rem;">数量<i class="red">*</i></th>
-                        <th style="font-weight:normal;width: 5rem;">单位<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 7rem;">规格<i class="red">*</i></th>
                         <th style="font-weight:normal;width: 5rem;">转角</th>
                         <th style="font-weight:normal;width: 7rem;">单价<i class="red">*</i></th>
                         <th style="font-weight:normal;width: 7rem;">应交月数<i class="red">*</i></th>
@@ -174,10 +173,11 @@
             <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}" value="{{districtId}}">
             <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}" value="{{districtName}}">
             <input type="hidden" id="depositAmountSourceId_{{index}}" name="depositAmountSourceId_{{index}}" value="{{depositAmountSourceId}}">
+            <input type="hidden" id="number_{{index}}" name="number_{{index}}" value="{{number}}"/>
+            <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}" value="{{unitName}}"/>
             <#bautoCompleteProvider _log="摊位编号" _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId_{{index}}" _displayDomainId="boothName_{{index}}" _displayDomainName="boothName_{{index}}" _value="{{boothId}}" _text="{{boothName}}" _validatorMethod="isSelected" _required="true" _optionVariable="boothAutoCompleteOption"/>
         </td>
-        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="number_{{index}}" name="number_{{index}}" value="{{number}}" readonly uncheck/></td>
-        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="unitName_{{index}}" name="unitName_{{index}}" value="{{unitName}}" readonly uncheck/></td>
+        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="sku_{{index}}" name="sku_{{index}}" value="{{number}}{{unitName}}" readonly uncheck/></td>
         <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" value="{{isCorner}}" readonly uncheck/></td>
         <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_{{index}}" name="unitPrice_{{index}}" value="{{unitPrice}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_{{index}}" name="paymentMonth_{{index}}" value="{{paymentMonth}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
