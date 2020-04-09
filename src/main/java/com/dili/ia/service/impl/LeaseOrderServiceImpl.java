@@ -284,6 +284,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         /***************************更新租赁单及其订单项相关字段 begin*********************/
         //根据租赁时间和当前时间比对，单子是未生效、已生效、还是已过期
+        //只有已创建、已提交、未生效、已生效状态才更改状态
         if (LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState())
                 || LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())
                 || LeaseOrderStateEnum.NOT_ACTIVE.getCode().equals(leaseOrder.getState())
@@ -314,6 +315,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(leaseOrderItemCondition);
         leaseOrderItems.stream().forEach(o -> {
+            //只有已创建、已提交、未生效、已生效状态才更改状态
             if (LeaseOrderItemStateEnum.CREATED.getCode().equals(o.getState())
                     || LeaseOrderItemStateEnum.SUBMITTED.getCode().equals(o.getState())
                     || LeaseOrderItemStateEnum.NOT_ACTIVE.getCode().equals(o.getState())
