@@ -227,12 +227,16 @@
         data: {parentId: 0},
         success: function (data) {
             if (data.code == "200") {
-                var array = $.map(data.data, function (obj) {
+                var array = [];
+                array.push({text:"-- 全部 --",id:""});
+                var data = $.map(data.data, function (obj) {
                     obj.text = obj.text || obj.name;
                     return obj;
                 });
-                array.push({text:"--全部--",id:""});
-                if (array.length == 0) {
+                for (var x in data) {
+                    array.push(data[x]);
+                }
+                if (data.length == 0) {
                     $('#areaOneList').html("");
                     $('#areaTwoList').html("");
                 } else {
@@ -242,7 +246,6 @@
                         width: "50%",
                         minimumResultsForSearch: Infinity
                     });
-                    $('#areaOneList').trigger('change');
                 }
             }
         }
