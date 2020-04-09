@@ -136,6 +136,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             //租赁单修改
             checkContractNo(dto,false);//合同编号验证重复
             LeaseOrder oldLeaseOrder = get(dto.getId());
+            if(!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())){
+                throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + oldLeaseOrder.getCode() + "】 状态已变更，不可以进行修改操作");
+            }
             dto.setWaitAmount(dto.getPayAmount());
             dto.setVersion(oldLeaseOrder.getVersion());
             if (updateExact(dto) == 0) {
