@@ -6,10 +6,7 @@ import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
-import com.dili.ia.glossary.LeaseOrderItemStateEnum;
-import com.dili.ia.glossary.LeaseOrderStateEnum;
-import com.dili.ia.glossary.StopRentStateEnum;
-import com.dili.ia.glossary.StopWayEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.LeaseOrderItemMapper;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.LeaseOrderItemService;
@@ -67,6 +64,9 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         leaseOrderItem.setStopOperatorId(userTicket.getId());
         leaseOrderItem.setStopOperatorName(userTicket.getRealName());
         LeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
+        if(!PayStateEnum.PAID.getCode().equals(leaseOrderItem.getPayState())){
+            throw new BusinessException(ResultCode.DATA_ERROR,"只有费用已交清后才能停租");
+        }
         if(StopWayEnum.IMMEDIATELY.getCode().equals(leaseOrderItem.getStopWay())){//立即停租
             leaseOrderItem.setStopTime(new Date());
             leaseOrderItem.setState(LeaseOrderItemStateEnum.RENTED_OUT.getCode());

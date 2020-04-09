@@ -496,8 +496,10 @@
         $(cur_table).on('check.bs.table', function (e,row, $element){
             e.stopPropagation();
             let state = row.$_state;
-            if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
-                || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}) {
+            //（未生效 || 已生效）&& 已交清方可停租
+            if ((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
+                || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
+                && row.payState == ${@com.dili.ia.glossary.PayStateEnum.PAID.getCode()}) {
                 $('#toolbar'+index+' button').attr('disabled', true);
                 $('#btn_stop_rent'+index).attr('disabled', false);
             } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}
@@ -568,15 +570,18 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_supplement').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.REFUNDED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_supplement').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
+            $('#btn_supplement').attr('disabled', false);
         }
     });
     /*****************************************自定义事件区 end**************************************/

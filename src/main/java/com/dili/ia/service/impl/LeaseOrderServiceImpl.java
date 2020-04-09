@@ -287,21 +287,14 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         /***************************更新租赁单及其订单项相关字段 begin*********************/
         //根据租赁时间和当前时间比对，单子是未生效、已生效、还是已过期
-        //只有已创建、已提交、未生效、已生效状态才更改状态
-        if (LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState())
-                || LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())
-                || LeaseOrderStateEnum.NOT_ACTIVE.getCode().equals(leaseOrder.getState())
-                || LeaseOrderStateEnum.EFFECTIVE.getCode().equals(leaseOrder.getState())
-        ) {
-            Date now = new Date();
-            if (now.getTime() >= leaseOrder.getStartTime().getTime() &&
-                    now.getTime() <= leaseOrder.getEndTime().getTime()) {
-                leaseOrder.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
-            } else if (now.getTime() < leaseOrder.getStartTime().getTime()) {
-                leaseOrder.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
-            } else if (now.getTime() > leaseOrder.getEndTime().getTime()) {
-                leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
-            }
+        Date now = new Date();
+        if (now.getTime() >= leaseOrder.getStartTime().getTime() &&
+                now.getTime() <= leaseOrder.getEndTime().getTime()) {
+            leaseOrder.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
+        } else if (now.getTime() < leaseOrder.getStartTime().getTime()) {
+            leaseOrder.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
+        } else if (now.getTime() > leaseOrder.getEndTime().getTime()) {
+            leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
         }
 
         if ((leaseOrder.getWaitAmount() - paymentOrderPO.getAmount()) == 0L) {
@@ -318,14 +311,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(leaseOrderItemCondition);
         leaseOrderItems.stream().forEach(o -> {
-            //只有已创建、已提交、未生效、已生效状态才更改状态
-            if (LeaseOrderItemStateEnum.CREATED.getCode().equals(o.getState())
-                    || LeaseOrderItemStateEnum.SUBMITTED.getCode().equals(o.getState())
-                    || LeaseOrderItemStateEnum.NOT_ACTIVE.getCode().equals(o.getState())
-                    || LeaseOrderItemStateEnum.EFFECTIVE.getCode().equals(o.getState())
-            ) {
-                o.setState(leaseOrder.getState());
-            }
+            o.setState(leaseOrder.getState());
             o.setPayState(leaseOrder.getPayState());
             //只有租赁单费用交清后，摊位项保证金才真正划入摊位上，才可用于其他订单保证金抵扣
             if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState()) && o.getDepositAmount() > 0L){
