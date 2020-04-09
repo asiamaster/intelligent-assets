@@ -284,15 +284,22 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         /***************************更新租赁单及其订单项相关字段 begin*********************/
         //根据租赁时间和当前时间比对，单子是未生效、已生效、还是已过期
-        Date now = new Date();
-        if (now.getTime() >= leaseOrder.getStartTime().getTime() &&
-                now.getTime() <= leaseOrder.getEndTime().getTime()) {
-            leaseOrder.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
-        } else if (now.getTime() < leaseOrder.getStartTime().getTime()) {
-            leaseOrder.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
-        } else if (now.getTime() > leaseOrder.getEndTime().getTime()) {
-            leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
+        if (LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState())
+                || LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())
+                || LeaseOrderStateEnum.NOT_ACTIVE.getCode().equals(leaseOrder.getState())
+                || LeaseOrderStateEnum.EFFECTIVE.getCode().equals(leaseOrder.getState())
+        ) {
+            Date now = new Date();
+            if (now.getTime() >= leaseOrder.getStartTime().getTime() &&
+                    now.getTime() <= leaseOrder.getEndTime().getTime()) {
+                leaseOrder.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
+            } else if (now.getTime() < leaseOrder.getStartTime().getTime()) {
+                leaseOrder.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
+            } else if (now.getTime() > leaseOrder.getEndTime().getTime()) {
+                leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
+            }
         }
+
         if ((leaseOrder.getWaitAmount() - paymentOrderPO.getAmount()) == 0L) {
             leaseOrder.setPayState(PayStateEnum.PAID.getCode());
         }
@@ -307,7 +314,13 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
         List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(leaseOrderItemCondition);
         leaseOrderItems.stream().forEach(o -> {
-            o.setState(leaseOrder.getState());
+            if (LeaseOrderItemStateEnum.CREATED.getCode().equals(o.getState())
+                    || LeaseOrderItemStateEnum.SUBMITTED.getCode().equals(o.getState())
+                    || LeaseOrderItemStateEnum.NOT_ACTIVE.getCode().equals(o.getState())
+                    || LeaseOrderItemStateEnum.EFFECTIVE.getCode().equals(o.getState())
+            ) {
+                o.setState(leaseOrder.getState());
+            }
             o.setPayState(leaseOrder.getPayState());
             //只有租赁单费用交清后，摊位项保证金才真正划入摊位上，才可用于其他订单保证金抵扣
             if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState()) && o.getDepositAmount() > 0L){
@@ -481,15 +494,31 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     /**
-     * 解冻摊位
-     * @param leaseOrder
+     * 解冻租赁订单所有摊位
+     * @param leaseOrderId
      */
-    private void unFrozenBooth(LeaseOrder leaseOrder) {
+    public void unFrozenAllBooth(Long leaseOrderId) {
         BoothRentDTO boothRentDTO = new BoothRentDTO();
-        boothRentDTO.setOrderId(leaseOrder.getId().toString());
+        boothRentDTO.setOrderId(leaseOrderId.toString());
         BaseOutput assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
         if(!assetsOutput.isSuccess()){
-            LOG.info("摊位解冻异常{}",assetsOutput.getMessage());
+            LOG.info("解冻租赁订单【leaseOrderId:{}】所有摊位异常{}", leaseOrderId, assetsOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
+        }
+    }
+
+    /**
+     * 解冻租赁订单单个摊位
+     * @param leaseOrderId
+     * @param boothId
+     */
+    public void unFrozenSingleBooth(Long leaseOrderId,Long boothId) {
+        BoothRentDTO boothRentDTO = new BoothRentDTO();
+        boothRentDTO.setOrderId(leaseOrderId.toString());
+        boothRentDTO.setBoothId(boothId);
+        BaseOutput assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
+        if(!assetsOutput.isSuccess()){
+            LOG.info("解冻租赁订单【leaseOrderId:{},boothId:{}】单个摊位异常{}", leaseOrderId, boothId, assetsOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
         }
     }
@@ -510,6 +539,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
             LOG.info("租赁单编号【{}】已发起退款，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已发起退款，不可以进行提交付款操作");
+        }
+        if(LeaseOrderStateEnum.CANCELD.getCode().equals(leaseOrder.getState())){
+            LOG.info("租赁单编号【{}】已取消，不可以进行提交付款操作", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已取消，不可以进行提交付款操作");
         }
         if (amount.equals(0L) && !waitAmount.equals(0L)) {
             throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单费用已结清");
@@ -790,7 +823,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
         }
         //解冻摊位
-        unFrozenBooth(leaseOrder);
+        unFrozenAllBooth(leaseOrder.getId());
         //日志上下文构建
         LoggerUtil.buildLoggerContext(leaseOrder.getId(),leaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
         return BaseOutput.success();
@@ -1164,6 +1197,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 LOG.info("此单已退款【leaseOrderId={}】",refundOrder.getOrderId());
                 return BaseOutput.success();
             }
+            //解冻租赁订单所有摊位租赁
+            unFrozenAllBooth(leaseOrder.getId());
             leaseOrder.setRefundState(RefundStateEnum.REFUNDED.getCode());
             leaseOrder.setState(LeaseOrderStateEnum.REFUNDED.getCode());
             if(updateSelective(leaseOrder) == 0){
@@ -1190,6 +1225,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 LOG.info("此单已退款【leaseOrderItemId={}】",refundOrder.getOrderItemId());
                 return BaseOutput.success();
             }
+
+            //解冻单个摊位租赁
+            unFrozenSingleBooth(leaseOrderItem.getLeaseOrderId(),leaseOrderItem.getBoothId());
             leaseOrderItem.setRefundState(RefundStateEnum.REFUNDED.getCode());
             leaseOrderItem.setState(LeaseOrderItemStateEnum.REFUNDED.getCode());
             if(leaseOrderItemService.updateSelective(leaseOrderItem) == 0){
