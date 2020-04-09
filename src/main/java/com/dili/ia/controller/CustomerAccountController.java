@@ -106,17 +106,10 @@ public class CustomerAccountController {
      * @param order
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}客户【${customerName!}】申请退款${amountYuan!}元", operationType="refundApply", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAddEarnestRefund.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
         try {
             BaseOutput<RefundOrder> out = customerAccountService.addEarnestRefund(order);
-            if (out.isSuccess()){
-                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerContext.put("amountYuan", MoneyUtils.centToYuan(order.getPayeeAmount()));
-                //记录业务日志
-                LoggerUtil.buildLoggerContext(out.getData().getId(), out.getData().getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
-            }
             return out;
         } catch (BusinessException e) {
             LOG.error("定金创建退款失败！", e);
