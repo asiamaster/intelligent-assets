@@ -237,17 +237,7 @@ public class LeaseOrderController {
     @RequestMapping(value="/supplement.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput supplement(LeaseOrder leaseOrder){
         try {
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            if (userTicket == null) {
-                throw new RuntimeException("未登录");
-            }
-            LeaseOrder oldLeaseOrder = leaseOrderService.get(leaseOrder.getId());
-            leaseOrder.setVersion(oldLeaseOrder.getVersion());
-            if (leaseOrderService.updateSelective(leaseOrder) == 0) {
-                return BaseOutput.failure("多人操作，请稍后重试");
-            }
-            LoggerUtil.buildLoggerContext(oldLeaseOrder.getId(),oldLeaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
-            return BaseOutput.success();
+            return leaseOrderService.supplement(leaseOrder);
         }catch (BusinessException e){
             LOG.info("租赁订单信息补录异常！", e);
             return BaseOutput.failure(e.getErrorMsg());

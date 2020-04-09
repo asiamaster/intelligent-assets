@@ -94,4 +94,11 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
      */
     BaseOutput settleSuccessRefundOrderHandler(RefundOrder refundOrder);
 
+    /**
+     * 补录
+     * @param leaseOrder
+     * @return
+     */
+    BaseOutput supplement(LeaseOrder leaseOrder);
+
 }

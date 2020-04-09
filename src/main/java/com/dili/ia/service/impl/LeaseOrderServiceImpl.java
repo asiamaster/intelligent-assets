@@ -120,7 +120,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         if (null == dto.getId()) {
             //租赁单新增
-            checkContractNo(dto,true);//合同编号验证重复
+            checkContractNo(null, dto.getContractNo(), true);//合同编号验证重复
             BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.LEASE_ORDER.getCode());
             if (!bizNumberOutput.isSuccess()) {
                 LOG.info("租赁单编号生成异常");
@@ -134,7 +134,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             insertLeaseOrderItems(dto);
         } else {
             //租赁单修改
-            checkContractNo(dto,false);//合同编号验证重复
+            checkContractNo(dto.getId(), dto.getContractNo(), false);//合同编号验证重复
             LeaseOrder oldLeaseOrder = get(dto.getId());
             if(!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())){
                 throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + oldLeaseOrder.getCode() + "】 状态已变更，不可以进行修改操作");
@@ -173,22 +173,39 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         });
     }
 
+    @Override
+    public BaseOutput supplement(LeaseOrder leaseOrder) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+        checkContractNo(leaseOrder.getId(),leaseOrder.getContractNo(),false);
+        LeaseOrder oldLeaseOrder = get(leaseOrder.getId());
+        leaseOrder.setVersion(oldLeaseOrder.getVersion());
+        if (updateSelective(leaseOrder) == 0) {
+            return BaseOutput.failure("多人操作，请稍后重试");
+        }
+        LoggerUtil.buildLoggerContext(oldLeaseOrder.getId(),oldLeaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
+        return BaseOutput.success();
+    }
+
     /**
      * 合同编号验重
-     * @param dto
+     * @param leaseOrderId 待修改的租赁单Id
+     * @param contractNo
      * @param isAdd
      */
-    private void checkContractNo(LeaseOrderListDto dto,Boolean isAdd){
-        if(StringUtils.isNotBlank(dto.getContractNo())){
+    private void checkContractNo(Long leaseOrderId,String contractNo,Boolean isAdd){
+        if(StringUtils.isNotBlank(contractNo)){
             LeaseOrder condition = DTOUtils.newInstance(LeaseOrder.class);
-            condition.setContractNo(dto.getContractNo());
+            condition.setContractNo(contractNo);
             List<LeaseOrder> leaseOrders = list(condition);
             if(isAdd && CollectionUtils.isNotEmpty(leaseOrders)){
                 throw new BusinessException(ResultCode.DATA_ERROR,"合同编号不允许重复使用，请修改");
             }else {
                 if(leaseOrders.size() == 1){
                     LeaseOrder leaseOrder = leaseOrders.get(0);
-                    if(!leaseOrder.getId().equals(dto.getId())){
+                    if(!leaseOrder.getId().equals(leaseOrderId)){
                         throw new BusinessException(ResultCode.DATA_ERROR,"合同编号不允许重复使用，请修改");
                     }
                 }
