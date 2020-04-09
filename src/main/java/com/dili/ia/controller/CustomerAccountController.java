@@ -130,6 +130,12 @@ public class CustomerAccountController {
     public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferDto efDto) {
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            if (null == userTicket){
+                return BaseOutput.failure("未登录！");
+            }
+            if (efDto.getPayerId().equals(efDto.getCustomerId())){
+                return BaseOutput.failure("转移失败，不能转移给自己！");
+            }
             //判断转入方客户账户是否存在,不存在先创建客户账户
             if (!customerAccountService.checkCustomerAccountExist(efDto.getCustomerId(), userTicket.getFirmId())){
                 BaseOutput<CustomerAccount> cusOut = customerAccountService.addCustomerAccountByCustomerInfo(efDto.getCustomerId(), efDto.getCustomerName(), efDto.getCustomerCellphone(), efDto.getCertificateNumber());
