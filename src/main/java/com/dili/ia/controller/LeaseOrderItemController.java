@@ -59,13 +59,9 @@ public class LeaseOrderItemController {
      * @param leaseOrderItem
      * @return
      */
-    @RequestMapping(value="/list.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput list(LeaseOrderItemListDto leaseOrderItem) {
-        leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
-        leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
-        leaseOrderItem.setPayState(PayStateEnum.PAID.getCode());
-        leaseOrderItem.setDepositAmountGt(0L);
-        return BaseOutput.success().setData(leaseOrderItemService.listByExample(leaseOrderItem));
+    @RequestMapping(value="/queryDepositAmountAvailableItem.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem) {
+        return BaseOutput.success().setData(leaseOrderItemService.queryDepositAmountAvailableItem(leaseOrderItem));
     }
 
     /**

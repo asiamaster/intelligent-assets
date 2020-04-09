@@ -224,7 +224,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
         BoothDTO booth = output.getData();
         if(null == booth){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位"+booth.getName()+"不存在，请重新修改后保存");
+            throw new BusinessException(ResultCode.DATA_ERROR,"摊位不存在，请重新修改后保存");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
             throw new BusinessException(ResultCode.DATA_ERROR,"摊位"+booth.getName()+"已禁用，请重新修改后保存");
         }else if(YesOrNoEnum.YES.getCode().equals(booth.getIsDelete())){
@@ -539,6 +539,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param leaseOrder
      */
     private void checkSubmitPayment(Long id, Long amount, Long waitAmount, LeaseOrder leaseOrder) {
+//        if(leaseOrderItemService.queryDepositAmountAvailableItem()){
+//            //@TODO 保证金校验
+//
+//        }
         //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
         if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
             LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());

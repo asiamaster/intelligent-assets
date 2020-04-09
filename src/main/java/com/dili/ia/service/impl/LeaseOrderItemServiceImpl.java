@@ -103,6 +103,15 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         return BaseOutput.success();
     }
 
+    @Override
+    public List<LeaseOrderItem> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem) {
+        leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
+        leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
+        leaseOrderItem.setPayState(PayStateEnum.PAID.getCode());
+        leaseOrderItem.setDepositAmountGt(0L);
+        return listByExample(leaseOrderItem);
+    }
+
     /**
      * 级联更新租赁单状态（停租摊位操作）
      * @param leaseOrderItemOld
