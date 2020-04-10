@@ -64,13 +64,12 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param customerId 客户ID
      * @param earnestDeduction 定金抵扣金额
      * @param transferDeduction 转抵抵扣金额
-     * @param depositDeduction 保证金抵扣金额
      * @param marketId 市场ID
      * @param operaterId 操作员ID
      * @param operatorName 操作员名字
      * @return BaseOutput
      * */
-    BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId , Long operaterId, String operatorName);
+    BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId , Long operaterId, String operatorName);
 
     /**
      * 摊位租赁【撤回】-- 客户账户金额[解冻]及流水变动记录
@@ -79,13 +78,12 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param customerId 客户ID
      * @param earnestDeduction 定金抵扣金额
      * @param transferDeduction 转抵抵扣金额
-     * @param depositDeduction 保证金抵扣金额
      * @param marketId 市场ID
      * @param operaterId 操作员ID
      * @param operatorName 操作员名字
      * @return BaseOutput
      * */
-    BaseOutput withdrawLeaseOrderCustomerAmountUnFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId, Long operaterId, String operatorName);
+    BaseOutput withdrawLeaseOrderCustomerAmountUnFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName);
 
     /**
      * 摊位租赁【缴费成功】-- 客户账户金额[解冻] [消费抵扣]及相应流水变动记录
@@ -94,13 +92,12 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param customerId 客户ID
      * @param earnestDeduction 定金抵扣金额
      * @param transferDeduction 转抵抵扣金额
-     * @param depositDeduction 保证金抵扣金额
      * @param marketId 市场ID
      * @param operaterId 操作员ID
      * @param operatorName 操作员名字
      * @return BaseOutput
      * */
-    BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long depositDeduction, Long marketId, Long operaterId, String operatorName);
+    BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName);
     /**
      * 摊位租赁【退款转抵成功】-- 客户账户转抵余额加， 及相应流水变动记录
      * @param orderId 产生转抵金额的【租赁退款单】订单ID
