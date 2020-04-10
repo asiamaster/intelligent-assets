@@ -222,11 +222,11 @@ public interface LeaseOrderItem extends IBaseDomain {
     void setDepositAmountFlag(Integer depositAmountFlag);
 
     @Column(name = "`deposit_amount_source_id`")
-    @FieldDef(label="保证金源单ID", maxLength = 20)
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getDepositAmountSourceId();
+    @FieldDef(label="保证金源单ID")
+    @EditMode(editor = FieldEditor.Text)
+    String getDepositAmountSourceId();
 
-    void setDepositAmountSourceId(Long depositAmountSourceId);
+    void setDepositAmountSourceId(String depositAmountSourceId);
 
     @Column(name = "`deposit_amount`")
     @FieldDef(label="保证金")
