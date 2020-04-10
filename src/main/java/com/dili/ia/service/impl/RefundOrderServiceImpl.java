@@ -112,7 +112,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         return BaseOutput.success().setData(order);
     }
     private BaseOutput checkParams(RefundOrder order){
-        if (null == order.getOrderId()){//定金退款不是针对业务单，所以订单ID记录的是【客户账户ID】
+        if (null == order.getBusinessId()){//定金退款不是针对业务单，所以订单ID记录的是【客户账户ID】
             return BaseOutput.failure("退款单orderId不能为空！");
         }
         if (null == order.getCustomerId()){

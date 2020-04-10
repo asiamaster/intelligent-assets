@@ -57,26 +57,26 @@ public interface RefundOrder extends IBaseDomain {
 
     void setBizType(Integer bizType);
 
-    @Column(name = "`order_item_id`")
+    @Column(name = "`business_item_id`")
     @FieldDef(label="业务订单项ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getOrderItemId();
+    Long getBusinessItemId();
 
-    void setOrderItemId(Long orderItemId);
+    void setBusinessItemId(Long businessItemId);
 
-    @Column(name = "`order_item_code`")
+    @Column(name = "`business_item_code`")
     @FieldDef(label="订单项编号", maxLength = 30)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getOrderItemCode();
+    String getBusinessItemCode();
 
-    void setOrderItemCode(String orderItemCode);
+    void setBusinessItemCode(String businessItemCode);
 
-    @Column(name = "`order_id`")
+    @Column(name = "`business_id`")
     @FieldDef(label="业务单ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getOrderId();
+    Long getBusinessId();
 
-    void setOrderId(Long orderId);
+    void setBusinessId(Long businessId);
 
     @Column(name = "`business_code`")
     @FieldDef(label="业务单编号", maxLength = 30)

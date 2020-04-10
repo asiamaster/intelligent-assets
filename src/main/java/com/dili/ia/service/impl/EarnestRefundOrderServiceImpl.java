@@ -59,7 +59,7 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
         Integer sceneType = TransactionSceneTypeEnum.FROZEN.getCode();
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getBusinessCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId(), userTicket.getId(), userTicket.getRealName());
+        TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getBusinessId(), refundOrder.getBusinessCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId(), userTicket.getId(), userTicket.getRealName());
         transactionDetailsService.insertSelective(transactionDetails);
         return BaseOutput.success();
     }
@@ -73,7 +73,7 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
         Integer sceneType = TransactionSceneTypeEnum.UNFROZEN.getCode();
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getBusinessCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId(), userTicket.getId(), userTicket.getRealName());
+        TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getBusinessId(), refundOrder.getBusinessCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId(), userTicket.getId(), userTicket.getRealName());
         transactionDetailsService.insertSelective(transactionDetails);
         return BaseOutput.success();
     }
@@ -87,8 +87,8 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
         Integer sceneTypeUnfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
         Integer sceneTypeRefund = TransactionSceneTypeEnum.REFUND.getCode();
-        TransactionDetails unfrozenDetails = transactionDetailsService.buildByConditions(sceneTypeUnfrozen, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getBusinessCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId(), settleOrder.getOperatorId(), settleOrder.getOperatorName());
-        TransactionDetails refundDetails = transactionDetailsService.buildByConditions(sceneTypeRefund, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getOrderId(), refundOrder.getBusinessCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId(), settleOrder.getOperatorId(), settleOrder.getOperatorName());
+        TransactionDetails unfrozenDetails = transactionDetailsService.buildByConditions(sceneTypeUnfrozen, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getBusinessId(), refundOrder.getBusinessCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId(), settleOrder.getOperatorId(), settleOrder.getOperatorName());
+        TransactionDetails refundDetails = transactionDetailsService.buildByConditions(sceneTypeRefund, bizType, itemType, refundOrder.getPayeeAmount(), refundOrder.getBusinessId(), refundOrder.getBusinessCode(), refundOrder.getCustomerId(), refundOrder.getRefundReason(), refundOrder.getMarketId(), settleOrder.getOperatorId(), settleOrder.getOperatorName());
         transactionDetailsService.insertSelective(unfrozenDetails);
         transactionDetailsService.insertSelective(refundDetails);
         return BaseOutput.success();

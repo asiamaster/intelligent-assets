@@ -133,8 +133,8 @@ public class RefundOrderController {
                 TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
                 transferDeductionItemCondition.setRefundOrderId(id);
                 modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
-                if(null != refundOrder.getOrderItemId()){
-                    modelMap.put("leaseOrderItem",leaseOrderItemService.get(refundOrder.getOrderItemId()));
+                if(null != refundOrder.getBusinessItemId()){
+                    modelMap.put("leaseOrderItem",leaseOrderItemService.get(refundOrder.getBusinessItemId()));
                 }
                 return "refundOrder/leaseRefundOrderView";
             }

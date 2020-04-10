@@ -993,9 +993,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
-        if(null == refundOrderDto.getOrderItemId()){
+        if(null == refundOrderDto.getBusinessItemId()){
             //主单上退款申请
-            LeaseOrder leaseOrder = get(refundOrderDto.getOrderId());
+            LeaseOrder leaseOrder = get(refundOrderDto.getBusinessId());
             LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
             condition.setLeaseOrderId(leaseOrder.getId());
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
@@ -1032,7 +1032,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             }
         }else{
             //订单项退款申请
-            LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(refundOrderDto.getOrderItemId());
+            LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(refundOrderDto.getBusinessItemId());
             //已到期或已停租状态才能发起退款申请
             if (LeaseOrderItemStateEnum.EXPIRED.getCode().equals(leaseOrderItem.getState()) && LeaseOrderItemStateEnum.RENTED_OUT.getCode().equals(leaseOrderItem.getState())) {
                 throw new BusinessException(ResultCode.DATA_ERROR,"摊位项状态已发生变更，不能发起退款申请");
@@ -1207,10 +1207,10 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Override
     @Transactional
     public BaseOutput settleSuccessRefundOrderHandler(RefundOrder refundOrder) {
-        LeaseOrder leaseOrder = get(refundOrder.getOrderId());
-        if(null == refundOrder.getOrderItemId()){
+        LeaseOrder leaseOrder = get(refundOrder.getBusinessId());
+        if(null == refundOrder.getBusinessItemId()){
             if(RefundStateEnum.REFUNDED.getCode().equals(leaseOrder.getRefundState())){
-                LOG.info("此单已退款【leaseOrderId={}】",refundOrder.getOrderId());
+                LOG.info("此单已退款【leaseOrderId={}】",refundOrder.getBusinessId());
                 return BaseOutput.success();
             }
             //解冻租赁订单所有摊位租赁
@@ -1236,9 +1236,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             }
         }else{
             //订单项退款申请
-            LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(refundOrder.getOrderItemId());
+            LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(refundOrder.getBusinessItemId());
             if(RefundStateEnum.REFUNDED.getCode().equals(leaseOrderItem.getRefundState())){
-                LOG.info("此单已退款【leaseOrderItemId={}】",refundOrder.getOrderItemId());
+                LOG.info("此单已退款【leaseOrderItemId={}】",refundOrder.getBusinessItemId());
                 return BaseOutput.success();
             }
 
@@ -1257,7 +1257,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
             boolean isUpdateLeaseOrderState = true;
             for (LeaseOrderItem orderItem : leaseOrderItems) {
-                if (orderItem.getId().equals(refundOrder.getOrderItemId())) {
+                if (orderItem.getId().equals(refundOrder.getBusinessItemId())) {
                     continue;
                 } else if (LeaseOrderItemStateEnum.REFUNDED.getCode().equals(orderItem.getState())) {
                     isUpdateLeaseOrderState = false;

@@ -76,7 +76,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     @Override
     public BaseOutput cancelHandler(RefundOrder refundOrder) {
         try{
-            return leaseOrderService.cancelRefundOrderHandler(refundOrder.getOrderId(),refundOrder.getOrderItemId());
+            return leaseOrderService.cancelRefundOrderHandler(refundOrder.getBusinessId(),refundOrder.getBusinessItemId());
         }catch (Exception e){
             LOG.info("租赁退款单取消回调异常",e);
             return BaseOutput.failure(e.getMessage());
@@ -86,7 +86,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     @Override
     public BaseOutput<Map<String,Object>> buildBusinessPrintData(RefundOrder refundOrder) {
         Map<String,Object> resultMap = new HashMap<>();
-        if(null == refundOrder.getOrderItemId()){
+        if(null == refundOrder.getBusinessItemId()){
             //未交清退款单打印数据
             resultMap.put("printTemplateCode", PrintTemplateEnum.BOOTH_LEASE_REFUND_NOT_PAID.getCode());
         }else{
@@ -94,7 +94,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
             resultMap.put("printTemplateCode", PrintTemplateEnum.BOOTH_LEASE_REFUND_PAID.getCode());
             //resultMap.put("leaseOrderItem", leaseOrderItem2PrintDto(leaseOrderItemService.get(refundOrder.getOrderItemId())));
             //根据要求拼装订单项
-            buildLeaseOrderItem(leaseOrderItemService.get(refundOrder.getOrderItemId()), resultMap);
+            buildLeaseOrderItem(leaseOrderItemService.get(refundOrder.getBusinessItemId()), resultMap);
         }
         //resultMap.put("transferDeductionItems", buildTransferDeductionItemsPrintDto(refundOrder.getId()));
         buildTransferDeductionItems(refundOrder.getId(), resultMap);

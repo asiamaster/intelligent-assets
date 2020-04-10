@@ -10,9 +10,9 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="biz_type" jdbcType="INTEGER" property="bizType" />
-    <result column="order_item_id" jdbcType="BIGINT" property="orderItemId" />
-    <result column="order_item_code" jdbcType="VARCHAR" property="orderItemCode" />
-    <result column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="business_item_id" jdbcType="BIGINT" property="businessItemId" />
+    <result column="business_item_code" jdbcType="VARCHAR" property="businessItemCode" />
+    <result column="business_id" jdbcType="BIGINT" property="businessId" />
     <result column="business_code" jdbcType="VARCHAR" property="businessCode" />
     <result column="customer_id" jdbcType="BIGINT" property="customerId" />
     <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
@@ -51,7 +51,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, code, create_time, modify_time, biz_type, order_item_id, order_item_code, order_id, 
+    id, code, create_time, modify_time, biz_type, business_item_id, business_item_code, business_id,
     business_code, customer_id, customer_name, certificate_number, customer_cellphone, state,
     total_refund_amount, submit_time, settlement_code, refund_type, bank, bank_card_no, 
     creator_id, creator, submitter_id, submitter, payee_id, payee, payee_amount, withdraw_operator_id, 
@@ -86,14 +86,14 @@
       <if test="bizType != null">
         biz_type = #{bizType,jdbcType=INTEGER},
       </if>
-      <if test="orderItemId != null">
-        order_item_id = #{orderItemId,jdbcType=BIGINT},
+      <if test="businessItemId != null">
+        business_item_id = #{businessItemId,jdbcType=BIGINT},
       </if>
-      <if test="orderItemCode != null">
-        order_item_code = #{orderItemCode,jdbcType=VARCHAR},
+      <if test="businessItemCode != null">
+        business_item_code = #{businessItemCode,jdbcType=VARCHAR},
       </if>
-      <if test="orderId != null">
-        order_id = #{orderId,jdbcType=BIGINT},
+      <if test="businessId != null">
+        business_id = #{businessId,jdbcType=BIGINT},
       </if>
       <if test="businessCode != null">
         business_code = #{businessCode,jdbcType=VARCHAR},
