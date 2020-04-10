@@ -253,7 +253,7 @@
         if(customerId && boothIds && boothIds.length > 0){
             $.ajax({
                 type: "POST",
-                url: '/leaseOrderItem/list.action',
+                url: '/leaseOrderItem/queryDepositAmountAvailableItem.action',
                 data: JSON.stringify({customerId,boothIds}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",

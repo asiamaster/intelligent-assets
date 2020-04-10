@@ -64,7 +64,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         leaseOrderItem.setStopOperatorId(userTicket.getId());
         leaseOrderItem.setStopOperatorName(userTicket.getRealName());
         LeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
-        if(!PayStateEnum.PAID.getCode().equals(leaseOrderItem.getPayState())){
+        if(!PayStateEnum.PAID.getCode().equals(leaseOrderItemOld.getPayState())){
             throw new BusinessException(ResultCode.DATA_ERROR,"只有费用已交清后才能停租");
         }
         if(StopWayEnum.IMMEDIATELY.getCode().equals(leaseOrderItem.getStopWay())){//立即停租
@@ -101,6 +101,15 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
         return BaseOutput.success();
+    }
+
+    @Override
+    public List<LeaseOrderItem> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem) {
+        leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
+        leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
+        leaseOrderItem.setPayState(PayStateEnum.PAID.getCode());
+        leaseOrderItem.setDepositAmountGt(0L);
+        return listByExample(leaseOrderItem);
     }
 
     /**
