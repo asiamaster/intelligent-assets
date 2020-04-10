@@ -64,7 +64,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         leaseOrderItem.setStopOperatorId(userTicket.getId());
         leaseOrderItem.setStopOperatorName(userTicket.getRealName());
         LeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
-        if(!PayStateEnum.PAID.getCode().equals(leaseOrderItem.getPayState())){
+        if(!PayStateEnum.PAID.getCode().equals(leaseOrderItemOld.getPayState())){
             throw new BusinessException(ResultCode.DATA_ERROR,"只有费用已交清后才能停租");
         }
         if(StopWayEnum.IMMEDIATELY.getCode().equals(leaseOrderItem.getStopWay())){//立即停租
