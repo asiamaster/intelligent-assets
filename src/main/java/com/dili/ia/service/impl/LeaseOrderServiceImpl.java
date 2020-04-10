@@ -533,22 +533,24 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param leaseOrderItems
      */
     private void checkSubmitPayment(Long id, Long amount, Long waitAmount, LeaseOrder leaseOrder,List<LeaseOrderItem> leaseOrderItems) {
-        LeaseOrderItemListDto condition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
-        condition.setCustomerId(leaseOrder.getCustomerId());
-        condition.setBoothIds(leaseOrderItems.stream().map(o->o.getBoothId()).collect(Collectors.toList()));
-        Map<Long,List<LeaseOrderItem>> depositAmountAvailableItemMap = leaseOrderItemService.queryDepositAmountAvailableItem(condition);
-        Long availableDepositAmount = 0L;
-        for (Long key : depositAmountAvailableItemMap.keySet()) {
-            List<LeaseOrderItem> depositAmountItems = depositAmountAvailableItemMap.get(key);
-            for (LeaseOrderItem item:depositAmountItems
-                 ) {
-                availableDepositAmount += item.getDepositAmount();
+        //服务器端再次验证保证金抵扣额
+        if(LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState())){
+            LeaseOrderItemListDto condition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
+            condition.setCustomerId(leaseOrder.getCustomerId());
+            condition.setBoothIds(leaseOrderItems.stream().map(o->o.getBoothId()).collect(Collectors.toList()));
+            Map<Long,List<LeaseOrderItem>> depositAmountAvailableItemMap = leaseOrderItemService.queryDepositAmountAvailableItem(condition);
+            Long availableDepositAmount = 0L;
+            for (Long key : depositAmountAvailableItemMap.keySet()) {
+                List<LeaseOrderItem> depositAmountItems = depositAmountAvailableItemMap.get(key);
+                for (LeaseOrderItem item:depositAmountItems
+                ) {
+                    availableDepositAmount += item.getDepositAmount();
+                }
             }
-        }
-
-        if(!leaseOrder.getDepositDeduction().equals(availableDepositAmount)){
-            LOG.info("租赁单编号【{}】 保证金可抵扣额发生变化，需要重新修改后进行订单提交操作", leaseOrder.getCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 保证金可抵扣额发生变化，需要重新修改后进行订单提交操作");
+            if(!leaseOrder.getDepositDeduction().equals(availableDepositAmount)){
+                LOG.info("租赁单编号【{}】 保证金可抵扣额发生变化，需要重新修改后进行订单提交操作", leaseOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 保证金可抵扣额发生变化，需要重新修改后进行订单提交操作");
+            }
         }
         //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
         if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
