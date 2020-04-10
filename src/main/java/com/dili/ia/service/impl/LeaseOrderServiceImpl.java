@@ -17,10 +17,7 @@ import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.ResultCodeConst;
-import com.dili.logger.sdk.annotation.BusinessLogger;
-import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
-import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -34,7 +31,6 @@ import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
-import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
@@ -46,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -290,7 +285,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(
                     leaseOrder.getId(), leaseOrder.getCode(),
                     leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(),
-                    leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
+                    leaseOrder.getTransferDeduction(),
                     leaseOrder.getMarketId(),settleOrder.getOperatorId(),settleOrder.getOperatorName());
             if(!customerAccountOutput.isSuccess()){
                 LOG.info("结算成功，消费定金、转低接口异常 【租赁单编号:{},定金:{},转抵:{}】", leaseOrder.getCode(),leaseOrder.getEarnestDeduction(),leaseOrder.getTransferDeduction());
@@ -423,7 +418,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             //冻结定金和转低
             BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
                     leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
-                    leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
+                    leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(),
                     leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
             if(!customerAccountOutput.isSuccess()){
                 LOG.info("冻结定金和转低异常【编号：{}】", leaseOrder.getCode());
@@ -839,7 +834,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         //解冻定金、转抵
         BaseOutput customerAccountOutput = customerAccountService.withdrawLeaseOrderCustomerAmountUnFrozen(
                 leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
-                leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getDepositDeduction(),
+                leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(),
                 leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
         if(!customerAccountOutput.isSuccess()){
             LOG.info("租赁单撤回 解冻定金、转抵异常【编号：{},MSG:{}】", leaseOrder.getCode(), customerAccountOutput.getMessage());
