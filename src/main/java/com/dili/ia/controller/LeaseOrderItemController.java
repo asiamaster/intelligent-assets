@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-11 15:54:49.
@@ -60,7 +63,7 @@ public class LeaseOrderItemController {
      * @return
      */
     @RequestMapping(value="/queryDepositAmountAvailableItem.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem) {
+    public @ResponseBody BaseOutput<Map<Long, List<LeaseOrderItem>>> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem) {
         return BaseOutput.success().setData(leaseOrderItemService.queryDepositAmountAvailableItem(leaseOrderItem));
     }
 

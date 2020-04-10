@@ -9,6 +9,7 @@ import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -34,5 +35,5 @@ public interface LeaseOrderItemService extends BaseService<LeaseOrderItem, Long>
      * @param leaseOrderItem
      * @return
      */
-    List<LeaseOrderItem> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem);
+    Map<Long,List<LeaseOrderItem>> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem);
 }

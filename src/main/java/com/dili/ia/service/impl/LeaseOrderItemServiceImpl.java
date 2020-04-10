@@ -27,9 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -104,12 +103,13 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
     }
 
     @Override
-    public List<LeaseOrderItem> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem) {
+    public Map<Long,List<LeaseOrderItem>> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem) {
         leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
         leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
         leaseOrderItem.setPayState(PayStateEnum.PAID.getCode());
         leaseOrderItem.setDepositAmountGt(0L);
-        return listByExample(leaseOrderItem);
+        List<LeaseOrderItem> leaseOrderItems = listByExample(leaseOrderItem);
+        return leaseOrderItems.stream().collect(Collectors.groupingBy(LeaseOrderItem::getBoothId));
     }
 
     /**

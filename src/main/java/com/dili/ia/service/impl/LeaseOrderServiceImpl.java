@@ -50,9 +50,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -139,8 +137,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             if(!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())){
                 throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + oldLeaseOrder.getCode() + "】 状态已变更，不可以进行修改操作");
             }
-            dto.setWaitAmount(dto.getPayAmount());
             dto.setVersion(oldLeaseOrder.getVersion());
+            dto.setWaitAmount(dto.getPayAmount());
             if (updateExact(dto) == 0) {
                 LOG.info("摊位租赁单修改异常,乐观锁生效 【租赁单编号:{}】", dto.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
@@ -409,7 +407,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             });
         }
         //检查是否可以进行提交付款
-        checkSubmitPayment(id, amount, waitAmount, leaseOrder);
+        checkSubmitPayment(id, amount, waitAmount, leaseOrder,leaseOrderItems);
         /***************************检查是否可以提交付款 end*********************/
 
         //新增缴费单
@@ -537,12 +535,26 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param amount
      * @param waitAmount
      * @param leaseOrder
+     * @param leaseOrderItems
      */
-    private void checkSubmitPayment(Long id, Long amount, Long waitAmount, LeaseOrder leaseOrder) {
-//        if(leaseOrderItemService.queryDepositAmountAvailableItem()){
-//            //@TODO 保证金校验
-//
-//        }
+    private void checkSubmitPayment(Long id, Long amount, Long waitAmount, LeaseOrder leaseOrder,List<LeaseOrderItem> leaseOrderItems) {
+        LeaseOrderItemListDto condition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
+        condition.setCustomerId(leaseOrder.getCustomerId());
+        condition.setBoothIds(leaseOrderItems.stream().map(o->o.getBoothId()).collect(Collectors.toList()));
+        Map<Long,List<LeaseOrderItem>> depositAmountAvailableItemMap = leaseOrderItemService.queryDepositAmountAvailableItem(condition);
+        Long availableDepositAmount = 0L;
+        for (Long key : depositAmountAvailableItemMap.keySet()) {
+            List<LeaseOrderItem> depositAmountItems = depositAmountAvailableItemMap.get(key);
+            for (LeaseOrderItem item:depositAmountItems
+                 ) {
+                availableDepositAmount += item.getDepositAmount();
+            }
+        }
+
+        if(!leaseOrder.getDepositDeduction().equals(availableDepositAmount)){
+            LOG.info("租赁单编号【{}】 保证金可抵扣额发生变化，需要重新修改后进行订单提交操作", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 保证金可抵扣额发生变化，需要重新修改后进行订单提交操作");
+        }
         //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
         if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
             LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
@@ -575,14 +587,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param id
      */
     private void deductionLeaseOrderItemDepositAmount(Long id) {
-        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
-        condition.setLeaseOrderId(id);
-        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
-        List<Long> depositAmountSourceIds = leaseOrderItems.stream().filter(o-> null != o.getDepositAmountSourceId()).map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
-
-        LeaseOrderItemListDto depositAmountSourceCondition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
-        depositAmountSourceCondition.setIds(depositAmountSourceIds);
-        List<LeaseOrderItem> depositAmountSourceItems = leaseOrderItemService.listByExample(depositAmountSourceCondition);
+        List<LeaseOrderItem> depositAmountSourceItems = collectAllDepositAmountSource(id);
         depositAmountSourceItems.stream().forEach(o -> {
             if (DepositAmountFlagEnum.FROZEN.getCode().equals(o.getDepositAmountFlag())) {
                 o.setDepositAmountFlag(DepositAmountFlagEnum.DEDUCTION.getCode());
@@ -604,14 +609,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param id
      */
     private void frozenLeaseOrderItemDepositAmount(Long id) {
-        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
-        condition.setLeaseOrderId(id);
-        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
-        List<Long> depositAmountSourceIds = leaseOrderItems.stream().filter(o-> null != o.getDepositAmountSourceId()).map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
-
-        LeaseOrderItemListDto depositAmountSourceCondition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
-        depositAmountSourceCondition.setIds(depositAmountSourceIds);
-        List<LeaseOrderItem> depositAmountSourceItems = leaseOrderItemService.listByExample(depositAmountSourceCondition);
+        List<LeaseOrderItem> depositAmountSourceItems = collectAllDepositAmountSource(id);
         depositAmountSourceItems.stream().forEach(o -> {
             //保证金为已转入且退款待申请且 费用已交清 方可冻结抵扣
             if (DepositAmountFlagEnum.TRANSFERRED.getCode().equals(o.getDepositAmountFlag())
@@ -637,14 +635,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param id
      */
     private void unFrozenLeaseOrderItemDepositAmount(Long id) {
-        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
-        condition.setLeaseOrderId(id);
-        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
-        List<Long> depositAmountSourceIds = leaseOrderItems.stream().filter(o-> null != o.getDepositAmountSourceId()).map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
-
-        LeaseOrderItemListDto depositAmountSourceCondition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
-        depositAmountSourceCondition.setIds(depositAmountSourceIds);
-        List<LeaseOrderItem> depositAmountSourceItems = leaseOrderItemService.listByExample(depositAmountSourceCondition);
+        List<LeaseOrderItem> depositAmountSourceItems = collectAllDepositAmountSource(id);
         depositAmountSourceItems.stream().forEach(o -> {
             if (DepositAmountFlagEnum.FROZEN.getCode().equals(o.getDepositAmountFlag())) {
                 o.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
@@ -659,6 +650,26 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
 
+    }
+
+    /**
+     * 查询所有源保证金项
+     * @param id
+     * @return
+     */
+    private List<LeaseOrderItem> collectAllDepositAmountSource(Long id) {
+        LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
+        condition.setLeaseOrderId(id);
+        List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
+        List<String> depositAmountSourceIds = leaseOrderItems.stream().filter(o-> null != o.getDepositAmountSourceId()).map(LeaseOrderItem::getDepositAmountSourceId).collect(Collectors.toList());
+        List<Long> allSourceIds = new ArrayList<>();
+        for (String depositAmountSourceId:depositAmountSourceIds
+        ) {
+            allSourceIds.addAll(Arrays.asList(depositAmountSourceId.split(",")).stream().map(o->Long.valueOf(o)).collect(Collectors.toList()));
+        }
+        LeaseOrderItemListDto depositAmountSourceCondition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
+        depositAmountSourceCondition.setIds(allSourceIds);
+        return leaseOrderItemService.listByExample(depositAmountSourceCondition);
     }
 
     /**
