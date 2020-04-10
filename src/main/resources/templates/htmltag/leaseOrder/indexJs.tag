@@ -356,7 +356,15 @@
                 $('#stopWay').on('change',':radio',function () {
                     $('#stopDateSelect').toggle();
                 });
-                $('#stopRentForm').validate({rules:{stopTime:{required: true,minDate:minDate}}});
+                $('#stopRentForm').validate({
+                    rules: {
+                        stopTime: {
+                            required: true,
+                            minDate: minDate,
+                            maxDate: leaseOrder.endTime
+                        }
+                    }
+                });
             },
             btns: [
                 {
