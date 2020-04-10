@@ -583,6 +583,10 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
+            //未交清且未发起过退款申请
+            if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()} && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}) {
+                $('#btn_refund_apply').attr('disabled', false);
+            }
         }
     });
     /*****************************************自定义事件区 end**************************************/
