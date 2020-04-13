@@ -58,6 +58,29 @@ public class TransactionDetailsController {
     }
 
     /**
+     * 跳转到TransactionDetails页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到TransactionDetails页面")
+    @RequestMapping(value="/listDepositAmount.action", method = RequestMethod.GET)
+    public String listDepositAmount(ModelMap modelMap) {
+        //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
+        Calendar c = Calendar.getInstance();
+        c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        c.add(Calendar.DAY_OF_MONTH, -2);
+        Date createdStart = c.getTime();
+
+        Calendar ce = Calendar.getInstance();
+        ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
+        Date  createdEnd = ce.getTime();
+
+        modelMap.put("createdStart", createdStart);
+        modelMap.put("createdEnd", createdEnd);
+        return "transactionDetails/depositAmountDetails";
+    }
+
+    /**
      * 分页查询TransactionDetails，返回easyui分页信息
      * @param transactionDetails
      * @return String
@@ -75,7 +98,22 @@ public class TransactionDetailsController {
         List<Integer> itemTypes = new ArrayList<>();
         itemTypes.add(TransactionItemTypeEnum.EARNEST.getCode());
         itemTypes.add(TransactionItemTypeEnum.TRANSFER.getCode());
-        transactionDetails.setItemTypes(itemTypes);
+//        transactionDetails.setItemTypes(itemTypes);
+        transactionDetails.setMarketId(userTicket.getFirmId());
+        return transactionDetailsService.listEasyuiPageByExample(transactionDetails, true).toString();
+    }
+
+    /**
+     * 分页查询TransactionDetails，返回easyui分页信息
+     * @param transactionDetails
+     * @return String
+     * @throws Exception
+     */
+    @RequestMapping(value="/listDepositAmountPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody String listDepositAmountPage(TransactionDetailsListDto transactionDetails) throws Exception {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        transactionDetails.setMarketId(userTicket.getFirmId());
+        transactionDetails.setItemType(TransactionItemTypeEnum.DEPOSIT.getCode());
         transactionDetails.setMarketId(userTicket.getFirmId());
         return transactionDetailsService.listEasyuiPageByExample(transactionDetails, true).toString();
     }

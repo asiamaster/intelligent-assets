@@ -84,6 +84,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     private CustomerRpc customerRpc;
     @Autowired
     private BusinessLogRpc businessLogRpc;
+    @Autowired
+    private TransactionDetailsService transactionDetailsService;
 
     /**
      * 摊位租赁单保存
@@ -279,7 +281,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             //第一笔消费抵扣保证金
             if(leaseOrder.getDepositDeduction() > 0L){
-                deductionLeaseOrderItemDepositAmount(leaseOrder.getId());
+                deductionLeaseOrderItemDepositAmount(leaseOrder);
             }
             //消费定金、转低
             BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(
@@ -413,7 +415,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
             //冻结保证金
             if(leaseOrder.getDepositDeduction() > 0L){
-                frozenLeaseOrderItemDepositAmount(id);
+                frozenLeaseOrderItemDepositAmount(leaseOrder);
             }
             //冻结定金和转低
             BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
@@ -581,32 +583,34 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     /**
      * 摊位租赁单保证金抵扣
      *
-     * @param id
+     * @param leaseOrder
      */
-    private void deductionLeaseOrderItemDepositAmount(Long id) {
-        List<LeaseOrderItem> depositAmountSourceItems = collectAllDepositAmountSource(id);
+    private void deductionLeaseOrderItemDepositAmount(LeaseOrder leaseOrder) {
+        List<LeaseOrderItem> depositAmountSourceItems = collectAllDepositAmountSource(leaseOrder.getId());
         depositAmountSourceItems.stream().forEach(o -> {
             if (DepositAmountFlagEnum.FROZEN.getCode().equals(o.getDepositAmountFlag())) {
                 o.setDepositAmountFlag(DepositAmountFlagEnum.DEDUCTION.getCode());
             } else {
-                LOG.info("摊位租赁单保证金已被抵扣,不可重复操作,【租赁单ID:{}，摊位:{}】", id, o.getBoothName());
+                LOG.info("摊位租赁单保证金已被抵扣,不可重复操作,【源租赁单编号:{}，新租赁单编号:{}，摊位:{}】", o.getLeaseOrderCode(), leaseOrder.getCode(), o.getBoothName());
                 throw new BusinessException(ResultCode.DATA_ERROR,o.getBoothName() + "保证金已被抵扣,不可重复操作");
             }
         });
         if (leaseOrderItemService.batchUpdateSelective(depositAmountSourceItems) != depositAmountSourceItems.size()) {
-            LOG.info("源摊位租赁单项抵扣失败，乐观锁生效 【租赁单id={}】", id);
+            LOG.info("源摊位租赁单项抵扣失败，乐观锁生效 【新租赁单编号={}】", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
+        //记录保证金流水
+        recordDepositAmountDetails(depositAmountSourceItems,leaseOrder,TransactionSceneTypeEnum.DEDUCT_USE);
 
     }
 
     /**
      * 摊位租赁单保证金冻结
      *
-     * @param id
+     * @param leaseOrder
      */
-    private void frozenLeaseOrderItemDepositAmount(Long id) {
-        List<LeaseOrderItem> depositAmountSourceItems = collectAllDepositAmountSource(id);
+    private void frozenLeaseOrderItemDepositAmount(LeaseOrder leaseOrder) {
+        List<LeaseOrderItem> depositAmountSourceItems = collectAllDepositAmountSource(leaseOrder.getId());
         depositAmountSourceItems.stream().forEach(o -> {
             //保证金为已转入且退款待申请且 费用已交清 方可冻结抵扣
             if (DepositAmountFlagEnum.TRANSFERRED.getCode().equals(o.getDepositAmountFlag())
@@ -615,38 +619,62 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 o.setDepositAmountFlag(DepositAmountFlagEnum.FROZEN.getCode());
             } else {
                 String operateName = DepositAmountFlagEnum.getDepositAmountFlagEnum(o.getDepositAmountFlag()).getOperateName();
-                LOG.info("{}保证金已被{},保证金总抵扣额已发生变化不可进行抵扣，请修改后重试", o.getBoothName(), operateName);
+                LOG.info("【源租赁单编号:{}，新租赁单编号:{}】{}保证金已被{},保证金总抵扣额已发生变化不可进行抵扣，请修改后重试", o.getLeaseOrderCode(), leaseOrder.getCode(), o.getBoothName(), operateName);
                 throw new BusinessException(ResultCode.DATA_ERROR,o.getBoothName() + "保证金已被" + operateName + ",保证金总抵扣额已发生变化不可进行抵扣，请修改后重试");
             }
         });
         if (leaseOrderItemService.batchUpdateSelective(depositAmountSourceItems) != depositAmountSourceItems.size()) {
-            LOG.info("源摊位租赁单项冻结失败，乐观锁生效 【租赁单id={}】", id);
+            LOG.info("源摊位租赁单项冻结失败，乐观锁生效 【新租赁单编号={}】", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
+        //记录保证金流水
+        recordDepositAmountDetails(depositAmountSourceItems,leaseOrder,TransactionSceneTypeEnum.FROZEN);
 
     }
 
     /**
      * 摊位租赁单保证金解冻
      *
-     * @param id
+     * @param leaseOrder
      */
-    private void unFrozenLeaseOrderItemDepositAmount(Long id) {
-        List<LeaseOrderItem> depositAmountSourceItems = collectAllDepositAmountSource(id);
+    private void unFrozenLeaseOrderItemDepositAmount(LeaseOrder leaseOrder) {
+        List<LeaseOrderItem> depositAmountSourceItems = collectAllDepositAmountSource(leaseOrder.getId());
         depositAmountSourceItems.stream().forEach(o -> {
             if (DepositAmountFlagEnum.FROZEN.getCode().equals(o.getDepositAmountFlag())) {
                 o.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
             } else {
                 String operateName = DepositAmountFlagEnum.getDepositAmountFlagEnum(o.getDepositAmountFlag()).getOperateName();
-                LOG.info("摊位保证金已被解冻,不可重复操作,【租赁单ID:{},摊位:{}】", o.getId(), o.getBoothName());
+                LOG.info("摊位保证金已被解冻,不可重复操作,【源租赁单编号:{}，新租赁单编号:{}，摊位:{}】", o.getLeaseOrderCode(), leaseOrder.getCode(), o.getId(), o.getBoothName());
                 throw new BusinessException(ResultCode.DATA_ERROR,o.getBoothName() + "保证金已被解冻,不可重复操作");
             }
         });
         if (leaseOrderItemService.batchUpdateSelective(depositAmountSourceItems) != depositAmountSourceItems.size()) {
-            LOG.info("源摊位租赁单项解冻失败,乐观锁生效 【租赁单id={}】", id);
+            LOG.info("源摊位租赁单项解冻失败,乐观锁生效 【新租赁单编号={}】", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
+        //记录保证金流水
+        recordDepositAmountDetails(depositAmountSourceItems,leaseOrder,TransactionSceneTypeEnum.UNFROZEN);
+    }
 
+    /**
+     * 记录保证金流水
+     * @param depositAmountSourceItems
+     * @param leaseOrder
+     * @param type
+     */
+    private void recordDepositAmountDetails(List<LeaseOrderItem> depositAmountSourceItems, LeaseOrder leaseOrder,TransactionSceneTypeEnum type) {
+        List<TransactionDetails> transactionDetailsList = new ArrayList<>();
+        for (LeaseOrderItem item :
+                depositAmountSourceItems) {
+            TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(type.getCode()
+                    ,BizTypeEnum.BOOTH_LEASE.getCode(),TransactionItemTypeEnum.DEPOSIT.getCode()
+                    , item.getDepositAmount(),item.getId(),item.getBoothName()
+                    ,leaseOrder.getCustomerId(),leaseOrder.getCode(),leaseOrder.getMarketId(),null,null);
+            transactionDetails.setCreateTime(new Date());
+            transactionDetails.setModifyTime(new Date());
+            transactionDetailsList.add(transactionDetails);
+        }
+        transactionDetailsService.batchInsert(transactionDetailsList);
     }
 
     /**
@@ -831,7 +859,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         //解冻摊位保证金
         if(leaseOrder.getDepositDeduction() > 0L){
-            unFrozenLeaseOrderItemDepositAmount(id);
+            unFrozenLeaseOrderItemDepositAmount(leaseOrder);
         }
         //解冻定金、转抵
         BaseOutput customerAccountOutput = customerAccountService.withdrawLeaseOrderCustomerAmountUnFrozen(
@@ -1284,6 +1312,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                     throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
                 }
             }
+
+            recordDepositAmountRefundDetails(leaseOrder, leaseOrderItem);
         }
 
         //转抵扣充值
@@ -1304,6 +1334,19 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         //记录退款日志
         businessLogRpc.save(recordRefundLog(refundOrder,leaseOrder));
         return BaseOutput.success();
+    }
+
+    /**
+     *记录保证金流水（退款）
+     * @param leaseOrder
+     * @param leaseOrderItem
+     */
+    public void recordDepositAmountRefundDetails(LeaseOrder leaseOrder, LeaseOrderItem leaseOrderItem) {
+        TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.REFUND.getCode()
+                , BizTypeEnum.BOOTH_LEASE.getCode(), TransactionItemTypeEnum.DEPOSIT.getCode()
+                , leaseOrderItem.getDepositAmount(),leaseOrderItem.getId(),leaseOrderItem.getBoothName()
+                ,leaseOrder.getCustomerId(),null,leaseOrder.getMarketId(),null,null);
+        transactionDetailsService.insertSelective(transactionDetails);
     }
 
     /**
