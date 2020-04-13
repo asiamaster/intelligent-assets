@@ -1299,7 +1299,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             for (LeaseOrderItem orderItem : leaseOrderItems) {
                 if (orderItem.getId().equals(refundOrder.getBusinessItemId())) {
                     continue;
-                } else if (LeaseOrderItemStateEnum.REFUNDED.getCode().equals(orderItem.getState())) {
+                } else if (!LeaseOrderItemStateEnum.REFUNDED.getCode().equals(orderItem.getState())) {
                     isUpdateLeaseOrderState = false;
                     break;
                 }
