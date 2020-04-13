@@ -391,11 +391,11 @@
         var split = ['<a class="like" href="javascript:void(0)" onclick="openSplitHandler(' + row.id + ')" title="Like">',
             '拆分摊位',
             '</a>  '];
-var view = '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">查看</a>';
-var edit = '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">修改</a>';
-var del = '<a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">删除</a>';
-var on = '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(1,' + row.id + ')" title="Remove">启用</a>';
-var off = '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(2,' + row.id + ')" title="Remove">禁用</a>';
+var view = ' <a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">查看</a>';
+var edit = ' <a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">修改</a>';
+var del = ' <a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">删除</a>';
+var on = ' <a class="remove" href="javascript:void(0)" onclick="doEnableHandler(1,' + row.id + ')" title="Remove">启用</a>';
+var off = ' <a class="remove" href="javascript:void(0)" onclick="doEnableHandler(2,' + row.id + ')" title="Remove">禁用</a>';
         var oprate = '';
         if(hasView){
             oprate+=view;

@@ -26,9 +26,9 @@
             <tr data-index="">
                 <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i
                         class="fa fa-minus-square fa-lg"></i></a></td>
-                <td style="padding: .25rem!important;"><input type="text" name="names" value="" maxlength="20"
+                <td style="padding: .25rem!important;"><input type="text" name="names" value="" maxlength="20" required
                                                               class="form-control"></td>
-                <td style="padding: .25rem!important;"><input type="text" name="numbers" value=""  digits="true" maxlength="4"
+                <td style="padding: .25rem!important;"><input type="text" name="numbers" value=""  required digits="true" maxlength="4"
                                                               class="form-control"></td>
                 <td style="padding: .25rem!important;"><input type="text" name="notes" value="" maxlength="100"
                                                               class="form-control"></td>
@@ -53,28 +53,31 @@
     });
 
     function saveDivForm() {
-        bui.loading.show('努力提交中，请稍候。。。');
-        $("#divForm-submit").attr("disabled", "disabled");
-        $.ajax({
-            type : 'post',
-            url : '/district/divisionSave.action',
-            data : $('#divForm').serialize(),
-            dataType : 'json',
-            success : function(ret){
-                bui.loading.hide();
-                $("#divForm-submit").removeAttr("disabled");
-                if(ret.code!='200'){
-                    bs4pop.alert(data.message, {type: 'error'});
-                }else{
-                    window.location.reload();
+        if ($("#divForm").valid()) {
+            bui.loading.show('努力提交中，请稍候。。。');
+            $("#divForm-submit").attr("disabled", "disabled");
+            $.ajax({
+                type : 'post',
+                url : '/district/divisionSave.action',
+                data : $('#divForm').serialize(),
+                dataType : 'json',
+                success : function(ret){
+                    bui.loading.hide();
+                    $("#divForm-submit").removeAttr("disabled");
+                    if(ret.code!='200'){
+                        bs4pop.alert(data.message, {type: 'error'});
+                    }else{
+                        window.location.reload();
+                    }
+                },
+                error: function () {
+                    bui.loading.hide();
+                    $("#divForm-submit").removeAttr("disabled");
+                    bs4pop.alert("区域信息新增失败!", {type: 'error'});
                 }
-            },
-            error: function () {
-                bui.loading.hide();
-                $("#divForm-submit").removeAttr("disabled");
-                bs4pop.alert("区域信息新增失败!", {type: 'error'});
-            }
-        });
+            });
+        }
+
     }
 </script>
 
