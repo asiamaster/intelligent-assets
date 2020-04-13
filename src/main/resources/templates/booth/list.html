@@ -241,7 +241,7 @@
 
                     </select>
                     <select class="form-control" id="areaTwoList" name="secondArea">
-
+                        <option value="">-- 全部 --</option>
                     </select>
                 </div>
             </div>
@@ -265,14 +265,22 @@
             <div class="form-group col-auto">
                 <label for="">数量</label>
                 <div class="form-inline">
-                    <input type="text" name="startNumber" class="form-control">
+                    <input type="number" name="startNumber" class="form-control" range="0 999999.00">
                     &nbsp;&nbsp;至&nbsp;&nbsp;
-                    <input type="text" name="endNumber" class="form-control">
+                    <input type="number" name="endNumber" class="form-control" range="0 999999.00">
                 </div>
 
             </div>
+            <div class="form-group col">
+                <label for="booth_status">状态</label>
+                <select id="booth_status" class="form-control input-sm" name="state">
+                    <option value="">-- 全部 --</option>
+                    <option value="1">已启用</option>
+                    <option value="2">已禁用</option>
+                </select>
+            </div>
             <div class="col align-self-center mt-3">
-                <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                <button type="button" class="btn btn-outline-primary mr-2" onclick="refresh()"><i class="fa fa-refresh"></i> 清空</button>
                 <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
             </div>
         </div>
@@ -351,7 +359,32 @@
         </div>
     </div>
 </div>
-
+<script>
+    var hasEdit = false;
+    var hasDel = false;
+    var hasSplit = false;
+    var hasView = false;
+    var hasOn = false;
+    var hasOff = false;
+    <#resource code="booth_edit">
+    hasEdit = true;
+    </#resource>
+    <#resource code="booth_del">
+    hasDel = true;
+    </#resource>
+    <#resource code="booth_split">
+    hasSplit = true;
+    </#resource>
+    <#resource code="booth_view">
+    hasView = true;
+    </#resource>
+    <#resource code="booth_on">
+    hasOn = true;
+    </#resource>
+    <#resource code="booth_off">
+    hasOff = true;
+    </#resource>
+</script>
 <script>
     var itemIndex = 0;
 
@@ -359,35 +392,101 @@
         var split = ['<a class="like" href="javascript:void(0)" onclick="openSplitHandler(' + row.id + ')" title="Like">',
             '拆分摊位',
             '</a>  '];
-
-        var oprate = [
-            '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">',
-            '查看',
-            '</a>  ',
-            '<a class="like" href="javascript:void(0)" onclick="openUpdateHandler(' + row.id + ')" title="Like">',
-            '修改',
-            '</a>  ',
-            '<a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">',
-            '删除',
-            '</a>  ',
-            '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(1,' + row.id + ')" title="Remove">',
-            '启用',
-            '</a>  ',
-            '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(2,' + row.id + ')" title="Remove">',
-            '禁用',
-            '</a>  '
-        ];
-        if (row.parentId === 0 ) {
-            return split.join("") + oprate.join("");
+var view = '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">查看</a>';
+var edit = '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">修改</a>';
+var del = '<a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">删除</a>';
+var on = '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(1,' + row.id + ')" title="Remove">启用</a>';
+var off = '<a class="remove" href="javascript:void(0)" onclick="doEnableHandler(2,' + row.id + ')" title="Remove">禁用</a>';
+        var oprate = '';
+        if(hasView){
+            oprate+=view;
+        }
+        if(hasEdit){
+            oprate+=edit;
+        }
+        if(hasDel){
+            oprate+=del;
+        }
+        if(hasOn){
+            oprate+=on;
+        }
+        if(hasOff){
+            oprate+=off;
+        }
+        if (row.parentId === 0 && hasSplit ) {
+            return split.join("") + oprate;
         } else {
-            return oprate.join("");
+            return oprate;
         }
     }
 
     function formatterView(value, row, index) {
-        return '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">' + value + '</a>'
+        if(hasView){
+            return '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">' + value + '</a>'
+        }else{
+            return row.name;
+        }
     }
 
+    function refresh() {
+        $('#queryForm .form-control').val('');
+        $('#areaOneList').html("");
+        $.ajax({
+            type: "POST",
+            url: "/district/search.action",
+            data: {parentId: 0},
+            success: function (data) {
+                if (data.code == "200") {
+                    var array = [];
+                    array.push({text:"-- 全部 --",id:""});
+                    var data = $.map(data.data, function (obj) {
+                        obj.text = obj.text || obj.name;
+                        return obj;
+                    });
+                    for (var x in data) {
+                        array.push(data[x]);
+                    }
+                    if (data.length == 0) {
+                        $('#areaOneList').html("");
+                        $('#areaTwoList').html("");
+                    } else {
+                        $("#areaOneList").select2({
+                            data: array,
+                            language:'zh-CN',
+                            width: "50%",
+                            minimumResultsForSearch: Infinity
+                        });
+                    }
+                }
+            }
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "/district/search.action",
+            data: {parentId: -1},
+            success: function (data) {
+                if (data.code == "200") {
+                    var array = [];
+                    array.push({text:"-- 全部 --",id:""});
+                    var data = $.map(data.data, function (obj) {
+                        obj.text = obj.text || obj.name;
+                        return obj;
+                    });
+                    for (var x in data) {
+                        array.push(data[x]);
+                    }
+                    $('#areaTwoList').html("")
+                    $("#areaTwoList").select2({
+                        language: 'zh-CN',
+                        data: array,
+                        width: "50%",
+                        minimumResultsForSearch: Infinity
+                    })
+                }
+            }
+        });
+    }
 </script>
 
 <#booth_indexJs />

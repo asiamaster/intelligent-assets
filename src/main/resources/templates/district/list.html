@@ -48,9 +48,11 @@
         <div class="row">
             <div class="col-12">
                 <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+                    <#resource code="dis_add">
                     <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i
                             class="fa fa-plus"></i> 新增
                     </button>
+                    </#resource>
                 </div>
                 <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-root-parent-id="-1" data-parent-id-field="parentId" data-query-params="queryParams" data-pagination="true" data-page-number="1" data-page-size="10" data-side-pagination="server">
                     <thead>
@@ -104,7 +106,20 @@
         </div>
     </div>
 </div>
-
+<script>
+    var hasEdit = false;
+    var hasDel = false;
+    var hasSplit = false;
+    <#resource code="dis_edit">
+            hasEdit = true;
+     </#resource>
+    <#resource code="dis_del">
+    hasDel = true;
+    </#resource>
+    <#resource code="dis_split">
+    hasSplit = true;
+    </#resource>
+</script>
 <script>
     let _grid = $('#grid');
 
@@ -129,18 +144,19 @@
             '划分区域',
             '</a>  '];
 
-        var oprate = [
-            '</a>  ',
-            '<a class="like" href="javascript:void(0)" onclick="openUpdateHandler(' + row.id + ')" title="Like">',
-            '修改',
-            '</a>  ',
-            '<a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">',
-            '删除'
-        ];
-        if (row.parentId === 0) {
-            return split.join("") + oprate.join("");
+        var edit =  '<a class="like" href="javascript:void(0)" onclick="openUpdateHandler(' + row.id + ')" title="Like">修改</a>';
+        var del = '<a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">删除</a>';
+        var oprate = '';
+        if(hasEdit){
+            oprate = oprate + edit;
+        }
+        if(hasDel){
+            oprate = oprate + del;
+        }
+        if (row.parentId === 0 && hasSplit) {
+            return split.join("") + oprate;
         } else {
-            return oprate.join("");
+            return oprate;
         }
     }
 

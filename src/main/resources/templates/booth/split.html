@@ -75,7 +75,7 @@
         <div class="row row-cols-4">
             <div class="form-group col-8">
                 <label for="">拆分备注</label>
-                <textarea class="form-control" id="notes" name="notes" rows="1" required></textarea>
+                <textarea class="form-control" id="notes" name="notes" rows="1" required maxlength="50"></textarea>
             </div>
         </div>
 
@@ -165,9 +165,12 @@
      * 添加摊位
      * */
     function addBoothItem() {
-        if ($('#boothTable tbody tr').length == 0 && number>0) {
+        if ($('#boothTable tbody tr').length == 0 && number > 0) {
             for (var i = 0; i < 2; i++) {
-                let n = number.div(2);
+                var n = number.div(2).toFixed(2)
+                if (i === 1) {
+                    n = (number - n).toFixed(2);
+                }
                 $('#boothTable tbody').append(HTMLDecode(template('boothItem', {
                     index: itemIndex,
                     name: $("#splitName").val() + "_" + ++itemIndex,
@@ -278,10 +281,10 @@
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i
                 class="fa fa-minus-square fa-lg"></i></a></td>
 
-        <td style="padding: .25rem!important;"><input type="text" id="name_{{index}}" name="names" value="{{name}}"
+        <td style="padding: .25rem!important;"><input required type="text" maxlength="20" id="name_{{index}}" name="names_{{index}}" value="{{name}}"
                                                       class="form-control"></td>
-        <td style="padding: .25rem!important;"><input type="text" id="number_{{index}}" name="numbers"
-                                                      value="{{number}}" class="form-control cal-number"></td>
+        <td style="padding: .25rem!important;"><input required type="number" range="0 999999.00" id="number_{{index}}" name="numbers_{{index}}"
+                                                      value="{{number}}" class="form-control cal-number floatReserve"></td>
     </tr>
 </script>
 

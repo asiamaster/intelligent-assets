@@ -258,26 +258,35 @@
                 data: {parentId: $(this).val()},
                 success: function (data) {
                     if (data.code == "200") {
-                        var array = $.map(data.data, function (obj) {
+                        var array = [];
+                        array.push({text:"-- 全部 --",id:""});
+                        var data = $.map(data.data, function (obj) {
                             obj.text = obj.text || obj.name;
                             return obj;
                         });
-                        if (array.length == 0) {
-                            $('#areaTwoList').html("")
-                        } else {
-                            $('#areaTwoList').html("")
-                            $("#areaTwoList").select2({
-                                language: 'zh-CN',
-                                data: array,
-                                width: "50%",
-                                minimumResultsForSearch: Infinity
-                            })
+                        for (var x in data) {
+                            array.push(data[x]);
                         }
+                        $('#areaTwoList').html("")
+                        $("#areaTwoList").select2({
+                            language: 'zh-CN',
+                            data: array,
+                            width: "50%",
+                            minimumResultsForSearch: Infinity
+                        })
                     }
                 }
             });
         } else {
-            $('#areaTwoList').html("")
+            $('#areaTwoList').html("");
+            var array = [];
+            array.push({text:"-- 全部 --",id:""});
+            $("#areaTwoList").select2({
+                language: 'zh-CN',
+                data: array,
+                width: "50%",
+                minimumResultsForSearch: Infinity
+            })
         }
 
     });
