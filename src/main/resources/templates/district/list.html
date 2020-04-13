@@ -140,12 +140,12 @@
     }
 
     function operateFormatter(value, row, index) {
-        var split = ['<a class="like" href="javascript:void(0)" onclick="openDivisionHandler(' + row.id + ')" title="Like">',
+        var split = [' <a class="like" href="javascript:void(0)" onclick="openDivisionHandler(' + row.id + ')" title="Like">',
             '划分区域',
             '</a>  '];
 
-        var edit =  '<a class="like" href="javascript:void(0)" onclick="openUpdateHandler(' + row.id + ')" title="Like">修改</a>';
-        var del = '<a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">删除</a>';
+        var edit =  ' <a class="like" href="javascript:void(0)" onclick="openUpdateHandler(' + row.id + ')" title="Like">修改</a>';
+        var del = ' <a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">删除</a>';
         var oprate = '';
         if(hasEdit){
             oprate = oprate + edit;
