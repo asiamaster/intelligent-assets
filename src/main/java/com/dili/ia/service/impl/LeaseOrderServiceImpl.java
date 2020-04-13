@@ -1313,7 +1313,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             }
 
-            recordDepositAmountRefundDetails(leaseOrder, leaseOrderItem);
+            if(leaseOrderItem.getDepositRefundAmount() > 0L){
+                recordDepositAmountRefundDetails(leaseOrder, leaseOrderItem);
+            }
         }
 
         //转抵扣充值
@@ -1344,7 +1346,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     public void recordDepositAmountRefundDetails(LeaseOrder leaseOrder, LeaseOrderItem leaseOrderItem) {
         TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.REFUND.getCode()
                 , BizTypeEnum.BOOTH_LEASE.getCode(), TransactionItemTypeEnum.DEPOSIT.getCode()
-                , leaseOrderItem.getDepositAmount(),leaseOrderItem.getId(),leaseOrderItem.getBoothName()
+                , leaseOrderItem.getDepositRefundAmount(),leaseOrderItem.getId(),leaseOrderItem.getBoothName()
                 ,leaseOrder.getCustomerId(),null,leaseOrder.getMarketId(),null,null);
         transactionDetailsService.insertSelective(transactionDetails);
     }
