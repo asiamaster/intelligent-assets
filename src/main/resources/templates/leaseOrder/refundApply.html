@@ -45,7 +45,7 @@
         <div class="row row-cols-4">
             <div class="form-group col align-items-end">
                 <label for="totalRefundAmount" class="">退款金额<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount" min="0" ${isNotEmpty(leaseOrderItem)?'readonly':''}/>
+                <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount" min="0" required ${isNotEmpty(leaseOrderItem)?'readonly':''}/>
             </div>
         </div>
         <hr>
@@ -106,8 +106,8 @@
         </div>
         <div class="row mt-1">
             <div class="form-group col-8">
-                <label for="refundReason">退款原因<i class="red">*</i></label>
-                <textarea class="form-control" id="refundReason" name="refundReason" rows="1" maxlength="50"></textarea>
+                <label for="refundReason">退款原因</label>
+                <textarea class="form-control" id="refundReason" name="refundReason" rows="1" maxlength="100"></textarea>
             </div>
         </div>
         <div class="text-right">
