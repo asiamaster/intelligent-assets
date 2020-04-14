@@ -23,6 +23,13 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
     BaseOutput saveLeaseOrder(LeaseOrderListDto dto);
 
     /**
+     * 客户状态检查
+     * @param customerId
+     * @param marketId
+     */
+    void checkCustomerState(Long customerId,Long marketId);
+
+    /**
      * 提交付款
      * @param id 租赁单ID
      * @param amount 交费金额

@@ -232,7 +232,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param customerId
      * @param marketId
      */
-    private void checkCustomerState(Long customerId,Long marketId){
+    public void checkCustomerState(Long customerId,Long marketId){
         BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR,"客户接口调用异常 "+output.getMessage());
@@ -241,9 +241,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if(null == customer){
             throw new BusinessException(ResultCode.DATA_ERROR,"客户不存在，请重新修改后保存");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"客户已禁用，请重新修改后保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户【" + customer.getName() + "】已禁用，请重新修改后保存");
         }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"客户已删除，请重新修改后保存");
+            throw new BusinessException(ResultCode.DATA_ERROR,"客户【" + customer.getName() + "】已删除，请重新修改后保存");
         }
     }
 

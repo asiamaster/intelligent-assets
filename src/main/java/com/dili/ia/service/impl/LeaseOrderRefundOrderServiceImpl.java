@@ -55,6 +55,14 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
+        TransferDeductionItem condition = DTOUtils.newInstance(TransferDeductionItem.class);
+        condition.setRefundOrderId(refundOrder.getId());
+        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(condition);
+        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
+            transferDeductionItems.forEach(o->{
+                leaseOrderService.checkCustomerState(o.getPayeeId(),refundOrder.getMarketId());
+            });
+        }
         return BaseOutput.success();
     }
 

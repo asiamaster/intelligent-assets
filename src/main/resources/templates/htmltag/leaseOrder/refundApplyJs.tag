@@ -158,10 +158,7 @@
 
     /*****************************************自定义事件区 begin************************************/
     $('#formSubmit').on('click', function (e) {
-        let validator = $('#refundApplyForm').validate({ignore:''})
-        if (!validator.form()) {
-            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
-            $('.collapse:not(.show)').addClass('show');
+        if (!$('#refundApplyForm').valid()) {
             return false;
         }
 
