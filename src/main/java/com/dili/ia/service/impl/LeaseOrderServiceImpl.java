@@ -1042,7 +1042,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             condition.setLeaseOrderId(leaseOrder.getId());
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
             //摊位租赁单退款申请条件检查
-            checkRefundApplyWithLeaseOrder(refundOrderDto, leaseOrder);
+            checkRefundApplyWithLeaseOrder(refundOrderDto, leaseOrder,userTicket);
 
             //判断缴费单是否需要撤回 需要撤回则撤回
             if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
@@ -1067,7 +1067,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             //订单项退款申请
             LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(refundOrderDto.getBusinessItemId());
             //摊位订单项退款申请条件检查
-            checkRufundApplyWithLeaseOrderItem(refundOrderDto, leaseOrderItem);
+            checkRufundApplyWithLeaseOrderItem(refundOrderDto, leaseOrderItem,userTicket);
 
             leaseOrderItem.setRefundState(RefundStateEnum.REFUNDING.getCode());
             leaseOrderItem.setRefundAmount(refundOrderDto.getTotalRefundAmount());
@@ -1106,9 +1106,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param refundOrderDto
      * @param leaseOrder
      */
-    private void checkRefundApplyWithLeaseOrder(RefundOrderDto refundOrderDto, LeaseOrder leaseOrder) {
+    private void checkRefundApplyWithLeaseOrder(RefundOrderDto refundOrderDto, LeaseOrder leaseOrder, UserTicket userTicket) {
         //收款人和转抵扣收款人客户状态验证
-        checkCustomerState(refundOrderDto.getPayeeId(),refundOrderDto.getMarketId());
+        checkCustomerState(refundOrderDto.getPayeeId(),userTicket.getFirmId());
         List<TransferDeductionItem> transferDeductionItems = refundOrderDto.getTransferDeductionItems();
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){
             for (TransferDeductionItem transferDeductionItem : transferDeductionItems
@@ -1133,9 +1133,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param refundOrderDto
      * @param leaseOrderItem
      */
-    private void checkRufundApplyWithLeaseOrderItem(RefundOrderDto refundOrderDto, LeaseOrderItem leaseOrderItem) {
+    private void checkRufundApplyWithLeaseOrderItem(RefundOrderDto refundOrderDto, LeaseOrderItem leaseOrderItem, UserTicket userTicket) {
         //收款人和转抵扣收款人客户状态验证
-        checkCustomerState(refundOrderDto.getPayeeId(),refundOrderDto.getMarketId());
+        checkCustomerState(refundOrderDto.getPayeeId(), userTicket.getFirmId());
         List<TransferDeductionItem> transferDeductionItems = refundOrderDto.getTransferDeductionItems();
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){
             for (TransferDeductionItem transferDeductionItem : transferDeductionItems
