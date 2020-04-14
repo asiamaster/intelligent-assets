@@ -246,10 +246,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
-        //检查收款人客户状态
-        checkCustomerState(efDto.getCustomerId(), userTicket.getFirmId());
-        //检查付款款人客户状态
-        checkCustomerState(efDto.getPayerId(), userTicket.getFirmId());
         CustomerAccount customerAccount = this.get(efDto.getPayerCustomerAccountId());
         if (customerAccount.getEarnestAvailableBalance() < efDto.getAmount()){
             return BaseOutput.failure("转移金额不能大于可用余额！");

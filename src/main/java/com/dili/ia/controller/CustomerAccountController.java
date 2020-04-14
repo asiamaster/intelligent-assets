@@ -1,17 +1,22 @@
 package com.dili.ia.controller;
 
+import com.dili.commons.glossary.EnabledStateEnum;
+import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.CustomerAccountListDto;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.glossary.TransactionItemTypeEnum;
+import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
@@ -47,7 +52,8 @@ public class CustomerAccountController {
     CustomerAccountService customerAccountService;
     @Autowired
     DataAuthService dataAuthService;
-
+    @Autowired
+    CustomerRpc customerRpc;
     /**
      * 跳转到CustomerAccount页面
      * @param modelMap
@@ -136,6 +142,16 @@ public class CustomerAccountController {
             if (efDto.getPayerId().equals(efDto.getCustomerId())){
                 return BaseOutput.failure("转移失败，不能转移给自己！");
             }
+            //检查收款人客户状态
+            BaseOutput checkResult  = checkCustomerState(efDto.getCustomerId(), userTicket.getFirmId());
+            //检查付款款人客户状态
+            BaseOutput checkResultPayer  = checkCustomerState(efDto.getPayerId(), userTicket.getFirmId());
+            if (!checkResult.isSuccess()){
+                return checkResult;
+            }
+            if (!checkResultPayer.isSuccess()){
+                return checkResultPayer;
+            }
             //判断转入方客户账户是否存在,不存在先创建客户账户
             if (!customerAccountService.checkCustomerAccountExist(efDto.getCustomerId(), userTicket.getFirmId())){
                 BaseOutput<CustomerAccount> cusOut = customerAccountService.addCustomerAccountByCustomerInfo(efDto.getCustomerId(), efDto.getCustomerName(), efDto.getCustomerCellphone(), efDto.getCertificateNumber());
@@ -168,6 +184,26 @@ public class CustomerAccountController {
         }
     }
 
+    /**
+     * 检查客户状态
+     * @param customerId
+     * @param marketId
+     */
+    private BaseOutput checkCustomerState(Long customerId,Long marketId){
+        BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
+        if(!output.isSuccess()){
+            return BaseOutput.failure("客户接口调用异常 "+output.getMessage());
+        }
+        Customer customer = output.getData();
+        if(null == customer){
+            return BaseOutput.failure("客户不存在，请核实和修改后再保存");
+        }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
+            return BaseOutput.failure("客户已禁用，请核实和修改后再保存");
+        }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
+            return BaseOutput.failure("客户已删除，请核实和修改后再保存");
+        }
+        return BaseOutput.success();
+    }
     /**
      * 账户余额查询
      * @param customerId
