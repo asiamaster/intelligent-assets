@@ -1,6 +1,7 @@
 package com.dili.ia.domain;
 
 import com.dili.ss.dto.IBaseDomain;
+import com.dili.ss.dto.IMybatisForceParams;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
@@ -19,7 +20,7 @@ import javax.persistence.Id;
  * This file was generated on 2020-02-11 15:54:49.
  */
 @Table(name = "`lease_order`")
-public interface LeaseOrder extends IBaseDomain {
+public interface LeaseOrder extends IBaseDomain, IMybatisForceParams {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`id`")

@@ -16,7 +16,7 @@ import java.util.List;
  * 租赁订单列表查询dto
  * This file was generated on 2020-02-11 15:54:49.
  */
-public interface LeaseOrderListDto extends LeaseOrder, IMybatisForceParams {
+public interface LeaseOrderListDto extends LeaseOrder{
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
     Date getCreatedStart();

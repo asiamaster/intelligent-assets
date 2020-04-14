@@ -136,7 +136,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             }
             dto.setVersion(oldLeaseOrder.getVersion());
             dto.setWaitAmount(dto.getPayAmount());
-            if (updateExact(dto) == 0) {
+            if (updateExactSimple(dto) == 0) {
                 LOG.info("摊位租赁单修改异常,乐观锁生效 【租赁单编号:{}】", dto.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
@@ -908,6 +908,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      */
     @Override
     public BaseOutput<Boolean> scanEffectiveLeaseOrder() {
+        LOG.info("=========================摊位租赁生效处理调度执行 begin====================================");
         while (true) {
             LeaseOrderListDto condition = DTOUtils.newInstance(LeaseOrderListDto.class);
             condition.setStartTimeLT(new Date());
@@ -928,7 +929,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             });
         }
-        LOG.info("摊位租赁生效处理调度执行完毕");
+        LOG.info("=========================摊位租赁生效处理调度执行 end====================================");
         return BaseOutput.success().setData(true);
     }
 
@@ -970,6 +971,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      */
     @Override
     public BaseOutput<Boolean> scanExpiredLeaseOrder() {
+        LOG.info("=========================摊位租赁到期处理调度执行 begin====================================");
         while (true) {
             LeaseOrderListDto condition = DTOUtils.newInstance(LeaseOrderListDto.class);
             condition.setEndTimeLT(new Date());
@@ -990,7 +992,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             });
         }
-        LOG.info("摊位租赁到期处理调度执行完毕");
+        LOG.info("=========================摊位租赁到期处理调度执行 end====================================");
         return BaseOutput.success().setData(true);
     }
 
