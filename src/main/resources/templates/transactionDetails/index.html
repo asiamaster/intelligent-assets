@@ -58,7 +58,7 @@
 
             <table id="grid" data-toggle="table" data-title="客户余额明细" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"
-                   data-query-params="queryParams" data-side-pagination="ajax" data-method="POST"
+                   data-query-params="queryParams" data-side-pagination="server" data-method="POST"
                    data-content-type="application/x-www-form-urlencoded" data-single-select="true"
                    data-click-to-select="true" data-unique-id="id" data-sort-name="id"
                    data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
@@ -69,10 +69,10 @@
                     <th data-field="createTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
                         时间
                     </th>
-                    <th data-field="itemType" data-sortable="true" data-align="center" data-provider="transactionItemTypeProvider">
+                    <th data-field="itemType" data-sortable="true" data-sort-name="item_type" data-align="center" data-provider="transactionItemTypeProvider">
                         类型
                     </th>
-                    <th data-field="sceneType" data-sortable="true" data-align="center" data-provider="transactionSceneTypeProvider">
+                    <th data-field="sceneType" data-sortable="true" data-sort-name="scene_type" data-align="center" data-provider="transactionSceneTypeProvider">
                         场景
                     </th>
                     <th data-field="amount" data-sortable="true" data-align="center" data-provider="sceneMoneyProvider">
