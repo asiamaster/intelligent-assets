@@ -1113,7 +1113,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){
             for (TransferDeductionItem transferDeductionItem : transferDeductionItems
             ) {
-                checkCustomerState(transferDeductionItem.getPayeeId(), refundOrderDto.getMarketId());
+                checkCustomerState(transferDeductionItem.getPayeeId(), userTicket.getFirmId());
             }
         }
         if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
@@ -1140,7 +1140,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){
             for (TransferDeductionItem transferDeductionItem : transferDeductionItems
             ) {
-                checkCustomerState(transferDeductionItem.getPayeeId(), refundOrderDto.getMarketId());
+                checkCustomerState(transferDeductionItem.getPayeeId(), userTicket.getFirmId());
             }
         }
         //已到期或已停租状态才能发起退款申请
