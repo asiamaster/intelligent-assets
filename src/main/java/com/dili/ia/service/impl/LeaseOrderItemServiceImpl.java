@@ -153,6 +153,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
      */
     @Override
     public BaseOutput<Boolean> scanWaitStopRentLeaseOrder() {
+        LOG.info("=========================摊位租赁停租处理调度执行 begin====================================");
         while (true) {
             LeaseOrderItemListDto condition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
             condition.setStopRentState(StopRentStateEnum.WAIT_TIMER_EXE.getCode());
@@ -173,7 +174,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
                 }
             });
         }
-        LOG.info("摊位租赁停租处理调度执行完毕");
+        LOG.info("=========================摊位租赁停租处理调度执行 end====================================");
         return BaseOutput.success().setData(true);
     }
 

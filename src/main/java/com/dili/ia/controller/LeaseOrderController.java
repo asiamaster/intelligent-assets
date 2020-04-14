@@ -168,9 +168,8 @@ public class LeaseOrderController {
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
             modelMap.put("leaseOrder",leaseOrder);
             modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
-        }else{
-            modelMap.put("isRenew", IsRenewEnum.NO.getCode());
         }
+        modelMap.put("isRenew", IsRenewEnum.NO.getCode());
         return "leaseOrder/preSave";
     }
 

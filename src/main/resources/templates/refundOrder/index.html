@@ -17,11 +17,11 @@
             </div>
             <div class="form-group col">
                 <label for="likeCustomerName">客户名称:</label>
-                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName"/>
+                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
             </div>
             <div class="form-group col">
                 <label for="code">退款单编号:</label>
-                <input type="text" class="form-control" name="code" id="code"/>
+                <input type="text" class="form-control" name="code" id="code" maxlength="50"/>
             </div>
             <div class="form-group col-auto">
                 <label for="createdStart">创建时间:</label>
@@ -92,6 +92,9 @@
         </th>
         <th data-field="totalRefundAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
             退款金额
+        </th>
+        <th data-field="payee" data-sortable="true" data-align="center">
+            收款人
         </th>
         <th data-field="state" data-sortable="true" data-provider="refundOrderStateProvider" data-align="center">
             状态

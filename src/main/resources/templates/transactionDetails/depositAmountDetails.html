@@ -29,19 +29,19 @@
             </div>
             <div class="form-group col">
                 <label for="likeCustomerName">客户名称:</label>
-                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName"/>
+                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
             </div>
             <div class="form-group col">
                 <label for="likeCustomerName">业务编号:</label>
-                <input type="text" class="form-control" name="orderCode"/>
+                <input type="text" class="form-control" name="orderCode" maxlength="50"/>
             </div>
             <div class="form-group col">
                 <label for="customerCellphone">联系电话:</label>
-                <input type="text" class="form-control" name="customerCellphone" id="customerCellphone"/>
+                <input type="text" class="form-control" name="customerCellphone" id="customerCellphone" maxlength="50"/>
             </div>
             <div class="form-group col">
                 <label for="certificateNumber">证件号码:</label>
-                <input type="text" class="form-control" name="certificateNumber" id="certificateNumber"/>
+                <input type="text" class="form-control" name="certificateNumber" id="certificateNumber" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
@@ -67,8 +67,8 @@
                     <th data-field="createTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
                         时间
                     </th>
-                    <th data-field="code" data-sortable="true" data-align="center">
-                        流水编号
+                    <th data-field="orderId" data-sortable="true" data-align="center">
+                        业务ID
                     </th>
                     <th data-field="orderCode" data-sortable="true" data-align="center">
                         业务编号

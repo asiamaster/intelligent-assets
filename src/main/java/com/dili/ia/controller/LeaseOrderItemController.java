@@ -87,7 +87,7 @@ public class LeaseOrderItemController {
                 return BaseOutput.failure("参数错误");
             }
             BaseOutput output = leaseOrderItemService.stopRent(leaseOrderItem);
-            LoggerUtil.buildLoggerContext(leaseOrderItem.getId(),leaseOrderItem.getLeaseOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),leaseOrderItem.getStopReason());
+            LoggerUtil.buildLoggerContext(leaseOrderItem.getLeaseOrderId(),leaseOrderItem.getLeaseOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),leaseOrderItem.getStopReason());
             return output;
         }catch (BusinessException e){
             LOG.info("摊位停租异常！", e);

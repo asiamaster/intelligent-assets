@@ -136,7 +136,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             }
             dto.setVersion(oldLeaseOrder.getVersion());
             dto.setWaitAmount(dto.getPayAmount());
-            if (updateExact(dto) == 0) {
+            if (updateExactSimple(dto) == 0) {
                 LOG.info("摊位租赁单修改异常,乐观锁生效 【租赁单编号:{}】", dto.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
@@ -277,20 +277,20 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         /*****************************更新缴费单相关字段 end*************************/
 
         LeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
-        //第一次消费，需要抵扣保证金、定金、转低金
+        //第一次消费，需要抵扣保证金、定金、转抵金
         if (LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             //第一笔消费抵扣保证金
             if(leaseOrder.getDepositDeduction() > 0L){
                 deductionLeaseOrderItemDepositAmount(leaseOrder);
             }
-            //消费定金、转低
+            //消费定金、转抵
             BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(
                     leaseOrder.getId(), leaseOrder.getCode(),
                     leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(),
                     leaseOrder.getTransferDeduction(),
                     leaseOrder.getMarketId(),settleOrder.getOperatorId(),settleOrder.getOperatorName());
             if(!customerAccountOutput.isSuccess()){
-                LOG.info("结算成功，消费定金、转低接口异常 【租赁单编号:{},定金:{},转抵:{}】", leaseOrder.getCode(),leaseOrder.getEarnestDeduction(),leaseOrder.getTransferDeduction());
+                LOG.info("结算成功，消费定金、转抵接口异常 【租赁单编号:{},定金:{},转抵:{}】", leaseOrder.getCode(),leaseOrder.getEarnestDeduction(),leaseOrder.getTransferDeduction());
                 throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
             }
             //解冻出租摊位
@@ -417,17 +417,17 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             if(leaseOrder.getDepositDeduction() > 0L){
                 frozenLeaseOrderItemDepositAmount(leaseOrder);
             }
-            //冻结定金和转低
+            //冻结定金和转抵
             BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
                     leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
                     leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(),
                     leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
             if(!customerAccountOutput.isSuccess()){
-                LOG.info("冻结定金和转低异常【编号：{}】", leaseOrder.getCode());
+                LOG.info("冻结定金和转抵异常【编号：{}】", leaseOrder.getCode());
                 if(ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())){
                     throw new BusinessException(ResultCode.DATA_ERROR,"客户定金可用金额不足，请核实修改后重新保存");
                 }else if(ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())){
-                    throw new BusinessException(ResultCode.DATA_ERROR,"客户转低可用金额不足，请核实修改后重新保存");
+                    throw new BusinessException(ResultCode.DATA_ERROR,"客户转抵可用金额不足，请核实修改后重新保存");
                 }else{
                     throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
                 }
@@ -908,6 +908,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      */
     @Override
     public BaseOutput<Boolean> scanEffectiveLeaseOrder() {
+        LOG.info("=========================摊位租赁生效处理调度执行 begin====================================");
         while (true) {
             LeaseOrderListDto condition = DTOUtils.newInstance(LeaseOrderListDto.class);
             condition.setStartTimeLT(new Date());
@@ -928,7 +929,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             });
         }
-        LOG.info("摊位租赁生效处理调度执行完毕");
+        LOG.info("=========================摊位租赁生效处理调度执行 end====================================");
         return BaseOutput.success().setData(true);
     }
 
@@ -970,6 +971,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      */
     @Override
     public BaseOutput<Boolean> scanExpiredLeaseOrder() {
+        LOG.info("=========================摊位租赁到期处理调度执行 begin====================================");
         while (true) {
             LeaseOrderListDto condition = DTOUtils.newInstance(LeaseOrderListDto.class);
             condition.setEndTimeLT(new Date());
@@ -990,7 +992,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             });
         }
-        LOG.info("摊位租赁到期处理调度执行完毕");
+        LOG.info("=========================摊位租赁到期处理调度执行 end====================================");
         return BaseOutput.success().setData(true);
     }
 
@@ -1039,17 +1041,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             LeaseOrderItem condition = DTOUtils.newInstance(LeaseOrderItem.class);
             condition.setLeaseOrderId(leaseOrder.getId());
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.listByExample(condition);
-
-            if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
-                throw new BusinessException(ResultCode.DATA_ERROR,"租赁单状态已发生变更，不能发起退款申请");
-            }
-            if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())){
-                throw new BusinessException(ResultCode.DATA_ERROR,"租赁单费用已交清不能，只能在租赁摊位上进行退款");
-            }
-            //退款总金额不能大于未交清可退金额 （已交金额+所有抵扣项）
-            if (refundOrderDto.getTotalRefundAmount() > (leaseOrder.getPaidAmount() + leaseOrder.getDepositDeduction() + leaseOrder.getEarnestDeduction() + leaseOrder.getTransferDeduction())) {
-                throw new BusinessException(ResultCode.DATA_ERROR,"退款总金额不能大于可退金额");
-            }
+            //摊位租赁单退款申请条件检查
+            checkRefundApplyWithLeaseOrder(refundOrderDto, leaseOrder,userTicket);
 
             //判断缴费单是否需要撤回 需要撤回则撤回
             if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
@@ -1073,29 +1066,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }else{
             //订单项退款申请
             LeaseOrderItem leaseOrderItem = leaseOrderItemService.get(refundOrderDto.getBusinessItemId());
-            //已到期或已停租状态才能发起退款申请
-            if (LeaseOrderItemStateEnum.EXPIRED.getCode().equals(leaseOrderItem.getState()) && LeaseOrderItemStateEnum.RENTED_OUT.getCode().equals(leaseOrderItem.getState())) {
-                throw new BusinessException(ResultCode.DATA_ERROR,"摊位项状态已发生变更，不能发起退款申请");
-            }
-            if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrderItem.getRefundState())){
-                throw new BusinessException(ResultCode.DATA_ERROR,"摊位项状态已发生变更，不能发起退款申请");
-            }
-            //保证金已转入状态才可退
-            if(refundOrderDto.getDepositRefundAmount() > 0 && !leaseOrderItem.getDepositAmountFlag().equals(DepositAmountFlagEnum.TRANSFERRED.getCode())){
-                throw new BusinessException(ResultCode.DATA_ERROR,"摊位保证金状态已发生变更，不能进行退款，请修改");
-            }
-            if(refundOrderDto.getRentRefundAmount() > leaseOrderItem.getRentAmount()){
-                throw new BusinessException(ResultCode.DATA_ERROR,"租金退款额大于可退款额");
-            }
-            if(refundOrderDto.getDepositRefundAmount() > leaseOrderItem.getDepositAmount()){
-                throw new BusinessException(ResultCode.DATA_ERROR,"保证金退款额大于可退款额");
-            }
-            if(refundOrderDto.getManageRefundAmount() > leaseOrderItem.getManageAmount()){
-                throw new BusinessException(ResultCode.DATA_ERROR,"物管费退款额大于可退款额");
-            }
-            if(!refundOrderDto.getTotalRefundAmount().equals(refundOrderDto.getRentRefundAmount() + refundOrderDto.getDepositRefundAmount() + refundOrderDto.getManageRefundAmount())){
-                throw new BusinessException(ResultCode.DATA_ERROR,"退款金额分配错误，请重新修改再保存");
-            }
+            //摊位订单项退款申请条件检查
+            checkRufundApplyWithLeaseOrderItem(refundOrderDto, leaseOrderItem,userTicket);
 
             leaseOrderItem.setRefundState(RefundStateEnum.REFUNDING.getCode());
             leaseOrderItem.setRefundAmount(refundOrderDto.getTotalRefundAmount());
@@ -1127,6 +1099,73 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             });
         }
         return BaseOutput.success();
+    }
+
+    /**
+     * 摊位租赁单退款申请条件检查
+     * @param refundOrderDto
+     * @param leaseOrder
+     */
+    private void checkRefundApplyWithLeaseOrder(RefundOrderDto refundOrderDto, LeaseOrder leaseOrder, UserTicket userTicket) {
+        //收款人和转抵扣收款人客户状态验证
+        checkCustomerState(refundOrderDto.getPayeeId(),userTicket.getFirmId());
+        List<TransferDeductionItem> transferDeductionItems = refundOrderDto.getTransferDeductionItems();
+        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
+            for (TransferDeductionItem transferDeductionItem : transferDeductionItems
+            ) {
+                checkCustomerState(transferDeductionItem.getPayeeId(), refundOrderDto.getMarketId());
+            }
+        }
+        if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
+            throw new BusinessException(ResultCode.DATA_ERROR,"租赁单状态已发生变更，不能发起退款申请");
+        }
+        if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())){
+            throw new BusinessException(ResultCode.DATA_ERROR,"租赁单费用已交清不能，只能在租赁摊位上进行退款");
+        }
+        //退款总金额不能大于未交清可退金额 （已交金额+所有抵扣项）
+        if (refundOrderDto.getTotalRefundAmount() > (leaseOrder.getPaidAmount() + leaseOrder.getDepositDeduction() + leaseOrder.getEarnestDeduction() + leaseOrder.getTransferDeduction())) {
+            throw new BusinessException(ResultCode.DATA_ERROR,"退款总金额不能大于可退金额");
+        }
+    }
+
+    /**
+     * 摊位订单项退款申请条件检查
+     * @param refundOrderDto
+     * @param leaseOrderItem
+     */
+    private void checkRufundApplyWithLeaseOrderItem(RefundOrderDto refundOrderDto, LeaseOrderItem leaseOrderItem, UserTicket userTicket) {
+        //收款人和转抵扣收款人客户状态验证
+        checkCustomerState(refundOrderDto.getPayeeId(), userTicket.getFirmId());
+        List<TransferDeductionItem> transferDeductionItems = refundOrderDto.getTransferDeductionItems();
+        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
+            for (TransferDeductionItem transferDeductionItem : transferDeductionItems
+            ) {
+                checkCustomerState(transferDeductionItem.getPayeeId(), refundOrderDto.getMarketId());
+            }
+        }
+        //已到期或已停租状态才能发起退款申请
+        if (LeaseOrderItemStateEnum.EXPIRED.getCode().equals(leaseOrderItem.getState()) && LeaseOrderItemStateEnum.RENTED_OUT.getCode().equals(leaseOrderItem.getState())) {
+            throw new BusinessException(ResultCode.DATA_ERROR,"摊位项状态已发生变更，不能发起退款申请");
+        }
+        if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrderItem.getRefundState())){
+            throw new BusinessException(ResultCode.DATA_ERROR,"摊位项状态已发生变更，不能发起退款申请");
+        }
+        //保证金已转入状态才可退
+        if(refundOrderDto.getDepositRefundAmount() > 0 && !leaseOrderItem.getDepositAmountFlag().equals(DepositAmountFlagEnum.TRANSFERRED.getCode())){
+            throw new BusinessException(ResultCode.DATA_ERROR,"摊位保证金状态已发生变更，不能进行退款，请修改");
+        }
+        if(refundOrderDto.getRentRefundAmount() > leaseOrderItem.getRentAmount()){
+            throw new BusinessException(ResultCode.DATA_ERROR,"租金退款额大于可退款额");
+        }
+        if(refundOrderDto.getDepositRefundAmount() > leaseOrderItem.getDepositAmount()){
+            throw new BusinessException(ResultCode.DATA_ERROR,"保证金退款额大于可退款额");
+        }
+        if(refundOrderDto.getManageRefundAmount() > leaseOrderItem.getManageAmount()){
+            throw new BusinessException(ResultCode.DATA_ERROR,"物管费退款额大于可退款额");
+        }
+        if(!refundOrderDto.getTotalRefundAmount().equals(refundOrderDto.getRentRefundAmount() + refundOrderDto.getDepositRefundAmount() + refundOrderDto.getManageRefundAmount())){
+            throw new BusinessException(ResultCode.DATA_ERROR,"退款金额分配错误，请重新修改再保存");
+        }
     }
 
     @Override
@@ -1299,7 +1338,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             for (LeaseOrderItem orderItem : leaseOrderItems) {
                 if (orderItem.getId().equals(refundOrder.getBusinessItemId())) {
                     continue;
-                } else if (LeaseOrderItemStateEnum.REFUNDED.getCode().equals(orderItem.getState())) {
+                } else if (!LeaseOrderItemStateEnum.REFUNDED.getCode().equals(orderItem.getState())) {
                     isUpdateLeaseOrderState = false;
                     break;
                 }
@@ -1313,7 +1352,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 }
             }
 
-            recordDepositAmountRefundDetails(leaseOrder, leaseOrderItem);
+            if(leaseOrderItem.getDepositRefundAmount() > 0L){
+                recordDepositAmountRefundDetails(leaseOrder, leaseOrderItem);
+            }
         }
 
         //转抵扣充值
@@ -1326,7 +1367,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                         refundOrder.getId(),refundOrder.getCode(),o.getPayeeId(),o.getPayeeAmount(),
                         refundOrder.getMarketId(),refundOrder.getRefundOperatorId(),refundOrder.getRefundOperator());
                 if(!accountOutput.isSuccess()){
-                    LOG.info("退款单转低异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】",refundOrder.getCode(),o.getPayee(),o.getPayeeAmount(),accountOutput.getMessage());
+                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】",refundOrder.getCode(),o.getPayee(),o.getPayeeAmount(),accountOutput.getMessage());
                     throw new BusinessException(ResultCode.DATA_ERROR,accountOutput.getMessage());
                 }
             });
@@ -1344,7 +1385,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     public void recordDepositAmountRefundDetails(LeaseOrder leaseOrder, LeaseOrderItem leaseOrderItem) {
         TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.REFUND.getCode()
                 , BizTypeEnum.BOOTH_LEASE.getCode(), TransactionItemTypeEnum.DEPOSIT.getCode()
-                , leaseOrderItem.getDepositAmount(),leaseOrderItem.getId(),leaseOrderItem.getBoothName()
+                , leaseOrderItem.getDepositRefundAmount(),leaseOrderItem.getId(),leaseOrderItem.getBoothName()
                 ,leaseOrder.getCustomerId(),null,leaseOrder.getMarketId(),null,null);
         transactionDetailsService.insertSelective(transactionDetails);
     }

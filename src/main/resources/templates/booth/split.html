@@ -246,6 +246,16 @@
             }
             bui.loading.show('努力提交中，请稍候。。。');
             let _formData = new FormData($('#splitForm')[0]);
+            var entries = _formData.entries();
+            while(true){
+                let next = entries.next();
+                if(next.done){
+                    break;
+                }
+                if(next.value[0].split("_").length > 1){
+                    _formData.append(next.value[0].split("_")[0],next.value[1]);
+                }
+            }
             $.ajax({
                 type: "POST",
                 url: "${contextPath}/booth/split.action",
