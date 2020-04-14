@@ -1,14 +1,34 @@
+<div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+
+    <button type="button" class="btn btn-primary" onclick="tableUpdateClickHandler()">
+        <i class="fa fa-pencil-square-o"></i>修改
+    </button>
+
+    <button type="button" class="btn btn-primary" onclick="tableDeleteClickHandler()">
+        <i class="fa fa-pencil-square-o"></i>删除
+    </button>
+
+    <button type="button" class="btn btn-primary" onclick="tableUnFreezeClickHandler()">
+        <i class="fa fa-pencil-square-o"></i>启用
+    </button>
+
+    <button type="button" class="btn btn-primary" onclick="tableFreezeClickHandler()">
+        <i class="fa fa-pencil-square-o"></i>禁用
+    </button>
+
+</div>
 <table class="table table-bordered">
     <tr>
+        <th scope="col"></th>
         <th scope="col">品类名称</th>
         <th scope="col">品类代码</th>
         <th scope="col">拼音全写</th>
         <th scope="col">拼音简写</th>
         <th scope="col">状态</th>
-        <th scope="col">操作</th>
     </tr>
     <% for(o in obj) { %>
-    <tr>
+    <tr data-name="${o.name!}">
+        <td style="text-align: center"><input type="radio" value="${o.id}" name="ck"/></td>
         <td>${o.name!}</td>
         <td>${o.code!}</td>
         <td>${o.pingying!}</td>
@@ -21,25 +41,31 @@
             已禁用
             <% }%>
         </td>
-        <td>
-            <a href="javascript:;" onclick="tableUpdateClickHandler(${o.id});return false;">修改</a>
-            <a href="javascript:;"
-               onclick="tableDeleteClickHandler(${o.id},'${o.name}','${o.code}');return false;">删除</a>
-            <a href="javascript:;" onclick="tableFreezeClickHandler(${o.id},'$o.code');return false;">禁用</a>
-            <a href="javascript:;" onclick="tableUnFreezeClickHandler(${o.id},'$o.code');return false;">启用</a>
-        </td>
     </tr>
     <% } %>
 </table>
 
 <script type="text/javascript">
     function tableUpdateClickHandler(id) {
+        let size = $("input[name='ck']:checked").length;
+        if (size === 0){
+            tips("提示", "请选择一条数据!");
+            return;
+        }
+        id = $("input[name='ck']:checked").val();
         $("#editModal").modal();
 
         $('#editModal .modal-body').load("/category/editView.html?id=" + id);
     }
 
     function tableDeleteClickHandler(id, name, code) {
+        let size = $("input[name='ck']:checked").length;
+        if (size === 0){
+            tips("提示", "请选择一条数据!");
+            return;
+        }
+        id = $("input[name='ck']:checked").val();
+        name = $("input[name='ck']:checked").closest('tr').attr("data-name");
         var msg = '删除后，其下关联的子品类将一并删除！确定' + '<span class="red">删除</span>品类<span class="red">' + name + '</span>' + '？';
 
         bs4pop.confirm(msg, {title: "确认提示"}, function (sure) {
@@ -70,6 +96,12 @@
     }
 
     function tableFreezeClickHandler(id, code) {
+        let size = $("input[name='ck']:checked").length;
+        if (size === 0){
+            tips("提示", "请选择一条数据!");
+            return;
+        }
+        id = $("input[name='ck']:checked").val();
         var msg = '该操作将禁用所有子品类,请确定?';
         bs4pop.confirm(msg, {title: "确认提示"}, function (sure) {
             if (sure) {
@@ -98,6 +130,12 @@
     }
 
     function tableUnFreezeClickHandler(id, code) {
+        let size = $("input[name='ck']:checked").length;
+        if (size === 0){
+            tips("提示", "请选择一条数据!");
+            return;
+        }
+        id = $("input[name='ck']:checked").val();
         var msg = '该操作将启用所有子品类,请确定?';
         bs4pop.confirm(msg, {title: "确认提示"}, function (sure) {
             if (sure) {
