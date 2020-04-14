@@ -1,5 +1,7 @@
 package com.dili.ia.service.impl;
 
+import com.dili.commons.glossary.EnabledStateEnum;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.PrintDataDto;
@@ -176,6 +178,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
+        //检查客户状态
+        checkCustomerState(refundOrder.getCustomerId(), userTicket.getFirmId());
+        //检查收款人客户状态
+        checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
         refundOrder.setState(RefundOrderStateEnum.SUBMITTED.getCode());
         refundOrder.setSubmitTime(new Date());
         refundOrder.setSubmitterId(userTicket.getId());
@@ -202,6 +208,26 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
 
         return BaseOutput.success("提交成功");
+    }
+
+    /**
+     * 检查客户状态
+     * @param customerId
+     * @param marketId
+     */
+    private void checkCustomerState(Long customerId,Long marketId){
+        BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
+        if(!output.isSuccess()){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 "+output.getMessage());
+        }
+        Customer customer = output.getData();
+        if(null == customer){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实和修改后再保存");
+        }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实和修改后再保存");
+        }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实和修改后再保存");
+        }
     }
 
     //组装 -- 结算中心缴费单 SettleOrder

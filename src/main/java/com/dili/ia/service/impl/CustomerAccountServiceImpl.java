@@ -1,5 +1,7 @@
 package com.dili.ia.service.impl;
 
+import com.dili.commons.glossary.EnabledStateEnum;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.glossary.*;
@@ -244,6 +246,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
+        //检查收款人客户状态
+        checkCustomerState(efDto.getCustomerId(), userTicket.getFirmId());
+        //检查付款款人客户状态
+        checkCustomerState(efDto.getPayerId(), userTicket.getFirmId());
         CustomerAccount customerAccount = this.get(efDto.getPayerCustomerAccountId());
         if (customerAccount.getEarnestAvailableBalance() < efDto.getAmount()){
             return BaseOutput.failure("转移金额不能大于可用余额！");
@@ -287,6 +293,8 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
         }
+        //检查客户状态
+        checkCustomerState(order.getCustomerId(), userTicket.getFirmId());
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(order.getCustomerId(), userTicket.getFirmId());
         if (null == customerAccount){
             LOG.info("客户账户退款申请，客户账户【{}】在市场【{}:{}】不存在！", order.getCustomerId(), userTicket.getFirmId(), userTicket.getFirmCode());
@@ -304,6 +312,25 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         return refundOrderService.doAddHandler(order);
     }
 
+    /**
+     * 检查客户状态
+     * @param customerId
+     * @param marketId
+     */
+    private void checkCustomerState(Long customerId,Long marketId){
+        BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
+        if(!output.isSuccess()){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 "+output.getMessage());
+        }
+        Customer customer = output.getData();
+        if(null == customer){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实和修改后再保存");
+        }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实和修改后再保存");
+        }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实和修改后再保存");
+        }
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
