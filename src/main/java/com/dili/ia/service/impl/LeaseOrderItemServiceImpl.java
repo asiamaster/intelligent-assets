@@ -11,6 +11,7 @@ import com.dili.ia.mapper.LeaseOrderItemMapper;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -63,8 +64,14 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         leaseOrderItem.setStopOperatorId(userTicket.getId());
         leaseOrderItem.setStopOperatorName(userTicket.getRealName());
         LeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
+        if(!StopRentStateEnum.NO_APPLY.getCode().equals(leaseOrderItemOld.getStopRentState())){
+            throw new BusinessException(ResultCode.DATA_ERROR,"已发起过停租，不能多次发起停租");
+        }
         if(!PayStateEnum.PAID.getCode().equals(leaseOrderItemOld.getPayState())){
             throw new BusinessException(ResultCode.DATA_ERROR,"只有费用已交清后才能停租");
+        }
+        if(!(LeaseOrderItemStateEnum.NOT_ACTIVE.getCode().equals(leaseOrderItemOld.getState()) || LeaseOrderItemStateEnum.EFFECTIVE.getCode().equals(leaseOrderItemOld.getState()))){
+            throw new BusinessException(ResultCode.DATA_ERROR,"状态已变更，不能进行停租操作");
         }
         if(StopWayEnum.IMMEDIATELY.getCode().equals(leaseOrderItem.getStopWay())){//立即停租
             leaseOrderItem.setStopTime(new Date());
@@ -99,6 +106,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
             LOG.info("摊位订单项停租异常,乐观锁生效【订单项ID:{},摊位名称:{}】", leaseOrderItemOld.getId(), leaseOrderItemOld.getBoothName());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
+        LoggerUtil.buildLoggerContext(leaseOrderItemOld.getLeaseOrderId(),leaseOrderItemOld.getLeaseOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),leaseOrderItem.getStopReason());
         return BaseOutput.success();
     }
 

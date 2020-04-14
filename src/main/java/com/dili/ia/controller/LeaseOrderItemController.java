@@ -72,7 +72,7 @@ public class LeaseOrderItemController {
      * @param leaseOrderItem
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${boothName}",operationType="stopLease",systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${boothName} ${isNotEmpty(stopTime)?'停租时间:'+stopTime : ''}",operationType="stopLease",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/stopRent.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput stopRent(LeaseOrderItem leaseOrderItem){
         try {
@@ -87,7 +87,6 @@ public class LeaseOrderItemController {
                 return BaseOutput.failure("参数错误");
             }
             BaseOutput output = leaseOrderItemService.stopRent(leaseOrderItem);
-            LoggerUtil.buildLoggerContext(leaseOrderItem.getLeaseOrderId(),leaseOrderItem.getLeaseOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),leaseOrderItem.getStopReason());
             return output;
         }catch (BusinessException e){
             LOG.info("摊位停租异常！", e);
