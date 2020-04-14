@@ -210,14 +210,21 @@ public class RefundOrderController {
     @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
-        RefundOrder refundOrder = refundOrderService.get(id);
-        BaseOutput output = refundOrderService.doCancelDispatcher(refundOrder);
+        try {
+            RefundOrder refundOrder = refundOrderService.get(id);
+            BaseOutput output = refundOrderService.doCancelDispatcher(refundOrder);
 
-        if (output.isSuccess()){
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(refundOrder.getId(), refundOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-
+            if (output.isSuccess()){
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(refundOrder.getId(), refundOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+            return output;
+        } catch (BusinessException e) {
+            LOG.error("退款单取消失败！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        } catch (Exception e) {
+            LOG.error("退款单取消出错！", e);
+            return BaseOutput.failure("取消出错！");
         }
-        return BaseOutput.success("取消成功");
     }
 }
