@@ -95,23 +95,23 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
                 checkBoothState(o.getAssetsId());
             });
         }
-        earnestOrder.setCreatorId(userTicket.getId());
-        earnestOrder.setCreator(userTicket.getRealName());
-        earnestOrder.setMarketId(userTicket.getFirmId());
         BaseOutput<Department> depOut = departmentRpc.get(earnestOrder.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
-        earnestOrder.setDepartmentName(depOut.getData().getName());
-        earnestOrder.setState(EarnestOrderStateEnum.CREATED.getCode());
-        earnestOrder.setAssetsType(AssetsTypeEnum.BOOTH.getCode());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
             LOGGER.info("编号生成失败!" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成失败!");
         }
         earnestOrder.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+        earnestOrder.setCreatorId(userTicket.getId());
+        earnestOrder.setCreator(userTicket.getRealName());
+        earnestOrder.setMarketId(userTicket.getFirmId());
+        earnestOrder.setDepartmentName(depOut.getData().getName());
+        earnestOrder.setState(EarnestOrderStateEnum.CREATED.getCode());
+        earnestOrder.setAssetsType(AssetsTypeEnum.BOOTH.getCode());
         earnestOrder.setVersion(0L);
         this.insertSelective(earnestOrder);
         insertEarnestOrderDetails(earnestOrder);
@@ -209,6 +209,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     private EarnestOrder buildUpdateDto(EarnestOrder dto){
         EarnestOrder earnestOrder = this.get(dto.getId());
+        BaseOutput<Department> depOut = departmentRpc.get(dto.getDepartmentId());
+        if(!depOut.isSuccess()){
+            LOGGER.info("获取部门失败！" + depOut.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
+        }
+        earnestOrder.setDepartmentName(depOut.getData().getName());
         earnestOrder.setCustomerId(dto.getCustomerId());
         earnestOrder.setCustomerName(dto.getCustomerName());
         earnestOrder.setCertificateNumber(dto.getCertificateNumber());
@@ -216,12 +222,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setStartTime(dto.getStartTime());
         earnestOrder.setEndTime(dto.getEndTime());
         earnestOrder.setDepartmentId(dto.getDepartmentId());
-        BaseOutput<Department> depOut = departmentRpc.get(dto.getDepartmentId());
-        if(!depOut.isSuccess()){
-            LOGGER.info("获取部门失败！" + depOut.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
-        }
-        earnestOrder.setDepartmentName(depOut.getData().getName());
         earnestOrder.setAmount(dto.getAmount());
         earnestOrder.setNotes(dto.getNotes());
         earnestOrder.setModifyTime(new Date());
@@ -310,6 +310,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, EarnestOrder earnestOrder){
         PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            LOG.info("编号生成器异常，{}】", bizNumberOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+        }
+        pb.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         pb.setAmount(earnestOrder.getAmount());
         pb.setBusinessId(earnestOrder.getId());
         pb.setBusinessCode(earnestOrder.getCode());
@@ -320,12 +326,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setState(PayStateEnum.NOT_PAID.getCode());
         pb.setVersion(0);
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOG.info("编号生成器异常，{}】", bizNumberOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
-        }
-        pb.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
         return pb;
     }
 
