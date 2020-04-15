@@ -331,7 +331,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName){
-        try {
             Integer sceneType = TransactionSceneTypeEnum.FROZEN.getCode();
             BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
             if(!checkOut.isSuccess()){
@@ -344,16 +343,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             }
             this.submitChangeCustomerAmountAndDetails(sceneType, orderId, orderCode, ca, customerId, earnestDeduction, transferDeduction, marketId, operaterId, operatorName);
             return BaseOutput.success();
-        } catch (BusinessException e) {
-            return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
-        } catch (Exception e) {
-            return BaseOutput.failure();
-        }
     }
 
     @Override
     public BaseOutput withdrawLeaseOrderCustomerAmountUnFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName) {
-        try {
             Integer sceneType = TransactionSceneTypeEnum.UNFROZEN.getCode();
 
             BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
@@ -368,16 +361,12 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
             this.withdrawChangeCustomerAmountAndDetails(sceneType, orderId, orderCode, ca,customerId, earnestDeduction, transferDeduction, marketId, operaterId, operatorName);
             return BaseOutput.success("处理成功！");
-        } catch (BusinessException e) {
-            return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
-        } catch (Exception e) {
-            return BaseOutput.failure("处理出错！");
-        }
     }
 
     @Override
+    //租赁单提交成功调用接口
+    @Transactional(rollbackFor = Exception.class)
     public BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName) {
-        try {
             Integer sceneType = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
             BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
             if(!checkOut.isSuccess()){
@@ -390,11 +379,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             }
             this.payChangeCustomerAmountAndDetails(orderId, orderCode, ca, customerId, earnestDeduction, transferDeduction, marketId, operaterId, operatorName);
             return BaseOutput.success("处理成功！");
-        } catch (BusinessException e) {
-            return BaseOutput.failure().setCode(e.getErrorCode()).setMessage(e.getErrorMsg());
-        } catch (Exception e) {
-            return BaseOutput.failure("处理出错！");
-        }
     }
 
     private BaseOutput checkCustomerAccount(Integer sceneType, CustomerAccount customerAccount, Long earnestDeduction, Long transferDeduction){
@@ -531,20 +515,13 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (!check.isSuccess()){
             return check;
         }
-        try {
-            this.rechargeTransfer(customerId, amount, marketId);
-            Integer sceneType = TransactionSceneTypeEnum.TRANSFER_IN.getCode();
-            Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
-            Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
-            TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
-            transactionDetailsService.insertSelective(detail);
-            return BaseOutput.success("处理成功！");
-        } catch (BusinessException e) {
-            return BaseOutput.failure(e.getErrorMsg()).setCode(e.getErrorCode());
-        } catch (Exception e) {
-            return BaseOutput.failure("处理出错！");
-        }
-
+        this.rechargeTransfer(customerId, amount, marketId);
+        Integer sceneType = TransactionSceneTypeEnum.TRANSFER_IN.getCode();
+        Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
+        Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
+        TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
+        transactionDetailsService.insertSelective(detail);
+        return BaseOutput.success("处理成功！");
     }
 
     public void rechargeTransfer(Long customerId, Long amount, Long marketId){
