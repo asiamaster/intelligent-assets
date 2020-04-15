@@ -73,6 +73,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     private Long settlementAppId;
     @Value("${settlement.handler.url}")
     private String settlerHandlerUrl;
+    @Value("${contextPath}")
+    private String contextPath;
     @Autowired
     private UidFeignRpc uidFeignRpc;
     @Autowired
@@ -336,7 +338,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
 
-        businessLogRpc.save(recordPayLog(settleOrder,leaseOrder));
+        businessLogRpc.save(recordPayLog(settleOrder, leaseOrder), contextPath);
         return BaseOutput.success().setData(true);
     }
 
@@ -1312,7 +1314,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             });
         }
         //记录退款日志
-        businessLogRpc.save(recordRefundLog(refundOrder,leaseOrder));
+        businessLogRpc.save(recordRefundLog(refundOrder, leaseOrder), contextPath);
         return BaseOutput.success();
     }
 

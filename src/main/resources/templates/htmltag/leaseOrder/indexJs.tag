@@ -283,8 +283,6 @@
                                 queryDataHandler();
                                 if(!data.success){
                                     bs4pop.alert(data.result, {type: 'error'});
-                                }else{
-                                    dia.hide();
                                 }
                             },
                             error : function() {
@@ -292,7 +290,6 @@
                                 bs4pop.alert('远程访问失败', {type: 'error'});
                             }
                         });
-                        return false;
                     }
                 },
                 {label: '取消', className: 'btn-default', onClick(e) {}}
