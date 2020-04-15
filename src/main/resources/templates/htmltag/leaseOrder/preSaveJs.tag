@@ -528,6 +528,7 @@
                 }
             },
             error: function (a, b, c) {
+                bui.loading.hide();
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
