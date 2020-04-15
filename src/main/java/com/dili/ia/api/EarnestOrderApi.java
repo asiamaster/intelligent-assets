@@ -40,7 +40,7 @@ public class EarnestOrderApi {
      */
     @BusinessLogger(businessType="earnest_order", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<EarnestOrder> settlementDealHandler(@RequestBody SettleOrder settleOrder){
+    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
             BaseOutput<EarnestOrder> output = earnestOrderService.paySuccessHandler(settleOrder);
             if (output.isSuccess()){
@@ -48,7 +48,7 @@ public class EarnestOrderApi {
                 LoggerUtil.buildLoggerContext(output.getData().getId(), output.getData().getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), output.getData().getMarketId(), null);
                 return BaseOutput.success().setData(true);
             }
-            return output;
+            return BaseOutput.failure(output.getMessage());
         }catch (BusinessException e){
             LOG.error("定金结算成功回调异常！", e);
             return BaseOutput.failure(e.getErrorMsg()).setData(false);
