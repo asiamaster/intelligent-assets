@@ -61,7 +61,7 @@ public class RefundOrderApi {
      */
     @BusinessLogger(businessType="refund_order", content="${code!}", operationType="refund", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<RefundOrder> settlementDealHandler(@RequestBody SettleOrder settleOrder){
+    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         if (null == settleOrder){
             return BaseOutput.failure("回调参数为空！");
         }
@@ -72,7 +72,7 @@ public class RefundOrderApi {
                 LoggerUtil.buildLoggerContext(output.getData().getId(), output.getData().getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), output.getData().getMarketId(), null);
                 return BaseOutput.success().setData(true);
             }
-            return output;
+            return BaseOutput.failure(output.getMessage());
         }catch (BusinessException e){
             LOG.error("退款成功回调异常！" + e.getErrorMsg(), e);
             return BaseOutput.failure(e.getErrorMsg()).setData(false);
