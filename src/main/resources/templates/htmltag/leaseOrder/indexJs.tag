@@ -197,8 +197,9 @@
                         dia.hide();
                     }
                 });
+                return false;
             }
-            return false;
+
         })
 
     }
@@ -238,8 +239,8 @@
                         dia.hide();
                     }
                 });
+                return false;
             }
-            return false;
         })
 
     }
