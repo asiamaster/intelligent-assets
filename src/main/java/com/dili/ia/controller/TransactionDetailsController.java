@@ -98,7 +98,7 @@ public class TransactionDetailsController {
         List<Integer> itemTypes = new ArrayList<>();
         itemTypes.add(TransactionItemTypeEnum.EARNEST.getCode());
         itemTypes.add(TransactionItemTypeEnum.TRANSFER.getCode());
-//        transactionDetails.setItemTypes(itemTypes);
+        transactionDetails.setItemTypes(itemTypes);
         transactionDetails.setMarketId(userTicket.getFirmId());
         return transactionDetailsService.listEasyuiPageByExample(transactionDetails, true).toString();
     }

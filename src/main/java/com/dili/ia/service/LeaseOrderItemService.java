@@ -25,15 +25,15 @@ public interface LeaseOrderItemService extends BaseService<LeaseOrderItem, Long>
     BaseOutput stopRent(LeaseOrderItem leaseOrderItem);
 
     /**
-     * 扫描等待停租的摊位
-     * @return
-     */
-    BaseOutput<Boolean> scanWaitStopRentLeaseOrder();
-
-    /**
      * 查询保证金可用抵扣的订单项
      * @param leaseOrderItem
      * @return
      */
     Map<Long,List<LeaseOrderItem>> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem);
+
+    /**
+     * 摊位订单项停租处理
+     * @param o
+     */
+    void stopRentLeaseOrderItemFromTimer(LeaseOrderItem o);
 }

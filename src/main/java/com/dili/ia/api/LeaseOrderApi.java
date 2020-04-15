@@ -1,12 +1,4 @@
 package com.dili.ia.api;
-import com.dili.ia.util.LogBizTypeConst;
-import com.dili.logger.sdk.annotation.BusinessLogger;
-import com.dili.ss.exception.AppException;
-import com.dili.ss.exception.BusinessException;
-import com.google.common.collect.Lists;
-import java.util.Map;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.ia.domain.dto.PrintDataDto;
@@ -14,17 +6,22 @@ import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.LeaseOrderService;
+import com.dili.ia.service.LeaseOrderWorkerService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.AppException;
+import com.dili.ss.exception.BusinessException;
 import io.seata.spring.annotation.GlobalTransactional;
 import io.swagger.annotations.Api;
-import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 摊位租赁api
@@ -39,6 +36,8 @@ public class LeaseOrderApi {
     LeaseOrderService leaseOrderService;
     @Autowired
     LeaseOrderItemService leaseOrderItemService;
+    @Autowired
+    LeaseOrderWorkerService leaseOrderWorkerService;
 
     @Autowired
     SettlementRpc settlementRpc;
@@ -142,7 +141,7 @@ public class LeaseOrderApi {
     @RequestMapping(value="/scanEffectiveLeaseOrder")
     public @ResponseBody BaseOutput<Boolean> scanEffectiveLeaseOrder(){
         try{
-            return leaseOrderService.scanEffectiveLeaseOrder();
+            return leaseOrderWorkerService.scanEffectiveLeaseOrder();
         }catch (Exception e){
             LOG.error("扫描已生效但状态未变更的单子异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
@@ -157,7 +156,7 @@ public class LeaseOrderApi {
     @RequestMapping(value="/scanExpiredLeaseOrder")
     public @ResponseBody BaseOutput<Boolean> scanExpiredLeaseOrder(){
         try{
-            return leaseOrderService.scanExpiredLeaseOrder();
+            return leaseOrderWorkerService.scanExpiredLeaseOrder();
         }catch (Exception e){
             LOG.error("扫描已到期但状态未变更的单子异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
@@ -172,7 +171,7 @@ public class LeaseOrderApi {
     @RequestMapping(value="/scanWaitStopRentLeaseOrder")
     public @ResponseBody BaseOutput<Boolean> scanWaitStopRentLeaseOrder(){
         try{
-            return leaseOrderItemService.scanWaitStopRentLeaseOrder();
+            return leaseOrderWorkerService.scanWaitStopRentLeaseOrder();
         }catch (Exception e){
             LOG.error("扫描等待停租的摊位异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);

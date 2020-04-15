@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -902,43 +903,12 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     /**
-     * 扫描待生效的订单，做生效处理
-     *
-     * @return
-     */
-    @Override
-    public BaseOutput<Boolean> scanEffectiveLeaseOrder() {
-        LOG.info("=========================摊位租赁生效处理调度执行 begin====================================");
-        while (true) {
-            LeaseOrderListDto condition = DTOUtils.newInstance(LeaseOrderListDto.class);
-            condition.setStartTimeLT(new Date());
-            condition.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
-            condition.setRows(100);
-            condition.setPage(1);
-            List<LeaseOrder> leaseOrders = listByExample(condition);
-            if (CollectionUtils.isEmpty(leaseOrders)) {
-                break;
-            }
-
-            leaseOrders.stream().forEach(o -> {
-                try {
-                    leaseOrderEffectiveHandler(o);
-                } catch (Exception e) {
-                    LOG.error("租赁单【编号：{}】变更生效异常。{}", o.getCode(), e.getMessage());
-                    LOG.error("租赁单变更生效异常", e);
-                }
-            });
-        }
-        LOG.info("=========================摊位租赁生效处理调度执行 end====================================");
-        return BaseOutput.success().setData(true);
-    }
-
-    /**
      * 租赁单生效处理
      *
      * @param o
      */
-    @Transactional
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void leaseOrderEffectiveHandler(LeaseOrder o) {
         o.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
         if (updateSelective(o) == 0) {
@@ -965,43 +935,12 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     /**
-     * 扫描待到期的订单，做到期处理
-     *
-     * @return
-     */
-    @Override
-    public BaseOutput<Boolean> scanExpiredLeaseOrder() {
-        LOG.info("=========================摊位租赁到期处理调度执行 begin====================================");
-        while (true) {
-            LeaseOrderListDto condition = DTOUtils.newInstance(LeaseOrderListDto.class);
-            condition.setEndTimeLT(new Date());
-            condition.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
-            condition.setRows(100);
-            condition.setPage(1);
-            List<LeaseOrder> leaseOrders = listByExample(condition);
-            if (CollectionUtils.isEmpty(leaseOrders)) {
-                break;
-            }
-
-            leaseOrders.stream().forEach(o -> {
-                try {
-                    leaseOrderExpiredHandler(o);
-                } catch (Exception e) {
-                    LOG.error("租赁单【编号：{}】变更到期异常。{}", o.getCode(), e.getMessage());
-                    LOG.error("租赁单变更到期异常", e);
-                }
-            });
-        }
-        LOG.info("=========================摊位租赁到期处理调度执行 end====================================");
-        return BaseOutput.success().setData(true);
-    }
-
-    /**
      * 租赁单到期处理
      *
      * @param o
      */
-    @Transactional
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void leaseOrderExpiredHandler(LeaseOrder o) {
         o.setState(LeaseOrderStateEnum.EXPIRED.getCode());
         if (updateSelective(o) == 0) {
