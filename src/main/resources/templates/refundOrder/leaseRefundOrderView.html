@@ -37,12 +37,12 @@
                 </div>
             </div>
 
-            <%if(isNotEmpty(refundOrder.businessItemId)){ %>
             <div class="breadcrumb">
                 退款详情
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#detailInfo" aria-expanded="true" aria-controls="detailInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
             <div id="detailInfo" class="collapse show">
+                <%if(isNotEmpty(refundOrder.businessItemId)){ %>
                 <div class="row row-cols-4">
                     <div class="form-group col">
                         <label for="boothName" class="">摊位编号</label>
