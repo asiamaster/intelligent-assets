@@ -145,13 +145,13 @@
                                 bui.loading.hide();
                                 if(!data.success){
                                     bs4pop.alert(data.result, {type: 'error'});
+                                }else{
+                                    dia.hide();
                                 }
-                                dia.hide();
                             },
                             error : function() {
                                 bui.loading.hide();
                                 bs4pop.alert('远程访问失败', {type: 'error'});
-                                dia.hide();
                             }
                         });
                         return false;
@@ -186,15 +186,14 @@
                         bui.loading.hide();
                         if(ret.success){
                             queryDataHandler();
+                            dia.hide();
                         }else{
                             bs4pop.alert(ret.message, {type: 'error'});
                         }
-                        dia.hide();
                     },
                     error : function() {
                         bui.loading.hide();
                         bs4pop.alert('远程访问失败', {type: 'error'});
-                        dia.hide();
                     }
                 });
                 return false;
@@ -228,15 +227,14 @@
                         bui.loading.hide();
                         if(ret.success){
                             queryDataHandler();
+                            dia.hide();
                         }else{
                             bs4pop.alert(ret.message, {type: 'error'});
                         }
-                        dia.hide();
                     },
                     error : function() {
                         bui.loading.hide();
                         bs4pop.alert('远程访问失败', {type: 'error'});
-                        dia.hide();
                     }
                 });
                 return false;
@@ -289,13 +287,13 @@
                                 queryDataHandler();
                                 if(!data.success){
                                     bs4pop.alert(data.result, {type: 'error'});
+                                }else{
+                                    dia.hide();
                                 }
-                                dia.hide();
                             },
                             error : function() {
                                 bui.loading.hide();
                                 bs4pop.alert('远程访问失败', {type: 'error'});
-                                dia.hide();
                             }
                         });
                         return false;
@@ -392,13 +390,13 @@
                                 queryDataHandler();
                                 if(!data.success){
                                     bs4pop.alert(data.result, {type: 'error'});
+                                }else{
+                                    dia.hide();
                                 }
-                                dia.hide();
                             },
                             error : function() {
                                 bui.loading.hide();
                                 bs4pop.alert('远程访问失败', {type: 'error'});
-                                dia.hide();
                             }
                         });
                         return false;
