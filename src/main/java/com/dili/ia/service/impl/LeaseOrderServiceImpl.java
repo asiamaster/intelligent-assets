@@ -1138,7 +1138,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderPrintDto.setCustomerCellphone(leaseOrder.getCustomerCellphone());
         leaseOrderPrintDto.setStartTime(leaseOrder.getStartTime());
         leaseOrderPrintDto.setEndTime(leaseOrder.getEndTime());
-        leaseOrderPrintDto.setIsRenew(IsRenewEnum.getIsRenewEnum(leaseOrder.getIsRenew()).getName());
+        leaseOrderPrintDto.setIsRenew(YesOrNoEnum.getYesOrNoEnum(leaseOrder.getIsRenew()).getName());
         leaseOrderPrintDto.setCategoryName(leaseOrder.getCategoryName());
         leaseOrderPrintDto.setNotes(leaseOrder.getNotes());
         leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));

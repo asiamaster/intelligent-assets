@@ -1,12 +1,12 @@
 package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
-import com.dili.ia.glossary.IsRenewEnum;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.LeaseOrderItemService;
@@ -147,7 +147,7 @@ public class LeaseOrderController {
             condition.setLeaseOrderId(id);
             List<LeaseOrderItem> leaseOrderItems = leaseOrderItemService.list(condition);
             modelMap.put("leaseOrder",leaseOrder);
-            modelMap.put("isRenew", IsRenewEnum.YES.getCode());
+            modelMap.put("isRenew", YesOrNoEnum.YES.getCode());
             modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
         }
         return "leaseOrder/preSave";
@@ -169,7 +169,7 @@ public class LeaseOrderController {
             modelMap.put("leaseOrder",leaseOrder);
             modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
         }
-        modelMap.put("isRenew", IsRenewEnum.NO.getCode());
+        modelMap.put("isRenew", YesOrNoEnum.NO.getCode());
         return "leaseOrder/preSave";
     }
 
