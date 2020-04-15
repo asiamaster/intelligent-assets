@@ -421,8 +421,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         return BaseOutput.success();
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    //租赁单提交调用接口，另起事务使其不影响原有事务
     public void submitChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId,Long operaterId,String operatorName) {
         //写入 定金，转抵，保证金的【冻结】流水
         this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, marketId, operaterId, operatorName );
@@ -448,8 +446,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
     }
 
-    //租赁单撤回调用接口，另起事务使其不影响原有事务
-    @Transactional(rollbackFor = Exception.class)
     public void withdrawChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId,Long operaterId,String operatorName) {
         //写入 定金，转抵，保证金的【冻结】流水
         this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, marketId, operaterId, operatorName );
@@ -474,8 +470,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
     }
 
-    //租赁单提交成功调用接口
-    @Transactional(rollbackFor = Exception.class)
     public void payChangeCustomerAmountAndDetails(Long orderId, String orderCode, CustomerAccount ca, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId,Long operaterId,String operatorName) {
         Integer unfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
         Integer deductUse = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
@@ -563,7 +557,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void addTransactionDetails(Integer sceneType,Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName){
         Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
         //写入 定金，转抵，保证金对应 sceneType 的流水 --- 抵扣项为 null 或者 0 元 不写入流水记录
