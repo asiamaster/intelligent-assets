@@ -23,7 +23,7 @@ public enum LicenseStateEnum {
         this.name = name;
     }
 
-    public static LicenseStateEnum getEnabledState(Integer code) {
+    public static LicenseStateEnum getLicenseStateEnum(Integer code) {
         for (LicenseStateEnum anEnum : LicenseStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
