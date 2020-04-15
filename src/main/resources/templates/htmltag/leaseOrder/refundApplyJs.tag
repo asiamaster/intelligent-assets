@@ -183,7 +183,6 @@
             url: "/leaseOrder/createRefundOrder.action",
             data: buildFormData(),
             dataType: "json",
-            async : false,
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
