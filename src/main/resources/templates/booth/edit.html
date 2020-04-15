@@ -127,6 +127,7 @@
         } else {
             bui.loading.show('努力提交中，请稍候。。。');
             let _formData = new FormData($('#updateForm')[0]);
+            _formData.append("opType","edit");
             $.ajax({
                 type: "POST",
                 url: "/booth/update.action",

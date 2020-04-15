@@ -132,6 +132,13 @@ if(rows[0].parentId !=0){
      * @param id
      */
     function doEnableHandler(enable, id) {
+        var opType ="";
+        if(enable == 1){
+            opType = "enable";
+        }
+        if(enable == 2){
+            opType = "disable";
+        }
         let rows = _grid.bootstrapTable('getSelections');
         if (null == rows || rows.length == 0) {
             bs4pop.alert('请选中一条数据');
@@ -146,7 +153,7 @@ if(rows[0].parentId !=0){
                 $.ajax({
                     type: "POST",
                     url: "${contextPath}/booth/update.action",
-                    data: {id: rows[0].id, state: enable},
+                    data: {id: rows[0].id, state: enable,opType:opType},
                     processData: true,
                     dataType: "json",
                     async: true,

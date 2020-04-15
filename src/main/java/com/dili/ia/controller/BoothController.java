@@ -10,6 +10,8 @@ import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -167,11 +169,12 @@ public class BoothController {
     @RequestMapping("/update.action")
     @ResponseBody
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH, content = "${name!}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
-    public BaseOutput update(BoothDTO input) {
+    public BaseOutput update(BoothDTO input , String opType) {
         try {
             input.setModifyTime(new Date());
             BaseOutput baseOutput = assetsRpc.updateBooth(input);
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY,opType);
             LoggerUtil.buildLoggerContext(input.getId(), input.getName(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), input.getNotes());
             return baseOutput;
         }catch (Exception e){
