@@ -186,7 +186,6 @@
                         bui.loading.hide();
                         if(ret.success){
                             queryDataHandler();
-                            dia.hide();
                         }else{
                             bs4pop.alert(ret.message, {type: 'error'});
                         }
@@ -196,7 +195,6 @@
                         bs4pop.alert('远程访问失败', {type: 'error'});
                     }
                 });
-                return false;
             }
 
         })
@@ -227,7 +225,6 @@
                         bui.loading.hide();
                         if(ret.success){
                             queryDataHandler();
-                            dia.hide();
                         }else{
                             bs4pop.alert(ret.message, {type: 'error'});
                         }
@@ -237,7 +234,6 @@
                         bs4pop.alert('远程访问失败', {type: 'error'});
                     }
                 });
-                return false;
             }
         })
 
