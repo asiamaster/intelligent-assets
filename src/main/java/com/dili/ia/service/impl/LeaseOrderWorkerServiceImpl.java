@@ -35,7 +35,6 @@ public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
      * @return
      */
     @Override
-    @Transactional
     public BaseOutput<Boolean> scanEffectiveLeaseOrder() {
         LOG.info("=========================摊位租赁生效处理调度执行 begin====================================");
         while (true) {
@@ -68,7 +67,6 @@ public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
      * @return
      */
     @Override
-    @Transactional
     public BaseOutput<Boolean> scanExpiredLeaseOrder() {
         LOG.info("=========================摊位租赁到期处理调度执行 begin====================================");
         while (true) {
@@ -100,7 +98,6 @@ public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
      * @return
      */
     @Override
-    @Transactional
     public BaseOutput<Boolean> scanWaitStopRentLeaseOrder() {
         LOG.info("=========================摊位租赁停租处理调度执行 begin====================================");
         while (true) {
