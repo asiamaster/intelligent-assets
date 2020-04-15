@@ -121,8 +121,8 @@
             return;
         }
 
-        bs4pop.dialog({
-            title: '摊位租赁详情',
+        let dia = bs4pop.dialog({
+            title: '补录',
             content: template('supplementTpl',{}),
             closeBtn: true,
             backdrop : 'static',
@@ -141,18 +141,20 @@
                             data: {id: rows[0].id,contractNo : $('#contractNo').val()},
                             processData:true,
                             dataType: "json",
-                            async : false,
                             success : function(data) {
                                 bui.loading.hide();
                                 if(!data.success){
                                     bs4pop.alert(data.result, {type: 'error'});
                                 }
+                                dia.hide();
                             },
                             error : function() {
                                 bui.loading.hide();
                                 bs4pop.alert('远程访问失败', {type: 'error'});
+                                dia.hide();
                             }
                         });
+                        return false;
                     }
                 },
                 {label: '取消', className: 'btn-default', onClick(e) {}}
@@ -172,7 +174,7 @@
         }
 
         let selectedRow = rows[0];
-        bs4pop.confirm('确定取消该业务单？', undefined, function (sure) {
+        let dia = bs4pop.confirm('确定取消该业务单？', undefined, function (sure) {
             if(sure){
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
@@ -180,7 +182,6 @@
                     url: "${contextPath}/leaseOrder/cancelOrder.action",
                     data: {id: selectedRow.id},
                     dataType: "json",
-                    async:false,
                     success : function(ret) {
                         bui.loading.hide();
                         if(ret.success){
@@ -188,13 +189,16 @@
                         }else{
                             bs4pop.alert(ret.message, {type: 'error'});
                         }
+                        dia.hide();
                     },
                     error : function() {
                         bui.loading.hide();
                         bs4pop.alert('远程访问失败', {type: 'error'});
+                        dia.hide();
                     }
                 });
             }
+            return false;
         })
 
     }
@@ -211,7 +215,7 @@
         }
 
         let selectedRow = rows[0];
-        bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', undefined, function (sure) {
+        let dia = bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', undefined, function (sure) {
             if(sure){
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
@@ -219,7 +223,6 @@
                     url: "${contextPath}/leaseOrder/withdrawOrder.action",
                     data: {id: selectedRow.id},
                     dataType: "json",
-                    async:false,
                     success : function(ret) {
                         bui.loading.hide();
                         if(ret.success){
@@ -227,13 +230,16 @@
                         }else{
                             bs4pop.alert(ret.message, {type: 'error'});
                         }
+                        dia.hide();
                     },
                     error : function() {
                         bui.loading.hide();
                         bs4pop.alert('远程访问失败', {type: 'error'});
+                        dia.hide();
                     }
                 });
             }
+            return false;
         })
 
     }
@@ -249,7 +255,7 @@
             return;
         }
 
-        bs4pop.dialog({
+        let dia = bs4pop.dialog({
             title: '提交付款',
             content: template('submitPaymentTpl', {
                 waitAmount: rows[0].waitAmount,
@@ -262,7 +268,7 @@
             btns: [
                 {
                     label: '确定', className: 'btn-primary', onClick(e) {
-                        bui.loading.show();
+                        bui.loading.show('努力提交中，请稍候。。。');
                         if (!$('#submitPaymentForm').valid()) {
                             bui.loading.hide();
                             return false;
@@ -277,19 +283,21 @@
                                 amountFormatStr:$('#amount').val()
                             },
                             dataType: "json",
-                            async : false,
                             success : function(data) {
                                 bui.loading.hide();
                                 queryDataHandler();
                                 if(!data.success){
                                     bs4pop.alert(data.result, {type: 'error'});
                                 }
+                                dia.hide();
                             },
                             error : function() {
                                 bui.loading.hide();
                                 bs4pop.alert('远程访问失败', {type: 'error'});
+                                dia.hide();
                             }
                         });
+                        return false;
                     }
                 },
                 {label: '取消', className: 'btn-default', onClick(e) {}}
@@ -334,7 +342,7 @@
 
         let leaseOrder = _grid.bootstrapTable('getRowByUniqueId',rows[0].leaseOrderId);
 
-        bs4pop.dialog({
+        let dia = bs4pop.dialog({
             title: '停租',
             content: bui.util.HTMLDecode(template('stopRentTpl',$.extend({},rows[0],{endTime : leaseOrder.endTime}))),
             closeBtn: true,
@@ -378,19 +386,21 @@
                             url: "${contextPath}/leaseOrderItem/stopRent.action",
                             data: $('#stopRentForm').serializeObject(),
                             dataType: "json",
-                            async : false,
                             success : function(data) {
                                 bui.loading.hide();
                                 queryDataHandler();
                                 if(!data.success){
                                     bs4pop.alert(data.result, {type: 'error'});
                                 }
+                                dia.hide();
                             },
                             error : function() {
                                 bui.loading.hide();
                                 bs4pop.alert('远程访问失败', {type: 'error'});
+                                dia.hide();
                             }
                         });
+                        return false;
                     }
                 },
                 {label: '取消', className: 'btn-default', onClick(e) {}}
