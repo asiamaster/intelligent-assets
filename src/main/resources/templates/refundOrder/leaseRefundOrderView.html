@@ -37,12 +37,12 @@
                 </div>
             </div>
 
-            <%if(isNotEmpty(refundOrder.businessItemId)){ %>
             <div class="breadcrumb">
                 退款详情
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#detailInfo" aria-expanded="true" aria-controls="detailInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
             <div id="detailInfo" class="collapse show">
+                <%if(isNotEmpty(refundOrder.businessItemId)){ %>
                 <div class="row row-cols-4">
                     <div class="form-group col">
                         <label for="boothName" class="">摊位编号</label>
@@ -115,6 +115,10 @@
             </div>
             <% }%>
             <div class="row">
+                <div class="form-group col-3">
+                    <label for="" class="">营业执照状态</label>
+                    <input type="text" class="form-control" value="${@com.dili.ia.glossary.LicenseStateEnum.getLicenseStateEnum(refundOrder.licenseState).getName()}" disabled />
+                </div>
                 <div class="form-group col-8">
                     <label for="">退款原因</label>
                     <textarea class="form-control" id="" rows="1" maxlength="100" readonly>${refundOrder.refundReason!}</textarea>
