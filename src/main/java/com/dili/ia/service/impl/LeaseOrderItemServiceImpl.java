@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -156,41 +157,11 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
     }
 
     /**
-     * 扫描等待停租的摊位
-     * @return
-     */
-    @Override
-    public BaseOutput<Boolean> scanWaitStopRentLeaseOrder() {
-        LOG.info("=========================摊位租赁停租处理调度执行 begin====================================");
-        while (true) {
-            LeaseOrderItemListDto condition = DTOUtils.newInstance(LeaseOrderItemListDto.class);
-            condition.setStopRentState(StopRentStateEnum.WAIT_TIMER_EXE.getCode());
-            condition.setStopTimeLet(new Date());
-            condition.setRows(100);
-            condition.setPage(1);
-            List<LeaseOrderItem> leaseOrderItems = listByExample(condition);
-            if (CollectionUtils.isEmpty(leaseOrderItems)) {
-                break;
-            }
-
-            leaseOrderItems.stream().forEach(o -> {
-                try {
-                    stopRentLeaseOrderItemFromTimer(o);
-                } catch (Exception e) {
-                    LOG.error("租赁订单项【id:{}】执行停租异常。{}", o.getId(), e.getMessage());
-                    LOG.error("租赁单执行停租异常", e);
-                }
-            });
-        }
-        LOG.info("=========================摊位租赁停租处理调度执行 end====================================");
-        return BaseOutput.success().setData(true);
-    }
-
-    /**
      * 定时停租处理
      * @param o
      */
-    @Transactional
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void stopRentLeaseOrderItemFromTimer(LeaseOrderItem o) {
         o.setStopTime(new Date());
         o.setState(LeaseOrderItemStateEnum.RENTED_OUT.getCode());
