@@ -54,38 +54,58 @@
      * 打开修改窗口
      */
     function openUpdateHandler(id) {
-
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
         $("#_modal").modal("show");
 
-        $('#_modal .modal-body').load("/booth/update.html?id=" + id);
+        $('#_modal .modal-body').load("/booth/update.html?id=" + rows[0].id);
         _modal.find('.modal-title').text('摊位修改');
     }
 
     function openViewHandler(id) {
-
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
         $("#_modal").modal("show");
 
-        $('#_modal .modal-body').load("/booth/view.html?id=" + id);
+        $('#_modal .modal-body').load("/booth/view.html?id=" + rows[0].id);
         _modal.find('.modal-title').text('摊位查看');
     }
 
     function openSplitHandler(id) {
-
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+if(rows[0].parentId !=0){
+    bs4pop.alert('只有父摊位才能拆分');
+    return;
+}
         $("#_modal").modal("show");
 
-        $('#_modal .modal-body').load("/booth/split.html?id=" + id);
+        $('#_modal .modal-body').load("/booth/split.html?id=" + rows[0].id);
         _modal.find('.modal-title').text('摊位拆分');
     }
 
     function openDeleteHandler(id) {
-
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
         bs4pop.confirm("确定要删除吗", {title: "确认提示"}, function (sure) {
             if (sure) {
                 $.ajax({
                     type: "POST",
                     dataType: "json",
                     url: '/booth/delete.action',
-                    data: {id: id},
+                    data: {id: rows[0].id},
                     success: function (data) {
                         bui.loading.hide();
                         if (data.code != '200') {
@@ -112,7 +132,11 @@
      * @param id
      */
     function doEnableHandler(enable, id) {
-
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
         //table选择模式是单选时可用
         let msg = enable == 1 ? '确定要启用该摊位吗？' : '确定要禁用该摊位吗？';
 
@@ -122,7 +146,7 @@
                 $.ajax({
                     type: "POST",
                     url: "${contextPath}/booth/update.action",
-                    data: {id: id, state: enable},
+                    data: {id: rows[0].id, state: enable},
                     processData: true,
                     dataType: "json",
                     async: true,

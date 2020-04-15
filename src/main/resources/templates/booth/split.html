@@ -244,6 +244,14 @@
                 bs4pop.alert("待拆分摊位信息为空", {type: 'error'});
                 return;
             }
+            let total = Number(0);
+            $(".cal-number").each(function () {
+                total = total.add(Number($(this).val()));
+            });
+            if (total >= number) {
+                bs4pop.alert("拆过可拆分数量", {type: 'error'});
+                return;
+            }
             bui.loading.show('努力提交中，请稍候。。。');
             let _formData = new FormData($('#splitForm')[0]);
             var entries = _formData.entries();

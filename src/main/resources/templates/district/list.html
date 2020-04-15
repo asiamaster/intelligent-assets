@@ -53,10 +53,26 @@
                             class="fa fa-plus"></i> 新增
                     </button>
                     </#resource>
+                <#resource code="dis_split">
+                    <button type="button" id="btn_split" class="btn btn-primary" onclick="openDivisionHandler()">
+                        <i class="fa fa-pencil-square-o"></i>划分区域
+                    </button>
+            </#resource>
+            <#resource code="dis_edit">
+                <button type="button" id="btn_edit" class="btn btn-primary" onclick="openUpdateHandler()">
+                    <i class="fa fa-pencil-square-o"></i>修改
+                </button>
+        </#resource>
+        <#resource code="dis_del">
+                <button type="button" class="btn btn-primary" onclick="openDeleteHandler()">
+                    <i class="fa fa-pencil-square-o"></i>删除
+                </button>
+    </#resource>
                 </div>
-                <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-root-parent-id="-1" data-parent-id-field="parentId" data-query-params="queryParams" data-pagination="true" data-page-number="1" data-page-size="10" data-side-pagination="server">
+                <table id="grid" data-single-select="true" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-root-parent-id="-1" data-parent-id-field="parentId" data-query-params="queryParams" data-pagination="true" data-page-number="1" data-page-size="10" data-side-pagination="server">
                     <thead>
                     <tr>
+                        <th data-radio="true"></th>
                         <th data-field="name" data-align="center">
                             区域名称
                         </th>
@@ -73,7 +89,6 @@
                         <th data-field="notes" data-align="center">
                             备注
                         </th>
-                        <th data-align="center" data-formatter="operateFormatter">操作</th>
                     </tr>
                     </thead>
                 </table>
@@ -173,16 +188,8 @@
         $("#_modal").find('.modal-title').text('区域新增');
     }
 
-    function openUpdateHandler(id) {
-
-        $("#_modal").modal();
-        $('#_modal .modal-body').load("/district/edit.html?id=" + id);
-        $("#_modal").find('.modal-title').text('区域修改');
-    }
-
-    function openSubUpdateHandler(index) {
-        //获取选中行的数据
-        let rows = $("#grid" + index).bootstrapTable('getSelections');
+    function openUpdateHandler() {
+        let rows = _grid.bootstrapTable('getSelections');
         if (null == rows || rows.length == 0) {
             bs4pop.alert('请选中一条数据');
             return;
@@ -192,16 +199,19 @@
         $("#_modal").find('.modal-title').text('区域修改');
     }
 
-
     function openDeleteHandler(id) {
-
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
         bs4pop.confirm("确定要删除吗", {title: "确认提示"}, function (sure) {
             if (sure) {
                 $.ajax({
                     type: "POST",
                     dataType: "json",
                     url: '/district/delete.action',
-                    data: {id: id},
+                    data: {id: rows[0].id},
                     success: function (data) {
                         bui.loading.hide();
                         if (data.code != '200') {
@@ -236,10 +246,18 @@
         return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
     }
 
-    function openDivisionHandler(id) {
-
+    function openDivisionHandler() {
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        if(rows[0].parentId !=0){
+            bs4pop.alert('只有父区域才能划分');
+            return;
+        }
         $("#_modal").modal();
-        $('#_modal .modal-body').load("/district/division.html?id=" + id);
+        $('#_modal .modal-body').load("/district/division.html?id=" + rows[0].id);
         $("#_modal").find('.modal-title').text('区域划分');
     }
 
