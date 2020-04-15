@@ -146,7 +146,6 @@
                         data: {id: selectedRow.id},
                         processData:true,
                         dataType: "json",
-                        async : true,
                         success : function(ret) {
                             bui.loading.hide();
                             if(ret.success){
@@ -183,7 +182,6 @@
                         data: {id: selectedRow.id},
                         processData:true,
                         dataType: "json",
-                        async : true,
                         success : function(ret) {
                             bui.loading.hide();
                             if(ret.success){
@@ -219,7 +217,6 @@
                         data: {id: selectedRow.id},
                         processData:true,
                         dataType: "json",
-                        async : true,
                         success : function(ret) {
                             bui.loading.hide();
                             if(ret.success){

@@ -31,16 +31,17 @@ class CusromerAccountTests {
     @Test
     void testFrozenAccount() {
         Long orderId = 1L;
-        String orderCode = "202003050001";
-        Long customerId = 1L;
+        String orderCode = "test202003050001";
+        Long customerId = 4L; //张三
         Long earnestDeduction = 100L;
         Long transferDeduction = 100L;
-        Long depositDeduction = 100L;
-        Long marketId = 1L;
-
-//        BaseOutput out = customerAccountService.submitLeaseOrderCustomerAmountFrozen(orderId, orderCode, customerId, earnestDeduction, transferDeduction, depositDeduction, marketId, 1L,"克兰");
-
-//        System.out.println("----------------" + out.isSuccess() + out.getMessage());
+        Long marketId = 11L; //杭州水产
+//        Long startTime = System.currentTimeMillis();
+//        BaseOutput out = customerAccountService.submitLeaseOrderCustomerAmountFrozen(orderId, orderCode, customerId, earnestDeduction, transferDeduction, marketId, 1L,"克兰");
+//        Long endTime = System.currentTimeMillis();
+//        Long time = endTime - startTime;
+//        System.out.println("------接口耗时: ms----------" + time);
+//        System.out.println("-------------------------" + out.isSuccess() + out.getMessage());
     }
 
     @Test

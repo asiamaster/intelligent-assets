@@ -156,13 +156,10 @@
             url: "${contextPath}/earnestOrder/doUpdate.action",
             data: buildFormData(),
             dataType: "json",
-            async : false,
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
-                    bs4pop.alert(ret.message, {type: 'error'},function () {
-                        parent.closeDialog(parent.dia);
-                    });
+                    bs4pop.alert(ret.message, {type: 'error'});
                 }else{
                     parent.closeDialog(parent.dia);
                 }
