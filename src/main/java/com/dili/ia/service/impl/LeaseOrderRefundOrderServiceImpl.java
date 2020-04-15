@@ -147,7 +147,10 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
                 transferMap.put("payee",transferDeductionItem.getPayee());
                 transferMap.put("payeeAmount", MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount()));
                 transferMaps.add(transferMap);
-                stringBuilder.append(transferDeductionItem.getPayee()).append("  金额: ").append(MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount())).append(";  ");
+                stringBuilder.append(transferDeductionItem.getPayee()).append("  金额: ").append(MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount()));
+                if(transferDeductionItems.size() > 1){
+                    stringBuilder.append(";  ");
+                }
             }
         }
         resultMap.put("transferDeductionItems", transferMaps);
