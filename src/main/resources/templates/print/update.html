@@ -11,8 +11,8 @@
             <div class="form-group col">
                 <label for="" class="">模板路径<i class="red">*</i></label>
                 <div class="custom-file">
-                    <input type="file" class="custom-file-input" name="tempFileupload" value="${obj.path!}" id="edittempFileupload">
-                    <label class="custom-file-label" for="edittempFileupload" data-browse="打开" id="editshowFileName">选择文件</label>
+                    <input type="file" class="custom-file-input" name="tempFileupload" value="" id="edittempFileupload">
+                    <label class="custom-file-label" for="edittempFileupload" data-browse="打开" id="editshowFileName">${obj.path!}</label>
                 </div>
             </div>
             <div class="form-group col">
@@ -75,8 +75,9 @@
         if ($("#editForm").valid()) {
             if (!editfileData) {
                 update();
+            }else{
+                editfileData.submit();
             }
-            editfileData.submit();
         }
     }
 
