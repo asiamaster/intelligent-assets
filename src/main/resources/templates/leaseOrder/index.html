@@ -91,10 +91,11 @@
                 <#resource code="refundApplyLeaseOrder">
                 <button id="btn_refund_apply" type="button" class="btn btn-primary" onclick="openRefundApplyHandler(1)"><i class="fa fa-reply"></i> 退款申请</button>
                 </#resource>
+                <button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
             </div>
             <table id="grid" data-toggle="table" data-title="租赁单列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="5"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
-                   data-click-to-select="true"  data-checkbox-header="true" data-unique-id="id" data-sort-name="code" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-click-to-select="true"  data-checkbox-header="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true" data-detail-view="true"
             >
                 <thead>
