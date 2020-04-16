@@ -9,6 +9,7 @@ import com.dili.ia.domain.dto.RefundOrderPrintDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
+import com.dili.ia.glossary.RefundTypeEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
@@ -398,8 +399,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         roPrintDto.setBusinessType(BizTypeEnum.getBizTypeEnum(refundOrder.getBizType()).getName());
         roPrintDto.setPayee(refundOrder.getPayee());
         roPrintDto.setPayeeAmount(MoneyUtils.centToYuan(refundOrder.getPayeeAmount()));
-        roPrintDto.setBank(refundOrder.getBank());
-        roPrintDto.setBankCardNo(refundOrder.getBankCardNo());
+        if (refundOrder.getRefundType().equals(RefundTypeEnum.BANK)){
+            roPrintDto.setBank("开户行：" + refundOrder.getBank());
+            roPrintDto.setBankCardNo("银行卡号：" + refundOrder.getBankCardNo());
+        }
         roPrintDto.setRefundType(SettleWayEnum.getNameByCode(refundOrder.getRefundType()));
         return roPrintDto;
     }
