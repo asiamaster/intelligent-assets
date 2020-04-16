@@ -121,7 +121,7 @@
             return;
         }
 
-        let dia = bs4pop.dialog({
+        bs4pop.dialog({
             title: '补录',
             content: template('supplementTpl',{}),
             closeBtn: true,
@@ -134,7 +134,7 @@
                         if (!$('#supplementForm').valid()) {
                             return false;
                         }
-                        bui.loading.show();
+                        bui.loading.show('努力提交中，请稍候。。。');
                         $.ajax({
                             type: "POST",
                             url: "${contextPath}/leaseOrder/supplement.action",
@@ -145,8 +145,6 @@
                                 bui.loading.hide();
                                 if(!data.success){
                                     bs4pop.alert(data.result, {type: 'error'});
-                                }else{
-                                    dia.hide();
                                 }
                             },
                             error : function() {
@@ -154,7 +152,6 @@
                                 bs4pop.alert('远程访问失败', {type: 'error'});
                             }
                         });
-                        return false;
                     }
                 },
                 {label: '取消', className: 'btn-default', onClick(e) {}}
@@ -174,7 +171,7 @@
         }
 
         let selectedRow = rows[0];
-        let dia = bs4pop.confirm('确定取消该业务单？', undefined, function (sure) {
+        bs4pop.confirm('确定取消该业务单？', undefined, function (sure) {
             if(sure){
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
@@ -213,7 +210,7 @@
         }
 
         let selectedRow = rows[0];
-        let dia = bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', undefined, function (sure) {
+        bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', undefined, function (sure) {
             if(sure){
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
@@ -250,7 +247,7 @@
             return;
         }
 
-        let dia = bs4pop.dialog({
+        bs4pop.dialog({
             title: '提交付款',
             content: template('submitPaymentTpl', {
                 waitAmount: rows[0].waitAmount,
@@ -263,11 +260,10 @@
             btns: [
                 {
                     label: '确定', className: 'btn-primary', onClick(e) {
-                        bui.loading.show('努力提交中，请稍候。。。');
                         if (!$('#submitPaymentForm').valid()) {
-                            bui.loading.hide();
                             return false;
                         }
+                        bui.loading.show('努力提交中，请稍候。。。');
                         $.ajax({
                             type: "POST",
                             url: "${contextPath}/leaseOrder/submitPayment.action",
@@ -372,7 +368,7 @@
                         if (!$('#stopRentForm').valid()) {
                             return false;
                         }
-                        bui.loading.show();
+                        bui.loading.show('努力提交中，请稍候。。。');
                         $.ajax({
                             type: "POST",
                             url: "${contextPath}/leaseOrderItem/stopRent.action",

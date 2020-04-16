@@ -513,7 +513,7 @@
             bs4pop.notice('最多10个摊位', {position: 'leftcenter', type: 'warning'});
         }
 
-        bui.loading.show();
+        bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
             url: "/leaseOrder/saveLeaseOrder.action",

@@ -177,7 +177,7 @@
             return;
         }
 
-        bui.loading.show();
+        bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
             url: "/leaseOrder/createRefundOrder.action",
