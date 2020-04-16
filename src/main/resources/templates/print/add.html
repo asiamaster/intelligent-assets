@@ -36,7 +36,7 @@
         src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.iframe-transport.js"></script>
 <script type="text/javascript" src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.fileupload.js"></script>
 <script>
-    let fileData;
+    var fileData;
     $(function () {
         $("#addForm").validate();
         $('#tempFileupload').fileupload({
@@ -54,6 +54,11 @@
                 fileData = data;
             },
             done: function (e, data) {
+                if (data.result.code != '200') {
+                    bs4pop.alert(data.result.message, {type: 'error'});
+                    okButton.removeAttr("disabled");
+                    return;
+                }
                 bs4pop.alert('模板新增成功', {type: 'success'}, function () {
                     window.location.reload();
                 });

@@ -50,6 +50,6 @@ public class FirmProvider implements ValueProvider {
         if (null == obj) {
             return null;
         }
-        return firmRpc.getById(Long.parseLong(obj.toString())).getData().getName();
+        return firmRpc.getByCode(obj.toString()).getData().getName();
     }
 }

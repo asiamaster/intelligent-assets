@@ -9,7 +9,7 @@
             <li class="breadcrumb-item active" aria-current="page">品类管理</li>
         </ol>
     </nav>
-    <div class="row  row-cols-6">
+    <div class="row row-cols-6" id="queryForm">
         <div class="form-group col">
             <label for="category_status">状态</label>
             <select id="category_status" class="form-control input-sm">
@@ -25,6 +25,7 @@
         </div>
         <div class="col align-self-center mt-3">
             <button type="button" onclick="queryClickHandler();return false;" class="btn btn-outline-primary mr-2"><i class="fa fa-search"></i> 查询</button>
+            <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
             <button class="btn btn-outline-primary" id="addButton" onclick="addClickHandler();return false;"><i class="fa fa-plus"></i> 新增</button>
         </div>
     </div>

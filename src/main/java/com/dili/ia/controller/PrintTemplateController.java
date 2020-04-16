@@ -99,6 +99,7 @@ public class PrintTemplateController {
             printTemplateService.saveOrUpdate(printTemplate);
         } catch (IOException e) {
             e.printStackTrace();
+            return BaseOutput.failure("文件上传错误!");
         }
         return BaseOutput.success();
     }
