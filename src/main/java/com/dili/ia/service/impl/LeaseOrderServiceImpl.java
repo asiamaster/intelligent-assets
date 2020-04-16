@@ -441,7 +441,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrder.setPaymentId(paymentOrder.getId());
             //更新摊位租赁单状态
             cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
-        } else if (leaseOrder.getState().equals(LeaseOrderStateEnum.SUBMITTED.getCode())) {//非第一次付款，相关业务实现
+        } else {//非第一次付款，相关业务实现
             //判断缴费单是否需要撤回 需要撤回则撤回
             if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
                 withdrawPaymentOrder(leaseOrder.getPaymentId());
