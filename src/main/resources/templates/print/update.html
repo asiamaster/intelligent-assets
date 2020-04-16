@@ -11,9 +11,8 @@
             <div class="form-group col">
                 <label for="" class="">模板路径<i class="red">*</i></label>
                 <div class="custom-file">
-                    <input type="file" class="custom-file-input" name="tempFileupload" id="edittempFileupload">
-                    <label class="custom-file-label" for="edittempFileupload" data-browse="打开"
-                           id="showFileName">选择文件</label>
+                    <input type="file" class="custom-file-input" name="tempFileupload" value="" id="edittempFileupload">
+                    <label class="custom-file-label" for="edittempFileupload" data-browse="打开" id="editshowFileName">${obj.path!}</label>
                 </div>
             </div>
             <div class="form-group col">
@@ -38,7 +37,7 @@
         src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.iframe-transport.js"></script>
 <script type="text/javascript" src="${contextPath}/resources/bui/lib/jquery-fileupload/jquery.fileupload.js"></script>
 <script>
-    let fileData;
+    var editfileData;
     $(function () {
         $("#editForm").validate();
         $('#edittempFileupload').fileupload({
@@ -49,14 +48,19 @@
             singleFileUploads: false,
             multipart: true,
             change: function (e, data) {
-                $('#showFileName').html(data.files[0].name)
+                $('#editshowFileName').html(data.files[0].name)
             },
             add: function (e, data) {
                 console.log('ready')
-                fileData = data;
+                editfileData = data;
             },
             done: function (e, data) {
-                bs4pop.alert('模板新增成功', {type: 'success'}, function () {
+                if (data.result.code != '200') {
+                    bs4pop.alert(data.result.message, {type: 'error'});
+                    okButton.removeAttr("disabled");
+                    return;
+                }
+                bs4pop.alert('模板修改成功', {type: 'success'}, function () {
                     window.location.reload();
                 });
             },
@@ -64,15 +68,16 @@
     });
     $("#edit-form-submit").click(function () {
         $("#edit-form-submit").attr("disabled", "disabled");
-        saveOrUpdateHandler(fileData);
+        saveOrUpdateHandler(editfileData);
     });
 
-    function saveOrUpdateHandler(fileData) {
+    function saveOrUpdateHandler(editfileData) {
         if ($("#editForm").valid()) {
-            if (!fileData) {
+            if (!editfileData) {
                 update();
+            }else{
+                editfileData.submit();
             }
-            fileData.submit();
         }
     }
 
