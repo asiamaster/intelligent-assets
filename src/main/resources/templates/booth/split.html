@@ -248,7 +248,7 @@
             $(".cal-number").each(function () {
                 total = total.add(Number($(this).val()));
             });
-            if (total >= number) {
+            if (total > number) {
                 bs4pop.alert("拆过可拆分数量", {type: 'error'});
                 return;
             }
