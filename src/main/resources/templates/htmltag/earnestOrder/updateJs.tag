@@ -132,7 +132,7 @@
         return false;
     }
     // 提交保存
-    $('#formSubmit').on('click', function (e) {
+    function doUpdateEarnestHandler(){
         let validator = $('#updateForm').validate({ignore:''})
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
@@ -169,6 +169,6 @@
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
+    }
 
-    });
 </script>
