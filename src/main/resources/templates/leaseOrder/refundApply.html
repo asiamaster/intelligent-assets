@@ -112,7 +112,7 @@
         </div>
         <div class="text-right">
             <button type="button" class="btn btn-secondary px-5" id="cancel" onclick="javascript:parent.closeDialog(parent.dia)">取消</button>
-            <button type="button" class="btn btn-primary px-5" id="formSubmit">保存</button>
+            <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveFormHandler,1000,true)()">保存</button>
         </div>
     </form>
 </div>

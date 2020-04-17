@@ -113,7 +113,7 @@
     }
 
     // 提交保存
-    $('#formSubmit').on('click', function (e) {
+    function doAddEarnestHandler(){
         let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
             /*$(this).find('.collapse').each(function (index, element) {
@@ -154,6 +154,5 @@
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
-    });
-
+    }
 </script>

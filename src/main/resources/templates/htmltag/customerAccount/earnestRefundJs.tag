@@ -21,7 +21,7 @@
     }
 
     // 定金退款保存
-    $('#formSubmit').on('click', function (e) {
+    function doAddEarnestRefundHandler(){
         if (!$('#saveForm').valid()) {
             return false;
         } else {
@@ -33,12 +33,12 @@
                 data: buildFormData(),
                 dataType: "json",
                 success: function (ret) {
-                    bui.loading.hide();
                     if(!ret.success){
                         bs4pop.alert(ret.message, {type: 'error'});
                     }else{
                         parent.closeDialog(parent.dia);
                     }
+                    bui.loading.hide();
                 },
                 error: function (error) {
                     bui.loading.hide();
@@ -46,8 +46,7 @@
                 }
             });
         }
-    });
-
+    }
 
 </script>
 
