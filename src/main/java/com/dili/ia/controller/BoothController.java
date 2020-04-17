@@ -240,7 +240,7 @@ public class BoothController {
                         result.add(dto);
                     } else {
                         boolean anyMatch = data.stream().anyMatch(obj -> obj.getParentId().equals(dto.getId()));
-                        if (!anyMatch && dto.getParentId() == 0) {
+                        if (!anyMatch && dto.getParentId() == 0 && dto.getState().equals(EnabledStateEnum.ENABLED.getCode())) {
                             result.add(dto);
                         }
                     }
