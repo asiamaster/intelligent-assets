@@ -327,6 +327,8 @@ if(rows[0].parentId !=0){
         if (columns && columns[0][0].visible) {
             _grid.treegrid({
                 treeColumn: 0,
+                expanderExpandedClass: 'fa fa-minus',
+                expanderCollapsedClass: 'fa fa-plus',
                 onChange: function() {
                     console.log($(this).treegrid('getDepth'))
                 }

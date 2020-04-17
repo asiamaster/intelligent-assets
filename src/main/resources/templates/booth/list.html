@@ -3,6 +3,16 @@
 <script src="https://cdn.bootcss.com/select2/4.0.12/js/select2.min.js"></script>
 <script src="https://cdn.bootcss.com/select2/4.0.12/js/i18n/zh-CN.js"></script>
 <style>
+
+    .boothname {
+        text-indent: 20px;
+    }
+    tr[class*="treegrid-parent"] .boothname{
+        text-indent: 40px;
+    }
+
+
+
     .select2-container--bootstrap4 .select2-selection--single {
         height: calc(2.25rem + 2px) !important
     }
@@ -331,11 +341,12 @@
 </#resource>
             </div>
             <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-parent-id-field="parentId" data-query-params="queryParams" data-sort-name="id"
-                   data-sort-order="desc" data-pagination="true" data-page-number="1" data-page-size="10" data-side-pagination="server" data-single-select="true" data-click-to-select="true">
+                   data-sort-order="desc" data-pagination="true" data-page-number="1" data-page-size="10" data-side-pagination="server" data-single-select="true" data-click-to-select="true" data-ignore-click-to-select-on="ignoreExpandClick">
                 <thead>
                 <tr>
+                    <th data-formatter="emptyFormatter" data-width="36" data-align="center" class="expandicon"></th>
                     <th data-radio="true"></th>
-                    <th data-field="name" data-align="center" data-sortable="true" data-formatter="formatterView">
+                    <th data-field="name" data-align="left" data-sortable="true" data-formatter="formatterView" data-class="boothname">
                         摊位编号
                     </th>
                     <th data-field="number" data-align="center" data-sortable="true">
@@ -387,6 +398,9 @@
     </div>
 </div>
 <script>
+
+
+
     var hasEdit = false;
     var hasDel = false;
     var hasSplit = false;
@@ -446,6 +460,8 @@ var off = ' <a class="remove" href="javascript:void(0)" onclick="doEnableHandler
             return oprate;
         }
     }
+
+    function emptyFormatter(){return ''}
 
     function formatterView(value, row, index) {
         if(hasView){
@@ -514,6 +530,11 @@ var off = ' <a class="remove" href="javascript:void(0)" onclick="doEnableHandler
             }
         });
     }
+
+    function ignoreExpandClick(e) {
+        return ['SPAN'].indexOf(e.tagName) > -1;
+    }
+
 </script>
 
 <#booth_indexJs />

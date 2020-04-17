@@ -17,7 +17,7 @@
     </button>
 
 </div>
-<table class="table table-bordered mt-3">
+<table class="table table-bordered mt-3 text-center" >
     <tr>
         <th scope="col"></th>
         <th scope="col">品类名称</th>
@@ -162,4 +162,10 @@
             }
         });
     }
+
+    $(document).on('click', '.table tr', function () {
+        $(this).find('input[type="radio"]').prop('checked',true);
+    });
+
+
 </script>

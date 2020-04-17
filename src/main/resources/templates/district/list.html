@@ -11,6 +11,14 @@
     .detail {
         width: 12px !important;
     }
+
+    .districtname {
+        text-indent: 20px;
+    }
+    tr[class*="treegrid-parent"] .districtname{
+        text-indent: 40px;
+    }
+
 </style>
 <div class="container-fluid">
     <div class="row">
@@ -69,11 +77,12 @@
                 </button>
     </#resource>
                 </div>
-                <table id="grid" data-single-select="true" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-root-parent-id="-1" data-parent-id-field="parentId" data-query-params="queryParams" data-pagination="true" data-page-number="1" data-page-size="10" data-side-pagination="server">
+                <table id="grid" data-single-select="true" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-root-parent-id="-1" data-parent-id-field="parentId" data-query-params="queryParams" data-pagination="true" data-page-number="1" data-page-size="10" data-side-pagination="server" data-click-to-select="true"  data-ignore-click-to-select-on="ignoreExpandClick">
                     <thead>
                     <tr>
+                        <th data-formatter="emptyFormatter" data-width="36" data-align="center"></th>
                         <th data-radio="true"></th>
-                        <th data-field="name" data-align="center">
+                        <th data-field="name" data-align="left" data-class="districtname">
                             区域名称
                         </th>
                         <th data-field="number" data-align="center">
@@ -146,6 +155,7 @@
         size = size > 10 ? size : 10;
         _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action', pageSize: parseInt(size)});
     });
+    function emptyFormatter(){return ''}
 
     function oneFormatter(value, row) {
         if(row.parentId == 0){
@@ -266,10 +276,15 @@
         if (columns && columns[0][0].visible) {
             _grid.treegrid({
                 treeColumn: 0,
+                expanderExpandedClass: 'fa fa-minus',
+                expanderCollapsedClass: 'fa fa-plus',
                 onChange: function() {
                     console.log($(this).treegrid('getDepth'))
                 }
             })
         }
     });
+    function ignoreExpandClick(e) {
+        return ['SPAN'].indexOf(e.tagName) > -1;
+    }
 </script>
