@@ -482,10 +482,11 @@
         return false;
     }
 
-    /*****************************************函数区 end**************************************/
-
-    /*****************************************自定义事件区 begin************************************/
-    $('#formSubmit').on('click', function (e) {
+    /**
+     * 表单baocun
+     * @returns {boolean}
+     */
+    function saveFormHandler(){
         let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
@@ -520,20 +521,23 @@
             data: buildFormData(),
             dataType: "json",
             success: function (ret) {
-                bui.loading.hide();
                 if(!ret.success){
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
                     parent.closeDialog(parent.dia);
                 }
+                bui.loading.hide();
             },
             error: function (a, b, c) {
                 bui.loading.hide();
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
-    });
+    }
 
+    /*****************************************函数区 end**************************************/
+
+    /*****************************************自定义事件区 begin************************************/
     //摊位新增事件
     $('#addBooth').on('click', function(){
         if ($('#boothTable tr').length < 11) {
