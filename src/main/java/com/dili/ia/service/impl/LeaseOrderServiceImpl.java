@@ -17,8 +17,8 @@ import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.ResultCodeConst;
+import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
-import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -73,8 +73,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     private Long settlementAppId;
     @Value("${settlement.handler.url}")
     private String settlerHandlerUrl;
-    @Value("${contextPath}")
-    private String contextPath;
     @Autowired
     private UidFeignRpc uidFeignRpc;
     @Autowired
@@ -86,7 +84,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Autowired
     private CustomerRpc customerRpc;
     @Autowired
-    private BusinessLogRpc businessLogRpc;
+    private MsgService msgService;
     @Autowired
     private TransactionDetailsService transactionDetailsService;
 
@@ -338,7 +336,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
 
-        businessLogRpc.save(recordPayLog(settleOrder, leaseOrder), contextPath);
+        msgService.sendBusinessLog(recordPayLog(settleOrder, leaseOrder));
         return BaseOutput.success().setData(true);
     }
 
@@ -1314,7 +1312,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             });
         }
         //记录退款日志
-        businessLogRpc.save(recordRefundLog(refundOrder, leaseOrder), contextPath);
+        msgService.sendBusinessLog(recordRefundLog(refundOrder, leaseOrder));
         return BaseOutput.success();
     }
 
