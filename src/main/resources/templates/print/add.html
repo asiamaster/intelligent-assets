@@ -4,7 +4,7 @@
 
             <div class="form-group col">
                 <label for="name" class="">模板名称<i class="red">*</i></label>
-                <input type="text" class="form-control" id="name" name="name" maxlength="20" required/>
+                <input type="text" class="form-control" id="name" name="name" maxlength="32" required/>
             </div>
             <div class="form-group col">
                 <label for="" class="">模板路径<i class="red">*</i></label>
@@ -56,7 +56,7 @@
             done: function (e, data) {
                 if (data.result.code != '200') {
                     bs4pop.alert(data.result.message, {type: 'error'});
-                    okButton.removeAttr("disabled");
+                    $("#form-submit").removeAttr("disabled");
                     return;
                 }
                 bs4pop.alert('模板新增成功', {type: 'success'}, function () {
@@ -68,6 +68,7 @@
     $("#form-submit").click(function () {
         $("#form-submit").attr("disabled", "disabled");
         saveOrUpdateHandler(fileData);
+        $("#form-submit").removeAttr("disabled");
     });
 
     function saveOrUpdateHandler(fileData) {
