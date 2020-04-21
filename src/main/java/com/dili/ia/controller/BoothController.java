@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BoothDTO;
@@ -13,8 +14,10 @@ import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.ApiOperation;
@@ -42,6 +45,9 @@ public class BoothController {
     @Autowired
     private UserRpc userRpc;
 
+    @Autowired
+    private DepartmentRpc departmentRpc;
+
 
     /**
      * test
@@ -65,8 +71,16 @@ public class BoothController {
         if (input == null) {
             input = new BoothDTO();
         }
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         input.setIsDelete(YesOrNoEnum.NO.getCode());
-        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
+        input.setMarketId(userTicket.getFirmId());
+        if (input.getDepartmentId() == null) {
+            List<Department> departments = departmentRpc.listUserAuthDepartmentByFirmId(userTicket.getId(), userTicket.getFirmId()).getData();
+            long[] ids = departments.stream().mapToLong(Department::getId).toArray();
+            if(ids.length > 0){
+                input.setDeps(ArrayUtil.join(ids, ","));
+            }
+        }
         return assetsRpc.listPage(input);
     }
 
@@ -169,15 +183,15 @@ public class BoothController {
     @RequestMapping("/update.action")
     @ResponseBody
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH, content = "${name!}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
-    public BaseOutput update(BoothDTO input , String opType) {
+    public BaseOutput update(BoothDTO input, String opType) {
         try {
             input.setModifyTime(new Date());
             BaseOutput baseOutput = assetsRpc.updateBooth(input);
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY,opType);
+            LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, opType);
             LoggerUtil.buildLoggerContext(input.getId(), input.getName(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), input.getNotes());
             return baseOutput;
-        }catch (Exception e){
+        } catch (Exception e) {
             return BaseOutput.failure("系统异常");
         }
     }
@@ -215,7 +229,7 @@ public class BoothController {
             BaseOutput baseOutput = assetsRpc.delBoothById(id);
             LoggerUtil.buildLoggerContext(id, null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             return baseOutput;
-        }catch (Exception e){
+        } catch (Exception e) {
             return BaseOutput.failure("系统异常");
         }
     }
