@@ -1,13 +1,16 @@
 
 package com.dili.ia.controller;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,6 +30,9 @@ public class DistrictController {
 
     @Autowired
     private AssetsRpc assetsRpc;
+
+    @Autowired
+    private DepartmentRpc departmentRpc;
 
     /**
      * 跳转到区域列表页
@@ -140,7 +146,15 @@ public class DistrictController {
         if (input == null) {
             input = new DistrictDTO();
         }
-        input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        input.setMarketId(userTicket.getFirmId());
+        if (input.getDepartmentId() == null) {
+            List<Department> departments = departmentRpc.listUserAuthDepartmentByFirmId(userTicket.getId(), userTicket.getFirmId()).getData();
+            long[] ids = departments.stream().mapToLong(Department::getId).toArray();
+            if(ids.length > 0){
+                input.setDeps(ArrayUtil.join(ids, ","));
+            }
+        }
         return assetsRpc.listDistrictPage(input);
     }
 
