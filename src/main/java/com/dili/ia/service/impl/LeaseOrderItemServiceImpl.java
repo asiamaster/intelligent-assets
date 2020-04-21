@@ -147,13 +147,13 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         }
         if(isUpdateLeaseOrderState){
             leaseOrder.setState(LeaseOrderStateEnum.RENTED_OUT.getCode());
+            //租赁单状态不更新为停租也需要版本号+1，状态的联动需要 各订单项需要共同一把锁
+            if(leaseOrderService.updateSelective(leaseOrder) == 0){
+                LOG.info("级联更新租赁单状态异常,乐观锁生效 【租赁单编号:{},摊位名称:{}】", leaseOrderItemOld.getLeaseOrderCode(), leaseOrderItemOld.getBoothName());
+                throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
+            }
         }
 
-        //租赁单状态不更新为停租也需要版本号+1，状态的联动需要 各订单项需要共同一把锁
-        if(leaseOrderService.updateSelective(leaseOrder) == 0){
-            LOG.info("级联更新租赁单状态异常,乐观锁生效 【租赁单编号:{},摊位名称:{}】", leaseOrderItemOld.getLeaseOrderCode(), leaseOrderItemOld.getBoothName());
-            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
-        }
     }
 
     /**
