@@ -10,7 +10,8 @@
 
 
 $(function(){
-    laydateInt()
+    laydateInt();
+    $('[data-toggle="tooltip"]').tooltip();
 });
 
 /******************************驱动执行区 begin***************************/

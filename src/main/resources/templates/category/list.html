@@ -3,13 +3,8 @@
       href="http://www.jq22.com/demo/bootstrap-ztree3201708300202/css/bootstrapStyle/bootstrapStyle.css"
       type="text/css">
 <div class="main-container container-fluid">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">基础信息管理</a></li>
-            <li class="breadcrumb-item active" aria-current="page">品类管理</li>
-        </ol>
-    </nav>
-    <div class="row row-cols-6" id="queryForm">
+    <#bs4nav>
+    <div class="row row-cols-4" id="queryForm">
         <div class="form-group col">
             <label for="category_status">状态</label>
             <select id="category_status" class="form-control input-sm">
@@ -29,7 +24,7 @@
             <button class="btn btn-outline-primary" id="addButton" onclick="addClickHandler();return false;"><i class="fa fa-plus"></i> 新增</button>
         </div>
     </div>
-
+</#bs4nav>
 
     <div class="row">
         <div class="col-2">
@@ -62,8 +57,8 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="saveBtn">保存</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary px-5" id="saveBtn">保存</button>
+                <button type="button" class="btn  btn-secondary px-5" data-dismiss="modal">关闭</button>
             </div>
         </div>
     </div>
