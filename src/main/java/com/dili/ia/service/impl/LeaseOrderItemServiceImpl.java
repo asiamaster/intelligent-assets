@@ -111,6 +111,11 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         return BaseOutput.success();
     }
 
+    /**
+     * 客户摊位保证金可用查询
+     * @param leaseOrderItem
+     * @return
+     */
     @Override
     public Map<Long,List<LeaseOrderItem>> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem) {
         leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());

@@ -822,7 +822,9 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrder.setCanceler(userTicket.getRealName());
 
         String formatNow = DateUtils.format(new Date(),"yyyyMMddHHmmssSSS");
-        leaseOrder.setContractNo(leaseOrder.getContractNo() + "_" + formatNow);
+        if(StringUtils.isNotBlank(leaseOrder.getContractNo())){
+            leaseOrder.setContractNo(leaseOrder.getContractNo() + "_" + formatNow);
+        }
 
         //联动摊位租赁单项状态 取消
         cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.CANCELD);
