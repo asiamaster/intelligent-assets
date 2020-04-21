@@ -35,6 +35,7 @@ import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -308,6 +309,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput<RefundOrder> doRefundSuccessHandler(SettleOrder settleOrder) {
         RefundOrder condition = DTOUtils.newInstance(RefundOrder.class);

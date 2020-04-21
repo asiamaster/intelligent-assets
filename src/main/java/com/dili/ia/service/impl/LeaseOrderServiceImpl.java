@@ -1226,7 +1226,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     @Override
     @Transactional
-    @GlobalTransactional
     public BaseOutput settleSuccessRefundOrderHandler(RefundOrder refundOrder) {
         LeaseOrder leaseOrder = get(refundOrder.getBusinessId());
         if(null == refundOrder.getBusinessItemId()){
