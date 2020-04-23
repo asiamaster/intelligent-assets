@@ -294,6 +294,18 @@
               "defaultValue": ""
             },
             {
+              "name": "icon",
+              "type": "Intro",
+              "remark": "",
+              "chnname": "图标"
+            },
+            {
+              "name": "image",
+              "type": "mediumblob",
+              "remark": "",
+              "chnname": "图片"
+            },
+            {
               "name": "path",
               "type": "DefaultString",
               "chnname": "路劲",
@@ -348,6 +360,12 @@
               "type": "tinyint",
               "remark": "",
               "chnname": "状态"
+            },
+            {
+              "name": "cate_level",
+              "type": "tinyint",
+              "remark": "",
+              "chnname": "层级"
             }
           ],
           "indexs": [],
@@ -1232,6 +1250,27 @@
           },
           "PostgreSQL": {
             "type": "tinyint"
+          }
+        }
+      },
+      {
+        "name": "二进制",
+        "code": "mediumblob",
+        "apply": {
+          "JAVA": {
+            "type": "byte[]"
+          },
+          "MYSQL": {
+            "type": "mediumblob"
+          },
+          "ORACLE": {
+            "type": ""
+          },
+          "SQLServer": {
+            "type": ""
+          },
+          "PostgreSQL": {
+            "type": ""
           }
         }
       }

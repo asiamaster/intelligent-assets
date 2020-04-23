@@ -180,13 +180,9 @@
         var path = treeNode.path;
         var pid = treeNode.id;
         var arr = path.split(",");
-        if (arr.length >= 3) {
-            $("#parentId").attr("value", "");
-            $("#addButton").attr("disabled", "disabled");
-        } else {
-            $("#parentId").val(pid);
-            $("#addButton").removeAttr("disabled");
-        }
+
+        $("#parentId").val(pid);
+
         $("#category_status option[value='']")[0].selected = "selected";
         $("#category_text").val("");
         tableurl = '/category/table.html' + '?parent=' + pid;
@@ -202,7 +198,6 @@
         status = $("#category_status").val();
         text = $("#category_text").val();
         $("#parentId").attr("value", "");
-        $("#addButton").attr("disabled", "disabled");
         tableurl = '/category/table.html' + '?state=' + status + '&keyword=' + text;
         isQuery = true;
         loadTable();
