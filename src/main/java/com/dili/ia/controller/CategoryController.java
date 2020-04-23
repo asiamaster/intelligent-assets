@@ -46,7 +46,10 @@ public class CategoryController {
     @RequestMapping("addView.html")
     public String toAdd(Long pid, ModelMap map) {
         // 品类未选择或者选择根品类时，添加页面不显示上级品类字段
-        if (pid != null && pid != 0) {
+        if (pid == null) {
+            pid = 0L;
+        }
+        if (pid != 0) {
             map.put("pid", pid);
             CategoryDTO data = assetsRpc.get(pid).getData();
             map.put("parentName", data.getName());
@@ -88,7 +91,7 @@ public class CategoryController {
     public BaseOutput<List<CategoryDTO>> getTree(CategoryDTO input) {
         try {
             return assetsRpc.list(input);
-        }catch (Exception e){
+        } catch (Exception e) {
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -98,20 +101,20 @@ public class CategoryController {
      */
     @RequestMapping(value = "/save.action")
     @ResponseBody
-    @BusinessLogger(businessType = LogBizTypeConst.CATEGORY,content = "${contractNo}",operationType="add",systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.CATEGORY, content = "${contractNo}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput save(CategoryDTO input) {
         try {
             input.setCreateTime(new Date());
             input.setCreatorId(SessionContext.getSessionContext().getUserTicket().getId());
             input.setModifyTime(new Date());
-            if(input.getId()!=null){
-                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY,"edit");
+            if (input.getId() != null) {
+                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
             }
             BaseOutput save = assetsRpc.save(input);
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             LoggerUtil.buildLoggerContext(input.getId(), input.getName(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             return save;
-        }catch (Exception e){
+        } catch (Exception e) {
             return BaseOutput.failure("系统异常");
         }
     }
@@ -147,25 +150,25 @@ public class CategoryController {
      */
     @RequestMapping(value = "/batchUpdate.action")
     @ResponseBody
-    @BusinessLogger(businessType = LogBizTypeConst.CATEGORY,content = "${contractNo}",operationType="edit",systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.CATEGORY, content = "${contractNo}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput batchUpdate(Long id, Integer value) {
         try {
             BaseOutput baseOutput = assetsRpc.batchUpdate(id, value);
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            if(value.equals(EnabledStateEnum.ENABLED.getCode())){
-                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY,"enable");
+            if (value.equals(EnabledStateEnum.ENABLED.getCode())) {
+                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "enable");
             }
-            if(value.equals(EnabledStateEnum.DISABLED.getCode())){
-                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY,"disable");
+            if (value.equals(EnabledStateEnum.DISABLED.getCode())) {
+                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "disable");
             }
-            if(value.equals(3)){
-                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY,"del");
+            if (value.equals(3)) {
+                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "del");
             }
 
 
             LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             return baseOutput;
-        }catch (Exception e){
+        } catch (Exception e) {
             return BaseOutput.failure("系统异常");
         }
     }
