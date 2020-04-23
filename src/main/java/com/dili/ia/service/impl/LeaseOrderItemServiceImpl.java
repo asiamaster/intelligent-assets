@@ -98,7 +98,13 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         boothRentDTO.setBoothId(leaseOrderItemOld.getBoothId());
         boothRentDTO.setOrderId(leaseOrderItemOld.getLeaseOrderId().toString());
         boothRentDTO.setEnd(leaseOrderItem.getStopTime());
-        BaseOutput assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
+        BaseOutput assetsOutput;
+        if(boothRentDTO.getEnd().getTime() < boothRentDTO.getStart().getTime()){
+            //未生效停租 结束时间比开始时间小 直接释放时间段
+            assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
+        }else{
+            assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
+        }
         if(!assetsOutput.isSuccess()){
             LOG.info("摊位订单项停租异常，【订单项ID:{},摊位名称:{},异常MSG:{}】", leaseOrderItemOld.getId(), leaseOrderItemOld.getBoothName(), assetsOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
