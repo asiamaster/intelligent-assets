@@ -98,12 +98,12 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         BoothRentDTO boothRentDTO = new BoothRentDTO();
         boothRentDTO.setBoothId(leaseOrderItemOld.getBoothId());
         boothRentDTO.setOrderId(leaseOrderItemOld.getLeaseOrderId().toString());
-        boothRentDTO.setEnd(leaseOrderItem.getStopTime());
         BaseOutput assetsOutput;
-        if(boothRentDTO.getEnd().getTime() < leaseOrder.getStartTime().getTime()){
+        if(leaseOrderItem.getStopTime().getTime() < leaseOrder.getStartTime().getTime()){
             //未生效停租 结束时间比开始时间小 直接释放时间段
             assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
         }else{
+            boothRentDTO.setEnd(leaseOrderItem.getStopTime());
             assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
         }
         if(!assetsOutput.isSuccess()){
