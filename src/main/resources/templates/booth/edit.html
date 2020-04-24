@@ -181,6 +181,7 @@
                             })
                         }
                     }
+                    initArea();
                 }
             });
         }else{
@@ -192,7 +193,7 @@
 
     function initArea() {
         if (!isInit) {
-            $("#areaTwoEdit").val(se_area);
+            $("#areaTwoEdit").val(se_area).trigger("change");
             isInit = true;
         }
     }

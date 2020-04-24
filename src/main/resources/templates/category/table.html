@@ -85,6 +85,7 @@
                         }
                         loadTable();
                         removeTreeNode(id);
+                        $("#parentId").val(0);
                         tips("提示", "删除品类成功!");
                     },
                     error: function () {
