@@ -28,6 +28,8 @@
         </appender>
         <!--        不打印心跳日志     -->
         <logger name="io.seata.core.rpc.netty" level="info"/>
+        <!-- 不显示Flushing UNDO LOG  -->
+        <logger name="io.seata.rm.datasource.undo" level="info"/>
         <!--        <logger name="com.dili.${LOG_NAME}" level="DEBUG"/>-->
         <jmxConfigurator/>
     </springProfile>
@@ -54,6 +56,8 @@
         </appender>
         <!--        不打印心跳日志     -->
         <logger name="io.seata.core.rpc.netty" level="info"/>
+        <!-- 不显示Flushing UNDO LOG  -->
+        <logger name="io.seata.rm.datasource.undo" level="info"/>
         <jmxConfigurator/>
     </springProfile>
     <!-- 灰度环境 -->
@@ -80,6 +84,8 @@
         </appender>
         <!--        不打印心跳日志     -->
         <logger name="io.seata.core.rpc.netty" level="info"/>
+        <!-- 不显示Flushing UNDO LOG  -->
+        <logger name="io.seata.rm.datasource.undo" level="info"/>
     </springProfile>
     <!-- 生产环境 -->
     <springProfile name="prod">
@@ -105,6 +111,8 @@
         </appender>
         <!--        不打印心跳日志     -->
         <logger name="io.seata.core.rpc.netty" level="info"/>
+        <!-- 不显示Flushing UNDO LOG  -->
+        <logger name="io.seata.rm.datasource.undo" level="info"/>
     </springProfile>
     <root level="info">
         <appender-ref ref="appender" />
