@@ -512,6 +512,27 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     }
 
     /**
+     * 退款 解冻租赁订单所有摊位
+     * @param leaseOrder
+     */
+    public void unFrozenAllBoothForRefund(LeaseOrder leaseOrder) {
+        BoothRentDTO boothRentDTO = new BoothRentDTO();
+        boothRentDTO.setOrderId(leaseOrder.getId().toString());
+        BaseOutput assetsOutput = null;
+        if(LeaseOrderStateEnum.NOT_ACTIVE.getCode().equals(leaseOrder.getState())){
+            assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
+        }else if(LeaseOrderStateEnum.EFFECTIVE.getCode().equals(leaseOrder.getState())){
+            boothRentDTO.setEnd(new Date());
+            assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
+        }
+
+        if(null != assetsOutput && !assetsOutput.isSuccess()){
+            LOG.info("解冻租赁订单【租赁单编号:{}】所有摊位异常{}", leaseOrder.getCode(), assetsOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
+        }
+    }
+
+    /**
      * 解冻租赁订单单个摊位
      * @param leaseOrderId
      * @param boothId
@@ -1234,7 +1255,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 return BaseOutput.success();
             }
             //解冻租赁订单所有摊位租赁
-            unFrozenAllBooth(leaseOrder.getId());
+            unFrozenAllBoothForRefund(leaseOrder);
             leaseOrder.setRefundState(RefundStateEnum.REFUNDED.getCode());
             leaseOrder.setState(LeaseOrderStateEnum.REFUNDED.getCode());
             if(updateSelective(leaseOrder) == 0){
@@ -1262,8 +1283,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                 return BaseOutput.success();
             }
 
-            //解冻单个摊位租赁
-            unFrozenSingleBooth(leaseOrderItem.getLeaseOrderId(),leaseOrderItem.getBoothId());
             leaseOrderItem.setRefundState(RefundStateEnum.REFUNDED.getCode());
             leaseOrderItem.setState(LeaseOrderItemStateEnum.REFUNDED.getCode());
             if(leaseOrderItemService.updateSelective(leaseOrderItem) == 0){
