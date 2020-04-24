@@ -65,6 +65,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         leaseOrderItem.setStopOperatorId(userTicket.getId());
         leaseOrderItem.setStopOperatorName(userTicket.getRealName());
         LeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
+        LeaseOrder leaseOrder = leaseOrderService.get(leaseOrderItemOld.getLeaseOrderId());
         if(!StopRentStateEnum.NO_APPLY.getCode().equals(leaseOrderItemOld.getStopRentState())){
             throw new BusinessException(ResultCode.DATA_ERROR,"已发起过停租，不能多次发起停租");
         }
@@ -97,8 +98,14 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
         BoothRentDTO boothRentDTO = new BoothRentDTO();
         boothRentDTO.setBoothId(leaseOrderItemOld.getBoothId());
         boothRentDTO.setOrderId(leaseOrderItemOld.getLeaseOrderId().toString());
-        boothRentDTO.setEnd(leaseOrderItem.getStopTime());
-        BaseOutput assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
+        BaseOutput assetsOutput;
+        if(leaseOrderItem.getStopTime().getTime() < leaseOrder.getStartTime().getTime()){
+            //未生效停租 结束时间比开始时间小 直接释放时间段
+            assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
+        }else{
+            boothRentDTO.setEnd(leaseOrderItem.getStopTime());
+            assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
+        }
         if(!assetsOutput.isSuccess()){
             LOG.info("摊位订单项停租异常，【订单项ID:{},摊位名称:{},异常MSG:{}】", leaseOrderItemOld.getId(), leaseOrderItemOld.getBoothName(), assetsOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
