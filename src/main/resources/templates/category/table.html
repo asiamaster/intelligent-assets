@@ -1,21 +1,26 @@
 <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
 
-    <button type="button" class="btn btn-primary" onclick="tableUpdateClickHandler()">
-        <i class="fa fa-pencil-square-o"></i> 修改
-    </button>
+    <#resource code="editCategory">
+        <button type="button" class="btn btn-primary" onclick="tableUpdateClickHandler()">
+            <i class="fa fa-pencil-square-o"></i> 修改
+        </button>
+    </#resource>
 
+<#resource code="delCategory">
     <button type="button" class="btn btn-primary" onclick="tableDeleteClickHandler()">
         <i class="fa fa-trash-o"></i> 删除
     </button>
-
+</#resource>
+<#resource code="enableCategory">
     <button type="button" class="btn btn-primary" onclick="tableUnFreezeClickHandler()">
         <i class="fa fa-play"></i> 启用
     </button>
-
+</#resource>
+<#resource code="disableCategory">
     <button type="button" class="btn btn-primary" onclick="tableFreezeClickHandler()">
         <i class="fa fa-stop"></i> 禁用
     </button>
-
+</#resource>
 </div>
 <table class="table table-bordered mt-3 text-center" >
     <tr>
@@ -85,6 +90,7 @@
                         }
                         loadTable();
                         removeTreeNode(id);
+                        $("#parentId").val(0);
                         tips("提示", "删除品类成功!");
                     },
                     error: function () {

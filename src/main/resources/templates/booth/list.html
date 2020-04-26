@@ -11,7 +11,14 @@
         text-indent: 40px;
     }
 
+     .select2-container--default .select2-selection--single {
+         border: 1px solid #DBDDE1;
+         height: 33.5px;
 
+     }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 33.5px;
+    }
 
     .select2-container--bootstrap4 .select2-selection--single {
         height: calc(2.25rem + 2px) !important
@@ -246,6 +253,14 @@
                     </select>
                 </div>
             </div>
+            <div class="form-group col">
+                <label for="booth_status">状态</label>
+                <select id="booth_status" class="form-control input-sm" name="state">
+                    <option value="">-- 全部 --</option>
+                    <option value="1">已启用</option>
+                    <option value="2">已禁用</option>
+                </select>
+            </div>
             <div class="form-group col-auto">
                 <label for="createdStart" class="justify-content-end mr-2 w-100px">创建时间:</label>
                 <div class="form-inline">
@@ -270,15 +285,6 @@
                     &nbsp;&nbsp;至&nbsp;&nbsp;
                     <input type="number" name="endNumber" class="form-control" range="0 999999.00">
                 </div>
-
-            </div>
-            <div class="form-group col">
-                <label for="booth_status">状态</label>
-                <select id="booth_status" class="form-control input-sm" name="state">
-                    <option value="">-- 全部 --</option>
-                    <option value="1">已启用</option>
-                    <option value="2">已禁用</option>
-                </select>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2" onclick="refresh()"><i class="fa fa-refresh"></i> 清空</button>

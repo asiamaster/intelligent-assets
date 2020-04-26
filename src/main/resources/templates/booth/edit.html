@@ -1,3 +1,13 @@
+<style>
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #DBDDE1;
+        height: 33.5px;
+
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 33.5px;
+    }
+</style>
 <div class="container-fluid">
     <form class="form" id="updateForm">
         <input type="hidden" name="id" value="${obj.id!}">
@@ -181,6 +191,7 @@
                             })
                         }
                     }
+                    initArea();
                 }
             });
         }else{
@@ -192,7 +203,7 @@
 
     function initArea() {
         if (!isInit) {
-            $("#areaTwoEdit").val(se_area);
+            $("#areaTwoEdit").val(se_area).trigger("change");
             isInit = true;
         }
     }

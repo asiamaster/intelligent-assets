@@ -1,3 +1,13 @@
+<style>
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #DBDDE1;
+        height: 33.5px;
+
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 33.5px;
+    }
+</style>
 <div class="container-fluid">
     <form class="form" id="saveForm">
         <input type="hidden" name="parentId" value="0">
@@ -22,7 +32,7 @@
             <div class="form-group col-6">
                 <label for="">区域<i class="red">*</i></label>
                 <div class="input-group">
-                    <select class="form-control w-25" id="areaOne" name="area" required>
+                    <select class="form-control" id="areaOne" name="area"  required>
                         <option value="" selected="">-- 请选择 --</option>
                     </select>
                     <select class="form-control" id="areaTwo" name="secondArea" >

@@ -42,6 +42,7 @@
     </div>
 </form>
 <script>
+    itemIndex = 0;
     $("#divForm").on('click', '.item-del', function () {
         if ($('#divTable tr').length > 2) {
             $(this).closest('tr').remove();
@@ -49,18 +50,31 @@
     });
 
     $("#add_div").click(function () {
-        $('#divTable tbody').append(template('divItem'));
+        $('#divTable tbody').append(template('divItem', {index: ++itemIndex}));
     });
 
     function saveDivForm() {
         if ($("#divForm").valid()) {
             bui.loading.show('努力提交中，请稍候。。。');
             $("#divForm-submit").attr("disabled", "disabled");
+            let _formData = new FormData($('#divForm')[0]);
+            var entries = _formData.entries();
+            while(true){
+                let next = entries.next();
+                if(next.done){
+                    break;
+                }
+                if(next.value[0].split("_").length > 1){
+                    _formData.append(next.value[0].split("_")[0],next.value[1]);
+                }
+            }
             $.ajax({
                 type : 'post',
                 url : '/district/divisionSave.action',
-                data : $('#divForm').serialize(),
-                dataType : 'json',
+                data : _formData,
+                processData: false,
+                contentType: false,
+                async: true,
                 success : function(ret){
                     bui.loading.hide();
                     $("#divForm-submit").removeAttr("disabled");
@@ -85,11 +99,11 @@
     <tr>
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i
                 class="fa fa-minus-square fa-lg"></i></a></td>
-        <td style="padding: .25rem!important;"><input type="text" name="names" value=""
+        <td style="padding: .25rem!important;"><input type="text" name="names_{{index}}" value="" maxlength="20" required
                                                       class="form-control"></td>
-        <td style="padding: .25rem!important;"><input type="text" name="numbers" value=""
+        <td style="padding: .25rem!important;"><input type="text" name="numbers_{{index}}" value="" required digits="true" maxlength="4"
                                                       class="form-control"></td>
-        <td style="padding: .25rem!important;"><input type="text" name="notes"
+        <td style="padding: .25rem!important;"><input type="text" name="notes_{{index}}" maxlength="100"
                                                       value="" class="form-control"></td>
     </tr>
 </script>
