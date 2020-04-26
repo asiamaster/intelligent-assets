@@ -1,5 +1,8 @@
 package com.dili.ia.controller;
 
+import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.ia.rpc.AssetsRpc;
@@ -12,11 +15,13 @@ import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -170,6 +175,26 @@ public class CategoryController {
             return baseOutput;
         } catch (Exception e) {
             return BaseOutput.failure("系统异常");
+        }
+    }
+
+    /**
+     * list Category
+     */
+    @ApiOperation("list category")
+    @RequestMapping(value = "/search.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput<List<CategoryDTO>> search(String keyword) {
+        CategoryDTO categoryDTO = new CategoryDTO();
+        if(null == keyword){
+            categoryDTO.setParent(0L);
+        }else{
+            categoryDTO.setKeyword(keyword.toString());
+        }
+        try {
+            return assetsRpc.list(categoryDTO);
+        } catch (Exception e) {
+            return BaseOutput.success().setData(new ArrayList<>());
         }
     }
 }

@@ -60,6 +60,29 @@
             }
         }
     }
+
+    //品类搜索自动完成
+    var categoryAutoCompleteOption = {
+        paramName: 'keyword',
+        displayFieldName: 'name',
+        serviceUrl: '/category/search.action',
+        transformResult: function (result) {
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '(' + dataItem.code + ')'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return;
+            }
+        }
+    }
     /*********************变量定义区 end***************/
 
 
