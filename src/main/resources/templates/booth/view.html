@@ -158,7 +158,7 @@
 
     function initArea() {
         if (!isInit) {
-            $("#areaTwo").val(se_area);
+            $("#areaTwo").val(se_area).trigger("change");
             isInit = true;
         }
     }
