@@ -78,7 +78,7 @@ public class DistrictController {
      */
     @RequestMapping("insert.action")
     @ResponseBody
-    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "${contractNo}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput save(DistrictDTO input) {
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -100,7 +100,7 @@ public class DistrictController {
      */
     @RequestMapping("divisionSave.action")
     @ResponseBody
-    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "${contractNo}", operationType = "split", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "", operationType = "split", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput divisionSave(Long parentId, String[] names, String[] notes, String[] numbers) {
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -121,7 +121,7 @@ public class DistrictController {
      */
     @RequestMapping("edit.action")
     @ResponseBody
-    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "${contractNo}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput edit(DistrictDTO input) {
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -164,7 +164,7 @@ public class DistrictController {
      */
     @RequestMapping("delete.action")
     @ResponseBody
-    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "${contractNo}", operationType = "del", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DISTRICT, content = "", operationType = "del", systemCode = "INTELLIGENT_ASSETS")
     public BaseOutput delete(Long id) {
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
