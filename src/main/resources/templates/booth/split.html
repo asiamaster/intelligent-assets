@@ -168,7 +168,7 @@
 
     function initArea() {
         if (!isInit) {
-            $("#areaTwoSplit").val(se_area);
+            $("#areaTwoSplit").val(se_area).trigger("change");
             isInit = true;
         }
     }
