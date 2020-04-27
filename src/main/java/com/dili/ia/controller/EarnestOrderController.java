@@ -219,7 +219,7 @@ public class EarnestOrderController {
            BaseOutput<EarnestOrder> output = earnestOrderService.updateEarnestOrder(earnestOrder);
             //写业务日志
             if (output.isSuccess()){
-                EarnestOrder order = output.getData();
+                EarnestOrder order = earnestOrderService.get(earnestOrder.getId());
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
                 LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getNotes());
             }
