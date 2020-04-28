@@ -1132,7 +1132,6 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
-        LOG.error("print orderCode="+orderCode);
         PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
         paymentOrderCondition.setCode(orderCode);
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
@@ -1168,18 +1167,16 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
         leaseOrderPrintDto.setDepositDeduction(MoneyUtils.centToYuan(leaseOrder.getDepositDeduction()));
 
-        LOG.error("print BusinessId="+paymentOrder.getBusinessId()+" code="+paymentOrder.getCode());
         PaymentOrder paymentOrderConditions = DTOUtils.newInstance(PaymentOrder.class);
         paymentOrderConditions.setBusinessId(paymentOrder.getBusinessId());
+        paymentOrderCondition.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
         List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);
-        LOG.error("print BusinessIds="+paymentOrders.stream().map(o->o.getId()).collect(Collectors.toList()));
         Long totalPayAmountExcludeLast = 0L;
         for (PaymentOrder order : paymentOrders) {
             if (!order.getCode().equals(orderCode) && order.getState().equals(PaymentOrderStateEnum.PAID.getCode())) {
                 totalPayAmountExcludeLast += order.getAmount();
             }
         }
-        LOG.error("print total="+totalPayAmountExcludeLast);
         //除最后一次所交费用+定金抵扣 之和未总定金
         leaseOrderPrintDto.setEarnestDeduction(MoneyUtils.centToYuan(leaseOrder.getEarnestDeduction() + totalPayAmountExcludeLast));
         leaseOrderPrintDto.setTransferDeduction(MoneyUtils.centToYuan(leaseOrder.getTransferDeduction()));
