@@ -1169,7 +1169,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
         PaymentOrder paymentOrderConditions = DTOUtils.newInstance(PaymentOrder.class);
         paymentOrderConditions.setBusinessId(paymentOrder.getBusinessId());
-        paymentOrderCondition.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
+        paymentOrderConditions.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
         List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);
         Long totalPayAmountExcludeLast = 0L;
         for (PaymentOrder order : paymentOrders) {
