@@ -334,6 +334,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
+        pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setMarketId(userTicket.getFirmId());
         pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
         PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
@@ -386,6 +387,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
+        condition.setBizType(BizTypeEnum.EARNEST.getCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
         EarnestOrder ea = this.get(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
@@ -426,6 +428,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
         PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
         paymentOrderCondition.setCode(orderCode);
+        paymentOrderCondition.setBizType(BizTypeEnum.EARNEST.getCode());
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
         if (null == paymentOrder) {
             throw new RuntimeException("businessCode无效");
