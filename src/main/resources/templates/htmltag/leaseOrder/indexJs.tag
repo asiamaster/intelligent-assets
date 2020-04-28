@@ -344,6 +344,7 @@
                         elem: '#stopTime',
                         type: 'date',
                         theme: '#007bff',
+                        trigger:'click',
                         min : minDate,
                         done: function(value, date){
                             $("#stopRentForm").validate().element($("#stopTime"));
