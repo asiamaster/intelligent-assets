@@ -104,6 +104,7 @@
                 elem: '#startTime',
                 type: 'date',
                 theme: '#007bff',
+                trigger:'click',
             <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
                 value: moment("${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}").add(1,"days").format("YYYY-MM-DD"),
             <% } else if(isEmpty(leaseOrder)){ %>
@@ -120,6 +121,7 @@
             elem: '#endTime',
             type: 'date',
             theme: '#007bff',
+            trigger:'click',
             done: function(value, date){
                 $('#endTime').val(value);
                 endTimeChangeHandler();

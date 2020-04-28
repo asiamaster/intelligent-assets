@@ -127,7 +127,6 @@
             closeBtn: true,
             backdrop : 'static',
             width: '40%',
-            height : '200px',
             btns: [
                 {
                     label: '确定', className: 'btn-primary', onClick(e) {
@@ -256,7 +255,6 @@
             closeBtn: true,
             backdrop : 'static',
             width: '550px',
-            height : '250px',
             btns: [
                 {
                     label: '确定', className: 'btn-primary', onClick(e) {
@@ -336,7 +334,6 @@
             closeBtn: true,
             backdrop : 'static',
             width: '40%',
-            height : '78%',
             onShowEnd(){
                 let now = moment(new Date()).format("YYYY-MM-DD");
                 let minDate = moment(now).isBefore(leaseOrder.startTime)?leaseOrder.startTime : now;
@@ -344,6 +341,7 @@
                         elem: '#stopTime',
                         type: 'date',
                         theme: '#007bff',
+                        trigger:'click',
                         min : minDate,
                         done: function(value, date){
                             $("#stopRentForm").validate().element($("#stopTime"));
