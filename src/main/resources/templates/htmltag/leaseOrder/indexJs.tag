@@ -336,7 +336,6 @@
             closeBtn: true,
             backdrop : 'static',
             width: '40%',
-            height : '78%',
             onShowEnd(){
                 let now = moment(new Date()).format("YYYY-MM-DD");
                 let minDate = moment(now).isBefore(leaseOrder.startTime)?leaseOrder.startTime : now;
