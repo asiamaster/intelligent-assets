@@ -94,7 +94,6 @@
         }
     });
 
-
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);
         let formData = $("input:not(table input),textarea,select").serializeObject();
@@ -104,7 +103,9 @@
             let earnestOrderdetail = {};
             $(this).find("input").each(function(t,el){
                 let fieldName = $(this).attr("name").split('_')[0];
-                earnestOrderdetail[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+                if ($(this).val() != ""){
+                    earnestOrderdetail[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+                }
             });
             earnestOrderdetails.push(earnestOrderdetail);
         });
