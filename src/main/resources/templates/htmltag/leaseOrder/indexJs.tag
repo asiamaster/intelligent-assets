@@ -127,7 +127,6 @@
             closeBtn: true,
             backdrop : 'static',
             width: '40%',
-            height : '200px',
             btns: [
                 {
                     label: '确定', className: 'btn-primary', onClick(e) {
@@ -256,7 +255,6 @@
             closeBtn: true,
             backdrop : 'static',
             width: '550px',
-            height : '250px',
             btns: [
                 {
                     label: '确定', className: 'btn-primary', onClick(e) {
