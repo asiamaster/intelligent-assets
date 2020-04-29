@@ -461,10 +461,17 @@ var off = ' <a class="remove" href="javascript:void(0)" onclick="doEnableHandler
 
     function formatterView(value, row, index) {
         if(hasView){
-            return '<a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">' + value + '</a>'
+            return '<a class="like" href="javascript:void(0)" onclick="openView(' + row.id + ')" title="Like">' + value + '</a>'
         }else{
             return row.name;
         }
+    }
+
+    function openView(id) {
+        $("#_modal").modal("show");
+
+        $('#_modal .modal-body').load("/booth/view.html?id=" + id);
+        _modal.find('.modal-title').text('摊位查看');
     }
 
     function refresh() {
