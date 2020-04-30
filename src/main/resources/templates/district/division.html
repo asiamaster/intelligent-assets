@@ -79,7 +79,7 @@
                     bui.loading.hide();
                     $("#divForm-submit").removeAttr("disabled");
                     if(ret.code!='200'){
-                        bs4pop.alert(data.message, {type: 'error'});
+                        bs4pop.alert(ret.message, {type: 'error'});
                     }else{
                         window.location.reload();
                     }
