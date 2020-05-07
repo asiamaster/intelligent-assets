@@ -49,7 +49,7 @@
                 return {
                     suggestions: $.map(data, function (dataItem) {
                         return $.extend(dataItem, {
-                                value: dataItem.name + '(' + (dataItem.secondAreaName?dataItem.secondAreaName : dataItem.areaName) + ')'
+                            value: dataItem.name + '(' + (dataItem.secondAreaName ? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
                             }
                         );
                     })
@@ -257,7 +257,7 @@
         $('#sku_'+index).val(suggestion.number+suggestion.unitName);
         $('#isCorner_'+index).val(suggestion.cornerName);
         $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
-        $('#districtName_'+index).val(suggestion.secondAreaName?suggestion.secondAreaName : suggestion.areaName);
+        $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
 
         queryCustomerDepositDeduction(true);
     }
