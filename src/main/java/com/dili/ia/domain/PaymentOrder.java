@@ -79,6 +79,13 @@ public interface PaymentOrder extends IBaseDomain {
 
     void setState(Integer state);
 
+    @Column(name = "`is_settle`")
+    @FieldDef(label="是否结清")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Integer getIsSettle();
+
+    void setIsSettle(Integer isSettle);
+
     @Column(name = "`amount`")
     @FieldDef(label="金额")
     @EditMode(editor = FieldEditor.Number, required = false)

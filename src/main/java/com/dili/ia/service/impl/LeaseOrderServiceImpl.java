@@ -263,6 +263,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
         condition.setCode(settleOrder.getOrderCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
+        LeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) {
             return BaseOutput.success().setData(true);
         }
@@ -271,13 +272,16 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
         paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
+        if(leaseOrder.getWaitAmount() == paymentOrderPO.getAmount()){
+            paymentOrderPO.setIsSettle(YesOrNoEnum.YES.getCode());
+        }
         if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
             LOG.info("结算成功，缴费单同步数据异常,乐观锁生效 【缴费单编号:{}】", settleOrder.getBusinessCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
         /*****************************更新缴费单相关字段 end*************************/
 
-        LeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
+
         //第一次消费，需要抵扣保证金、定金、转抵金
         if (LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             //第一笔消费抵扣保证金
@@ -782,6 +786,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         paymentOrder.setCreatorId(userTicket.getId());
         paymentOrder.setCreator(userTicket.getRealName());
         paymentOrder.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
+        paymentOrder.setIsSettle(YesOrNoEnum.NO.getCode());
         paymentOrder.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
         return paymentOrder;
     }
@@ -1150,7 +1155,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderPrintDto.setPrintTime(new Date());
         leaseOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         leaseOrderPrintDto.setLeaseOrderCode(leaseOrder.getCode());
-        if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
+        if (YesOrNoEnum.YES.getCode().equals(paymentOrder.getIsSettle())) {
             leaseOrderPrintDto.setBusinessType(BizTypeEnum.BOOTH_LEASE.getName());
             printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_PAID.getCode());
         } else {
@@ -1167,16 +1172,21 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
         leaseOrderPrintDto.setDepositDeduction(MoneyUtils.centToYuan(leaseOrder.getDepositDeduction()));
 
-        PaymentOrder paymentOrderConditions = DTOUtils.newInstance(PaymentOrder.class);
-        paymentOrderConditions.setBusinessId(paymentOrder.getBusinessId());
-        paymentOrderConditions.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
-        List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);
         Long totalPayAmountExcludeLast = 0L;
-        for (PaymentOrder order : paymentOrders) {
-            if (!order.getCode().equals(orderCode) && order.getState().equals(PaymentOrderStateEnum.PAID.getCode())) {
-                totalPayAmountExcludeLast += order.getAmount();
+        //已结清时  定金需要加前几次支付金额
+        if(YesOrNoEnum.YES.getCode().equals(paymentOrder.getIsSettle())){
+            PaymentOrder paymentOrderConditions = DTOUtils.newInstance(PaymentOrder.class);
+            paymentOrderConditions.setBusinessId(paymentOrder.getBusinessId());
+            paymentOrderConditions.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
+            List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);
+
+            for (PaymentOrder order : paymentOrders) {
+                if (!order.getCode().equals(orderCode) && order.getState().equals(PaymentOrderStateEnum.PAID.getCode())) {
+                    totalPayAmountExcludeLast += order.getAmount();
+                }
             }
         }
+
         //除最后一次所交费用+定金抵扣 之和未总定金
         leaseOrderPrintDto.setEarnestDeduction(MoneyUtils.centToYuan(leaseOrder.getEarnestDeduction() + totalPayAmountExcludeLast));
         leaseOrderPrintDto.setTransferDeduction(MoneyUtils.centToYuan(leaseOrder.getTransferDeduction()));
