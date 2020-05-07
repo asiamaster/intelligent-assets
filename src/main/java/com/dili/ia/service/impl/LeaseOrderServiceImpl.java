@@ -272,7 +272,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
         paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
-        if(leaseOrder.getWaitAmount() == paymentOrderPO.getAmount()){
+        if(leaseOrder.getWaitAmount().equals(paymentOrderPO.getAmount())){
             paymentOrderPO.setIsSettle(YesOrNoEnum.YES.getCode());
         }
         if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
