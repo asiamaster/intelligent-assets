@@ -1,5 +1,5 @@
 <#bs4Body>
-<link rel="stylesheet" type="text/css" href="${contextPath}/resources/easyui/css/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="${contextPath}/resources/easyui/css/themes/bootstrap/easyui.css">
 <link rel="stylesheet" type="text/css" href="${contextPath}/resources/easyui/css/themes/icon.css">
 <link rel="stylesheet" type="text/css" href="${contextPath}/resources/easyui/css/themes/color.css">
 <link rel="stylesheet" type="text/css" href="${contextPath}/resources/css/common.css">
@@ -75,7 +75,6 @@
                 <table title="" id="grid" class="easyui-treegrid" idField="id"
                        treeField="name"
                        data-options="
-                                        url: '/district/listPage.action',
                                         method: 'get',
                                         idField: 'id',
                                         treeField: 'name',
@@ -88,10 +87,10 @@
                                     ">
                     <thead>
                     <tr>
-                        <th data-options="field:'ck',checkbox:true"></th>
-                        <th data-options="field:'name',sortable:true" width="40%">区域名称</th>
-                        <th data-options="field:'number',sortable:true" width="20%">编号</th>
-                        <th data-options="field:'departmentId',_provider:'departmentProvider'" width="20%">部门</th>
+                        <th data-options="field:'ck',checkbox:true,resizable:false"></th>
+                        <th data-options="field:'name',sortable:true,resizable:false" width="40%">区域名称</th>
+                        <th data-options="field:'number',sortable:true,resizable:false" width="20%">编号</th>
+                        <th data-options="field:'departmentId',_provider:'departmentProvider',resizable:false" width="20%">部门</th>
                         <th data-options="field:'notes'" width="20%">备注</th>
                     </tr>
                     </thead>
@@ -138,6 +137,7 @@
 
     $(function () {
         window.currentGrid = $('#grid');
+        queryDataHandler();
     });
     function emptyFormatter(){return ''}
 
@@ -177,7 +177,7 @@
         if (null == opts.url || "" == opts.url) {
             opts.url = "/district/listPage.action";
         }
-        currentGrid.treegrid("load", bindGridMeta2Form("grid", "queryForm"));
+        currentGrid.treegrid("load", bindTreegridMeta2Form("grid", "queryForm"));
     }
 
     function openInsertHandler() {
