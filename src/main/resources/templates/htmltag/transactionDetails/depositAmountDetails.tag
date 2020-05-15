@@ -49,6 +49,11 @@
         return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
     }
 
+    _grid.on('load-success.bs.table', function (e,data){
+        $('[data-toggle="tooltip"]').tooltip();
+    })
+
+
 </script>
 
 <!--
