@@ -15,6 +15,9 @@
     table > tbody > tr.treegrid-tr-tree > td {
         height: auto
     }
+    table > tbody > tr > td {
+        max-width: 100%;
+    }
     .boothname {
         text-indent: 20px;
     }
@@ -371,7 +374,7 @@
                     <th data-options="field:'departmentId',_provider:'departmentProvider'" width="10%">部门</th>
                     <th data-options="field:'createTime',_provider:'datetimeProvider'" width="10%">创建时间</th>
                     <th data-options="field:'state',_provider:'boothStateProvider',formatter:stateFormatter" width="10%">状态</th>
-                    <th data-options="field:'bb',_provider:'boothPathProvider'" width="10%">路径</th>
+                    <th data-options="field:'bb',_provider:'boothPathProvider'" width="20%">路径</th>
                 </tr>
                 </thead>
             </table>
