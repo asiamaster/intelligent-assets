@@ -28,7 +28,12 @@
 
     /******************************驱动执行区 begin***************************/
     $(function () {
-        queryDataHandler();
+        var opts = _grid.treegrid("options");
+        if (null == opts.url || "" == opts.url) {
+            opts.url = "/booth/listPage.action?parentId=0";
+        }
+        _grid.treegrid("load", bindTreegridMeta2Form("grid", "queryForm"));
+        opts.url = "/booth/listPage.action";
     });
 
     /******************************驱动执行区 end****************************/
