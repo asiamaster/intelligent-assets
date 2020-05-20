@@ -5,7 +5,7 @@ import com.dili.ss.base.BaseService;
 
 /**
  * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-05-19 18:20:05.
+ * This file was generated on 2020-05-20 09:40:49.
  */
 public interface DepositService extends BaseService<Deposit, Long> {
 }

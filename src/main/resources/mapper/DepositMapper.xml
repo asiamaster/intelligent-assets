@@ -15,7 +15,7 @@
     <result column="customer_cellphone" jdbcType="VARCHAR" property="customerCellphone" />
     <result column="department_id" jdbcType="BIGINT" property="departmentId" />
     <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
-    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="addr_id" jdbcType="BIGINT" property="addrId" />
     <result column="addr" jdbcType="VARCHAR" property="addr" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
@@ -85,7 +85,7 @@
         department_name = #{departmentName,jdbcType=VARCHAR},
       </if>
       <if test="type != null">
-        type = #{type,jdbcType=INTEGER},
+        type = #{type,jdbcType=VARCHAR},
       </if>
       <if test="addrId != null">
         addr_id = #{addrId,jdbcType=BIGINT},
