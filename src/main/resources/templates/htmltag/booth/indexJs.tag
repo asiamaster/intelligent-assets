@@ -139,8 +139,8 @@
         if(enable == 2){
             opType = "disable";
         }
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        let current = _grid.treegrid("getSelected");
+        if (null == current) {
             bs4pop.alert('请选中一条数据');
             return;
         }
@@ -153,7 +153,7 @@
                 $.ajax({
                     type: "POST",
                     url: "${contextPath}/booth/update.action",
-                    data: {id: rows[0].id, state: enable,opType:opType},
+                    data: {id: current.id, state: enable,opType:opType},
                     processData: true,
                     dataType: "json",
                     async: true,
