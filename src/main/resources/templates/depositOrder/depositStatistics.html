@@ -1,21 +1,9 @@
 <#bs4Body>
-<style>
 
-</style>
 <div class="container-fluid">
     <#bs4nav>
     <form id="queryForm" role="form" >
         <div class="row row-cols-6">
-            <div class="form-group col">
-                <label for="state">状态:</label>
-                <select id="state" name="state" class="form-control"></select>
-                <#bcomboProvider _id="state" _provider="earnestOrderStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
-            </div>
-            <div class="form-group col">
-                <label for="departmentId">业务所属部门:</label>
-                <select id="departmentId" name="departmentId" class="form-control"></select>
-                <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
-            </div>
             <div class="form-group col">
                 <label for="likeCustomerName">客户名称:</label>
                 <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
@@ -25,25 +13,18 @@
                 <input type="text" class="form-control" name="customerCellphone" id="customerCellphone" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="code">业务单号:</label>
-                <input type="text" class="form-control" name="code" id="code" maxlength="50"/>
+                <label for="customerCellphone">证件号码:</label>
+                <input type="text" class="form-control" name="" id="" maxlength="50"/>
             </div>
-            <div class="form-group col-auto">
-                <label for="createdStart">创建时间:</label>
-                <div class="form-inline">
-                    <div class="input-group">
-                        <input type="text" name="createdStart" id="createdStart" class="form-control date laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
-                        <div class="input-group-append">
-                            <label for="createdStart" class="input-group-text fa fa-calendar"></label>
-                        </div>
-                    </div>&nbsp;&nbsp;至&nbsp;&nbsp;
-                    <div class="input-group" id="datetimepicker3">
-                        <input type="text" name="createdEnd" id="createdEnd" class="form-control date laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
-                        <div class="input-group-append">
-                            <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
-                        </div>
-                    </div>
-                </div>
+
+            <div class="form-group col">
+                <label for="departmentId">保证金类型:</label>
+                <select id="departmentId" name="departmentId" class="form-control"></select>
+                <#bcomboProvider _id="departmentId" _provider="" _queryParams='{emptyText:"-- 全部 --"}'/>
+            </div>
+            <div class="form-group col">
+                <label for="code">对应编号:</label>
+                <input type="text" class="form-control" name="code" id="code" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
@@ -54,28 +35,11 @@
     </form>
 
 </#bs4nav>
-
+    <hr>
+    <h6 class="mt-2">合计：</h6>
     <div class="row">
         <div class="col-12">
-            <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
-                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
-                <#resource code="addDepositOrder">
-                <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
-                </#resource>
-                <#resource code="updateDepositOrder">
-                <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
-                </#resource>
-                <#resource code="submitDepositOrder">
-                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
-                </#resource>
-                <#resource code="withdrawDepositOrder">
-                <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
-                </#resource>
-                <#resource code="cancelDepositOrder">
-                <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
-                </#resource>
-            </div>
-            <table id="grid" data-toggle="table" data-title="定金列表" class="table" data-toolbar="#toolbar"
+            <table id="grid" data-toggle="table" data-title="保证金统计列表" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST"
                    data-content-type="application/x-www-form-urlencoded" data-single-select="true"
@@ -85,35 +49,23 @@
                 <thead>
                 <tr>
                     <th data-radio="true"></th>
-                    <th data-field="code" data-sortable="true" data-align="center" data-formatter="codeFormatter">
-                        业务单号
-                    </th>
-                    <th data-field="departmentName" data-sortable="true" data-align="center">
-                        业务所属部门
-                    </th>
                     <th data-field="customerName" data-sortable="true" data-align="center">
                         客户名称
                     </th>
                     <th data-field="customerCellphone" data-sortable="true" data-align="center">
                         联系电话
                     </th>
-                    <th data-field="startTime" data-sortable="true" data-provider="dateProvider" data-align="center">
-                        开始日期
+                    <th data-field="customerCellphone" data-sortable="true" data-align="center">
+                        证件号码
                     </th>
-                    <th data-field="endTime" data-sortable="true" data-provider="dateProvider" data-align="center">
-                        结束日期
+                    <th data-field="state" data-sortable="true" data-provider="" data-align="center" >
+                        保证金类型
                     </th>
-                    <th data-field="state" data-sortable="true" data-provider="earnestOrderStateProvider" data-align="center" >
-                        状态
+                    <th data-field="createTime" data-sortable="true" data-provider="" data-align="center">
+                        对应编号
                     </th>
-                    <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
-                        金额
-                    </th>
-                    <th data-field="creator" data-sortable="true" data-align="center" >
-                        创建人
-                    </th>
-                    <th data-field="createTime" data-sortable="true" data-provider="datetimeProvider" data-align="center">
-                        创建时间
+                    <th data-field="createTime" data-sortable="true" data-provider="" data-align="center">
+                        保证金
                     </th>
                 </tr>
                 </thead>
@@ -126,5 +78,4 @@
 
 </#bs4Body>
 
-<#earnestOrder_indexJs />
 
