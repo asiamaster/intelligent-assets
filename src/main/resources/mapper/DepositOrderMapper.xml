@@ -15,7 +15,8 @@
     <result column="customer_cellphone" jdbcType="VARCHAR" property="customerCellphone" />
     <result column="department_id" jdbcType="BIGINT" property="departmentId" />
     <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
-    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="type_code" jdbcType="VARCHAR" property="typeCode" />
+    <result column="type_name" jdbcType="VARCHAR" property="typeName" />
     <result column="addr_id" jdbcType="BIGINT" property="addrId" />
     <result column="addr" jdbcType="VARCHAR" property="addr" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
@@ -38,9 +39,9 @@
       WARNING - @mbg.generated
     -->
     id, create_time, modify_time, code, customer_id, customer_name, certificate_number, 
-    customer_cellphone, department_id, department_name, type, addr_id, addr, amount, 
-    notes, state, creator_id, creator, submitter_id, submitter, submit_time, withdraw_operator_id, 
-    withdraw_operator, canceler_id, canceler, version, market_id
+    customer_cellphone, department_id, department_name, type_code, type_name, addr_id, 
+    addr, amount, notes, state, creator_id, creator, submitter_id, submitter, submit_time, 
+    withdraw_operator_id, withdraw_operator, canceler_id, canceler, version, market_id
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -84,8 +85,11 @@
       <if test="departmentName != null">
         department_name = #{departmentName,jdbcType=VARCHAR},
       </if>
-      <if test="type != null">
-        type = #{type,jdbcType=VARCHAR},
+      <if test="typeCode != null">
+        type_code = #{typeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="typeName != null">
+        type_name = #{typeName,jdbcType=VARCHAR},
       </if>
       <if test="addrId != null">
         addr_id = #{addrId,jdbcType=BIGINT},

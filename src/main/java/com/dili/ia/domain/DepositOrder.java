@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-05-20 17:29:10.
+ * This file was generated on 2020-05-22 17:54:56.
  */
 @Table(name = "`deposit_order`")
 public interface DepositOrder extends IBaseDomain {
@@ -90,12 +90,19 @@ public interface DepositOrder extends IBaseDomain {
 
     void setDepartmentName(String departmentName);
 
-    @Column(name = "`type`")
-    @FieldDef(label="保证金类型，来源数据字典", maxLength = 50)
+    @Column(name = "`type_code`")
+    @FieldDef(label="保证金类型code，来源数据字典", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getType();
+    String getTypeCode();
 
-    void setType(String type);
+    void setTypeCode(String typeCode);
+
+    @Column(name = "`type_name`")
+    @FieldDef(label="保证金类型名称", maxLength = 120)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getTypeName();
+
+    void setTypeName(String typeName);
 
     @Column(name = "`addr_id`")
     @FieldDef(label="对应编号ID")

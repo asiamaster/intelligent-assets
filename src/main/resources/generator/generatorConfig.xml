@@ -103,7 +103,7 @@
 <!--        <table domainObjectName="TransferDeductionItem" tableName="transfer_deduction_item">-->
 <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
 <!--        </table>-->
-       <table domainObjectName="PrintTemplate" tableName="print_template">
+       <table domainObjectName="DepositOrder" tableName="deposit_order">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
 
