@@ -260,6 +260,7 @@ public class LeaseOrderController {
                 return new EasyuiPageOutput(0, Collections.emptyList()).toString();
             }
         }
+        leaseOrder.setIsShow(YesOrNoEnum.YES.getCode());
         return leaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
     }
 

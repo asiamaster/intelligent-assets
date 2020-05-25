@@ -142,7 +142,7 @@ public class LeaseOrderImportService{
             LOG.info("租赁单编号生成异常");
             throw new BusinessException(ResultCode.DATA_ERROR,"编号生成器微服务异常");
         }
-        leaseOrder.setCode("hzsc" + bizNumberOutput.getData());
+        leaseOrder.setCode("HZSC" + bizNumberOutput.getData());
         leaseOrder.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
         leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
         leaseOrder.setPayState(PayStateEnum.PAID.getCode());
@@ -165,12 +165,13 @@ public class LeaseOrderImportService{
         leaseOrder.setStartTime(new Date("1990/01/01 00:00:00"));
         leaseOrder.setEndTime(new Date("1990/01/02 23:59:59"));
         leaseOrder.setDays(2);
-        leaseOrder.setEngageCode("one_year");
-        leaseOrder.setEngageName("一年");
-        leaseOrder.setLeaseTermCode("stall");
-        leaseOrder.setLeaseTermName("摊位");
+        leaseOrder.setEngageCode("stall");
+        leaseOrder.setEngageName("摊位");
+        leaseOrder.setLeaseTermCode("one_year");
+        leaseOrder.setLeaseTermName("一年");
         leaseOrder.setIsDelete(YesOrNoEnum.NO.getCode());
         leaseOrder.setIsRenew(YesOrNoEnum.NO.getCode());
+        leaseOrder.setIsShow(YesOrNoEnum.NO.getCode());
         return leaseOrder;
     }
 }
