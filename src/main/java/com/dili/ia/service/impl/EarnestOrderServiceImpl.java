@@ -334,7 +334,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
-        pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setMarketId(userTicket.getFirmId());
         pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
         PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
@@ -349,7 +348,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @Override
     public BaseOutput<EarnestOrder> withdrawEarnestOrder(Long earnestOrderId) {
         //改状态，删除缴费单，通知撤回结算中心缴费单
-        EarnestOrder ea = this.getActualDao().selectByPrimaryKey(earnestOrderId);
+        EarnestOrder ea = this.get(earnestOrderId);
         if (null == ea || !ea.getState().equals(EarnestOrderStateEnum.SUBMITTED.getCode())){
             return BaseOutput.failure("撤回失败，状态已变更！");
         }

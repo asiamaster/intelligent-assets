@@ -1,12 +1,23 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.DepositOrder;
-import com.dili.ia.domain.dto.EarnestOrderListDto;
+import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.DepositOrderStateEnum;
 import com.dili.ia.service.DepositOrderService;
+import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
+import io.seata.common.util.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -22,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -35,6 +47,10 @@ public class DepositOrderController {
 
     @Autowired
     DepositOrderService depositOrderService;
+    @Autowired
+    PaymentOrderService paymentOrderService;
+    @Autowired
+    BusinessLogRpc businessLogRpc;
 
     /**
      * 跳转到DepositOrder页面
@@ -122,44 +138,39 @@ public class DepositOrderController {
      * @return BaseOutput
      */
     @ApiOperation("新增DepositOrder")
-    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
+    public @ResponseBody BaseOutput doAdd(DepositOrder depositOrder) {
 
         try{
-            return BaseOutput.success();
-//            BaseOutput<EarnestOrder> output = earnestOrderService.addEarnestOrder(earnestOrder);
-//            //写业务日志
-//            if (output.isSuccess()){
-//                EarnestOrder order = output.getData();
-//                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-//            }
-//            return output;
+            BaseOutput<DepositOrder> output = depositOrderService.addDepositOrder(depositOrder);
+            //写业务日志
+            if (output.isSuccess()){
+                DepositOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+            return output;
         }catch (BusinessException e){
-            LOG.error("定金单保存异常！", e);
+            LOG.error("保证金单保存异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
-            LOG.error("定金单保存异常！", e);
-            return BaseOutput.failure("定金单保存异常！");
+            LOG.error("保证金单保存异常！", e);
+            return BaseOutput.failure("保证金单保存异常！");
         }
     }
 
 
     /**
-     * 跳转到定金管理-修改页面
+     * 跳转到保证金管理-修改页面
      * @param modelMap
      * @return String
      */
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
     public String update(ModelMap modelMap, Long id) {
         if(null != id){
-//            EarnestOrder earnestOrder = earnestOrderService.get(id);
-//            EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
-//            condition.setEarnestOrderId(id);
-//            List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
-//            modelMap.put("earnestOrder",earnestOrder);
-//            modelMap.put("earnestOrderDetails", JSON.toJSONString(earnestOrderDetails));
+            DepositOrder depositOrder = depositOrderService.get(id);
+            modelMap.put("depositOrder",depositOrder);
         }
         return "depositOrder/update";
     }
@@ -169,65 +180,143 @@ public class DepositOrderController {
      * @param depositOrder
      * @return BaseOutput
      */
-    @ApiOperation("修改DepositOrder")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="DepositOrder", paramType="form", value = "DepositOrder的form信息", required = true, dataType = "string")
-	})
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(DepositOrder depositOrder) {
-        depositOrderService.updateSelective(depositOrder);
-        return BaseOutput.success("修改成功");
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput doUpdate(DepositOrder depositOrder) {
+        try{
+            BaseOutput<DepositOrder> output = depositOrderService.updateDepositOrder(depositOrder);
+            //写业务日志
+            if (output.isSuccess()){
+                DepositOrder order = depositOrderService.get(depositOrder.getId());
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getNotes());
+            }
+            return output;
+        }catch (BusinessException e){
+            LOG.error("保证金单修改异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("保证金单修改异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
     /**
-     * 删除DepositOrder
-     * @param id
-     * @return BaseOutput
-     */
-    @ApiOperation("删除DepositOrder")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="id", paramType="form", value = "DepositOrder的主键", required = true, dataType = "long")
-	})
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        depositOrderService.delete(id);
-        return BaseOutput.success("删除成功");
-    }
-
-    /**
-     * 跳转到定金管理-查看页面
+     * 跳转到保证金管理-查看页面
      * @param modelMap
      * @return String
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap,Long id,String orderCode) {
-//        EarnestOrder earnestOrder = null;
-//        if(null != id) {
-//            earnestOrder = earnestOrderService.get(id);
-//        }else if(StringUtils.isNotBlank(orderCode)){
-//            PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
-//            paymentOrder.setCode(orderCode);
-//            paymentOrder.setBizType(BizTypeEnum.EARNEST.getCode());
-//            earnestOrder = earnestOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
-//            id = earnestOrder.getId();
-//        }
-//        EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
-//        condition.setEarnestOrderId(id);
-//        List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
-//        modelMap.put("earnestOrder",earnestOrder);
-//        modelMap.put("earnestOrderDetails", earnestOrderDetails);
+        DepositOrder depositOrder = null;
+        if(null != id) {
+            depositOrder = depositOrderService.get(id);
+        }else if(StringUtils.isNotBlank(orderCode)){
+            PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+            paymentOrder.setCode(orderCode);
+            paymentOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+            depositOrder = depositOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
+            id = depositOrder.getId();
+        }
+        modelMap.put("depositOrder",depositOrder);
         try{
             //日志查询
-//            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-//            businessLogQueryInput.setBusinessId(id);
-//            businessLogQueryInput.setBusinessType(LogBizTypeConst.EARNEST_ORDER);
-//            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-//            if(businessLogOutput.isSuccess()){
-//                modelMap.put("logs",businessLogOutput.getData());
-//            }
+            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+            businessLogQueryInput.setBusinessId(id);
+            businessLogQueryInput.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
+            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            if(businessLogOutput.isSuccess()){
+                modelMap.put("logs",businessLogOutput.getData());
+            }
         }catch (Exception e){
             LOG.error("日志服务查询异常",e);
         }
-        return "earnestOrder/view";
+        return "depositOrder/view";
+    }
+
+    /**
+     * 保证金管理--提交
+     * @param id
+     * @return BaseOutput
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput submit(Long id) {
+        try {
+            BaseOutput<DepositOrder> output = depositOrderService.submitDepositOrder(id);
+            //写业务日志
+            if (output.isSuccess()){
+                DepositOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+            return output;
+        } catch (BusinessException e) {
+            LOG.error("保证金单提交失败！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        } catch (Exception e) {
+            LOG.error("submit 保证金单提交出错!" ,e);
+            return BaseOutput.failure("提交出错！");
+        }
+    }
+
+    /**
+     * 保证金管理--撤回
+     * @param id
+     * @return BaseOutput
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput withdraw(Long id) {
+        try {
+            BaseOutput<DepositOrder> output = depositOrderService.withdrawDepositOrder(id);
+            if (output.isSuccess()){
+                DepositOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+            return BaseOutput.success("撤回成功");
+        } catch (BusinessException e) {
+            LOG.error("保证金单撤回出错！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        } catch (Exception e) {
+            LOG.error("withdraw 保证金单撤回出错!" ,e);
+            return BaseOutput.failure("撤回出错！");
+        }
+    }
+
+    /**
+     * 保证管理--取消
+     * @param id
+     * @return BaseOutput
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput cancel(Long id) {
+        DepositOrder depositOrder = depositOrderService.get(id);
+        if (!depositOrder.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
+            return BaseOutput.failure("取消失败，保证金单状态已变更！");
+        }
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null){
+            return BaseOutput.failure("未登录！");
+        }
+        try {
+            depositOrder.setCancelerId(userTicket.getId());
+            depositOrder.setCanceler(userTicket.getRealName());
+            depositOrder.setState(DepositOrderStateEnum.CANCELD.getCode());
+            if (depositOrderService.updateSelective(depositOrder) == 0){
+                LOG.error("保证金取消失败，取消更新状态记录数为 0，取消保证金ID【{}】", id);
+                return BaseOutput.failure("取消失败！");
+            }
+
+            //记录业务日志
+            LoggerUtil.buildLoggerContext(depositOrder.getId(), depositOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+
+            return BaseOutput.success("取消成功");
+        } catch (Exception e) {
+            LOG.error("cancel 保证金单取消出错!" ,e);
+            return BaseOutput.failure("取消出错！");
+        }
     }
 }

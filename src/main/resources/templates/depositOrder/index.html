@@ -70,31 +70,24 @@
         <div class="row">
             <div class="col-12">
                 <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
-                    <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i
-                            class="fa fa-eye"></i> 查看</button>
+                    <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
                     <#resource code="addDepositOrder">
-                        <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i
-                                class="fa fa-plus"></i> 新增</button>
+                        <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
                     </#resource>
                     <#resource code="updateDepositOrder">
-                        <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i
-                                class="fa fa-pencil-square-o"></i> 修改</button>
+                        <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                     </#resource>
                     <#resource code="submitDepositOrder">
-                        <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i
-                                class="fa fa-paper-plane"></i> 提交</button>
+                        <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
                     </#resource>
                     <#resource code="withdrawDepositOrder">
-                        <button id="btn_withdraw" type="button" class="btn btn-primary"
-                            onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
+                        <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
                     </#resource>
                     <#resource code="cancelDepositOrder">
-                        <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i
-                                class="fa fa-ban"></i> 取消</button>
+                        <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                     </#resource>
                     <#resource code="refundApplyDepositOrder">
-                        <button id="btn_refund_apply" type="button" class="btn btn-primary"
-                            onclick="openRefundApplyHandler(1)"><i class="fa fa-reply"></i> 退款申请</button>
+                        <button id="btn_refund_apply" type="button" class="btn btn-primary" onclick="openRefundApplyHandler(1)"><i class="fa fa-reply"></i> 退款申请</button>
                     </#resource>
                 </div>
                 <table id="grid" data-toggle="table" data-title="定金列表" class="table" data-toolbar="#toolbar"
@@ -107,9 +100,14 @@
                     <thead>
                         <tr>
                             <th data-radio="true"></th>
-                            <th data-field="code" data-sortable="true" data-align="center"
-                                data-formatter="codeFormatter">
+                            <th data-field="code" data-sortable="true" data-align="center" data-formatter="codeFormatter">
                                 业务单号
+                            </th>
+                            <th data-field="type_name" data-sortable="true" data-align="center">
+                                保证金类型
+                            </th>
+                            <th data-field="customerName" data-sortable="true" data-align="center">
+                                对应编号
                             </th>
                             <th data-field="departmentName" data-sortable="true" data-align="center">
                                 业务所属部门
@@ -120,27 +118,16 @@
                             <th data-field="customerCellphone" data-sortable="true" data-align="center">
                                 联系电话
                             </th>
-                            <th data-field="startTime" data-sortable="true" data-provider="dateProvider"
-                                data-align="center">
-                                开始日期
-                            </th>
-                            <th data-field="endTime" data-sortable="true" data-provider="dateProvider"
-                                data-align="center">
-                                结束日期
-                            </th>
-                            <th data-field="state" data-sortable="true" data-provider="earnestOrderStateProvider"
-                                data-align="center">
+                            <th data-field="state" data-sortable="true" data-provider="depositOrderStateProvider" data-align="center">
                                 状态
                             </th>
-                            <th data-field="amount" data-sortable="true" data-align="center"
-                                data-provider="moneyProvider">
-                                金额
+                            <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                                保证金金额
                             </th>
                             <th data-field="creator" data-sortable="true" data-align="center">
                                 创建人
                             </th>
-                            <th data-field="createTime" data-sortable="true" data-provider="datetimeProvider"
-                                data-align="center">
+                            <th data-field="createTime" data-sortable="true" data-provider="datetimeProvider" data-align="center">
                                 创建时间
                             </th>
                         </tr>

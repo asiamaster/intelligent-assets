@@ -17,6 +17,7 @@ public enum BizNumberTypeEnum {
     LEASE_REFUND_ORDER("leaseRefundOrder", "租赁退款单"),
     EARNEST_TRANSFER_ORDER("earnestTransferOrder", "定金转移单"),
     TRANSACTION_CODE("transactionCode", "客户账户流水号"),
+    DEPOSIT_ORDER("depositOrder", "保证金业务单"),
     ;
 
     private String name;

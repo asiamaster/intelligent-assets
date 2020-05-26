@@ -93,27 +93,27 @@
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);
         let formData = $("input:not(table input),textarea,select").serializeObject();
-        let earnestOrderdetails = [];
+        let depositOrderdetails = [];
         bui.util.yuanToCentForMoneyEl(formData);
         $("#boothTable tbody").find("tr").each(function(){
-            let earnestOrderdetail = {};
+            let depositOrderdetail = {};
             $(this).find("input").each(function(t,el){
                 let fieldName = $(this).attr("name").split('_')[0];
                 if ($(this).val() != ""){
-                    earnestOrderdetail[fieldName] = $(this).val();
+                    depositOrderdetail[fieldName] = $(this).val();
                 }
             });
-            if (earnestOrderdetail != {}){
-                earnestOrderdetails.push(earnestOrderdetail);
+            if (depositOrderdetail != {}){
+                depositOrderdetails.push(depositOrderdetail);
             }
         });
 
-        $.extend(formData,{earnestOrderdetails});
+        $.extend(formData,{depositOrderdetails});
         return formData;
     }
 
     // 提交保存
-    function doAddEarnestHandler(){
+    function doAddDepositHandler(){
         let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
             /*$(this).find('.collapse').each(function (index, element) {

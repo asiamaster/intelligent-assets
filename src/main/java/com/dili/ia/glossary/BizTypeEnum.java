@@ -11,6 +11,7 @@ package com.dili.ia.glossary;
 public enum BizTypeEnum {
     BOOTH_LEASE(1, "摊位租赁"),
     EARNEST(2, "定金"),
+    DEPOSIT_ORDER(3, "保证金"),
     ;
 
     private String name;
