@@ -120,8 +120,11 @@ public class LeaseOrderController {
         firstSheet.forEach(o -> {
             try {
                 leaseOrderImportService.importLeaseOrder(o);
+            } catch (BusinessException e) {
+                errorList.add(o.get("客户名称") + " " + o.get("证件号") + " " + e.getErrorMsg());
+                LOG.error(o.get("客户名称") + " " + o.get("证件号") + " " + e.getErrorMsg());
             } catch (Exception e) {
-                errorList.add(o.get("客户名称") + " " + o.get("证件号"));
+                errorList.add(o.get("客户名称") + " " + o.get("证件号") + " " + e.getMessage());
                 LOG.error(o.get("客户名称") + " " + o.get("证件号") + " " + e.getMessage());
             }
         });
