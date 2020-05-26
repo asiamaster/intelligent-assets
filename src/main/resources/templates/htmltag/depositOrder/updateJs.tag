@@ -133,7 +133,7 @@
         return false;
     }
     // 提交保存
-    function doUpdateEarnestHandler(){
+    function doUpdateDepostHandler(){
         let validator = $('#updateForm').validate({ignore:''})
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');

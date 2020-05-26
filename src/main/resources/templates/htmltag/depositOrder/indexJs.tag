@@ -245,23 +245,23 @@
     //选中行事件 -- 可操作按钮控制
     _grid.on('check.bs.table', function (e, row, $element) {
         let state = row.$_state;
-        if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.CREATED.getCode()}) {
+        if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_update').attr('disabled', false);
             $('#btn_cancel').attr('disabled', false);
             $('#btn_submit').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.CANCELD.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.CANCELD.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.SUBMITTED.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.SUBMITTED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_withdraw').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.PAID.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.PAID.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
