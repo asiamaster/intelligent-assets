@@ -14,7 +14,7 @@ import javax.persistence.Id;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-05-22 17:54:56.
+ * This file was generated on 2020-05-28 17:57:41.
  */
 @Table(name = "`deposit_order`")
 public interface DepositOrder extends IBaseDomain {
@@ -104,19 +104,26 @@ public interface DepositOrder extends IBaseDomain {
 
     void setTypeName(String typeName);
 
-    @Column(name = "`addr_id`")
-    @FieldDef(label="对应编号ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getAddrId();
-
-    void setAddrId(Long addrId);
-
-    @Column(name = "`addr`")
-    @FieldDef(label="对应编号", maxLength = 200)
+    @Column(name = "`assets_type`")
+    @FieldDef(label="资产类型code; booth,location,lodging,other", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getAddr();
+    String getAssetsType();
 
-    void setAddr(String addr);
+    void setAssetsType(String assetsType);
+
+    @Column(name = "`assets_id`")
+    @FieldDef(label="对应编号ID,资产id")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getAssetsId();
+
+    void setAssetsId(Long assetsId);
+
+    @Column(name = "`assets_name`")
+    @FieldDef(label="对应编号,名称", maxLength = 200)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getAssetsName();
+
+    void setAssetsName(String assetsName);
 
     @Column(name = "`amount`")
     @FieldDef(label="保证金金额")
