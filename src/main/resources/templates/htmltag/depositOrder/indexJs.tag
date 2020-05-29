@@ -61,10 +61,10 @@
      */
     function openInsertHandler() {
         dia = bs4pop.dialog({
-            title: '新增定金',//对话框title
+            title: '新增保证金',//对话框title
             content: '${contextPath}/depositOrder/add.html', //对话框内容，可以是 string、element，$object
-            width: '80%',//宽度
-            height: '95%',//高度
+            width: '800px',//宽度
+            height: '600px',//高度
             isIframe: true,//默认是页面层，非iframe
         });
     }
@@ -81,10 +81,10 @@
         }
 
         dia = bs4pop.dialog({
-            title: '修改定金',//对话框title
+            title: '修改保证金',//对话框title
             content: '${contextPath}/depositOrder/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
-            width: '80%',//宽度
-            height: '95%',//高度
+            width: '800px',//宽度
+            height: '600px',//高度
             isIframe: true,//默认是页面层，非iframe
         });
     }
@@ -106,13 +106,13 @@
 
 
         dia = bs4pop.dialog({
-            title: '定金详情',
+            title: '保证金详情',
             content: '/depositOrder/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
-            width: '80%',
-            height : '95%',
+            width: '800px',
+            height : '600px',
             btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
         });
     }

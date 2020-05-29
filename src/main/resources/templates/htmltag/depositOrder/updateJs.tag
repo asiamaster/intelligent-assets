@@ -140,16 +140,6 @@
             $('.collapse:not(.show)').addClass('show');
             return false;
         }
-        let boothIds = $("table input[name^='assetsId']").filter(function () {
-            return this.value
-        }).map(function(){
-            return $('#assetsId_'+getIndex(this.id)).val();
-        }).get();
-
-        if(arrRepeatCheck(boothIds)){
-            bs4pop.alert('存在重复摊位，请检查！');
-            return false;
-        }
         bui.loading.show('努力提交中，请稍候。。。');
         // let _formData = new FormData($('#updateForm')[0]);
         $.ajax({

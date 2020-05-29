@@ -2,13 +2,15 @@
 <!--<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>-->
 <div class="container-fluid">
     <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.deposit_order'/>">
-    <form id="saveForm" role="form" novalidate>
+    <form id="updateForm" role="form" novalidate>
+        <input type="hidden" name="id" value="${depositOrder.id!}">
+        <input type="hidden" name="version" value="${depositOrder.version!}">
         <div class="breadcrumb" >
             客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-4 " id="customerInfo">
+        <div class="row row-cols-2 " id="customerInfo">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
                 <#bautoCompleteProvider _log="客户名称" _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _value="${depositOrder.customerId!}" _text="${depositOrder.customerName!}" _required="true"  _optionVariable="customerNameAutoCompleteOption"/>
@@ -26,7 +28,7 @@
             基础信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-4 collapse show" id="baseInfo">
+        <div class="row row-cols-2 collapse show" id="baseInfo">
             <div class="form-group col">
                 <label for="departmentId">业务所属部门<i class="red">*</i></label>
                 <select id="departmentId"  name="departmentId" class="form-control"></select>
@@ -40,13 +42,13 @@
             </div>
             <div class="form-group col">
                 <label for="" class="">对应编号</label>
-                <input id="" type="number" class="form-control floatReserve money" name="" required />
+                <input id="" type="number" class="form-control" name="" />
             </div>
             <div class="form-group col">
                 <label for="amount" _log class="">保证金金额<i class="red">*</i></label>
                 <input id="amount" type="number" class="form-control floatReserve money" name="amount" range="0 9999999.99" value="<#centToYuan value='${depositOrder.amount!0}'/>" required />
             </div>
-            <div class="form-group col-8">
+            <div class="form-group col-6">
                 <label for="notes" _log>备注</label>
                 <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100">${depositOrder.notes!}</textarea>
             </div>

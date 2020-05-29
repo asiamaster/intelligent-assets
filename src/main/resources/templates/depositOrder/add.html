@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.earnest_order'/>">
         <form id="saveForm" role="form" novalidate>
-            <div class="row row-cols-1">
+            <div class="row row-cols-2">
                 <div class="form-group col">
                     <label for="customerName">客户名称<i class="red">*</i></label>
                     <div class="input-group">
@@ -22,6 +22,8 @@
                     <label for="">联系电话<i class="red">*</i></label>
                     <input type="text" class="form-control isMobile" id="customerCellphone" name="customerCellphone" required />
                 </div>
+            </div>
+            <div class="row row-cols-2">
                 <div class="form-group col">
                     <label for="departmentId">业务所属部门<i class="red">*</i></label>
                     <select id="departmentId"  name="departmentId" class="form-control" required></select>
@@ -34,8 +36,8 @@
                     <#bcomboProvider _log="保证金类型" _id="typeCode" _provider="dataDictionaryValueProvider" _value="${depositOrder.typeCode!}" _queryParams='{dd_code:"deposit_type"}'/>
                 </div>
                 <div class="form-group col">
-                    <label for="addr" class="">对应编号</label>
-                    <input id="addr" name="addr" class="form-control"/>
+                    <label for="assetsName" class="">对应编号</label>
+                    <input id="assetsName" name="assetsName" class="form-control"/>
                 </div>
             
                 <div class="form-group col">
@@ -61,13 +63,3 @@
 
 <#js_customerAutocompleteJs/>
 <#depositOrder_addJs />
-
-<script  id="boothItem"  type="text/html">
-    <tr data-index="{{index}}">
-        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
-        <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}" _value="{{boothId}}" _text="{{boothName}}"   _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
-        </td>
-    </tr>
-</script>
-
