@@ -19,25 +19,33 @@
         id:'getCustomer',
     });
 
+    var boothAutoCompleteOption = {
+        paramName: 'keyword',
+        displayFieldName: 'name',
+        serviceUrl: '/booth/search.action',
+        transformResult: function (result) {
+            debugger
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '(' + (dataItem.secondAreaName? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return;
+            }
+        }
+    }
+
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);
         let formData = $("input:not(table input),textarea,select").serializeObject();
-        let depositOrderdetails = [];
         bui.util.yuanToCentForMoneyEl(formData);
-        $("#boothTable tbody").find("tr").each(function(){
-            let depositOrderdetail = {};
-            $(this).find("input").each(function(t,el){
-                let fieldName = $(this).attr("name").split('_')[0];
-                if ($(this).val() != ""){
-                    depositOrderdetail[fieldName] = $(this).val();
-                }
-            });
-            if (depositOrderdetail != {}){
-                depositOrderdetails.push(depositOrderdetail);
-            }
-        });
-
-        $.extend(formData,{depositOrderdetails});
         return formData;
     }
 

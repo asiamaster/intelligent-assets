@@ -46,53 +46,32 @@
      * */
       /******************************驱动执行区 begin***************************/
     $(function () {
-        <% if(isNotEmpty(earnestOrderDetails)){ %>
-        let earnestOrderDetails = JSON.parse('${earnestOrderDetails}');
-        for (let earnestOrderDetail of earnestOrderDetails){
-            initBoothItem($.extend(earnestOrderDetail,{index: ++itemIndex}));
-        }
-        <% }else{%>
-        while (itemIndex<1) {
-            initBoothItem({index: ++itemIndex});
-        }
-        <% }%>
-
         registerMsg();
-
     });
 
-    /**
-     * 添加摊位
-     * @param leaseOrderItem
-     */
-    function initBoothItem(earnestOrderDetail){
-        $('#boothTable tbody').append(bui.util.HTMLDecode(template('initBoothItem',earnestOrderDetail)))
-    }
 
-    /**
-     * 添加摊位
-     * @param leaseOrderItem
-     */
-    function addBoothItem(){
-        $('#boothTable tbody').append(bui.util.HTMLDecode(template('boothItem', {index: ++itemIndex})))
-    }
 
-    // 添加摊位
-    $('#addBooth').on('click', function () {
-        if ($('#boothTable tr').length < 11) {
-            debugger
-            addBoothItem();
-        } else {
-            bs4pop.notice('最多10个摊位', {position: 'leftcenter', type: 'warning'})
+    var boothAutoCompleteOption = {
+        paramName: 'keyword',
+        displayFieldName: 'name',
+        serviceUrl: '/booth/search.action',
+        transformResult: function (result) {
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '(' + (dataItem.secondAreaName? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return;
+            }
         }
-    })
-
-    //删除行事件 （删除摊位行）
-    $(document).on('click', '.item-del', function () {
-        if ($('#boothTable tr').length > 1) {
-            $(this).closest('tr').remove();
-        }
-    });
+    }
 
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);
@@ -115,23 +94,6 @@
         return formData;
     }
 
-    /**
-     * 判断数组中的元素是否重复出现
-     * 验证重复元素，有重复返回true；否则返回false
-     * @param arr
-     * @returns {boolean}
-     */
-    function arrRepeatCheck(arr) {
-        var hash = {};
-        for(var i in arr) {
-            if(hash[arr[i]]) {
-                return true;
-            }
-            // 不存在该元素，则赋值为true，可以赋任意值，相应的修改if判断条件即可
-            hash[arr[i]] = true;
-        }
-        return false;
-    }
     // 提交保存
     function doUpdateDepostHandler(){
         let validator = $('#updateForm').validate({ignore:''})
