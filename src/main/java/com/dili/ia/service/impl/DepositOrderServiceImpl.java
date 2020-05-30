@@ -183,6 +183,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
         depositOrder.setDepartmentName(depOut.getData().getName());
+        depositOrder.setTypeCode(dto.getTypeCode());
+        depositOrder.setTypeName(dto.getTypeName());
+        depositOrder.setAssetsId(dto.getAssetsId());
+        depositOrder.setAssetsName(dto.getAssetsName());
+        depositOrder.setAssetsType(dto.getAssetsType());
         depositOrder.setCustomerId(dto.getCustomerId());
         depositOrder.setCustomerName(dto.getCustomerName());
         depositOrder.setCertificateNumber(dto.getCertificateNumber());

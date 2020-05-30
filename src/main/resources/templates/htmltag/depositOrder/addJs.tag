@@ -39,6 +39,10 @@
                 bs4pop.alert(result.message, {type: 'error'});
                 return;
             }
+        },
+        selectFn: function (suggestion) {
+            $('#assetsName').val(suggestion.name);
+            $('#assetsId').val(suggestion.id);
         }
     }
 
