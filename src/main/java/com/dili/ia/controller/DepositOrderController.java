@@ -2,8 +2,10 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.dto.DepositOrderListDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.DepositOrderStateEnum;
+import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -13,6 +15,7 @@ import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -22,6 +25,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +56,8 @@ public class DepositOrderController {
     PaymentOrderService paymentOrderService;
     @Autowired
     BusinessLogRpc businessLogRpc;
+    @Autowired
+    DataAuthService dataAuthService;
 
     /**
      * 跳转到DepositOrder页面
@@ -99,7 +106,7 @@ public class DepositOrderController {
 
     /**
      * 分页查询DepositOrder，返回easyui分页信息
-     * @param depositOrder
+     * @param depositOrderListDto
      * @return String
      * @throws Exception
      */
@@ -108,8 +115,15 @@ public class DepositOrderController {
 		@ApiImplicitParam(name="DepositOrder", paramType="form", value = "DepositOrder的form信息", required = false, dataType = "string")
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(DepositOrder depositOrder) throws Exception {
-        return depositOrderService.listEasyuiPageByExample(depositOrder, true).toString();
+    public @ResponseBody String listPage(DepositOrderListDto depositOrderListDto) throws Exception {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+        if (CollectionUtils.isEmpty(departmentIdList)){
+            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+        }
+        depositOrderListDto.setMarketId(userTicket.getFirmId());
+        depositOrderListDto.setDepartmentIds(departmentIdList);
+        return depositOrderService.listEasyuiPageByExample(depositOrderListDto, true).toString();
     }
 
     /**
@@ -134,16 +148,16 @@ public class DepositOrderController {
 
     /**
      * 新增DepositOrder
-//     * @param depositOrder
+//     * @param depositOrderListDto
      * @return BaseOutput
      */
     @ApiOperation("新增DepositOrder")
     @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput doAdd(DepositOrder depositOrder) {
+    public @ResponseBody BaseOutput doAdd(DepositOrderListDto depositOrderListDto) {
 
         try{
-            BaseOutput<DepositOrder> output = depositOrderService.addDepositOrder(depositOrder);
+            BaseOutput<DepositOrder> output = depositOrderService.addDepositOrder(depositOrderListDto);
             //写业务日志
             if (output.isSuccess()){
                 DepositOrder order = output.getData();

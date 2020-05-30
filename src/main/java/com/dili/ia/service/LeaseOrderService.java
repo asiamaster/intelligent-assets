@@ -8,7 +8,6 @@ import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.exception.BusinessException;
 
 /**
  * 由MyBatis Generator工具自动生成

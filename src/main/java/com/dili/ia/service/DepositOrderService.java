@@ -1,6 +1,7 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.DepositOrder;
+import com.dili.ia.domain.dto.DepositOrderListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -14,7 +15,7 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
     /**
      * 新增保证金，需要先检查客户账户是否存在
      * */
-    BaseOutput<DepositOrder> addDepositOrder(DepositOrder depositOrder);
+    BaseOutput<DepositOrder> addDepositOrder(DepositOrderListDto depositOrderListDto);
 
     /**
      * 保证金 --修改

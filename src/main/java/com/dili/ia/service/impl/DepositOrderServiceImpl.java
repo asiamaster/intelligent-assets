@@ -1,12 +1,14 @@
 package com.dili.ia.service.impl;
 
+import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.dto.EarnestOrderPrintDto;
+import com.dili.ia.domain.dto.DepositOrderListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.DepositOrderMapper;
 import com.dili.ia.rpc.AssetsRpc;
@@ -74,38 +76,68 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<DepositOrder> addDepositOrder(DepositOrder depositOrder) {
+    public BaseOutput<DepositOrder> addDepositOrder(DepositOrderListDto depositOrderListDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
             return BaseOutput.failure("未登录");
         }
         //检查客户状态
-        checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
-//        if(CollectionUtils.isNotEmpty(earnestOrder.getEarnestOrderdetails())){
-//            earnestOrder.getEarnestOrderdetails().forEach(o->{
-//                //检查摊位状态
-//                checkBoothState(o.getAssetsId());
-//            });
-//        }
-        BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
+        checkCustomerState(depositOrderListDto.getCustomerId(),userTicket.getFirmId());
+        if(depositOrderListDto.getAssetsId() != null){
+            if (depositOrderListDto.getAssetsType().equals(AssetsTypeEnum.BOOTH.getTypeCode())){
+                //检查摊位状态
+                checkBoothState(depositOrderListDto.getAssetsId());
+            }
+            // @TODO 检查冷库，公寓状态
+        }
+        BaseOutput<Department> depOut = departmentRpc.get(depositOrderListDto.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.DEPOSIT_ORDER.getCode());
+
+        depositOrderListDto.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
+        depositOrderListDto.setCreatorId(userTicket.getId());
+        depositOrderListDto.setCreator(userTicket.getRealName());
+        depositOrderListDto.setMarketId(userTicket.getFirmId());
+        depositOrderListDto.setDepartmentName(depOut.getData().getName());
+        depositOrderListDto.setState(DepositOrderStateEnum.CREATED.getCode());
+        depositOrderListDto.setVersion(0L);
+        this.insertSelective(depositOrderListDto);
+        return BaseOutput.success().setData(depositOrderListDto);
+    }
+
+    private String getBizNumber(String type){
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(type);
         if(!bizNumberOutput.isSuccess()){
-            LOGGER.info("编号生成失败!" + depOut.getMessage());
+            LOGGER.info("编号生成失败!" + bizNumberOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成失败!");
         }
-        depositOrder.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
-        depositOrder.setCreatorId(userTicket.getId());
-        depositOrder.setCreator(userTicket.getRealName());
-        depositOrder.setMarketId(userTicket.getFirmId());
-        depositOrder.setDepartmentName(depOut.getData().getName());
-        depositOrder.setState(DepositOrderStateEnum.CREATED.getCode());
-        depositOrder.setVersion(0L);
-        this.insertSelective(depositOrder);
-        return BaseOutput.success().setData(depositOrder);
+        if (bizNumberOutput.getData() == null){
+            LOGGER.info("未获取到有效编号！检查是否配置编号类型type{}" + bizNumberOutput.getMessage(), type);
+            throw new BusinessException(ResultCode.DATA_ERROR, "未获取到有效编号！"+ bizNumberOutput.getMessage());
+        }
+
+        return bizNumberOutput.getData();
+    }
+
+    /**
+     * 检查摊位状态
+     * @param boothId
+     */
+    private void checkBoothState(Long boothId){
+        BaseOutput<BoothDTO> output = assetsRpc.getBoothById(boothId);
+        if(!output.isSuccess()){
+            throw new BusinessException(ResultCode.DATA_ERROR, "摊位接口调用异常 "+output.getMessage());
+        }
+        BoothDTO booth = output.getData();
+        if(null == booth){
+            throw new BusinessException(ResultCode.DATA_ERROR, "摊位不存在，请核实和修改后再保存");
+        }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "摊位已禁用，请核实和修改后再保存");
+        }else if(YesOrNoEnum.YES.getCode().equals(booth.getIsDelete())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "摊位已删除，请核实和修改后再保存");
+        }
     }
 
     /**
@@ -211,12 +243,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, DepositOrder depositOrder){
         PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOG.info("编号生成器异常，{}】", bizNumberOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
-        }
-        pb.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+        pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(depositOrder.getAmount());
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
