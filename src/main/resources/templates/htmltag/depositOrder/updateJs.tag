@@ -70,27 +70,19 @@
                 bs4pop.alert(result.message, {type: 'error'});
                 return;
             }
+        },
+        selectFn: function (suggestion) {
+            $('#assetsName').val(suggestion.name);
+            $('#assetsId').val(suggestion.id);
         }
     }
 
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);
         let formData = $("input:not(table input),textarea,select").serializeObject();
-        let earnestOrderdetails = [];
+        let typeName = $('#typeCode').find("option:selected").text();
         bui.util.yuanToCentForMoneyEl(formData);
-        $("#boothTable tbody").find("tr").each(function(){
-            let earnestOrderdetail = {};
-            $(this).find("input").each(function(t,el){
-                let fieldName = $(this).attr("name").split('_')[0];
-                if ($(this).val() != ""){
-                    earnestOrderdetail[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
-                }
-            });
-            earnestOrderdetails.push(earnestOrderdetail);
-        });
-
-        $.extend(formData,{earnestOrderdetails,logContent:Log.buildUpdateContent()});
-        debugger
+        $.extend(formData,{typeName,logContent:Log.buildUpdateContent()});
         return formData;
     }
 

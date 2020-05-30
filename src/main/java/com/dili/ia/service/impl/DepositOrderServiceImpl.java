@@ -84,10 +84,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         //检查客户状态
         checkCustomerState(depositOrderListDto.getCustomerId(),userTicket.getFirmId());
         if(depositOrderListDto.getAssetsId() != null){
-            if (depositOrderListDto.getAssetsType().equals(AssetsTypeEnum.BOOTH.getTypeCode())){
+//            if (depositOrderListDto.getAssetsType().equals(AssetsTypeEnum.BOOTH.getTypeCode())){
                 //检查摊位状态
                 checkBoothState(depositOrderListDto.getAssetsId());
-            }
+//            }
             // @TODO 检查冷库，公寓状态
         }
         BaseOutput<Department> depOut = departmentRpc.get(depositOrderListDto.getDepartmentId());

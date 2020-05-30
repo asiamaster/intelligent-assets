@@ -41,8 +41,9 @@
                 <#bcomboProvider _log="保证金类型" _id="typeCode" _provider="dataDictionaryValueProvider" _value="${depositOrder.typeCode!}" _queryParams='{dd_code:"deposit_type"}'/>
             </div>
             <div class="form-group col">
-                <label for="" class="">对应编号</label>
-                <input id="" type="number" class="form-control" name="" />
+                <label for="assetsName" class="" _log >对应编号</label>
+                <#bautoCompleteProvider _log="对应编号" _value="${depositOrder.assetsId!}" _text="${depositOrder.assetsName!}" _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption"/>
+
             </div>
             <div class="form-group col">
                 <label for="amount" _log class="">保证金金额<i class="red">*</i></label>
@@ -74,16 +75,6 @@
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
             <#bautoCompleteProvider _log="摊位编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}"  _valueField="id" _textField="name" _value="{{boothId}}" _text="{{boothName}}" _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
-        </td>
-
-    </tr>
-</script>
-
-<script  id="initBoothItem"  type="text/html">
-    <tr data-index="{{index}}">
-        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
-        <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _log="摊位编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}"  _valueField="id" _textField="name" _value="{{assetsId}}" _text="{{assetsName}}" _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
         </td>
 
     </tr>

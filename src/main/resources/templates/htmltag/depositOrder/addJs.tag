@@ -49,7 +49,9 @@
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);
         let formData = $("input:not(table input),textarea,select").serializeObject();
+        let typeName = $('#typeCode').find("option:selected").text();
         bui.util.yuanToCentForMoneyEl(formData);
+        $.extend(formData,{typeName});
         return formData;
     }
 
