@@ -1,4 +1,4 @@
-package com.dili.ia.domain.dto;
+package com.dili.ia.domain.dto.printDto;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -14,7 +14,7 @@ import java.util.Date;
  * @author qinkelan
  * @createTime 2020-03-13 10:32
  */
-public class EarnestOrderPrintDto {
+public class DepositOrderPrintDto {
     //打印时间
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

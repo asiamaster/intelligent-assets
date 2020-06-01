@@ -6,44 +6,44 @@
             基础信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#orderInfo" aria-expanded="true" aria-controls="orderInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row  row-cols-4 collapse show" id="orderInfo">
+        <div class="row  row-cols-2 collapse show" id="orderInfo">
             <div class="form-group col">
                 <label for="" class="">业务单号</label>
-                <input type="text" class="form-control" value="${earnestOrder.code!}" disabled />
+                <input type="text" class="form-control" value="${depositOrder.code!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">状态</label>
-                <input type="text" class="form-control" value="${@com.dili.ia.glossary.EarnestOrderStateEnum.getEarnestOrderStateEnum(earnestOrder.state).getName()}" disabled />
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.DepositOrderStateEnum.getDepositOrderStateEnum(depositOrder.state).getName()}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">保证金类型</label>
-                <input type="text" class="form-control" value="" disabled />
+                <input type="text" class="form-control" value="${depositOrder.typeName!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">业务所属部门</label>
-                <input type="text" class="form-control" value="${earnestOrder.departmentName!}" disabled />
+                <input type="text" class="form-control" value="${depositOrder.departmentName!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">对应编号</label>
-                <input type="text" class="form-control" value="${earnestOrder.code!}" disabled />
+                <input type="text" class="form-control" value="${depositOrder.assetsName!}" disabled />
             </div>
             <div class="form-group col">
                 <label for="">客户名称</label>
-                <input type="text" class="form-control" value="${earnestOrder.customerName!}" disabled />
+                <input type="text" class="form-control" value="${depositOrder.customerName!}" disabled />
 
             </div>
             <div class="form-group col">
                 <label for="">证件号码</label>
-                <input type="text" class="form-control" value="${earnestOrder.certificateNumber!}" disabled />
+                <input type="text" class="form-control" value="${depositOrder.certificateNumber!}" disabled />
 
             </div>
             <div class="form-group col">
                 <label for="">联系电话</label>
-                <input type="text" class="form-control" value="${earnestOrder.customerCellphone!}" disabled />
+                <input type="text" class="form-control" value="${depositOrder.customerCellphone!}" disabled />
             </div>
-            <div class="form-group col-8">
+            <div class="form-group col-6">
                 <label for="">备注</label>
-                <textarea class="form-control" name="notes" rows="1" disabled>${earnestOrder.notes!}</textarea>
+                <textarea class="form-control" name="notes" rows="1" disabled>${depositOrder.notes!}</textarea>
             </div>
         </div>
 
