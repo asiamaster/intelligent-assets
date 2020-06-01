@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.ia.mapper.AssetLeaseOrderItemMapper">
+  <resultMap id="BaseResultMap" type="com.dili.ia.domain.AssetLeaseOrderItem">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="lease_order_id" jdbcType="BIGINT" property="leaseOrderId" />
+    <result column="asset_type" jdbcType="BIT" property="assetType" />
+    <result column="asset_id" jdbcType="BIGINT" property="assetId" />
+    <result column="asset_name" jdbcType="VARCHAR" property="assetName" />
+    <result column="customer_id" jdbcType="BIGINT" property="customerId" />
+    <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
+    <result column="number" jdbcType="DECIMAL" property="number" />
+    <result column="leases_num" jdbcType="DECIMAL" property="leasesNum" />
+    <result column="is_corner" jdbcType="VARCHAR" property="isCorner" />
+    <result column="unit_code" jdbcType="VARCHAR" property="unitCode" />
+    <result column="unit_name" jdbcType="VARCHAR" property="unitName" />
+    <result column="unit_price" jdbcType="BIGINT" property="unitPrice" />
+    <result column="payment_month" jdbcType="DECIMAL" property="paymentMonth" />
+    <result column="discount_amount" jdbcType="BIGINT" property="discountAmount" />
+    <result column="stop_time" jdbcType="TIMESTAMP" property="stopTime" />
+    <result column="stop_operator_id" jdbcType="BIGINT" property="stopOperatorId" />
+    <result column="stop_operator_name" jdbcType="VARCHAR" property="stopOperatorName" />
+    <result column="stop_way" jdbcType="BIT" property="stopWay" />
+    <result column="stop_reason" jdbcType="VARCHAR" property="stopReason" />
+    <result column="state" jdbcType="BIT" property="state" />
+    <result column="pay_state" jdbcType="BIT" property="payState" />
+    <result column="stop_rent_state" jdbcType="BIT" property="stopRentState" />
+    <result column="district_id" jdbcType="BIGINT" property="districtId" />
+    <result column="district_name" jdbcType="VARCHAR" property="districtName" />
+    <result column="total_amount" jdbcType="BIGINT" property="totalAmount" />
+    <result column="refund_state" jdbcType="BIT" property="refundState" />
+    <result column="refund_amount" jdbcType="BIGINT" property="refundAmount" />
+    <result column="version" jdbcType="TINYINT" property="version" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, code, create_time, modify_time, lease_order_id, asset_type, asset_id, asset_name, 
+    customer_id, customer_name, number, leases_num, is_corner, unit_code, unit_name, 
+    unit_price, payment_month, discount_amount, stop_time, stop_operator_id, stop_operator_name, 
+    stop_way, stop_reason, state, pay_state, stop_rent_state, district_id, district_name, 
+    total_amount, refund_state, refund_amount, version
+  </sql>
+  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from asset_lease_order_item
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <update id="updateBy" parameterType="com.dili.ia.domain.AssetLeaseOrderItem">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update asset_lease_order_item
+    <set>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leaseOrderId != null">
+        lease_order_id = #{leaseOrderId,jdbcType=BIGINT},
+      </if>
+      <if test="assetType != null">
+        asset_type = #{assetType,jdbcType=BIT},
+      </if>
+      <if test="assetId != null">
+        asset_id = #{assetId,jdbcType=BIGINT},
+      </if>
+      <if test="assetName != null">
+        asset_name = #{assetName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null">
+        customer_id = #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="customerName != null">
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="number != null">
+        number = #{number,jdbcType=DECIMAL},
+      </if>
+      <if test="leasesNum != null">
+        leases_num = #{leasesNum,jdbcType=DECIMAL},
+      </if>
+      <if test="isCorner != null">
+        is_corner = #{isCorner,jdbcType=VARCHAR},
+      </if>
+      <if test="unitCode != null">
+        unit_code = #{unitCode,jdbcType=VARCHAR},
+      </if>
+      <if test="unitName != null">
+        unit_name = #{unitName,jdbcType=VARCHAR},
+      </if>
+      <if test="unitPrice != null">
+        unit_price = #{unitPrice,jdbcType=BIGINT},
+      </if>
+      <if test="paymentMonth != null">
+        payment_month = #{paymentMonth,jdbcType=DECIMAL},
+      </if>
+      <if test="discountAmount != null">
+        discount_amount = #{discountAmount,jdbcType=BIGINT},
+      </if>
+      <if test="stopTime != null">
+        stop_time = #{stopTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="stopOperatorId != null">
+        stop_operator_id = #{stopOperatorId,jdbcType=BIGINT},
+      </if>
+      <if test="stopOperatorName != null">
+        stop_operator_name = #{stopOperatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="stopWay != null">
+        stop_way = #{stopWay,jdbcType=BIT},
+      </if>
+      <if test="stopReason != null">
+        stop_reason = #{stopReason,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=BIT},
+      </if>
+      <if test="payState != null">
+        pay_state = #{payState,jdbcType=BIT},
+      </if>
+      <if test="stopRentState != null">
+        stop_rent_state = #{stopRentState,jdbcType=BIT},
+      </if>
+      <if test="districtId != null">
+        district_id = #{districtId,jdbcType=BIGINT},
+      </if>
+      <if test="districtName != null">
+        district_name = #{districtName,jdbcType=VARCHAR},
+      </if>
+      <if test="totalAmount != null">
+        total_amount = #{totalAmount,jdbcType=BIGINT},
+      </if>
+      <if test="refundState != null">
+        refund_state = #{refundState,jdbcType=BIT},
+      </if>
+      <if test="refundAmount != null">
+        refund_amount = #{refundAmount,jdbcType=BIGINT},
+      </if>
+      <if test="version != null">
+        version = #{version,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -108,6 +108,11 @@
 
 		<dependency>
 			<groupId>com.dili</groupId>
+			<artifactId>ss-mbg</artifactId>
+			<version>${sharp-sword.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dili</groupId>
 			<artifactId>ss-processor</artifactId>
 			<version>${sharp-sword.version}</version>
 			<exclusions>

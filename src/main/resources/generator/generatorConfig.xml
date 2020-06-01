@@ -15,7 +15,7 @@
             <property name="beginningDelimiter" value="`"/>
             <property name="endingDelimiter" value="`"/>
             <property name="mappers" value="${mapper.Mapper}"/>
-            <property name="isDTO" value="true"/>
+            <property name="isDTO" value="false"/>
         </plugin>
 
         <!-- Mybatis配置文件生成插件 -->
@@ -103,7 +103,10 @@
 <!--        <table domainObjectName="TransferDeductionItem" tableName="transfer_deduction_item">-->
 <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
 <!--        </table>-->
-       <table domainObjectName="DepositOrder" tableName="deposit_order">
+       <table domainObjectName="LeaseChargeItem" tableName="lease_charge_item">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
+       <table domainObjectName="RefundFeeItem" tableName="refund_fee_item">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
 
