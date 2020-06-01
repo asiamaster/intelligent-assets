@@ -331,6 +331,13 @@ public interface LeaseOrder extends IBaseDomain, IMybatisForceParams {
 
     void setIsDelete(Integer isDelete);
 
+    @Column(name = "`is_show`")
+    @FieldDef(label="是否显示")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Integer getIsShow();
+
+    void setIsShow(Integer isShow);
+
     @Column(name = "`market_id`")
     @FieldDef(label="市场")
     @EditMode(editor = FieldEditor.Number, required = false)

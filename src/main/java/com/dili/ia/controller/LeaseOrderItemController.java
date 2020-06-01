@@ -62,7 +62,7 @@ public class LeaseOrderItemController {
      * @param leaseOrderItem
      * @return
      */
-    @RequestMapping(value="/queryDepositAmountAvailableItem.action", method = {RequestMethod.POST})
+    @RequestMapping(value="/queryDepositAmountAvailableItem.action")
     public @ResponseBody BaseOutput<Map<Long, List<LeaseOrderItem>>> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem) {
         return BaseOutput.success().setData(leaseOrderItemService.queryDepositAmountAvailableItem(leaseOrderItem));
     }
