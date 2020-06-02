@@ -1,6 +1,7 @@
 package com.dili.ia.rpc;
 
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,14 +30,6 @@ public interface SettlementRpc {
      */
     @RequestMapping(value = "/api/settleOrder/save", method = RequestMethod.POST)
     BaseOutput<SettleOrder> submit(SettleOrderDto settleOrder);
-
-    /**
-     * 【撤回】结算单 ---根据结算单编号取消
-     * @param code 结算单编号
-     * @return
-     */
-    @RequestMapping(value = "/api/settleOrder/cancelByCode", method = RequestMethod.POST)
-    BaseOutput<String> cancelByCode(String code);
     /**
      * 【撤回】结算单 ---根据业务缴费单code取消
      * @param appId 应用ID
@@ -44,13 +38,20 @@ public interface SettlementRpc {
      */
     @RequestMapping(value = "/api/settleOrder/cancel", method = RequestMethod.POST)
     BaseOutput<String> cancel(@RequestParam("appId") Long appId, @RequestParam("orderCode") String orderCode);
-
     /**
-     * 【撤回】结算单 ---结算单查询
+     * 【查询】结算单 ---结算单查询
      * @param appId
      * @param orderCode
      * @return
      */
     @RequestMapping(value = "/api/settleOrder/get", method = RequestMethod.POST)
     BaseOutput<SettleOrder> get(@RequestParam("appId") Long appId, @RequestParam("orderCode") String orderCode);
+
+    /**
+     * 【查询】结算单结算详情 ---根据结算编号code查询
+     * @param settlementCode 业务缴费单code
+     * @return
+     */
+    @RequestMapping(value = "/api/settleWayDetail/listByCode", method = RequestMethod.GET)
+    BaseOutput<List<SettleWayDetail>> listSettleWayDetailsByCode(@RequestParam("code") String settlementCode);
 }
