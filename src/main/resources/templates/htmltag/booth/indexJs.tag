@@ -20,7 +20,6 @@
         //行索引计数器
         //如 let itemIndex = 0;
     let _grid = $('#grid');
-    let _form = $('#_form');
     let _modal = $('#_modal');
 
     /*********************变量定义区 end***************/
@@ -227,32 +226,9 @@
         _grid.treegrid("load", bindTreegridMeta2Form("grid", "queryForm"));
     }
 
-    /**
-     * table参数组装
-     * 可修改queryParams向服务器发送其余的参数
-     * @param params
-     */
-    function queryParams(params) {
-        let temp = {
-            rows: params.limit,   //页面大小
-            page: ((params.offset / params.limit) + 1) || 1, //页码
-            sort: params.sort,
-            order: params.order
-        };
-        return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
-    }
-
     /*****************************************函数区 end**************************************/
 
     /*****************************************自定义事件区 begin************************************/
-    //表单弹框关闭事件
-    _modal.on('hidden.bs.modal', function () {
-        _form[0].reset();
-        //重置表单验证到初始状态
-        $(this).find('input,select,textarea').removeClass('is-invalid is-valid');
-        $(this).find('input,select,textarea').removeAttr('disabled readonly');
-        $(this).find('.invalid-feedback').css('display', 'none');
-    });
 
     $.ajax({
         type: "POST",
