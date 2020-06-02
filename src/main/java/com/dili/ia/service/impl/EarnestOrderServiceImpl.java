@@ -483,8 +483,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
                     settleWayDetails.append("&#13;");
                 });
                 settleWayDetails.append("】");
+                earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
+            }else {
+                LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
             }
-            earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
         }
 
         PrintDataDto printDataDto = new PrintDataDto();
