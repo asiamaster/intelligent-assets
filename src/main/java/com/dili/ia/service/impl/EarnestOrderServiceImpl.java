@@ -481,7 +481,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
                     if (StringUtils.isNotEmpty(o.getNotes())){
                         settleWayDetails.append(",").append("备注：").append(o.getNotes());
                     }
-                    settleWayDetails.append("&#13;");
+                    settleWayDetails.append("\r\n");
                 });
                 settleWayDetails.append("】");
                 earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
