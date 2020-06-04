@@ -33,6 +33,7 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -474,10 +475,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
                 output.getData().forEach(o -> {
                     //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
                     settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
-                    if (o.getSerialNumber() != null){
+                    if (StringUtils.isNotEmpty(o.getSerialNumber())){
                         settleWayDetails.append(",").append(o.getSerialNumber());
                     }
-                    if (o.getNotes() != null){
+                    if (StringUtils.isNotEmpty(o.getNotes())){
                         settleWayDetails.append(",").append("备注：").append(o.getNotes());
                     }
                     settleWayDetails.append("&#13;");
