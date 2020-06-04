@@ -111,7 +111,7 @@ public class LeaseOrderController {
      * @throws IOException
      */
     @RequestMapping(value = "/upload.action",method = RequestMethod.POST)
-    public @ResponseBody BaseOutput<List<String>> upload(@RequestParam MultipartFile file) throws IOException {
+    public @ResponseBody BaseOutput<List<String>> upload(@RequestParam MultipartFile file,@RequestParam Boolean isCheck) throws IOException {
         InputStream is = file.getInputStream();
         List<List<Map<String, Object>>> list = ExcelUtils.getSheetsDatas(is, 0);
 
@@ -119,7 +119,7 @@ public class LeaseOrderController {
         List<String> errorList = new ArrayList<>();
         firstSheet.forEach(o -> {
             try {
-                leaseOrderImportService.importLeaseOrder(o);
+                leaseOrderImportService.importLeaseOrder(o,isCheck);
             } catch (BusinessException e) {
                 errorList.add(o.get("客户名称") + " " + o.get("证件号") + " " + e.getErrorMsg());
                 LOG.error(o.get("客户名称") + " " + o.get("证件号") + " " + e.getErrorMsg());
