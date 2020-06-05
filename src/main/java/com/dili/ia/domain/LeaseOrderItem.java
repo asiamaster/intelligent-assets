@@ -4,7 +4,6 @@ import com.dili.ss.dto.IBaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
-import io.swagger.annotations.ApiModelProperty;
 import tk.mybatis.mapper.annotation.Version;
 
 import java.math.BigDecimal;

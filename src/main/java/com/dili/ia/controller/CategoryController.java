@@ -1,8 +1,5 @@
 package com.dili.ia.controller;
 
-import cn.hutool.core.collection.CollUtil;
-import com.alibaba.fastjson.JSONObject;
-import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.ia.rpc.AssetsRpc;
@@ -15,7 +12,6 @@ import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -181,7 +177,6 @@ public class CategoryController {
     /**
      * list Category
      */
-    @ApiOperation("list category")
     @RequestMapping(value = "/search.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput<List<CategoryDTO>> search(String keyword) {

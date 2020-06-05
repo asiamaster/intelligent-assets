@@ -8,7 +8,6 @@ import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.CustomerAccountListDto;
 import com.dili.ia.domain.dto.EarnestTransferDto;
-import com.dili.ia.glossary.TransactionItemTypeEnum;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DataAuthService;
@@ -16,16 +15,11 @@ import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
-import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,15 +29,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-14 10:18:23.
  */
-@Api("/customerAccount")
 @Controller
 @RequestMapping("/customerAccount")
 public class CustomerAccountController {
@@ -82,7 +71,6 @@ public class CustomerAccountController {
      * @param id 客户账户Id
      * @return String
      */
-    @ApiOperation("跳转到CustomerAccount页面---定金退款")
     @RequestMapping(value="/earnestRefund.html", method = RequestMethod.GET)
     public String earnestRefund(ModelMap modelMap, Long id) {
         if(null != id){
@@ -97,7 +85,6 @@ public class CustomerAccountController {
      * @param id 客户账户Id
      * @return String
      */
-    @ApiOperation("跳转到CustomerAccount页面--定金转移")
     @RequestMapping(value="/earnestTransfer.html", method = RequestMethod.GET)
     public String earnestTransfer(ModelMap modelMap, Long id) {
         if(null != id){
