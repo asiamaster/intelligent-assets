@@ -2,22 +2,14 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderItemListDto;
-import com.dili.ia.glossary.DepositAmountFlagEnum;
-import com.dili.ia.glossary.PayStateEnum;
-import com.dili.ia.glossary.RefundStateEnum;
 import com.dili.ia.glossary.StopWayEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.util.LogBizTypeConst;
-import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +25,6 @@ import java.util.Map;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-11 15:54:49.
  */
-@Api("/leaseOrderItem")
 @Controller
 @RequestMapping("/leaseOrderItem")
 public class LeaseOrderItemController {
@@ -48,10 +39,6 @@ public class LeaseOrderItemController {
      * @return String
      * @throws Exception
      */
-    @ApiOperation(value="分页查询LeaseOrderItem", notes = "分页查询LeaseOrderItem，返回easyui分页信息")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="LeaseOrderItem", paramType="form", value = "LeaseOrderItem的form信息", required = false, dataType = "string")
-	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(LeaseOrderItem leaseOrderItem) throws Exception {
         return leaseOrderItemService.listEasyuiPageByExample(leaseOrderItem, true).toString();
