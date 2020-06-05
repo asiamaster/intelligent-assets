@@ -1,10 +1,12 @@
 package com.dili.ia.domain.dto;
 
+import com.dili.ia.domain.IdTextPair;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
-import com.dili.ss.dto.IMybatisForceParams;
+import com.dili.ss.metadata.ValuePair;
+import com.dili.ss.metadata.ValuePairImpl;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
@@ -74,4 +76,8 @@ public interface LeaseOrderListDto extends LeaseOrder{
     @Column(name = "department_id")
     List<Long> getDepartmentIds();
     void setDepartmentIds(List<Long> departmentIds);
+
+    @Transient
+    List<IdTextPair> getCategorys();
+    void setCategorys(List<IdTextPair> categorys);
 }

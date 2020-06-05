@@ -88,6 +88,18 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Autowired
     private TransactionDetailsService transactionDetailsService;
 
+    public static void main(String[] args) {
+        LeaseOrderListDto dto = DTOUtils.newInstance(LeaseOrderListDto.class);
+        LeaseOrderItem leaseOrderItem = DTOUtils.newInstance(LeaseOrderItem.class);
+        leaseOrderItem.setId(100L);
+        List<LeaseOrderItem> leaseOrderItems = new ArrayList<>();
+        leaseOrderItems.add(leaseOrderItem);
+        dto.setLeaseOrderItems(leaseOrderItems);
+        dto.getLeaseOrderItems().forEach(o->{
+            System.out.println(o.getId());
+        });
+    }
+
     /**
      * 摊位租赁单保存
      *
@@ -113,6 +125,13 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         dto.setMarketCode(userTicket.getFirmCode());
         dto.setCreatorId(userTicket.getId());
         dto.setCreator(userTicket.getRealName());
+        if(CollectionUtils.isNotEmpty(dto.getCategorys())){
+            dto.setCategoryId(dto.getCategorys().stream().map(o->o.getId()).collect(Collectors.joining(",")));
+            dto.setCategoryName(dto.getCategorys().stream().map(o->o.getText()).collect(Collectors.joining(",")));
+        }else{
+            dto.setCategoryId(null);
+            dto.setCategoryName(null);
+        }
 
         if (null == dto.getId()) {
             //租赁单新增
