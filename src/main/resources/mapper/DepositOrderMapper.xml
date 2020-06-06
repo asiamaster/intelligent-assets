@@ -17,9 +17,8 @@
     <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
     <result column="type_code" jdbcType="VARCHAR" property="typeCode" />
     <result column="type_name" jdbcType="VARCHAR" property="typeName" />
-    <result column="assets_type" jdbcType="VARCHAR" property="assetsType" />
-    <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
-    <result column="assets_name" jdbcType="VARCHAR" property="assetsName" />
+    <result column="addr_id" jdbcType="BIGINT" property="addrId" />
+    <result column="addr" jdbcType="VARCHAR" property="addr" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
     <result column="notes" jdbcType="VARCHAR" property="notes" />
     <result column="state" jdbcType="INTEGER" property="state" />
@@ -40,10 +39,9 @@
       WARNING - @mbg.generated
     -->
     id, create_time, modify_time, code, customer_id, customer_name, certificate_number, 
-    customer_cellphone, department_id, department_name, type_code, type_name, assets_type, 
-    assets_id, assets_name, amount, notes, state, creator_id, creator, submitter_id, 
-    submitter, submit_time, withdraw_operator_id, withdraw_operator, canceler_id, canceler, 
-    version, market_id
+    customer_cellphone, department_id, department_name, type_code, type_name, addr_id, 
+    addr, amount, notes, state, creator_id, creator, submitter_id, submitter, submit_time, 
+    withdraw_operator_id, withdraw_operator, canceler_id, canceler, version, market_id
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -93,14 +91,11 @@
       <if test="typeName != null">
         type_name = #{typeName,jdbcType=VARCHAR},
       </if>
-      <if test="assetsType != null">
-        assets_type = #{assetsType,jdbcType=VARCHAR},
+      <if test="addrId != null">
+        addr_id = #{addrId,jdbcType=BIGINT},
       </if>
-      <if test="assetsId != null">
-        assets_id = #{assetsId,jdbcType=BIGINT},
-      </if>
-      <if test="assetsName != null">
-        assets_name = #{assetsName,jdbcType=VARCHAR},
+      <if test="addr != null">
+        addr = #{addr,jdbcType=VARCHAR},
       </if>
       <if test="amount != null">
         amount = #{amount,jdbcType=BIGINT},
