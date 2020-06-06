@@ -2,7 +2,7 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.dto.DepositOrderListDto;
+import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.DepositOrderStateEnum;
 import com.dili.ia.service.DataAuthService;
@@ -106,7 +106,7 @@ public class DepositOrderController {
 
     /**
      * 分页查询DepositOrder，返回easyui分页信息
-     * @param depositOrderListDto
+     * @param depositOrderQuery
      * @return String
      * @throws Exception
      */
@@ -115,15 +115,15 @@ public class DepositOrderController {
 		@ApiImplicitParam(name="DepositOrder", paramType="form", value = "DepositOrder的form信息", required = false, dataType = "string")
 	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(DepositOrderListDto depositOrderListDto) throws Exception {
+    public @ResponseBody String listPage(DepositOrderQuery depositOrderQuery) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
         if (CollectionUtils.isEmpty(departmentIdList)){
             return new EasyuiPageOutput(0, Collections.emptyList()).toString();
         }
-        depositOrderListDto.setMarketId(userTicket.getFirmId());
-        depositOrderListDto.setDepartmentIds(departmentIdList);
-        return depositOrderService.listEasyuiPageByExample(depositOrderListDto, true).toString();
+        depositOrderQuery.setMarketId(userTicket.getFirmId());
+        depositOrderQuery.setDepartmentIds(departmentIdList);
+        return depositOrderService.listEasyuiPageByExample(depositOrderQuery, true).toString();
     }
 
     /**
@@ -154,10 +154,10 @@ public class DepositOrderController {
     @ApiOperation("新增DepositOrder")
     @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput doAdd(DepositOrderListDto depositOrderListDto) {
+    public @ResponseBody BaseOutput doAdd(DepositOrderQuery depositOrderQuery) {
 
         try{
-            BaseOutput<DepositOrder> output = depositOrderService.addDepositOrder(depositOrderListDto);
+            BaseOutput<DepositOrder> output = depositOrderService.addDepositOrder(depositOrderQuery);
             //写业务日志
             if (output.isSuccess()){
                 DepositOrder order = output.getData();

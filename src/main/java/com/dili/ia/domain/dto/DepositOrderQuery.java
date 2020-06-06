@@ -16,7 +16,7 @@ import java.util.List;
  * @author qinkelan
  * @createTime 2020-02-18 15:28
  */
-public class DepositOrderListDto extends DepositOrder {
+public class DepositOrderQuery extends DepositOrder {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
     private Date createdStart;

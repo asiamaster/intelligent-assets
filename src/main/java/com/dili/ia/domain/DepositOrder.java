@@ -202,6 +202,7 @@ public class DepositOrder extends BaseDomain {
     /**
      * 版本控制,乐观锁
      */
+    @Version
     @Column(name = "`version`")
     private Long version;
 
