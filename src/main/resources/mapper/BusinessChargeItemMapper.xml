@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dili.ia.mapper.LeaseChargeItemMapper">
-  <resultMap id="BaseResultMap" type="com.dili.ia.domain.LeaseChargeItem">
+<mapper namespace="com.dili.ia.mapper.BusinessChargeItemMapper">
+  <resultMap id="BaseResultMap" type="com.dili.ia.domain.BusinessChargeItem">
     <!--
       WARNING - @mbg.generated
     -->
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="business_id" jdbcType="BIGINT" property="businessId" />
     <result column="business_code" jdbcType="VARCHAR" property="businessCode" />
+    <result column="biz_type" jdbcType="BIT" property="bizType" />
     <result column="charge_id" jdbcType="BIGINT" property="chargeId" />
     <result column="charge_name" jdbcType="VARCHAR" property="chargeName" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
@@ -18,7 +19,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, business_id, business_code, charge_id, charge_name, amount, create_time, modify_time
+    id, business_id, business_code, biz_type, charge_id, charge_name, amount, create_time, modify_time
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -29,7 +30,7 @@
     from lease_charge_item
     where id = #{id,jdbcType=BIGINT}
   </select>
-  <update id="updateBy" parameterType="com.dili.ia.domain.LeaseChargeItem">
+  <update id="updateBy" parameterType="com.dili.ia.domain.BusinessChargeItem">
     <!--
       WARNING - @mbg.generated
     -->
@@ -40,6 +41,9 @@
       </if>
       <if test="businessCode != null">
         business_code = #{businessCode,jdbcType=VARCHAR},
+      </if>
+      <if test="bizType != null">
+        biz_type = #{bizType,jdbcType=BIT},
       </if>
       <if test="chargeId != null">
         charge_id = #{chargeId,jdbcType=BIGINT},

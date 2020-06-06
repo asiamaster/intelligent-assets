@@ -104,11 +104,11 @@
                 </div>
                 <div class="form-group col col">
                     <label for="startTime">开始日期</label>
-                    <input type="text" id="startTime" name="startTime" class="form-control" value="${leaseOrder.startTime!,dateFormat='yyyy-MM-dd'}" readonly>
+                    <input type="text" id="startTime" name="startTime" class="form-control" value="${leaseOrder.startTime!,localDateTimeFormat='yyyy-MM-dd'}" readonly>
                 </div>
                 <div class="form-group col col">
                     <label for="endTime">结束日期</label>
-                    <input type="text" id="endTime" name="endTime" class="form-control" value="${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}" readonly>
+                    <input type="text" id="endTime" name="endTime" class="form-control" value="${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}" readonly>
                 </div>
                 <div class="form-group col">
                     <label for="contractNo">合同编号</label>
@@ -120,28 +120,6 @@
                 </div>
             </div>
 
-            <div class="breadcrumb">
-                金额信息
-                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
-            </div>
-            <div class="row  row-cols-4 collapse show" id="moneyInfo">
-                <div class="form-group col">
-                    <label for="rentAmount">租金</label>
-                    <input type="number" class="form-control money" id="rentAmount" name="rentAmount" value="<#centToYuan value='${leaseOrder.rentAmount!0}'/>" readonly/>
-                </div>
-                <div class="form-group col">
-                    <label for="manageAmount">物业管理费</label>
-                    <input type="number" class="form-control money" id="manageAmount" name="manageAmount" value="<#centToYuan value='${leaseOrder.manageAmount!0}'/>" readonly/>
-                </div>
-                <div class="form-group col">
-                    <label for="depositAmount">保证金</label>
-                    <input type="number" class="form-control money" id="depositAmount" name="depositAmount" value="<#centToYuan value='${leaseOrder.depositAmount!0}'/>" readonly/>
-                </div>
-                <div class="form-group col">
-                    <label for="totalAmount">合计金额</label>
-                    <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>"  readonly/>
-                </div>
-            </div>
 
             <div class="breadcrumb">
                 抵扣项

@@ -15,8 +15,8 @@ import javax.persistence.*;
  * 租赁收费项目
  * This file was generated on 2020-05-29 16:13:04.
  */
-@Table(name = "`lease_charge_item`")
-public class LeaseChargeItem extends BaseDomain {
+@Table(name = "`business_charge_item`")
+public class BusinessChargeItem extends BaseDomain {
     /**
      * id
      */
@@ -36,6 +36,12 @@ public class LeaseChargeItem extends BaseDomain {
      */
     @Column(name = "`business_code`")
     private String businessCode;
+
+    /**
+     * 业务类型
+     */
+    @Column(name = "`biz_type`")
+    private Integer bizType;
 
     /**
      * 收费项ID
@@ -90,6 +96,14 @@ public class LeaseChargeItem extends BaseDomain {
 
     public void setBusinessCode(String businessCode) {
         this.businessCode = businessCode;
+    }
+
+    public Integer getBizType() {
+        return bizType;
+    }
+
+    public void setBizType(Integer bizType) {
+        this.bizType = bizType;
     }
 
     public Long getChargeId() {
