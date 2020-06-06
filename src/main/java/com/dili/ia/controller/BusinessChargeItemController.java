@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.*;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-05-29 16:13:04.
  */
-@Api("/leaseChargeItem")
+@Api("/businessChargeItem")
 @Controller
-@RequestMapping("/leaseChargeItem")
+@RequestMapping("/businessChargeItem")
 public class BusinessChargeItemController {
     private final static Logger LOG = LoggerFactory.getLogger(BusinessChargeItemController.class);
     @Autowired
