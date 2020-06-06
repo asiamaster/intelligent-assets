@@ -96,7 +96,7 @@
                     <#bcomboProvider _log="业务所属部门" _id="departmentId" _provider="authDepartmentProvider" _value="${leaseOrder.departmentId!}"/>
                 </div>
                 <div class="form-group col-9">
-                    <label for="categorys">经营品类</label>
+                    <label for="categorys" _log>经营品类</label>
                     <select id="categorys" name="categorys" multiple>
                         <%
                             if(isNotEmpty(leaseOrder.categoryId)){
