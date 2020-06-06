@@ -17,9 +17,12 @@
     <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
     <result column="type_code" jdbcType="VARCHAR" property="typeCode" />
     <result column="type_name" jdbcType="VARCHAR" property="typeName" />
-    <result column="addr_id" jdbcType="BIGINT" property="addrId" />
-    <result column="addr" jdbcType="VARCHAR" property="addr" />
+    <result column="assets_type" jdbcType="VARCHAR" property="assetsType" />
+    <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
+    <result column="assets_name" jdbcType="VARCHAR" property="assetsName" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
+    <result column="refund_amount" jdbcType="BIGINT" property="refundAmount" />
+    <result column="chargeback_amount" jdbcType="BIGINT" property="chargebackAmount" />
     <result column="notes" jdbcType="VARCHAR" property="notes" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
@@ -31,17 +34,19 @@
     <result column="withdraw_operator" jdbcType="VARCHAR" property="withdrawOperator" />
     <result column="canceler_id" jdbcType="BIGINT" property="cancelerId" />
     <result column="canceler" jdbcType="VARCHAR" property="canceler" />
-    <result column="version" jdbcType="BIGINT" property="version" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
+    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
+    <result column="version" jdbcType="BIGINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbg.generated
     -->
     id, create_time, modify_time, code, customer_id, customer_name, certificate_number, 
-    customer_cellphone, department_id, department_name, type_code, type_name, addr_id, 
-    addr, amount, notes, state, creator_id, creator, submitter_id, submitter, submit_time, 
-    withdraw_operator_id, withdraw_operator, canceler_id, canceler, version, market_id
+    customer_cellphone, department_id, department_name, type_code, type_name, assets_type, 
+    assets_id, assets_name, amount, refund_amount, chargeback_amount, notes, state, creator_id, 
+    creator, submitter_id, submitter, submit_time, withdraw_operator_id, withdraw_operator, 
+    canceler_id, canceler, market_id, market_code, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -91,14 +96,23 @@
       <if test="typeName != null">
         type_name = #{typeName,jdbcType=VARCHAR},
       </if>
-      <if test="addrId != null">
-        addr_id = #{addrId,jdbcType=BIGINT},
+      <if test="assetsType != null">
+        assets_type = #{assetsType,jdbcType=VARCHAR},
       </if>
-      <if test="addr != null">
-        addr = #{addr,jdbcType=VARCHAR},
+      <if test="assetsId != null">
+        assets_id = #{assetsId,jdbcType=BIGINT},
+      </if>
+      <if test="assetsName != null">
+        assets_name = #{assetsName,jdbcType=VARCHAR},
       </if>
       <if test="amount != null">
         amount = #{amount,jdbcType=BIGINT},
+      </if>
+      <if test="refundAmount != null">
+        refund_amount = #{refundAmount,jdbcType=BIGINT},
+      </if>
+      <if test="chargebackAmount != null">
+        chargeback_amount = #{chargebackAmount,jdbcType=BIGINT},
       </if>
       <if test="notes != null">
         notes = #{notes,jdbcType=VARCHAR},
@@ -133,11 +147,14 @@
       <if test="canceler != null">
         canceler = #{canceler,jdbcType=VARCHAR},
       </if>
-      <if test="version != null">
-        version = #{version,jdbcType=BIGINT},
-      </if>
       <if test="marketId != null">
         market_id = #{marketId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCode != null">
+        market_code = #{marketCode,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null">
+        version = #{version,jdbcType=BIGINT},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

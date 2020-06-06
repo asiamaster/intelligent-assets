@@ -10,7 +10,7 @@ import javax.persistence.*;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-06 15:20:31.
+ * This file was generated on 2020-06-06 15:34:22.
  */
 @Table(name = "`deposit_order`")
 public class DepositOrder extends BaseDomain {
@@ -86,22 +86,40 @@ public class DepositOrder extends BaseDomain {
     private String typeName;
 
     /**
-     * 对应编号ID
+     * 资产类型code; booth,location,lodging,other
      */
-    @Column(name = "`addr_id`")
-    private Long addrId;
+    @Column(name = "`assets_type`")
+    private String assetsType;
 
     /**
-     * 对应编号
+     * 对应编号ID
      */
-    @Column(name = "`addr`")
-    private String addr;
+    @Column(name = "`assets_id`")
+    private Long assetsId;
+
+    /**
+     * 对应编号，名称
+     */
+    @Column(name = "`assets_name`")
+    private String assetsName;
 
     /**
      * 保证金金额
      */
     @Column(name = "`amount`")
     private Long amount;
+
+    /**
+     * 退款金额，用于多次退款记录
+     */
+    @Column(name = "`refund_amount`")
+    private Long refundAmount;
+
+    /**
+     * 扣款金额，退款时的扣款金额或者罚款金额
+     */
+    @Column(name = "`chargeback_amount`")
+    private Long chargebackAmount;
 
     /**
      * 备注信息
@@ -170,16 +188,22 @@ public class DepositOrder extends BaseDomain {
     private String canceler;
 
     /**
-     * 版本控制,乐观锁
-     */
-    @Column(name = "`version`")
-    private Long version;
-
-    /**
      * 市场Id
      */
     @Column(name = "`market_id`")
     private Long marketId;
+
+    /**
+     * 市场CODE
+     */
+    @Column(name = "`market_code`")
+    private String marketCode;
+
+    /**
+     * 版本控制,乐观锁
+     */
+    @Column(name = "`version`")
+    private Long version;
 
     /**
      * @return id
@@ -418,43 +442,63 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
+     * 获取资产类型code; booth,location,lodging,other
+     *
+     * @return assets_type - 资产类型code; booth,location,lodging,other
+     */
+    @FieldDef(label="资产类型code; booth,location,lodging,other", maxLength = 50)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getAssetsType() {
+        return assetsType;
+    }
+
+    /**
+     * 设置资产类型code; booth,location,lodging,other
+     *
+     * @param assetsType 资产类型code; booth,location,lodging,other
+     */
+    public void setAssetsType(String assetsType) {
+        this.assetsType = assetsType;
+    }
+
+    /**
      * 获取对应编号ID
      *
-     * @return addr_id - 对应编号ID
+     * @return assets_id - 对应编号ID
      */
     @FieldDef(label="对应编号ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getAddrId() {
-        return addrId;
+    public Long getAssetsId() {
+        return assetsId;
     }
 
     /**
      * 设置对应编号ID
      *
-     * @param addrId 对应编号ID
+     * @param assetsId 对应编号ID
      */
-    public void setAddrId(Long addrId) {
-        this.addrId = addrId;
+    public void setAssetsId(Long assetsId) {
+        this.assetsId = assetsId;
     }
 
     /**
-     * 获取对应编号
+     * 获取对应编号，名称
      *
-     * @return addr - 对应编号
+     * @return assets_name - 对应编号，名称
      */
-    @FieldDef(label="对应编号", maxLength = 200)
+    @FieldDef(label="对应编号，名称", maxLength = 200)
     @EditMode(editor = FieldEditor.Text, required = false)
-    public String getAddr() {
-        return addr;
+    public String getAssetsName() {
+        return assetsName;
     }
 
     /**
-     * 设置对应编号
+     * 设置对应编号，名称
      *
-     * @param addr 对应编号
+     * @param assetsName 对应编号，名称
      */
-    public void setAddr(String addr) {
-        this.addr = addr;
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
     }
 
     /**
@@ -475,6 +519,46 @@ public class DepositOrder extends BaseDomain {
      */
     public void setAmount(Long amount) {
         this.amount = amount;
+    }
+
+    /**
+     * 获取退款金额，用于多次退款记录
+     *
+     * @return refund_amount - 退款金额，用于多次退款记录
+     */
+    @FieldDef(label="退款金额，用于多次退款记录")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getRefundAmount() {
+        return refundAmount;
+    }
+
+    /**
+     * 设置退款金额，用于多次退款记录
+     *
+     * @param refundAmount 退款金额，用于多次退款记录
+     */
+    public void setRefundAmount(Long refundAmount) {
+        this.refundAmount = refundAmount;
+    }
+
+    /**
+     * 获取扣款金额，退款时的扣款金额或者罚款金额
+     *
+     * @return chargeback_amount - 扣款金额，退款时的扣款金额或者罚款金额
+     */
+    @FieldDef(label="扣款金额，退款时的扣款金额或者罚款金额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getChargebackAmount() {
+        return chargebackAmount;
+    }
+
+    /**
+     * 设置扣款金额，退款时的扣款金额或者罚款金额
+     *
+     * @param chargebackAmount 扣款金额，退款时的扣款金额或者罚款金额
+     */
+    public void setChargebackAmount(Long chargebackAmount) {
+        this.chargebackAmount = chargebackAmount;
     }
 
     /**
@@ -698,26 +782,6 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
-     * 获取版本控制,乐观锁
-     *
-     * @return version - 版本控制,乐观锁
-     */
-    @FieldDef(label="版本控制,乐观锁")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getVersion() {
-        return version;
-    }
-
-    /**
-     * 设置版本控制,乐观锁
-     *
-     * @param version 版本控制,乐观锁
-     */
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
-    /**
      * 获取市场Id
      *
      * @return market_id - 市场Id
@@ -735,5 +799,45 @@ public class DepositOrder extends BaseDomain {
      */
     public void setMarketId(Long marketId) {
         this.marketId = marketId;
+    }
+
+    /**
+     * 获取市场CODE
+     *
+     * @return market_code - 市场CODE
+     */
+    @FieldDef(label="市场CODE", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getMarketCode() {
+        return marketCode;
+    }
+
+    /**
+     * 设置市场CODE
+     *
+     * @param marketCode 市场CODE
+     */
+    public void setMarketCode(String marketCode) {
+        this.marketCode = marketCode;
+    }
+
+    /**
+     * 获取版本控制,乐观锁
+     *
+     * @return version - 版本控制,乐观锁
+     */
+    @FieldDef(label="版本控制,乐观锁")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getVersion() {
+        return version;
+    }
+
+    /**
+     * 设置版本控制,乐观锁
+     *
+     * @param version 版本控制,乐观锁
+     */
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

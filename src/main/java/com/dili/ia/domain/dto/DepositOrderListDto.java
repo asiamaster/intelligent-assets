@@ -16,16 +16,14 @@ import java.util.List;
  * @author qinkelan
  * @createTime 2020-02-18 15:28
  */
-public interface DepositOrderListDto extends DepositOrder {
+public class DepositOrderListDto extends DepositOrder {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
-    Date getCreatedStart();
-    void setCreatedStart(Date createdStart);
+    private Date createdStart;
 
     @Column(name = "`create_time`")
     @Operator(Operator.LITTLE_EQUAL_THAN)
-    Date getCreatedEnd();
-    void setCreatedEnd(Date createdEnd);
+    private Date createdEnd;
 
     /**
      * 昵称模糊查询
@@ -33,11 +31,41 @@ public interface DepositOrderListDto extends DepositOrder {
      */
     @Column(name = "customer_name")
     @Like
-    String getLikeCustomerName();
-    void setLikeCustomerName(String likeCustomerName);
+    private String likeCustomerName;
 
     @Operator(Operator.IN)
     @Column(name = "department_id")
-    List<Long> getDepartmentIds();
-    void setDepartmentIds(List<Long> departmentIds);
+    private List<Long> departmentIds;
+
+    public Date getCreatedStart() {
+        return createdStart;
+    }
+
+    public void setCreatedStart(Date createdStart) {
+        this.createdStart = createdStart;
+    }
+
+    public Date getCreatedEnd() {
+        return createdEnd;
+    }
+
+    public void setCreatedEnd(Date createdEnd) {
+        this.createdEnd = createdEnd;
+    }
+
+    public String getLikeCustomerName() {
+        return likeCustomerName;
+    }
+
+    public void setLikeCustomerName(String likeCustomerName) {
+        this.likeCustomerName = likeCustomerName;
+    }
+
+    public List<Long> getDepartmentIds() {
+        return departmentIds;
+    }
+
+    public void setDepartmentIds(List<Long> departmentIds) {
+        this.departmentIds = departmentIds;
+    }
 }
