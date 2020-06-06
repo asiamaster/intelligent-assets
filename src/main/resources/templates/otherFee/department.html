@@ -1,0 +1,42 @@
+<#bs4Body>
+    <style>
+
+    </style>
+    <div class="container-fluid">
+        <#bs4nav>
+        </#bs4nav>
+        <hr>
+
+        <div class="row">
+            <div class="col-12">
+                <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+                    <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 设置绑定</button>
+                </div>
+                <table id="grid" data-toggle="table" data-title="收费项部门关联" class="table" data-toolbar="#toolbar"
+                    data-pagination="true" data-page-number="1" data-page-size="10" data-query-params="queryParams"
+                    data-side-pagination="server" data-method="POST"
+                    data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                    data-click-to-select="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"
+                    data-icons="bui.variable.icons" data-buttons-class="primary" data-show-refresh="true"
+                    data-show-fullscreen="true" data-show-columns="true">
+                    <thead>
+                        <tr>
+                            <th data-radio="true"></th>
+                            <th data-field="code" data-sortable="true" data-align="center" data-formatter="codeFormatter">
+                                收费项
+                            </th>
+                            <th data-field="" data-sortable="true" data-align="center" >
+                                关联部门
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+</#bs4Body>
+
+<#other_indexJs />

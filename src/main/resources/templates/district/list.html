@@ -22,7 +22,9 @@
     table > tbody > tr.treegrid-tr-tree > td {
         height: auto
     }
-
+    table > tbody > tr > td {
+        max-width: fit-content;
+    }
 
 </style>
 <div class="container-fluid">
@@ -72,26 +74,28 @@
                         </button>
                 </#resource>
                 </div>
-                <table title="" id="grid" class="easyui-treegrid" idField="id"
-                       treeField="name"
+                <table title="" id="grid" class="easyui-treegrid"
                        data-options="
                                         method: 'get',
                                         idField: 'id',
                                         treeField: 'name',
                                         showFooter:true,
+                                        fitColumns:true,
                                         singleSelect:true,
                                         remoteSort:false,
-                                        multiSort:true,
+                                        multiSort:false,
+                                        collapsible:true,
                                         _parentIdField: 'parentId',
                                         loadFilter:treegridLoadFilter
                                     ">
                     <thead>
                     <tr>
-                        <th data-options="field:'ck',checkbox:true,resizable:false"></th>
-                        <th data-options="field:'name',sortable:true,resizable:false" width="40%">区域名称</th>
-                        <th data-options="field:'number',sortable:true,resizable:false" width="20%">编号</th>
-                        <th data-options="field:'departmentId',_provider:'departmentProvider',resizable:false" width="20%">部门</th>
-                        <th data-options="field:'notes'" width="20%">备注</th>
+                        <th data-options="field:'ck',checkbox:true,resizable:false,fixed:'false'" width="5%"></th>
+                        <th data-options="field:'name',sortable:true,resizable:false,fixed:'false'" width="19%">区域名称</th>
+                        <th data-options="field:'number',sortable:true,resizable:false,fixed:'false'" width="10%">编号</th>
+                        <th data-options="field:'departmentId',_provider:'departmentProvider',resizable:false,fixed:'false'" width="20%">部门</th>
+                        <th data-options="field:'notes',resizable:false,fixed:'false'" width="20%">备注</th>
+                        <th data-options="field:'bb',resizable:false,fixed:'false',_provider:'disProvider'" width="30%">路径</th>
                     </tr>
                     </thead>
                 </table>
@@ -137,8 +141,15 @@
 
     $(function () {
         window.currentGrid = $('#grid');
-        queryDataHandler();
+        var opts = currentGrid.treegrid("options");
+        if (null == opts.url || "" == opts.url) {
+            opts.url = "/district/listPage.action?parentId=0";
+        }
+        currentGrid.treegrid("load", bindTreegridMeta2Form("grid", "queryForm"));
+        opts.url = "/district/listPage.action";
+
     });
+
     function emptyFormatter(){return ''}
 
     function oneFormatter(value, row) {

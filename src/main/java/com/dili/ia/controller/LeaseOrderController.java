@@ -8,10 +8,7 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
-import com.dili.ia.service.DataAuthService;
-import com.dili.ia.service.LeaseOrderItemService;
-import com.dili.ia.service.LeaseOrderService;
-import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -24,6 +21,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.ExcelUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.swagger.annotations.Api;
@@ -41,11 +39,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -68,6 +67,8 @@ public class LeaseOrderController {
     BusinessLogRpc businessLogRpc;
     @Autowired
     DataAuthService dataAuthService;
+    @Autowired
+    LeaseOrderImportService leaseOrderImportService;
 
     /**
      * 跳转到LeaseOrder页面
@@ -90,6 +91,44 @@ public class LeaseOrderController {
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
         return "leaseOrder/index";
+    }
+
+    /**
+     * 跳转到LeaseOrder页面
+     * @param modelMap
+     * @return String
+     */
+    @ApiOperation("跳转到LeaseOrder页面")
+    @RequestMapping(value="/importLeaseOrder.action", method = RequestMethod.GET)
+    public String importLeaseOrder(ModelMap modelMap) {
+        return "leaseOrder/importLeaseOrder";
+    }
+
+    /**
+     * 初始化老数据导入
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping(value = "/upload.action",method = RequestMethod.POST)
+    public @ResponseBody BaseOutput<List<String>> upload(@RequestParam MultipartFile file) throws IOException {
+        InputStream is = file.getInputStream();
+        List<List<Map<String, Object>>> list = ExcelUtils.getSheetsDatas(is, 0);
+
+        List<Map<String, Object>> firstSheet = list.get(0);
+        List<String> errorList = new ArrayList<>();
+        firstSheet.forEach(o -> {
+            try {
+                leaseOrderImportService.importLeaseOrder(o);
+            } catch (BusinessException e) {
+                errorList.add(o.get("客户名称") + " " + o.get("证件号") + " " + e.getErrorMsg());
+                LOG.error(o.get("客户名称") + " " + o.get("证件号") + " " + e.getErrorMsg());
+            } catch (Exception e) {
+                errorList.add(o.get("客户名称") + " " + o.get("证件号") + " " + e.getMessage());
+                LOG.error(o.get("客户名称") + " " + o.get("证件号") + " " + e.getMessage());
+            }
+        });
+        return BaseOutput.success().setData(errorList);
     }
 
     /**
@@ -224,6 +263,7 @@ public class LeaseOrderController {
                 return new EasyuiPageOutput(0, Collections.emptyList()).toString();
             }
         }
+        leaseOrder.setIsShow(YesOrNoEnum.YES.getCode());
         return leaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
     }
 

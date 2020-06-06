@@ -21,6 +21,8 @@
     <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
     <result column="assets_name" jdbcType="VARCHAR" property="assetsName" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
+    <result column="refund_amount" jdbcType="BIGINT" property="refundAmount" />
+    <result column="chargeback_amount" jdbcType="BIGINT" property="chargebackAmount" />
     <result column="notes" jdbcType="VARCHAR" property="notes" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
@@ -32,8 +34,9 @@
     <result column="withdraw_operator" jdbcType="VARCHAR" property="withdrawOperator" />
     <result column="canceler_id" jdbcType="BIGINT" property="cancelerId" />
     <result column="canceler" jdbcType="VARCHAR" property="canceler" />
-    <result column="version" jdbcType="BIGINT" property="version" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
+    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
+    <result column="version" jdbcType="BIGINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -41,9 +44,9 @@
     -->
     id, create_time, modify_time, code, customer_id, customer_name, certificate_number, 
     customer_cellphone, department_id, department_name, type_code, type_name, assets_type, 
-    assets_id, assets_name, amount, notes, state, creator_id, creator, submitter_id, 
-    submitter, submit_time, withdraw_operator_id, withdraw_operator, canceler_id, canceler, 
-    version, market_id
+    assets_id, assets_name, amount, refund_amount, chargeback_amount, notes, state, creator_id, 
+    creator, submitter_id, submitter, submit_time, withdraw_operator_id, withdraw_operator, 
+    canceler_id, canceler, market_id, market_code, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -105,6 +108,12 @@
       <if test="amount != null">
         amount = #{amount,jdbcType=BIGINT},
       </if>
+      <if test="refundAmount != null">
+        refund_amount = #{refundAmount,jdbcType=BIGINT},
+      </if>
+      <if test="chargebackAmount != null">
+        chargeback_amount = #{chargebackAmount,jdbcType=BIGINT},
+      </if>
       <if test="notes != null">
         notes = #{notes,jdbcType=VARCHAR},
       </if>
@@ -138,11 +147,14 @@
       <if test="canceler != null">
         canceler = #{canceler,jdbcType=VARCHAR},
       </if>
-      <if test="version != null">
-        version = #{version,jdbcType=BIGINT},
-      </if>
       <if test="marketId != null">
         market_id = #{marketId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCode != null">
+        market_code = #{marketCode,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null">
+        version = #{version,jdbcType=BIGINT},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

@@ -1,3 +1,7 @@
+<#bs4Body>
+<link href="https://cdn.bootcss.com/select2/4.0.12/css/select2.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/select2/4.0.12/js/select2.min.js"></script>
+<script src="https://cdn.bootcss.com/select2/4.0.12/js/i18n/zh-CN.js"></script>
 <style>
     #splitForm .select2-container--default .select2-selection--single {
         border: 1px solid #DBDDE1;
@@ -95,11 +99,14 @@
         </div>
 
         <div class="text-right">
-            <button type="button" class="btn btn-secondary px-5" data-dismiss="modal" id="cancel">取消</button>
+            <button type="button" class="btn btn-secondary px-5" onclick="$.modal.close()" >取消</button>
             <button type="button" class="btn btn-primary px-5" id="splitSubmit">提交</button>
         </div>
     </form>
 </div>
+</#bs4Body>
+<script type="text/javascript" src="${contextPath}/resources/bui/js/base_treegrid.js"></script>
+<script type="text/javascript" src="${contextPath}/resources/blockUI/jquery.blockUI.js"></script>
 <script>
 
     number = Number("${number!}");
@@ -267,7 +274,6 @@
                 bs4pop.alert("拆过可拆分数量", {type: 'error'});
                 return;
             }
-            bui.loading.show('努力提交中，请稍候。。。');
             let _formData = new FormData($('#splitForm')[0]);
             var entries = _formData.entries();
             while(true){
@@ -279,28 +285,19 @@
                     _formData.append(next.value[0].split("_")[0],next.value[1]);
                 }
             }
+
             $.ajax({
                 type: "POST",
                 url: "${contextPath}/booth/split.action",
                 data: _formData,
                 processData: false,
                 contentType: false,
-                async: true,
-                success: function (res) {
-                    bui.loading.hide();
-                    if (res.code == "200") {
-                        bs4pop.alert('成功', {type: 'success'}, function () {
-                            /* 应该要带条件刷新 */
-                            window.location.reload();
-                        });
-                    } else {
-                        bui.loading.hide();
-                        bs4pop.alert(res.message, {type: 'error'});
-                    }
+                async : false,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
                 },
-                error: function (error) {
-                    bui.loading.hide();
-                    bs4pop.alert(error.message, {type: 'error'});
+                success : function(data) {
+                    $.operate.saveSuccess(data);
                 }
             });
         }

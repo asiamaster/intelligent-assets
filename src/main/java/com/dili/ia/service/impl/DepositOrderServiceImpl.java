@@ -6,9 +6,9 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.dto.DepositOrderListDto;
+import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.PrintDataDto;
-import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
+import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.DepositOrderMapper;
 import com.dili.ia.rpc.AssetsRpc;
@@ -76,35 +76,35 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<DepositOrder> addDepositOrder(DepositOrderListDto depositOrderListDto) {
+    public BaseOutput<DepositOrder> addDepositOrder(DepositOrderQuery depositOrderQuery) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
             return BaseOutput.failure("未登录");
         }
         //检查客户状态
-        checkCustomerState(depositOrderListDto.getCustomerId(),userTicket.getFirmId());
-        if(depositOrderListDto.getAssetsId() != null){
+        checkCustomerState(depositOrderQuery.getCustomerId(),userTicket.getFirmId());
+        if(depositOrderQuery.getAssetsId() != null){
 //            if (depositOrderListDto.getAssetsType().equals(AssetsTypeEnum.BOOTH.getTypeCode())){
                 //检查摊位状态
-                checkBoothState(depositOrderListDto.getAssetsId());
+                checkBoothState(depositOrderQuery.getAssetsId());
 //            }
             // @TODO 检查冷库，公寓状态
         }
-        BaseOutput<Department> depOut = departmentRpc.get(depositOrderListDto.getDepartmentId());
+        BaseOutput<Department> depOut = departmentRpc.get(depositOrderQuery.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
 
-        depositOrderListDto.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
-        depositOrderListDto.setCreatorId(userTicket.getId());
-        depositOrderListDto.setCreator(userTicket.getRealName());
-        depositOrderListDto.setMarketId(userTicket.getFirmId());
-        depositOrderListDto.setDepartmentName(depOut.getData().getName());
-        depositOrderListDto.setState(DepositOrderStateEnum.CREATED.getCode());
-        depositOrderListDto.setVersion(0L);
-        this.insertSelective(depositOrderListDto);
-        return BaseOutput.success().setData(depositOrderListDto);
+        depositOrderQuery.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
+        depositOrderQuery.setCreatorId(userTicket.getId());
+        depositOrderQuery.setCreator(userTicket.getRealName());
+        depositOrderQuery.setMarketId(userTicket.getFirmId());
+        depositOrderQuery.setDepartmentName(depOut.getData().getName());
+        depositOrderQuery.setState(DepositOrderStateEnum.CREATED.getCode());
+        depositOrderQuery.setVersion(0L);
+        this.insertSelective(depositOrderQuery);
+        return BaseOutput.success().setData(depositOrderQuery);
     }
 
     private String getBizNumber(String type){
@@ -393,24 +393,23 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
 
         DepositOrder depositOrder = get(paymentOrder.getBusinessId());
-        PrintDataDto printDataDto = new PrintDataDto();
-        //@TODO 打印模型
-        EarnestOrderPrintDto earnestOrderPrintDto = new EarnestOrderPrintDto();
-        earnestOrderPrintDto.setPrintTime(new Date());
-        earnestOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
-        earnestOrderPrintDto.setCode(depositOrder.getCode());
-        //@TODO 模板类型
-        printDataDto.setName(PrintTemplateEnum.EARNEST_ORDER.getCode());
-        earnestOrderPrintDto.setCustomerName(depositOrder.getCustomerName());
-        earnestOrderPrintDto.setCustomerCellphone(depositOrder.getCustomerCellphone());
-        earnestOrderPrintDto.setNotes(depositOrder.getNotes());
-        earnestOrderPrintDto.setAmount(MoneyUtils.centToYuan(depositOrder.getAmount()));
-        earnestOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
-        earnestOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-        earnestOrderPrintDto.setSubmitter(paymentOrder.getCreator());
-        earnestOrderPrintDto.setBusinessType(BizTypeEnum.DEPOSIT_ORDER.getName());
 
-        printDataDto.setItem(BeanMapUtil.beanToMap(earnestOrderPrintDto));
+        DepositOrderPrintDto depositOrderPrintDto = new DepositOrderPrintDto();
+        depositOrderPrintDto.setPrintTime(new Date());
+        depositOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
+        depositOrderPrintDto.setCode(depositOrder.getCode());
+        depositOrderPrintDto.setCustomerName(depositOrder.getCustomerName());
+        depositOrderPrintDto.setCustomerCellphone(depositOrder.getCustomerCellphone());
+        depositOrderPrintDto.setNotes(depositOrder.getNotes());
+        depositOrderPrintDto.setAmount(MoneyUtils.centToYuan(depositOrder.getAmount()));
+        depositOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
+        depositOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        depositOrderPrintDto.setSubmitter(paymentOrder.getCreator());
+        depositOrderPrintDto.setBusinessType(BizTypeEnum.DEPOSIT_ORDER.getName());
+
+        PrintDataDto printDataDto = new PrintDataDto();
+        printDataDto.setName(PrintTemplateEnum.DEPOSIT_ORDER.getCode());
+        printDataDto.setItem(BeanMapUtil.beanToMap(depositOrderPrintDto));
         return BaseOutput.success().setData(printDataDto);
     }
 }
