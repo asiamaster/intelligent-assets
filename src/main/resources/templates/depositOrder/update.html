@@ -10,7 +10,7 @@
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-2" id="customerInfo">
+        <div class="row row-cols-2 collapse show" id="customerInfo">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
                 <#bautoCompleteProvider _log="客户名称" _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _value="${depositOrder.customerId!}" _text="${depositOrder.customerName!}" _required="true"  _optionVariable="customerNameAutoCompleteOption"/>
