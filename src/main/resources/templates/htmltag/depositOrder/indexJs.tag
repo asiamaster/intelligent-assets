@@ -237,6 +237,27 @@
         }
     }
 
+    /**
+     打开退款窗口
+     */
+    function openRefundApplyHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        dia = bs4pop.dialog({
+            title: '退款',//对话框title
+            content: '${contextPath}/depositOrder/refundApply.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
+            width: '80%',//宽度
+            height: 500,//高度
+            isIframe : true,//默认是页面层，非iframe
+        });
+
+    }
+
     //选中行事件
     _grid.on('uncheck.bs.table', function (e, row, $element) {
         currentSelectRowIndex = undefined;
@@ -265,6 +286,7 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_refund_apply').attr('disabled', false);
         }
     });
 
