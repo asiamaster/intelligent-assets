@@ -63,6 +63,9 @@
 
     //品类搜索自动完成
     var categoryAutoCompleteOption = {
+        width: '100%',
+        language: 'zh-CN',
+        maximumSelectionLength: 10,
         ajax: {
             type:'post',
             url: '/category/search.action',
