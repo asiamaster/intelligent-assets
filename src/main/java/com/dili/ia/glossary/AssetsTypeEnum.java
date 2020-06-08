@@ -9,20 +9,22 @@ package com.dili.ia.glossary;
  * @createTime 2020-02-17 18:51
  */
 public enum AssetsTypeEnum {
-    BOOTH(1, "摊位", "booth"),
-    LOCATION(2, "冷库", "location"),
-    LODGING(3, "公寓", "lodging"),
-    OTHER(100, "摊位", "other")
+    BOOTH(1, "摊位", "booth","2"),
+    LOCATION(2, "冷库", "location","3"),
+    LODGING(3, "公寓", "lodging","4"),
+    OTHER(100, "摊位", "other",null)
     ;
 
     private String name;
     private Integer code ;
     private String typeCode ;
+    private String chargeItemBusinessCode;
 
-    AssetsTypeEnum(Integer code, String name, String typeCode){
+    AssetsTypeEnum(Integer code, String name, String typeCode,String chargeItemBusinessCode){
         this.code = code;
         this.name = name;
         this.typeCode = typeCode;
+        this.chargeItemBusinessCode = chargeItemBusinessCode;
     }
 
     public static AssetsTypeEnum getAssetsTypeEnum(Integer code) {
@@ -43,5 +45,9 @@ public enum AssetsTypeEnum {
     }
     public String getTypeCode() {
         return typeCode;
+    }
+
+    public String getChargeItemBusinessCode() {
+        return chargeItemBusinessCode;
     }
 }

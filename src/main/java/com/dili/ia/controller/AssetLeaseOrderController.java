@@ -1,12 +1,15 @@
 package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.dili.assets.sdk.dto.ChargeItemDto;
+import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.AssetLeaseOrder;
 import com.dili.ia.domain.dto.AssetLeaseOrderListDto;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
+import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
@@ -65,15 +68,18 @@ public class AssetLeaseOrderController {
     BusinessLogRpc businessLogRpc;
     @Autowired
     DataAuthService dataAuthService;
+    @Autowired
+    private BusinessChargeItemRpc businessChargeItemRpc;
 
     /**
      * 跳转到LeaseOrder页面
      * @param modelMap
+     * @param assetType
      * @return String
      */
     @ApiOperation("跳转到LeaseOrder页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
-    public String index(ModelMap modelMap) {
+    public String index(ModelMap modelMap,Integer assetType) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
         Calendar c = Calendar.getInstance();
         c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
@@ -83,6 +89,17 @@ public class AssetLeaseOrderController {
         Calendar ce = Calendar.getInstance();
         ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
         Date  createdEnd = ce.getTime();
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+
+        //获取业务收费项目
+        BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(userTicket.getFirmId(), Long.valueOf(AssetsTypeEnum.getAssetsTypeEnum(assetType).getChargeItemBusinessCode()), null);
+        if(chargeItemsOutput.isSuccess()){
+            modelMap.put("chargeItems", chargeItemsOutput.getData());
+        }
 
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);

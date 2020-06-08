@@ -205,15 +205,13 @@
                 <th data-field="unitName" data-sortable="true" data-align="center">
                     单位
                 </th>
-                <th data-field="rentAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
-                    租金
+                <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+                    for(item in chargeItems){
+                %>
+                <th data-field="${item.id!}" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                    ${item.name!}
                 </th>
-                <th data-field="manageAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
-                    物业管理费
-                </th>
-                <th data-field="depositAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
-                    保证金
-                </th>
+                <% } }%>
                 <th data-field="state" data-sortable="true" data-align="center" data-provider="leaseOrderStateProvider">
                     状态
                 </th>
