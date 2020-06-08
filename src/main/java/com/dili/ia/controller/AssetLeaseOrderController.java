@@ -34,10 +34,7 @@ import io.swagger.annotations.ApiOperation;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -96,10 +93,17 @@ public class AssetLeaseOrderController {
         }
 
         //获取业务收费项目
-        BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(userTicket.getFirmId(), Long.valueOf(AssetsTypeEnum.getAssetsTypeEnum(assetType).getChargeItemBusinessCode()), null);
-        if(chargeItemsOutput.isSuccess()){
-            modelMap.put("chargeItems", chargeItemsOutput.getData());
-        }
+//        BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(userTicket.getFirmId(), Long.valueOf(AssetsTypeEnum.getAssetsTypeEnum(assetType).getChargeItemBusinessCode()), null);
+//        if(chargeItemsOutput.isSuccess()){
+//            modelMap.put("chargeItems", chargeItemsOutput.getData());
+//        }
+
+        List<ChargeItemDto> chargeItemDtos = new ArrayList<>();
+        ChargeItemDto chargeItemDto = new ChargeItemDto();
+        chargeItemDto.setId(1L);
+        chargeItemDto.setName("租金");
+        chargeItemDtos.add(chargeItemDto);
+        modelMap.put("chargeItems", chargeItemDtos);
 
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
