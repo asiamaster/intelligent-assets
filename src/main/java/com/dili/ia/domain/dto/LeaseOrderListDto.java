@@ -29,6 +29,16 @@ public interface LeaseOrderListDto extends LeaseOrder{
     Date getCreatedEnd();
     void setCreatedEnd(Date createdEnd);
 
+    @Column(name = "`start_time`")
+    @Operator(Operator.GREAT_EQUAL_THAN)
+    Date getStartTimeStart();
+    void setStartTimeStart(Date startTimeStart);
+
+    @Column(name = "`start_time`")
+    @Operator(Operator.LITTLE_EQUAL_THAN)
+    Date getStartTimeEnd();
+    void setStartTimeEnd(Date startTimeEnd);
+
     @Operator(Operator.IN)
     @Column(name = "code")
     List<String> getCodes();
