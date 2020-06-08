@@ -1170,7 +1170,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
 
         LeaseOrder leaseOrder = get(paymentOrder.getBusinessId());
-        PrintDataDto printDataDto = new PrintDataDto();
+        PrintDataDto<LeaseOrderPrintDto> printDataDto = new PrintDataDto<LeaseOrderPrintDto>();
         LeaseOrderPrintDto leaseOrderPrintDto = new LeaseOrderPrintDto();
         leaseOrderPrintDto.setPrintTime(new Date());
         leaseOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
@@ -1247,7 +1247,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrderItemPrintDtos.add(LeaseOrderRefundOrderServiceImpl.leaseOrderItem2PrintDto(o));
         });
         leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemPrintDtos);
-        printDataDto.setItem(BeanMapUtil.beanToMap(leaseOrderPrintDto));
+        printDataDto.setItem(leaseOrderPrintDto);
         return BaseOutput.success().setData(printDataDto);
     }
 

@@ -490,9 +490,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             }
         }
 
-        PrintDataDto printDataDto = new PrintDataDto();
+        PrintDataDto<EarnestOrderPrintDto> printDataDto = new PrintDataDto<EarnestOrderPrintDto>();
         printDataDto.setName(PrintTemplateEnum.EARNEST_ORDER.getCode());
-        printDataDto.setItem(BeanMapUtil.beanToMap(earnestOrderPrintDto));
+        printDataDto.setItem(earnestOrderPrintDto);
         return BaseOutput.success().setData(printDataDto);
     }
 }
