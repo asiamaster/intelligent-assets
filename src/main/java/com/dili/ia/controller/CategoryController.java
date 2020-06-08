@@ -186,10 +186,12 @@ public class CategoryController {
     public @ResponseBody
     BaseOutput<List<CategoryDTO>> search(String keyword) {
         CategoryDTO categoryDTO = new CategoryDTO();
-        if(null == keyword){
+        categoryDTO.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
+        categoryDTO.setState(EnabledStateEnum.ENABLED.getCode());
+        if (null == keyword) {
             categoryDTO.setParent(0L);
-        }else{
-            categoryDTO.setKeyword(keyword.toString());
+        } else {
+            categoryDTO.setKeyword(keyword);
         }
         try {
             return assetsRpc.list(categoryDTO);
