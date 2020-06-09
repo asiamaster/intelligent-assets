@@ -40,7 +40,7 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
     @Override
     protected BatchProviderMeta getBatchProviderMeta(Map metaMap) {
         JSONObject queryParamsObj = JSON.parseObject(String.valueOf(metaMap.get("queryParams")));
-        Integer assetsType = (Integer) queryParamsObj.get("assetType");
+        Integer assetType = (Integer) queryParamsObj.get("assetType");
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");
@@ -48,7 +48,7 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
         BatchProviderMeta batchProviderMeta = DTOUtils.newInstance(BatchProviderMeta.class);
         //设置主DTO和关联DTO需要转义的字段名，这里直接取resource表的name属性
         Map<String, String> map = Maps.newHashMap();
-        List<ChargeItemDto> chargeItemDtos = getChargeItemDtos(userTicket.getFirmId(),assetsType);
+        List<ChargeItemDto> chargeItemDtos = getChargeItemDtos(userTicket.getFirmId(),assetType);
         if(CollectionUtils.isNotEmpty(chargeItemDtos)){
             chargeItemDtos.forEach(o->{
                 map.put(o.getName(),o.getName());
@@ -67,13 +67,13 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
     /**
      * 获取业务收费项目
      * @param marketId
-     * @param assetsType
+     * @param assetType
      * @return
      */
-    private List<ChargeItemDto> getChargeItemDtos(Long marketId,Integer assetsType){
+    private List<ChargeItemDto> getChargeItemDtos(Long marketId,Integer assetType){
         if(CollectionUtils.isEmpty(threadLocal.get())){
             //获取业务收费项目
-            BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(marketId, AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), null);
+            BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(marketId, AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null);
             if(chargeItemsOutput.isSuccess()){
                 threadLocal.set(chargeItemsOutput.getData());
             }
@@ -84,12 +84,12 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
     @Override
     protected List getFkList(List<String> relationIds, Map metaMap) {
         JSONObject queryParamsObj = JSON.parseObject(String.valueOf(metaMap.get("queryParams")));
-        Integer assetsType = (Integer) queryParamsObj.get("assetType");
+        Integer assetType = (Integer) queryParamsObj.get("assetType");
         List<ChargeItemDto> chargeItemDtos = threadLocal.get();
         if(CollectionUtils.isEmpty(chargeItemDtos)){
             return new ArrayList();
         }
-        return businessChargeItemService.queryBusinessChargeItem(AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), relationIds.stream().map(Long::valueOf).collect(Collectors.toList()), chargeItemDtos);
+        return businessChargeItemService.queryBusinessChargeItem(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), relationIds.stream().map(Long::valueOf).collect(Collectors.toList()), chargeItemDtos);
     }
 
 
