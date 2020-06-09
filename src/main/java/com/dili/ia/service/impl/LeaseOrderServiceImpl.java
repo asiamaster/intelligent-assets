@@ -1240,8 +1240,16 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
             if(output.isSuccess()){
                 SettleOrder settleOrder = output.getData();
-                settleWayDetails.append(StringUtils.isNotBlank(settleOrder.getSerialNumber())?settleOrder.getSerialNumber():"")
-                        .append(StringUtils.isNotBlank(settleOrder.getNotes())?","+settleOrder.getNotes():"");
+                if(StringUtils.isNotBlank(settleOrder.getSerialNumber())){
+                    settleWayDetails.append(settleOrder.getSerialNumber());
+                    if (StringUtils.isNotBlank(settleOrder.getNotes())){
+                        settleWayDetails.append(",").append(settleOrder.getNotes());
+                    }
+                }else {
+                    if (StringUtils.isNotBlank(settleOrder.getNotes())){
+                        settleWayDetails.append(settleOrder.getNotes());
+                    }
+                }
             }else {
                 LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
             }
