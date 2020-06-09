@@ -48,10 +48,10 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
         BatchProviderMeta batchProviderMeta = DTOUtils.newInstance(BatchProviderMeta.class);
         //设置主DTO和关联DTO需要转义的字段名，这里直接取resource表的name属性
         Map<String, String> map = Maps.newHashMap();
-        List<ChargeItemDto> chargeItemDtos = getChargeItemDtos(userTicket.getFirmId(),assetType);
-        if(CollectionUtils.isNotEmpty(chargeItemDtos)){
-            chargeItemDtos.forEach(o->{
-                map.put(o.getName(),o.getName());
+        List<ChargeItemDto> chargeItemDtos = getChargeItemDtos(userTicket.getFirmId(), assetType);
+        if (CollectionUtils.isNotEmpty(chargeItemDtos)) {
+            chargeItemDtos.forEach(o -> {
+                map.put("chargeItem_"+o.getId(), "chargeItem_"+o.getId());
             });
         }
         batchProviderMeta.setEscapeFileds(map);
@@ -66,15 +66,16 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
 
     /**
      * 获取业务收费项目
+     *
      * @param marketId
      * @param assetType
      * @return
      */
-    private List<ChargeItemDto> getChargeItemDtos(Long marketId,Integer assetType){
-        if(CollectionUtils.isEmpty(threadLocal.get())){
+    private List<ChargeItemDto> getChargeItemDtos(Long marketId, Integer assetType) {
+        if (CollectionUtils.isEmpty(threadLocal.get())) {
             //获取业务收费项目
             BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(marketId, AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null);
-            if(chargeItemsOutput.isSuccess()){
+            if (chargeItemsOutput.isSuccess()) {
                 threadLocal.set(chargeItemsOutput.getData());
             }
         }
@@ -86,7 +87,7 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
         JSONObject queryParamsObj = JSON.parseObject(String.valueOf(metaMap.get("queryParams")));
         Integer assetType = (Integer) queryParamsObj.get("assetType");
         List<ChargeItemDto> chargeItemDtos = threadLocal.get();
-        if(CollectionUtils.isEmpty(chargeItemDtos)){
+        if (CollectionUtils.isEmpty(chargeItemDtos)) {
             return new ArrayList();
         }
         return businessChargeItemService.queryBusinessChargeItem(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), relationIds.stream().map(Long::valueOf).collect(Collectors.toList()), chargeItemDtos);

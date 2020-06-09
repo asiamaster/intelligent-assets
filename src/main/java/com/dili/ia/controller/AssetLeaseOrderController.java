@@ -172,7 +172,11 @@ public class AssetLeaseOrderController {
      */
     @ApiOperation("跳转到LeaseOrder新增页面")
     @RequestMapping(value="/preSave.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap,Long id) {
+    public String add(ModelMap modelMap,Long id,Integer assetType) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         if(null != id){
             AssetLeaseOrder leaseOrder = assetLeaseOrderService.get(id);
             AssetLeaseOrderItem condition = new AssetLeaseOrderItem();
@@ -180,6 +184,11 @@ public class AssetLeaseOrderController {
             List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
             modelMap.put("leaseOrder",leaseOrder);
             modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
+        }
+        //获取业务收费项目
+        BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null);
+        if(chargeItemsOutput.isSuccess()){
+            modelMap.put("chargeItems", chargeItemsOutput.getData());
         }
         modelMap.put("isRenew", YesOrNoEnum.NO.getCode());
         return "assetLeaseOrder/preSave";

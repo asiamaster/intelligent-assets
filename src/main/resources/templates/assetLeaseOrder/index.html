@@ -15,7 +15,7 @@
 <div class="container-fluid">
     <#bs4nav>
     <form id="queryForm" role="form" >
-        <input type="hidden" name="assetType" value="${assetType!}">
+        <input type="hidden" id="assetType" name="assetType" value="${assetType!}">
                 <div class="row row-cols-6">
                     <div class="form-group col">
                         <label for="state">业务状态</label>
@@ -209,7 +209,7 @@
                 <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                     for(item in chargeItems){
                 %>
-                <th data-field="${item.name!}" data-sortable="true" data-align="center" ${itemLP.index==1?'data-provider="businessChargeItemProvider"':''} data-query-params="{${itemLP.index==1?'assetType:'+assetType:''}}" >
+                <th data-field="chargeItem_${item.id!}" data-sortable="true" data-align="center" ${itemLP.index==1?'data-provider="businessChargeItemProvider"':''} data-query-params="{${itemLP.index==1?'assetType:'+assetType:''}}" >
                     ${item.name!}
                 </th>
                 <% } }%>

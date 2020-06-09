@@ -35,31 +35,6 @@
                 </div>
             </div>
             <div class="breadcrumb">
-                摊位信息
-                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true" aria-controls="boothInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
-            </div>
-            <div id="boothInfo" class="collapse show">
-                <table class="table table-bordered table-hover table-striped" id="boothTable" _logTable="摊位项">
-                    <thead>
-                    <tr>
-                        <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
-                        <th style="font-weight:normal;" >摊位编号<i class="red">*</i></th>
-                        <th style="font-weight:normal;width: 7rem;">规格<i class="red">*</i></th>
-                        <th style="font-weight:normal;width: 5rem;">转角</th>
-                        <th style="font-weight:normal;width: 7rem;">单价<i class="red">*</i></th>
-                        <th style="font-weight:normal;width: 7rem;">应交月数<i class="red">*</i></th>
-                        <th style="font-weight:normal; ">优惠金额<i class="red">*</i></th>
-                        <th style="font-weight:normal; ">租金<i class="red">*</i></th>
-                        <th style="font-weight:normal; ">物管费<i class="red">*</i></th>
-                        <th style="font-weight:normal; ">保证金<i class="red">*</i></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-
-            </div>
-            <div class="breadcrumb">
                 出租信息
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#leaseInfo" aria-expanded="true" aria-controls="leaseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
@@ -102,58 +77,40 @@
                 </div>
             </div>
             <div class="breadcrumb">
+                摊位信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true" aria-controls="boothInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div id="boothInfo" class="collapse show">
+                <table class="table table-bordered table-hover table-striped" id="boothTable" _logTable="摊位项">
+                    <thead>
+                    <tr>
+                        <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
+                        <th style="font-weight:normal;" >摊位编号<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 7rem;">规格<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 5rem;">转角</th>
+                        <th style="font-weight:normal;width: 7rem;">单价<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 7rem;">应交月数<i class="red">*</i></th>
+                        <th style="font-weight:normal; ">优惠金额<i class="red">*</i></th>
+                        <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+                        for(item in chargeItems){
+                        %>
+                        <th style="font-weight:normal; ">${item.name!}<i class="red">*</i></th>
+                        <% } }%>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="breadcrumb">
                 金额信息
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
-            <div class="row  row-cols-4 collapse show" id="moneyInfo">
+            <div class="row row-cols-4 collapse show" id="moneyInfo">
                 <div class="form-group col">
-                    <label for="rentAmount" _log>租金<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="rentAmount" name="rentAmount" value="<#centToYuan value='${leaseOrder.rentAmount!0}'/>" readonly uncheck/>
-                </div>
-                <div class="form-group col">
-                    <label for="manageAmount" _log>物业管理费<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="manageAmount" name="manageAmount" value="<#centToYuan value='${leaseOrder.manageAmount!0}'/>" readonly uncheck/>
-                </div>
-                <div class="form-group col">
-                    <label for="depositAmount" _log>保证金<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="depositAmount" name="depositAmount" value="<#centToYuan value='${leaseOrder.depositAmount!0}'/>" readonly uncheck/>
-                </div>
-                <div class="form-group col">
-                    <label for="totalAmount" _log>合计金额<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>"  readonly uncheck/>
-                </div>
-            </div>
-            <div class="breadcrumb">
-                抵扣项
-                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#deductInfo" aria-expanded="true" aria-controls="deductInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
-            </div>
-            <div class="row row-cols-4 collapse show" id="deductInfo">
-                <div class="form-group col">
-                    <label for="depositDeduction" _log>保证金<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="depositDeduction" name="depositDeduction" value="<#centToYuan value='${leaseOrder.depositDeduction!0}'/>" readonly uncheck/>
-                </div>
-                <div class="form-group col">
-                    <label for="earnestDeduction" _log>定金</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.earnestDeduction!}'/>" oninput="calcPayAmount()"/>
-                        <div class="input-group-append">
-                            <span class="input-group-text" id="earnestAmount">0.00</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group col">
-                    <label for="transferDeduction" _log>转抵扣</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.transferDeduction!}'/>" oninput="calcPayAmount()"/>
-                        <div class="input-group-append">
-                            <span class="input-group-text" id="transferAmount">0.00</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row row-cols-4 collapse show" id="otherInfo">
-                <div class="form-group col">
-                    <label for="payAmount" _log>实付金额<i class="red">*</i></label>
+                    <label for="payAmount" _log>合计金额<i class="red">*</i></label>
                     <input type="number" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" min="0" readonly/>
                 </div>
             </div>
@@ -190,8 +147,11 @@
         <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_{{index}}" name="unitPrice_{{index}}" value="{{unitPrice}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_{{index}}" name="paymentMonth_{{index}}" value="{{paymentMonth}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_{{index}}" name="discountAmount_{{index}}" value="{{discountAmount}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input _log="租金" type="number" id="rentAmount_{{index}}" name="rentAmount_{{index}}" value="{{rentAmount}}" oninput="calcRentAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input _log="物管费" type="number" id="manageAmount_{{index}}" name="manageAmount_{{index}}" value="{{manageAmount}}" oninput="calcManageAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input _log="保证金" type="number" id="depositAmount_{{index}}" name="depositAmount_{{index}}" value="{{depositAmount}}" oninput="calcDepositAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+
+        <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+        for(item in chargeItems){
+        %>
+        <td style="padding: .25rem!important;"><input _log="${item.name!}" type="number" id="chargeItem_${item.id!}_{{index}}" name="chargeItem_${item.id!}_{{index}}" value="" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <% } }%>
     </tr>
 </script>

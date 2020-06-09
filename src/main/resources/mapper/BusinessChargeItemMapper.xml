@@ -75,7 +75,7 @@
         ELSE
             0
         END
-        ) as  #{chargeItem.name}
+        ) as chargeItem_${chargeItem.id}
     </foreach>
     FROM
     business_charge_item
