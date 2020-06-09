@@ -208,7 +208,7 @@
                 <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                     for(item in chargeItems){
                 %>
-                <th data-field="${item.name!}" data-sortable="true" data-align="center" ${itemLP.index==1?'data-provider="businessChargeItemProvider"':''} data-query-params="{${itemLP.index==1?'bizType:1':''}}" >
+                <th data-field="${item.name!}" data-sortable="true" data-align="center" ${itemLP.index==1?'data-provider="businessChargeItemProvider"':''} data-query-params="{${itemLP.index==1?'assetType:'+assetType:''}}" >
                     ${item.name!}
                 </th>
                 <% } }%>

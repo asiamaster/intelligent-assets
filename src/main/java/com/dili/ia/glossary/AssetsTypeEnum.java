@@ -9,9 +9,9 @@ package com.dili.ia.glossary;
  * @createTime 2020-02-17 18:51
  */
 public enum AssetsTypeEnum {
-    BOOTH(1, "摊位", "booth","2"),
-    LOCATION(2, "冷库", "location","3"),
-    LODGING(3, "公寓", "lodging","4"),
+    BOOTH(1, "摊位", "booth","1"),
+    LOCATION(2, "冷库", "location","4"),
+    LODGING(3, "公寓", "lodging","5"),
     OTHER(100, "摊位", "other",null)
     ;
 

@@ -22,7 +22,7 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
     }
 
     @Override
-    public List<Map<String, String>> queryBusinessChargeItem(Integer bizType, List<Long> businessIds, List<ChargeItemDto> chargeItemDtos) {
+    public List<Map<String, String>> queryBusinessChargeItem(String bizType, List<Long> businessIds, List<ChargeItemDto> chargeItemDtos) {
         return getActualDao().queryBusinessChargeItem(bizType,businessIds,chargeItemDtos);
     }
 }

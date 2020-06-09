@@ -50,7 +50,7 @@ public class BusinessChargeItemController {
         chargeItemDto1.setName("电费");
         chargeItemDtos.add(chargeItemDto1);
         try {
-            return BaseOutput.success().setData(businessChargeItemService.queryBusinessChargeItem(1, Arrays.asList(1L,2L),chargeItemDtos));
+            return BaseOutput.success().setData(businessChargeItemService.queryBusinessChargeItem("1", Arrays.asList(1L,2L),chargeItemDtos));
         }catch (Exception e){
             LOG.error("收费项目查询异常！", e);
             return BaseOutput.failure(e.getMessage());

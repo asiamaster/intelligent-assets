@@ -1,16 +1,25 @@
 package com.dili.ia.provider;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.ChargeItemDto;
+import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
+import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.service.BusinessChargeItemService;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.metadata.BatchProviderMeta;
 import com.dili.ss.metadata.provider.BatchDisplayTextProviderSupport;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,18 +29,31 @@ import java.util.stream.Collectors;
  */
 @Component
 public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport {
+    private static ThreadLocal<List<ChargeItemDto>> threadLocal = new ThreadLocal<>();
 
     @Autowired
     private BusinessChargeItemService businessChargeItemService;
+    @Autowired
+    private BusinessChargeItemRpc businessChargeItemRpc;
+
 
     @Override
     protected BatchProviderMeta getBatchProviderMeta(Map metaMap) {
+        JSONObject queryParamsObj = JSON.parseObject(String.valueOf(metaMap.get("queryParams")));
+        Integer assetsType = (Integer) queryParamsObj.get("assetType");
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         BatchProviderMeta batchProviderMeta = DTOUtils.newInstance(BatchProviderMeta.class);
         //设置主DTO和关联DTO需要转义的字段名，这里直接取resource表的name属性
         Map<String, String> map = Maps.newHashMap();
-
-        map.put("水费", "水费");
-        map.put("电费", "电费");
+        List<ChargeItemDto> chargeItemDtos = getChargeItemDtos(userTicket.getFirmId(),assetsType);
+        if(CollectionUtils.isNotEmpty(chargeItemDtos)){
+            chargeItemDtos.forEach(o->{
+                map.put(o.getName(),o.getName());
+            });
+        }
         batchProviderMeta.setEscapeFileds(map);
         //忽略大小写关联
         batchProviderMeta.setIgnoreCaseToRef(true);
@@ -42,20 +64,32 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
         return batchProviderMeta;
     }
 
+    /**
+     * 获取业务收费项目
+     * @param marketId
+     * @param assetsType
+     * @return
+     */
+    private List<ChargeItemDto> getChargeItemDtos(Long marketId,Integer assetsType){
+        if(CollectionUtils.isEmpty(threadLocal.get())){
+            //获取业务收费项目
+            BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(marketId, AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), null);
+            if(chargeItemsOutput.isSuccess()){
+                threadLocal.set(chargeItemsOutput.getData());
+            }
+        }
+        return threadLocal.get();
+    }
+
     @Override
     protected List getFkList(List<String> relationIds, Map metaMap) {
-        List<ChargeItemDto> chargeItemDtos = new ArrayList<>();
-        ChargeItemDto chargeItemDto = new ChargeItemDto();
-        chargeItemDto.setId(1L);
-        chargeItemDto.setName("水费");
-        chargeItemDtos.add(chargeItemDto);
-
-        ChargeItemDto chargeItemDto1 = new ChargeItemDto();
-        chargeItemDto1.setId(2L);
-        chargeItemDto1.setName("电费");
-        chargeItemDtos.add(chargeItemDto1);
-
-        return businessChargeItemService.queryBusinessChargeItem(BizTypeEnum.BOOTH_LEASE.getCode(), relationIds.stream().map(Long::valueOf).collect(Collectors.toList()), chargeItemDtos);
+        JSONObject queryParamsObj = JSON.parseObject(String.valueOf(metaMap.get("queryParams")));
+        Integer assetsType = (Integer) queryParamsObj.get("assetType");
+        List<ChargeItemDto> chargeItemDtos = threadLocal.get();
+        if(CollectionUtils.isEmpty(chargeItemDtos)){
+            return new ArrayList();
+        }
+        return businessChargeItemService.queryBusinessChargeItem(AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), relationIds.stream().map(Long::valueOf).collect(Collectors.toList()), chargeItemDtos);
     }
 
 

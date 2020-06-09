@@ -20,5 +20,5 @@ public interface BusinessChargeItemService extends BaseService<BusinessChargeIte
      * @param chargeItemDtos
      * @return
      */
-    List<Map<String, String>> queryBusinessChargeItem(Integer bizType, List<Long> businessIds, List<ChargeItemDto> chargeItemDtos);
+    List<Map<String, String>> queryBusinessChargeItem(String bizType, List<Long> businessIds, List<ChargeItemDto> chargeItemDtos);
 }
