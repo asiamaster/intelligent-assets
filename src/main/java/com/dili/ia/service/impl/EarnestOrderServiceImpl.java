@@ -14,7 +14,6 @@ import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
-import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -467,11 +466,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrderPrintDto.setAssetsItems(assetsItems.toString());
 
         //组合支付需要显示结算详情
+        StringBuffer settleWayDetails = new StringBuffer();
+        settleWayDetails.append("【");
         if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
-            StringBuffer settleWayDetails = new StringBuffer();
             BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
             if (output.isSuccess() && CollectionUtils.isNotEmpty(output.getData())){
-                settleWayDetails.append("【");
                 output.getData().forEach(o -> {
                     //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
                     settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
@@ -483,14 +482,23 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
                     }
                     settleWayDetails.append("\r\n");
                 });
-                settleWayDetails.append("】");
-                earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
             }else {
                 LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
             }
+        }else{
+            BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
+            if(output.isSuccess()){
+                SettleOrder settleOrder = output.getData();
+                settleWayDetails.append(StringUtils.isNotBlank(settleOrder.getSerialNumber())?settleOrder.getSerialNumber():"")
+                        .append(StringUtils.isNotBlank(settleOrder.getNotes())?","+settleOrder.getNotes():"");
+            }else {
+                LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
         }
+        settleWayDetails.append("】");
+        earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
 
-        PrintDataDto<EarnestOrderPrintDto> printDataDto = new PrintDataDto<EarnestOrderPrintDto>();
+        PrintDataDto<EarnestOrderPrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.EARNEST_ORDER.getCode());
         printDataDto.setItem(earnestOrderPrintDto);
         return BaseOutput.success().setData(printDataDto);

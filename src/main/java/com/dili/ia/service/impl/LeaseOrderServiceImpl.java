@@ -1217,11 +1217,11 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderPrintDto.setSubmitter(paymentOrder.getCreator());
 
         //组合支付需要显示结算详情
+        StringBuffer settleWayDetails = new StringBuffer();
+        settleWayDetails.append("【");
         if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
-            StringBuffer settleWayDetails = new StringBuffer();
             BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
             if (output.isSuccess() && CollectionUtils.isNotEmpty(output.getData())){
-                settleWayDetails.append("【");
                 output.getData().forEach(o -> {
                     //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
                     settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
@@ -1233,12 +1233,21 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                     }
                     settleWayDetails.append("\r\n");
                 });
-                settleWayDetails.append("】");
-                leaseOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
             }else {
                 LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
             }
+        }else{
+            BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
+            if(output.isSuccess()){
+                SettleOrder settleOrder = output.getData();
+                settleWayDetails.append(StringUtils.isNotBlank(settleOrder.getSerialNumber())?settleOrder.getSerialNumber():"")
+                        .append(StringUtils.isNotBlank(settleOrder.getNotes())?","+settleOrder.getNotes():"");
+            }else {
+                LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
         }
+        settleWayDetails.append("】");
+        leaseOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
 
         LeaseOrderItem leaseOrderItemCondition = DTOUtils.newInstance(LeaseOrderItem.class);
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());

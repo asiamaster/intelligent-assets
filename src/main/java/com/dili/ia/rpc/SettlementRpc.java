@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <B>Description</B>
@@ -54,4 +53,12 @@ public interface SettlementRpc {
      */
     @RequestMapping(value = "/api/settleWayDetail/listByCode", method = RequestMethod.GET)
     BaseOutput<List<SettleWayDetail>> listSettleWayDetailsByCode(@RequestParam("code") String settlementCode);
+
+    /**
+     * 【查询】结算单 ---根据结算编号code查询
+     * @param settlementCode 业务缴费单code
+     * @return
+     */
+    @RequestMapping(value = "/api/settleOrder/getByCode", method = RequestMethod.GET)
+    BaseOutput<SettleOrder> getByCode(@RequestParam("code") String settlementCode);
 }
