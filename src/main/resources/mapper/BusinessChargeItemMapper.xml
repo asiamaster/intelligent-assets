@@ -63,4 +63,29 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="queryBusinessChargeItem" resultType="Map">
+    SELECT
+    business_id,
+    <foreach collection="chargeItemDtos" item="chargeItem" separator=",">
+      MAX(
+        CASE charge_id
+        WHEN #{chargeItem.id} THEN
+            amount
+        ELSE
+            0
+        END
+        ) as  #{chargeItem.name}
+    </foreach>
+    FROM
+    business_charge_item
+    WHERE business_id IN
+    <foreach collection="businessIds" item="businessId" open="(" close=")" separator=",">
+      #{businessId}
+    </foreach>
+    AND biz_type = #{bizType}
+    GROUP BY
+    business_id;
+  </select>
+
 </mapper>

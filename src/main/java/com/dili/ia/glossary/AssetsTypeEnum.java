@@ -18,13 +18,13 @@ public enum AssetsTypeEnum {
     private String name;
     private Integer code ;
     private String typeCode ;
-    private String chargeItemBusinessCode;
+    private String bizType;
 
-    AssetsTypeEnum(Integer code, String name, String typeCode,String chargeItemBusinessCode){
+    AssetsTypeEnum(Integer code, String name, String typeCode,String bizType){
         this.code = code;
         this.name = name;
         this.typeCode = typeCode;
-        this.chargeItemBusinessCode = chargeItemBusinessCode;
+        this.bizType = bizType;
     }
 
     public static AssetsTypeEnum getAssetsTypeEnum(Integer code) {
@@ -47,7 +47,7 @@ public enum AssetsTypeEnum {
         return typeCode;
     }
 
-    public String getChargeItemBusinessCode() {
-        return chargeItemBusinessCode;
+    public String getBizType() {
+        return bizType;
     }
 }

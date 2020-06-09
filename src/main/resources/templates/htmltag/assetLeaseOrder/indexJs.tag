@@ -495,7 +495,7 @@
 
         var cur_table = $detail.html(template('subTable',{index})).find('table');
         $(cur_table).bootstrapTable();
-        $(cur_table).bootstrapTable('refreshOptions', {url: '/leaseOrderItem/listPage.action?leaseOrderId='+row.id});
+        $(cur_table).bootstrapTable('refreshOptions', {url: '/assetLeaseOrderItem/listPage.action?leaseOrderId='+row.id});
         //选中行事件
         $(cur_table).on('check.bs.table', function (e,row, $element){
             e.stopPropagation();

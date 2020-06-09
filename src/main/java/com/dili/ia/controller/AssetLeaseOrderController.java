@@ -93,7 +93,7 @@ public class AssetLeaseOrderController {
         }
 
         //获取业务收费项目
-//        BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(userTicket.getFirmId(), Long.valueOf(AssetsTypeEnum.getAssetsTypeEnum(assetType).getChargeItemBusinessCode()), null);
+//        BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null);
 //        if(chargeItemsOutput.isSuccess()){
 //            modelMap.put("chargeItems", chargeItemsOutput.getData());
 //        }
@@ -101,8 +101,13 @@ public class AssetLeaseOrderController {
         List<ChargeItemDto> chargeItemDtos = new ArrayList<>();
         ChargeItemDto chargeItemDto = new ChargeItemDto();
         chargeItemDto.setId(1L);
-        chargeItemDto.setName("租金");
+        chargeItemDto.setName("水费");
         chargeItemDtos.add(chargeItemDto);
+
+        ChargeItemDto chargeItemDto1 = new ChargeItemDto();
+        chargeItemDto1.setId(2L);
+        chargeItemDto1.setName("电费");
+        chargeItemDtos.add(chargeItemDto1);
         modelMap.put("chargeItems", chargeItemDtos);
 
         modelMap.put("createdStart", createdStart);
