@@ -96,6 +96,10 @@ public class LeaseOrderImportService{
             throw new BusinessException(ResultCode.DATA_ERROR, "客户信息未查到");
         }
 
+        if(!customer.getName().equals(customerName)){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户数据异常");
+        }
+
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("name",boothName);
         BaseOutput<List<BoothDTO>> boothOutput = assetsRpc.searchBooth(jsonObject);
