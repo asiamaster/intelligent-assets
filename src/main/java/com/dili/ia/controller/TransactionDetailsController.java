@@ -6,10 +6,6 @@ import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.TransactionDetailsService;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -26,7 +22,6 @@ import java.util.List;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-14 10:18:23.
  */
-@Api("/transactionDetails")
 @Controller
 @RequestMapping("/transactionDetails")
 public class TransactionDetailsController {
@@ -39,7 +34,6 @@ public class TransactionDetailsController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到TransactionDetails页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
@@ -62,7 +56,6 @@ public class TransactionDetailsController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到TransactionDetails页面")
     @RequestMapping(value="/listDepositAmount.action", method = RequestMethod.GET)
     public String listDepositAmount(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
@@ -86,10 +79,6 @@ public class TransactionDetailsController {
      * @return String
      * @throws Exception
      */
-    @ApiOperation(value="分页查询TransactionDetails", notes = "分页查询TransactionDetails，返回easyui分页信息")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="TransactionDetails", paramType="form", value = "TransactionDetails的form信息", required = false, dataType = "string")
-	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(TransactionDetailsListDto transactionDetails) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

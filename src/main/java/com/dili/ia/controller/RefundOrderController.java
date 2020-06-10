@@ -4,7 +4,6 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.RefundOrderStateEnum;
 import com.dili.ia.service.LeaseOrderItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
@@ -19,10 +18,6 @@ import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +36,6 @@ import java.util.List;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-03-09 19:34:40.
  */
-@Api("/refundOrder")
 @Controller
 @RequestMapping("/refundOrder")
 public class RefundOrderController {
@@ -60,7 +54,6 @@ public class RefundOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到RefundOrder页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
@@ -84,10 +77,6 @@ public class RefundOrderController {
      * @return String
      * @throws Exception
      */
-    @ApiOperation(value="分页查询RefundOrder", notes = "分页查询RefundOrder，返回easyui分页信息")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="RefundOrder", paramType="form", value = "RefundOrder的form信息", required = false, dataType = "string")
-	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(RefundOrderDto refundOrder) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -100,7 +89,6 @@ public class RefundOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到退款单-查看页面")
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap, Long id, String orderCode) {
         RefundOrder refundOrder = null;

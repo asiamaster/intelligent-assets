@@ -55,6 +55,23 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group col-auto">
+                        <label for="createdStart">开始日期</label>
+                        <div class="form-inline">
+                            <div class="input-group">
+                                <input type="text" name="startTimeStart" id="startTimeStart" class="form-control"/>
+                                <div class="input-group-append">
+                                    <label for="startTimeStart"  class="input-group-text fa fa-calendar"></label>
+                                </div>
+                            </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                            <div class="input-group">
+                                <input type="text" name="startTimeEnd" id="startTimeEnd" class="form-control"/>
+                                <div class="input-group-append">
+                                    <label for="startTimeEnd"  class="input-group-text fa fa-calendar"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col align-self-center mt-3">
                         <button id="clear" type="button" class="btn btn-outline-primary mr-2" onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
                         <button id="query" type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>

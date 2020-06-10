@@ -1,18 +1,16 @@
 package com.dili.ia.domain.dto;
 
-import java.util.Map;
-
 /**
  * 打印数据传输对象
  */
-public class PrintDataDto {
+public class PrintDataDto<T> {
 
     private String name;
-    private Map<String,Object> item;
+    private T item;
 
     public PrintDataDto(){}
 
-    public PrintDataDto(String name, Map<String, Object> item) {
+    public PrintDataDto(String name, T item) {
         this.name = name;
         this.item = item;
     }
@@ -25,11 +23,11 @@ public class PrintDataDto {
         this.name = name;
     }
 
-    public Map<String, Object> getItem() {
+    public T getItem() {
         return item;
     }
 
-    public void setItem(Map<String, Object> item) {
+    public void setItem(T item) {
         this.item = item;
     }
 }

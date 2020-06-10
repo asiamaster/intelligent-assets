@@ -21,6 +21,7 @@ import com.dili.ia.util.ResultCodeConst;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
@@ -89,6 +90,18 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Autowired
     private TransactionDetailsService transactionDetailsService;
 
+    public static void main(String[] args) {
+        LeaseOrderListDto dto = DTOUtils.newInstance(LeaseOrderListDto.class);
+        LeaseOrderItem leaseOrderItem = DTOUtils.newInstance(LeaseOrderItem.class);
+        leaseOrderItem.setId(100L);
+        List<LeaseOrderItem> leaseOrderItems = new ArrayList<>();
+        leaseOrderItems.add(leaseOrderItem);
+        dto.setLeaseOrderItems(leaseOrderItems);
+        dto.getLeaseOrderItems().forEach(o->{
+            System.out.println(o.getId());
+        });
+    }
+
     /**
      * 摊位租赁单保存
      *
@@ -114,6 +127,13 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         dto.setMarketCode(userTicket.getFirmCode());
         dto.setCreatorId(userTicket.getId());
         dto.setCreator(userTicket.getRealName());
+        if(CollectionUtils.isNotEmpty(dto.getCategorys())){
+            dto.setCategoryId(dto.getCategorys().stream().map(o->o.getId()).collect(Collectors.joining(",")));
+            dto.setCategoryName(dto.getCategorys().stream().map(o->o.getText()).collect(Collectors.joining(",")));
+        }else{
+            dto.setCategoryId(null);
+            dto.setCategoryName(null);
+        }
 
         if (null == dto.getId()) {
             //租赁单新增
@@ -1151,7 +1171,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
 
         LeaseOrder leaseOrder = get(paymentOrder.getBusinessId());
-        PrintDataDto printDataDto = new PrintDataDto();
+        PrintDataDto<LeaseOrderPrintDto> printDataDto = new PrintDataDto<LeaseOrderPrintDto>();
         LeaseOrderPrintDto leaseOrderPrintDto = new LeaseOrderPrintDto();
         leaseOrderPrintDto.setPrintTime(new Date());
         leaseOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
@@ -1197,6 +1217,47 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         leaseOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         leaseOrderPrintDto.setSubmitter(paymentOrder.getCreator());
 
+        //组合支付需要显示结算详情
+        StringBuffer settleWayDetails = new StringBuffer();
+        settleWayDetails.append("【");
+        if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
+            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
+            if (output.isSuccess() && CollectionUtils.isNotEmpty(output.getData())){
+                output.getData().forEach(o -> {
+                    //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
+                    settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
+                    if (StringUtils.isNotEmpty(o.getSerialNumber())){
+                        settleWayDetails.append(",").append(o.getSerialNumber());
+                    }
+                    if (StringUtils.isNotEmpty(o.getNotes())){
+                        settleWayDetails.append(",").append("备注：").append(o.getNotes());
+                    }
+                    settleWayDetails.append("\r\n");
+                });
+            }else {
+                LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
+        }else{
+            BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
+            if(output.isSuccess()){
+                SettleOrder settleOrder = output.getData();
+                if(StringUtils.isNotBlank(settleOrder.getSerialNumber())){
+                    settleWayDetails.append(settleOrder.getSerialNumber());
+                    if (StringUtils.isNotBlank(settleOrder.getNotes())){
+                        settleWayDetails.append(",").append(settleOrder.getNotes());
+                    }
+                }else {
+                    if (StringUtils.isNotBlank(settleOrder.getNotes())){
+                        settleWayDetails.append(settleOrder.getNotes());
+                    }
+                }
+            }else {
+                LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
+        }
+        settleWayDetails.append("】");
+        leaseOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
+
         LeaseOrderItem leaseOrderItemCondition = DTOUtils.newInstance(LeaseOrderItem.class);
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
         List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
@@ -1204,7 +1265,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
             leaseOrderItemPrintDtos.add(LeaseOrderRefundOrderServiceImpl.leaseOrderItem2PrintDto(o));
         });
         leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemPrintDtos);
-        printDataDto.setItem(BeanMapUtil.beanToMap(leaseOrderPrintDto));
+        printDataDto.setItem(leaseOrderPrintDto);
         return BaseOutput.success().setData(printDataDto);
     }
 

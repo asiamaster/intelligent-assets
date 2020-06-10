@@ -19,7 +19,7 @@ public interface AssetsRpc {
     /**
      * 获取客户列表信息
      */
-    @RequestMapping(value = "/api/category/getTree", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/customCategory/getTree", method = RequestMethod.POST)
     BaseOutput<List<CategoryDTO>> list(CategoryDTO categoryDTO);
 
     /**

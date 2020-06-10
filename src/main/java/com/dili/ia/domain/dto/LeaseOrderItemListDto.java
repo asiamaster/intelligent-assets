@@ -1,13 +1,9 @@
 package com.dili.ia.domain.dto;
 
-import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
-import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
-import io.swagger.models.auth.In;
 
 import javax.persistence.Column;
-import javax.persistence.Transient;
 import java.util.Date;
 import java.util.List;
 

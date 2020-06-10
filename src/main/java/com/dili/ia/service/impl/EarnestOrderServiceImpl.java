@@ -14,8 +14,8 @@ import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
-import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
@@ -32,6 +32,7 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -441,12 +442,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
 
         EarnestOrder earnestOrder = get(paymentOrder.getBusinessId());
-        PrintDataDto printDataDto = new PrintDataDto();
         EarnestOrderPrintDto earnestOrderPrintDto = new EarnestOrderPrintDto();
         earnestOrderPrintDto.setPrintTime(new Date());
         earnestOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         earnestOrderPrintDto.setCode(earnestOrder.getCode());
-        printDataDto.setName(PrintTemplateEnum.EARNEST_ORDER.getCode());
         earnestOrderPrintDto.setCustomerName(earnestOrder.getCustomerName());
         earnestOrderPrintDto.setCustomerCellphone(earnestOrder.getCustomerCellphone());
         earnestOrderPrintDto.setStartTime(earnestOrder.getStartTime());
@@ -468,7 +467,51 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             assetsItems.substring(0, assetsItems.length() - 1);
         }
         earnestOrderPrintDto.setAssetsItems(assetsItems.toString());
-        printDataDto.setItem(BeanMapUtil.beanToMap(earnestOrderPrintDto));
+
+        //组合支付需要显示结算详情
+        StringBuffer settleWayDetails = new StringBuffer();
+        settleWayDetails.append("【");
+        if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
+            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
+            if (output.isSuccess() && CollectionUtils.isNotEmpty(output.getData())){
+                output.getData().forEach(o -> {
+                    //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
+                    settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
+                    if (StringUtils.isNotEmpty(o.getSerialNumber())){
+                        settleWayDetails.append(",").append(o.getSerialNumber());
+                    }
+                    if (StringUtils.isNotEmpty(o.getNotes())){
+                        settleWayDetails.append(",").append("备注：").append(o.getNotes());
+                    }
+                    settleWayDetails.append("\r\n");
+                });
+            }else {
+                LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
+        }else{
+            BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
+            if(output.isSuccess()){
+                SettleOrder settleOrder = output.getData();
+                if(StringUtils.isNotBlank(settleOrder.getSerialNumber())){
+                    settleWayDetails.append(settleOrder.getSerialNumber());
+                    if (StringUtils.isNotBlank(settleOrder.getNotes())){
+                        settleWayDetails.append(",").append(settleOrder.getNotes());
+                    }
+                }else {
+                    if (StringUtils.isNotBlank(settleOrder.getNotes())){
+                        settleWayDetails.append(settleOrder.getNotes());
+                    }
+                }
+            }else {
+                LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
+        }
+        settleWayDetails.append("】");
+        earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
+
+        PrintDataDto<EarnestOrderPrintDto> printDataDto = new PrintDataDto<>();
+        printDataDto.setName(PrintTemplateEnum.EARNEST_ORDER.getCode());
+        printDataDto.setItem(earnestOrderPrintDto);
         return BaseOutput.success().setData(printDataDto);
     }
 }
