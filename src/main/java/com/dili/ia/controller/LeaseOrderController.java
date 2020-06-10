@@ -107,31 +107,34 @@ public class LeaseOrderController {
         InputStream is = file.getInputStream();
         List<List<Map<String, Object>>> list = ExcelUtils.getSheetsDatas(is, 0);
 
-        List<Map<String, Object>> firstSheet = list.get(0);
         List<Map<String, Object>> errorList = new ArrayList<>();
-        firstSheet.forEach(o -> {
-            try {
-                leaseOrderImportService.importLeaseOrder(o,isCheck);
-            } catch (BusinessException e) {
-                Map<String, Object> errorMap = new HashMap<>();
-                errorMap.put("customerName",o.get("客户名称"));
-                errorMap.put("cardNo",o.get("证件号"));
-                errorMap.put("boothName",o.get("摊位编号"));
-                errorMap.put("depositAmount",o.get("保证金"));
-                errorMap.put("errorInfo",e.getErrorMsg());
-                errorList.add(errorMap);
-                LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getErrorMsg());
-            } catch (Exception e) {
-                Map<String, Object> errorMap = new HashMap<>();
-                errorMap.put("customerName",o.get("客户名称"));
-                errorMap.put("cardNo",o.get("证件号"));
-                errorMap.put("boothName",o.get("摊位编号"));
-                errorMap.put("depositAmount",o.get("保证金"));
-                errorMap.put("errorInfo",e.getMessage());
-                errorList.add(errorMap);
-                LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getMessage());
-            }
+        list.forEach(sheet->{
+            List<Map<String, Object>> firstSheet = sheet;
+            firstSheet.forEach(o -> {
+                try {
+                    leaseOrderImportService.importLeaseOrder(o,isCheck);
+                } catch (BusinessException e) {
+                    Map<String, Object> errorMap = new HashMap<>();
+                    errorMap.put("customerName",o.get("客户名称"));
+                    errorMap.put("cardNo",o.get("证件号"));
+                    errorMap.put("boothName",o.get("摊位编号"));
+                    errorMap.put("depositAmount",o.get("保证金"));
+                    errorMap.put("errorInfo",e.getErrorMsg());
+                    errorList.add(errorMap);
+                    LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getErrorMsg());
+                } catch (Exception e) {
+                    Map<String, Object> errorMap = new HashMap<>();
+                    errorMap.put("customerName",o.get("客户名称"));
+                    errorMap.put("cardNo",o.get("证件号"));
+                    errorMap.put("boothName",o.get("摊位编号"));
+                    errorMap.put("depositAmount",o.get("保证金"));
+                    errorMap.put("errorInfo",e.getMessage());
+                    errorList.add(errorMap);
+                    LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getMessage());
+                }
+            });
         });
+
         modelMap.put("errorList", errorList);
         return "leaseOrder/importResult";
     }
