@@ -151,7 +151,7 @@
         <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
         for(item in chargeItems){
         %>
-        <td style="padding: .25rem!important;"><input _log="${item.name!}" type="number" id="chargeItem_${item.id!}_{{index}}" name="chargeItem_${item.id!}_{{index}}" value="" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="${item.name!}" type="number" id="chargeItem_${item.id!}_{{index}}" name="chargeItem_${item.id!}_{{index}}" value="{{chargeItem_${item.id!}}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <% } }%>
     </tr>
 </script>
