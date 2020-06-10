@@ -1,5 +1,5 @@
 <#bs4Body>
-<table id="grid" data-show-export="true">
+<table id="grid" data-show-export="true" data-pagination="true">
     <thead>
     <tr>
         <th data-field="customerName">客户名称</th>
@@ -29,6 +29,7 @@
 <script>
     $(function () {
         $('#grid').bootstrapTable({
+            exportDataType:'all',
             exportTypes:['excel'],
             exportOptions: {
                 fileName: '租赁数据导入处理结果',
