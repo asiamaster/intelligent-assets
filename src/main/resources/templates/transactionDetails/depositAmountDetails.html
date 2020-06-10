@@ -109,7 +109,7 @@
 <script>
     function dataFormatterTip(value,row,index) {
         if (value) {
-            return '<span title="' + value + '">' + value + '</span>';
+            return '<span data-toggle="tooltip" data-placement="left" title="' + value + '">' + value + '</span>';
         } else {
             return "";
         }

@@ -2,8 +2,22 @@
 <link href="https://cdn.bootcss.com/select2/4.0.12/css/select2.css" rel="stylesheet">
 <script src="https://cdn.bootcss.com/select2/4.0.12/js/select2.min.js"></script>
 <script src="https://cdn.bootcss.com/select2/4.0.12/js/i18n/zh-CN.js"></script>
+<link rel="stylesheet" type="text/css" href="${contextPath}/resources/easyui/css/themes/bootstrap/easyui.css">
+<link rel="stylesheet" type="text/css" href="${contextPath}/resources/easyui/css/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="${contextPath}/resources/easyui/css/themes/color.css">
+<link rel="stylesheet" type="text/css" href="${contextPath}/resources/css/common.css">
+<script type="text/javascript" src="${contextPath}/resources/easyui/js/jquery.easyui.min.js"></script>
+<!-- easyui中文语言包 -->
+<script type="text/javascript" src="${contextPath}/resources/easyui/js/easyui-lang-zh_CN.js"></script>
+<!-- easyui扩展 -->
+<script type="text/javascript" src="${contextPath}/common/easyui/js/easyui_extend.js"></script>
 <style>
-
+    table > tbody > tr.treegrid-tr-tree > td {
+        height: auto
+    }
+    table > tbody > tr > td {
+        max-width: fit-content;
+    }
     .boothname {
         text-indent: 20px;
     }
@@ -336,34 +350,31 @@
                 </button>
                 </#resource>
             </div>
-            <table id="grid" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-parent-id-field="parentId" data-query-params="queryParams" data-sort-name="id"
-                   data-sort-order="desc" data-pagination="true" data-page-number="1" data-page-size="10" data-side-pagination="server" data-single-select="true" data-click-to-select="true" data-ignore-click-to-select-on="ignoreExpandClick">
+
+            <table title="" id="grid" class="easyui-treegrid" idField="id"
+                   treeField="name"
+                   data-options="
+                                                    method: 'get',
+                                                    idField: 'id',
+                                                    treeField: 'name',
+                                                    showFooter:true,
+                                                    singleSelect:true,
+                                                    remoteSort:false,
+                                                    multiSort:false,
+                                                    _parentIdField: 'parentId',
+                                                    loadFilter:treegridLoadFilter
+                                                ">
                 <thead>
                 <tr>
-                    <th data-formatter="emptyFormatter" data-width="36" data-align="center" class="expandicon"></th>
-                    <th data-radio="true"></th>
-                    <th data-field="name" data-align="left" data-sortable="true" data-formatter="formatterView" data-class="boothname">
-                        摊位编号
-                    </th>
-                    <th data-field="number" data-align="center" data-sortable="true">
-                        数量
-                    </th>
-                    <th data-field="unit" data-align="center" data-provider="dataDictionaryValueProvider" data-sortable="true">
-                        单位
-                    </th>
-                    <th data-field="area" data-align="center" data-provider="districtProvider" data-sortable="true">
-                        区域
-                    </th>
-                    <th data-field="departmentId" data-align="center" data-provider="departmentProvider" data-sortable="true" data-sort-name="department_id">
-                        部门
-                    </th>
-                    <th data-field="createTime" data-align="center" data-sort-name="create_time"
-                        data-provider="datetimeProvider" data-sortable="true">
-                        创建时间
-                    </th>
-                    <th data-field="state" data-align="center" data-provider="boothStateProvider" data-sortable="true">
-                        状态
-                    </th>
+                    <th data-options="field:'ck',checkbox:true"></th>
+                    <th data-options="field:'name',sortable:true,formatter:formatterView" width="20%">摊位编号</th>
+                    <th data-options="field:'number',sortable:true" width="10%">数量</th>
+                    <th data-options="field:'unit',_provider:'dataDictionaryValueProvider'" width="10%">单位</th>
+                    <th data-options="field:'area',_provider:'districtProvider'" width="10%">区域</th>
+                    <th data-options="field:'departmentId',_provider:'departmentProvider'" width="10%">部门</th>
+                    <th data-options="field:'createTime',_provider:'datetimeProvider'" width="10%">创建时间</th>
+                    <th data-options="field:'state',_provider:'boothStateProvider',formatter:stateFormatter" width="10%">状态</th>
+                    <th data-options="field:'bb',_provider:'boothPathProvider'" width="20%">路径</th>
                 </tr>
                 </thead>
             </table>
@@ -375,7 +386,6 @@
 </div>
 
 </#bs4Body>
-<#btreegrid/>
 <div class="modal fade" id="_modal" data-backdrop="static" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true">
     <!--modal-lg modal-sm(默认) 通过设置mw大小调整宽度（如mw-100） modal-dialog-centered垂直居中-->
@@ -425,38 +435,6 @@
 <script>
     var itemIndex = 0;
 
-    function operateFormatter(value, row, index) {
-        var split = ['<a class="like" href="javascript:void(0)" onclick="openSplitHandler(' + row.id + ')" title="Like">',
-            '拆分摊位',
-            '</a>  '];
-var view = ' <a class="like" href="javascript:void(0)" onclick="openViewHandler(' + row.id + ')" title="Like">查看</a>';
-var edit = ' <a class="like" href="javascript:void(0)" onclick="openUpdateHandler(' + row.id + ')" title="Like">修改</a>';
-var del = ' <a class="remove" href="javascript:void(0)" onclick="openDeleteHandler(' + row.id + ')" title="Remove">删除</a>';
-var on = ' <a class="remove" href="javascript:void(0)" onclick="doEnableHandler(1,' + row.id + ')" title="Remove">启用</a>';
-var off = ' <a class="remove" href="javascript:void(0)" onclick="doEnableHandler(2,' + row.id + ')" title="Remove">禁用</a>';
-        var oprate = '';
-        if(hasView){
-            oprate+=view;
-        }
-        if(hasEdit){
-            oprate+=edit;
-        }
-        if(hasDel){
-            oprate+=del;
-        }
-        if(hasOn){
-            oprate+=on;
-        }
-        if(hasOff){
-            oprate+=off;
-        }
-        if (row.parentId === 0 && hasSplit ) {
-            return split.join("") + oprate;
-        } else {
-            return oprate;
-        }
-    }
-
     function emptyFormatter(){return ''}
 
     function formatterView(value, row, index) {
@@ -465,6 +443,10 @@ var off = ' <a class="remove" href="javascript:void(0)" onclick="doEnableHandler
         }else{
             return row.name;
         }
+    }
+
+    function stateFormatter(value, row, index) {
+            return row.status;
     }
 
     function openView(id) {

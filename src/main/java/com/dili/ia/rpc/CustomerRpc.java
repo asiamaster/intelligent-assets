@@ -35,4 +35,7 @@ public interface CustomerRpc {
     @RequestMapping(value = "/api/customer/get", method = RequestMethod.POST)
     BaseOutput<Customer> get(@RequestParam("id") Long id, @RequestParam("marketId") Long marketId);
 
+    @RequestMapping(value = "/api/customer/getByCertificateNumber", method = RequestMethod.POST)
+    BaseOutput<Customer> getByCertificateNumber(@RequestParam("certificateNumber") String certificateNumber, @RequestParam("marketId") Long marketId);
+
 }

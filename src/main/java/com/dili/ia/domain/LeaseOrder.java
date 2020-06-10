@@ -137,13 +137,13 @@ public interface LeaseOrder extends IBaseDomain, IMybatisForceParams {
 
     @Column(name = "`category_id`")
     @FieldDef(label="品类id")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getCategoryId();
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getCategoryId();
 
-    void setCategoryId(Long categoryId);
+    void setCategoryId(String categoryId);
 
     @Column(name = "`category_name`")
-    @FieldDef(label="品类名称", maxLength = 100)
+    @FieldDef(label="品类名称")
     @EditMode(editor = FieldEditor.Text, required = false)
     String getCategoryName();
 
@@ -330,6 +330,13 @@ public interface LeaseOrder extends IBaseDomain, IMybatisForceParams {
     Integer getIsDelete();
 
     void setIsDelete(Integer isDelete);
+
+    @Column(name = "`is_show`")
+    @FieldDef(label="是否显示")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Integer getIsShow();
+
+    void setIsShow(Integer isShow);
 
     @Column(name = "`market_id`")
     @FieldDef(label="市场")

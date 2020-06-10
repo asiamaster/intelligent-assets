@@ -2,7 +2,7 @@ package com.dili.ia.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.sf.cglib.beans.BeanMap;
+import org.springframework.cglib.beans.BeanMap;
 
 import java.util.List;
 import java.util.Map;

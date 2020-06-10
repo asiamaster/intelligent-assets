@@ -13,7 +13,6 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.exception.BusinessException;
 import io.seata.spring.annotation.GlobalTransactional;
-import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ import java.util.Date;
 /**
  * 摊位租赁api
  */
-@Api("/api/leaseOrder")
 @RestController
 @RequestMapping("/api/leaseOrder")
 public class LeaseOrderApi {

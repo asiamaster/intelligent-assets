@@ -26,6 +26,26 @@
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
         _grid.bootstrapTable('refreshOptions', {url: '/leaseOrder/listPage.action',pageSize: parseInt(size)});
+
+        $('#startTimeStart').each(function () {
+            let self = this;
+            laydate.render({
+                elem: self,//或 elem: document.getElementById('test')、elem: lay('#test') 等
+                type: 'date',
+                theme: '#007bff',
+                trigger:'click'
+            });
+        });
+
+        $('#startTimeEnd').each(function () {
+            let self = this;
+            laydate.render({
+                elem: self,//或 elem: document.getElementById('test')、elem: lay('#test') 等
+                type: 'date',
+                theme: '#007bff',
+                trigger:'click'
+            });
+        });
     });
 
 

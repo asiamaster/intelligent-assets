@@ -23,7 +23,6 @@ import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.annotations.Api;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -44,7 +43,6 @@ import java.util.List;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-14 10:18:23.
  */
-@Api("/earnestOrder")
 @Controller
 @RequestMapping("/earnestOrder")
 public class EarnestOrderController {

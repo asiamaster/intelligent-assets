@@ -28,12 +28,12 @@
 
     /******************************驱动执行区 begin***************************/
     $(function () {
-        $(window).resize(function () {
-            _grid.bootstrapTable('resetView')
-        });
-        let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
-        size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {url: '/booth/listPage.action', pageSize: parseInt(size)});
+        var opts = _grid.treegrid("options");
+        if (null == opts.url || "" == opts.url) {
+            opts.url = "/booth/listPage.action?parentId=0";
+        }
+        _grid.treegrid("load", bindTreegridMeta2Form("grid", "queryForm"));
+        opts.url = "/booth/listPage.action";
     });
 
     /******************************驱动执行区 end****************************/
@@ -54,48 +54,48 @@
      * 打开修改窗口
      */
     function openUpdateHandler(id) {
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        let current = _grid.treegrid("getSelected");
+        if (null == current) {
             bs4pop.alert('请选中一条数据');
             return;
         }
         $("#_modal").modal("show");
 
-        $('#_modal .modal-body').load("/booth/update.html?id=" + rows[0].id);
+        $('#_modal .modal-body').load("/booth/update.html?id=" + current.id);
         _modal.find('.modal-title').text('摊位修改');
     }
 
     function openViewHandler(id) {
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        let current = _grid.treegrid("getSelected");
+        if (null == current) {
             bs4pop.alert('请选中一条数据');
             return;
         }
         $("#_modal").modal("show");
 
-        $('#_modal .modal-body').load("/booth/view.html?id=" + rows[0].id);
+        $('#_modal .modal-body').load("/booth/view.html?id=" + current.id);
         _modal.find('.modal-title').text('摊位查看');
     }
 
     function openSplitHandler(id) {
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        let current = _grid.treegrid("getSelected");
+        if (null == current) {
             bs4pop.alert('请选中一条数据');
             return;
         }
-if(rows[0].parentId !=0){
-    bs4pop.alert('只有父摊位才能拆分');
-    return;
-}
+        if(current.parentId !=0){
+            bs4pop.alert('只有父摊位才能拆分');
+            return;
+        }
         $("#_modal").modal("show");
 
-        $('#_modal .modal-body').load("/booth/split.html?id=" + rows[0].id);
+        $('#_modal .modal-body').load("/booth/split.html?id=" + current.id);
         _modal.find('.modal-title').text('摊位拆分');
     }
 
     function openDeleteHandler(id) {
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        let current = _grid.treegrid("getSelected");
+        if (null == current) {
             bs4pop.alert('请选中一条数据');
             return;
         }
@@ -105,7 +105,7 @@ if(rows[0].parentId !=0){
                     type: "POST",
                     dataType: "json",
                     url: '/booth/delete.action',
-                    data: {id: rows[0].id},
+                    data: {id: current.id},
                     success: function (data) {
                         bui.loading.hide();
                         if (data.code != '200') {
@@ -139,8 +139,8 @@ if(rows[0].parentId !=0){
         if(enable == 2){
             opType = "disable";
         }
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        let current = _grid.treegrid("getSelected");
+        if (null == current) {
             bs4pop.alert('请选中一条数据');
             return;
         }
@@ -153,15 +153,14 @@ if(rows[0].parentId !=0){
                 $.ajax({
                     type: "POST",
                     url: "${contextPath}/booth/update.action",
-                    data: {id: rows[0].id, state: enable,opType:opType},
+                    data: {id: current.id, state: enable,opType:opType},
                     processData: true,
                     dataType: "json",
                     async: true,
                     success: function (data) {
                         bui.loading.hide();
                         if (data.success) {
-                            _grid.bootstrapTable('refresh');
-                            _modal.modal('hide');
+                            window.location.reload();
                         } else {
                             bs4pop.alert(data.result, {type: 'error'});
                         }
@@ -204,8 +203,7 @@ if(rows[0].parentId !=0){
             success: function (data) {
                 bui.loading.hide();
                 if (data.code == "200") {
-                    _grid.bootstrapTable('refresh');
-                    _modal.modal('hide');
+                    window.location.reload();
                 } else {
                     bs4pop.alert(data.result, {type: 'error'});
                 }
@@ -222,7 +220,11 @@ if(rows[0].parentId !=0){
      * 查询处理
      */
     function queryDataHandler() {
-        _grid.bootstrapTable('refresh');
+        var opts = _grid.treegrid("options");
+        if (null == opts.url || "" == opts.url) {
+            opts.url = "/booth/listPage.action";
+        }
+        _grid.treegrid("load", bindTreegridMeta2Form("grid", "queryForm"));
     }
 
     /**
@@ -322,19 +324,6 @@ if(rows[0].parentId !=0){
 
     });
 
-    _grid.on('post-body.bs.table', function (e,data){
-        var columns = _grid.bootstrapTable('getOptions').columns;
-        if (columns && columns[0][0].visible) {
-            _grid.treegrid({
-                treeColumn: 0,
-                expanderExpandedClass: 'fa fa-minus',
-                expanderCollapsedClass: 'fa fa-plus',
-                onChange: function() {
-                    console.log($(this).treegrid('getDepth'))
-                }
-            })
-        }
-    });
 
     /*****************************************自定义事件区 end**************************************/
 </script>

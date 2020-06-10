@@ -53,6 +53,8 @@ public class LeaseOrderPrintDto {
     private String amount;
     //结算方式
     private String settlementWay;
+    //结算详情
+    private String settleWayDetails;
     //结算员
     private String settlementOperator;
     //提交人
@@ -202,6 +204,14 @@ public class LeaseOrderPrintDto {
 
     public void setSettlementWay(String settlementWay) {
         this.settlementWay = settlementWay;
+    }
+
+    public String getSettleWayDetails() {
+        return settleWayDetails;
+    }
+
+    public void setSettleWayDetails(String settleWayDetails) {
+        this.settleWayDetails = settleWayDetails;
     }
 
     public String getSettlementOperator() {

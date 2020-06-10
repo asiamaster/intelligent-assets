@@ -1,4 +1,13 @@
 <#bs4Body>
+<link rel="stylesheet" type="text/css" href="${contextPath}/resources/easyui/css/themes/bootstrap/easyui.css">
+<link rel="stylesheet" type="text/css" href="${contextPath}/resources/easyui/css/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="${contextPath}/resources/easyui/css/themes/color.css">
+<link rel="stylesheet" type="text/css" href="${contextPath}/resources/css/common.css">
+<script type="text/javascript" src="${contextPath}/resources/easyui/js/jquery.easyui.min.js"></script>
+<!-- easyui中文语言包 -->
+<script type="text/javascript" src="${contextPath}/resources/easyui/js/easyui-lang-zh_CN.js"></script>
+<!-- easyui扩展 -->
+<script type="text/javascript" src="${contextPath}/common/easyui/js/easyui_extend.js"></script>
 <style>
     .detail {
         width: 12px !important;
@@ -9,6 +18,12 @@
     }
     tr[class*="treegrid-parent"] .districtname{
         text-indent: 40px;
+    }
+    table > tbody > tr.treegrid-tr-tree > td {
+        height: auto
+    }
+    table > tbody > tr > td {
+        max-width: fit-content;
     }
 
 </style>
@@ -43,43 +58,44 @@
                             class="fa fa-plus"></i> 新增
                     </button>
                     </#resource>
-                <#resource code="dis_split">
-                    <button type="button" id="btn_split" class="btn btn-primary" onclick="openDivisionHandler()">
-                        <i class="fa fa-pencil-square-o"></i>划分区域
+                    <#resource code="dis_split">
+                        <button type="button" id="btn_split" class="btn btn-primary" onclick="openDivisionHandler()">
+                            <i class="fa fa-pencil-square-o"></i>划分区域
+                        </button>
+                </#resource>
+                <#resource code="dis_edit">
+                    <button type="button" id="btn_edit" class="btn btn-primary" onclick="openUpdateHandler()">
+                        <i class="fa fa-pencil-square-o"></i>修改
                     </button>
-            </#resource>
-            <#resource code="dis_edit">
-                <button type="button" id="btn_edit" class="btn btn-primary" onclick="openUpdateHandler()">
-                    <i class="fa fa-pencil-square-o"></i>修改
-                </button>
-        </#resource>
-        <#resource code="dis_del">
-                <button type="button" class="btn btn-primary" onclick="openDeleteHandler()">
-                    <i class="fa fa-pencil-square-o"></i>删除
-                </button>
-    </#resource>
+                </#resource>
+                <#resource code="dis_del">
+                        <button type="button" class="btn btn-primary" onclick="openDeleteHandler()">
+                            <i class="fa fa-pencil-square-o"></i>删除
+                        </button>
+                </#resource>
                 </div>
-                <table id="grid" data-single-select="true" data-toggle="table" data-id-field="id" data-tree-show-field="name" data-root-parent-id="-1" data-parent-id-field="parentId" data-query-params="queryParams" data-pagination="true" data-page-number="1" data-page-size="10" data-side-pagination="server" data-click-to-select="true"  data-ignore-click-to-select-on="ignoreExpandClick">
+                <table title="" id="grid" class="easyui-treegrid"
+                       data-options="
+                                        method: 'get',
+                                        idField: 'id',
+                                        treeField: 'name',
+                                        showFooter:true,
+                                        fitColumns:true,
+                                        singleSelect:true,
+                                        remoteSort:false,
+                                        multiSort:false,
+                                        collapsible:true,
+                                        _parentIdField: 'parentId',
+                                        loadFilter:treegridLoadFilter
+                                    ">
                     <thead>
                     <tr>
-                        <th data-formatter="emptyFormatter" data-width="36" data-align="center"></th>
-                        <th data-radio="true"></th>
-                        <th data-field="name" data-align="left" data-class="districtname">
-                            区域名称
-                        </th>
-                        <th data-field="number" data-align="center">
-                            编号
-                        </th>
-                        <th data-field="area" data-formatter="oneFormatter"
-                            data-align="center">
-                            区域级别
-                        </th>
-                        <th data-field="departmentId" data-align="center"  data-provider="departmentProvider">
-                            部门
-                        </th>
-                        <th data-field="notes" data-align="center">
-                            备注
-                        </th>
+                        <th data-options="field:'ck',checkbox:true,resizable:false,fixed:'false'" width="5%"></th>
+                        <th data-options="field:'name',sortable:true,resizable:false,fixed:'false'" width="19%">区域名称</th>
+                        <th data-options="field:'number',sortable:true,resizable:false,fixed:'false'" width="10%">编号</th>
+                        <th data-options="field:'departmentId',_provider:'departmentProvider',resizable:false,fixed:'false'" width="20%">部门</th>
+                        <th data-options="field:'notes',resizable:false,fixed:'false'" width="20%">备注</th>
+                        <th data-options="field:'bb',resizable:false,fixed:'false',_provider:'disProvider'" width="30%">路径</th>
                     </tr>
                     </thead>
                 </table>
@@ -87,14 +103,9 @@
         </div>
     </div>
 
-
 </div>
 
 </#bs4Body>
-<!--<link rel="stylesheet" href="/resources/bui/lib/jquery-treegrid/css/jquery.treegrid.css">-->
-<!--<script src="/resources/bui/lib/jquery-treegrid/js/jquery.treegrid.min.js"></script>-->
-<!--<script src="/resources/bui/js/bootstrap-table-treegrid.js"></script>-->
-<#btreegrid/>
 <div class="modal fade" id="_modal" data-backdrop="static" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true">
     <!--modal-lg modal-sm(默认) 通过设置mw大小调整宽度（如mw-100） modal-dialog-centered垂直居中-->
@@ -127,16 +138,18 @@
     </#resource>
 </script>
 <script>
-    let _grid = $('#grid');
 
     $(function () {
-        $(window).resize(function () {
-            _grid.bootstrapTable('resetView')
-        });
-        let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
-        size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {url: '/district/listPage.action', pageSize: parseInt(size)});
+        window.currentGrid = $('#grid');
+        var opts = currentGrid.treegrid("options");
+        if (null == opts.url || "" == opts.url) {
+            opts.url = "/district/listPage.action?parentId=0";
+        }
+        currentGrid.treegrid("load", bindTreegridMeta2Form("grid", "queryForm"));
+        opts.url = "/district/listPage.action";
+
     });
+
     function emptyFormatter(){return ''}
 
     function oneFormatter(value, row) {
@@ -171,7 +184,11 @@
      * 查询处理
      */
     function queryDataHandler() {
-        _grid.bootstrapTable('refresh');
+        var opts = currentGrid.treegrid("options");
+        if (null == opts.url || "" == opts.url) {
+            opts.url = "/district/listPage.action";
+        }
+        currentGrid.treegrid("load", bindTreegridMeta2Form("grid", "queryForm"));
     }
 
     function openInsertHandler() {
@@ -181,19 +198,19 @@
     }
 
     function openUpdateHandler() {
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        let current = currentGrid.treegrid("getSelected");
+        if (null == current) {
             bs4pop.alert('请选中一条数据');
             return;
         }
         $("#_modal").modal();
-        $('#_modal .modal-body').load("/district/edit.html?id=" + rows[0].id);
+        $('#_modal .modal-body').load("/district/edit.html?id=" + current.id);
         $("#_modal").find('.modal-title').text('区域修改');
     }
 
     function openDeleteHandler(id) {
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        let current = currentGrid.treegrid("getSelected");
+        if (null == current) {
             bs4pop.alert('请选中一条数据');
             return;
         }
@@ -203,7 +220,7 @@
                     type: "POST",
                     dataType: "json",
                     url: '/district/delete.action',
-                    data: {id: rows[0].id},
+                    data: {id: current.id},
                     success: function (data) {
                         bui.loading.hide();
                         if (data.code != '200') {
@@ -239,33 +256,20 @@
     }
 
     function openDivisionHandler() {
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        let current = currentGrid.treegrid("getSelected");
+        if (null == current) {
             bs4pop.alert('请选中一条数据');
             return;
         }
-        if(rows[0].parentId !=0){
+        if(current.parentId!=0){
             bs4pop.alert('只有父区域才能划分');
             return;
         }
         $("#_modal").modal();
-        $('#_modal .modal-body').load("/district/division.html?id=" + rows[0].id);
+        $('#_modal .modal-body').load("/district/division.html?id=" + current.id);
         $("#_modal").find('.modal-title').text('区域划分');
     }
 
-    _grid.on('post-body.bs.table', function (e,data){
-        var columns = _grid.bootstrapTable('getOptions').columns;
-        if (columns && columns[0][0].visible) {
-            _grid.treegrid({
-                treeColumn: 0,
-                expanderExpandedClass: 'fa fa-minus',
-                expanderCollapsedClass: 'fa fa-plus',
-                onChange: function() {
-                    console.log($(this).treegrid('getDepth'))
-                }
-            })
-        }
-    });
     function ignoreExpandClick(e) {
         return ['SPAN'].indexOf(e.tagName) > -1;
     }
