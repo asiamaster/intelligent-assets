@@ -24,10 +24,6 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.ExcelUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -51,7 +46,6 @@ import java.util.stream.Collectors;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-11 15:54:49.
  */
-@Api("/leaseOrder")
 @Controller
 @RequestMapping("/leaseOrder")
 public class LeaseOrderController {
@@ -75,7 +69,6 @@ public class LeaseOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
@@ -98,7 +91,6 @@ public class LeaseOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder页面")
     @RequestMapping(value="/importLeaseOrder.action", method = RequestMethod.GET)
     public String importLeaseOrder(ModelMap modelMap) {
         return "leaseOrder/importLeaseOrder";
@@ -111,24 +103,37 @@ public class LeaseOrderController {
      * @throws IOException
      */
     @RequestMapping(value = "/upload.action",method = RequestMethod.POST)
-    public @ResponseBody BaseOutput<List<String>> upload(@RequestParam MultipartFile file) throws IOException {
+    public String upload(@RequestParam MultipartFile file,@RequestParam Boolean isCheck,ModelMap modelMap) throws IOException {
         InputStream is = file.getInputStream();
         List<List<Map<String, Object>>> list = ExcelUtils.getSheetsDatas(is, 0);
 
         List<Map<String, Object>> firstSheet = list.get(0);
-        List<String> errorList = new ArrayList<>();
+        List<Map<String, Object>> errorList = new ArrayList<>();
         firstSheet.forEach(o -> {
             try {
-                leaseOrderImportService.importLeaseOrder(o);
+                leaseOrderImportService.importLeaseOrder(o,isCheck);
             } catch (BusinessException e) {
-                errorList.add(o.get("客户名称") + " " + o.get("证件号") + " " + e.getErrorMsg());
-                LOG.error(o.get("客户名称") + " " + o.get("证件号") + " " + e.getErrorMsg());
+                Map<String, Object> errorMap = new HashMap<>();
+                errorMap.put("customerName",o.get("客户名称"));
+                errorMap.put("cardNo",o.get("证件号"));
+                errorMap.put("boothName",o.get("摊位编号"));
+                errorMap.put("depositAmount",o.get("保证金"));
+                errorMap.put("errorInfo",e.getErrorMsg());
+                errorList.add(errorMap);
+                LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getErrorMsg());
             } catch (Exception e) {
-                errorList.add(o.get("客户名称") + " " + o.get("证件号") + " " + e.getMessage());
-                LOG.error(o.get("客户名称") + " " + o.get("证件号") + " " + e.getMessage());
+                Map<String, Object> errorMap = new HashMap<>();
+                errorMap.put("customerName",o.get("客户名称"));
+                errorMap.put("cardNo",o.get("证件号"));
+                errorMap.put("boothName",o.get("摊位编号"));
+                errorMap.put("depositAmount",o.get("保证金"));
+                errorMap.put("errorInfo",e.getMessage());
+                errorList.add(errorMap);
+                LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getMessage());
             }
         });
-        return BaseOutput.success().setData(errorList);
+        modelMap.put("errorList", errorList);
+        return "leaseOrder/importResult";
     }
 
     /**
@@ -137,7 +142,6 @@ public class LeaseOrderController {
      * @param orderCode 缴费单CODE
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder查看页面")
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap,Long id,String orderCode) {
         LeaseOrder leaseOrder = null;
@@ -177,7 +181,6 @@ public class LeaseOrderController {
      * @param id 老单子ID
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder续租页面")
     @RequestMapping(value="/renew.html", method = RequestMethod.GET)
     public String renew(ModelMap modelMap,Long id) {
         if(null != id){
@@ -197,7 +200,6 @@ public class LeaseOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder新增页面")
     @RequestMapping(value="/preSave.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap,Long id) {
         if(null != id){
@@ -219,7 +221,6 @@ public class LeaseOrderController {
      * @param type 1：租赁单退款 2： 子单退款
      * @return
      */
-    @ApiOperation("跳转到LeaseOrder退款申请页面")
     @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
     public String refundApply(ModelMap modelMap,Long id,Integer type) {
         if(LeaseOrderRefundTypeEnum.LEASE_ORDER_REFUND.getCode().equals(type)){
@@ -238,10 +239,6 @@ public class LeaseOrderController {
      * @return String
      * @throws Exception
      */
-    @ApiOperation(value="分页查询LeaseOrder", notes = "分页查询LeaseOrder，返回easyui分页信息")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="LeaseOrder", paramType="form", value = "LeaseOrder的form信息", required = false, dataType = "string")
-	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(LeaseOrderListDto leaseOrder) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

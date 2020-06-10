@@ -6,10 +6,8 @@ import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
-import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
-import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
  * @author qinkelan
  * @createTime 2020-03-13 11:29
  */
-@Api("/api")
 @RestController
 @RequestMapping("/api/refundOrder")
 public class RefundOrderApi {

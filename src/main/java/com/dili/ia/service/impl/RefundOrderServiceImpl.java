@@ -372,7 +372,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 resultMap.putAll(result.getData());
             }
 
-            PrintDataDto printDataDto = new PrintDataDto();
+            PrintDataDto<Map<String,Object>> printDataDto = new PrintDataDto<>();
             printDataDto.setItem(resultMap);
             printDataDto.setName(resultMap.get("printTemplateCode").toString());
             return BaseOutput.success().setData(printDataDto);

@@ -4,7 +4,6 @@ import com.dili.ss.dto.IBaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
-import io.swagger.models.auth.In;
 import tk.mybatis.mapper.annotation.Version;
 
 import java.util.Date;

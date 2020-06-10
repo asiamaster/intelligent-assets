@@ -50,7 +50,7 @@ public class LeaseOrderImportService{
      * @return
      */
     @Transactional
-    public BaseOutput importLeaseOrder(Map<String, Object> map) {
+    public BaseOutput importLeaseOrder(Map<String, Object> map,Boolean isCheck) {
         String customerName = String.valueOf(map.get("客户名称"));
         if(StringUtils.isBlank(customerName)){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"客户名称为空");
@@ -87,11 +87,15 @@ public class LeaseOrderImportService{
         if (null == boothDTO) {
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位信息未查到");
         }
-        LeaseOrder leaseOrder = buildLeaseOrder(customer, depositAmount);
-        leaseOrderService.insertSelective(leaseOrder);
 
-        LeaseOrderItem leaseOrderItem = buildLeaseOrderItem(customer, boothDTO, leaseOrder);
-        leaseOrderItemService.insertSelective(leaseOrderItem);
+        if(!isCheck){
+            LeaseOrder leaseOrder = buildLeaseOrder(customer, depositAmount);
+            leaseOrderService.insertSelective(leaseOrder);
+
+            LeaseOrderItem leaseOrderItem = buildLeaseOrderItem(customer, boothDTO, leaseOrder);
+            leaseOrderItemService.insertSelective(leaseOrderItem);
+        }
+
         return BaseOutput.success();
     }
 
@@ -150,7 +154,7 @@ public class LeaseOrderImportService{
         leaseOrder.setPayAmount(depositAmount);
         leaseOrder.setTotalAmount(depositAmount);
         leaseOrder.setDepositAmount(depositAmount);
-        leaseOrder.setCategoryId(0L);
+        leaseOrder.setCategoryId("0L");
         leaseOrder.setCategoryName("水产品");
         leaseOrder.setMarketId(11L);
         leaseOrder.setMarketCode("hzsc");

@@ -70,10 +70,6 @@
                     <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider" _value="${leaseOrder.engageCode!}" _queryParams='{dd_code:"engage"}'/>
                 </div>
                 <div class="form-group col">
-                    <label for="categoryName">经营品类<i class="red">*</i></label>
-                    <#bautoCompleteProvider _log="经营品类" _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName"  _value="${leaseOrder.categoryId!}" _text="${leaseOrder.categoryName!}" _validatorMethod="isSelected" _required="true" _optionVariable="categoryAutoCompleteOption"/>
-                </div>
-                <div class="form-group col">
                     <label for="leaseTermCode">租赁期限<i class="red">*</i></label>
                     <select id="leaseTermCode" name="leaseTermCode" class="form-control" required></select>
                     <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${leaseOrder.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}'/>
@@ -98,7 +94,20 @@
                     <label for="departmentId">业务所属部门<i class="red">*</i></label>
                     <select id="departmentId"  name="departmentId" class="form-control" required></select>
                     <#bcomboProvider _log="业务所属部门" _id="departmentId" _provider="authDepartmentProvider" _value="${leaseOrder.departmentId!}"/>
-
+                </div>
+                <div class="form-group col-9">
+                    <label for="categorys" _log>经营品类</label>
+                    <select id="categorys" name="categorys" multiple>
+                        <%
+                            if(isNotEmpty(leaseOrder.categoryId)){
+                                var categoryIds = strutil.split (leaseOrder.categoryId,",");
+                                var categoryNames = strutil.split (leaseOrder.categoryName,",");
+                                for(cid in categoryIds){
+                        %>
+                            <option value="${cid}">${categoryNames[cidLP.index-1]}</option>
+                        <%  }} %>
+                    </select>
+                    <#bselect2 _id="categorys" _mode="remote" _optionVariable="categoryAutoCompleteOption" _value="[${leaseOrder.categoryId!}]"/>
                 </div>
             </div>
             <div class="breadcrumb">

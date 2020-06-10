@@ -53,6 +53,9 @@ public class EarnestOrderPrintDto {
     private String submitter;
     //摊位编号
     private String assetsItems;
+    //结算详情
+    private String settleWayDetails;
+
 
     public Date getPrintTime() {
         return printTime;
@@ -164,5 +167,13 @@ public class EarnestOrderPrintDto {
 
     public void setAssetsItems(String assetsItems) {
         this.assetsItems = assetsItems;
+    }
+
+    public String getSettleWayDetails() {
+        return settleWayDetails;
+    }
+
+    public void setSettleWayDetails(String settleWayDetails) {
+        this.settleWayDetails = settleWayDetails;
     }
 }
