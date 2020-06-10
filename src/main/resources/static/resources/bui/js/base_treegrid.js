@@ -26,9 +26,9 @@
             },
             refresh: function () {
                 var opts = $('#grid').treegrid("options");
-                opts.url = $.bs_treegrid._option.dataUrl + "?parentId=0";
+                opts.url = $.bs_treegrid._option.dataUrl + "?parentId=0&businessType=" + $.bs_treegrid._option.businessType;
                 $('#grid').treegrid("load", bindTreegridMeta2Form("grid", "queryForm"));
-                opts.url = $.bs_treegrid._option.dataUrl;
+                opts.url = $.bs_treegrid._option.dataUrl + "?businessType=" + $.bs_treegrid._option.businessType;
             }
         },
         operate: {
@@ -65,14 +65,14 @@
             },
             view: function (id) {
                 var url = '';
-                if($.common.isEmpty(id)){
+                if ($.common.isEmpty(id)) {
                     var row = $.bs_treegrid.selectFirstColumns();
                     if (null == row) {
                         $.modal.alertWarning('请选中一条数据');
                         return;
                     }
                     url = $.bs_treegrid._option.viewUrl.replace("{id}", row.id);
-                }else{
+                } else {
                     url = $.bs_treegrid._option.viewUrl.replace("{id}", id);
                 }
 
@@ -84,14 +84,14 @@
                     $.modal.alertWarning('请选中一条数据');
                     return;
                 }
-                if(row.parentId !=0){
+                if (row.parentId != 0) {
                     $.modal.alertWarning('不能拆分');
                     return;
                 }
                 var url = $.bs_treegrid._option.splitUrl.replace("{id}", row.id);
                 $.modal.open("拆分" + $.bs_treegrid._option.modalName, url);
             },
-            changeStatus: function(status){
+            changeStatus: function (status) {
                 var row = $.bs_treegrid.selectFirstColumns();
                 if (null == row) {
                     $.modal.alertWarning('请选中一条数据');
@@ -146,7 +146,7 @@
             },
             saveSuccess: function (result) {
                 if (result.code == web_status.SUCCESS) {
-                    $.modal.msgReload("保存成功,正在刷新数据请稍后……", modal_status.SUCCESS)
+                    $.modal.msgReload("保存成功", modal_status.SUCCESS)
                 } else {
                     $.modal.alertError(result.message);
                 }
@@ -226,7 +226,7 @@
             },
             confirm: function (content, callBack) {
                 bs4pop.confirm(content, {title: "系统提示"}, function (sure) {
-                    if(sure){
+                    if (sure) {
                         callBack(true);
                     }
                 });
