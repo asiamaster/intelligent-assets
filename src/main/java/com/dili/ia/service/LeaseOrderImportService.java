@@ -51,19 +51,19 @@ public class LeaseOrderImportService{
      */
     @Transactional
     public BaseOutput importLeaseOrder(Map<String, Object> map,Boolean isCheck) {
-        String customerName = String.valueOf(map.get("客户名称"));
+        String customerName = String.valueOf(map.get("客户名称")).trim();
         if(StringUtils.isBlank(customerName)){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"客户名称为空");
         }
-        String certificateNumber = String.valueOf(map.get("证件号"));
+        String certificateNumber = String.valueOf(map.get("证件号")).trim();
         if(StringUtils.isBlank(certificateNumber)){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"证件号为空");
         }
-        String boothName = String.valueOf(map.get("摊位编号"));
+        String boothName = String.valueOf(map.get("摊位编号")).trim();
         if(StringUtils.isBlank(boothName)){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"摊位编号为空");
         }
-        Long depositAmount = MoneyUtils.yuanToCent(String.valueOf(map.get("保证金")));
+        Long depositAmount = MoneyUtils.yuanToCent(String.valueOf(map.get("保证金")).trim());
         if(null == depositAmount){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"保证金为空");
         }
