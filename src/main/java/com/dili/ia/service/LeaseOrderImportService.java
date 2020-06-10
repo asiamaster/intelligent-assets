@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * leaseOrder excel import
@@ -43,6 +44,21 @@ public class LeaseOrderImportService{
     private LeaseOrderItemService leaseOrderItemService;
     @Autowired
     private UidFeignRpc uidFeignRpc;
+    public static String REGX = "^((-?\\d+.?\\d*)[Ee]{1}(-?\\d+))$";
+
+    /**
+     * 转换科学计数法为普通数字
+     * @param str
+     * @return
+     */
+    public static String convertSnToString(String str){
+        Pattern pattern = Pattern.compile(REGX);
+        if(pattern.matcher(str).matches()){
+            BigDecimal bdCertificateNumber = new BigDecimal(str);
+            return bdCertificateNumber.toPlainString();
+        }
+        return str;
+    }
 
     /**
      * 导入租赁单
@@ -59,6 +75,9 @@ public class LeaseOrderImportService{
         if(StringUtils.isBlank(certificateNumber)){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"证件号为空");
         }
+
+        certificateNumber = convertSnToString(certificateNumber);
+
         String boothName = String.valueOf(map.get("摊位编号")).trim();
         if(StringUtils.isBlank(boothName)){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"摊位编号为空");

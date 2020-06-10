@@ -116,21 +116,21 @@ public class LeaseOrderController {
                 } catch (BusinessException e) {
                     Map<String, Object> errorMap = new HashMap<>();
                     errorMap.put("customerName",o.get("客户名称"));
-                    errorMap.put("cardNo",o.get("证件号"));
+                    errorMap.put("cardNo",LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))));
                     errorMap.put("boothName",o.get("摊位编号"));
                     errorMap.put("depositAmount",o.get("保证金"));
                     errorMap.put("errorInfo",e.getErrorMsg());
                     errorList.add(errorMap);
-                    LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getErrorMsg());
+                    LOG.error(o.get("客户名称") + " " + LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))) +  " " + o.get("摊位编号")  + e.getErrorMsg());
                 } catch (Exception e) {
                     Map<String, Object> errorMap = new HashMap<>();
                     errorMap.put("customerName",o.get("客户名称"));
-                    errorMap.put("cardNo",o.get("证件号"));
+                    errorMap.put("cardNo",LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))));
                     errorMap.put("boothName",o.get("摊位编号"));
                     errorMap.put("depositAmount",o.get("保证金"));
                     errorMap.put("errorInfo",e.getMessage());
                     errorList.add(errorMap);
-                    LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getMessage());
+                    LOG.error(o.get("客户名称") + " " + LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))) +  " " + o.get("摊位编号")  + e.getMessage());
                 }
             });
         });
