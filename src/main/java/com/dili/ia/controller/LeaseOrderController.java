@@ -118,7 +118,7 @@ public class LeaseOrderController {
                 errorMap.put("cardNo",o.get("证件号"));
                 errorMap.put("boothName",o.get("摊位编号"));
                 errorMap.put("depositAmount",o.get("保证金"));
-                errorMap.put("errorInfo",e.getMessage());
+                errorMap.put("errorInfo",e.getErrorMsg());
                 errorList.add(errorMap);
                 LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getErrorMsg());
             } catch (Exception e) {
