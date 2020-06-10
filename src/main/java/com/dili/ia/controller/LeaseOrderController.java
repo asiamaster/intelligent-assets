@@ -103,24 +103,37 @@ public class LeaseOrderController {
      * @throws IOException
      */
     @RequestMapping(value = "/upload.action",method = RequestMethod.POST)
-    public @ResponseBody BaseOutput<List<String>> upload(@RequestParam MultipartFile file,@RequestParam Boolean isCheck) throws IOException {
+    public String upload(@RequestParam MultipartFile file,@RequestParam Boolean isCheck,ModelMap modelMap) throws IOException {
         InputStream is = file.getInputStream();
         List<List<Map<String, Object>>> list = ExcelUtils.getSheetsDatas(is, 0);
 
         List<Map<String, Object>> firstSheet = list.get(0);
-        List<String> errorList = new ArrayList<>();
+        List<Map<String, Object>> errorList = new ArrayList<>();
         firstSheet.forEach(o -> {
             try {
                 leaseOrderImportService.importLeaseOrder(o,isCheck);
             } catch (BusinessException e) {
-                errorList.add(o.get("客户名称") + " " + o.get("证件号") + " " + e.getErrorMsg());
-                LOG.error(o.get("客户名称") + " " + o.get("证件号") + " " + e.getErrorMsg());
+                Map<String, Object> errorMap = new HashMap<>();
+                errorMap.put("customerName",o.get("客户名称"));
+                errorMap.put("cardNo",o.get("证件号"));
+                errorMap.put("boothName",o.get("摊位编号"));
+                errorMap.put("depositAmount",o.get("保证金"));
+                errorMap.put("errorInfo",e.getMessage());
+                errorList.add(errorMap);
+                LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getErrorMsg());
             } catch (Exception e) {
-                errorList.add(o.get("客户名称") + " " + o.get("证件号") + " " + e.getMessage());
-                LOG.error(o.get("客户名称") + " " + o.get("证件号") + " " + e.getMessage());
+                Map<String, Object> errorMap = new HashMap<>();
+                errorMap.put("customerName",o.get("客户名称"));
+                errorMap.put("cardNo",o.get("证件号"));
+                errorMap.put("boothName",o.get("摊位编号"));
+                errorMap.put("depositAmount",o.get("保证金"));
+                errorMap.put("errorInfo",e.getMessage());
+                errorList.add(errorMap);
+                LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getMessage());
             }
         });
-        return BaseOutput.success().setData(errorList);
+        modelMap.put("errorList", errorList);
+        return "leaseOrder/importResult";
     }
 
     /**
