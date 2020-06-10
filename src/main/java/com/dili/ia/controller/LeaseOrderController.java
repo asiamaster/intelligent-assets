@@ -8,10 +8,7 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
-import com.dili.ia.service.DataAuthService;
-import com.dili.ia.service.LeaseOrderItemService;
-import com.dili.ia.service.LeaseOrderService;
-import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -24,12 +21,9 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.ExcelUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,18 +35,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-11 15:54:49.
  */
-@Api("/leaseOrder")
 @Controller
 @RequestMapping("/leaseOrder")
 public class LeaseOrderController {
@@ -68,13 +61,14 @@ public class LeaseOrderController {
     BusinessLogRpc businessLogRpc;
     @Autowired
     DataAuthService dataAuthService;
+    @Autowired
+    LeaseOrderImportService leaseOrderImportService;
 
     /**
      * 跳转到LeaseOrder页面
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
@@ -93,12 +87,64 @@ public class LeaseOrderController {
     }
 
     /**
+     * 跳转到LeaseOrder页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/importLeaseOrder.action", method = RequestMethod.GET)
+    public String importLeaseOrder(ModelMap modelMap) {
+        return "leaseOrder/importLeaseOrder";
+    }
+
+    /**
+     * 初始化老数据导入
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping(value = "/upload.action",method = RequestMethod.POST)
+    public String upload(@RequestParam MultipartFile file,@RequestParam Boolean isCheck,ModelMap modelMap) throws IOException {
+        InputStream is = file.getInputStream();
+        List<List<Map<String, Object>>> list = ExcelUtils.getSheetsDatas(is, 0);
+
+        List<Map<String, Object>> errorList = new ArrayList<>();
+        list.forEach(sheet->{
+            List<Map<String, Object>> firstSheet = sheet;
+            firstSheet.forEach(o -> {
+                try {
+                    leaseOrderImportService.importLeaseOrder(o,isCheck);
+                } catch (BusinessException e) {
+                    Map<String, Object> errorMap = new HashMap<>();
+                    errorMap.put("customerName",o.get("客户名称"));
+                    errorMap.put("cardNo",o.get("证件号"));
+                    errorMap.put("boothName",o.get("摊位编号"));
+                    errorMap.put("depositAmount",o.get("保证金"));
+                    errorMap.put("errorInfo",e.getErrorMsg());
+                    errorList.add(errorMap);
+                    LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getErrorMsg());
+                } catch (Exception e) {
+                    Map<String, Object> errorMap = new HashMap<>();
+                    errorMap.put("customerName",o.get("客户名称"));
+                    errorMap.put("cardNo",o.get("证件号"));
+                    errorMap.put("boothName",o.get("摊位编号"));
+                    errorMap.put("depositAmount",o.get("保证金"));
+                    errorMap.put("errorInfo",e.getMessage());
+                    errorList.add(errorMap);
+                    LOG.error(o.get("客户名称") + " " + o.get("证件号") +  " " + o.get("摊位编号")  + e.getMessage());
+                }
+            });
+        });
+
+        modelMap.put("errorList", errorList);
+        return "leaseOrder/importResult";
+    }
+
+    /**
      * 跳转到LeaseOrder查看页面
      * @param modelMap
      * @param orderCode 缴费单CODE
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder查看页面")
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap,Long id,String orderCode) {
         LeaseOrder leaseOrder = null;
@@ -138,7 +184,6 @@ public class LeaseOrderController {
      * @param id 老单子ID
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder续租页面")
     @RequestMapping(value="/renew.html", method = RequestMethod.GET)
     public String renew(ModelMap modelMap,Long id) {
         if(null != id){
@@ -158,7 +203,6 @@ public class LeaseOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder新增页面")
     @RequestMapping(value="/preSave.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap,Long id) {
         if(null != id){
@@ -180,7 +224,6 @@ public class LeaseOrderController {
      * @param type 1：租赁单退款 2： 子单退款
      * @return
      */
-    @ApiOperation("跳转到LeaseOrder退款申请页面")
     @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
     public String refundApply(ModelMap modelMap,Long id,Integer type) {
         if(LeaseOrderRefundTypeEnum.LEASE_ORDER_REFUND.getCode().equals(type)){
@@ -199,10 +242,6 @@ public class LeaseOrderController {
      * @return String
      * @throws Exception
      */
-    @ApiOperation(value="分页查询LeaseOrder", notes = "分页查询LeaseOrder，返回easyui分页信息")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="LeaseOrder", paramType="form", value = "LeaseOrder的form信息", required = false, dataType = "string")
-	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(LeaseOrderListDto leaseOrder) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -224,6 +263,7 @@ public class LeaseOrderController {
                 return new EasyuiPageOutput(0, Collections.emptyList()).toString();
             }
         }
+        leaseOrder.setIsShow(YesOrNoEnum.YES.getCode());
         return leaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
     }
 
