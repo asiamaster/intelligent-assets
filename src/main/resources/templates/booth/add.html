@@ -166,7 +166,7 @@
         let _formData = new FormData($('#saveForm')[0]);
         $.ajax({
             type: "POST",
-            url: "/booth/save.action",
+            url: "/booth/save.action?businessType=1",
             data: _formData,
             processData: false,
             contentType: false,
