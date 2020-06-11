@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * leaseOrder excel import
@@ -43,6 +44,21 @@ public class LeaseOrderImportService{
     private LeaseOrderItemService leaseOrderItemService;
     @Autowired
     private UidFeignRpc uidFeignRpc;
+    public static String REGX = "^((-?\\d+.?\\d*)[Ee]{1}(-?\\d+))$";
+
+    /**
+     * 转换科学计数法为普通数字
+     * @param str
+     * @return
+     */
+    public static String convertSnToString(String str){
+        Pattern pattern = Pattern.compile(REGX);
+        if(pattern.matcher(str).matches()){
+            BigDecimal bdCertificateNumber = new BigDecimal(str);
+            return bdCertificateNumber.toPlainString();
+        }
+        return str;
+    }
 
     /**
      * 导入租赁单
@@ -51,19 +67,22 @@ public class LeaseOrderImportService{
      */
     @Transactional
     public BaseOutput importLeaseOrder(Map<String, Object> map,Boolean isCheck) {
-        String customerName = String.valueOf(map.get("客户名称"));
+        String customerName = String.valueOf(map.get("客户名称")).trim();
         if(StringUtils.isBlank(customerName)){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"客户名称为空");
         }
-        String certificateNumber = String.valueOf(map.get("证件号"));
+        String certificateNumber = String.valueOf(map.get("证件号")).trim();
         if(StringUtils.isBlank(certificateNumber)){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"证件号为空");
         }
-        String boothName = String.valueOf(map.get("摊位编号"));
+
+        certificateNumber = convertSnToString(certificateNumber);
+
+        String boothName = String.valueOf(map.get("摊位编号")).trim();
         if(StringUtils.isBlank(boothName)){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"摊位编号为空");
         }
-        Long depositAmount = MoneyUtils.yuanToCent(String.valueOf(map.get("保证金")));
+        Long depositAmount = MoneyUtils.yuanToCent(String.valueOf(map.get("保证金")).trim());
         if(null == depositAmount){
             throw new BusinessException(ResultCode.PARAMS_ERROR,"保证金为空");
         }
@@ -75,6 +94,10 @@ public class LeaseOrderImportService{
         Customer customer = customerOutput.getData();
         if (null == customer) {
             throw new BusinessException(ResultCode.DATA_ERROR, "客户信息未查到");
+        }
+
+        if(!customer.getName().equals(customerName)){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户数据异常");
         }
 
         JSONObject jsonObject = new JSONObject();
@@ -154,7 +177,7 @@ public class LeaseOrderImportService{
         leaseOrder.setPayAmount(depositAmount);
         leaseOrder.setTotalAmount(depositAmount);
         leaseOrder.setDepositAmount(depositAmount);
-        leaseOrder.setCategoryId("0L");
+        leaseOrder.setCategoryId("1950L");
         leaseOrder.setCategoryName("水产品");
         leaseOrder.setMarketId(11L);
         leaseOrder.setMarketCode("hzsc");
