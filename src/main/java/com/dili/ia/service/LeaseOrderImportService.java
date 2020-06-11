@@ -177,7 +177,7 @@ public class LeaseOrderImportService{
         leaseOrder.setPayAmount(depositAmount);
         leaseOrder.setTotalAmount(depositAmount);
         leaseOrder.setDepositAmount(depositAmount);
-        leaseOrder.setCategoryId("0L");
+        leaseOrder.setCategoryId("1950L");
         leaseOrder.setCategoryName("水产品");
         leaseOrder.setMarketId(11L);
         leaseOrder.setMarketCode("hzsc");
