@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.ia.mapper.StockRecordMapper">
+  <resultMap id="BaseResultMap" type="com.dili.ia.domain.StockRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="quantity" jdbcType="BIGINT" property="quantity" />
+    <result column="weight" jdbcType="BIGINT" property="weight" />
+    <result column="business_code" jdbcType="VARCHAR" property="businessCode" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="stock_id" jdbcType="BIGINT" property="stockId" />
+    <result column="market_id" jdbcType="BIGINT" property="marketId" />
+    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, quantity, weight, business_code, type, stock_id, market_id, market_code
+  </sql>
+  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from stock_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <update id="updateBy" parameterType="com.dili.ia.domain.StockRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update stock_record
+    <set>
+      <if test="quantity != null">
+        quantity = #{quantity,jdbcType=BIGINT},
+      </if>
+      <if test="weight != null">
+        weight = #{weight,jdbcType=BIGINT},
+      </if>
+      <if test="businessCode != null">
+        business_code = #{businessCode,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="stockId != null">
+        stock_id = #{stockId,jdbcType=BIGINT},
+      </if>
+      <if test="marketId != null">
+        market_id = #{marketId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCode != null">
+        market_code = #{marketCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
