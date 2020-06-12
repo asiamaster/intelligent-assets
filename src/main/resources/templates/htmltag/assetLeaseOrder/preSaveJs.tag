@@ -38,11 +38,11 @@
     });
 
     //摊位搜索自动完成
-    var boothAutoCompleteOption = {
+    var assetAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
-        serviceUrl: '/booth/search.action',
-        selectFn: boothSelectHandler,
+        serviceUrl: '/asset/search.action',
+        selectFn: assetSelectHandler,
         transformResult: function (result) {
             if(result.success){
                 let data = result.data;
@@ -136,12 +136,7 @@
         <% } %>
 
         <% if(isNotEmpty(leaseOrderItems)){ %>
-            let leaseOrderItems = JSON.parse('${leaseOrderItems}');
-            for (let leaseOrderItem of leaseOrderItems){
-                leaseOrderItem.unitPrice = leaseOrderItem.unitPrice.centToYuan();
-                leaseOrderItem.discountAmount = leaseOrderItem.discountAmount.centToYuan();
-                addBoothItem($.extend(leaseOrderItem,{index: ++itemIndex}));
-            }
+            itemIndex += ${leaseOrderItems.~size};
             queryCustomerAccount();
             queryCustomerDepositDeduction(true);
         <% }else{%>
@@ -164,7 +159,7 @@
      * @param leaseOrderItem
      */
     function addBoothItem(leaseOrderItem){
-        $('#boothTable tbody').append(bui.util.HTMLDecode(template('boothItem',leaseOrderItem)))
+        $('#assetTable tbody').append(bui.util.HTMLDecode(template('assetItem',leaseOrderItem)))
     }
 
     /**
@@ -246,7 +241,7 @@
     /**
      * 摊位选择事件Handler
      * */
-    function boothSelectHandler(suggestion,element) {
+    function assetSelectHandler(suggestion,element) {
         let index = getIndex($(element).attr('id'));
         $('#number_'+index).val(suggestion.number);
         $('#unitCode_'+index).val(suggestion.unit);
@@ -267,16 +262,16 @@
      */
     function queryCustomerDepositDeduction(isCascadeCalc){
         let customerId = $('#customerId').val();
-        let boothIds = $("table input[name^='boothId']").filter(function () {
+        let assetIds = $("table input[name^='assetId']").filter(function () {
             return this.value
         }).map(function(){
-            return $('#boothId_'+getIndex(this.id)).val();
+            return $('#assetId_'+getIndex(this.id)).val();
         }).get();
-        if(customerId && boothIds && boothIds.length > 0){
+        if(customerId && assetIds && assetIds.length > 0){
             $.ajax({
                 type: "POST",
                 url: '/leaseOrderItem/queryDepositAmountAvailableItem.action',
-                data: JSON.stringify({customerId,boothIds}),
+                data: JSON.stringify({customerId,assetIds}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 async : false
@@ -284,18 +279,18 @@
                 if (ret.success) {
                     let depositAmount = 0;
                     let sourceLeaseOrderItemMap = ret.data;
-                    for(let boothId in sourceLeaseOrderItemMap){
-                        let boothOrderItems = sourceLeaseOrderItemMap[boothId];
-                        for(let item of boothOrderItems){
+                    for(let assetId in sourceLeaseOrderItemMap){
+                        let assetOrderItems = sourceLeaseOrderItemMap[assetId];
+                        for(let item of assetOrderItems){
                             depositAmount += item.depositAmount;
                         }
                     }
-                    $("table input[name^='boothId']").each(function () {
+                    $("table input[name^='assetId']").each(function () {
                         let trIndex = getIndex($(this).attr('id'));
-                        let boothOrderItems = sourceLeaseOrderItemMap[this.value];
-                        if(boothOrderItems && boothOrderItems.length > 0){
+                        let assetOrderItems = sourceLeaseOrderItemMap[this.value];
+                        if(assetOrderItems && assetOrderItems.length > 0){
                             let depositAmountSourceId = '';
-                            for(let item of boothOrderItems){
+                            for(let item of assetOrderItems){
                                 if(depositAmountSourceId){
                                     depositAmountSourceId += ','+item.id;
                                 } else{
@@ -466,7 +461,7 @@
         let departmentName = $('#departmentId').find("option:selected").text();
 
         bui.util.yuanToCentForMoneyEl(formData);
-        $("#boothTable tbody").find("tr").each(function(){
+        $("#assetTable tbody").find("tr").each(function(){
             let leaseOrderItem = {};
             $(this).find("input").each(function(t,el){
                 let fieldName = $(this).attr("name").split('_')[0];
@@ -516,23 +511,23 @@
             return false;
         }
 
-        let boothIds = $("table input[name^='boothId']").filter(function () {
+        let assetIds = $("table input[name^='assetId']").filter(function () {
             return this.value
         }).map(function(){
-            return $('#boothId_'+getIndex(this.id)).val();
+            return $('#assetId_'+getIndex(this.id)).val();
         }).get();
 
-        if(!boothIds || boothIds.length == 0){
+        if(!assetIds || assetIds.length == 0){
             bs4pop.alert('请添加摊位！')
             return false;
         }
 
-        if(arrRepeatCheck(boothIds)){
+        if(arrRepeatCheck(assetIds)){
             bs4pop.alert('存在重复摊位，请检查！')
             return false;
         }
 
-        if(boothIds.length > 10){
+        if(assetIds.length > 10){
             bs4pop.notice('最多10个摊位', {position: 'leftcenter', type: 'warning'});
         }
 
@@ -562,7 +557,7 @@
     /*****************************************自定义事件区 begin************************************/
     //摊位新增事件
     $('#addBooth').on('click', function(){
-        if ($('#boothTable tr').length < 11) {
+        if ($('#assetTable tr').length < 11) {
             addBoothItem({index: ++itemIndex});
         } else {
             bs4pop.notice('最多10个摊位', {position: 'leftcenter', type: 'warning'})
@@ -571,7 +566,7 @@
 
     //摊位删除事件
     $(document).on('click', '.item-del', function () {
-        if ($('#boothTable tr').length > 1) {
+        if ($('#assetTable tr').length > 1) {
             $(this).closest('tr').remove();
 
             queryCustomerDepositDeduction();

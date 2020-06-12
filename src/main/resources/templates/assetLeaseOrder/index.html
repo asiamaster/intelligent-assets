@@ -32,8 +32,8 @@
                         <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
                     </div>
                     <div class="form-group col">
-                        <label for="boothName">摊位编号</label>
-                        <input type="text" class="form-control" name="boothName" id="boothName" maxlength="50"/>
+                        <label for="assetName">摊位编号</label>
+                        <input type="text" class="form-control" name="assetName" id="assetName" maxlength="50"/>
                     </div>
                     <div class="form-group col">
                         <label for="code">业务单号</label>
@@ -194,8 +194,8 @@
             <thead>
             <tr>
                 <th data-checkbox="true"></th>
-                <th data-field="boothName" data-sortable="true" data-align="center">
-                    摊位编号
+                <th data-field="assetName" data-sortable="true" data-align="center">
+                    资产编号
                 </th>
                 <th data-field="districtName" data-sortable="true" data-align="center">
                     区域
@@ -209,7 +209,7 @@
                 <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                     for(item in chargeItems){
                 %>
-                <th data-field="chargeItem_yuan_${item.id!}" data-sortable="true" data-align="center" ${itemLP.index==1?'data-provider="businessChargeItemProvider"':''} data-query-params="{${itemLP.index==1?'assetType:'+assetType:''}}" >
+                <th data-field="chargeItemYuan${item.id!}" data-sortable="true" data-align="center" ${itemLP.index==1?'data-provider="businessChargeItemProvider"':''} data-query-params="{${itemLP.index==1?'assetType:'+assetType:''}}" >
                     ${item.name!}
                 </th>
                 <% } }%>
@@ -255,10 +255,10 @@
     <form id="stopRentForm">
         <input type="hidden" name="id" value="{{id}}"/>
         <input type="hidden" name="leaseOrderCode" value="{{leaseOrderCode}}"/>
-        <input type="hidden" name="boothName" value="{{boothName}}"/>
+        <input type="hidden" name="assetName" value="{{assetName}}"/>
         <div class="form-group">
             <label for="stopRentObj">停租对象</label>
-            <input type="text" class="form-control" id="stopRentObj" name="stopRentObj" value="{{boothName}}【{{districtName}}】" readonly/>
+            <input type="text" class="form-control" id="stopRentObj" name="stopRentObj" value="{{assetName}}【{{districtName}}】" readonly/>
         </div>
         <div class="form-group">
             <label>停租日期</label>

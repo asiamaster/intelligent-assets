@@ -51,8 +51,8 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
         List<ChargeItemDto> chargeItemDtos = getChargeItemDtos(userTicket.getFirmId(), assetType);
         if (CollectionUtils.isNotEmpty(chargeItemDtos)) {
             chargeItemDtos.forEach(o -> {
-                map.put("chargeItem_"+o.getId(), "chargeItem_"+o.getId());
-                map.put("chargeItem_yuan_"+o.getId(), "chargeItem_yuan_"+o.getId());
+                map.put("chargeItem"+o.getId(), "chargeItem"+o.getId());
+                map.put("chargeItemYuan"+o.getId(), "chargeItemYuan"+o.getId());
             });
         }
         batchProviderMeta.setEscapeFileds(map);

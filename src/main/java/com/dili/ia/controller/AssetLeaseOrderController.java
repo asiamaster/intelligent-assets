@@ -220,7 +220,7 @@ public class AssetLeaseOrderController {
                 assetLeaseOrderItemListDtos.add(assetLeaseOrderItemListDto);
             });
 
-            modelMap.put("leaseOrderItems", JSON.toJSONString(assetLeaseOrderItemListDtos));
+            modelMap.put("leaseOrderItems", assetLeaseOrderItemListDtos);
         }
         modelMap.put("isRenew", YesOrNoEnum.NO.getCode());
         return "assetLeaseOrder/preSave";

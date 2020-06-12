@@ -79,7 +79,7 @@
           END
         )
         as char
-      ) as chargeItem_${chargeItem.id},
+      ) as chargeItem${chargeItem.id},
       cast(
           truncate(
             MAX(
@@ -92,7 +92,7 @@
             )/100
           ,2)
        as char
-      ) as chargeItem_yuan_${chargeItem.id}
+      ) as chargeItemYuan${chargeItem.id}
     </foreach>
     FROM
     business_charge_item

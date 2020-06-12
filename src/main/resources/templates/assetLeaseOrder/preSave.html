@@ -1,7 +1,7 @@
 <#bs4Body>
 
     <div class="container-fluid">
-        <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.booth_lease'/>">
+        <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.asset_lease'/>">
         <form id="saveForm" role="form" novalidate>
             <input type="hidden" id="id" name="id" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.id!}">
             <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
@@ -77,15 +77,15 @@
                 </div>
             </div>
             <div class="breadcrumb">
-                摊位信息
-                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true" aria-controls="boothInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+                资产信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#assetInfo" aria-expanded="true" aria-controls="assetInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
-            <div id="boothInfo" class="collapse show">
-                <table class="table table-bordered table-hover table-striped" id="boothTable" _logTable="摊位项">
+            <div id="assetInfo" class="collapse show">
+                <table class="table table-bordered table-hover table-striped" id="assetTable" _logTable="资产项">
                     <thead>
                     <tr>
                         <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
-                        <th style="font-weight:normal;" >摊位编号<i class="red">*</i></th>
+                        <th style="font-weight:normal;" >资产编号<i class="red">*</i></th>
                         <th style="font-weight:normal;width: 7rem;">规格<i class="red">*</i></th>
                         <th style="font-weight:normal;width: 5rem;">转角</th>
                         <th style="font-weight:normal;width: 7rem;">单价<i class="red">*</i></th>
@@ -99,6 +99,33 @@
                     </tr>
                     </thead>
                     <tbody>
+                    <%if(isNotEmpty(leaseOrderItems) && leaseOrderItems.~size>0){
+                    for(item in leaseOrderItems){
+                    %>
+                    <tr data-index="${itemLP.index}">
+                        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
+                        <td style="padding: .25rem!important;">
+                            <input type="hidden" id="unitCode_${itemLP.index}" name="unitCode_${itemLP.index}" value="${item.unitCode!}">
+                            <input type="hidden" id="districtId_${itemLP.index}" name="districtId_${itemLP.index}" value="${item.districtId!}">
+                            <input type="hidden" id="districtName_${itemLP.index}" name="districtName_${itemLP.index}" value="${item.districtName!}">
+                            <input type="hidden" id="number_${itemLP.index}" name="number_${itemLP.index}" value="${item.number!}"/>
+                            <input type="hidden" id="unitName_${itemLP.index}" name="unitName_${itemLP.index}" value="${item.unitName!}"/>
+                            <#bautoCompleteProvider _log="资产编号" _hiddenDomainId="assetId_${itemLP.index}" _hiddenDomainName="assetId_${itemLP.index}" _displayDomainId="assetName_${itemLP.index}" _displayDomainName="assetName_${itemLP.index}" _value="${item.assetId!}" _text="${item.assetName!}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
+                        </td>
+                        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="sku_${itemLP.index}" name="sku_${itemLP.index}" value="${item.number!}${item.unitName!}" readonly uncheck/></td>
+                        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="isCorner_${itemLP.index}" name="isCorner_${itemLP.index}" value="${item.isCorner!}" readonly uncheck/></td>
+                        <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_${itemLP.index}" name="unitPrice_${itemLP.index}" value="${item.unitPrice!}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_${itemLP.index}" name="paymentMonth_${itemLP.index}" value="${item.paymentMonth!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_${itemLP.index}" name="discountAmount_${itemLP.index}" value="${item.discountAmount!}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+
+                        <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+                        for(chargeItem in chargeItems){
+                        %>
+                        <td style="padding: .25rem!important;"><input _log="${chargeItem.name!}" type="number" id="chargeItem_${chargeItem.id!}_${itemLP.index}" name="chargeItem_${chargeItem.id!}_${itemLP.index}" value="${item.businessChargeItem['chargeItemYuan'+chargeItem.id]!}" data-charge-item-id="${chargeItem.id!}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <% } }%>
+                    </tr>
+
+                    <% } }%>
                     </tbody>
                 </table>
 
@@ -130,28 +157,28 @@
 </#bs4Body>
 <#js_customerAutocompleteJs/>
 <#assetLeaseOrder_preSaveJs />
-<script  id="boothItem"  type="text/html">
+<script  id="assetItem"  type="text/html">
     <tr data-index="{{index}}">
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
-            <input type="hidden" id="unitCode_{{index}}" name="unitCode_{{index}}" value="{{unitCode}}">
-            <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}" value="{{districtId}}">
-            <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}" value="{{districtName}}">
-            <input type="hidden" id="depositAmountSourceId_{{index}}" name="depositAmountSourceId_{{index}}" value="{{depositAmountSourceId}}">
-            <input type="hidden" id="number_{{index}}" name="number_{{index}}" value="{{number}}"/>
-            <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}" value="{{unitName}}"/>
-            <#bautoCompleteProvider _log="摊位编号" _escape="true" _hiddenDomainId="boothId_{{index}}" _hiddenDomainName="boothId_{{index}}" _displayDomainId="boothName_{{index}}" _displayDomainName="boothName_{{index}}" _value="{{boothId}}" _text="{{boothName}}" _validatorMethod="isSelected" _required="true" _optionVariable="boothAutoCompleteOption"/>
+            <input type="hidden" id="unitCode_{{index}}" name="unitCode_{{index}}">
+            <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}">
+            <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}">
+            <input type="hidden" id="depositAmountSourceId_{{index}}" name="depositAmountSourceId_{{index}}">
+            <input type="hidden" id="number_{{index}}" name="number_{{index}}"/>
+            <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}"/>
+            <#bautoCompleteProvider _log="资产编号" _escape="true" _hiddenDomainId="assetId_{{index}}" _hiddenDomainName="assetId_{{index}}" _displayDomainId="assetName_{{index}}" _displayDomainName="assetName_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
         </td>
-        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="sku_{{index}}" name="sku_{{index}}" value="{{number}}{{unitName}}" readonly uncheck/></td>
-        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" value="{{isCorner}}" readonly uncheck/></td>
-        <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_{{index}}" name="unitPrice_{{index}}" value="{{unitPrice}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_{{index}}" name="paymentMonth_{{index}}" value="{{paymentMonth}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_{{index}}" name="discountAmount_{{index}}" value="{{discountAmount}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="sku_{{index}}" name="sku_{{index}}" readonly uncheck/></td>
+        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" readonly uncheck/></td>
+        <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_{{index}}" name="unitPrice_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_{{index}}" name="paymentMonth_{{index}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_{{index}}" name="discountAmount_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
 
         <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
         for(item in chargeItems){
         %>
-        <td style="padding: .25rem!important;"><input _log="${item.name!}" type="number" id="chargeItem_${item.id!}_{{index}}" name="chargeItem_${item.id!}_{{index}}" value="{{businessChargeItem.chargeItem_yuan_${item.id!}}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="${item.name!}" type="number" id="chargeItem_${item.id!}_{{index}}" name="chargeItem_${item.id!}_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <% } }%>
     </tr>
 </script>
