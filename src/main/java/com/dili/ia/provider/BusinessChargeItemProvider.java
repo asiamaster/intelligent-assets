@@ -52,6 +52,7 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
         if (CollectionUtils.isNotEmpty(chargeItemDtos)) {
             chargeItemDtos.forEach(o -> {
                 map.put("chargeItem_"+o.getId(), "chargeItem_"+o.getId());
+                map.put("chargeItem_yuan_"+o.getId(), "chargeItem_yuan_"+o.getId());
             });
         }
         batchProviderMeta.setEscapeFileds(map);
@@ -60,7 +61,7 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
         //主DTO与关联DTO的关联(java bean)属性(外键), 这里取resource_link表的resourceId字段
         batchProviderMeta.setFkField("id");
         //关联(数据库)表的主键的字段名，默认取id，这里写出来用于示例用法
-        batchProviderMeta.setRelationTablePkField("business_id");
+        batchProviderMeta.setRelationTablePkField("businessId");
         return batchProviderMeta;
     }
 

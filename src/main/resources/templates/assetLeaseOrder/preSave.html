@@ -59,11 +59,11 @@
                 </div>
                 <div class="form-group col col">
                     <label for="startTime" _log>开始日期<i class="red">*</i></label>
-                    <input type="text" id="startTime" name="startTime" class="form-control" oninput="startTimeChangeHandler()" value="${leaseOrder.startTime!,dateFormat='yyyy-MM-dd'}" autocomplete="off" required>
+                    <input type="text" id="startTime" name="startTime" class="form-control" oninput="startTimeChangeHandler()" value="${leaseOrder.startTime!,localDateTimeFormat='yyyy-MM-dd'}" autocomplete="off" required>
                 </div>
                 <div class="form-group col col">
                     <label for="endTime" _log>结束日期<i class="red">*</i></label>
-                    <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()" value="${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}" autocomplete="off" required>
+                    <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()" value="${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}" autocomplete="off" required>
                 </div>
                 <div class="form-group col">
                     <label for="contractNo" _log>合同编号</label>
@@ -129,7 +129,7 @@
 
 </#bs4Body>
 <#js_customerAutocompleteJs/>
-<#leaseOrder_preSaveJs />
+<#assetLeaseOrder_preSaveJs />
 <script  id="boothItem"  type="text/html">
     <tr data-index="{{index}}">
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
@@ -151,7 +151,7 @@
         <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
         for(item in chargeItems){
         %>
-        <td style="padding: .25rem!important;"><input _log="${item.name!}" type="number" id="chargeItem_${item.id!}_{{index}}" name="chargeItem_${item.id!}_{{index}}" value="{{chargeItem_${item.id!}}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="${item.name!}" type="number" id="chargeItem_${item.id!}_{{index}}" name="chargeItem_${item.id!}_{{index}}" value="{{businessChargeItem.chargeItem_yuan_${item.id!}}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <% } }%>
     </tr>
 </script>

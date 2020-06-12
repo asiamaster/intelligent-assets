@@ -138,9 +138,6 @@
         <% if(isNotEmpty(leaseOrderItems)){ %>
             let leaseOrderItems = JSON.parse('${leaseOrderItems}');
             for (let leaseOrderItem of leaseOrderItems){
-                leaseOrderItem.rentAmount = leaseOrderItem.rentAmount.centToYuan();
-                leaseOrderItem.manageAmount = leaseOrderItem.manageAmount.centToYuan();
-                leaseOrderItem.depositAmount = leaseOrderItem.depositAmount.centToYuan();
                 leaseOrderItem.unitPrice = leaseOrderItem.unitPrice.centToYuan();
                 leaseOrderItem.discountAmount = leaseOrderItem.discountAmount.centToYuan();
                 addBoothItem($.extend(leaseOrderItem,{index: ++itemIndex}));

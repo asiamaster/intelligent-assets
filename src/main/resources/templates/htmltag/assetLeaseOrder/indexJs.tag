@@ -592,6 +592,7 @@
                 $('#btn_refund_apply').attr('disabled', false);
             }
         }
+        $('#btn_edit').attr('disabled', false);
     });
     /*****************************************自定义事件区 end**************************************/
 </script>

@@ -6,6 +6,7 @@ import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.AssetLeaseOrder;
+import com.dili.ia.domain.dto.AssetLeaseOrderItemListDto;
 import com.dili.ia.domain.dto.AssetLeaseOrderListDto;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
@@ -32,11 +33,13 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -67,6 +70,9 @@ public class AssetLeaseOrderController {
     DataAuthService dataAuthService;
     @Autowired
     private BusinessChargeItemRpc businessChargeItemRpc;
+    @Autowired
+    private BusinessChargeItemService businessChargeItemService;
+
 
     /**
      * 跳转到LeaseOrder页面
@@ -177,18 +183,44 @@ public class AssetLeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
+
+        //获取业务收费项目
+        BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null);
+        List<ChargeItemDto> chargeItemDtos = new ArrayList<>();
+        if(chargeItemsOutput.isSuccess()){
+            chargeItemDtos = chargeItemsOutput.getData();
+            modelMap.put("chargeItems", chargeItemDtos);
+        }
+
         if(null != id){
             AssetLeaseOrder leaseOrder = assetLeaseOrderService.get(id);
+            modelMap.put("leaseOrder",leaseOrder);
+
             AssetLeaseOrderItem condition = new AssetLeaseOrderItem();
             condition.setLeaseOrderId(id);
             List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
-            modelMap.put("leaseOrder",leaseOrder);
-            modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
-        }
-        //获取业务收费项目
-        BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null);
-        if(chargeItemsOutput.isSuccess()){
-            modelMap.put("chargeItems", chargeItemsOutput.getData());
+
+            List<Map<String,String>> businessChargeItems = businessChargeItemService.queryBusinessChargeItem(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()), chargeItemDtos);
+            Map<Long,Map<String,String>> businessChargeItemMap = new HashMap<>();
+            businessChargeItems.forEach(bct->{
+                businessChargeItemMap.put(Long.valueOf(bct.get("businessId")),bct);
+            });
+
+            List<AssetLeaseOrderItemListDto> assetLeaseOrderItemListDtos = new ArrayList<>();
+            leaseOrderItems.forEach(o->{
+                AssetLeaseOrderItemListDto assetLeaseOrderItemListDto = new AssetLeaseOrderItemListDto();
+                try {
+                    BeanUtils.copyProperties(assetLeaseOrderItemListDto,o);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+                assetLeaseOrderItemListDto.setBusinessChargeItem(businessChargeItemMap.get(o.getId()));
+                assetLeaseOrderItemListDtos.add(assetLeaseOrderItemListDto);
+            });
+
+            modelMap.put("leaseOrderItems", JSON.toJSONString(assetLeaseOrderItemListDtos));
         }
         modelMap.put("isRenew", YesOrNoEnum.NO.getCode());
         return "assetLeaseOrder/preSave";

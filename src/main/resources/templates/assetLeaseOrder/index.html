@@ -209,7 +209,7 @@
                 <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                     for(item in chargeItems){
                 %>
-                <th data-field="chargeItem_${item.id!}" data-sortable="true" data-align="center" ${itemLP.index==1?'data-provider="businessChargeItemProvider"':''} data-query-params="{${itemLP.index==1?'assetType:'+assetType:''}}" >
+                <th data-field="chargeItem_yuan_${item.id!}" data-sortable="true" data-align="center" ${itemLP.index==1?'data-provider="businessChargeItemProvider"':''} data-query-params="{${itemLP.index==1?'assetType:'+assetType:''}}" >
                     ${item.name!}
                 </th>
                 <% } }%>

@@ -64,18 +64,35 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-  <select id="queryBusinessChargeItem" resultType="Map">
+
+  <select id="queryBusinessChargeItem" resultType="Map" >
     SELECT
-    business_id,
+    cast(business_id as char) as businessId,
     <foreach collection="chargeItemDtos" item="chargeItem" separator=",">
-      MAX(
-        CASE charge_id
-        WHEN #{chargeItem.id} THEN
-            amount
-        ELSE
-            0
-        END
-        ) as chargeItem_${chargeItem.id}
+     cast(
+        MAX(
+          CASE charge_id
+          WHEN #{chargeItem.id} THEN
+              amount
+          ELSE
+              0
+          END
+        )
+        as char
+      ) as chargeItem_${chargeItem.id},
+      cast(
+          truncate(
+            MAX(
+              CASE charge_id
+              WHEN #{chargeItem.id} THEN
+                  amount
+              ELSE
+                  0
+              END
+            )/100
+          ,2)
+       as char
+      ) as chargeItem_yuan_${chargeItem.id}
     </foreach>
     FROM
     business_charge_item

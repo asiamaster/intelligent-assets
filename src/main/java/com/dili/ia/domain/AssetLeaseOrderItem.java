@@ -39,6 +39,11 @@ public class AssetLeaseOrderItem extends BaseDomain {
      */
     @Column(name = "`lease_order_id`")
     private Long leaseOrderId;
+    /**
+     * 租赁单code
+     */
+    @Column(name = "`lease_order_code`")
+    private String leaseOrderCode;
 
     /**
      *  1:摊位 2：冷库 3：公寓
@@ -219,6 +224,14 @@ public class AssetLeaseOrderItem extends BaseDomain {
 
     public void setLeaseOrderId(Long leaseOrderId) {
         this.leaseOrderId = leaseOrderId;
+    }
+
+    public String getLeaseOrderCode() {
+        return leaseOrderCode;
+    }
+
+    public void setLeaseOrderCode(String leaseOrderCode) {
+        this.leaseOrderCode = leaseOrderCode;
     }
 
     public Integer getAssetType() {
