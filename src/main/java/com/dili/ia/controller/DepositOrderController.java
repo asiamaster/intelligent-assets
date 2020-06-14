@@ -21,10 +21,6 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.common.util.StringUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +40,6 @@ import java.util.List;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-05-20 17:29:10.
  */
-@Api("/depositOrder")
 @Controller
 @RequestMapping("/depositOrder")
 public class DepositOrderController {
@@ -64,7 +59,6 @@ public class DepositOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到DepositOrder页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
@@ -86,7 +80,6 @@ public class DepositOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到DepositOrder页面")
     @RequestMapping(value="/depositStatistics.html", method = RequestMethod.GET)
     public String depositStatistics(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
@@ -110,10 +103,6 @@ public class DepositOrderController {
      * @return String
      * @throws Exception
      */
-    @ApiOperation(value="分页查询DepositOrder", notes = "分页查询DepositOrder，返回easyui分页信息")
-    @ApiImplicitParams({
-		@ApiImplicitParam(name="DepositOrder", paramType="form", value = "DepositOrder的form信息", required = false, dataType = "string")
-	})
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(DepositOrderQuery depositOrderQuery) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -151,7 +140,6 @@ public class DepositOrderController {
 //     * @param depositOrderListDto
      * @return BaseOutput
      */
-    @ApiOperation("新增DepositOrder")
     @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput doAdd(DepositOrderQuery depositOrderQuery) {
