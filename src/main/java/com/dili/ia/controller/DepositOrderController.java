@@ -3,6 +3,7 @@ package com.dili.ia.controller;
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.DepositOrderStateEnum;
@@ -128,6 +129,24 @@ public class DepositOrderController {
             modelMap.put("depositOrder",depositOrder);
         }
         return "depositOrder/refundApply";
+    }
+    /**
+     * CustomerAccount--- 保证金退款
+     * @param order
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/addRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
+        try {
+            BaseOutput<RefundOrder> out = depositOrderService.addRefundOrder(order);
+            return out;
+        } catch (BusinessException e) {
+            LOG.error("定金创建退款失败！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        } catch (Exception e) {
+            LOG.error("定金创建退款出错！", e);
+            return BaseOutput.failure("创建退款出错！");
+        }
     }
 
     /**

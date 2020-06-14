@@ -2,6 +2,12 @@
 
 <div class="container-fluid">
     <form id="refundApplyForm" role="form">
+        <input type="hidden" name="businessId" value="${depositOrder.id}"/>
+        <input type="hidden" name="businessCode" value="${depositOrder.code!}"/>
+        <input type="hidden" name="departmentId" value="${depositOrder.departmentId!}"/>
+        <input type="hidden" name="departmentName" value="${depositOrder.departmentName!}"/>
+        <input type="hidden" name="customerId" value="${depositOrder.customerId!}"/>
+
         <div class="breadcrumb" >
             客户信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"

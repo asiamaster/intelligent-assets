@@ -3,9 +3,7 @@ package com.dili.ia.service.impl;
 import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.Customer;
-import com.dili.ia.domain.DepositOrder;
-import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
@@ -17,6 +15,7 @@ import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -64,6 +63,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     PaymentOrderService paymentOrderService;
     @Autowired
     UidFeignRpc uidFeignRpc;
+    @Autowired
+    RefundOrderService refundOrderService;
 
     public DepositOrderMapper getActualDao() {
         return (DepositOrderMapper)getDao();
@@ -337,6 +338,29 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到付款单！");
         }
         return order;
+    }
+
+    @Override
+    public BaseOutput<RefundOrder> addRefundOrder(RefundOrder refundOrder) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (null == userTicket){
+            return BaseOutput.failure("未登录！");
+        }
+        //检查客户状态
+        checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
+        DepositOrder depositOrder = this.get(refundOrder.getBusinessId());
+        if (null == depositOrder){
+            LOG.info("保证金退款申请，保证金单【ID:{}】不存在！", refundOrder.getBusinessId());
+            return BaseOutput.failure("保证金业务单不存在！");
+        }
+        Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount() + depositOrder.getChargebackAmount();
+        if (depositOrder.getAmount() < totalRefundAmount){
+            return BaseOutput.failure("退款金额不能大于订单金额！");
+        }
+        refundOrder.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
+        refundOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+        refundOrder.setTotalRefundAmount(refundOrder.getPayeeAmount());
+        return refundOrderService.doAddHandler(refundOrder);
     }
 
     @Transactional(rollbackFor = Exception.class)
