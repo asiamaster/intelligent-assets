@@ -4,11 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.ChargeItemDto;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.*;
 import com.dili.ia.domain.AssetLeaseOrder;
+import com.dili.ia.domain.AssetLeaseOrderItem;
+import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.AssetLeaseOrderItemListDto;
 import com.dili.ia.domain.dto.AssetLeaseOrderListDto;
-import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
@@ -25,20 +25,8 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import java.lang.reflect.InvocationTargetException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,11 +37,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-05-29 14:40:05.
  */
-@Api("/assetLeaseOrder")
 @Controller
 @RequestMapping("/assetLeaseOrder")
 public class AssetLeaseOrderController {
@@ -80,7 +73,6 @@ public class AssetLeaseOrderController {
      * @param assetType
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder页面")
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap,Integer assetType) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
@@ -116,7 +108,6 @@ public class AssetLeaseOrderController {
      * @param orderCode 缴费单CODE
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder查看页面")
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap,Long id,String orderCode) {
         AssetLeaseOrder leaseOrder = null;
@@ -156,7 +147,6 @@ public class AssetLeaseOrderController {
      * @param id 老单子ID
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder续租页面")
     @RequestMapping(value="/renew.html", method = RequestMethod.GET)
     public String renew(ModelMap modelMap,Long id) {
         if(null != id){
@@ -176,7 +166,6 @@ public class AssetLeaseOrderController {
      * @param modelMap
      * @return String
      */
-    @ApiOperation("跳转到LeaseOrder新增页面")
     @RequestMapping(value="/preSave.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap,Long id,Integer assetType) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -233,7 +222,6 @@ public class AssetLeaseOrderController {
      * @param type 1：租赁单退款 2： 子单退款
      * @return
      */
-    @ApiOperation("跳转到LeaseOrder退款申请页面")
     @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
     public String refundApply(ModelMap modelMap,Long id,Integer type) {
         if(LeaseOrderRefundTypeEnum.LEASE_ORDER_REFUND.getCode().equals(type)){
@@ -252,10 +240,6 @@ public class AssetLeaseOrderController {
      * @return String
      * @throws Exception
      */
-    @ApiOperation(value="分页查询LeaseOrder", notes = "分页查询LeaseOrder，返回easyui分页信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="AssetLeaseOrder", paramType="form", value = "LeaseOrder的form信息", required = false, dataType = "string")
-    })
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(AssetLeaseOrderListDto leaseOrder) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

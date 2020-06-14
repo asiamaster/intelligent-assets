@@ -41,7 +41,7 @@
     var assetAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
-        serviceUrl: '/asset/search.action',
+        serviceUrl: '/booth/search.action',
         selectFn: assetSelectHandler,
         transformResult: function (result) {
             if(result.success){
@@ -137,8 +137,6 @@
 
         <% if(isNotEmpty(leaseOrderItems)){ %>
             itemIndex += ${leaseOrderItems.~size};
-            queryCustomerAccount();
-            queryCustomerDepositDeduction(true);
         <% }else{%>
             while (itemIndex<1) {
                 addBoothItem({index: ++itemIndex});
@@ -250,204 +248,8 @@
         $('#isCorner_'+index).val(suggestion.cornerName);
         $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
         $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
-
-        queryCustomerDepositDeduction(true);
     }
 
-
-    /**
-     * 保证金可抵扣金额计算
-     * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
-     * true：级联计算 false：不级联计算
-     */
-    function queryCustomerDepositDeduction(isCascadeCalc){
-        let customerId = $('#customerId').val();
-        let assetIds = $("table input[name^='assetId']").filter(function () {
-            return this.value
-        }).map(function(){
-            return $('#assetId_'+getIndex(this.id)).val();
-        }).get();
-        if(customerId && assetIds && assetIds.length > 0){
-            $.ajax({
-                type: "POST",
-                url: '/leaseOrderItem/queryDepositAmountAvailableItem.action',
-                data: JSON.stringify({customerId,assetIds}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                async : false
-            }).done(function (ret) {
-                if (ret.success) {
-                    let depositAmount = 0;
-                    let sourceLeaseOrderItemMap = ret.data;
-                    for(let assetId in sourceLeaseOrderItemMap){
-                        let assetOrderItems = sourceLeaseOrderItemMap[assetId];
-                        for(let item of assetOrderItems){
-                            depositAmount += item.depositAmount;
-                        }
-                    }
-                    $("table input[name^='assetId']").each(function () {
-                        let trIndex = getIndex($(this).attr('id'));
-                        let assetOrderItems = sourceLeaseOrderItemMap[this.value];
-                        if(assetOrderItems && assetOrderItems.length > 0){
-                            let depositAmountSourceId = '';
-                            for(let item of assetOrderItems){
-                                if(depositAmountSourceId){
-                                    depositAmountSourceId += ','+item.id;
-                                } else{
-                                    depositAmountSourceId = item.id;
-                                }
-                            }
-                            $('#depositAmountSourceId_'+trIndex).val(depositAmountSourceId);
-                        }else{
-                            $('#depositAmountSourceId_'+trIndex).val('');
-                        }
-                    });
-                    if(isInitCheckDeduction){
-                        if(Number($('#depositDeduction').val()) != Number(depositAmount.centToYuan())){
-                            bs4pop.notice('保证金可抵扣额发生变化,已为您调整至最新值！', {position: 'bottomleft',autoClose: false})
-                        }
-                    }
-                    $('#depositDeduction').val(Number(depositAmount).centToYuan())
-                } else {
-                    bs4pop.alert(data.message, {type: 'error'});
-                }
-            }).fail(function () {
-                bs4pop.alert('远程访问失败', {type: 'error'});
-            }).done(function () {
-                isCascadeCalc && calcPayAmount();
-            });
-        }else{
-            $('#depositDeduction').val('0.00');
-        }
-
-    }
-
-    /**
-     * 账户余额查询
-     * */
-    function queryCustomerAccount(){
-        let customerId = $('#customerId').val();
-        if(!customerId) return;
-        $.ajax({
-            type: "get",
-            url: "/customerAccount/getCustomerAccountByCustomerId.action",
-            data: {customerId},
-            dataType: "json",
-            async : false,
-            success: function (ret) {
-                if(ret.success){
-                    let earnestDeductionEl$ = $('#earnestDeduction');
-                    let transferDeductionEl$ = $('#transferDeduction');
-                    let earnestAvailableBalance = 0;
-                    let transferAvailableBalance = 0;
-                    if(ret.data){
-                        let data = ret.data;
-                        earnestAvailableBalance = Number(data.earnestAvailableBalance).centToYuan();
-                        transferAvailableBalance = Number(data.transferAvailableBalance).centToYuan();
-                        if(isInitCheckDeduction){
-                            if(Number(earnestDeductionEl$.val()) > earnestAvailableBalance){
-                                earnestDeductionEl$.val(earnestAvailableBalance);
-                                bs4pop.notice('定金可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
-                            }
-                            if(Number(transferDeductionEl$.val()) > transferAvailableBalance){
-                                transferDeductionEl$.val(transferAvailableBalance);
-                                bs4pop.notice('转低可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
-                            }
-                        }else{
-                            earnestDeductionEl$.val('');
-                            $('#transferDeduction').val('');
-                        }
-                    }
-                    earnestDeductionEl$.attr('max',earnestAvailableBalance);
-                    $('#earnestAmount').text('余额'+earnestAvailableBalance);
-                    transferDeductionEl$.attr('max',transferAvailableBalance);
-                    $('#transferAmount').text('余额'+transferAvailableBalance);
-                }
-            },
-            error: function (a, b, c) {
-                bs4pop.alert('远程访问失败', {type: 'error'});
-            }
-        });
-    }
-
-    /**
-     * 计算租金
-     * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
-     * true：级联计算 false：不级联计算
-     * */
-    function calcRentAmount(isCascadeCalc){
-        let rentAmount = 0;
-        $("table input[name^='rentAmount_']").filter(function () {
-            return this.value
-        }).each(function (i) {
-            rentAmount = Number(this.value).add(rentAmount);
-        });
-        $('#rentAmount').val(rentAmount.toFixed(2));
-
-        isCascadeCalc && calcTotalAmount(isCascadeCalc);
-    }
-
-    /**
-     * 计算物业管理费
-     * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
-     * true：级联计算 false：不级联计算
-     * */
-    function calcManageAmount(isCascadeCalc){
-        let manageAmount = 0;
-        $("table input[name^='manageAmount_']").filter(function () {
-            return this.value
-        }).each(function (i) {
-            manageAmount = Number(this.value).add(manageAmount);
-        });
-        $('#manageAmount').val(manageAmount.toFixed(2));
-
-        isCascadeCalc && calcTotalAmount(isCascadeCalc);
-    }
-
-    /**
-     * 计算保证金
-     * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
-     * true：级联计算 false：不级联计算
-     * */
-    function calcDepositAmount(isCascadeCalc){
-        let depositAmount = 0;
-        $("table input[name^='depositAmount_']").filter(function () {
-            return this.value;
-        }).each(function (i) {
-            depositAmount = Number(this.value).add(depositAmount);
-        });
-        $('#depositAmount').val(depositAmount.toFixed(2));
-
-        isCascadeCalc && calcTotalAmount(isCascadeCalc);
-    }
-
-    /**
-     * 计算合计金额
-     * @param (boolean) isCascadeCalc 是否级联计算所联动的金额
-     * true：级联计算 false：不级联计算
-     *
-     * */
-    function calcTotalAmount(isCascadeCalc){
-        let rentAmount = Number($('#rentAmount').val());
-        let manageAmount = Number($('#manageAmount').val());
-        let depositAmount = Number($('#depositAmount').val());
-        $('#totalAmount').val((rentAmount.mul(100) + manageAmount.mul(100) + depositAmount.mul(100)).centToYuan());
-
-        isCascadeCalc && calcPayAmount(isCascadeCalc);
-    }
-
-    /**
-     * 计算实付金额
-     * */
-    function calcPayAmount() {
-        let depositDeduction = Number($('#depositDeduction').val());
-        let earnestDeduction = Number($('#earnestDeduction').val());
-        let transferDeduction = Number($('#transferDeduction').val());
-        let totalAmount = Number($('#totalAmount').val());
-        if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
-            $('#payAmount').val((totalAmount.mul(100)- depositDeduction.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).centToYuan());
-        }
-    }
 
     /**
      * 构建摊位租赁表单提交数据
@@ -568,12 +370,6 @@
     $(document).on('click', '.item-del', function () {
         if ($('#assetTable tr').length > 1) {
             $(this).closest('tr').remove();
-
-            queryCustomerDepositDeduction();
-            calcRentAmount();
-            calcDepositAmount();
-            calcManageAmount();
-            calcTotalAmount(true);
         }
     });
 

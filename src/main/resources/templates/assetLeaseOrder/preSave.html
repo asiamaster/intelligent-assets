@@ -147,9 +147,11 @@
                     <textarea class="form-control" id="notes" name="notes"  rows="1" maxlength="100" uncheck>${leaseOrder.notes!}</textarea>
                 </div>
             </div>
-            <div class="text-right">
-                <button type="button" class="btn btn-secondary px-5" id="cancel" onclick="javascript:parent.closeDialog(parent.dia)">取消</button>
-                <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveFormHandler,1000,true)()">保存</button>
+            <div class="modal-footer-wrap">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-5" id="cancel" onclick="javascript:parent.closeDialog(parent.dia)">取消</button>
+                    <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveFormHandler,1000,true)()">保存</button>
+                </div>
             </div>
         </form>
     </div>
