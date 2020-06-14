@@ -252,7 +252,7 @@
             title: '退款',//对话框title
             content: '${contextPath}/depositOrder/refundApply.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
             width: '800px',//宽度
-            height: 700,//高度
+            height: 750,//高度
             isIframe : true,//默认是页面层，非iframe
         });
 

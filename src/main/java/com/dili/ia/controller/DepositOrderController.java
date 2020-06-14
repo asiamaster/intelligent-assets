@@ -1,5 +1,6 @@
 package com.dili.ia.controller;
 
+import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.DepositOrderQuery;
@@ -121,7 +122,11 @@ public class DepositOrderController {
      * @return String
      */
     @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
-    public String refundApply(ModelMap modelMap) {
+    public String refundApply(ModelMap modelMap, Long id) {
+        if(null != id){
+            DepositOrder depositOrder = depositOrderService.get(id);
+            modelMap.put("depositOrder",depositOrder);
+        }
         return "depositOrder/refundApply";
     }
 
