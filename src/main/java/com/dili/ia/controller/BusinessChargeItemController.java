@@ -23,7 +23,6 @@ import java.util.Map;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-05-29 16:13:04.
  */
-@Api("/businessChargeItem")
 @Controller
 @RequestMapping("/businessChargeItem")
 public class BusinessChargeItemController {
