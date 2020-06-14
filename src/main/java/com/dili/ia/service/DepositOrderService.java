@@ -51,6 +51,12 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput
      * */
     BaseOutput<RefundOrder> addRefundOrder(RefundOrder refundOrder);
+    /**
+     * 保证金 --结算退款成功回调
+     * @param refundOrder 退款单
+     * @return BaseOutput
+     * */
+    BaseOutput refundSuccessHandler(RefundOrder refundOrder);
 
     /**
      * 保证金票据打印数据加载

@@ -33,6 +33,7 @@ import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -435,5 +437,29 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         printDataDto.setName(PrintTemplateEnum.DEPOSIT_ORDER.getCode());
         printDataDto.setItem(BeanMapUtil.beanToMap(depositOrderPrintDto));
         return BaseOutput.success().setData(printDataDto);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public BaseOutput refundSuccessHandler(RefundOrder refundOrder) {
+        DepositOrder depositOrder = get(refundOrder.getBusinessId());
+        if (DepositOrderStateEnum.REFUND.getCode().equals(depositOrder.getState())) {
+            LOG.info("此单已退款【depositOrderId={}】", refundOrder.getBusinessId());
+            return BaseOutput.success();
+        }
+        Long totalRefundAmount = refundOrder.getTotalRefundAmount() + depositOrder.getRefundAmount() + depositOrder.getChargebackAmount();
+        if (depositOrder.getAmount() < totalRefundAmount){
+            LOG.error("异常订单！！！---- 保证金单退款申请结算退款成功 但是退款单退款总金额大于订单可退金额【保证金单ID {}，退款单ID{}】", depositOrder.getId(), refundOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "异常订单！！！-- 退款金额不能大于保证金单可退金额！");
+        }
+        depositOrder.setRefundAmount(depositOrder.getRefundAmount() + refundOrder.getPayeeAmount());
+        //@TODO 退款转入市场金额（罚款金额）
+//            depositOrder.setChargebackAmount();
+        depositOrder.setState(DepositOrderStateEnum.REFUND.getCode());
+        if (updateSelective(depositOrder) == 0) {
+            LOG.info("保证金单退款申请结算退款成功 更新保证金单乐观锁生效 【保证金单ID {}】", depositOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+        return BaseOutput.success();
     }
 }
