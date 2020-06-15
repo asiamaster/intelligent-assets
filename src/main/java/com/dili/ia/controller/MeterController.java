@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.Meter;
+import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ia.service.MeterService;
 import com.dili.ss.domain.BaseOutput;
 import java.util.List;
@@ -13,12 +14,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-06-12 11:35:07.
+ * @author:      xiaosa
+ * @date:        2020/6/12
+ * @version:     农批业务系统重构
+ * @description: 水电费 - 表的相关业务 web 层
  */
 @Controller
 @RequestMapping("/meter")
 public class MeterController {
+
     @Autowired
     MeterService meterService;
 
@@ -34,34 +38,34 @@ public class MeterController {
 
     /**
      * 分页查询Meter，返回easyui分页信息
-     * @param meter
+     * @param meterDto
      * @return String
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute Meter meter) throws Exception {
-        return meterService.listEasyuiPageByExample(meter, true).toString();
+    public @ResponseBody String listPage(@ModelAttribute MeterDto meterDto) throws Exception {
+        return meterService.listEasyuiPageByExample(meterDto, true).toString();
     }
 
     /**
      * 新增Meter
-     * @param meter
+     * @param meterDto
      * @return BaseOutput
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute Meter meter) {
-        meterService.insertSelective(meter);
+    public @ResponseBody BaseOutput insert(@ModelAttribute MeterDto meterDto) {
+//        meterService.insertSelective(meterDto);
         return BaseOutput.success("新增成功");
     }
 
     /**
      * 修改Meter
-     * @param meter
+     * @param meterDto
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute Meter meter) {
-        meterService.updateSelective(meter);
+    public @ResponseBody BaseOutput update(@ModelAttribute MeterDto meterDto) {
+        meterService.updateSelective(meterDto);
         return BaseOutput.success("修改成功");
     }
 

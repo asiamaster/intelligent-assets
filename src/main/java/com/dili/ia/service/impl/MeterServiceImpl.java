@@ -7,8 +7,10 @@ import com.dili.ss.base.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-06-12 11:35:07.
+ * @author:      xiaosa
+ * @date:        2020/6/12
+ * @version:     农批业务系统重构
+ * @description: 水电费 - 表的相关业务 impl 层
  */
 @Service
 public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements MeterService {

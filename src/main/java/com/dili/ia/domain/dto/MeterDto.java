@@ -1,137 +1,127 @@
-package com.dili.ia.domain;
+package com.dili.ia.domain.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.dili.ia.domain.Meter;
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.Column;
+import javax.persistence.Table;
 import java.util.Date;
-import javax.persistence.*;
 
 /**
  * @author:      xiaosa
  * @date:        2020/6/12
  * @version:     农批业务系统重构
- * @description: 水电费 - 表的实体类，对应数据库
+ * @description: 水电费 - 表的Dto
  */
-@Table(name = "`meter`")
-public class Meter extends BaseDomain {
+public class MeterDto extends Meter {
 
     /**
      * 创建日期
      */
-    @Column(name = "`create_time`")
+    @JSONField(format = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
 
     /**
      * 修改日期
      */
-    @Column(name = "`modify_time`")
+    @JSONField(format = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date modifyTime;
 
     /**
      * 表编号
      */
-    @Column(name = "`number`")
     private String number;
 
     /**
      * 表类型
      */
-    @Column(name = "`type`")
     private Long type;
 
     /**
      * 部门
      */
-    @Column(name = "`department_id`")
     private Long departmentId;
 
     /**
      * 部门名称
      */
-    @Column(name = "`department_name`")
     private String departmentName;
 
     /**
      * 资产类型code
      */
-    @Column(name = "`assets_type`")
     private String assetsType;
 
     /**
      * 对应编号ID
      */
-    @Column(name = "`assets_id`")
     private Long assetsId;
 
     /**
      * 对应编号,名称
      */
-    @Column(name = "`assets_name`")
     private String assetsName;
 
     /**
      * 表初始值
      */
-    @Column(name = "`init_amount`")
     private Long initAmount;
 
     /**
      * 单价
      */
-    @Column(name = "`price`")
     private Long price;
 
     /**
      * 创建人所属于部门ID
      */
-    @Column(name = "`creator_dep_id`")
     private Long creatorDepId;
 
     /**
      * 水电预存余额
      */
-    @Column(name = "`balance`")
     private Long balance;
 
     /**
      * 备注
      */
-    @Column(name = "`notes`")
     private String notes;
 
     /**
      * 创建操作员ID
      */
-    @Column(name = "`creator_id`")
     private Long creatorId;
 
     /**
      * 创建人名称
      */
-    @Column(name = "`creator`")
     private String creator;
 
     /**
      * 市场Id
      */
-    @Column(name = "`market_id`")
     private Long marketId;
 
     /**
      * 市场CODE
      */
-    @Column(name = "`market_code`")
     private String marketCode;
 
     /**
      * 版本控制,乐观锁
      */
-    @Column(name = "`version`")
     private Integer version;
 
-    @FieldDef(label="创建日期")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
     public Date getCreateTime() {
         return createTime;
     }
@@ -140,8 +130,6 @@ public class Meter extends BaseDomain {
         this.createTime = createTime;
     }
 
-    @FieldDef(label="修改日期")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
     public Date getModifyTime() {
         return modifyTime;
     }
@@ -150,8 +138,6 @@ public class Meter extends BaseDomain {
         this.modifyTime = modifyTime;
     }
 
-    @FieldDef(label="表编号", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
     public String getNumber() {
         return number;
     }
@@ -160,8 +146,6 @@ public class Meter extends BaseDomain {
         this.number = number;
     }
 
-    @FieldDef(label="表类型")
-    @EditMode(editor = FieldEditor.Number, required = false)
     public Long getType() {
         return type;
     }
@@ -170,8 +154,6 @@ public class Meter extends BaseDomain {
         this.type = type;
     }
 
-    @FieldDef(label="部门")
-    @EditMode(editor = FieldEditor.Number, required = false)
     public Long getDepartmentId() {
         return departmentId;
     }
@@ -180,8 +162,6 @@ public class Meter extends BaseDomain {
         this.departmentId = departmentId;
     }
 
-    @FieldDef(label="部门名称", maxLength = 100)
-    @EditMode(editor = FieldEditor.Text, required = false)
     public String getDepartmentName() {
         return departmentName;
     }
@@ -190,8 +170,6 @@ public class Meter extends BaseDomain {
         this.departmentName = departmentName;
     }
 
-    @FieldDef(label="资产类型code", maxLength = 50)
-    @EditMode(editor = FieldEditor.Text, required = false)
     public String getAssetsType() {
         return assetsType;
     }
@@ -200,8 +178,6 @@ public class Meter extends BaseDomain {
         this.assetsType = assetsType;
     }
 
-    @FieldDef(label="对应编号ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
     public Long getAssetsId() {
         return assetsId;
     }
@@ -210,8 +186,6 @@ public class Meter extends BaseDomain {
         this.assetsId = assetsId;
     }
 
-    @FieldDef(label="对应编号,名称", maxLength = 200)
-    @EditMode(editor = FieldEditor.Text, required = false)
     public String getAssetsName() {
         return assetsName;
     }
@@ -220,8 +194,6 @@ public class Meter extends BaseDomain {
         this.assetsName = assetsName;
     }
 
-    @FieldDef(label="表初始值")
-    @EditMode(editor = FieldEditor.Number, required = false)
     public Long getInitAmount() {
         return initAmount;
     }
@@ -230,8 +202,6 @@ public class Meter extends BaseDomain {
         this.initAmount = initAmount;
     }
 
-    @FieldDef(label="单价")
-    @EditMode(editor = FieldEditor.Number, required = false)
     public Long getPrice() {
         return price;
     }
@@ -240,8 +210,6 @@ public class Meter extends BaseDomain {
         this.price = price;
     }
 
-    @FieldDef(label="创建人所属于部门ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
     public Long getCreatorDepId() {
         return creatorDepId;
     }
@@ -250,8 +218,6 @@ public class Meter extends BaseDomain {
         this.creatorDepId = creatorDepId;
     }
 
-    @FieldDef(label="水电预存余额")
-    @EditMode(editor = FieldEditor.Number, required = false)
     public Long getBalance() {
         return balance;
     }
@@ -260,8 +226,6 @@ public class Meter extends BaseDomain {
         this.balance = balance;
     }
 
-    @FieldDef(label="备注", maxLength = 250)
-    @EditMode(editor = FieldEditor.Text, required = false)
     public String getNotes() {
         return notes;
     }
@@ -270,8 +234,6 @@ public class Meter extends BaseDomain {
         this.notes = notes;
     }
 
-    @FieldDef(label="创建操作员ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
     public Long getCreatorId() {
         return creatorId;
     }
@@ -280,8 +242,6 @@ public class Meter extends BaseDomain {
         this.creatorId = creatorId;
     }
 
-    @FieldDef(label="创建人名称", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
     public String getCreator() {
         return creator;
     }
@@ -290,8 +250,6 @@ public class Meter extends BaseDomain {
         this.creator = creator;
     }
 
-    @FieldDef(label="市场Id")
-    @EditMode(editor = FieldEditor.Number, required = false)
     public Long getMarketId() {
         return marketId;
     }
@@ -300,8 +258,6 @@ public class Meter extends BaseDomain {
         this.marketId = marketId;
     }
 
-    @FieldDef(label="市场CODE", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
     public String getMarketCode() {
         return marketCode;
     }
@@ -310,9 +266,6 @@ public class Meter extends BaseDomain {
         this.marketCode = marketCode;
     }
 
-
-    @FieldDef(label="版本控制,乐观锁")
-    @EditMode(editor = FieldEditor.Number, required = false)
     public Integer getVersion() {
         return version;
     }
