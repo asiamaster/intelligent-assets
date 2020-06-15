@@ -73,6 +73,16 @@
         }
     }
 
+    // 末次退款
+    $('[data-item="last-refund-item"]').hide();
+    $(document).on('change', '[name="isLastRefund"]', function(){
+        if( $('[name="isLastRefund"]:checked').length) {
+            $('[data-item="last-refund-item"]').show();
+        } else {
+            $('[data-item="last-refund-item"]').hide();
+        }
+    })
+
 </script>
 
 

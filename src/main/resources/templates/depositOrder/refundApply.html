@@ -13,7 +13,7 @@
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-2 collapse show"  id="customerInfo">
+        <div class="row row-cols-4 collapse show"  id="customerInfo">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
                 <input type="text" class="form-control" id="customerName" name="customerName" value="${depositOrder.customerName!}" readonly/>
@@ -28,16 +28,32 @@
             </div>
         </div>
         <div class="row row-cols-4">
-            <div class="form-group col align-items-end">
+            <div class="form-group col">
                 <label for="payeeAmount" class="">退款金额<i class="red">*</i></label>
                 <input type="number" class="form-control floatReserve money" id="payeeAmount" range="0 9999999.99" max="<#centToYuan value='${depositOrder.amount!0}'/>" name="payeeAmount" placeholder="余额：<#centToYuan value='${depositOrder.amount!0}'/>" required />
+            </div>
+            <div class="form-group col">
+                <label for=""></label>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="isLastRefund" value="" >
+                    <label>末次退款</label>
+                </div>
+            </div>
+            <div class="form-group col" data-item="last-refund-item">
+                <label for="customerCellphone">扣除金额</label>
+                <input type="text" class="form-control floatReserve"  name="" value="" />
+            </div>
+            <div class="form-group col" data-item="last-refund-item">
+                <label for="customerCellphone">转入</label>
+                <select id="" name="" class="form-control" ></select>
+<!--                    <#bcomboProvider _id="" _provider="" _queryParams='{required:true}' _value=""/>-->
             </div>
         </div>
         <div class="breadcrumb">
             基础信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-2 collapse show" id="baseInfo">
+        <div class="row row-cols-4 collapse show" id="baseInfo">
             <div class="form-group col">
                 <label for="payee">收款人<i class="red">*</i></label>
                 <#bautoCompleteProvider _hiddenDomainId="payeeId" _hiddenDomainName="payeeId" _displayDomainId="payee" _displayDomainName="payee" _validatorMethod="isSelected" _required="true" _optionVariable="customerNameAutoCompleteOption"/>
@@ -65,12 +81,11 @@
                 <label for="bankCardNo" class="">银行卡号<i class="red">*</i></label>
                 <input type="text" class="form-control" id="bankCardNo" name="bankCardNo" maxlength="30" required/>
             </div>
-
         </div>
-        <div class="row mt-1">
-            <div class="form-group col-8">
+        <div class="row">
+            <div class="form-group col-6">
                 <label for="refundReason">退款原因<i class="red">*</i></label>
-                <textarea class="form-control" id="refundReason" name="refundReason" rows="1" maxlength="100" required></textarea>
+                <textarea class="form-control" id="refundReason" name="refundReason" rows="2" maxlength="100" required></textarea>
             </div>
         </div>
         <div class="modal-footer-wrap">
