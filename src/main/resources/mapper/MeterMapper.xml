@@ -34,7 +34,7 @@
     assets_id, assets_name, init_amount, price, creator_dep_id, balance, notes, creator_id, 
     creator, market_id, market_code, version
   </sql>
-  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+  <select id="getMeterById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated
     -->
@@ -109,4 +109,8 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="getUnbindMeterByType" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+  </select>
 </mapper>

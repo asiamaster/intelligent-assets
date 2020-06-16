@@ -1,6 +1,7 @@
 package com.dili.ia.domain.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.dili.ia.domain.CustomerMeter;
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
@@ -18,7 +19,7 @@ import java.util.Date;
  * @version:     农批业务系统重构
  * @description: 水电费 - 表和用户关系Dto
  */
-public class CustomerMeterDto extends BaseDomain {
+public class CustomerMeterDto extends CustomerMeter {
 
     /**
      * 创建日期

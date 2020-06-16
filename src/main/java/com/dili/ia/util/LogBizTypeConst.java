@@ -14,6 +14,10 @@ public class LogBizTypeConst {
     public static final String CATEGORY="category";
     public static final String DISTRICT="district";
 
+    //表管理
+    public static final String METER="meter";
+    //表用户关系
+    public static final String CUSTOMER_METER="customer_meter";
 
 
 }

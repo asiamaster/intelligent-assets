@@ -88,4 +88,18 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="getMeterById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select
+        <include refid="Base_Column_List" />
+    from
+        customer_meter
+    where
+        id = #{id,jdbcType=BIGINT}
+  </select>
+
+
 </mapper>
