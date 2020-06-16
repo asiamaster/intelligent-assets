@@ -177,17 +177,43 @@
     <if test="customerName != null and customerName != ''">
       AND customer_name=#{customerName}
     </if>
-    GROUP BY customerId, assets_id, assets_type
+    <if test="customerCellphone != null and customerCellphone != ''">
+      AND customer_cellphone=#{customerCellphone}
+    </if>
+    <if test="certificateNumber != null and certificateNumber != ''">
+      AND certificate_number=#{certificateNumber}
+    </if>
+    <if test="typeCode != null and typeCode != ''">
+      AND type_code=#{typeCode}
+    </if>
+    <if test="assetsName != null and assetsName != ''">
+      AND assets_name=#{assetsName}
+    </if>
+    GROUP BY customer_id, assets_id, assets_type
   </select>
 
   <select id="countBalanceList" parameterType="DepositOrder" resultType="int">
-    select count(customer_id)
+    select count(customerId) from (SELECT customer_id AS customerId, customer_name AS customerName, certificate_number AS certificateNumber, customer_cellphone AS customerCellphone, type_name AS typeName, assets_name AS assetsName,
+    SUM(amount - refund_amount - chargeback_amount) AS balance
     FROM deposit_order
     WHERE 1 = 1
     <if test="customerName != null and customerName != ''">
       AND customer_name=#{customerName}
     </if>
+    <if test="customerCellphone != null and customerCellphone != ''">
+      AND customer_cellphone=#{customerCellphone}
+    </if>
+    <if test="certificateNumber != null and certificateNumber != ''">
+      AND certificate_number=#{certificateNumber}
+    </if>
+    <if test="typeCode != null and typeCode != ''">
+      AND type_code=#{typeCode}
+    </if>
+    <if test="assetsName != null and assetsName != ''">
+      AND assets_name=#{assetsName}
+    </if>
     GROUP BY customerId, assets_id, assets_type
+    ) dep
   </select>
 
   <select id="sumBalance" parameterType="DepositOrder" resultType="long">
@@ -200,7 +226,19 @@
     <if test="customerName != null and customerName != ''">
       AND customer_name=#{customerName}
     </if>
-    GROUP BY customerId, assets_id, assets_type
+    <if test="customerCellphone != null and customerCellphone != ''">
+      AND customer_cellphone=#{customerCellphone}
+    </if>
+    <if test="certificateNumber != null and certificateNumber != ''">
+      AND certificate_number=#{certificateNumber}
+    </if>
+    <if test="typeCode != null and typeCode != ''">
+      AND type_code=#{typeCode}
+    </if>
+    <if test="assetsName != null and assetsName != ''">
+      AND assets_name=#{assetsName}
+    </if>
+    GROUP BY customer_id, assets_id, assets_type
     )dep
   </select>
 

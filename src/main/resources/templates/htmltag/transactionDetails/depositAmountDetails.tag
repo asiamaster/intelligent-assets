@@ -19,7 +19,7 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/transactionDetails/listDepositAmountPage.action', pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '${contextPath}/transactionDetails/listDepositAmountPage.action', pageSize: parseInt(size)});
     });
 
 

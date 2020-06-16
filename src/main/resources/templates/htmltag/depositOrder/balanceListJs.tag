@@ -18,7 +18,8 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/depositOrder/balanceListPage.action', pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '${contextPath}/depositOrder/balanceListPage.action', pageSize: parseInt(size)});
+        calcTotalBalance();
     });
 
 
@@ -46,6 +47,7 @@
         currentSelectRowIndex = undefined;
         $('#toolbar button').attr('disabled', false);
         _grid.bootstrapTable('refresh');
+        calcTotalBalance();
     }
 
     /**
@@ -57,10 +59,11 @@
     }
 
     function calcTotalBalance() {
+        let formData = $("input:not(table input),textarea,select").serializeObject();
         $.ajax({
             type: "GET",
             url: "${contextPath}/depositOrder/getTotalBalance.action",
-            data: {id: selectedRow.id},
+            data: formData,
             processData:true,
             dataType: "json",
             success : function(ret) {

@@ -5,8 +5,8 @@
     <form id="queryForm" role="form" >
         <div class="row row-cols-6">
             <div class="form-group col">
-                <label for="likeCustomerName">客户名称:</label>
-                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
+                <label for="customerName">客户名称:</label>
+                <input type="text" class="form-control" name="customerName" id="customerName" maxlength="50"/>
             </div>
             <div class="form-group col">
                 <label for="customerCellphone">联系电话:</label>
@@ -57,13 +57,13 @@
                     <th data-field="certificateNumber" data-sortable="true" data-align="center">
                         证件号码
                     </th>
-                    <th data-field="typeName" data-sortable="true" data-provider="" data-align="center" >
+                    <th data-field="typeName" data-sortable="true" data-align="center" >
                         保证金类型
                     </th>
-                    <th data-field="assetsName" data-sortable="true" data-provider="" data-align="center">
+                    <th data-field="assetsName" data-sortable="true" data-align="center">
                         对应编号
                     </th>
-                    <th data-field="amount" data-sortable="true" data-provider="" data-align="center">
+                    <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
                         保证金
                     </th>
                 </tr>

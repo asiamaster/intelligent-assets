@@ -20,6 +20,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -34,10 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -115,8 +113,12 @@ public class DepositOrderController {
     @RequestMapping(value="/balanceListPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String balanceListPage(DepositOrder depositOrder) throws Exception {
         Integer total = depositOrderService.countBalanceList(depositOrder);
+        if (total < 1){
+            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+        }
         List<DepositOrder> results = depositOrderService.selectBalanceList(depositOrder);
-        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results).toString();
+        List buildResults = ValueProviderUtils.buildDataByProvider(depositOrder, results);
+        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), buildResults).toString();
     }
 
     /**
@@ -125,9 +127,9 @@ public class DepositOrderController {
      * @return String
      */
     @RequestMapping(value="/getTotalBalance.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String getTotalBalance(DepositOrder depositOrder){
+    public @ResponseBody BaseOutput<String> getTotalBalance(DepositOrder depositOrder){
         Long totalBalance = depositOrderService.sumBalance(depositOrder);
-        return MoneyUtils.centToYuan(totalBalance);
+        return BaseOutput.success().setData(MoneyUtils.centToYuan(totalBalance));
     }
 
     /**
