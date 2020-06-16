@@ -430,7 +430,7 @@
     function queryDataHandler() {
         currentSelectRowIndex = undefined;
         $('#toolbar button').attr('disabled', false);
-        _grid.bootstrapTable('refresh');
+        _grid.bootstrapTable('refreshOptions', {pageNumber: 1});
     }
 
     /**
