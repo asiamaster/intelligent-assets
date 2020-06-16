@@ -8,6 +8,8 @@ import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 
+import java.util.List;
+
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-05-22 17:54:56.
@@ -65,4 +67,22 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput<PrintDataDto>
      */
     BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint);
+    /**
+     * 保证金余额列表，维度 【按照客户-保证金类型-编号统计】
+     * @param depositOrder 订单
+     * @return List<DepositOrder>
+     */
+    List<DepositOrder> selectBalanceList(DepositOrder depositOrder);
+    /**
+     * 保证金余额记录条数 ，维度 【按照客户-保证金类型-编号统计】
+     * @param depositOrder 订单
+     * @return Integer
+     */
+    Integer countBalanceList(DepositOrder depositOrder);
+    /**
+     * 余额合计
+     * @param depositOrder 订单
+     * @return Long
+     */
+    Long sumBalance(DepositOrder depositOrder);
 }

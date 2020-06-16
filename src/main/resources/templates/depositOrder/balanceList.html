@@ -13,18 +13,17 @@
                 <input type="text" class="form-control" name="customerCellphone" id="customerCellphone" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="customerCellphone">证件号码:</label>
-                <input type="text" class="form-control" name="" id="" maxlength="50"/>
-            </div>
-
-            <div class="form-group col">
-                <label for="departmentId">保证金类型:</label>
-                <select id="departmentId" name="departmentId" class="form-control"></select>
-                <#bcomboProvider _id="departmentId" _provider="" _queryParams='{emptyText:"-- 全部 --"}'/>
+                <label for="certificateNumber">证件号码:</label>
+                <input type="text" class="form-control" name="certificateNumber" id="certificateNumber" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="code">对应编号:</label>
-                <input type="text" class="form-control" name="code" id="code" maxlength="50"/>
+                <label for="typeCode">保证金类型</label>
+                <select id="typeCode" name="typeCode" class="form-control"></select>
+                <#bcomboProvider _log="保证金类型" _id="typeCode" _provider="dataDictionaryValueProvider" _value="${depositOrder.typeCode!}" _queryParams='{dd_code:"deposit_type",emptyText:"-- 全部 --"}'/>
+            </div>
+            <div class="form-group col">
+                <label for="assetsName">对应编号:</label>
+                <input type="text" class="form-control" name="assetsName" id="assetsName" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
@@ -36,7 +35,7 @@
 
 </#bs4nav>
     <hr>
-<h6 class="mt-2 position-absolute">合计：5252</h6>
+<h6 class="mt-2 position-absolute" id="totalBalance">合计：0.00</h6>
     <div class="row">
         <div class="col-12">
             <table id="grid" data-toggle="table" data-title="保证金统计列表" class="table" data-toolbar="#toolbar"
@@ -48,23 +47,23 @@
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
                 <thead>
                 <tr>
-                    <th data-radio="true"></th>
+<!--                    <th data-radio="true"></th>-->
                     <th data-field="customerName" data-sortable="true" data-align="center">
                         客户名称
                     </th>
                     <th data-field="customerCellphone" data-sortable="true" data-align="center">
                         联系电话
                     </th>
-                    <th data-field="customerCellphone" data-sortable="true" data-align="center">
+                    <th data-field="certificateNumber" data-sortable="true" data-align="center">
                         证件号码
                     </th>
-                    <th data-field="state" data-sortable="true" data-provider="" data-align="center" >
+                    <th data-field="typeName" data-sortable="true" data-provider="" data-align="center" >
                         保证金类型
                     </th>
-                    <th data-field="createTime" data-sortable="true" data-provider="" data-align="center">
+                    <th data-field="assetsName" data-sortable="true" data-provider="" data-align="center">
                         对应编号
                     </th>
-                    <th data-field="createTime" data-sortable="true" data-provider="" data-align="center">
+                    <th data-field="amount" data-sortable="true" data-provider="" data-align="center">
                         保证金
                     </th>
                 </tr>
@@ -77,5 +76,6 @@
 
 
 </#bs4Body>
+<#depositOrder_balanceListJs />
 
 
