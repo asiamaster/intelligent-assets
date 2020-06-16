@@ -3,7 +3,10 @@ package com.dili.ia.service.impl;
 import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.*;
+import com.dili.ia.domain.Customer;
+import com.dili.ia.domain.DepositOrder;
+import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
@@ -33,7 +36,6 @@ import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -376,9 +378,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         condition.setCode(settleOrder.getOrderCode());
         condition.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
-        DepositOrder ea = this.get(paymentOrderPO.getBusinessId());
+        DepositOrder depositOrder = this.get(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
-            return BaseOutput.success().setData(ea);
+            return BaseOutput.success().setData(depositOrder);
         }
         if (!paymentOrderPO.getState().equals(PaymentOrderStateEnum.NOT_PAID.getCode())){
             LOG.info("缴费单状态已变更！状态为：" + PaymentOrderStateEnum.getPaymentOrderStateEnum(paymentOrderPO.getState()).getName() );
@@ -396,13 +398,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
 
         //修改订单状态
-        ea.setState(DepositOrderStateEnum.PAID.getCode());
-        if (this.updateSelective(ea) == 0) {
-            LOG.info("缴费单成功回调 -- 更新【租赁单】状态,乐观锁生效！【保证金单EarnestOrderID:{}】", ea.getId());
+        depositOrder.setState(DepositOrderStateEnum.PAID.getCode());
+        if (this.updateSelective(depositOrder) == 0) {
+            LOG.info("缴费单成功回调 -- 更新【保证金单】状态,乐观锁生效！【保证金单EarnestOrderID:{}】", depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        return BaseOutput.success().setData(ea);
+        return BaseOutput.success().setData(depositOrder);
     }
 
     @Override
