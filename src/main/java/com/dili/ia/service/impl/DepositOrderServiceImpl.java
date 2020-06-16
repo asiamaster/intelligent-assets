@@ -454,6 +454,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.error("异常订单！！！---- 保证金单退款申请结算退款成功 但是退款单退款总金额大于订单可退金额【保证金单ID {}，退款单ID{}】", depositOrder.getId(), refundOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "异常订单！！！-- 退款金额不能大于保证金单可退金额！");
         }
+        //@TODO fixbug多次退款，退款金额没有变化
         depositOrder.setRefundAmount(depositOrder.getRefundAmount() + refundOrder.getPayeeAmount());
         //@TODO 退款转入市场金额（罚款金额）
 //            depositOrder.setChargebackAmount();
