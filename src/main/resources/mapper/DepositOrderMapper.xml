@@ -173,7 +173,7 @@
     SELECT customer_id AS customerId, customer_name AS customerName, certificate_number AS certificateNumber, customer_cellphone AS customerCellphone, type_name AS typeName, assets_name AS assetsName,
     SUM(amount - refund_amount - chargeback_amount) AS amount
     FROM deposit_order
-    WHERE 1 = 1
+    WHERE 1 = 1 AND (state=4 OR state=5)
     <if test="customerName != null and customerName != ''">
       AND customer_name=#{customerName}
     </if>
@@ -196,7 +196,7 @@
     select count(customerId) from (SELECT customer_id AS customerId, customer_name AS customerName, certificate_number AS certificateNumber, customer_cellphone AS customerCellphone, type_name AS typeName, assets_name AS assetsName,
     SUM(amount - refund_amount - chargeback_amount) AS balance
     FROM deposit_order
-    WHERE 1 = 1
+    WHERE 1 = 1 AND (state=4 OR state=5)
     <if test="customerName != null and customerName != ''">
       AND customer_name=#{customerName}
     </if>
@@ -222,7 +222,7 @@
     SELECT customer_id AS customerId, customer_name AS customerName, certificate_number AS certificateNumber, customer_cellphone AS customerCellphone, type_name AS typeName, assets_name AS assetsName,
     SUM(amount - refund_amount - chargeback_amount) AS balance
     FROM deposit_order
-    WHERE 1 = 1
+    WHERE 1 = 1 AND (state=4 OR state=5)
     <if test="customerName != null and customerName != ''">
       AND customer_name=#{customerName}
     </if>

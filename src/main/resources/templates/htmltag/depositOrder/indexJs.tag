@@ -287,6 +287,11 @@
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_refund_apply').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.REFUND.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+            $('#btn_refund_apply').attr('disabled', false);
         }
     });
 
