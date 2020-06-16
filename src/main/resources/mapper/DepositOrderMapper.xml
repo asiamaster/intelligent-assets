@@ -159,4 +159,49 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <sql id="paginate">
+    <if test="orderField != null">
+      order by ${orderField}
+      <if test="isAsc == false">desc</if>
+      <if test="isAsc == true">asc</if>
+    </if>
+    limit #{startRow},#{pageSize}
+  </sql>
+
+  <select id="selectBalanceList" parameterType="DepositOrder" resultType="DepositOrder">
+    SELECT customer_id AS customerId, customer_name AS customerName, certificate_number AS certificateNumber, customer_cellphone AS customerCellphone, type_name AS typeName, assets_name AS assetsName,
+    SUM(amount - refund_amount - chargeback_amount) AS amount
+    FROM deposit_order
+    WHERE 1 = 1
+    <if test="customerName != null and customerName != ''">
+      AND customer_name=#{customerName}
+    </if>
+    GROUP BY customerId, assets_id, assets_type
+  </select>
+
+  <select id="countBalanceList" parameterType="DepositOrder" resultType="int">
+    select count(customer_id)
+    FROM deposit_order
+    WHERE 1 = 1
+    <if test="customerName != null and customerName != ''">
+      AND customer_name=#{customerName}
+    </if>
+    GROUP BY customerId, assets_id, assets_type
+  </select>
+
+  <select id="sumBalance" parameterType="DepositOrder" resultType="long">
+    SELECT SUM(balance) AS balance
+    FROM(
+    SELECT customer_id AS customerId, customer_name AS customerName, certificate_number AS certificateNumber, customer_cellphone AS customerCellphone, type_name AS typeName, assets_name AS assetsName,
+    SUM(amount - refund_amount - chargeback_amount) AS balance
+    FROM deposit_order
+    WHERE 1 = 1
+    <if test="customerName != null and customerName != ''">
+      AND customer_name=#{customerName}
+    </if>
+    GROUP BY customerId, assets_id, assets_type
+    )dep
+  </select>
+
 </mapper>

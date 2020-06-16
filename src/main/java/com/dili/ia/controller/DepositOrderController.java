@@ -20,6 +20,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.common.util.StringUtils;
@@ -77,27 +78,6 @@ public class DepositOrderController {
         modelMap.put("createdEnd", createdEnd);
         return "depositOrder/index";
     }
-    /**
-     * 跳转到DepositOrder页面
-     * @param modelMap
-     * @return String
-     */
-    @RequestMapping(value="/depositStatistics.html", method = RequestMethod.GET)
-    public String depositStatistics(ModelMap modelMap) {
-        //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
-        Calendar c = Calendar.getInstance();
-        c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-        c.add(Calendar.DAY_OF_MONTH, -2);
-        Date createdStart = c.getTime();
-
-        Calendar ce = Calendar.getInstance();
-        ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
-        Date  createdEnd = ce.getTime();
-
-        modelMap.put("createdStart", createdStart);
-        modelMap.put("createdEnd", createdEnd);
-        return "depositOrder/depositStatistics";
-    }
 
     /**
      * 分页查询DepositOrder，返回easyui分页信息
@@ -115,6 +95,39 @@ public class DepositOrderController {
         depositOrderQuery.setMarketId(userTicket.getFirmId());
         depositOrderQuery.setDepartmentIds(departmentIdList);
         return depositOrderService.listEasyuiPageByExample(depositOrderQuery, true).toString();
+    }
+
+    /**
+     * 跳转到【保证金余额】页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/balanceList.html", method = RequestMethod.GET)
+    public String balanceList(ModelMap modelMap) {
+        return "depositOrder/balanceList";
+    }
+
+    /**
+     * 跳转到【保证金余额】页面
+     * @param depositOrder
+     * @return String
+     */
+    @RequestMapping(value="/balanceListPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody String balanceListPage(DepositOrder depositOrder) throws Exception {
+        Integer total = depositOrderService.countBalanceList(depositOrder);
+        List<DepositOrder> results = depositOrderService.selectBalanceList(depositOrder);
+        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results).toString();
+    }
+
+    /**
+     * 计算【保证金余额】
+     * @param depositOrder
+     * @return String
+     */
+    @RequestMapping(value="/getTotalBalance.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody String getTotalBalance(DepositOrder depositOrder){
+        Long totalBalance = depositOrderService.sumBalance(depositOrder);
+        return MoneyUtils.centToYuan(totalBalance);
     }
 
     /**
