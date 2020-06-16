@@ -1,6 +1,7 @@
 package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.AssetLeaseOrderItem;
+import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ss.domain.annotation.Operator;
 
 import javax.persistence.Column;
@@ -40,8 +41,11 @@ public class AssetLeaseOrderItemListDto extends AssetLeaseOrderItem {
     @Column(name = "state")
     private List<Long> states;
 
+    @Transient
+    private List<BusinessChargeItem> businessChargeItems;
+
     /**
-     * 业务收费项
+     * 业务收费项 {id:amount}
      */
     @Transient
     private Map<String,String> businessChargeItem;
@@ -92,6 +96,14 @@ public class AssetLeaseOrderItemListDto extends AssetLeaseOrderItem {
 
     public void setStates(List<Long> states) {
         this.states = states;
+    }
+
+    public List<BusinessChargeItem> getBusinessChargeItems() {
+        return businessChargeItems;
+    }
+
+    public void setBusinessChargeItems(List<BusinessChargeItem> businessChargeItems) {
+        this.businessChargeItems = businessChargeItems;
     }
 
     public Map<String, String> getBusinessChargeItem() {

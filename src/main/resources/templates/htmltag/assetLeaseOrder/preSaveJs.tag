@@ -37,7 +37,7 @@
         }
     });
 
-    //摊位搜索自动完成
+    //资产搜索自动完成
     var assetAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
@@ -90,11 +90,7 @@
     $(function () {
         //初始化刷卡
         initSwipeCard({
-            id:'getCustomer',
-            onLoadSuccess:function(customer){
-                queryCustomerAccount();
-                queryCustomerDepositDeduction(true);
-            }
+            id:'getCustomer'
         });
 
         //监听客户注册
@@ -153,7 +149,7 @@
     }
 
     /**
-     * 添加摊位
+     * 添加资产
      * @param leaseOrderItem
      */
     function addBoothItem(leaseOrderItem){
@@ -237,7 +233,7 @@
     }
 
     /**
-     * 摊位选择事件Handler
+     * 资产选择事件Handler
      * */
     function assetSelectHandler(suggestion,element) {
         let index = getIndex($(element).attr('id'));
@@ -252,7 +248,7 @@
 
 
     /**
-     * 构建摊位租赁表单提交数据
+     * 构建资产租赁表单提交数据
      * @returns {{}|jQuery}
      */
     function buildFormData(){
@@ -265,9 +261,20 @@
         bui.util.yuanToCentForMoneyEl(formData);
         $("#assetTable tbody").find("tr").each(function(){
             let leaseOrderItem = {};
+            leaseOrderItem.businessChargeItems = [];
             $(this).find("input").each(function(t,el){
-                let fieldName = $(this).attr("name").split('_')[0];
-                leaseOrderItem[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+                let nameArr = $(this).attr("name").split('_');
+                let fieldName = nameArr[0];
+                if(fieldName.includes("chargeItem")){
+                    let businessChargeItem = {};
+                    businessChargeItem.chargeItemName = this.dataset.chargeItemName;
+                    businessChargeItem.chargeItemId = this.dataset.chargeItemId;
+                    businessChargeItem.bizType = ${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType()};
+                    businessChargeItem.amount = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+                    leaseOrderItem.businessChargeItems.push(businessChargeItem);
+                }else{
+                    leaseOrderItem[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+                }
             });
             leaseOrderItems.push(leaseOrderItem);
         });
@@ -320,25 +327,26 @@
         }).get();
 
         if(!assetIds || assetIds.length == 0){
-            bs4pop.alert('请添加摊位！')
+            bs4pop.alert('请添加资产！')
             return false;
         }
 
         if(arrRepeatCheck(assetIds)){
-            bs4pop.alert('存在重复摊位，请检查！')
+            bs4pop.alert('存在重复资产，请检查！')
             return false;
         }
 
         if(assetIds.length > 10){
-            bs4pop.notice('最多10个摊位', {position: 'leftcenter', type: 'warning'});
+            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'warning'});
         }
 
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
             url: "/leaseOrder/saveLeaseOrder.action",
-            data: buildFormData(),
+            data: JSON.stringify(buildFormData()),
             dataType: "json",
+            contentType: "application/json; charset=utf-8",
             success: function (ret) {
                 if(!ret.success){
                     bs4pop.alert(ret.message, {type: 'error'});
@@ -357,16 +365,16 @@
     /*****************************************函数区 end**************************************/
 
     /*****************************************自定义事件区 begin************************************/
-    //摊位新增事件
+    //资产新增事件
     $('#addBooth').on('click', function(){
         if ($('#assetTable tr').length < 11) {
             addBoothItem({index: ++itemIndex});
         } else {
-            bs4pop.notice('最多10个摊位', {position: 'leftcenter', type: 'warning'})
+            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'warning'})
         }
     });
 
-    //摊位删除事件
+    //资产删除事件
     $(document).on('click', '.item-del', function () {
         if ($('#assetTable tr').length > 1) {
             $(this).closest('tr').remove();

@@ -1,77 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dili.ia.mapper.BusinessChargeItemMapper">
-  <resultMap id="BaseResultMap" type="com.dili.ia.domain.BusinessChargeItem">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="business_id" jdbcType="BIGINT" property="businessId" />
-    <result column="business_code" jdbcType="VARCHAR" property="businessCode" />
-    <result column="biz_type" jdbcType="BIT" property="bizType" />
-    <result column="charge_id" jdbcType="BIGINT" property="chargeId" />
-    <result column="charge_name" jdbcType="VARCHAR" property="chargeName" />
-    <result column="amount" jdbcType="BIGINT" property="amount" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    id, business_id, business_code, biz_type, charge_id, charge_name, amount, create_time, modify_time
-  </sql>
-  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    select 
-    <include refid="Base_Column_List" />
-    from lease_charge_item
-    where id = #{id,jdbcType=BIGINT}
-  </select>
-  <update id="updateBy" parameterType="com.dili.ia.domain.BusinessChargeItem">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    update lease_charge_item
-    <set>
-      <if test="businessId != null">
-        business_id = #{businessId,jdbcType=BIGINT},
-      </if>
-      <if test="businessCode != null">
-        business_code = #{businessCode,jdbcType=VARCHAR},
-      </if>
-      <if test="bizType != null">
-        biz_type = #{bizType,jdbcType=BIT},
-      </if>
-      <if test="chargeId != null">
-        charge_id = #{chargeId,jdbcType=BIGINT},
-      </if>
-      <if test="chargeName != null">
-        charge_name = #{chargeName,jdbcType=VARCHAR},
-      </if>
-      <if test="amount != null">
-        amount = #{amount,jdbcType=BIGINT},
-      </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="modifyTime != null">
-        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
-
-
   <select id="queryBusinessChargeItem" resultType="Map" >
     SELECT
     cast(business_id as char) as businessId,
     <foreach collection="chargeItemDtos" item="chargeItem" separator=",">
      cast(
         MAX(
-          CASE charge_id
+          CASE charge_item_id
           WHEN #{chargeItem.id} THEN
               amount
           ELSE
@@ -83,7 +19,7 @@
       cast(
           truncate(
             MAX(
-              CASE charge_id
+              CASE charge_item_id
               WHEN #{chargeItem.id} THEN
                   amount
               ELSE

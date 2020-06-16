@@ -211,6 +211,7 @@ public class AssetLeaseOrderController {
 
             modelMap.put("leaseOrderItems", assetLeaseOrderItemListDtos);
         }
+        modelMap.put("assetType", assetType);
         modelMap.put("isRenew", YesOrNoEnum.NO.getCode());
         return "assetLeaseOrder/preSave";
     }

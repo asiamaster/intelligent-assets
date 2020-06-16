@@ -40,14 +40,14 @@ public class RefundFeeItem extends BaseDomain {
     /**
      * 收费项ID
      */
-    @Column(name = "`charge_id`")
-    private Long chargeId;
+    @Column(name = "`charge_item_id`")
+    private Long chargeItemId;
 
     /**
      * 收费项名称
      */
-    @Column(name = "`charge_name`")
-    private String chargeName;
+    @Column(name = "`charge_item_name`")
+    private String chargeItemName;
 
     /**
      * 金额
@@ -92,20 +92,20 @@ public class RefundFeeItem extends BaseDomain {
         this.refundOrderCode = refundOrderCode;
     }
 
-    public Long getChargeId() {
-        return chargeId;
+    public Long getChargeItemId() {
+        return chargeItemId;
     }
 
-    public void setChargeId(Long chargeId) {
-        this.chargeId = chargeId;
+    public void setChargeItemId(Long chargeItemId) {
+        this.chargeItemId = chargeItemId;
     }
 
-    public String getChargeName() {
-        return chargeName;
+    public String getChargeItemName() {
+        return chargeItemName;
     }
 
-    public void setChargeName(String chargeName) {
-        this.chargeName = chargeName;
+    public void setChargeItemName(String chargeItemName) {
+        this.chargeItemName = chargeItemName;
     }
 
     public Long getAmount() {
