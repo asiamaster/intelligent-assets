@@ -18,7 +18,7 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/depositOrder/listPage.action', pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '${contextPath}/depositOrder/listPage.action', pageSize: parseInt(size)});
     });
 
 
@@ -283,6 +283,11 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_withdraw').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.PAID.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+            $('#btn_refund_apply').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.REFUND.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);

@@ -202,7 +202,6 @@ public class DepositOrder extends BaseDomain {
     /**
      * 版本控制,乐观锁
      */
-    @Version
     @Column(name = "`version`")
     private Long version;
 
@@ -827,6 +826,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @return version - 版本控制,乐观锁
      */
+    @Version
     @FieldDef(label="版本控制,乐观锁")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Long getVersion() {
