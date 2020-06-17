@@ -16,11 +16,6 @@
             $('#_certificateNumber').val(suggestion.certificateNumber);
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#_certificateNumber,#customerCellphone").valid();
-
-            //账户余额查询
-            queryCustomerAccount();
-            //获取保证金抵扣余额
-            queryCustomerDepositDeduction(true);
         }
     });
     $.extend(certificateNumberAutoCompleteOption,{
@@ -29,11 +24,6 @@
             $('#customerId').val(suggestion.id);
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#customerName,#customerCellphone").valid();
-
-            //账户余额查询
-            queryCustomerAccount();
-            //获取保证金抵扣余额
-            queryCustomerDepositDeduction(true);
         }
     });
 
@@ -252,7 +242,7 @@
      * @returns {{}|jQuery}
      */
     function buildFormData(){
-        let formData = $("input:not(table input),textarea,select").serializeObject(true);
+        let formData = $("input:not(table input),textarea,select").serializeObject();
         let leaseOrderItems = [];
         let leaseTermName = $('#leaseTermCode').find("option:selected").text();
         let engageName = $('#engageCode').find("option:selected").text();
@@ -276,6 +266,7 @@
                     leaseOrderItem[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
                 }
             });
+            leaseOrderItem.assetType = $('#assetType').val();
             leaseOrderItems.push(leaseOrderItem);
         });
 
@@ -284,8 +275,7 @@
             leaseTermName,
             engageName,
             departmentName,
-            logContent: $('#id').val() ? Log.buildUpdateContent() : '',
-            operationType: $('#id').val() ? 'edit' : 'add'
+            logContent: $('#id').val() ? Log.buildUpdateContent() : ''
         });
         return formData;
     }
@@ -343,7 +333,7 @@
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
-            url: "/leaseOrder/saveLeaseOrder.action",
+            url: "/assetLeaseOrder/saveLeaseOrder.action",
             data: JSON.stringify(buildFormData()),
             dataType: "json",
             contentType: "application/json; charset=utf-8",

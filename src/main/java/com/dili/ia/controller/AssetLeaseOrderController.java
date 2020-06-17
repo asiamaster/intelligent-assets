@@ -25,6 +25,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.beanutils.BeanUtils;
@@ -247,21 +248,21 @@ public class AssetLeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
-        if (CollectionUtils.isEmpty(departmentIdList)){
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
-        }
-        leaseOrder.setMarketId(userTicket.getFirmId());
-        leaseOrder.setDepartmentIds(departmentIdList);
-
-        if (StringUtils.isNotBlank(leaseOrder.getAssetName())) {
-            AssetLeaseOrderItem leaseOrderItemCondition = new AssetLeaseOrderItem();
-            leaseOrderItemCondition.setAssetName(leaseOrder.getAssetName());
-            leaseOrder.setIds(assetLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
-            if(CollectionUtils.isEmpty(leaseOrder.getIds())){
-                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
-            }
-        }
+//        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+//        if (CollectionUtils.isEmpty(departmentIdList)){
+//            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+//        }
+//        leaseOrder.setMarketId(userTicket.getFirmId());
+//        leaseOrder.setDepartmentIds(departmentIdList);
+//
+//        if (StringUtils.isNotBlank(leaseOrder.getAssetName())) {
+//            AssetLeaseOrderItem leaseOrderItemCondition = new AssetLeaseOrderItem();
+//            leaseOrderItemCondition.setAssetName(leaseOrder.getAssetName());
+//            leaseOrder.setIds(assetLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
+//            if(CollectionUtils.isEmpty(leaseOrder.getIds())){
+//                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+//            }
+//        }
         return assetLeaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
     }
 
@@ -335,7 +336,8 @@ public class AssetLeaseOrderController {
     @RequestMapping(value="/saveLeaseOrder.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput saveLeaseOrder(@RequestBody AssetLeaseOrderListDto leaseOrder){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 23:59:59");
-        leaseOrder.setEndTime(LocalDateTime.parse(leaseOrder.getEndTime().format(formatter), formatter));
+        DateTimeFormatter formatterDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        leaseOrder.setEndTime(LocalDateTime.parse(leaseOrder.getEndTime().format(formatter), formatterDateTime));
         try{
             BaseOutput output = assetLeaseOrderService.saveLeaseOrder(leaseOrder);
             //写业务日志
@@ -346,7 +348,7 @@ public class AssetLeaseOrderController {
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
                 LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY,leaseOrder.aget("operationType").toString());
+                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, null == leaseOrder.getId() ? "add" : "edit");
                 LoggerContext.put("notes", leaseOrder.getNotes());
             }
             return output;

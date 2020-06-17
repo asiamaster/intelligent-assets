@@ -6,6 +6,7 @@
             <input type="hidden" id="id" name="id" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.id!}">
             <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
             <input type="hidden" name="isRenew" value="${isRenew!}">
+            <input type="hidden" id="assetType" name="assetType" value="${assetType!}">
             <div class="breadcrumb" >
                 客户信息 ${isNotEmpty(isRenew) && isRenew == 1?'':'<a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>'}
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
@@ -142,7 +143,7 @@
             <div class="row row-cols-4 collapse show" id="moneyInfo">
                 <div class="form-group col">
                     <label for="payAmount" _log>合计金额<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" min="0" readonly/>
+                    <input type="number" class="form-control money" id="payAmount" name="payAmount"  min="0" value="200" readonly/>
                 </div>
             </div>
             <div class="row">
