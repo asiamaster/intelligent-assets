@@ -55,7 +55,7 @@ public class AssetLeaseOrderListDto extends AssetLeaseOrder {
     private String assetName;
 
     @Transient
-    private List<AssetLeaseOrderItem> leaseOrderItems;
+    private List<AssetLeaseOrderItemListDto> leaseOrderItems;
 
     @Column(name = "`start_time`")
     @Operator(Operator.LITTLE_EQUAL_THAN)
@@ -129,11 +129,11 @@ public class AssetLeaseOrderListDto extends AssetLeaseOrder {
         this.assetName = assetName;
     }
 
-    public List<AssetLeaseOrderItem> getLeaseOrderItems() {
+    public List<AssetLeaseOrderItemListDto> getLeaseOrderItems() {
         return leaseOrderItems;
     }
 
-    public void setLeaseOrderItems(List<AssetLeaseOrderItem> leaseOrderItems) {
+    public void setLeaseOrderItems(List<AssetLeaseOrderItemListDto> leaseOrderItems) {
         this.leaseOrderItems = leaseOrderItems;
     }
 

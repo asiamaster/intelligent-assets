@@ -9,7 +9,7 @@
     <result column="code" jdbcType="VARCHAR" property="code" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
-    <result column="lease_type" jdbcType="BIT" property="leaseType" />
+    <result column="asset_type" jdbcType="BIT" property="assetType" />
     <result column="customer_id" jdbcType="BIGINT" property="customerId" />
     <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
     <result column="certificate_number" jdbcType="VARCHAR" property="certificateNumber" />
@@ -55,7 +55,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, code, create_time, modify_time, lease_type, customer_id, customer_name, certificate_number, 
+    id, code, create_time, modify_time, asset_type, customer_id, customer_name, certificate_number,
     customer_cellphone, start_time, end_time, days, contract_no, lease_term_code, lease_term_name, 
     engage_code, engage_name, category_id, category_name, department_id, department_name, 
     state, pay_state, total_amount, deposit_deduction, earnest_deduction, transfer_deduction, 
@@ -87,8 +87,8 @@
       <if test="modifyTime != null">
         modify_time = #{modifyTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="leaseType != null">
-        lease_type = #{leaseType,jdbcType=BIT},
+      <if test="assetType != null">
+        asset_type = #{assetType,jdbcType=BIT},
       </if>
       <if test="customerId != null">
         customer_id = #{customerId,jdbcType=BIGINT},
