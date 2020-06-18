@@ -154,7 +154,7 @@
         // let _formData = new FormData($('#updateForm')[0]);
         $.ajax({
             type: "POST",
-            url: "${contextPath}/earnestOrder/doUpdate.action",
+            url: "${contextPath}/meter/update.action",
             data: buildFormData(),
             dataType: "json",
             success: function (ret) {

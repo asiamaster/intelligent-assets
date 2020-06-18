@@ -57,6 +57,8 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         customerMeterDto.setCreatorId(userTicket.getId());
         customerMeterDto.setCreator(userTicket.getUserName());
         customerMeterDto.setCreatorDepId(userTicket.getDepartmentId());
+        customerMeterDto.setMarketId(userTicket.getFirmId());
+        customerMeterDto.setMarketCode(userTicket.getFirmCode());
 
         // 设置开始、修改时间
         customerMeterDto.setCreateTime(new Date());

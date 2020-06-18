@@ -72,7 +72,7 @@ public class MeterController {
      * @description：跳转到水电表-查看页面
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
-    public @ResponseBody String view(ModelMap modelMap, Long id) {
+    public String view(ModelMap modelMap, Long id) {
         Meter meter = null;
         if (id != null) {
             meter = meterService.getMeterById(id);
@@ -126,12 +126,12 @@ public class MeterController {
         // 新增
         BaseOutput<Meter> output = meterService.addMeter(meterDto);
 
-        //写业务日志
-        if (output.isSuccess()){
-            Meter meter = output.getData();
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        }
+        // 写业务日志
+//        if (output.isSuccess()){
+//            Meter meter = output.getData();
+//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+//        }
 
         return output;
     }
@@ -150,12 +150,12 @@ public class MeterController {
         // 修改
         BaseOutput<Meter> output = meterService.updateMeter(meterDto);
 
-        //写业务日志
-        if (output.isSuccess()){
-            Meter meter = output.getData();
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        }
+//        // 写业务日志
+//        if (output.isSuccess()){
+//            Meter meter = output.getData();
+//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+//        }
 
         return output;
     }

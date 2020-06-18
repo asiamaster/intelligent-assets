@@ -70,7 +70,7 @@ public class CustomerMeterController {
     public @ResponseBody String view(ModelMap modelMap, Long id) {
         CustomerMeter customerMeter = null;
         if (id != null) {
-//            customerMeter = customerMeterService.getMeterById(id);
+            customerMeter = customerMeterService.getMeterById(id);
         }
         logger.info(customerMeter.toString());
         modelMap.put("customerMeter", customerMeter);
@@ -98,13 +98,13 @@ public class CustomerMeterController {
 
     /**
      * 分页查询CustomerMeter，返回easyui分页信息
-     * @param customerMeter
+     * @param customerMeterDto
      * @return String
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute CustomerMeter customerMeter) throws Exception {
-        return customerMeterService.listEasyuiPageByExample(customerMeter, true).toString();
+    public @ResponseBody String listPage(@ModelAttribute CustomerMeterDto customerMeterDto) throws Exception {
+        return customerMeterService.listEasyuiPageByExample(customerMeterDto, true).toString();
     }
 
     /**
@@ -120,7 +120,7 @@ public class CustomerMeterController {
         // 新增
         BaseOutput<CustomerMeter> output = customerMeterService.addCustomerMeter(customerMeterDto);
 
-        //写业务日志
+        // 写业务日志
         if (output.isSuccess()) {
             CustomerMeter customerMeter = output.getData();
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -136,13 +136,14 @@ public class CustomerMeterController {
      * @param        customerMeterDto
      * @description：修改 CustomerMeter(解绑同接口)
      */
+    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(@ModelAttribute CustomerMeterDto customerMeterDto) {
 
         // 修改
         BaseOutput<CustomerMeter> output = customerMeterService.updateCustomerMeter(customerMeterDto);
 
-        //写业务日志
+        // 写业务日志
         if (output.isSuccess()) {
             CustomerMeter customerMeter = output.getData();
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -158,9 +159,20 @@ public class CustomerMeterController {
      * @param        id
      * @description：删除 CustomerMeter
      */
+    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="delete", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput delete(Long id) {
+
+        // 删除
         BaseOutput<CustomerMeter> output = customerMeterService.deleteCustomerMeter(id);
+
+        // 写业务日志
+        if (output.isSuccess()) {
+            CustomerMeter customerMeter = output.getData();
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
         return output;
     }
 }

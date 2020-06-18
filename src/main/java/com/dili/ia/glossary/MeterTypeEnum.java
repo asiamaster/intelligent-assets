@@ -19,7 +19,7 @@ public enum MeterTypeEnum {
         this.name = name;
     }
 
-    public static MeterTypeEnum getEarnestOrderStateEnum(Integer code) {
+    public static MeterTypeEnum getMeterTypeEnum(Integer code) {
         for (MeterTypeEnum anEnum : MeterTypeEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
@@ -28,7 +28,7 @@ public enum MeterTypeEnum {
         return null;
     }
 
-    public static String getEarnestOrderStateEnumName(Integer code) {
+    public static String getMeterTypeEnumName(Integer code) {
         for (MeterTypeEnum r : MeterTypeEnum.values()) {
             if (r.getCode().equals(code)) {
                 return r.getName();

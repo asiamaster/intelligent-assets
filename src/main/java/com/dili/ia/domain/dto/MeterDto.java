@@ -45,7 +45,7 @@ public class MeterDto extends Meter {
     /**
      * 表类型
      */
-    private Long type;
+    private Integer type;
 
     /**
      * 部门
@@ -68,7 +68,7 @@ public class MeterDto extends Meter {
     private Long assetsId;
 
     /**
-     * 对应编号,名称
+     * 对应编号,名称(表地址)
      */
     private String assetsName;
 

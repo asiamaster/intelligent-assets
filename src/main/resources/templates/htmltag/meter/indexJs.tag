@@ -18,7 +18,7 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/earnestOrder/listPage.action', pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/meter/listPage.action', pageSize: parseInt(size)});
     });
 
 
@@ -61,8 +61,8 @@
      */
     function openInsertHandler() {
         dia = bs4pop.dialog({
-            title: '新增定金',//对话框title
-            content: '${contextPath}/earnestOrder/add.html', //对话框内容，可以是 string、element，$object
+            title: '新增表信息',//对话框title
+            content: '${contextPath}/meter/add.html', //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
             height: '95%',//高度
             isIframe: true,//默认是页面层，非iframe
@@ -70,7 +70,7 @@
     }
 
     /**
-     打开新增窗口
+     打开修改窗口
      */
     function openUpdateHandler() {
         //获取选中行的数据
@@ -81,8 +81,8 @@
         }
 
         dia = bs4pop.dialog({
-            title: '修改定金',//对话框title
-            content: '${contextPath}/earnestOrder/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
+            title: '修改表信息',//对话框title
+            content: '${contextPath}/meter/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
             height: '95%',//高度
             isIframe: true,//默认是页面层，非iframe
@@ -106,8 +106,8 @@
 
 
         dia = bs4pop.dialog({
-            title: '定金详情',
-            content: '/earnestOrder/view.action?id='+id,
+            title: '表信息详情',
+            content: '/meter/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',

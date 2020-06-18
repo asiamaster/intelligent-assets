@@ -17,6 +17,13 @@ import javax.persistence.*;
 public class Meter extends BaseDomain {
 
     /**
+     * id
+     */
+    @Id
+    @Column(name = "`id`")
+    private Long id;
+
+    /**
      * 创建日期
      */
     @Column(name = "`create_time`")
@@ -38,7 +45,7 @@ public class Meter extends BaseDomain {
      * 表类型
      */
     @Column(name = "`type`")
-    private Long type;
+    private Integer type;
 
     /**
      * 部门
@@ -130,6 +137,20 @@ public class Meter extends BaseDomain {
     @Column(name = "`version`")
     private Integer version;
 
+    /**
+     * 关键字(搜索的条件，表编号或表地址)
+     */
+    @Transient
+    private String keyWord;
+
+    public String getKeyWord() {
+        return keyWord;
+    }
+
+    public void setKeyWord(String keyWord) {
+        this.keyWord = keyWord;
+    }
+
     @FieldDef(label="创建日期")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     public Date getCreateTime() {
@@ -162,11 +183,11 @@ public class Meter extends BaseDomain {
 
     @FieldDef(label="表类型")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(Long type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 

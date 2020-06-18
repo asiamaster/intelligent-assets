@@ -15,13 +15,13 @@
                 <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
-                <label for="assetsId">部门:</label>
+                <label for="assetsId">类别:</label>
                 <select id="assetsId" name="assetsId" class="form-control"></select>
                 <#bcomboProvider _id="assetsId" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
-                <label for="number">表编号/表地址:</label>
-                <input type="text" class="form-control" name="number" id="number" maxlength="50"/>
+                <label for="keyWord">表编号/表地址:</label>
+                <input type="keyWord" class="form-control" name="keyWord" id="keyWord" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
@@ -41,9 +41,9 @@
                 <#resource code="updateMeter">
                 <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 </#resource>
-                <#resource code="downMeter">
-                <button id="btn_down" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 下载</button>
-                </#resource>
+<!--                <#resource code="downMeter">-->
+<!--                <button id="btn_down" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 下载</button>-->
+<!--                </#resource>-->
             </div>
             <table id="grid" data-toggle="table" data-title="表列表" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"
@@ -58,13 +58,13 @@
                     <th data-field="number" data-sortable="true" data-align="center" data-formatter="codeFormatter">
                         表编号
                     </th>
-                    <th data-field="type" data-sortable="true" data-align="center" data-formatter="codeFormatter">
+                    <th data-field="type" data-sortable="true" data-align="center" data-provider="meterTypeProvider">
                         表类型
                     </th>
                     <th data-field="departmentName" data-sortable="true" data-align="center">
                         部门
                     </th>
-                    <th data-field="state" data-sortable="true" data-align="center" data-provider="meterTypeProvider">
+                    <th data-field="assetsId" data-sortable="true" data-align="center" data-provider="assetsTypeProvider">
                         类别
                     </th>
                     <th data-field="assetsName" data-sortable="true" data-align="center">
@@ -76,7 +76,7 @@
                     <th data-field="price" data-sortable="true" data-align="center">
                         单价
                     </th>
-                    <th data-field="createTime" data-sortable="true" data-align="center">
+                    <th data-field="createTime" data-sortable="true" data-align="center"  data-provider="dateProvider" >
                         创建日期
                     </th>
                     <th data-field="notes" data-sortable="true" data-align="center" >

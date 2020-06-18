@@ -6,12 +6,17 @@ import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ia.mapper.MeterMapper;
 import com.dili.ia.service.MeterService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -27,6 +32,9 @@ import java.util.List;
 public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements MeterService {
 
     private final static Logger logger = LoggerFactory.getLogger(MeterServiceImpl.class);
+
+    @Autowired
+    DepartmentRpc departmentRpc;
 
     public MeterMapper getActualDao() {
         return (MeterMapper)getDao();
@@ -67,20 +75,28 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
     public BaseOutput<Meter> addMeter(MeterDto meterDto) {
         Meter meter = new Meter();
 
-        // 校验用户是否登陆, 并设置相关信息
+        // 校验用户是否登陆
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
             return BaseOutput.failure("未登录");
         }
+
+        // 获取部门名称
+        BaseOutput<Department> depOut = departmentRpc.get(meterDto.getDepartmentId());
+        if(!depOut.isSuccess()){
+            LOGGER.info("获取部门失败！" + depOut.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
+        }
+
+        // 设置相关属性值
         meterDto.setCreatorId(userTicket.getId());
         meterDto.setCreator(userTicket.getUserName());
         meterDto.setCreatorDepId(userTicket.getDepartmentId());
-
-        // 设置开始、修改时间
+        meterDto.setDepartmentName(depOut.getData().getName());
+        meterDto.setMarketId(userTicket.getFirmId());
+        meterDto.setMarketCode(userTicket.getFirmCode());
         meterDto.setCreateTime(new Date());
         meterDto.setModifyTime(new Date());
-
-        // TODO 差市场code 市场id
 
         BeanUtils.copyProperties(meterDto, meter);
         this.getActualDao().insert(meter);
