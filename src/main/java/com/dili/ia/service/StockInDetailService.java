@@ -8,4 +8,7 @@ import com.dili.ss.base.BaseService;
  * This file was generated on 2020-06-12 11:14:28.
  */
 public interface StockInDetailService extends BaseService<StockInDetail, Long> {
+	
+	StockInDetail getByCode(String code);
+	
 }

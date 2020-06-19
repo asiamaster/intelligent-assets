@@ -7,6 +7,8 @@ import com.dili.ss.metadata.annotation.FieldDef;
 import java.util.Date;
 import javax.persistence.*;
 
+import org.springframework.data.annotation.CreatedDate;
+
 /**
  * 由MyBatis Generator工具自动生成
  * 入库
@@ -14,7 +16,8 @@ import javax.persistence.*;
  */
 @Table(name = "`stock_in`")
 public class StockIn extends BaseDomain {
-    @Id
+
+	@Id
     @Column(name = "`id`")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -77,13 +80,19 @@ public class StockIn extends BaseDomain {
      * 状态
      */
     @Column(name = "`state`")
-    private Byte state;
+    private Integer state;
+    
+    /**
+     * 总金额
+     */
+    @Column(name = "amount")
+    private Integer amount;
 
     /**
      * 入库类型
      */
     @Column(name = "`type`")
-    private Byte type;
+    private Integer type;
 
     /**
      * 品类id
@@ -110,7 +119,7 @@ public class StockIn extends BaseDomain {
      * 支付方式 1 现金，2 POS，3 刷卡
      */
     @Column(name = "`pay_type`")
-    private Byte payType;
+    private Integer payType;
 
     /**
      * 部门
@@ -375,7 +384,7 @@ public class StockIn extends BaseDomain {
      */
     @FieldDef(label="状态")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getState() {
+    public Integer getState() {
         return state;
     }
 
@@ -384,7 +393,7 @@ public class StockIn extends BaseDomain {
      *
      * @param state 状态
      */
-    public void setState(Byte state) {
+    public void setState(Integer state) {
         this.state = state;
     }
 
@@ -395,7 +404,7 @@ public class StockIn extends BaseDomain {
      */
     @FieldDef(label="入库类型")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getType() {
+    public Integer getType() {
         return type;
     }
 
@@ -404,7 +413,7 @@ public class StockIn extends BaseDomain {
      *
      * @param type 入库类型
      */
-    public void setType(Byte type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 
@@ -491,7 +500,7 @@ public class StockIn extends BaseDomain {
      */
     @FieldDef(label="支付方式 1 现金，2 POS，3 刷卡")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getPayType() {
+    public Integer getPayType() {
         return payType;
     }
 
@@ -500,7 +509,7 @@ public class StockIn extends BaseDomain {
      *
      * @param payType 支付方式 1 现金，2 POS，3 刷卡
      */
-    public void setPayType(Byte payType) {
+    public void setPayType(Integer payType) {
         this.payType = payType;
     }
 
@@ -647,4 +656,12 @@ public class StockIn extends BaseDomain {
     public void setCreator(String creator) {
         this.creator = creator;
     }
+
+	public Integer getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Integer amount) {
+		this.amount = amount;
+	}
 }
