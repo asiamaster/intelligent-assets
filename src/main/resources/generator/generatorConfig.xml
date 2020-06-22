@@ -103,10 +103,7 @@
 <!--        <table domainObjectName="TransferDeductionItem" tableName="transfer_deduction_item">-->
 <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
 <!--        </table>-->
-<!--       <table domainObjectName="LeaseChargeItem" tableName="lease_charge_item">-->
-<!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
-<!--        </table>-->
-       <table domainObjectName="ChargebackOrder" tableName="chargeback_order">
+       <table domainObjectName="LeaseChargeItem" tableName="lease_charge_item">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
 
