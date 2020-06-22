@@ -107,14 +107,14 @@
 <script id="stockOut" type="text/html">
 	<form id="saveForm" role="form" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo">
-	<input type="hidden" class="form-control" name="id" value="{{selectedRow.id}}" required />
+	<input type="hidden" class="form-control" name="stockId" value="{{selectedRow.id}}" required />
 					<div class="form-group col-10">
-						<label for="quantity" class="">当前库存：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
-						 name="quantity" range="0 9999999" value="{{selectedRow.quantity}}" readonly required />
+						<label for="" class="">当前库存：<i class="red">*</i></label> <input id="stockQuantity" type="number" class="form-control floatReserve"
+						 name="stockQuantity" range="0 9999999" value="{{selectedRow.quantity}}" readonly required />
 					</div>
 					<div class="form-group col-10">
-						<label for="weight" class="">出库件数：<i class="red">*</i></label> <input id="outStock" type="number" class="form-control floatReserve"
-						 name="outStock" range="0 9999999"  required />
+						<label for="weight" class="">出库件数：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
+						 name="quantity" range="0 9999999"  required />
 					</div>
 					<div class="form-group col-10">
 					    <label for="notes">备注</label>

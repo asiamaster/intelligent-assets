@@ -52,8 +52,8 @@ public class StockController {
      */
     @RequestMapping(value="/stockOut.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput stockOut(Long stockId,Long weight,Long quantity) {
-        // stockInService.submit(code);
+    public @ResponseBody BaseOutput stockOut(Long stockId,Long weight,Long quantity,String notes) {
+    	stockService.stockOut(stockId, weight, quantity,notes);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("新增成功");
     }

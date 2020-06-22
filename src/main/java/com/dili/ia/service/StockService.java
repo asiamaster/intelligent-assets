@@ -30,8 +30,9 @@ public interface StockService extends BaseService<Stock, Long> {
 	 * @param stockId 库存id
 	 * @param weight 出库重量
 	 * @param quantity 出库数量
+	 * @param notes 备注
 	 * @throws
 	 */
-	void stockOut(Long stockId,Long weight,Long quantity);
+	void stockOut(Long stockId,Long weight,Long quantity,String notes);
 	
 }
