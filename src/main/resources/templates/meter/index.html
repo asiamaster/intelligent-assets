@@ -45,9 +45,7 @@
                 <#resource code="updateMeter">
                 <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 </#resource>
-<!--                <#resource code="downMeter">-->
-<!--                <button id="btn_down" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 下载</button>-->
-<!--                </#resource>-->
+                <button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
             </div>
             <table id="grid" data-toggle="table" data-title="表列表" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"
