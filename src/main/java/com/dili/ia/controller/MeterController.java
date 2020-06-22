@@ -1,9 +1,23 @@
 package com.dili.ia.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ia.domain.Meter;
+import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ia.service.MeterService;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 import java.util.List;
+
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.dto.DTOUtils;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -13,19 +27,26 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-06-12 11:35:07.
+ * @author:      xiaosa
+ * @date:        2020/6/12
+ * @version:     农批业务系统重构
+ * @description: 水电费 - 表的相关业务 web 层
  */
 @Controller
 @RequestMapping("/meter")
 public class MeterController {
+
+    private final static Logger logger = LoggerFactory.getLogger(MeterController.class);
+
     @Autowired
     MeterService meterService;
 
     /**
-     * 跳转到Meter页面
-     * @param modelMap
-     * @return String
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        modelMap
+     * @return       String
+     * @description：跳转到Meter页面
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
@@ -33,46 +54,148 @@ public class MeterController {
     }
 
     /**
-     * 分页查询Meter，返回easyui分页信息
-     * @param meter
-     * @return String
-     * @throws Exception
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        modelMap
+     * @return       String
+     * @description：跳转到水电表-新增页面
+     */
+    @RequestMapping(value="/add.html", method = RequestMethod.GET)
+    public String add(ModelMap modelMap) {
+        return "meter/add";
+    }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        modelMap
+     * @return       String
+     * @description：跳转到水电表-查看页面
+     */
+    @RequestMapping(value="/view.action", method = RequestMethod.GET)
+    public String view(ModelMap modelMap, Long id) {
+        Meter meter = null;
+        if (id != null) {
+            meter = meterService.getMeterById(id);
+        }
+        logger.info(meter.toString());
+        modelMap.put("meter", meter);
+        return "meter/view";
+    }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        modelMap
+     * @return       String
+     * @description：跳转到水电表-修改页面
+     */
+    @RequestMapping(value="/update.html", method = RequestMethod.GET)
+    public String update(ModelMap modelMap, Long id) {
+        Meter meter = null;
+        if (id != null) {
+            meter = meterService.getMeterById(id);
+        }
+        logger.info(meter.toString());
+        modelMap.put("meter", meter);
+        return "meter/update";
+    }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param
+     * @return       String
+     * @description：分页查询Meter，返回easyui分页信息
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute Meter meter) throws Exception {
-        return meterService.listEasyuiPageByExample(meter, true).toString();
+    public @ResponseBody String listPage(@ModelAttribute MeterDto meterDto) throws Exception {
+        EasyuiPageOutput easyuiPageOutput = new EasyuiPageOutput();
+        return meterService.listMeters(meterDto).toString();
     }
 
     /**
-     * 新增Meter
-     * @param meter
-     * @return BaseOutput
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        meterDto
+     * @return       BaseOutput
+     * @description：新增 Meter
      */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute Meter meter) {
-        meterService.insertSelective(meter);
-        return BaseOutput.success("新增成功");
+    @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput insert(@ModelAttribute MeterDto meterDto) {
+
+        // 新增
+        BaseOutput<Meter> output = meterService.addMeter(meterDto);
+
+        // 写业务日志
+//        if (output.isSuccess()){
+//            Meter meter = output.getData();
+//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+//        }
+
+        return output;
     }
 
     /**
-     * 修改Meter
-     * @param meter
-     * @return BaseOutput
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        meterDto
+     * @return       BaseOutput
+     * @description：修改Meter
      */
+    @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute Meter meter) {
-        meterService.updateSelective(meter);
-        return BaseOutput.success("修改成功");
+    public @ResponseBody BaseOutput update(@ModelAttribute MeterDto meterDto) {
+
+        // 修改
+        BaseOutput<Meter> output = meterService.updateMeter(meterDto);
+
+//        // 写业务日志
+//        if (output.isSuccess()){
+//            Meter meter = output.getData();
+//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+//        }
+
+        return output;
     }
 
     /**
-     * 删除Meter
-     * @param id
-     * @return BaseOutput
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        meterDto
+     * @return       BaseOutput
+     * @description：下载Meter
      */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        meterService.delete(id);
-        return BaseOutput.success("删除成功");
+    @RequestMapping(value="/down.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput down(@ModelAttribute MeterDto meterDto) {
+        meterService.downMeterList(meterDto);
+        return BaseOutput.success("下载成功");
     }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        type
+     * @return       BaseOutput
+     * @description：根据表类型获取未绑定的表编号
+     */
+    @RequestMapping(value="/getUnbindMeterByType.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput down(@ModelAttribute Long type) {
+        BaseOutput<Meter> output = meterService.getUnbindMeterByType(type);
+        return output;
+    }
+
+//    /**
+//     * 删除Meter
+//     * @param id
+//     * @return BaseOutput
+//     */
+//    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
+//    public @ResponseBody BaseOutput delete(Long id) {
+//        meterService.delete(id);
+//        return BaseOutput.success("删除成功");
+//    }
 }

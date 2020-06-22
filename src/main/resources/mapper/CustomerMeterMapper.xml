@@ -20,6 +20,10 @@
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
     <result column="version" jdbcType="INTEGER" property="version" />
+<!--    <result column="version" jdbcType="INTEGER" property="version" />-->
+<!--    <result column="version" jdbcType="INTEGER" property="version" />-->
+<!--    <result column="version" jdbcType="INTEGER" property="version" />-->
+<!--    <result column="version" jdbcType="INTEGER" property="version" />-->
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -88,4 +92,91 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="getMeterById" parameterType="java.lang.Long" resultType="com.dili.ia.domain.dto.CustomerMeterDto">
+    <!--
+      WARNING - @mbg.generated
+    -->
+      select
+          cm.id as id,
+          cm.create_time as create_time,
+          cm.modify_time as modify_time,
+          cm.meter_id as meter_id,
+          cm.customer_id as customer_id,
+          cm.customer_name as customer_name,
+          cm.customer_cellphone as customer_cellphone,
+          cm.creator_dep_id as creator_dep_id,
+          cm.state as state,
+          cm.notes as notes,
+          cm.creator_id as creator_id,
+          cm.creator as creator,
+          cm.market_id as market_id,
+          cm.market_code as market_code,
+          cm.version as version,
+          me.number as number,
+          me.department_name as departmentName,
+          me.type as type,
+          me.assets_name as assetsName
+      from
+        customer_meter as cm
+      left join
+        meter as me
+      on
+        cm.meter_id = me.id
+      where
+        cm.id = #{id,jdbcType=BIGINT}
+  </select>
+
+
+  <select id="listCustomerMeters" parameterType="com.dili.ia.domain.dto.CustomerMeterDto" resultType="com.dili.ia.domain.dto.CustomerMeterDto">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select
+        cm.id as id,
+        cm.create_time as create_time,
+        cm.modify_time as modify_time,
+        cm.meter_id as meter_id,
+        cm.customer_id as customer_id,
+        cm.customer_name as customer_name,
+        cm.customer_cellphone as customer_cellphone,
+        cm.creator_dep_id as creator_dep_id,
+        cm.state as state,
+        cm.notes as notes,
+        cm.creator_id as creator_id,
+        cm.creator as creator,
+        cm.market_id as market_id,
+        cm.market_code as market_code,
+        cm.version as version,
+        me.number as number,
+        me.department_name as departmentName,
+        me.type as type,
+        me.assets_name as assetsName
+    from
+        customer_meter as cm
+    left join
+        meter as me
+    on
+        cm.meter_id = me.id
+    <where>
+        <if test="state != null">
+          and cm.state = #{state,jdbcType=INTEGER}
+        </if>
+        <if test="type != null">
+          and me.type = #{type,jdbcType=INTEGER}
+        </if>
+        <if test="departmentId != null">
+          and me.department_id = #{departmentId,jdbcType=INTEGER}
+        </if>
+        <if test="keyword != null and keyword != ''">
+          and (
+            me.number =  #{keyword}
+            or me.assets_name like concat('', #{keyword}, '%')
+            or cm.customer_name like concat('', #{keyword}, '%')
+          )
+        </if>
+    </where>
+
+  </select>
+
 </mapper>

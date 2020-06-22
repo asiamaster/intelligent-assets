@@ -1,0 +1,74 @@
+<#bs4Body>
+
+<div class="container-fluid">
+    <form id="saveForm" role="form" novalidate>
+        <div class="breadcrumb">
+            订单信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#orderInfo" aria-expanded="true" aria-controls="orderInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+        </div>
+        <div class="row  row-cols-4 collapse show" id="orderInfo">
+            <div class="form-group col">
+                <label for="" class="">表编号</label>
+                <input type="text" class="form-control" value="${meter.number!}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">表类型</label>
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.MeterTypeEnum.getMeterTypeEnum(meter.type).getName()}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">业务所属部门</label>
+                <input type="text" class="form-control" value="${meter.departmentName!}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">类别</label>
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(meter.assetsId).getName()}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">表初始值</label>
+                <input type="text" class="form-control" value="${meter.initAmount!}" disabled />
+            </div>
+
+        </div>
+
+        <div class="breadcrumb">
+            对应摊位
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true" aria-controls="boothInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+        </div>
+        <div id="boothInfo" class="collapse show">
+            <table class="table table-bordered table-hover table-striped" id="boothTable" style="width: 500px">
+                <thead>
+                <tr>
+                    <th class="text-center align-middle" style="width: 5%"><a id="addStall" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
+                    <th style="width: 25%;font-weight:normal; ">摊位编号</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
+                    <td>
+                        ${meter.assetsName!}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="breadcrumb">
+            金额信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+        </div>
+        <div class="row  row-cols-4 collapse show" id="moneyInfo">
+            <div class="form-group col">
+                <label for="" class="">单价</label>
+                <input type="text" class="form-control" value="${meter.price!}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">备注</label>
+                <input type="text" class="form-control" value="${meter.notes!}" disabled />
+            </div>
+        </div>
+    </form>
+</div>
+
+</#bs4Body>

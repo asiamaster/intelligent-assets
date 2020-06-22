@@ -1,0 +1,56 @@
+<#bs4Body>
+
+<div class="container-fluid">
+    <form id="saveForm" role="form" novalidate>
+        <div class="breadcrumb">
+            订单信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#orderInfo" aria-expanded="true" aria-controls="orderInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+        </div>
+        <div class="row  row-cols-4 collapse show" id="orderInfo">
+            <div class="form-group col">
+                <label for="" class="">创建日期</label>
+                <input type="text" class="form-control" value="${customerMeter.createTime!}" data-provider="dateProvider" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">表编号</label>
+                <input type="text" class="form-control" value="${customerMeter.number!}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">表类型</label>
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.MeterTypeEnum.getMeterTypeEnum(customerMeter.type).getName()}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">业务所属部门</label>
+                <input type="text" class="form-control" value="${customerMeter.departmentName!}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">客户姓名</label>
+                <input type="text" class="form-control" value="${customerMeter.customerName!}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">手机号码</label>
+                <input type="text" class="form-control" value="${customerMeter.customerCellphone!}" disabled />
+            </div>
+        </div>
+
+        <div class="breadcrumb">
+            金额信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+        </div>
+        <div class="row  row-cols-4 collapse show" id="moneyInfo">
+
+            <div class="form-group col">
+                <label for="" class="">备注</label>
+                <input type="text" class="form-control" value="${customerMeter.notes!}" disabled />
+            </div>
+
+            <div class="form-group col">
+                <label for="" class="">状态</label>
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.CustomerMeterStateEnum.getCustomerMeterStateEnum(customerMeter.state).getName()}" disabled />
+            </div>
+
+        </div>
+    </form>
+</div>
+
+</#bs4Body>

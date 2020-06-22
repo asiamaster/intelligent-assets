@@ -15,6 +15,10 @@ public class LogBizTypeConst {
     public static final String DISTRICT="district";
     public static final String STOCK="stock";
 
+    //表管理
+    public static final String METER="meter";
+    //表用户关系
+    public static final String CUSTOMER_METER="customer_meter";
 
 
 }
