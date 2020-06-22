@@ -210,7 +210,7 @@
                     for(item in chargeItems){
                 %>
                 <th data-field="chargeItemYuan${item.id!}" data-sortable="true" data-align="center" ${itemLP.index==1?'data-provider="businessChargeItemProvider"':''} data-query-params="{${itemLP.index==1?'assetType:'+assetType:''}}" >
-                    ${item.name!}
+                    ${item.chargeItem!}
                 </th>
                 <% } }%>
                 <th data-field="state" data-sortable="true" data-align="center" data-provider="leaseOrderStateProvider">

@@ -1,7 +1,7 @@
 package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.dili.assets.sdk.dto.ChargeItemDto;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.AssetLeaseOrder;
@@ -22,14 +22,11 @@ import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,8 +88,12 @@ public class AssetLeaseOrderController {
             throw new RuntimeException("未登录");
         }
 
+
+        BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
+        businessChargeItemDto.setMarketId(userTicket.getFirmId());
+        businessChargeItemDto.setBusinessType(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType());
         //获取业务收费项目
-        BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null);
+        BaseOutput<List<BusinessChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
         if(chargeItemsOutput.isSuccess()){
             modelMap.put("chargeItems", chargeItemsOutput.getData());
         }
@@ -174,12 +175,14 @@ public class AssetLeaseOrderController {
             throw new RuntimeException("未登录");
         }
 
+        BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
+        businessChargeItemDto.setMarketId(userTicket.getFirmId());
+        businessChargeItemDto.setBusinessType(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType());
+        businessChargeItemDto.setIsEnable(YesOrNoEnum.YES.getCode());
         //获取业务收费项目
-        BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null);
-        List<ChargeItemDto> chargeItemDtos = new ArrayList<>();
+        BaseOutput<List<BusinessChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
         if(chargeItemsOutput.isSuccess()){
-            chargeItemDtos = chargeItemsOutput.getData();
-            modelMap.put("chargeItems", chargeItemDtos);
+            modelMap.put("chargeItems", chargeItemsOutput.getData());
         }
 
         if(null != id){
@@ -190,7 +193,7 @@ public class AssetLeaseOrderController {
             condition.setLeaseOrderId(id);
             List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
 
-            List<Map<String,String>> businessChargeItems = businessChargeItemService.queryBusinessChargeItem(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()), chargeItemDtos);
+            List<Map<String, String>> businessChargeItems = businessChargeItemService.queryBusinessChargeItem(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()), chargeItemsOutput.getData());
             Map<Long,Map<String,String>> businessChargeItemMap = new HashMap<>();
             businessChargeItems.forEach(bct->{
                 businessChargeItemMap.put(Long.valueOf(bct.get("businessId")),bct);
@@ -328,7 +331,7 @@ public class AssetLeaseOrderController {
     }
 
     /**
-     * 摊位租赁订单保存
+     * 资产租赁订单保存
      * @param leaseOrder
      * @return
      */
@@ -353,10 +356,10 @@ public class AssetLeaseOrderController {
             }
             return output;
         }catch (BusinessException e){
-            LOG.info("摊位租赁订单保存异常！", e);
+            LOG.info("资产租赁订单保存异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
-            LOG.error("摊位租赁订单保存异常！", e);
+            LOG.error("资产租赁订单保存异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -383,16 +386,16 @@ public class AssetLeaseOrderController {
             }
             return assetLeaseOrderService.submitPayment(id,amount,waitAmount);
         }catch (BusinessException e){
-            LOG.info("摊位租赁订单提交付款异常！", e);
+            LOG.info("资产租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
-            LOG.error("摊位租赁订单提交付款异常！", e);
+            LOG.error("资产租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
 
     /**
-     * 摊位租赁退款申请
+     * 资产租赁退款申请
      * @param refundOrderDto
      * @return BaseOutput
      */
@@ -410,10 +413,10 @@ public class AssetLeaseOrderController {
             }
             return output;
         }catch (BusinessException e){
-            LOG.info("摊位租赁退款申请异常！", e);
+            LOG.info("资产租赁退款申请异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
-            LOG.error("摊位租赁退款申请异常！", e);
+            LOG.error("资产租赁退款申请异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }

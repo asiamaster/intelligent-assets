@@ -1,9 +1,8 @@
 package com.dili.ia.service;
 
-import com.dili.assets.sdk.dto.ChargeItemDto;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ss.base.BaseService;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -20,5 +19,5 @@ public interface BusinessChargeItemService extends BaseService<BusinessChargeIte
      * @param chargeItemDtos
      * @return
      */
-    List<Map<String, String>> queryBusinessChargeItem(String bizType, List<Long> businessIds, List<ChargeItemDto> chargeItemDtos);
+    List<Map<String, String>> queryBusinessChargeItem(String bizType, List<Long> businessIds, List<BusinessChargeItemDto> chargeItemDtos);
 }

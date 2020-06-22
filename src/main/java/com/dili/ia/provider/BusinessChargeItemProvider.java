@@ -2,10 +2,9 @@ package com.dili.ia.provider;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dili.assets.sdk.dto.ChargeItemDto;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.ia.glossary.AssetsTypeEnum;
-import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,7 +27,7 @@ import java.util.stream.Collectors;
  */
 @Component
 public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport {
-    private static ThreadLocal<List<ChargeItemDto>> threadLocal = new ThreadLocal<>();
+    private static ThreadLocal<List<BusinessChargeItemDto>> threadLocal = new ThreadLocal<>();
 
     @Autowired
     private BusinessChargeItemService businessChargeItemService;
@@ -48,7 +46,7 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
         BatchProviderMeta batchProviderMeta = DTOUtils.newInstance(BatchProviderMeta.class);
         //设置主DTO和关联DTO需要转义的字段名，这里直接取resource表的name属性
         Map<String, String> map = Maps.newHashMap();
-        List<ChargeItemDto> chargeItemDtos = getChargeItemDtos(userTicket.getFirmId(), assetType);
+        List<BusinessChargeItemDto> chargeItemDtos = getChargeItemDtos(userTicket.getFirmId(), assetType);
         if (CollectionUtils.isNotEmpty(chargeItemDtos)) {
             chargeItemDtos.forEach(o -> {
                 map.put("chargeItem"+o.getId(), "chargeItem"+o.getId());
@@ -72,11 +70,14 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
      * @param assetType
      * @return
      */
-    private List<ChargeItemDto> getChargeItemDtos(Long marketId, Integer assetType) {
+    private List<BusinessChargeItemDto> getChargeItemDtos(Long marketId, Integer assetType) {
         if (CollectionUtils.isEmpty(threadLocal.get())) {
+            BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
+            businessChargeItemDto.setMarketId(marketId);
+            businessChargeItemDto.setBusinessType(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType());
             //获取业务收费项目
-            BaseOutput<List<ChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listItemByMarketAndBusiness(marketId, AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null);
-            if (chargeItemsOutput.isSuccess()) {
+            BaseOutput<List<BusinessChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
+            if(chargeItemsOutput.isSuccess()){
                 threadLocal.set(chargeItemsOutput.getData());
             }
         }
@@ -87,7 +88,7 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
     protected List getFkList(List<String> relationIds, Map metaMap) {
         JSONObject queryParamsObj = JSON.parseObject(String.valueOf(metaMap.get("queryParams")));
         Integer assetType = (Integer) queryParamsObj.get("assetType");
-        List<ChargeItemDto> chargeItemDtos = threadLocal.get();
+        List<BusinessChargeItemDto> chargeItemDtos = threadLocal.get();
         if (CollectionUtils.isEmpty(chargeItemDtos)) {
             return new ArrayList();
         }

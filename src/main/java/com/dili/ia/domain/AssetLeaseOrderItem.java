@@ -7,6 +7,7 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
+import tk.mybatis.mapper.annotation.Version;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,14 +30,12 @@ public class AssetLeaseOrderItem extends BaseDomain {
     private String code;
 
     //创建时间
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`create_time`")
     private LocalDateTime createTime;
 
     //修改时间
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`modify_time`")
@@ -189,6 +188,7 @@ public class AssetLeaseOrderItem extends BaseDomain {
     /**
      * 乐观锁，版本号
      */
+    @Version
     @Column(name = "`version`")
     private Byte version;
 

@@ -1,6 +1,6 @@
 package com.dili.ia.service.impl;
 
-import com.dili.assets.sdk.dto.ChargeItemDto;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.mapper.BusinessChargeItemMapper;
 import com.dili.ia.service.BusinessChargeItemService;
@@ -22,7 +22,7 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
     }
 
     @Override
-    public List<Map<String, String>> queryBusinessChargeItem(String bizType, List<Long> businessIds, List<ChargeItemDto> chargeItemDtos) {
+    public List<Map<String, String>> queryBusinessChargeItem(String bizType, List<Long> businessIds, List<BusinessChargeItemDto> chargeItemDtos) {
         return getActualDao().queryBusinessChargeItem(bizType,businessIds,chargeItemDtos);
     }
 }
