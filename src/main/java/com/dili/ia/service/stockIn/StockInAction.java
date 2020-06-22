@@ -28,9 +28,9 @@ public class StockInAction {
 	private StockInService stockInService;
 	
 	public void stockInAction(String code, StockInState stockInState) {
-		StockIn stockIn = stockInService.getStockInByCode(code);
-		stockInState.action(stockIn);
-		stockInService.update(condtion);
+		//StockIn stockIn = stockInService.getStockInByCode(code);
+		//stockInState.action(stockIn);
+		//stockInService.update(condtion);
 	}
 }
 class Cancle implements StockInState{
@@ -77,8 +77,8 @@ class Paid implements StockInState{
 		domain.setState(StockInStateEnum.PAID.getCode());
 		//TODO 缴费
 		//TODO 创建库存
-		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(stockIn.getCode());
-		stockService.inStock(stockInDetails, stockIn);
+		//List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(stockIn.getCode());
+		//stockService.inStock(stockInDetails, stockIn);
 		return domain;
 	}
 	
