@@ -40,7 +40,7 @@ public class StockRecord extends BaseDomain {
      * 入库,出库
      */
     @Column(name = "`type`")
-    private Byte type;
+    private Integer type;
 
     /**
      * 库存
@@ -140,7 +140,7 @@ public class StockRecord extends BaseDomain {
      */
     @FieldDef(label="入库,出库")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getType() {
+    public Integer getType() {
         return type;
     }
 
@@ -149,7 +149,7 @@ public class StockRecord extends BaseDomain {
      *
      * @param type 入库,出库
      */
-    public void setType(Byte type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 

@@ -2,6 +2,8 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.Stock;
 import com.dili.ia.service.StockService;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,7 @@ public class StockController {
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
-        return "stock/index";
+        return "stock/stockOut/index";
     }
 
     /**
@@ -42,37 +44,18 @@ public class StockController {
     public @ResponseBody String listPage(@ModelAttribute Stock stock) throws Exception {
         return stockService.listEasyuiPageByExample(stock, true).toString();
     }
-
+    
     /**
-     * 新增Stock
-     * @param stock
+     * 提交入库单
+     * @param stockIn
      * @return BaseOutput
      */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute Stock stock) {
-        stockService.insertSelective(stock);
+    @RequestMapping(value="/stockOut.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput stockOut(Long stockId,Long weight,Long quantity,String notes) {
+    	stockService.stockOut(stockId, weight, quantity,notes);
+        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("新增成功");
     }
 
-    /**
-     * 修改Stock
-     * @param stock
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute Stock stock) {
-        stockService.updateSelective(stock);
-        return BaseOutput.success("修改成功");
-    }
-
-    /**
-     * 删除Stock
-     * @param id
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        stockService.delete(id);
-        return BaseOutput.success("删除成功");
-    }
 }
