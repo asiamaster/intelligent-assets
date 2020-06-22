@@ -10,7 +10,7 @@ import javax.persistence.*;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-06 15:34:22.
+ * This file was generated on 2020-06-22 14:19:04.
  */
 @Table(name = "`deposit_order`")
 public class DepositOrder extends BaseDomain {
@@ -114,12 +114,6 @@ public class DepositOrder extends BaseDomain {
      */
     @Column(name = "`refund_amount`")
     private Long refundAmount;
-
-    /**
-     * 扣款金额，退款时的扣款金额或者罚款金额
-     */
-    @Column(name = "`chargeback_amount`")
-    private Long chargebackAmount;
 
     /**
      * 备注信息
@@ -539,26 +533,6 @@ public class DepositOrder extends BaseDomain {
      */
     public void setRefundAmount(Long refundAmount) {
         this.refundAmount = refundAmount;
-    }
-
-    /**
-     * 获取扣款金额，退款时的扣款金额或者罚款金额
-     *
-     * @return chargeback_amount - 扣款金额，退款时的扣款金额或者罚款金额
-     */
-    @FieldDef(label="扣款金额，退款时的扣款金额或者罚款金额")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getChargebackAmount() {
-        return chargebackAmount;
-    }
-
-    /**
-     * 设置扣款金额，退款时的扣款金额或者罚款金额
-     *
-     * @param chargebackAmount 扣款金额，退款时的扣款金额或者罚款金额
-     */
-    public void setChargebackAmount(Long chargebackAmount) {
-        this.chargebackAmount = chargebackAmount;
     }
 
     /**
