@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.CustomerMeter;
+import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.mapper.CustomerMeterMapper;
 import com.dili.ia.service.CustomerMeterService;
@@ -152,5 +153,23 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         }
 
         return BaseOutput.success("删除成功");
+    }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        type
+     * @return       BaseOutput
+     * @description：根据表类型获取未绑定的表编号
+     */
+    @Override
+    public BaseOutput<Meter> getUnbindMeterByType(Long type) {
+        BaseOutput baseOutput = new BaseOutput();
+
+        // TODO sql 未完成
+        List<Meter> meterList = this.getActualDao().getUnbindMeterByType(type);
+        baseOutput.setData(meterList);
+
+        return baseOutput;
     }
 }

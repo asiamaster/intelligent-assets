@@ -139,24 +139,6 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         this.updateSelective(meter);
 
         return BaseOutput.success();
-}
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        type
-     * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
-     */
-    @Override
-    public BaseOutput<Meter> getUnbindMeterByType(Long type) {
-        BaseOutput baseOutput = new BaseOutput();
-
-        // TODO sql 未完成
-        List<Meter> meterList = this.getActualDao().getUnbindMeterByType(type);
-        baseOutput.setData(baseOutput);
-
-        return baseOutput;
     }
 
 }

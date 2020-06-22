@@ -129,11 +129,11 @@ public class MeterController {
         BaseOutput<Meter> output = meterService.addMeter(meterDto);
 
         // 写业务日志
-//        if (output.isSuccess()){
-//            Meter meter = output.getData();
-//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-//        }
+        if (output.isSuccess()){
+            Meter meter = output.getData();
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
 
         return output;
     }
@@ -152,39 +152,13 @@ public class MeterController {
         // 修改
         BaseOutput<Meter> output = meterService.updateMeter(meterDto);
 
-//        // 写业务日志
-//        if (output.isSuccess()){
-//            Meter meter = output.getData();
-//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-//        }
+        // 写业务日志
+        if (output.isSuccess()){
+            Meter meter = output.getData();
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
 
-        return output;
-    }
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        meterDto
-     * @return       BaseOutput
-     * @description：下载Meter
-     */
-    @RequestMapping(value="/down.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput down(@ModelAttribute MeterDto meterDto) {
-        meterService.downMeterList(meterDto);
-        return BaseOutput.success("下载成功");
-    }
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        type
-     * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
-     */
-    @RequestMapping(value="/getUnbindMeterByType.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput down(@ModelAttribute Long type) {
-        BaseOutput<Meter> output = meterService.getUnbindMeterByType(type);
         return output;
     }
 }

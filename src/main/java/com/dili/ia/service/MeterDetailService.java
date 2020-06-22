@@ -8,4 +8,5 @@ import com.dili.ss.base.BaseService;
  * This file was generated on 2020-06-12 11:35:07.
  */
 public interface MeterDetailService extends BaseService<MeterDetail, Long> {
+
 }

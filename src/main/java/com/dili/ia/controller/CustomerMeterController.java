@@ -2,9 +2,11 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.CustomerMeter;
+import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.service.CustomerMeterService;
+import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -13,6 +15,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,11 +188,11 @@ public class CustomerMeterController {
         BaseOutput<CustomerMeter> output = customerMeterService.updateCustomerMeter(customerMeterDto);
 
         // 写业务日志
-//        if (output.isSuccess()) {
-//            CustomerMeter customerMeter = output.getData();
-//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//            LoggerUtil.buildLoggerContext(customerMeter.getId(), customerMeterDto.getId().toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-//        }
+        if (output.isSuccess()) {
+            CustomerMeter customerMeter = output.getData();
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerUtil.buildLoggerContext(customerMeter.getId(), customerMeterDto.getId().toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
 
         return output;
     }
@@ -214,6 +217,19 @@ public class CustomerMeterController {
             LoggerUtil.buildLoggerContext(customerMeter.getId(), id.toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
 
+        return output;
+    }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param
+     * @return       BaseOutput
+     * @description：根据表类型获取未绑定的表编号
+     */
+    @RequestMapping(value="/getUnbindMeterByType.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput down() {
+        BaseOutput<Meter> output = customerMeterService.getUnbindMeterByType(1L);
         return output;
     }
 }
