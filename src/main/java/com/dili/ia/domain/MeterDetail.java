@@ -15,6 +15,11 @@ import javax.persistence.*;
 @Table(name = "`meter_detail`")
 public class MeterDetail extends BaseDomain {
 
+    @Id
+    @Column(name = "`id`")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     /**
      * 创建时间
      */

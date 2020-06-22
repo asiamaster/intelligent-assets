@@ -56,19 +56,6 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
     /**
      * @author:      xiaosa
      * @date:        2020/6/16
-     * @param:       id
-     * @return:      Meter
-     * @description：根据 id 查询表信息
-     */
-    @Override
-    public Meter getMeterById(Long id) {
-        Meter meter = this.getActualDao().getMeterById(id);
-        return meter;
-    }
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
      * @param:       meterDto
      * @return:      BaseOutput
      * @description：新增表信息
@@ -106,9 +93,10 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         meterDto.setMarketCode(userTicket.getFirmCode());
         meterDto.setCreateTime(new Date());
         meterDto.setModifyTime(new Date());
+        meterDto.setVersion(1);
 
         BeanUtils.copyProperties(meterDto, meter);
-        this.getActualDao().insert(meter);
+        this.insertSelective(meter);
 
         return BaseOutput.success();
     }
@@ -134,15 +122,21 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         meter.setNumber(meterDto.getNumber());
         List<Meter> meterList = this.getActualDao().select(meter);
         if (meterList != null && meterList.size() > 0) {
-            return BaseOutput.failure("表编号已存在");
+            for (Meter meterRe : meterList) {
+                if (!meterRe.getId().equals(meterDto.getId())) {
+                    return BaseOutput.failure("表编号已存在");
+                }
+            }
         }
 
-        // 设置修改时间
+        Meter meterInfo = this.get(meterDto.getId());
+
         meterDto.setModifyTime(new Date());
+        meterDto.setVersion(meterInfo.getVersion() + 1);
 
         //修改
         BeanUtils.copyProperties(meterDto, meter);
-        this.getActualDao().updateByPrimaryKeySelective(meter);
+        this.updateSelective(meter);
 
         return BaseOutput.success();
 }
@@ -163,23 +157,6 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         baseOutput.setData(baseOutput);
 
         return baseOutput;
-    }
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        meter
-     * @return       easyuiPageOutput
-     * @description：查询列表
-     */
-    @Override
-    public EasyuiPageOutput listMeters(Meter meter) throws Exception {
-//        if (StringUtils.isNotEmpty(meter.getKeyWord())) {
-//            meter.setNumber(meter.getKeyWord());
-//            meter.setAssetsName(meter.getKeyWord());
-//        }
-        EasyuiPageOutput easyuiPageOutput = this.listEasyuiPageByExample(meter, true);
-        return easyuiPageOutput;
     }
 
 }

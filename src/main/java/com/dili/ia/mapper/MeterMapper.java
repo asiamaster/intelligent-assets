@@ -12,15 +12,6 @@ import java.util.List;
  * @description: 水电费 - 表的相关业务 dao 层
  */
 public interface MeterMapper extends MyMapper<Meter> {
-    
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       id
-     * @return:      Meter
-     * @description：根据主键 id 查询表信息
-     */
-    Meter getMeterById(Long id);
 
     /**
      * @author:      xiaosa

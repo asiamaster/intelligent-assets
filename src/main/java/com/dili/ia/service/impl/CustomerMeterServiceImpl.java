@@ -92,9 +92,10 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         customerMeterDto.setMarketCode(userTicket.getFirmCode());
         customerMeterDto.setCreateTime(new Date());
         customerMeterDto.setModifyTime(new Date());
+        customerMeterDto.setVersion(1);
 
         BeanUtils.copyProperties(customerMeterDto, customerMeter);
-        this.getActualDao().insert(customerMeter);
+        this.insertSelective(customerMeterDto);
 
         return BaseOutput.success();
     }
@@ -108,7 +109,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      */
     @Override
     public BaseOutput<CustomerMeter> updateCustomerMeter(CustomerMeterDto customerMeterDto) {
-//        CustomerMeter customerMeter = new CustomerMeter();
+        CustomerMeter customerMeter = new CustomerMeter();
 
         // 校验用户是否登陆, 并设置相关信息
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -116,18 +117,16 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
             return BaseOutput.failure("未登录");
         }
 
-//        CustomerMeter customerMeter = new CustomerMeter();
-//        customerMeter.setId(customerMeterDto.getId());
         CustomerMeter customerMeterInfo = get(customerMeterDto.getId());
         if (customerMeterInfo == null) {
             return BaseOutput.failure("该表用户信息已删除");
         }
 
-        // 设置修改时间
         customerMeterDto.setModifyTime(new Date());
+        customerMeterDto.setVersion(customerMeterInfo.getVersion() + 1);
 
-        BeanUtils.copyProperties(customerMeterDto, customerMeterInfo);
-        this.update(customerMeterInfo);
+        BeanUtils.copyProperties(customerMeterDto, customerMeter);
+        this.updateSelective(customerMeter);
 
         return BaseOutput.success();
     }
@@ -147,13 +146,11 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         }
 
         // 再删除(乐观锁)
-        int i = this.getActualDao().deleteByPrimaryKey(customerMeter);
+        int i = this.delete(id);
         if (i == 0) {
             return BaseOutput.failure("该数据已删除");
         }
 
         return BaseOutput.success("删除成功");
     }
-
-
 }

@@ -20,8 +20,16 @@
                 <#bcomboProvider _id="state" _provider="customerMeterStateProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
-                <label for="keyword">表编号/表地址:</label>
-                <input type="keyword" class="form-control" name="keyword" id="keyword" maxlength="50"/>
+                <label for="number">表编号:</label>
+                <input type="number" class="form-control" name="number" id="number" maxlength="50"/>
+            </div>
+            <div class="form-group col">
+                <label for="assetsName">表地址:</label>
+                <input type="assetsName" class="form-control" name="assetsName" id="assetsName" maxlength="50"/>
+            </div>
+            <div class="form-group col">
+                <label for="customerName">客户姓名:</label>
+                <input type="customerName" class="form-control" name="customerName" id="customerName" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>

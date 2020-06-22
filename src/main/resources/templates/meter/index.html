@@ -20,8 +20,12 @@
                 <#bcomboProvider _id="assetsId" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
-                <label for="keyWord">表编号/表地址:</label>
-                <input type="keyWord" class="form-control" name="keyWord" id="keyWord" maxlength="50"/>
+                <label for="number">表编号:</label>
+                <input type="number" class="form-control" name="number" id="number" maxlength="50"/>
+            </div>
+            <div class="form-group col">
+                <label for="assetsName">表地址:</label>
+                <input type="assetsName" class="form-control" name="assetsName" id="assetsName" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
