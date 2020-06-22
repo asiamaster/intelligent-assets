@@ -3,34 +3,42 @@
 	<form id="saveForm_{{index}}" role="form" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
-						<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber" name="pickupNumber" required />
+						<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="">车型</label> <input type="text" class="form-control" id="carTypePublicCode" name="carTypePublicCode"
+						<label for="">车型</label> <input type="text" class="form-control" id="carTypePublicCode_{{index}}" name="carTypePublicCode"
 						 required />
 					</div>
 					<div class="form-group col-4">
-						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate" name="carPlate" required />
+						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="districtId">冷库编号：<i class="red">*</i></label>
+						<label for="">冷库区域：<i class="red">*</i></label>
+						<input id="districtId_{{index}}" type="text" class="form-control floatReserve"
+						 name="districtId" range="0 9999999" required />
 						
 					</div>	
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
+						<label for="">冷库编号：<i class="red">*</i></label>
+						<input id="assetsId_{{index}}" type="text" class="form-control"
+						 name="assetsId" required />
+						
+					</div>
+					<div class="form-group col-4">
+						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control floatReserve"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight" type="number" class="form-control floatReserve"
+						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control floatReserve"
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="money" type="number" class="form-control floatReserve money"
+						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="money_{{index}}" type="number" class="form-control floatReserve money"
 						 name="money" range="0 9999999" required />
 					</div>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
-					    <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100"></textarea>
+					    <textarea id="notes" class="form-control" name="notes_{{index}}" rows="1" maxlength="100"></textarea>
 					</div>
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
@@ -108,20 +116,20 @@
 						 _optionVariable="certificateNumberAutoCompleteOption" _required="true" /> -->
 					</div>	
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
+						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control floatReserve"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight" type="number" class="form-control floatReserve"
+						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control floatReserve"
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="money" type="number" class="form-control floatReserve money"
+						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="money_{{index}}" type="number" class="form-control floatReserve money"
 						 name="money" range="0 9999999" required />
 					</div>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
-					    <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100"></textarea>
+					    <textarea id="notes" class="form-control" name="notes_{{index}}" rows="1" maxlength="100"></textarea>
 					</div>
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>

@@ -114,8 +114,9 @@
                 <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                 </#resource>
                 <#resource code="submitPaymentLeaseOrder">
-                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
+                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
                 </#resource>
+                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openPayHandler()"><i class="fa fa-paper-plane"></i> 支付</button>
                 <#resource code="withdrawLeaseOrder">
                 <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
                 </#resource>
@@ -177,7 +178,7 @@
                     <th data-field="expireDate" data-sortable="true" data-align="center" data-provider="dateProvider">
                         到期日期
                     </th>
-                    <th data-field="state" data-sortable="true" data-align="center" data-sort-name="State" data-provider="leaseOrderStateProvider">
+                    <th data-field="state" data-sortable="true" data-align="center" data-sort-name="State" data-provider="stockInStateProvider">
                         业务状态
                     </th>
                     <th data-field="payState" data-sortable="true" data-align="center" data-sort-name="pay_state" data-provider="payStateProvider">

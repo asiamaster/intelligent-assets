@@ -2,6 +2,7 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.dto.StockInDto;
+import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.service.StockInService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -111,13 +112,13 @@ public class StockInController {
     }
 
     /**
-     * 删除StockIn
+     * 取消(逻辑删除)StockIn
      * @param id
      * @return BaseOutput
      */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        stockInService.delete(id);
+    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput delete(String code) {
+        stockInService.cancel(code);
         return BaseOutput.success("删除成功");
     }
     
@@ -128,8 +129,8 @@ public class StockInController {
      */
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput submit(@RequestBody String code) {
-        //stockInService.createStockIn(stockInDto);
+    public @ResponseBody BaseOutput submit(String code) {
+        stockInService.submit(code);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("新增成功");
     }
@@ -141,10 +142,10 @@ public class StockInController {
      */
     @RequestMapping(value="/pay.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput pay(@RequestBody String code) {
-    	throw new BusinessException("2000", "cuowu");
-        //stockInService.createStockIn(stockInDto);
+    public @ResponseBody BaseOutput pay(String code) {
+    	
+        stockInService.pay(code);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        //return BaseOutput.success("新增成功");
+        return BaseOutput.success("新增成功");
     }
 }

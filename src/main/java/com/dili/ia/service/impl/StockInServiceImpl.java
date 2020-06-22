@@ -18,11 +18,11 @@ import com.dili.ia.service.StockInDetailService;
 import com.dili.ia.service.StockInService;
 import com.dili.ia.service.StockService;
 import com.dili.ia.service.StockWeighmanRecordService;
-import com.dili.ia.util.SessionUtil;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Override
 	@Transactional
 	public void createStockIn(StockInDto stockInDto) {
-		UserTicket userTicket = SessionUtil.getUserTicket();
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = buildStockIn(stockInDto, userTicket);
 		List<StockInDetail> detailList = buildStockDetail(stockInDto, stockIn);
 		insertSelective(stockIn);
@@ -144,6 +144,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	}
 
 	@Override
+	@Transactional
 	public void pay(String code) {
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
@@ -183,11 +184,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockIn domain = new StockIn();
 		//TODO 提交人是否记录到该表
 		domain.setState(state.getCode());
+		domain.setVersion(version+1);
 		StockIn condition = new StockIn();
 		condition.setCode(code);
 		condition.setVersion(version);
 		//修改入库单状态提交入库单
-		int row = updateByExample(domain, condition);
+		int row = updateSelectiveByExample(domain, condition);
 		if(row != 1) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "业务繁忙,稍后再试");
 		}
@@ -205,6 +207,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	}
 
 	@Override
+	@Transactional
 	public void updateStockIn(StockInDto stockInDto) {
 		// TODO Auto-generated method stub
 		StockIn stockIn = getStockInByCode(stockInDto.getCode());
@@ -238,6 +241,16 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		condition.setCode(stockIn.getCode());
 		condition.setVersion(stockIn.getVersion());
 		updateByExample(stockIn, condition);
+	}
+
+	@Override
+	@Transactional
+	public void cancel(String code) {
+		StockIn stockIn = getStockInByCode(code);
+		if(stockIn.getState() != StockInStateEnum.CREATED.getCode()) {
+			throw new BusinessException("", "");
+		}
+		updateState(code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
 	}
 	
 }

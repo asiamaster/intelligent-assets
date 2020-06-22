@@ -3,8 +3,10 @@
 
 //行索引计数器
 let itemIndex = 0;
+//入库类型
+let type = ${type};
 
-//对应摊位
+//入库明细
 $(function() {
 	adddetailItem();
 });
@@ -108,8 +110,7 @@ var districtAutoCompleteOption = {
 	}
 }
 
-//入库类型
-let type = ${type};
+
 
 /**
  * 添加子单
@@ -145,12 +146,15 @@ function buildFormData() {
 	let formData = $('#saveForm').serializeObject();
 	formData.departmentName = departmentName;
 	formData.categoryName = categoryName;
+	formData.type = type;
 	let stockDetails = [];
 	bui.util.yuanToCentForMoneyEl(formData);
 	$("#details").find("form").each(function() {
 		let detail = $(this).serializeObject();
 		let districtName = $(this).find("[name=districtId]").find("option:selected").text();
 		detail.districtName = districtName;
+		detail.categoryId = formData.categoryId;
+		detail.categoryName = formData.categoryName;
 		/* let detail = {};
 		$(this).find("input").each(function(t, el) {
 			let fieldName = $(this).attr("name").split('_')[0];
@@ -183,7 +187,7 @@ function doAddEarnestHandler() {
 					type: 'error'
 				});
 			} else {
-				parent.closeDialog(parent.dia);
+				bs4pop.alert(ret.message, {type: 'success'});
 			}
 		},
 		error: function(error) {

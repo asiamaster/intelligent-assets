@@ -23,4 +23,15 @@ public interface StockService extends BaseService<Stock, Long> {
 	 */
 	void inStock(List<StockInDetail> details,StockIn stockIn);
 	
+	/**
+	 * 
+	 * @Title stockOut
+	 * @Description 出库
+	 * @param stockId 库存id
+	 * @param weight 出库重量
+	 * @param quantity 出库数量
+	 * @throws
+	 */
+	void stockOut(Long stockId,Long weight,Long quantity);
+	
 }

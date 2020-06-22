@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.dto.StockInDto;
+import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ss.base.BaseService;
 
 /**
@@ -59,5 +60,14 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @throws
 	 */
 	StockInDto view(String code);
+	
+	/**
+	 * 
+	 * @Title cancel
+	 * @Description 取消
+	 * @param code
+	 * @throws
+	 */
+	void cancel(String code);
 	
 }

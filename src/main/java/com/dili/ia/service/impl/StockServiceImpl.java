@@ -59,7 +59,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 			condition.setAssetsId(stock.getAssetsId());
 			condition.setCustomerId(stock.getCustomerId());
 			condition.setVersion(stock.getVersion());
-			int row = updateByExample(domain, condition);
+			int row = updateSelectiveByExample(domain, condition);
 			if(row != 1) {
 				throw new BusinessException(ResultCode.DATA_ERROR, "入库失败");
 			}
@@ -74,7 +74,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		example.setCategoryId(categoryId);
 		example.setAssetsId(assetsId);
 		example.setCustomerId(customerId);
-		List<Stock> stocks = selectByExample(example);
+		List<Stock> stocks = listByExample(example);
 		if(CollectionUtils.isEmpty(stocks)) {
 			return null;		
 		}
@@ -115,7 +115,13 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		record.setStockId(stock.getId());
 		record.setMarketId(stock.getMarketId());
 		record.setMarketCode(stock.getMarketCode());
-		stockRecordServiceImpl.insert(record);		
+		stockRecordServiceImpl.insertSelective(record);		
+	}
+
+	@Override
+	public void stockOut(Long stockId, Long weight, Long quantity) {
+		// TODO Auto-generated method stub
+		// Stock stock = get(key)
 	}
 	
 }

@@ -1,0 +1,126 @@
+<#bs4Body>
+<style>
+    .w-100px{width: 100px!important;}
+
+</style>
+<!--
+ 内联元素:让元素排成一行显示出来，且高度和宽度由内容决定，不能用css控制
+ 块状元素:独立占一行
+ 内联元素与块状元素对立
+ 内联(inline)表单:表单排在一行显示，只有在from中指定  class="form-inline"即可让表单成内联显示
+      一定要添加 label 标签
+      如果你没有为每个输入控件设置 label 标签，屏幕阅读器将无法正确识别。对于这些内联表单，你可以通过为 label 设置 .sr-only 类将其隐藏。还有一些辅助技术提供label标签的替代方案，比如 aria-label、aria-labelledby 或 title 属性。如果这些都不存在，屏幕阅读器可能会采取使用 placeholder 属性，如果存在的话，使用占位符来替代其他的标记，但要注意，这种方法是不妥当的。
+-->
+<!--注意label中的for 与 input中的保持一致-->
+<div class="container-fluid">
+    <#bs4nav>
+    <form id="queryForm" role="form" >
+                <div class="row row-cols-6">
+                    <div class="form-group col">
+                        <label for="departmentId">部门</label>
+                        <select id="departmentId" name="departmentId" class="form-control"></select>
+                       <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" />
+                    </div>
+                   
+                    
+                    <div class="form-group col">
+                        <label for="assetsId">冷库编号</label>
+                        <select id="assetsId" name="assetsId" class="form-control" required>
+						</select>
+                    </div>
+                    <div class="form-group col">
+                        <label for="categoryId">品类<i class="red">*</i></label>
+						<select id="categoryId" name="categoryId" class="form-control" required>
+						</select>
+						<#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption" _value="[1]" />
+
+                    </div>
+					<div class="form-group col">
+					    <label for="customerName">客户姓名</label>
+					    <input type="text" class="form-control" name="customerName" id="customerName" maxlength="50"/>
+					</div>
+					<div class="form-group col">
+					    <label for="customerCellPhone">手机号</label>
+					    <input type="text" class="form-control" name="customerCellPhone" id="customerCellPhone" maxlength="50"/>
+					</div>
+					
+                    <div class="col align-self-center mt-3">
+                        <button id="clear" type="button" class="btn btn-outline-primary mr-2" onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                        <button id="query" type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+                    </div>
+                </div>
+
+            </form>
+</#bs4nav>
+    <div class="row">
+        <div class="col-12">
+            <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+				<button id="btn_view" type="button" class="btn btn-primary" onclick="openStockOutHandler()"><i class="fa fa-eye"></i> 出库</button>
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(2)"><i class="fa fa-eye"></i> 下载</button>
+	
+            </div>
+            <table id="grid" data-toggle="table" data-title="库存列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="5"
+                   data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                   data-click-to-select="true"  data-checkbox-header="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true" data-detail-view="true"
+            >
+                <thead>
+                 <tr>
+                    <th data-checkbox="true"></th>
+                    <th data-field="assetsId" data-sortable="true" data-align="center" data-width-unit="%" >
+                        冷库编号
+                    </th>
+                    <th data-field="districtId" data-sortable="true" data-align="center" data-sort-name="type" data-provider="leaseOrderStateProvider">
+                        冷库区域
+                    </th>
+                    <th data-field="departmentName" data-sortable="true" data-align="center">
+                       部门
+                    </th>
+                    <th data-field="customerName" data-sortable="true" data-sort-name="customer_name" data-align="center">
+                        客户名称
+                    </th>
+                    <th data-field="customerCellphone" data-sortable="true" data-align="center" >
+                        联系电话
+                    </th>
+                     <th data-field="categoryName" data-sortable="true" data-sort-name="category_name" data-align="center">
+                        货物品类
+                    </th>
+                    <th data-field="quantity" data-sortable="true" data-sort-name="quantity" data-align="center">
+                        当前库存(件)
+                    </th>
+                    <th data-field="weight" data-sortable="true" data-sort-name="weight" data-align="center">
+                        当前库存(斤)
+                    </th>
+                 
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+</div>
+</#bs4Body>
+<#stock_stockOut_indexJs />
+
+
+<script id="stockOut" type="text/html">
+	<form id="saveForm" role="form" novalidate>
+	<div class="row row-cols-12 detail" id="detailInfo">
+	<input type="hidden" class="form-control" name="id" value="{{selectedRow.id}}" required />
+					<div class="form-group col-10">
+						<label for="quantity" class="">当前库存：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
+						 name="quantity" range="0 9999999" value="{{selectedRow.quantity}}" readonly required />
+					</div>
+					<div class="form-group col-10">
+						<label for="weight" class="">出库件数：<i class="red">*</i></label> <input id="outStock" type="number" class="form-control floatReserve"
+						 name="outStock" range="0 9999999"  required />
+					</div>
+					<div class="form-group col-10">
+					    <label for="notes">备注</label>
+					    <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100" ></textarea>
+					</div>
+					
+				</div>
+	</form>			
+</script>

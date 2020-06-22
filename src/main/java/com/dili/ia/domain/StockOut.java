@@ -53,18 +53,6 @@ public class StockOut extends BaseDomain {
     private String customerName;
 
     /**
-     * 操作员
-     */
-    @Column(name = "`operator_id`")
-    private Long operatorId;
-
-    /**
-     * 操作员名称
-     */
-    @Column(name = "`operator_name`")
-    private String operatorName;
-
-    /**
      * 品类
      */
     @Column(name = "`category_id`")
@@ -141,6 +129,15 @@ public class StockOut extends BaseDomain {
 
     @Column(name = "`market_code`")
     private String marketCode;
+    
+    /**
+     * 创建人
+     */
+    @Column(name = "`creator_id`")
+    private Long creatorId;
+
+    @Column(name = "`creator`")
+    private String creator;
 
     /**
      * 获取id
@@ -260,46 +257,6 @@ public class StockOut extends BaseDomain {
      */
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
-    }
-
-    /**
-     * 获取操作员
-     *
-     * @return operator_id - 操作员
-     */
-    @FieldDef(label="操作员")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getOperatorId() {
-        return operatorId;
-    }
-
-    /**
-     * 设置操作员
-     *
-     * @param operatorId 操作员
-     */
-    public void setOperatorId(Long operatorId) {
-        this.operatorId = operatorId;
-    }
-
-    /**
-     * 获取操作员名称
-     *
-     * @return operator_name - 操作员名称
-     */
-    @FieldDef(label="操作员名称", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getOperatorName() {
-        return operatorName;
-    }
-
-    /**
-     * 设置操作员名称
-     *
-     * @param operatorName 操作员名称
-     */
-    public void setOperatorName(String operatorName) {
-        this.operatorName = operatorName;
     }
 
     /**
@@ -573,4 +530,22 @@ public class StockOut extends BaseDomain {
     public void setMarketCode(String marketCode) {
         this.marketCode = marketCode;
     }
+
+	public Long getCreatorId() {
+		return creatorId;
+	}
+
+	public void setCreatorId(Long creatorId) {
+		this.creatorId = creatorId;
+	}
+
+	public String getCreator() {
+		return creator;
+	}
+
+	public void setCreator(String creator) {
+		this.creator = creator;
+	}
+    
+    
 }

@@ -25,7 +25,7 @@ $(function () {
  * 查询处理
  */
 function queryDataHandler() {
-    _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '/stockIn/listPage.action'});
+    _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '/stock/listPage.action'});
 }
 
 //品类搜索
@@ -78,13 +78,6 @@ function queryParams(params) {
 }
 
 
-/**
-     打开新增窗口
-     */
-    function openAddHandler(type) {
-    	window.location.href = "${contextPath}/stockIn/add.html?type="+type;
-
-    }
     /**
      打开查看窗口
      */
@@ -98,18 +91,7 @@ function queryParams(params) {
     	window.location.href = "${contextPath}/stockIn/view.html?code="+rows[0].code;
 
     }
-/**
- * 修改
- */
-function openUpdateHandler() {
-    //获取选中行的数据
-    let rows = _grid.bootstrapTable('getSelections');
-    if (null == rows || rows.length == 0) {
-        bs4pop.alert('请选中一条数据');
-        return false;
-    }
-    	window.location.href = "${contextPath}/stockIn/update.html?code="+rows[0].code;
-}
+
     
 /**
  * 打开新增窗口:页面层
@@ -155,114 +137,36 @@ function openInsertIframeHandler() {
 }
 
 
-
 /**
- 撤回
+ * 打开新增窗口:页面层
  */
-function openWithdrawHandler() {
-    if(isSelectRow()){
-        bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', {}, function (sure) {
-            if(sure){
-                bui.loading.show('努力提交中，请稍候。。。');
-                //获取选中行的数据
-                let rows = _grid.bootstrapTable('getSelections');
-                let selectedRow = rows[0];
+function openStockOutHandler() {
+if(isSelectRow()){
+let rows = _grid.bootstrapTable('getSelections');
+    let selectedRow = rows[0];
+	dia = bs4pop.dialog({
+		title: '出库办理', //对话框title
+		content: bui.util.HTMLDecode(template("stockOut", {selectedRow})), //对话框内容，可以是 string、element，$object
+		width: '30%', //宽度
+		height: '50%', //高度
+		btns: [{
+			label: '取消',
+			className: 'btn btn-secondary',
+			onClick(e) {
 
-                $.ajax({
-                    type: "POST",
-                    url: "${contextPath}/customer/withdraw.action",
-                    data: {id: selectedRow.id},
-                    processData:true,
-                    dataType: "json",
-                    success : function(ret) {
-                        bui.loading.hide();
-                        if(ret.success){
-                            queryDataHandler();
-                        }else{
-                            bs4pop.alert(ret.message, {type: 'error'});
-                        }
-                    },
-                    error : function() {
-                        bui.loading.hide();
-                        bs4pop.alert('远程访问失败', {type: 'error'});
-                    }
-                });
-            }
-        })
-    }
+			}
+		}, {
+			label: '确定',
+			className: 'btn btn-primary',
+			onClick(e) {
+				bui.util.debounce(saveOrUpdateHandler, 1000, true)()
+				return false;
+			}
+		}]
+	});
+
 }
-/**
- 取消
- */
-function openCancelHandler() {
-    if(isSelectRow()){
-        bs4pop.confirm('确定取消该业务单？', {}, function (sure) {
-            if(sure){
-                bui.loading.show('努力提交中，请稍候。。。');
-                //获取选中行的数据
-                let rows = _grid.bootstrapTable('getSelections');
-                let selectedRow = rows[0];
-
-                $.ajax({
-                    type: "POST",
-                    url: "${contextPath}/stockIn/cancel.action",
-                    data: {code: selectedRow.code},
-                    processData:true,
-                    dataType: "json",
-                    success : function(ret) {
-                        bui.loading.hide();
-                        if(ret.success){
-                            queryDataHandler();
-                        }else{
-                            bs4pop.alert(ret.message, {type: 'error'});
-                        }
-                    },
-                    error : function() {
-                        bui.loading.hide();
-                        bs4pop.alert('远程访问失败', {type: 'error'});
-                    }
-                });
-            }
-        })
-    }
-}
-
-/**
- 提交处理
- */
-function openSubmitHandler() {
-    if(isSelectRow()){
-        bs4pop.confirm('提交后该信息不可更改，并且可进行缴费，确认提交？', {}, function (sure) {
-            if(sure){
-                bui.util.debounce(function () {
-                    bui.loading.show('努力提交中，请稍候。。。');
-                    //获取选中行的数据
-                    let rows = _grid.bootstrapTable('getSelections');
-                    let selectedRow = rows[0];
-
-                    $.ajax({
-                        type: "POST",
-                        url: "${contextPath}/stockIn/submit.action",
-                        data: {code: selectedRow.code},
-                        processData:true,
-                        dataType: "json",
-                        success : function(ret) {
-                            bui.loading.hide();
-                            if(ret.success){
-                                queryDataHandler();
-                            }else{
-                                bs4pop.alert(ret.message, {type: 'error'});
-                            }
-                        },
-                        error : function() {
-                            bui.loading.hide();
-                            bs4pop.alert('远程访问失败', {type: 'error'});
-                        }
-                    });
-                },1000,true)();
-            }
-        })
-    }
+ 	
 }
 
 /**
