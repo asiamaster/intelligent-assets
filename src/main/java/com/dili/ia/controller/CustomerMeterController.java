@@ -1,5 +1,6 @@
 package com.dili.ia.controller;
 
+import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.glossary.CustomerMeterStateEnum;
@@ -170,23 +171,25 @@ public class CustomerMeterController {
     /**
      * @author:      xiaosa
      * @date:        2020/6/16
-     * @param        customerMeterDto
+     * @param        id
      * @description：解绑 CustomerMeter
      */
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/unbind.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput unbind(@ModelAttribute CustomerMeterDto customerMeterDto) {
+    public @ResponseBody BaseOutput unbind(Long id) {
+        CustomerMeterDto customerMeterDto = new CustomerMeterDto();
 
         // 解绑
+        customerMeterDto.setId(id);
         customerMeterDto.setState(CustomerMeterStateEnum.CANCELD.getCode());
         BaseOutput<CustomerMeter> output = customerMeterService.updateCustomerMeter(customerMeterDto);
 
         // 写业务日志
-        if (output.isSuccess()) {
-            CustomerMeter customerMeter = output.getData();
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(customerMeter.getId(), customerMeterDto.getId().toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        }
+//        if (output.isSuccess()) {
+//            CustomerMeter customerMeter = output.getData();
+//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//            LoggerUtil.buildLoggerContext(customerMeter.getId(), customerMeterDto.getId().toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+//        }
 
         return output;
     }

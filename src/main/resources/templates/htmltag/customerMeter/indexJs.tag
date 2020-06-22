@@ -117,6 +117,70 @@
         });
     }
 
+    function openDeleteHandler(id) {
+        let current = _grid.bootstrapTable("getSelections");
+        if (null == current || current.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        bs4pop.confirm("确定要删除吗", {title: "确认提示"}, function (sure) {
+            if (sure) {
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '/customerMeter/delete.action?id='+current[0].id,
+                    success: function (data) {
+                        bui.loading.hide();
+                        if (data.code != '200') {
+                            bs4pop.alert(data.message, {type: 'error'});
+                            return;
+                        }
+                        // bs4pop.alert('成功', {type: 'success '}, function () {
+                        //     window.location.reload();
+                        // });
+                        window.location.reload();
+                    },
+                    error: function () {
+                        bui.loading.hide();
+                        bs4pop.alert("区域信息删除失败!", {type: 'error'});
+                    }
+                });
+            }
+        });
+    }
+
+    function openUnbindHandler(id) {
+        let current = _grid.bootstrapTable("getSelections");
+        if (null == current || current.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        bs4pop.confirm("确定要解绑吗", {title: "确认提示"}, function (sure) {
+            if (sure) {
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '/customerMeter/unbind.action?id='+current[0].id,
+                    success: function (data) {
+                        bui.loading.hide();
+                        if (data.code != '200') {
+                            bs4pop.alert(data.message, {type: 'error'});
+                            return;
+                        }
+                        // bs4pop.alert('成功', {type: 'success '}, function () {
+                        //     window.location.reload();
+                        // });
+                        window.location.reload();
+                    },
+                    error: function () {
+                        bui.loading.hide();
+                        bs4pop.alert("区域信息绑定失败!", {type: 'error'});
+                    }
+                });
+            }
+        });
+    }
+
     /**
      * 业务编号formatter
      * @param value
@@ -128,185 +192,10 @@
         return '<a href="javascript:openViewHandler('+row.id+')">'+value+'</a>';
     }
 
-    /**
-     提交处理
-     */
-    function openSubmitHandler() {
-        if(isSelectRow()){
-            bs4pop.confirm('提交后该信息不可更改，并且可进行缴费，确认提交？', {}, function (sure) {
-                if(sure){
-                    bui.util.debounce(function () {
-                        bui.loading.show('努力提交中，请稍候。。。');
-                        //获取选中行的数据
-                        let rows = _grid.bootstrapTable('getSelections');
-                        let selectedRow = rows[0];
-
-                        $.ajax({
-                            type: "POST",
-                            url: "${contextPath}/customerMeter/submit.action",
-                            data: {id: selectedRow.id},
-                            processData:true,
-                            dataType: "json",
-                            success : function(ret) {
-                                bui.loading.hide();
-                                if(ret.success){
-                                    queryDataHandler();
-                                }else{
-                                    bs4pop.alert(ret.message, {type: 'error'});
-                                }
-                            },
-                            error : function() {
-                                bui.loading.hide();
-                                bs4pop.alert('远程访问失败', {type: 'error'});
-                            }
-                        });
-                    },1000,true)();
-                }
-            })
-        }
-    }
-
-    /**
-     撤回
-     */
-    function openWithdrawHandler() {
-        if(isSelectRow()){
-            bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', {}, function (sure) {
-                if(sure){
-                    bui.loading.show('努力提交中，请稍候。。。');
-                    //获取选中行的数据
-                    let rows = _grid.bootstrapTable('getSelections');
-                    let selectedRow = rows[0];
-
-                    $.ajax({
-                        type: "POST",
-                        url: "${contextPath}/customerMeter/withdraw.action",
-                        data: {id: selectedRow.id},
-                        processData:true,
-                        dataType: "json",
-                        success : function(ret) {
-                            bui.loading.hide();
-                            if(ret.success){
-                                queryDataHandler();
-                            }else{
-                                bs4pop.alert(ret.message, {type: 'error'});
-                            }
-                        },
-                        error : function() {
-                            bui.loading.hide();
-                            bs4pop.alert('远程访问失败', {type: 'error'});
-                        }
-                    });
-                }
-            })
-        }
-    }
-    /**
-     取消
-     */
-    function openCancelHandler() {
-        if(isSelectRow()){
-            bs4pop.confirm('确定取消该业务单？', {}, function (sure) {
-                if(sure){
-                    bui.loading.show('努力提交中，请稍候。。。');
-                    //获取选中行的数据
-                    let rows = _grid.bootstrapTable('getSelections');
-                    let selectedRow = rows[0];
-
-                    $.ajax({
-                        type: "POST",
-                        url: "${contextPath}/customerMeter/cancel.action",
-                        data: {id: selectedRow.id},
-                        processData:true,
-                        dataType: "json",
-                        success : function(ret) {
-                            bui.loading.hide();
-                            if(ret.success){
-                                queryDataHandler();
-                            }else{
-                                bs4pop.alert(ret.message, {type: 'error'});
-                            }
-                        },
-                        error : function() {
-                            bui.loading.hide();
-                            bs4pop.alert('远程访问失败', {type: 'error'});
-                        }
-                    });
-                }
-            })
-        }
-    }
-
     //选中行事件
     _grid.on('uncheck.bs.table', function (e, row, $element) {
         currentSelectRowIndex = undefined;
     });
-
-    //选中行事件 -- 可操作按钮控制
-    _grid.on('check.bs.table', function (e, row, $element) {
-        let state = row.$_state;
-        if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.CREATED.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-            $('#btn_update').attr('disabled', false);
-            $('#btn_cancel').attr('disabled', false);
-            $('#btn_submit').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.CANCELD.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.SUBMITTED.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-            $('#btn_withdraw').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.PAID.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-        }
-    });
-
-    // 解绑
-    function doUpdateEarnestHandler(){
-        let validator = $('#updateForm').validate({ignore:''})
-        if (!validator.form()) {
-            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
-            $('.collapse:not(.show)').addClass('show');
-            return false;
-        }
-        let boothIds = $("table input[name^='assetsId']").filter(function () {
-            return this.value
-        }).map(function(){
-            return $('#assetsId_'+getIndex(this.id)).val();
-        }).get();
-
-        if(arrRepeatCheck(boothIds)){
-            bs4pop.alert('存在重复摊位，请检查！');
-            return false;
-        }
-        bui.loading.show('努力提交中，请稍候。。。');
-        // let _formData = new FormData($('#updateForm')[0]);
-        $.ajax({
-            type: "POST",
-            url: "${contextPath}/customerMeter/unbind.action",
-            data: buildFormData(),
-            dataType: "json",
-            success: function (ret) {
-                bui.loading.hide();
-                if(!ret.success){
-                    bs4pop.alert(ret.message, {type: 'error'});
-                }else{
-                    parent.closeDialog(parent.dia);
-                }
-            },
-            error: function (error) {
-                bui.loading.hide();
-                bs4pop.alert('远程访问失败', {type: 'error'});
-            }
-        });
-    }
 
     // 根据表编号查询表信息
     var customerMeterCompleteOption = {
@@ -340,6 +229,8 @@
     };
 
 </script>
+
+
 
 <!--
 http://ia.diligrp.com:8381/earnestOrder/view.html 查看

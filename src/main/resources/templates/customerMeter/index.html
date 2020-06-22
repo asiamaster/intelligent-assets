@@ -41,11 +41,12 @@
                 <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 </#resource>
                 <#resource code="unbindCustomerMeter">
-                <button id="btn_unbind" type="button" class="btn btn-primary" onclick="unBindHandler()"><i class="fa fa-pencil-square-o"></i> 解绑</button>
+                <button id="btn_unbind" type="button" class="btn btn-primary" onclick="openUnbindHandler()"><i class="fa fa-pencil-square-o"></i> 解绑</button>
                 </#resource>
                 <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
                 <#resource code="deleteCustomerMeter">
-                <button id="btn_delete" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 删除</button>
+                <button id="btn_delete" type="button" class="btn btn-primary" onclick="openDeleteHandler()">
+                    <i class="fa fa-trash-o"></i> 删除</button>
                 </#resource>
 <!--                <#resource code="downMeter">-->
 <!--                <button id="btn_down" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 下载</button>-->
@@ -95,7 +96,6 @@
     </div>
 </div>
 </div>
-
 
 </#bs4Body>
 
