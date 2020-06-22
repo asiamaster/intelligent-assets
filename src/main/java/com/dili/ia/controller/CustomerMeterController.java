@@ -2,12 +2,14 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
+import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
@@ -67,8 +69,8 @@ public class CustomerMeterController {
      * @description：跳转到表用户关系-查看页面
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
-    public @ResponseBody String view(ModelMap modelMap, Long id) {
-        CustomerMeter customerMeter = null;
+    public String view(ModelMap modelMap, Long id) {
+        CustomerMeterDto customerMeter = null;
         if (id != null) {
             customerMeter = customerMeterService.getMeterById(id);
         }
@@ -85,26 +87,26 @@ public class CustomerMeterController {
      * @description：跳转到表用户关系-修改页面
      */
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
-    public @ResponseBody String update(ModelMap modelMap, Long id) {
-        CustomerMeter customerMeter = null;
+    public String update(ModelMap modelMap, Long id) {
+        CustomerMeterDto customerMeterDto = null;
         if (id != null) {
-            customerMeter = customerMeterService.getMeterById(id);
+            customerMeterDto = customerMeterService.getMeterById(id);
         }
-        logger.info(customerMeter.toString());
-        modelMap.put("customerMeter", customerMeter);
+        logger.info(customerMeterDto.toString());
+        modelMap.put("customerMeter", customerMeterDto);
         return "customerMeter/update";
     }
 
 
     /**
-     * 分页查询CustomerMeter，返回easyui分页信息
-     * @param customerMeterDto
-     * @return String
-     * @throws Exception
+     * @author:      xiaosa
+     * @date:        2020/6/17
+     * @param        customerMeterDto
+     * @description：分页根据条件查询列表
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute CustomerMeterDto customerMeterDto) throws Exception {
-        return customerMeterService.listEasyuiPageByExample(customerMeterDto, true).toString();
+        return customerMeterService.listCustomerMeters(customerMeterDto, true).toString();
     }
 
     /**
@@ -124,10 +126,22 @@ public class CustomerMeterController {
         if (output.isSuccess()) {
             CustomerMeter customerMeter = output.getData();
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(customerMeter.getId(), customerMeterDto.getId().toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
 
         return output;
+    }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/22
+     * @param        likeName
+     * @description：获取所有未绑定的表
+     */
+    @RequestMapping(value="/listUnbindCustomerMeter.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody String listUnbindCustomerMeter(String likeName) throws Exception {
+//        return customerMeterService.listCustomerMeters(customerMeterDto, true).toString();
+        return null;
     }
 
     /**
@@ -147,7 +161,31 @@ public class CustomerMeterController {
         if (output.isSuccess()) {
             CustomerMeter customerMeter = output.getData();
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(customerMeter.getId(), customerMeterDto.getId().toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
+        return output;
+    }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        customerMeterDto
+     * @description：解绑 CustomerMeter
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/unbind.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput unbind(@ModelAttribute CustomerMeterDto customerMeterDto) {
+
+        // 解绑
+        customerMeterDto.setState(CustomerMeterStateEnum.CANCELD.getCode());
+        BaseOutput<CustomerMeter> output = customerMeterService.updateCustomerMeter(customerMeterDto);
+
+        // 写业务日志
+        if (output.isSuccess()) {
+            CustomerMeter customerMeter = output.getData();
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerUtil.buildLoggerContext(customerMeter.getId(), customerMeterDto.getId().toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
 
         return output;
@@ -170,7 +208,7 @@ public class CustomerMeterController {
         if (output.isSuccess()) {
             CustomerMeter customerMeter = output.getData();
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(customerMeter.getId(), id.toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
 
         return output;

@@ -12,6 +12,7 @@ import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 import java.util.List;
 
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -103,13 +104,14 @@ public class MeterController {
     /**
      * @author:      xiaosa
      * @date:        2020/6/16
-     * @param        meterDto
+     * @param
      * @return       String
      * @description：分页查询Meter，返回easyui分页信息
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute MeterDto meterDto) throws Exception {
-        return meterService.listEasyuiPageByExample(meterDto, true).toString();
+        EasyuiPageOutput easyuiPageOutput = new EasyuiPageOutput();
+        return meterService.listMeters(meterDto).toString();
     }
 
     /**

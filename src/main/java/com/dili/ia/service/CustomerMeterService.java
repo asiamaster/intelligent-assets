@@ -4,6 +4,7 @@ import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -18,7 +19,7 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * @return:      BaseOutput
      * @description：根据主键 id 查询
      */
-    CustomerMeter getMeterById(Long id);
+    CustomerMeterDto getMeterById(Long id);
 
     /**
      * @author:      xiaosa
@@ -45,4 +46,12 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * @description：删除表用户关系
      */
     BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id);
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/17
+     * @param        customerMeterDto
+     * @description：分页根据条件查询列表
+     */
+    EasyuiPageOutput listCustomerMeters(CustomerMeterDto customerMeterDto, boolean useProvider) throws Exception;
 }

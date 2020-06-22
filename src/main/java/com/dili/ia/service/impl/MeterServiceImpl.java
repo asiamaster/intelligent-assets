@@ -8,11 +8,13 @@ import com.dili.ia.service.MeterService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -81,6 +83,13 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
             return BaseOutput.failure("未登录");
         }
 
+        // 根据表编号查询是否已存在
+        meter.setNumber(meterDto.getNumber());
+        List<Meter> meterList = this.getActualDao().select(meter);
+        if (meterList != null && meterList.size() > 0) {
+            return BaseOutput.failure("表编号已存在");
+        }
+
         // 获取部门名称
         BaseOutput<Department> depOut = departmentRpc.get(meterDto.getDepartmentId());
         if(!depOut.isSuccess()){
@@ -121,6 +130,13 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
             return BaseOutput.failure("未登录");
         }
 
+        // 根据表编号查询是否已存在
+        meter.setNumber(meterDto.getNumber());
+        List<Meter> meterList = this.getActualDao().select(meter);
+        if (meterList != null && meterList.size() > 0) {
+            return BaseOutput.failure("表编号已存在");
+        }
+
         // 设置修改时间
         meterDto.setModifyTime(new Date());
 
@@ -149,17 +165,21 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         return baseOutput;
     }
 
-
-//    /**
-//     * @author:      xiaosa
-//     * @date:        2020/6/16
-//     * @description：校验用户是否登陆(方法抽取)
-//     */
-//    private BaseOutput checkUserLogin() {
-//
-//
-//
-//    }
-
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        meter
+     * @return       easyuiPageOutput
+     * @description：查询列表
+     */
+    @Override
+    public EasyuiPageOutput listMeters(Meter meter) throws Exception {
+//        if (StringUtils.isNotEmpty(meter.getKeyWord())) {
+//            meter.setNumber(meter.getKeyWord());
+//            meter.setAssetsName(meter.getKeyWord());
+//        }
+        EasyuiPageOutput easyuiPageOutput = this.listEasyuiPageByExample(meter, true);
+        return easyuiPageOutput;
+    }
 
 }

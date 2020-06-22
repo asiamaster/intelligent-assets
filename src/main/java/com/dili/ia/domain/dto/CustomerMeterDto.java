@@ -22,78 +22,80 @@ import java.util.Date;
 public class CustomerMeterDto extends CustomerMeter {
 
     /**
-     * 创建日期
+     * 部门
      */
-    @JSONField(format = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date createTime;
+    private String departmentName;
 
     /**
-     * 修改日期
+     * 部门 id
      */
-    @JSONField(format = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date modifyTime;
+    private Long departmentId;
 
     /**
-     * 表
+     * 表类型
      */
-    private Long meterId;
+    private Integer type;
 
     /**
-     * 客户 id
+     * 关键字
      */
-    private Long customerId;
+    private String keyword;
 
     /**
-     * 客户姓名
+     * 表编号
      */
-    private String customerName;
+    private String number;
 
     /**
-     * 客户手机号
+     * 对应编号,名称(表地址)
      */
-    private String customerCellphone;
+    private String assetsName;
 
-    /**
-     * 创建人所属于部门ID
-     */
-    private Long creatorDepId;
+    public String getDepartmentName() {
+        return departmentName;
+    }
 
-    /**
-     * 状态，已绑定，解除绑定
-     */
-    private Integer state;
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
 
-    /**
-     * 备注
-     */
-    private String notes;
+    public Long getDepartmentId() {
+        return departmentId;
+    }
 
-    /**
-     * 创建操作员ID
-     */
-    private Long creatorId;
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
 
-    /**
-     * 创建人名称
-     */
-    private String creator;
+    public Integer getType() {
+        return type;
+    }
 
-    /**
-     * 市场Id
-     */
-    private Long marketId;
+    public void setType(Integer type) {
+        this.type = type;
+    }
 
-    /**
-     * 市场CODE
-     */
-    private String marketCode;
+    public String getKeyword() {
+        return keyword;
+    }
 
-    /**
-     * 版本控制,乐观锁
-     */
-    private Integer version;
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getAssetsName() {
+        return assetsName;
+    }
+
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
+    }
 }

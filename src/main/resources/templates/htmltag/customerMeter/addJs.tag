@@ -9,7 +9,7 @@
         //行索引计数器
     let itemIndex = 0;
 
-    //对应摊位
+    // 对应摊位
     $(function () {
         addBoothItem();
         registerMsg();
@@ -57,7 +57,7 @@
 
     // 添加摊位
     $('#addBooth').on('click', function () {
-        if ($('#boothTable tr').length < 11) {
+        if ($('#boothTable tr').length < 2) {
             debugger
             addBoothItem();
         } else {
@@ -138,7 +138,7 @@
         // let _formData = new FormData($('#saveForm')[0]);
         $.ajax({
             type: "POST",
-            url: "${contextPath}/earnestOrder/doAdd.action",
+            url: "${contextPath}/customerMeter/add.action",
             data: buildFormData(),
             dataType: "json",
             success: function (ret) {

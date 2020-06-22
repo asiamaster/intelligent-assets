@@ -5,6 +5,7 @@ import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 
 /**
  * @author:      xiaosa
@@ -59,4 +60,13 @@ public interface MeterService extends BaseService<Meter, Long> {
      * @description：根据表类型获取未绑定的表编号
      */
     BaseOutput<Meter> getUnbindMeterByType(Long type);
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param:       meter
+     * @return:      EasyuiPageOutput
+     * @description：查询列表
+     */
+    EasyuiPageOutput listMeters(Meter meter) throws Exception;
 }

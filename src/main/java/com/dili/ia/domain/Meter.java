@@ -137,20 +137,6 @@ public class Meter extends BaseDomain {
     @Column(name = "`version`")
     private Integer version;
 
-    /**
-     * 关键字(搜索的条件，表编号或表地址)
-     */
-    @Transient
-    private String keyWord;
-
-    public String getKeyWord() {
-        return keyWord;
-    }
-
-    public void setKeyWord(String keyWord) {
-        this.keyWord = keyWord;
-    }
-
     @FieldDef(label="创建日期")
     @EditMode(editor = FieldEditor.Datetime, required = false)
     public Date getCreateTime() {

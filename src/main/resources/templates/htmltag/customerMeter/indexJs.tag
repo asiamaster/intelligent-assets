@@ -18,7 +18,7 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/earnestOrder/listPage.action', pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/customerMeter/listPage.action', pageSize: parseInt(size)});
     });
 
 
@@ -61,8 +61,8 @@
      */
     function openInsertHandler() {
         dia = bs4pop.dialog({
-            title: '新增定金',//对话框title
-            content: '${contextPath}/earnestOrder/add.html', //对话框内容，可以是 string、element，$object
+            title: '新增表用户',//对话框title
+            content: '${contextPath}/customerMeter/add.html', //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
             height: '95%',//高度
             isIframe: true,//默认是页面层，非iframe
@@ -70,7 +70,7 @@
     }
 
     /**
-     打开新增窗口
+     打开修改窗口
      */
     function openUpdateHandler() {
         //获取选中行的数据
@@ -81,8 +81,8 @@
         }
 
         dia = bs4pop.dialog({
-            title: '修改定金',//对话框title
-            content: '${contextPath}/earnestOrder/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
+            title: '修改表用户',//对话框title
+            content: '${contextPath}/customerMeter/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
             height: '95%',//高度
             isIframe: true,//默认是页面层，非iframe
@@ -106,8 +106,8 @@
 
 
         dia = bs4pop.dialog({
-            title: '定金详情',
-            content: '/earnestOrder/view.action?id='+id,
+            title: '表用户详情',
+            content: '/customerMeter/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -143,7 +143,7 @@
 
                         $.ajax({
                             type: "POST",
-                            url: "${contextPath}/earnestOrder/submit.action",
+                            url: "${contextPath}/customerMeter/submit.action",
                             data: {id: selectedRow.id},
                             processData:true,
                             dataType: "json",
@@ -180,7 +180,7 @@
 
                     $.ajax({
                         type: "POST",
-                        url: "${contextPath}/earnestOrder/withdraw.action",
+                        url: "${contextPath}/customerMeter/withdraw.action",
                         data: {id: selectedRow.id},
                         processData:true,
                         dataType: "json",
@@ -215,7 +215,7 @@
 
                     $.ajax({
                         type: "POST",
-                        url: "${contextPath}/earnestOrder/cancel.action",
+                        url: "${contextPath}/customerMeter/cancel.action",
                         data: {id: selectedRow.id},
                         processData:true,
                         dataType: "json",
@@ -267,6 +267,77 @@
             $('#btn_add').attr('disabled', false);
         }
     });
+
+    // 解绑
+    function doUpdateEarnestHandler(){
+        let validator = $('#updateForm').validate({ignore:''})
+        if (!validator.form()) {
+            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+            $('.collapse:not(.show)').addClass('show');
+            return false;
+        }
+        let boothIds = $("table input[name^='assetsId']").filter(function () {
+            return this.value
+        }).map(function(){
+            return $('#assetsId_'+getIndex(this.id)).val();
+        }).get();
+
+        if(arrRepeatCheck(boothIds)){
+            bs4pop.alert('存在重复摊位，请检查！');
+            return false;
+        }
+        bui.loading.show('努力提交中，请稍候。。。');
+        // let _formData = new FormData($('#updateForm')[0]);
+        $.ajax({
+            type: "POST",
+            url: "${contextPath}/customerMeter/unbind.action",
+            data: buildFormData(),
+            dataType: "json",
+            success: function (ret) {
+                bui.loading.hide();
+                if(!ret.success){
+                    bs4pop.alert(ret.message, {type: 'error'});
+                }else{
+                    parent.closeDialog(parent.dia);
+                }
+            },
+            error: function (error) {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
+    // 根据表编号查询表信息
+    var customerMeterCompleteOption = {
+        serviceUrl: '/customerMeter/listUnbindcustomerMeter.action',
+        paramName: 'keyword',
+        displayFieldName: 'name',
+        showNoSuggestionNotice: true,
+        noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此表</a>',
+        transformResult: function (result) {
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '（' + dataItem.certificateNumber + '）'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return false;
+            }
+        },
+        selectFn: function (suggestion) {
+            $('#certificateNumber, #_certificateNumber').val(suggestion.certificateNumber);
+            $('#assetsName').val(suggestion.contactsPhone);
+            $('#departmentName').val(suggestion.contactsPhone);
+            $('#certificateNumber, #_certificateNumber, #customerCellphone').valid();
+        }
+    };
 
 </script>
 

@@ -6,13 +6,18 @@ import com.dili.ia.mapper.CustomerMeterMapper;
 import com.dili.ia.service.CustomerMeterService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -33,9 +38,33 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      * @description：根据主键 id 查询
      */
     @Override
-    public CustomerMeter getMeterById(Long id) {
-        CustomerMeter customerMeter = this.getActualDao().getMeterById(id);
-        return customerMeter;
+    public CustomerMeterDto getMeterById(Long id) {
+        CustomerMeterDto customerMeterDto = this.getActualDao().getMeterById(id);
+        return customerMeterDto;
+    }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/17
+     * @param        customerMeterDto
+     * @description：分页根据条件查询列表
+     */
+    @Override
+    public EasyuiPageOutput listCustomerMeters(CustomerMeterDto customerMeterDto, boolean useProvider) throws Exception {
+        EasyuiPageOutput pageOutput = new EasyuiPageOutput();
+
+        // 分页
+        if (customerMeterDto.getRows() != null && customerMeterDto.getRows() >= 1) {
+            PageHelper.startPage(customerMeterDto.getPage(), customerMeterDto.getRows());
+        }
+
+        // 查询
+        List<CustomerMeterDto> customerMeterDtoList= this.getActualDao().listCustomerMeters(customerMeterDto);
+
+        // 基础代码
+        long total = customerMeterDtoList instanceof Page ? ((Page)customerMeterDtoList).getTotal() : (long)customerMeterDtoList.size();
+        List results = useProvider ? ValueProviderUtils.buildDataByProvider(customerMeterDto, customerMeterDtoList) : customerMeterDtoList;
+        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results);
     }
 
     /**
@@ -49,22 +78,20 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     public BaseOutput<CustomerMeter> addCustomerMeter(CustomerMeterDto customerMeterDto) {
         CustomerMeter customerMeter = new CustomerMeter();
 
-        // 校验用户是否登陆, 并设置相关信息
+        // 校验用户是否登陆
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
             return BaseOutput.failure("未登录");
         }
+
+        // 并设置相关信息
         customerMeterDto.setCreatorId(userTicket.getId());
         customerMeterDto.setCreator(userTicket.getUserName());
         customerMeterDto.setCreatorDepId(userTicket.getDepartmentId());
         customerMeterDto.setMarketId(userTicket.getFirmId());
         customerMeterDto.setMarketCode(userTicket.getFirmCode());
-
-        // 设置开始、修改时间
         customerMeterDto.setCreateTime(new Date());
         customerMeterDto.setModifyTime(new Date());
-
-        // TODO 差市场code 市场id
 
         BeanUtils.copyProperties(customerMeterDto, customerMeter);
         this.getActualDao().insert(customerMeter);
@@ -89,13 +116,11 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
             return BaseOutput.failure("未登录");
         }
 
-        // 设置开始、修改时间
+        // 设置修改时间
         customerMeterDto.setModifyTime(new Date());
 
-        // TODO 差市场code 市场id
-
         BeanUtils.copyProperties(customerMeterDto, customerMeter);
-        this.getActualDao().updateByPrimaryKeySelective(customerMeter);
+        this.getActualDao().updateByPrimaryKey(customerMeter);
 
         return BaseOutput.success();
     }
@@ -122,4 +147,6 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
 
         return BaseOutput.success("删除成功");
     }
+
+
 }

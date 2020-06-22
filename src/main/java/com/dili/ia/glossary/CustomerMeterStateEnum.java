@@ -19,7 +19,7 @@ public enum CustomerMeterStateEnum {
         this.name = name;
     }
 
-    public static CustomerMeterStateEnum getEarnestOrderStateEnum(Integer code) {
+    public static CustomerMeterStateEnum getCustomerMeterStateEnum(Integer code) {
         for (CustomerMeterStateEnum anEnum : CustomerMeterStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
@@ -28,7 +28,7 @@ public enum CustomerMeterStateEnum {
         return null;
     }
 
-    public static String getEarnestOrderStateEnumName(Integer code) {
+    public static String getCustomerMeterStateEnumName(Integer code) {
         for (CustomerMeterStateEnum r : CustomerMeterStateEnum.values()) {
             if (r.getCode().equals(code)) {
                 return r.getName();
