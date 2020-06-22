@@ -22,7 +22,6 @@
     <result column="assets_name" jdbcType="VARCHAR" property="assetsName" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
     <result column="refund_amount" jdbcType="BIGINT" property="refundAmount" />
-    <result column="chargeback_amount" jdbcType="BIGINT" property="chargebackAmount" />
     <result column="notes" jdbcType="VARCHAR" property="notes" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
@@ -44,9 +43,9 @@
     -->
     id, create_time, modify_time, code, customer_id, customer_name, certificate_number, 
     customer_cellphone, department_id, department_name, type_code, type_name, assets_type, 
-    assets_id, assets_name, amount, refund_amount, chargeback_amount, notes, state, creator_id, 
-    creator, submitter_id, submitter, submit_time, withdraw_operator_id, withdraw_operator, 
-    canceler_id, canceler, market_id, market_code, version
+    assets_id, assets_name, amount, refund_amount, notes, state, creator_id, creator, 
+    submitter_id, submitter, submit_time, withdraw_operator_id, withdraw_operator, canceler_id, 
+    canceler, market_id, market_code, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -110,9 +109,6 @@
       </if>
       <if test="refundAmount != null">
         refund_amount = #{refundAmount,jdbcType=BIGINT},
-      </if>
-      <if test="chargebackAmount != null">
-        chargeback_amount = #{chargebackAmount,jdbcType=BIGINT},
       </if>
       <if test="notes != null">
         notes = #{notes,jdbcType=VARCHAR},
