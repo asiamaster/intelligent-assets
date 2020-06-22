@@ -357,7 +357,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("保证金退款申请，保证金单【ID:{}】不存在！", refundOrder.getBusinessId());
             return BaseOutput.failure("保证金业务单不存在！");
         }
-        Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount() + depositOrder.getChargebackAmount();
+        Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getAmount() < totalRefundAmount){
             return BaseOutput.failure("退款金额不能大于订单金额！");
         }
@@ -449,7 +449,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("此单已退款【depositOrderId={}】", refundOrder.getBusinessId());
             return BaseOutput.success();
         }
-        Long totalRefundAmount = refundOrder.getTotalRefundAmount() + depositOrder.getRefundAmount() + depositOrder.getChargebackAmount();
+        Long totalRefundAmount = refundOrder.getTotalRefundAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getAmount() < totalRefundAmount){
             LOG.error("异常订单！！！---- 保证金单退款申请结算退款成功 但是退款单退款总金额大于订单可退金额【保证金单ID {}，退款单ID{}】", depositOrder.getId(), refundOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "异常订单！！！-- 退款金额不能大于保证金单可退金额！");
