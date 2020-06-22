@@ -1,13 +1,16 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.BoothRentDTO;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.ia.domain.AssetLeaseOrder;
 import com.dili.ia.domain.AssetLeaseOrderItem;
+import com.dili.ia.domain.dto.AssetLeaseOrderItemListDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetLeaseOrderItemMapper;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.AssetLeaseOrderItemService;
 import com.dili.ia.service.AssetLeaseOrderService;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -18,6 +21,7 @@ import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +29,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -45,6 +54,8 @@ public class AssetLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetLeaseOr
     private AssetLeaseOrderService assetLeaseOrderService;
     @Autowired
     private AssetsRpc assetsRpc;
+
+    @Autowired private BusinessChargeItemService businessChargeItemService;
 
     /**
      * 停租操作
@@ -162,5 +173,30 @@ public class AssetLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetLeaseOr
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
         stopRentCascadeLeaseOrderState(o);
+    }
+
+    @Override
+    public List<AssetLeaseOrderItemListDto> leaseOrderItemListToDto(List<AssetLeaseOrderItem> assetLeaseOrderItems, String bizType, List<BusinessChargeItemDto> chargeItemDtos) {
+        List<Map<String, String>> businessChargeItems = businessChargeItemService.queryBusinessChargeItem(bizType, assetLeaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()), chargeItemDtos);
+        Map<Long,Map<String,String>> businessChargeItemMap = new HashMap<>();
+        businessChargeItems.forEach(bct->{
+            businessChargeItemMap.put(Long.valueOf(bct.get("businessId")),bct);
+        });
+
+        List<AssetLeaseOrderItemListDto> assetLeaseOrderItemListDtos = new ArrayList<>();
+        assetLeaseOrderItems.forEach(o->{
+            AssetLeaseOrderItemListDto assetLeaseOrderItemListDto = new AssetLeaseOrderItemListDto();
+            try {
+                BeanUtils.copyProperties(assetLeaseOrderItemListDto,o);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+            assetLeaseOrderItemListDto.setBusinessChargeItem(businessChargeItemMap.get(o.getId()));
+            assetLeaseOrderItemListDtos.add(assetLeaseOrderItemListDto);
+        });
+
+        return assetLeaseOrderItemListDtos;
     }
 }

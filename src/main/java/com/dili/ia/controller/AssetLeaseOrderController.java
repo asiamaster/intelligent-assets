@@ -2,7 +2,6 @@ package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
-import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.AssetLeaseOrder;
 import com.dili.ia.domain.AssetLeaseOrderItem;
@@ -60,8 +59,6 @@ public class AssetLeaseOrderController {
     @Autowired
     DataAuthService dataAuthService;
     @Autowired
-    private BusinessChargeItemRpc businessChargeItemRpc;
-    @Autowired
     private BusinessChargeItemService businessChargeItemService;
 
 
@@ -88,16 +85,7 @@ public class AssetLeaseOrderController {
             throw new RuntimeException("未登录");
         }
 
-
-        BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
-        businessChargeItemDto.setMarketId(userTicket.getFirmId());
-        businessChargeItemDto.setBusinessType(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType());
-        //获取业务收费项目
-        BaseOutput<List<BusinessChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
-        if(chargeItemsOutput.isSuccess()){
-            modelMap.put("chargeItems", chargeItemsOutput.getData());
-        }
-
+        modelMap.put("chargeItems", businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null));
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
         modelMap.put("assetType", assetType);
@@ -122,12 +110,18 @@ public class AssetLeaseOrderController {
             id = leaseOrder.getId();
         }
 
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+
         AssetLeaseOrderItem condition = new AssetLeaseOrderItem();
         condition.setLeaseOrderId(id);
         List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
         modelMap.put("leaseOrder",leaseOrder);
-        modelMap.put("leaseOrderItems", leaseOrderItems);
-
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetType()).getBizType(), YesOrNoEnum.YES.getCode());
+        modelMap.put("chargeItems", chargeItemDtos);
+        modelMap.put("leaseOrderItems", assetLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetType()).getBizType(), chargeItemDtos));
         try{
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
@@ -144,47 +138,18 @@ public class AssetLeaseOrderController {
     }
 
     /**
-     * 跳转到LeaseOrder续租页面
-     * @param modelMap
-     * @param id 老单子ID
-     * @return String
-     */
-    @RequestMapping(value="/renew.html", method = RequestMethod.GET)
-    public String renew(ModelMap modelMap,Long id) {
-        if(null != id){
-            AssetLeaseOrder leaseOrder = assetLeaseOrderService.get(id);
-            AssetLeaseOrderItem condition = new AssetLeaseOrderItem();
-            condition.setLeaseOrderId(id);
-            List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
-            modelMap.put("leaseOrder",leaseOrder);
-            modelMap.put("isRenew", YesOrNoEnum.YES.getCode());
-            modelMap.put("leaseOrderItems", JSON.toJSONString(leaseOrderItems));
-        }
-        return "assetLeaseOrder/preSave";
-    }
-
-    /**
      * 跳转到LeaseOrder新增页面
      * @param modelMap
      * @return String
      */
     @RequestMapping(value="/preSave.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap,Long id,Integer assetType) {
+    public String add(ModelMap modelMap,Long id,Integer assetType,Integer isRenew) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-
-        BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
-        businessChargeItemDto.setMarketId(userTicket.getFirmId());
-        businessChargeItemDto.setBusinessType(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType());
-        businessChargeItemDto.setIsEnable(YesOrNoEnum.YES.getCode());
-        //获取业务收费项目
-        BaseOutput<List<BusinessChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
-        if(chargeItemsOutput.isSuccess()){
-            modelMap.put("chargeItems", chargeItemsOutput.getData());
-        }
-
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), YesOrNoEnum.YES.getCode());
+        modelMap.put("chargeItems", chargeItemDtos);
         if(null != id){
             AssetLeaseOrder leaseOrder = assetLeaseOrderService.get(id);
             modelMap.put("leaseOrder",leaseOrder);
@@ -193,30 +158,10 @@ public class AssetLeaseOrderController {
             condition.setLeaseOrderId(id);
             List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
 
-            List<Map<String, String>> businessChargeItems = businessChargeItemService.queryBusinessChargeItem(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()), chargeItemsOutput.getData());
-            Map<Long,Map<String,String>> businessChargeItemMap = new HashMap<>();
-            businessChargeItems.forEach(bct->{
-                businessChargeItemMap.put(Long.valueOf(bct.get("businessId")),bct);
-            });
-
-            List<AssetLeaseOrderItemListDto> assetLeaseOrderItemListDtos = new ArrayList<>();
-            leaseOrderItems.forEach(o->{
-                AssetLeaseOrderItemListDto assetLeaseOrderItemListDto = new AssetLeaseOrderItemListDto();
-                try {
-                    BeanUtils.copyProperties(assetLeaseOrderItemListDto,o);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-                assetLeaseOrderItemListDto.setBusinessChargeItem(businessChargeItemMap.get(o.getId()));
-                assetLeaseOrderItemListDtos.add(assetLeaseOrderItemListDto);
-            });
-
-            modelMap.put("leaseOrderItems", assetLeaseOrderItemListDtos);
+            modelMap.put("leaseOrderItems", assetLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), chargeItemDtos));
         }
         modelMap.put("assetType", assetType);
-        modelMap.put("isRenew", YesOrNoEnum.NO.getCode());
+        modelMap.put("isRenew", YesOrNoEnum.YES.getCode().equals(isRenew) ? YesOrNoEnum.YES.getCode() : YesOrNoEnum.NO.getCode());
         return "assetLeaseOrder/preSave";
     }
 

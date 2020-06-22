@@ -304,7 +304,7 @@
 
         dia = bs4pop.dialog({
             title: '摊位续租',
-            content: '/assetLeaseOrder/renew.html?id='+rows[0].id,
+            content: '/assetLeaseOrder/preSave.html?isRenew=1&id=' + rows[0].id + '&assetType=' + rows[0].assetType,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -593,6 +593,8 @@
             }
         }
         $('#btn_edit').attr('disabled', false);
+        $('#btn_renew').attr('disabled', false);
+
     });
     /*****************************************自定义事件区 end**************************************/
 </script>
