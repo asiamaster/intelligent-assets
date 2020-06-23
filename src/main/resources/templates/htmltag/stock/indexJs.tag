@@ -111,25 +111,7 @@ function openUpdateHandler() {
     	window.location.href = "${contextPath}/stockIn/update.html?code="+rows[0].code;
 }
     
-/**
- * 打开新增窗口:页面层
- */
-function openInsertHandler() {
-    dia = bs4pop.dialog({
-        title: '页面层新增',//对话框title
-        content: bui.util.HTMLDecode(template('addForm', {})), //对话框内容，可以是 string、element，$object
-        width: '80%',//宽度
-        height: '95%',//高度
-        btns: [{label: '取消',className: 'btn btn-secondary',onClick(e){
 
-            }
-        }, {label: '确定',className: 'btn btn-primary',onClick(e){
-                bui.util.debounce(saveOrUpdateHandler,1000,true)()
-                return false;
-            }
-        }]
-    });
-}
 
 /**
  打开更新窗口:iframe
@@ -303,23 +285,42 @@ function openRemoveHandler() {
     }
 }
 
+
+/**
+ * 打开支付窗口
+ */
+function openPayHandler() {
+	if(isSelectRow()){
+	        //获取选中行的数据
+	    let rows = _grid.bootstrapTable('getSelections');
+	    let selectedRow = rows[0];
+	
+	    dia = bs4pop.dialog({
+	        title: '退款申请',//对话框title
+	        content: bui.util.HTMLDecode(template('pay', {selectedRow})), //对话框内容，可以是 string、element，$object
+	        width: '50%',//宽度
+	        height: '70%',//高度
+	        btns: [{label: '取消',className: 'btn btn-secondary',onClick(e){
+	
+	            }
+	        }, {label: '确定',className: 'btn btn-primary',onClick(e){
+	        		let formData = $('#refund').serializeObject();
+	                bui.util.debounce(pay(formData),1000,true)()
+	                return false;
+	            }
+	        }]
+	    });
+    }
+}
+
 /**
  支付处理
  */
-function openPayHandler() {
-    if(isSelectRow()){
-        bs4pop.confirm('确认缴费？', {}, function (sure) {
-            if(sure){
-                bui.util.debounce(function () {
-                    bui.loading.show('努力提交中，请稍候。。。');
-                    //获取选中行的数据
-                    let rows = _grid.bootstrapTable('getSelections');
-                    let selectedRow = rows[0];
-
-                    $.ajax({
+function pay(formData) {
+$.ajax({
                         type: "POST",
                         url: "${contextPath}/stockIn/pay.action",
-                        data: {code: selectedRow.code},
+                        data: formData,
                         processData:true,
                         dataType: "json",
                         success : function(ret) {
@@ -334,29 +335,44 @@ function openPayHandler() {
                             bui.loading.hide();
                             bs4pop.alert('远程访问失败', {type: 'error'});
                         }
-                    });
-                },1000,true)();
-            }
-        })
+                    });    
+}
+
+/**
+ * 打开退款窗口
+ */
+function openRefundHandler() {
+	if(isSelectRow()){
+	        //获取选中行的数据
+	    let rows = _grid.bootstrapTable('getSelections');
+	    let selectedRow = rows[0];
+	
+	    dia = bs4pop.dialog({
+	        title: '退款申请',//对话框title
+	        content: bui.util.HTMLDecode(template('refund', {selectedRow})), //对话框内容，可以是 string、element，$object
+	        width: '50%',//宽度
+	        height: '70%',//高度
+	        btns: [{label: '取消',className: 'btn btn-secondary',onClick(e){
+	
+	            }
+	        }, {label: '确定',className: 'btn btn-primary',onClick(e){
+	        		let formData = $('#refund').serializeObject();
+	                bui.util.debounce(refund(formData),1000,true)()
+	                return false;
+	            }
+	        }]
+	    });
     }
 }
 
 /**
  * 退款处理
  */
-function openRefundHandler() {
-    if(isSelectRow()){
-        bs4pop.confirm('确认退款？', {}, function (sure) {
-            if(sure){
-                bui.util.debounce(function () {
-                    bui.loading.show('努力提交中，请稍候。。。');
-                    //获取选中行的数据
-                    let rows = _grid.bootstrapTable('getSelections');
-                    let selectedRow = rows[0];
-                    $.ajax({
+function refund(formData) {
+$.ajax({
                         type: "POST",
                         url: "${contextPath}/stockIn/refund.action",
-                        data: {code: selectedRow.code},
+                        data: formData,
                         processData:true,
                         dataType: "json",
                         success : function(ret) {
@@ -371,11 +387,7 @@ function openRefundHandler() {
                             bui.loading.hide();
                             bs4pop.alert('远程访问失败', {type: 'error'});
                         }
-                    });
-                },1000,true)();
-            }
-        })
-    }
+                    });    
 }
 
 /*****************************************函数区 end**************************************/

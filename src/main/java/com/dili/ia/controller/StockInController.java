@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.StockIn;
+import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.service.StockInService;
@@ -159,8 +160,8 @@ public class StockInController {
      */
     @RequestMapping(value="/pay.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput pay(String code) {
-        stockInService.pay(code);
+    public @ResponseBody BaseOutput pay(PayInfoDto payInfoDto) {
+        stockInService.pay(payInfoDto);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("新增成功");
     }

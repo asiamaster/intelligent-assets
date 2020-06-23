@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.dili.ia.domain.StockIn;
+import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ss.base.BaseService;
@@ -47,10 +48,10 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * 
 	 * @Title pay
 	 * @Description 结算入库单
-	 * @param code 入库单
+	 * @param payInfoDto 入库单
 	 * @throws
 	 */
-	void pay(String code);
+	void pay(PayInfoDto payInfoDto);
 	
 	/**
 	 * 

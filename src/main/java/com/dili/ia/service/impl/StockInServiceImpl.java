@@ -2,26 +2,31 @@ package com.dili.ia.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.client.utils.JSONUtils;
+import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.Stock;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockRecord;
 import com.dili.ia.domain.StockWeighmanRecord;
+import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockWeighmanRecordDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
+import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.glossary.StockInTypeEnum;
 import com.dili.ia.glossary.StockRecordTypeEnum;
 import com.dili.ia.mapper.StockInMapper;
 import com.dili.ia.rpc.UidRpcResolver;
+import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.StockInDetailService;
 import com.dili.ia.service.StockInService;
 import com.dili.ia.service.StockService;
 import com.dili.ia.service.StockWeighmanRecordService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -59,6 +64,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	@Autowired
 	private StockService stockService;
+	
+	@Autowired
+	private PaymentOrderService paymentOrderService;
 	
     public StockInMapper getActualDao() {
         return (StockInMapper)getDao();
@@ -148,14 +156,18 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 
 	@Override
 	@Transactional
-	public void pay(String code) {
+	public void pay(PayInfoDto payInfoDto) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		String code = payInfoDto.getBusinessCode();
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "入库单状态已改变不能结算");
 		}
+		//TODO 调用收费接口
+		//TODO 创建收费单
+		
 		//缴费
 		updateState(code, stockIn.getVersion(), StockInStateEnum.PAID);
-		//TODO 调用收费接口
 		//入库 库存
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
 		stockService.inStock(stockInDetails, stockIn);
@@ -280,7 +292,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), "退款businessCode");
 		});
 	}
-	
-	
+
 	
 }

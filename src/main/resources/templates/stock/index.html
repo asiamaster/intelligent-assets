@@ -197,3 +197,71 @@
 </div>
 </#bs4Body>
 <#stock_indexJs />
+
+<script id="pay" type="text/html">
+	<form id="pay" role="form" novalidate>
+	<div class="row">
+				<div class="form-group row col-12">
+					<input type="hidden" class="form-control" name="code" value="{{selectedRow.code}}" required />
+
+					<div class="form-group col-12">
+						<label for="customerName">客户信息：<i class="red">*</i>
+						<input id="customerName" type="text" class="form-control floatReserve"
+						 name="customerName" value={{selectedRow.customerName}}  required />
+					</div>
+					<div class="form-group col-12">
+						<label for="_certificateNumber">支付金额：<i class="red">*</i></label>
+						<input id="payMoney" type="number" class="form-control floatReserve"
+						 name="payMoney"  value={{selectedRow.money}} range="0 9999999" required />
+					</div>	
+					<div class="form-group col-12">
+						<label for="_certificateNumber">输入密码：<i class="red">*</i></label>
+						<input id="payPassword" type="password" class="form-control floatReserve"
+						 name="payPassword" required />
+					</div>
+					
+				</div>
+				
+				</div>
+	</form>			
+</script>
+
+
+<script id="refund" type="text/html">
+	<form id="refund" role="form" novalidate>
+	<div class="row">
+				<div class="form-group row col-12">
+					<input type="hidden" class="form-control" name="code" value="{{selectedRow.code}}" required />
+
+					<div class="form-group col-12">
+						<label for="_info">客户信息：<i class="red">*</i>
+						<div id="_info" >{{selectedRow.customerName}}   {{selectedRow.customerCellPhone}}</div>
+						</label>
+					</div>
+					<div class="form-group col-4">
+						<label for="_certificateNumber">可退金额：<i class="red">*</i></label>
+						<input id="money" type="number" class="form-control floatReserve"
+						 name="money" range="0 9999999" required />
+					</div>	
+					<div class="form-group col-4">
+						<label for="_certificateNumber">退款方式：<i class="red">*</i></label>
+						<input id="payType" type="text" class="form-control floatReserve"
+						 name="payType" range="0 9999999" required readonly/>
+					</div>
+					<div class="form-group col-12">
+						<label for="_certificateNumber">收款人：<i class="red">*</i></label>
+						<input id="payUser" type="number" class="form-control floatReserve"
+						 name="payUser" required readonly/>
+					</div>
+					<div class="form-group col-12">
+						<label for="_certificateNumber">退款原因：<i class="red">*</i></label>
+						<textarea  class="form-control" name="notes" placeholder="message"></textarea>
+
+					</div>
+					
+				</div>
+				
+				</div>
+	</form>			
+</script>
+
