@@ -5,6 +5,7 @@ import com.alibaba.nacos.client.utils.JSONUtils;
 import com.dili.ia.domain.Stock;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
+import com.dili.ia.domain.StockRecord;
 import com.dili.ia.domain.StockWeighmanRecord;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
@@ -12,6 +13,7 @@ import com.dili.ia.domain.dto.StockWeighmanRecordDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.glossary.StockInTypeEnum;
+import com.dili.ia.glossary.StockRecordTypeEnum;
 import com.dili.ia.mapper.StockInMapper;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.StockInDetailService;
@@ -23,6 +25,7 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import com.fasterxml.jackson.databind.deser.Deserializers.Base;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -252,5 +255,32 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		updateState(code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
 	}
+
+	@Override
+	@Transactional
+	public void remove(String code) {
+		StockIn stockIn = getStockInByCode(code);
+		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
+			throw new BusinessException("", "");
+		}
+		updateState(code, stockIn.getVersion(), StockInStateEnum.CREATED);
+		
+	}
+
+	@Override
+	@Transactional
+	public void refund(String code) {
+		StockIn stockIn = getStockInByCode(code);
+		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
+			throw new BusinessException("", "");
+		}
+		updateState(code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
+		List<StockInDetail> details = getStockInDetailsByStockCode(code);
+		details.forEach(detail -> {
+			stockService.stockDeduction(detail, stockIn.getCustomerId(), "退款businessCode");
+		});
+	}
+	
+	
 	
 }

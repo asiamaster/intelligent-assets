@@ -5,14 +5,18 @@ import com.dili.ia.service.StockService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -46,7 +50,7 @@ public class StockController {
     }
     
     /**
-     * 提交入库单
+     * 提交出库单
      * @param stockIn
      * @return BaseOutput
      */

@@ -10,8 +10,11 @@ package com.dili.ia.glossary;
  * @date 2020年6月22日
  */
 public enum StockRecordTypeEnum {
+	
+	STOCK_IN(1, "入库"),
 	STOCK_OUT(2, "出库"), 
-	STOCK_IN(1, "入库");
+	// 退款扣减
+	STOCK_DEDUCTION(3, "库存扣减");
 
 
 	private String name;

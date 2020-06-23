@@ -140,24 +140,28 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 	@Transactional
 	public void stockOut(Long stockId, Long weight, Long quantity,String notes) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-		Stock stock = get(stockId);
+		Stock stock = this.get(stockId);
+		stockDeduction(stock, weight, quantity);
+		// 出库单
+		buildStockOut(stock, userTicket, notes, weight, quantity);
+	}
+	
+	private void stockDeduction(Stock stock,Long weight, Long quantity){
 		Stock domain = new Stock();
 		domain.setVersion(stock.getVersion()+1);
 		if(quantity != null && quantity > 0) {
 			domain.setQuantity(stock.getQuantity()-quantity);
 		}
 		if(weight != null && weight > 0) {
-			domain.setQuantity(stock.getQuantity() - weight);
+			domain.setWeight(stock.getWeight() - weight);
 		}
 		Stock condition = new Stock();
-		condition.setId(stockId);
+		condition.setId(stock.getId());
 		condition.setVersion(stock.getVersion());
 		int row = updateSelectiveByExample(domain, condition);
 		if(row != 1) {
 			throw new BusinessException("", "");
 		}
-		// 出库单
-		buildStockOut(stock, userTicket, notes, weight, quantity);
 	}
 	
 	public void buildStockOut(Stock stock,UserTicket userTicket,String notes,Long weight, Long quantity) {
@@ -185,26 +189,13 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		//出库流水记录
 		buildStockRecord(stock.getWeight(), stock.getQuantity(), code, stock,StockRecordTypeEnum.STOCK_OUT);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+	@Override
+	@Transactional
+	public void stockDeduction(StockInDetail detail,Long customerId,String businessCode) {
+		Stock stock = getStock(detail.getCategoryId(), detail.getAssetsId(), customerId);
+		stockDeduction(stock, detail.getWeight(), detail.getQuantity());
+		buildStockRecord(detail.getWeight(), detail.getQuantity(), businessCode, stock, StockRecordTypeEnum.STOCK_DEDUCTION);
+	}
+		
 }

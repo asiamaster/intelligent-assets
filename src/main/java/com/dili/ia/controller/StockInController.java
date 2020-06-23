@@ -16,11 +16,14 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -117,7 +120,8 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(String code) {
+    public @ResponseBody BaseOutput cancel(String code) {
+    	//throw new BusinessException("", "");
         stockInService.cancel(code);
         return BaseOutput.success("删除成功");
     }
@@ -136,6 +140,19 @@ public class StockInController {
     }
     
     /**
+     * 撤回入库单
+     * @param stockIn
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/remove.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput remove(String code) {
+        stockInService.remove(code);
+        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        return BaseOutput.success("新增成功");
+    }
+    
+    /**
      * 结算入库单
      * @param stockIn
      * @return BaseOutput
@@ -143,8 +160,20 @@ public class StockInController {
     @RequestMapping(value="/pay.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput pay(String code) {
-    	
         stockInService.pay(code);
+        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        return BaseOutput.success("新增成功");
+    }
+    
+    /**
+     * 退款
+     * @param stockIn
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput refund(String code) {	
+        stockInService.refund(code);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("新增成功");
     }

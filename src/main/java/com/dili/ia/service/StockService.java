@@ -35,4 +35,15 @@ public interface StockService extends BaseService<Stock, Long> {
 	 */
 	void stockOut(Long stockId,Long weight,Long quantity,String notes);
 	
+	/**
+	 * 
+	 * @Title stockDeduction
+	 * @Description 非出库扣减(如退款)
+	 * @param stockInDetail
+	 * @param customerId
+	 * @param weight
+	 * @throws
+	 */
+	void stockDeduction(StockInDetail detail,Long customerId,String businessCode);
+	
 }

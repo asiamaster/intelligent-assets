@@ -70,4 +70,22 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 */
 	void cancel(String code);
 	
+	/**
+	 * 
+	 * @Title remove
+	 * @Description 撤回入库单
+	 * @param code
+	 * @throws
+	 */
+	void remove(String code);
+	
+	/**
+	 * 
+	 * @Title refund
+	 * @Description 退款
+	 * @param code
+	 * @throws
+	 */
+	void refund(String code);
+	
 }
