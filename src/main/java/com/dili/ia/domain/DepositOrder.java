@@ -10,7 +10,7 @@ import javax.persistence.*;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-22 14:19:04.
+ * This file was generated on 2020-06-23 15:57:55.
  */
 @Table(name = "`deposit_order`")
 public class DepositOrder extends BaseDomain {
@@ -92,22 +92,34 @@ public class DepositOrder extends BaseDomain {
     private String assetsType;
 
     /**
-     * 对应编号ID
+     * 资产ID
      */
     @Column(name = "`assets_id`")
     private Long assetsId;
 
     /**
-     * 对应编号，名称
+     * 资产名称
      */
     @Column(name = "`assets_name`")
     private String assetsName;
 
     /**
-     * 保证金金额
+     * 保证金金额= 已付金额 + 待付金额
      */
     @Column(name = "`amount`")
     private Long amount;
+
+    /**
+     * 已付金额
+     */
+    @Column(name = "`paid_amount`")
+    private Long paidAmount;
+
+    /**
+     * 待付金额
+     */
+    @Column(name = "`wait_amount`")
+    private Long waitAmount;
 
     /**
      * 退款金额，用于多次退款记录
@@ -120,6 +132,24 @@ public class DepositOrder extends BaseDomain {
      */
     @Column(name = "`notes`")
     private String notes;
+
+    /**
+     * 是否关联订单1，是，0否
+     */
+    @Column(name = "`is_related`")
+    private Boolean isRelated;
+
+    /**
+     * 关联订单ID
+     */
+    @Column(name = "`business_id`")
+    private Long businessId;
+
+    /**
+     * 关联订单业务类型
+     */
+    @Column(name = "`biz_type`")
+    private Integer bizType;
 
     /**
      * （1：已创建 2：已取消 3：已提交 4：已交费5：已退款）
@@ -198,6 +228,12 @@ public class DepositOrder extends BaseDomain {
      */
     @Column(name = "`version`")
     private Long version;
+
+    /**
+     * 是否老数据导入订单，1是，0否
+     */
+    @Column(name = "`is_import`")
+    private Boolean isImport;
 
     /**
      * @return id
@@ -396,20 +432,20 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
-     * 获取保证金类型code，来源数据字典
+     * 获取保证金类型，来源数据字典
      *
-     * @return type_code - 保证金类型code，来源数据字典
+     * @return type_code - 保证金类型，来源数据字典
      */
-    @FieldDef(label="保证金类型code，来源数据字典", maxLength = 50)
+    @FieldDef(label="保证金类型，来源数据字典", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
     public String getTypeCode() {
         return typeCode;
     }
 
     /**
-     * 设置保证金类型code，来源数据字典
+     * 设置保证金类型，来源数据字典
      *
-     * @param typeCode 保证金类型code，来源数据字典
+     * @param typeCode 保证金类型，来源数据字典
      */
     public void setTypeCode(String typeCode) {
         this.typeCode = typeCode;
@@ -456,63 +492,103 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
-     * 获取对应编号ID
+     * 获取资产ID
      *
-     * @return assets_id - 对应编号ID
+     * @return assets_id - 资产ID
      */
-    @FieldDef(label="对应编号ID")
+    @FieldDef(label="资产ID")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Long getAssetsId() {
         return assetsId;
     }
 
     /**
-     * 设置对应编号ID
+     * 设置资产ID
      *
-     * @param assetsId 对应编号ID
+     * @param assetsId 资产ID
      */
     public void setAssetsId(Long assetsId) {
         this.assetsId = assetsId;
     }
 
     /**
-     * 获取对应编号，名称
+     * 获取资产名称
      *
-     * @return assets_name - 对应编号，名称
+     * @return assets_name - 资产名称
      */
-    @FieldDef(label="对应编号，名称", maxLength = 200)
+    @FieldDef(label="资产名称", maxLength = 200)
     @EditMode(editor = FieldEditor.Text, required = false)
     public String getAssetsName() {
         return assetsName;
     }
 
     /**
-     * 设置对应编号，名称
+     * 设置资产名称
      *
-     * @param assetsName 对应编号，名称
+     * @param assetsName 资产名称
      */
     public void setAssetsName(String assetsName) {
         this.assetsName = assetsName;
     }
 
     /**
-     * 获取保证金金额
+     * 获取保证金金额= 已付金额 + 待付金额
      *
-     * @return amount - 保证金金额
+     * @return amount - 保证金金额= 已付金额 + 待付金额
      */
-    @FieldDef(label="保证金金额")
+    @FieldDef(label="保证金金额= 已付金额 + 待付金额")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Long getAmount() {
         return amount;
     }
 
     /**
-     * 设置保证金金额
+     * 设置保证金金额= 已付金额 + 待付金额
      *
-     * @param amount 保证金金额
+     * @param amount 保证金金额= 已付金额 + 待付金额
      */
     public void setAmount(Long amount) {
         this.amount = amount;
+    }
+
+    /**
+     * 获取已付金额
+     *
+     * @return paid_amount - 已付金额
+     */
+    @FieldDef(label="已付金额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getPaidAmount() {
+        return paidAmount;
+    }
+
+    /**
+     * 设置已付金额
+     *
+     * @param paidAmount 已付金额
+     */
+    public void setPaidAmount(Long paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+
+    /**
+     * 获取待付金额
+     *
+     * @return wait_amount - 待付金额
+     */
+    @FieldDef(label="待付金额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getWaitAmount() {
+        return waitAmount;
+    }
+
+    /**
+     * 设置待付金额
+     *
+     * @param waitAmount 待付金额
+     */
+    public void setWaitAmount(Long waitAmount) {
+        this.waitAmount = waitAmount;
     }
 
     /**
@@ -553,6 +629,66 @@ public class DepositOrder extends BaseDomain {
      */
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    /**
+     * 获取是否关联订单1，是，0否
+     *
+     * @return is_related - 是否关联订单1，是，0否
+     */
+    @FieldDef(label="是否关联订单1，是，0否")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Boolean getIsRelated() {
+        return isRelated;
+    }
+
+    /**
+     * 设置是否关联订单1，是，0否
+     *
+     * @param isRelated 是否关联订单1，是，0否
+     */
+    public void setIsRelated(Boolean isRelated) {
+        this.isRelated = isRelated;
+    }
+
+    /**
+     * 获取关联订单ID
+     *
+     * @return business_id - 关联订单ID
+     */
+    @FieldDef(label="关联订单ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getBusinessId() {
+        return businessId;
+    }
+
+    /**
+     * 设置关联订单ID
+     *
+     * @param businessId 关联订单ID
+     */
+    public void setBusinessId(Long businessId) {
+        this.businessId = businessId;
+    }
+
+    /**
+     * 获取关联订单业务类型
+     *
+     * @return biz_type - 关联订单业务类型
+     */
+    @FieldDef(label="关联订单业务类型")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getBizType() {
+        return bizType;
+    }
+
+    /**
+     * 设置关联订单业务类型
+     *
+     * @param bizType 关联订单业务类型
+     */
+    public void setBizType(Integer bizType) {
+        this.bizType = bizType;
     }
 
     /**
@@ -814,5 +950,25 @@ public class DepositOrder extends BaseDomain {
      */
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    /**
+     * 获取是否老数据导入订单，1是，0否
+     *
+     * @return is_import - 是否老数据导入订单，1是，0否
+     */
+    @FieldDef(label="是否老数据导入订单，1是，0否")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Boolean getIsImport() {
+        return isImport;
+    }
+
+    /**
+     * 设置是否老数据导入订单，1是，0否
+     *
+     * @param isImport 是否老数据导入订单，1是，0否
+     */
+    public void setIsImport(Boolean isImport) {
+        this.isImport = isImport;
     }
 }
