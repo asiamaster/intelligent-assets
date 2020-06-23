@@ -12,7 +12,7 @@
                 <div class="form-group col">
                     <label for="assetsId">类别</label>
                     <select id="assetsId" name="assetsId" class="form-control"></select>
-                    <#bcomboProvider _id="assetsId" _provider="" _queryParams='{emptyText"-- 全部 --"}'/>
+                    <#bcomboProvider _id="assetsId" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
                 </div>
                 <div class="form-group col">
                     <label for="createdStart">月份</label>
@@ -24,9 +24,9 @@
                         </div>
                 </div>
                 <div class="form-group col">
-                    <label for="">状态</label>
-                    <select id="" name="" class="form-control"></select>
-                    <#bcomboProvider _id="" _provider="" _queryParams='{emptyText"-- 全部 --"}'/>
+                    <label for="state">状态</label>
+                    <select id="state" name="state" class="form-control"></select>
+                    <#bcomboProvider _id="state" _provider="meterDetailStateProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
                 </div>
                 <div class="form-group col">
                     <label for="keyWord">单号/表编号/客户名称</label>
