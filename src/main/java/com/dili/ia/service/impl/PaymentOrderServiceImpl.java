@@ -37,6 +37,6 @@ public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long>
 		// paymentOrder.setBizType(bizType);
 		paymentOrder.setState(PayStateEnum.NOT_PAID.getCode());
 		this.insertSelective(paymentOrder);
-		return null;
+		return paymentOrder;
 	}
 }

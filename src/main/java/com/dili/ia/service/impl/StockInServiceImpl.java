@@ -165,7 +165,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		//TODO 调用收费接口
 		//TODO 创建收费单
-		
+		paymentOrderService.savePaymentOrder(userTicket, payInfoDto);
 		//缴费
 		updateState(code, stockIn.getVersion(), StockInStateEnum.PAID);
 		//入库 库存
