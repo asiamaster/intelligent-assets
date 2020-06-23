@@ -1,6 +1,7 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.CustomerMeter;
+import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -54,4 +55,13 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * @description：分页根据条件查询列表
      */
     EasyuiPageOutput listCustomerMeters(CustomerMeterDto customerMeterDto, boolean useProvider) throws Exception;
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        type
+     * @return       BaseOutput
+     * @description：根据表类型获取未绑定的表编号
+     */
+    BaseOutput<Meter> getUnbindMeterByType(Long type);
 }

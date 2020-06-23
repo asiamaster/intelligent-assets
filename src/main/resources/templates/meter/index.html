@@ -20,8 +20,12 @@
                 <#bcomboProvider _id="assetsId" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
-                <label for="keyWord">表编号/表地址:</label>
-                <input type="keyWord" class="form-control" name="keyWord" id="keyWord" maxlength="50"/>
+                <label for="number">表编号:</label>
+                <input type="number" class="form-control" name="number" id="number" maxlength="50"/>
+            </div>
+            <div class="form-group col">
+                <label for="assetsName">表地址:</label>
+                <input type="assetsName" class="form-control" name="assetsName" id="assetsName" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
@@ -41,9 +45,7 @@
                 <#resource code="updateMeter">
                 <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 </#resource>
-<!--                <#resource code="downMeter">-->
-<!--                <button id="btn_down" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 下载</button>-->
-<!--                </#resource>-->
+                <button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
             </div>
             <table id="grid" data-toggle="table" data-title="表列表" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"

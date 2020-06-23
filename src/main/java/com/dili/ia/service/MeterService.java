@@ -28,15 +28,6 @@ public interface MeterService extends BaseService<Meter, Long> {
     /**
      * @author:      xiaosa
      * @date:        2020/6/16
-     * @param:       id
-     * @return:      Meter
-     * @description：根据 id 查询表信息
-     */
-    Meter getMeterById(Long id);
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
      * @param:       meterDto
      * @return:      BaseOutput
      * @description：新增表信息
@@ -51,22 +42,4 @@ public interface MeterService extends BaseService<Meter, Long> {
      * @description：修改表信息
      */
     BaseOutput<Meter> updateMeter(MeterDto meterDto);
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        type
-     * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
-     */
-    BaseOutput<Meter> getUnbindMeterByType(Long type);
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       meter
-     * @return:      EasyuiPageOutput
-     * @description：查询列表
-     */
-    EasyuiPageOutput listMeters(Meter meter) throws Exception;
 }

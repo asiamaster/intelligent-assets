@@ -109,8 +109,4 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-
-  <select id="getUnbindMeterByType" parameterType="java.lang.Long" resultMap="BaseResultMap">
-
-  </select>
 </mapper>

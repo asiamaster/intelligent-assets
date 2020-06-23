@@ -76,7 +76,7 @@ public class MeterController {
     public String view(ModelMap modelMap, Long id) {
         Meter meter = null;
         if (id != null) {
-            meter = meterService.getMeterById(id);
+            meter = meterService.get(id);
         }
         logger.info(meter.toString());
         modelMap.put("meter", meter);
@@ -94,7 +94,7 @@ public class MeterController {
     public String update(ModelMap modelMap, Long id) {
         Meter meter = null;
         if (id != null) {
-            meter = meterService.getMeterById(id);
+            meter = meterService.get(id);
         }
         logger.info(meter.toString());
         modelMap.put("meter", meter);
@@ -111,7 +111,7 @@ public class MeterController {
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute MeterDto meterDto) throws Exception {
         EasyuiPageOutput easyuiPageOutput = new EasyuiPageOutput();
-        return meterService.listMeters(meterDto).toString();
+        return meterService.listEasyuiPageByExample(meterDto, true).toString();
     }
 
     /**
@@ -129,11 +129,11 @@ public class MeterController {
         BaseOutput<Meter> output = meterService.addMeter(meterDto);
 
         // 写业务日志
-//        if (output.isSuccess()){
-//            Meter meter = output.getData();
-//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-//        }
+        if (output.isSuccess()){
+            Meter meter = output.getData();
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
 
         return output;
     }
@@ -152,50 +152,13 @@ public class MeterController {
         // 修改
         BaseOutput<Meter> output = meterService.updateMeter(meterDto);
 
-//        // 写业务日志
-//        if (output.isSuccess()){
-//            Meter meter = output.getData();
-//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-//        }
+        // 写业务日志
+        if (output.isSuccess()){
+            Meter meter = output.getData();
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
 
         return output;
     }
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        meterDto
-     * @return       BaseOutput
-     * @description：下载Meter
-     */
-    @RequestMapping(value="/down.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput down(@ModelAttribute MeterDto meterDto) {
-        meterService.downMeterList(meterDto);
-        return BaseOutput.success("下载成功");
-    }
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        type
-     * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
-     */
-    @RequestMapping(value="/getUnbindMeterByType.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput down(@ModelAttribute Long type) {
-        BaseOutput<Meter> output = meterService.getUnbindMeterByType(type);
-        return output;
-    }
-
-//    /**
-//     * 删除Meter
-//     * @param id
-//     * @return BaseOutput
-//     */
-//    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-//    public @ResponseBody BaseOutput delete(Long id) {
-//        meterService.delete(id);
-//        return BaseOutput.success("删除成功");
-//    }
 }

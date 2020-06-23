@@ -16,11 +16,9 @@ import javax.persistence.*;
 @Table(name = "`meter`")
 public class Meter extends BaseDomain {
 
-    /**
-     * id
-     */
     @Id
     @Column(name = "`id`")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**

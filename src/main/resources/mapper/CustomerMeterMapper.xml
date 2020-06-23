@@ -179,4 +179,10 @@
 
   </select>
 
+    <select id="getUnbindMeterByType" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select * from customer_meter
+
+
+    </select>
+
 </mapper>
