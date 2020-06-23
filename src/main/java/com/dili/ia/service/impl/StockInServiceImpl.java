@@ -1,22 +1,16 @@
 package com.dili.ia.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.nacos.client.utils.JSONUtils;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.Stock;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
-import com.dili.ia.domain.StockRecord;
 import com.dili.ia.domain.StockWeighmanRecord;
 import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockWeighmanRecordDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
-import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.glossary.StockInTypeEnum;
-import com.dili.ia.glossary.StockRecordTypeEnum;
 import com.dili.ia.mapper.StockInMapper;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.PaymentOrderService;
@@ -26,18 +20,13 @@ import com.dili.ia.service.StockService;
 import com.dili.ia.service.StockWeighmanRecordService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import com.fasterxml.jackson.databind.deser.Deserializers.Base;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -149,7 +138,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		getStockInDetailsByStockCode(code);
 		//提交入库单
-		updateState(code, stockIn.getVersion(), StockInStateEnum.SUBMITTED);
+		StockIn domain = new StockIn();
+		// domain.set
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED);
 		//TODO 创建收费单费用收取
 		//
 	}
@@ -167,7 +158,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		//TODO 创建收费单
 		paymentOrderService.savePaymentOrder(userTicket, payInfoDto);
 		//缴费
-		updateState(code, stockIn.getVersion(), StockInStateEnum.PAID);
+		StockIn domain = new StockIn();
+		// domain.set
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		//入库 库存
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
 		stockService.inStock(stockInDetails, stockIn);
@@ -195,10 +188,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		return details;
 	}
 	
-	private void updateState(String code,Integer version,StockInStateEnum state) {
-		StockIn domain = new StockIn();
-		//TODO 提交人是否记录到该表
-		domain.setState(state.getCode());
+	private void updateState(StockIn domain,String code,Integer version,StockInStateEnum state) {
 		domain.setVersion(version+1);
 		StockIn condition = new StockIn();
 		condition.setCode(code);
@@ -265,17 +255,22 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		if(stockIn.getState() != StockInStateEnum.CREATED.getCode()) {
 			throw new BusinessException("", "");
 		}
-		updateState(code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
+		StockIn domain = new StockIn();
+		// domain.set
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
 	}
 
 	@Override
 	@Transactional
 	public void remove(String code) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
 			throw new BusinessException("", "");
 		}
-		updateState(code, stockIn.getVersion(), StockInStateEnum.CREATED);
+		StockIn domain = new StockIn();
+		// domain.set
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CREATED);
 		
 	}
 
@@ -286,7 +281,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
 			throw new BusinessException("", "");
 		}
-		updateState(code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
+		StockIn domain = new StockIn();
+		// domain.set
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
 		List<StockInDetail> details = getStockInDetailsByStockCode(code);
 		details.forEach(detail -> {
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), "退款businessCode");
