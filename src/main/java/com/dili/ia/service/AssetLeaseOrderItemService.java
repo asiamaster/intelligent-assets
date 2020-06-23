@@ -1,8 +1,12 @@
 package com.dili.ia.service;
 
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.ia.domain.AssetLeaseOrderItem;
+import com.dili.ia.domain.dto.AssetLeaseOrderItemListDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
+
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -21,4 +25,13 @@ public interface AssetLeaseOrderItemService extends BaseService<AssetLeaseOrderI
      * @param o
      */
     void stopRentLeaseOrderItemFromTimer(AssetLeaseOrderItem o);
+
+    /**
+     * PO lIST转DTO LIST
+     * @param assetLeaseOrderItems
+     * @param bizType
+     * @param chargeItemDtos
+     * @return
+     */
+    List<AssetLeaseOrderItemListDto> leaseOrderItemListToDto(List<AssetLeaseOrderItem> assetLeaseOrderItems, String bizType, List<BusinessChargeItemDto> chargeItemDtos);
 }

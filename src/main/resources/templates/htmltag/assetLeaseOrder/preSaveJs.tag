@@ -16,6 +16,10 @@
             $('#_certificateNumber').val(suggestion.certificateNumber);
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#_certificateNumber,#customerCellphone").valid();
+
+            //账户余额查询
+            queryCustomerAccount();
+            calcTotalAmount(true);
         }
     });
     $.extend(certificateNumberAutoCompleteOption,{
@@ -24,6 +28,10 @@
             $('#customerId').val(suggestion.id);
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#customerName,#customerCellphone").valid();
+
+            //账户余额查询
+            queryCustomerAccount();
+            calcTotalAmount(true);
         }
     });
 
@@ -92,7 +100,7 @@
                 theme: '#007bff',
                 trigger:'click',
             <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
-                value: moment("${leaseOrder.endTime!,dateFormat='yyyy-MM-dd'}").add(1,"days").format("YYYY-MM-DD"),
+                value: moment("${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}").add(1,"days").format("YYYY-MM-DD"),
             <% } else if(isEmpty(leaseOrder)){ %>
                 value: new Date(),
             <% }%>
@@ -128,6 +136,10 @@
                 addBoothItem({index: ++itemIndex});
             }
         <% }%>
+
+        //账户余额查询
+        queryCustomerAccount();
+        calcTotalAmount(true);
     });
     /******************************驱动执行区 end****************************/
 
@@ -234,6 +246,81 @@
         $('#isCorner_'+index).val(suggestion.cornerName);
         $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
         $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
+    }
+
+    /**
+     * 账户余额查询
+     * */
+    function queryCustomerAccount(){
+        let customerId = $('#customerId').val();
+        if(!customerId) return;
+        $.ajax({
+            type: "get",
+            url: "/customerAccount/getCustomerAccountByCustomerId.action",
+            data: {customerId},
+            dataType: "json",
+            async : false,
+            success: function (ret) {
+                if(ret.success){
+                    let earnestDeductionEl$ = $('#earnestDeduction');
+                    let transferDeductionEl$ = $('#transferDeduction');
+                    let earnestAvailableBalance = 0;
+                    let transferAvailableBalance = 0;
+                    if(ret.data){
+                        let data = ret.data;
+                        earnestAvailableBalance = Number(data.earnestAvailableBalance).centToYuan();
+                        transferAvailableBalance = Number(data.transferAvailableBalance).centToYuan();
+                        if(isInitCheckDeduction){
+                            if(Number(earnestDeductionEl$.val()) > earnestAvailableBalance){
+                                earnestDeductionEl$.val(earnestAvailableBalance);
+                                bs4pop.notice('定金可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
+                            }
+                            if(Number(transferDeductionEl$.val()) > transferAvailableBalance){
+                                transferDeductionEl$.val(transferAvailableBalance);
+                                bs4pop.notice('转低可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
+                            }
+                        }else{
+                            earnestDeductionEl$.val('');
+                            $('#transferDeduction').val('');
+                        }
+                    }
+                    earnestDeductionEl$.attr('max',earnestAvailableBalance);
+                    $('#earnestAmount').text('余额'+earnestAvailableBalance);
+                    transferDeductionEl$.attr('max',transferAvailableBalance);
+                    $('#transferAmount').text('余额'+transferAvailableBalance);
+                }
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
+    /**
+     * 计算实付金额
+     * */
+    function calcPayAmount() {
+        let earnestDeduction = Number($('#earnestDeduction').val());
+        let transferDeduction = Number($('#transferDeduction').val());
+        let totalAmount = Number($('#totalAmount').val());
+        if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
+            $('#payAmount').val((totalAmount.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).centToYuan());
+        }
+    }
+
+    /**
+     * 计算合计金额
+     */
+    function calcTotalAmount(isCascadeCalc) {
+        let totalAmount = 0;
+        $("table input[isCharge]").filter(function () {
+            return this.value;
+        }).each(function (i) {
+            totalAmount = Number(this.value).add(totalAmount);
+        });
+        $('#totalAmount').val(totalAmount.toFixed(2));
+
+        isCascadeCalc && calcPayAmount();
     }
 
 

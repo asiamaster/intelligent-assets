@@ -31,9 +31,6 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
 
     @Autowired
     private BusinessChargeItemService businessChargeItemService;
-    @Autowired
-    private BusinessChargeItemRpc businessChargeItemRpc;
-
 
     @Override
     protected BatchProviderMeta getBatchProviderMeta(Map metaMap) {
@@ -72,14 +69,7 @@ public class BusinessChargeItemProvider extends BatchDisplayTextProviderSupport 
      */
     private List<BusinessChargeItemDto> getChargeItemDtos(Long marketId, Integer assetType) {
         if (CollectionUtils.isEmpty(threadLocal.get())) {
-            BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
-            businessChargeItemDto.setMarketId(marketId);
-            businessChargeItemDto.setBusinessType(AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType());
-            //获取业务收费项目
-            BaseOutput<List<BusinessChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
-            if(chargeItemsOutput.isSuccess()){
-                threadLocal.set(chargeItemsOutput.getData());
-            }
+            threadLocal.set(businessChargeItemService.queryBusinessChargeItemConfig(marketId,AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(),null));
         }
         return threadLocal.get();
     }
