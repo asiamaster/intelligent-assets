@@ -208,10 +208,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<DepositOrder> submitDepositOrder(Long depositOrderId) {
-        DepositOrder de = this.get(depositOrderId);
+    public BaseOutput<DepositOrder> submitDepositOrder(Long id, Long amount, Long waitAmount) {
+        DepositOrder de = this.get(id);
         if (null == de){
-            LOG.info("提交失败，没有查询到保证金！id={}", depositOrderId);
+            LOG.info("提交失败，没有查询到保证金！id={}", id);
             return BaseOutput.failure("提交失败，没有查询到保证金单！");
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
