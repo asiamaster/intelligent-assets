@@ -29,6 +29,8 @@
     <result column="business_id" jdbcType="BIGINT" property="businessId" />
     <result column="biz_type" jdbcType="INTEGER" property="bizType" />
     <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="pay_state" jdbcType="BIT" property="payState" />
+    <result column="refund_state" jdbcType="BIT" property="refundState" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
     <result column="creator" jdbcType="VARCHAR" property="creator" />
     <result column="submitter_id" jdbcType="BIGINT" property="submitterId" />
@@ -50,9 +52,9 @@
     id, create_time, modify_time, code, customer_id, customer_name, certificate_number, 
     customer_cellphone, department_id, department_name, type_code, type_name, assets_type, 
     assets_id, assets_name, amount, paid_amount, wait_amount, refund_amount, notes, is_related, 
-    business_id, biz_type, state, creator_id, creator, submitter_id, submitter, submit_time, 
-    withdraw_operator_id, withdraw_operator, canceler_id, canceler, market_id, market_code, 
-    version, is_import
+    business_id, biz_type, state, pay_state, refund_state, creator_id, creator, submitter_id, 
+    submitter, submit_time, withdraw_operator_id, withdraw_operator, canceler_id, canceler, 
+    market_id, market_code, version, is_import
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -137,6 +139,12 @@
       </if>
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="payState != null">
+        pay_state = #{payState,jdbcType=BIT},
+      </if>
+      <if test="refundState != null">
+        refund_state = #{refundState,jdbcType=BIT},
       </if>
       <if test="creatorId != null">
         creator_id = #{creatorId,jdbcType=BIGINT},

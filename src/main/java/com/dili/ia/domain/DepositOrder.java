@@ -10,7 +10,7 @@ import javax.persistence.*;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-23 15:57:55.
+ * This file was generated on 2020-06-24 15:52:09.
  */
 @Table(name = "`deposit_order`")
 public class DepositOrder extends BaseDomain {
@@ -74,7 +74,7 @@ public class DepositOrder extends BaseDomain {
     private String departmentName;
 
     /**
-     * 保证金类型code，来源数据字典
+     * 保证金类型，来源数据字典
      */
     @Column(name = "`type_code`")
     private String typeCode;
@@ -86,7 +86,7 @@ public class DepositOrder extends BaseDomain {
     private String typeName;
 
     /**
-     * 资产类型code; booth,location,lodging,other
+     * 资产类型
      */
     @Column(name = "`assets_type`")
     private String assetsType;
@@ -156,6 +156,18 @@ public class DepositOrder extends BaseDomain {
      */
     @Column(name = "`state`")
     private Integer state;
+
+    /**
+     * 支付状态（1：未交清 2：已交清）
+     */
+    @Column(name = "`pay_state`")
+    private Boolean payState;
+
+    /**
+     * 1:待申请 2：退款中 3：已退款
+     */
+    @Column(name = "`refund_state`")
+    private Boolean refundState;
 
     /**
      * 创建操作员ID
@@ -472,20 +484,20 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
-     * 获取资产类型code; booth,location,lodging,other
+     * 获取资产类型
      *
-     * @return assets_type - 资产类型code; booth,location,lodging,other
+     * @return assets_type - 资产类型
      */
-    @FieldDef(label="资产类型code; booth,location,lodging,other", maxLength = 50)
+    @FieldDef(label="资产类型", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
     public String getAssetsType() {
         return assetsType;
     }
 
     /**
-     * 设置资产类型code; booth,location,lodging,other
+     * 设置资产类型
      *
-     * @param assetsType 资产类型code; booth,location,lodging,other
+     * @param assetsType 资产类型
      */
     public void setAssetsType(String assetsType) {
         this.assetsType = assetsType;
@@ -709,6 +721,46 @@ public class DepositOrder extends BaseDomain {
      */
     public void setState(Integer state) {
         this.state = state;
+    }
+
+    /**
+     * 获取支付状态（1：未交清 2：已交清）
+     *
+     * @return pay_state - 支付状态（1：未交清 2：已交清）
+     */
+    @FieldDef(label="支付状态（1：未交清 2：已交清）")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Boolean getPayState() {
+        return payState;
+    }
+
+    /**
+     * 设置支付状态（1：未交清 2：已交清）
+     *
+     * @param payState 支付状态（1：未交清 2：已交清）
+     */
+    public void setPayState(Boolean payState) {
+        this.payState = payState;
+    }
+
+    /**
+     * 获取1:待申请 2：退款中 3：已退款
+     *
+     * @return refund_state - 1:待申请 2：退款中 3：已退款
+     */
+    @FieldDef(label="1:待申请 2：退款中 3：已退款")
+    @EditMode(editor = FieldEditor.Number, required = true)
+    public Boolean getRefundState() {
+        return refundState;
+    }
+
+    /**
+     * 设置1:待申请 2：退款中 3：已退款
+     *
+     * @param refundState 1:待申请 2：退款中 3：已退款
+     */
+    public void setRefundState(Boolean refundState) {
+        this.refundState = refundState;
     }
 
     /**
@@ -936,7 +988,6 @@ public class DepositOrder extends BaseDomain {
      *
      * @return version - 版本控制,乐观锁
      */
-    @Version
     @FieldDef(label="版本控制,乐观锁")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Long getVersion() {
