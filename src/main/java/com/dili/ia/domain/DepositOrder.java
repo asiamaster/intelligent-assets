@@ -10,7 +10,7 @@ import javax.persistence.*;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-24 15:52:09.
+ * This file was generated on 2020-06-24 16:27:18.
  */
 @Table(name = "`deposit_order`")
 public class DepositOrder extends BaseDomain {
