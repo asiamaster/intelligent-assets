@@ -4,6 +4,8 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.dili.uap.sdk.domain.UserTicket;
+
 import java.util.Date;
 import javax.persistence.*;
 
@@ -86,7 +88,7 @@ public class StockIn extends BaseDomain {
      * 总金额
      */
     @Column(name = "amount")
-    private Integer amount;
+    private Long amount;
 
     /**
      * 入库类型
@@ -156,8 +158,49 @@ public class StockIn extends BaseDomain {
 
     @Column(name = "`creator`")
     private String creator;
+    
+    @Column(name= "`submitter_id`")
+    private Long submitterId;
+    
+    @Column(name= "`submitter`")
+    private String submitter;
+    
+    @Column(name= "`sub_date`")
+    private Date subDate; 
+    
+    @Column(name= "`withdraw_operator_id`")
+    private Long withdrawOperatorId;
+    
+    @Column(name= "`withdraw_operator`")
+    private String withdrawOperator;
+    
+    @Column(name= "`canceler_id`")
+    private Long cancelerId;
+    
+    @Column(name= "`canceler`")
+    private String canceler;
 
+    
     /**
+     * 空参构造
+     */
+    public StockIn() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+    /**
+     * 记录操作人
+     * @param userTicket
+     */
+    public StockIn(UserTicket userTicket) {
+		super();
+		this.operatorId = userTicket.getId();
+		this.operatorName = userTicket.getUserName();
+	}
+    
+
+	/**
      * @return id
      */
     @FieldDef(label="id")
@@ -657,11 +700,69 @@ public class StockIn extends BaseDomain {
         this.creator = creator;
     }
 
-	public Integer getAmount() {
+	public Long getAmount() {
 		return amount;
 	}
 
-	public void setAmount(Integer amount) {
+	public void setAmount(Long amount) {
 		this.amount = amount;
 	}
+
+	public Long getSubmitterId() {
+		return submitterId;
+	}
+
+	public void setSubmitterId(Long submitterId) {
+		this.submitterId = submitterId;
+	}
+
+	public String getSubmitter() {
+		return submitter;
+	}
+
+	public void setSubmitter(String submitter) {
+		this.submitter = submitter;
+	}
+
+	public Date getSubDate() {
+		return subDate;
+	}
+
+	public void setSubDate(Date subDate) {
+		this.subDate = subDate;
+	}
+
+	public Long getWithdrawOperatorId() {
+		return withdrawOperatorId;
+	}
+
+	public void setWithdrawOperatorId(Long withdrawOperatorId) {
+		this.withdrawOperatorId = withdrawOperatorId;
+	}
+
+	public String getWithdrawOperator() {
+		return withdrawOperator;
+	}
+
+	public void setWithdrawOperator(String withdrawOperator) {
+		this.withdrawOperator = withdrawOperator;
+	}
+
+	public Long getCancelerId() {
+		return cancelerId;
+	}
+
+	public void setCancelerId(Long cancelerId) {
+		this.cancelerId = cancelerId;
+	}
+
+	public String getCanceler() {
+		return canceler;
+	}
+
+	public void setCanceler(String canceler) {
+		this.canceler = canceler;
+	}
+	
+	
 }

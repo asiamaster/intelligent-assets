@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockWeighmanRecord;
@@ -18,8 +19,10 @@ import com.dili.ia.service.StockInDetailService;
 import com.dili.ia.service.StockInService;
 import com.dili.ia.service.StockService;
 import com.dili.ia.service.StockWeighmanRecordService;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -69,15 +72,16 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		List<StockInDetail> detailList = buildStockDetail(stockInDto, stockIn);
 		insertSelective(stockIn);
 		stockInDetailService.batchInsert(detailList);
+		LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 	
 	private StockIn buildStockIn(StockInDto stockInDto,UserTicket userTicket) {
-		StockIn stockIn = new StockIn();
+		StockIn stockIn = new StockIn(userTicket);
 		BeanUtils.copyProperties(stockInDto, stockIn);
 		stockIn.setCode(UidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
 		stockIn.setCreateTime(new Date());
 		stockIn.setState(StockInStateEnum.CREATED.getCode());
-		stockIn.setCreator(userTicket.getRealName());
+		stockIn.setCreator(userTicket.getUserName());
 		stockIn.setCreatorId(userTicket.getId());
 		stockIn.setMarketId(userTicket.getFirmId());
 		stockIn.setMarketCode(userTicket.getFirmCode());
@@ -104,7 +108,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			detail.setVersion(1);
 			totalWeight += stockInDetailDto.getWeight();
 			totalQuantity += stockInDetailDto.getQuantity();
-			//totalMoney += stockInDetailDto.getReceivable();
+			totalMoney += stockInDetailDto.getAmount();
 			// 司磅入库,保存司磅记录信息
 			if (stockInDto.getType() == StockInTypeEnum.WEIGHT.getCode()) {
 				StockWeighmanRecord stockWeighmanRecord = bulidWeighmanRecord(stockInDetailDto.getStockWeighmanRecordDto(),detail);
@@ -116,7 +120,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		stockIn.setWeight(totalWeight);
 		stockIn.setQuantity(totalQuantity);
-		// stockIn.set(totalMoney);
+		stockIn.setAmount(totalMoney);
 		return detailList;
 	}
 	
@@ -132,16 +136,23 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Override
 	@Transactional
 	public void submit(String code) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.CREATED.getCode()) {
-			throw new BusinessException(ResultCode.DATA_ERROR, "入库单状态已变更不能提交");
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		getStockInDetailsByStockCode(code);
 		//提交入库单
-		StockIn domain = new StockIn();
-		// domain.set
+		StockIn domain = new StockIn(userTicket);
+		domain.setSubmitterId(userTicket.getId());
+		domain.setSubmitter(userTicket.getUserName());
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED);
-		//TODO 创建收费单费用收取
+		//创建收费单费用收取
+		//TODO 创建收费单(支付生成or提交生成??)
+		PayInfoDto payInfoDto = new PayInfoDto();
+		payInfoDto.setBusinessCode(code);
+		payInfoDto.setPayMoney(stockIn.getAmount());
+		PaymentOrder paymentOrder = paymentOrderService.savePaymentOrder(userTicket, payInfoDto);
 		//
 	}
 
@@ -152,18 +163,18 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		String code = payInfoDto.getBusinessCode();
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
-			throw new BusinessException(ResultCode.DATA_ERROR, "入库单状态已改变不能结算");
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		//TODO 调用收费接口
-		//TODO 创建收费单
-		paymentOrderService.savePaymentOrder(userTicket, payInfoDto);
-		//缴费
-		StockIn domain = new StockIn();
-		// domain.set
+		
+		//TODO 调用收费接口,缴费
+		
+		StockIn domain = new StockIn(userTicket);
+		
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		//入库 库存
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
 		stockService.inStock(stockInDetails, stockIn);
+		
 	}
 	
 	private StockIn getStockInByCode(String code) {
@@ -214,7 +225,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Override
 	@Transactional
 	public void updateStockIn(StockInDto stockInDto) {
-		// TODO Auto-generated method stub
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(stockInDto.getCode());
 		BeanUtils.copyProperties(stockInDto, stockIn);
 		List<StockInDetailDto> detailDtos = stockInDto.getStockInDetailDtos();
@@ -228,6 +239,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		Long totalMoney = 0L;
 		stockIn.setWeight(totalWeight);
 		stockIn.setQuantity(totalQuantity);
+		stockIn.setAmount(totalQuantity);
 		for (StockInDetailDto stockInDetailDto : detailDtos) {
 			if(StringUtils.isEmpty(stockInDetailDto.getCode())) {
 				buildStockDetail(stockInDto, stockIn);
@@ -236,13 +248,14 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				BeanUtils.copyProperties(stockInDetailDto, detail);
 				totalWeight += stockInDetailDto.getWeight();
 				totalQuantity += stockInDetailDto.getQuantity();
-				totalMoney += stockInDetailDto.getReceivable();
+				totalMoney += stockInDetailDto.getAmount();
 				detailList.add(detail);	
 			}
 		}
 		stockIn.setWeight(stockIn.getWeight()+totalWeight);
 		stockIn.setQuantity(stockIn.getQuantity()+totalQuantity);
-		StockIn condition = new StockIn();
+		stockIn.setAmount(totalMoney);
+		StockIn condition = new StockIn(userTicket);
 		condition.setCode(stockIn.getCode());
 		condition.setVersion(stockIn.getVersion());
 		updateByExample(stockIn, condition);
@@ -251,12 +264,14 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Override
 	@Transactional
 	public void cancel(String code) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.CREATED.getCode()) {
-			throw new BusinessException("", "");
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		StockIn domain = new StockIn();
-		// domain.set
+		StockIn domain = new StockIn(userTicket);
+		domain.setCancelerId(userTicket.getId());
+		domain.setCanceler(userTicket.getUserName());
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
 	}
 
@@ -266,10 +281,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
-			throw new BusinessException("", "");
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		StockIn domain = new StockIn();
-		// domain.set
+		StockIn domain = new StockIn(userTicket);
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CREATED);
 		
 	}
@@ -277,12 +291,15 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Override
 	@Transactional
 	public void refund(String code) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
-			throw new BusinessException("", "");
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		StockIn domain = new StockIn();
-		// domain.set
+		StockIn domain = new StockIn(userTicket);
+		domain.setWithdrawOperator(userTicket.getUserName());
+		domain.setWithdrawOperatorId(userTicket.getId());
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
 		List<StockInDetail> details = getStockInDetailsByStockCode(code);
 		details.forEach(detail -> {

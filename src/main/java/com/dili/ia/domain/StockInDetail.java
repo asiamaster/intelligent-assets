@@ -156,6 +156,13 @@ public class StockInDetail extends BaseDomain {
      */
     @Column(name = "`car_type_public_code`")
     private String carTypePublicCode;
+    
+    /**
+     * 入库金额
+     */
+    @Column(name = "`amount`")
+    private Long amount;
+
 
     /**
      * @return id
@@ -668,4 +675,14 @@ public class StockInDetail extends BaseDomain {
     public void setCarTypePublicCode(String carTypePublicCode) {
         this.carTypePublicCode = carTypePublicCode;
     }
+
+	public Long getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Long amount) {
+		this.amount = amount;
+	}
+    
+    
 }

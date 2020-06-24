@@ -162,7 +162,6 @@ public class StockInController {
     @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput pay(PayInfoDto payInfoDto) {
         stockInService.pay(payInfoDto);
-        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("新增成功");
     }
     

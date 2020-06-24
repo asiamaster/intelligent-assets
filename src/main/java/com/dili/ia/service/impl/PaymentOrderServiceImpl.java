@@ -2,8 +2,10 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.PayInfoDto;
+import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.mapper.PaymentOrderMapper;
+import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.dto.DTOUtils;
@@ -11,6 +13,7 @@ import com.dili.uap.sdk.domain.UserTicket;
 
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,6 +23,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long> implements PaymentOrderService {
 
+	@Autowired
+	private UidRpcResolver uidRpcResolver;
+	
     public PaymentOrderMapper getActualDao() {
         return (PaymentOrderMapper)getDao();
     }
@@ -27,6 +33,7 @@ public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long>
 	@Override
 	public PaymentOrder savePaymentOrder(UserTicket userTicket, PayInfoDto payInfoDto) {
 		PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+		paymentOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
 		paymentOrder.setBusinessCode(payInfoDto.getBusinessCode());
 		paymentOrder.setAmount(payInfoDto.getPayMoney());
 		paymentOrder.setCreateTime(new Date());
