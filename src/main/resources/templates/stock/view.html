@@ -1,71 +1,67 @@
 <#bs4Body>
-
-	<!--<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>-->
 	<div class="container-fluid" value="${type!}">
-	
 		<form id="saveForm" role="form" novalidate>
 			<div class="breadcrumb">
 				客户信息 
 			</div>
 			<div class="row row-cols-4 collapse show" id="customerInfo">
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="customerName">客户名称<i class="red">*</i></label>
 					<input id="customerName" type="text" class="form-control floatReserve"
 					 name="customerName" value="${stockIn.customerName!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="_certificateNumber">证件号码<i class="red">*</i></label>
 					<input id="customerName" type="text" class="form-control floatReserve"
 					 name="customerName" value="${stockIn.customerName!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">联系电话<i class="red">*</i></label> <input id="customerCellphone" type="text" class="form-control floatReserve"
 					 name="customerCellphone" value="${stockIn.customerCellphone!}" readonly />
 				</div>
 			</div>
-
 			<div class="breadcrumb">
 				入库基本信息 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true"
 				 aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
 			</div>
 			<div class="row row-cols-4 collapse show" id="baseInfo">
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">入库单号<i class="red">*</i></label> <input id="code" type="text" class="form-control floatReserve"
 					 name="code" value="${stockIn.code!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">入库类型<i class="red">*</i></label> <input id="code" type="text" class="form-control floatReserve"
 					 name="code" value="${stockIn.code!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">入库类型<i class="red">*</i></label> <input id="operatorName" type="text" class="form-control floatReserve"
 					 name="operatorName" value="${stockIn.operatorName!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">所属部门<i class="red">*</i></label> <input id="departmentName" type="text" class="form-control floatReserve"
 					 name="departmentName" value="${stockIn.departmentName!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">货物品类<i class="red">*</i></label> <input id="categoryName" type="text" class="form-control floatReserve"
 					 name="categoryName" value="${stockIn.categoryName!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">产地<i class="red">*</i></label> <input id="origin" type="text" class="form-control floatReserve"
 					 name="origin" value="${stockIn.origin!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">总件数<i class="red">*</i></label> <input id="quantity" type="text" class="form-control floatReserve"
 					 name="quantity" value="${stockIn.quantity!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">总净重(公斤)<i class="red">*</i></label> <input id="weight" type="text" class="form-control floatReserve"
 					 name="weight" value="${stockIn.weight!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">入库总额(元)<i class="red">*</i></label> <input id="amount" type="text" class="form-control floatReserve"
 					 name="amount" value="${stockIn.amount!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">到期日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
 					 name="expireDate" value="${stockIn.expireDate!}" readonly />
 				</div>
@@ -75,23 +71,23 @@
 				 aria-controls="payInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
 			</div>
 			<div class="row row-cols-4 collapse show" id="payInfo">
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">结算单号<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
 					 name="expireDate" value="${stockIn.expireDate!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">缴费日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
 					 name="expireDate" value="${stockIn.expireDate!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">缴费金额<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
 					 name="expireDate" value="${stockIn.expireDate!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">卡号<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
 					 name="expireDate" value="${stockIn.expireDate!}" readonly />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col">
 					<label for="">收费员<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
 					 name="expireDate" value="${stockIn.expireDate!}" readonly />
 				</div>
@@ -104,8 +100,6 @@
 			</a>
 			</div>
 			<div class="collapse show" id="details">
-			
-			
 			<table class="table table-bordered table-hover table-striped" id="boothTable" >
                 <thead>
                 <tr>
@@ -164,11 +158,8 @@
                 <% } } %>
                 </tbody>
             </table>
-            
-			
 			</div>
 		</form>
-		
 	</div>
 </#bs4Body>
 
