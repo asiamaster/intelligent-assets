@@ -103,6 +103,7 @@ public class StockInDto {
      */
     private List<StockInDetailDto> stockInDetailDtos;
     
+    
     /**
      * 入库单详情(子单)
      */
@@ -264,7 +265,7 @@ public class StockInDto {
 	public void setMarketCode(String marketCode) {
 		this.marketCode = marketCode;
 	}
-
+	
 	public List<StockInDetailDto> getStockInDetailDtos() {
 		return stockInDetailDtos;
 	}

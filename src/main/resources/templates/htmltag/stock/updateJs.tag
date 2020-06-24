@@ -145,9 +145,15 @@ $('#adddetailItem').on('click', function() {
 	//buildFormData()
 })
 
+let removeDetails = [];
 //删除行事件 （删除子单）
 $(document).on('click', '.item-del', function() {
-	$(this).closest('.detail').remove();
+	let detail = $(this).closest('form').serializeObject();
+	if(detail.code != ""){
+		detail.delete = true;
+		removeDetails.push(detail);
+	}
+	$(this).closest('form').remove();
 });
 
 function buildFormData() {
@@ -162,19 +168,17 @@ function buildFormData() {
 	$("#details").find("form").each(function() {
 		let detail = $(this).serializeObject();
 		let districtName = $(this).find("[name=districtId]").find("option:selected").text();
+		let assetsName = $(this).find("[name=assetsId]").find("option:selected").text();
 		detail.districtName = districtName;
-		/* let detail = {};
-		$(this).find("input").each(function(t, el) {
-			let fieldName = $(this).attr("name").split('_')[0];
-			if ($(this).val() != "") {
-				detail[fieldName] = $(this).val();
-			}
-		}); */
-
+		detail.assetsName = assetsName;
+		detail.categoryId = formData.categoryId;
+		detail.categoryName = formData.categoryName;
 		if (detail != {}) {
 			stockDetails.push(detail);
 		}
 	});
+	//stockDetails.concat(removeDetails);
+	$.merge(stockDetails, removeDetails)
 	formData.stockInDetailDtos = stockDetails;
 	return JSON.stringify(formData);
 }

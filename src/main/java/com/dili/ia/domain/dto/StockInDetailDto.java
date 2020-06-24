@@ -1,5 +1,6 @@
 package com.dili.ia.domain.dto;
 
+import org.apache.ibatis.io.ResolverUtil.IsA;
 
 /**
  * 
@@ -102,6 +103,11 @@ public class StockInDetailDto {
 	 * 汽车编号,类型
 	 */
 	private String carTypePublicCode;
+	
+	/**
+	 * 入库子单删除
+	 */
+	private Boolean delete = false;
 	
 	/**
      * 司磅记录
@@ -274,6 +280,14 @@ public class StockInDetailDto {
 
 	public void setCarTypePublicCode(String carTypePublicCode) {
 		this.carTypePublicCode = carTypePublicCode;
+	}
+	
+	public Boolean getDelete() {
+		return delete;
+	}
+
+	public void setDelete(Boolean delete) {
+		this.delete = delete;
 	}
 
 	public StockWeighmanRecordDto getStockWeighmanRecordDto() {

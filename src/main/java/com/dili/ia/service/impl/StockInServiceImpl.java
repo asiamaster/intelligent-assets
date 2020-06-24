@@ -27,6 +27,9 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -69,9 +72,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	public void createStockIn(StockInDto stockInDto) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = buildStockIn(stockInDto, userTicket);
-		List<StockInDetail> detailList = buildStockDetail(stockInDto, stockIn);
+		buildStockDetail(stockInDto.getStockInDetailDtos(), stockIn);
 		insertSelective(stockIn);
-		stockInDetailService.batchInsert(detailList);
 		LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 	
@@ -88,8 +90,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockIn.setVersion(1);
 		return stockIn;
 	}
-	private List<StockInDetail> buildStockDetail(StockInDto stockInDto,StockIn stockIn) {
-		List<StockInDetailDto> detailDtos = stockInDto.getStockInDetailDtos();
+	private List<StockInDetail> buildStockDetail(List<StockInDetailDto> detailDtos,StockIn stockIn) {
+		//List<StockInDetailDto> detailDtos = stockInDto.getAddStockInDetailDtos();
 		List<StockInDetail> detailList = new ArrayList<>();
 		// 总金额 件数 重量计算
 		// 总量 克 计算
@@ -110,7 +112,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			totalQuantity += stockInDetailDto.getQuantity();
 			totalMoney += stockInDetailDto.getAmount();
 			// 司磅入库,保存司磅记录信息
-			if (stockInDto.getType() == StockInTypeEnum.WEIGHT.getCode()) {
+			if (stockIn.getType() == StockInTypeEnum.WEIGHT.getCode()) {
 				StockWeighmanRecord stockWeighmanRecord = bulidWeighmanRecord(stockInDetailDto.getStockWeighmanRecordDto(),detail);
 				// stockWeighmanRecord.setVersion(1);
 				stockWeighmanRecordService.insertSelective(stockWeighmanRecord);
@@ -121,6 +123,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockIn.setWeight(totalWeight);
 		stockIn.setQuantity(totalQuantity);
 		stockIn.setAmount(totalMoney);
+		if(CollectionUtils.isNotEmpty(detailList)) {
+			stockInDetailService.batchInsert(detailList);
+		}
+		
 		return detailList;
 	}
 	
@@ -167,7 +173,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		
 		//TODO 调用收费接口,缴费
-		
 		StockIn domain = new StockIn(userTicket);
 		
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
@@ -227,14 +232,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	public void updateStockIn(StockInDto stockInDto) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(stockInDto.getCode());
-		if(stockInDto.getCustomerId() != null) {
-			
-		}
-		// BeanUtils.copyProperties(source, target, editable);
-		stockIn.setOperatorId(userTicket.getId());
-		stockIn.setOperatorName(userTicket.getUserName());
-		List<StockInDetailDto> detailDtos = stockInDto.getStockInDetailDtos();
-		List<StockInDetail> detailList = new ArrayList<>();
+		
 		// 总金额 件数 重量计算
 		// 总量 克 计算
 		// 金额 分 计算
@@ -245,25 +243,46 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockIn.setWeight(totalWeight);
 		stockIn.setQuantity(totalQuantity);
 		stockIn.setAmount(totalQuantity);
+		List<StockInDetailDto> addDetailDtos = new ArrayList<StockInDetailDto>();
+		List<StockInDetailDto> detailDtos = stockInDto.getStockInDetailDtos();
 		for (StockInDetailDto stockInDetailDto : detailDtos) {
 			if(StringUtils.isEmpty(stockInDetailDto.getCode())) {
-				buildStockDetail(stockInDto, stockIn);
-			}else {
-				StockInDetail detail = stockInDetailService.getByCode(stockInDetailDto.getCode());
-				BeanUtils.copyProperties(stockInDetailDto, detail);
-				totalWeight += stockInDetailDto.getWeight();
-				totalQuantity += stockInDetailDto.getQuantity();
-				totalMoney += stockInDetailDto.getAmount();
-				detailList.add(detail);	
+				addDetailDtos.add(stockInDetailDto);
+				continue;
 			}
+			// 修改子单
+			StockInDetail detail = stockInDetailService.getByCode(stockInDetailDto.getCode());
+			if(stockInDetailDto.getDelete()) {
+				//TODO 删除
+				stockInDetailService.delete(detail.getId());
+				continue;
+			}
+			
+			totalWeight += stockInDetailDto.getWeight();
+			totalQuantity += stockInDetailDto.getQuantity();
+			totalMoney += stockInDetailDto.getAmount();
+			// 修改入库单信息
+			StockInDetail domain = new StockInDetail();
+			BeanUtil.copyProperties(stockInDetailDto, domain,
+					CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));
+			StockInDetail condition = new StockInDetail();
+			condition.setCode(detail.getCode());
+			condition.setVersion(detail.getVersion());
+			// update
+			stockInDetailService.updateSelectiveByExample(domain, condition);
 		}
-		stockIn.setWeight(stockIn.getWeight()+totalWeight);
-		stockIn.setQuantity(stockIn.getQuantity()+totalQuantity);
-		stockIn.setAmount(totalMoney);
+		// 新增子单
+		buildStockDetail(addDetailDtos, stockIn);
+		// 修改入库单信息
+		StockIn domain = new StockIn(userTicket);
+		BeanUtil.copyProperties(stockInDto, domain,CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));
+		domain.setWeight(stockIn.getWeight()+totalWeight);
+		domain.setQuantity(stockIn.getQuantity()+totalQuantity);
+		domain.setAmount(stockIn.getAmount()+totalMoney);
 		StockIn condition = new StockIn();
 		condition.setCode(stockIn.getCode());
 		condition.setVersion(stockIn.getVersion());
-		updateByExample(stockIn, condition);
+		updateSelectiveByExample(domain, condition);
 	}
 
 	@Override
@@ -297,7 +316,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Transactional
 	public void refund(String code) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
