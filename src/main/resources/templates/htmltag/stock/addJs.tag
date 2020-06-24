@@ -220,10 +220,10 @@ function openWeightHandler() {
         content: bui.util.HTMLDecode(template("weighman", {})), //对话框内容，可以是 string、element，$object
         width: '80%',//宽度
         height: '95%',//高度
-        btns: [{label: '取消',className: 'btn btn-secondary',onClick(e){
+        btns: [{label: '取消',className: 'btn-secondary',onClick(e){
 
             }
-        }, {label: '确定',className: 'btn btn-primary',onClick(e){
+        }, {label: '确定',className: 'btn-primary',onClick(e){
                 bui.util.debounce(saveOrUpdateHandler,1000,true)()
                 return false;
             }
