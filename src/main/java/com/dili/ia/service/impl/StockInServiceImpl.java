@@ -77,7 +77,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	private StockIn buildStockIn(StockInDto stockInDto,UserTicket userTicket) {
 		StockIn stockIn = new StockIn(userTicket);
-		BeanUtils.copyProperties(stockInDto, stockIn);
+		BeanUtils.copyProperties(stockInDto, stockIn, "operatorId", "operatorName");
 		stockIn.setCode(UidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
 		stockIn.setCreateTime(new Date());
 		stockIn.setState(StockInStateEnum.CREATED.getCode());
@@ -227,7 +227,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	public void updateStockIn(StockInDto stockInDto) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(stockInDto.getCode());
-		BeanUtils.copyProperties(stockInDto, stockIn);
+		if(stockInDto.getCustomerId() != null) {
+			
+		}
+		// BeanUtils.copyProperties(source, target, editable);
+		stockIn.setOperatorId(userTicket.getId());
+		stockIn.setOperatorName(userTicket.getUserName());
 		List<StockInDetailDto> detailDtos = stockInDto.getStockInDetailDtos();
 		List<StockInDetail> detailList = new ArrayList<>();
 		// 总金额 件数 重量计算
@@ -255,7 +260,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockIn.setWeight(stockIn.getWeight()+totalWeight);
 		stockIn.setQuantity(stockIn.getQuantity()+totalQuantity);
 		stockIn.setAmount(totalMoney);
-		StockIn condition = new StockIn(userTicket);
+		StockIn condition = new StockIn();
 		condition.setCode(stockIn.getCode());
 		condition.setVersion(stockIn.getVersion());
 		updateByExample(stockIn, condition);

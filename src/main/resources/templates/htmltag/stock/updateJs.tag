@@ -195,7 +195,7 @@ function doAddEarnestHandler() {
 					type: 'error'
 				});
 			} else {
-				parent.closeDialog(parent.dia);
+				bs4pop.alert(ret.message, {type: 'success'});
 			}
 		},
 		error: function(error) {

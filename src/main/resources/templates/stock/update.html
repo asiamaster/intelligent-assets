@@ -1,8 +1,6 @@
 <#bs4Body>
-
 	<!--<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>-->
 	<div class="container-fluid" value="${type!}">
-	
 		<input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.earnest_order'/>">
 		<form id="saveForm" role="form" novalidate>
 			<div class="breadcrumb">
@@ -11,6 +9,9 @@
 			<div class="row row-cols-4 collapse show" id="customerInfo">
 				<div class="form-group col-4">
 					<label for="customerName">客户名称<i class="red">*</i></label>
+					<input type="hidden" class="" id="customerId"
+					 name="customerId" value="${stockIn.customerId!}" readonly required />
+				
 					<input type="text" class="form-control isMobile" id="customerName"
 					 name="customerName" value="${stockIn.customerName!}" readonly required />
 				</div>
@@ -35,20 +36,21 @@
 					 name="type" value="${stockIn.type!}"  readonly required />
 				</div>
 				<div class="form-group col-4">
-					<label for="">操作员<i class="red">*</i></label> <input type="text" class="form-control" id="operatorName"
+					<label for="">操作员<i class="red">*</i></label>
+					<input type="hidden" id="operatorId" name="operatorId" value="${stockIn.operatorId!}" />
+					 <input type="text" class="form-control" id="operatorName"
 					 name="operatorName" value="${stockIn.operatorName!}"  readonly required />
 				</div>
 				<div class="form-group col-4">
-					<label for="departmentId">业务所属部门<i class="red">*</i></label> <select id="departmentId" name="departmentId" class="form-control"
-					 required></select>
-					<#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" />
+					<label for="departmentId" value="${stockIn.departmentId!}" >业务所属部门<i class="red">*</i></label> 
+					<select id="departmentId" name="departmentId" class="form-control" required></select>
+					<#bcomboProvider _id="departmentId" _provider="authDepartmentProvider"  _value="${stockIn.departmentId!}"/>
 				</div>
 				<div class="form-group col-4">
 					<label for="categoryId">品类<i class="red">*</i></label>
 					<select id="categoryId" name="categoryId" class="form-control" required>
 					</select>
-					<!-- <#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption" _value="[1]" /> -->
-
+					<#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption" _value="${stockIn.categoryId!}" />
 				</div>
 				<div class="form-group col-4">
 					<label for="">产地<i class="red">*</i></label> <input type="text" class="form-control" id="origin" name="origin"
@@ -63,14 +65,15 @@
 					 name="weight" range="0 9999999" value="${stockIn.weight!}" required readonly />
 				</div>
 				<div class="form-group col-4">
-					<label for="money" class="">总金额<i class="red">*</i></label> <input id="amount" type="number" class="form-control floatReserve"
+					<label for="amount" class="">总金额<i class="red">*</i></label> <input id="amount" type="number" class="form-control floatReserve"
 					 name="amount" range="0 9999999.99" value="${stockIn.amount!}" required readonly />
 				</div>
 				
 				<div class="form-group col-4">
-					<label for="endTime">到期日期</label> <input type="text" id="expireDate" name="expireDate" class="form-control laydate layend"
-					value="${stockIn.expireDate!}" readonly>
+					<label for="expireDate">到期日期</label> <input type="text" id="expireDate" name="expireDate" class="form-control laydate layend"
+					value="${stockIn.expireDate!}" data-provider="dateProvider" readonly>
 				</div>
+				
 			</div>
 
 			<div class="text-left btn-r-b">
@@ -101,7 +104,7 @@
 	<form id="saveForm_{{index}}" role="form" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
-						<input type="hidden" class="form-control" id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
+						<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
 						<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber" name="pickupNumber" value="{{stockDetail.pickupNumber}}" required />
 					</div>
 					<div class="form-group col-4">
@@ -112,9 +115,16 @@
 						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate" name="carPlate" value="{{stockDetail.carPlate}}" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="districtId">冷库编号：<i class="red">*</i></label>
+						<label for="">冷库区域：<i class="red">*</i></label>
+						<input id="districtId_{{index}}" name="districtId" class="form-control" value="{{stockDetail.districtId}}"
+						 required />
 						
-					</div>	
+					</div>
+					<div class="form-group col-4">
+						<label for="">冷库编号：<i class="red">*</i></label>
+						<input id="assetsId_{{index}}" type="text" class="form-control"
+						 name="assetsId" value="{{stockDetail.assetsId}}" required />
+					</div>
 					<div class="form-group col-4">
 						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity" type="number" value="{{stockDetail.quantity}}" class="form-control floatReserve"
 						 name="quantity" range="0 9999999" required />
@@ -124,8 +134,8 @@
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="money" type="number" value="{{stockDetail.money}}" class="form-control floatReserve money"
-						 name="money" range="0 9999999" required />
+						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount" type="number" value="{{stockDetail.amount}}" class="form-control floatReserve money"
+						 name="amount" range="0 9999999" required />
 					</div>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
@@ -144,8 +154,8 @@
 	<form id="saveForm_{{index}}" role="form" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
-<input type="hidden" class="form-control" id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
-						<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}" required />
+					<input type="hidden" class="form-control" id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
+					<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}" required />
 					</div>
 					<div class="form-group col-4">
 						<label for="">车型</label> <input type="text" class="form-control" id="carTypePublicCode_{{index}}" name="carTypePublicCode" value="{{stockDetail.carTypePublicCode}}"
@@ -156,17 +166,15 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库区域：<i class="red">*</i></label>
-						<select id="districtId_{{index}}" name="districtId" class="form-control" 
-						 required></select>
+						<input id="districtId_{{index}}" name="districtId" class="form-control" value="{{stockDetail.districtId}}"
+						 required />
 						
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
-						<select id="districtId1" name="districtId1" class="form-control" required>
-						</select>
-						
-						
-					</div>	
+						<input id="assetsId_{{index}}" type="text" class="form-control"
+						 name="assetsId" value="{{stockDetail.assetsId}}" required />
+					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control floatReserve"
 						 name="quantity" value="{{stockDetail.quantity}}" range="0 9999999" required />
@@ -196,18 +204,18 @@
 	<form id="saveForm_{{index}}" role="form" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
-<input type="hidden" class="form-control" id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
-						<label for="_certificateNumber">冷库区域：<i class="red">*</i></label>
-						<!-- <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber"
-						 _displayDomainId="_certificateNumber" _displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected"
-						 _optionVariable="certificateNumberAutoCompleteOption" _required="true" /> -->
+					<input type="hidden" class="form-control" id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
+					<div class="form-group col-4">
+						<label for="">冷库区域：<i class="red">*</i></label>
+						<input id="districtId_{{index}}" name="districtId" class="form-control" value="{{stockDetail.districtId}}"
+						 required />
+						
 					</div>
 					<div class="form-group col-4">
-						<label for="_certificateNumber">冷库编号：<i class="red">*</i></label>
-						<!-- <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber"
-						 _displayDomainId="_certificateNumber" _displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected"
-						 _optionVariable="certificateNumberAutoCompleteOption" _required="true" /> -->
-					</div>	
+						<label for="">冷库编号：<i class="red">*</i></label>
+						<input id="assetsId_{{index}}" type="text" class="form-control"
+						 name="assetsId" value="{{stockDetail.assetsId}}" required />
+					</div>
 					<div class="form-group col-4">
 						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
 						 name="quantity" range="0 9999999" value="{{stockDetail.quantity}}" required />
@@ -217,8 +225,8 @@
 						 name="weight" range="0 9999999" value="{{stockDetail.weight}}" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="money" type="number" class="form-control floatReserve money"
-						 name="money" range="0 9999999" value="{{stockDetail.money}}" required />
+						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount" type="number" class="form-control floatReserve money"
+						 name="amount" range="0 9999999" value="{{stockDetail.amount}}" required />
 					</div>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>

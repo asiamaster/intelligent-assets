@@ -26,6 +26,7 @@ public class StockInDetailServiceImpl extends BaseServiceImpl<StockInDetail, Lon
 	@Override
 	public StockInDetail getByCode(String code) {
 		StockInDetail condtion = new StockInDetail();
+		condtion.setCode(code);
 		List<StockInDetail> stockInDetails = listByExample(condtion);
 		if (CollectionUtils.isEmpty(stockInDetails) || stockInDetails.size() != 1) {
 			throw new BusinessException("", "");

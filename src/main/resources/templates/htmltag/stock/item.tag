@@ -33,8 +33,8 @@
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="money_{{index}}" type="number" class="form-control floatReserve money"
-						 name="money" range="0 9999999" required />
+						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control floatReserve money"
+						 name="amount" range="0 9999999" required />
 					</div>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
@@ -70,11 +70,10 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
-						<select id="districtId1" name="districtId1" class="form-control" required>
-						</select>
+						<input id="assetsId_{{index}}" type="text" class="form-control"
+						 name="assetsId" required />
 						
-						
-					</div>	
+					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control floatReserve"
 						 name="quantity" range="0 9999999" required />
@@ -85,8 +84,8 @@
 						 <button type="button" class="btn btn-secondary px-5" onclick="openWeightHandler()">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">入库金额：<i class="red">*</i></label> <input id="money_{{index}}" type="number" class="form-control floatReserve money"
-						 name="money" range="0 9999999" required />
+						<label for="" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control floatReserve money"
+						 name="amount" range="0 9999999" required />
 					</div>
 					<div class="form-group col-8">
 					    <label for="">备注</label>
@@ -104,17 +103,17 @@
 	<form id="saveForm_{{index}}" role="form" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
-						<label for="_certificateNumber">冷库区域：<i class="red">*</i></label>
-						<!-- <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber"
-						 _displayDomainId="_certificateNumber" _displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected"
-						 _optionVariable="certificateNumberAutoCompleteOption" _required="true" /> -->
+						<label for="">冷库区域：<i class="red">*</i></label>
+						<select id="districtId_{{index}}" name="districtId" class="form-control"
+						 required></select>
+						
 					</div>
 					<div class="form-group col-4">
-						<label for="_certificateNumber">冷库编号：<i class="red">*</i></label>
-						<!-- <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber"
-						 _displayDomainId="_certificateNumber" _displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected"
-						 _optionVariable="certificateNumberAutoCompleteOption" _required="true" /> -->
-					</div>	
+						<label for="">冷库编号：<i class="red">*</i></label>
+						<input id="assetsId_{{index}}" type="text" class="form-control"
+						 name="assetsId" required />
+						
+					</div>
 					<div class="form-group col-4">
 						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control floatReserve"
 						 name="quantity" range="0 9999999" required />
@@ -124,8 +123,8 @@
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="money_{{index}}" type="number" class="form-control floatReserve money"
-						 name="money" range="0 9999999" required />
+						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control floatReserve money"
+						 name="amount" range="0 9999999" required />
 					</div>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
