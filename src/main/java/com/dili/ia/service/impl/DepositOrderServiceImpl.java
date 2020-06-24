@@ -3,11 +3,9 @@ package com.dili.ia.service.impl;
 import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.Customer;
-import com.dili.ia.domain.DepositOrder;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.DepositOrderQuery;
+import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.glossary.*;
@@ -46,6 +44,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -229,6 +229,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (!de.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("提交失败，状态已变更！");
         }
+        if (!de.getAmount().equals(amount + waitAmount)){
+            return BaseOutput.failure("提交失败，金额已变更！");
+        }
         de.setState(DepositOrderStateEnum.SUBMITTED.getCode());
         de.setSubmitterId(userTicket.getId());
         de.setSubmitter(userTicket.getRealName());
@@ -238,11 +241,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        PaymentOrder pb = this.buildPaymentOrder(userTicket, de);
+        PaymentOrder pb = this.buildPaymentOrder(userTicket, de, amount);
         paymentOrderService.insertSelective(pb);
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, de, pb));
+        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, de, pb, amount));
         if (!out.isSuccess()){
             LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
@@ -251,10 +254,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     //组装缴费单 PaymentOrder
-    private PaymentOrder buildPaymentOrder(UserTicket userTicket, DepositOrder depositOrder){
+    private PaymentOrder buildPaymentOrder(UserTicket userTicket, DepositOrder depositOrder, Long paidAmount){
         PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
         pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
-        pb.setAmount(depositOrder.getAmount());
+        pb.setAmount(paidAmount);
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
         pb.setCreatorId(userTicket.getId());
@@ -267,7 +270,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return pb;
     }
     //组装 -- 结算中心缴费单 SettleOrder
-    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket,DepositOrder depositOrder, PaymentOrder paymentOrder){
+    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket,DepositOrder depositOrder, PaymentOrder paymentOrder, Long paidAmount){
         SettleOrderDto settleOrder = new SettleOrderDto();
         //以下是提交到结算中心的必填字段
         settleOrder.setMarketId(depositOrder.getMarketId()); //市场ID
@@ -277,7 +280,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         settleOrder.setCustomerId(depositOrder.getCustomerId());//客户ID
         settleOrder.setCustomerName(depositOrder.getCustomerName());// "客户姓名
         settleOrder.setCustomerPhone(depositOrder.getCustomerCellphone());//"客户手机号
-        settleOrder.setAmount(depositOrder.getAmount()); //金额
+        settleOrder.setAmount(paidAmount); //金额
         settleOrder.setBusinessDepId(depositOrder.getDepartmentId()); //"业务部门ID
         settleOrder.setBusinessDepName(departmentRpc.get(depositOrder.getDepartmentId()).getData().getName());//"业务部门名称
         settleOrder.setSubmitterId(userTicket.getId());// "提交人ID
@@ -295,6 +298,38 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
         return settleOrder;
     }
+
+    /**
+     * 检查是否可以进行提交付款
+//     * @param amount
+//     * @param waitAmount
+     */
+//    private void checkSubmitPayment(Long amount, Long waitAmount,DepositOrder depositOrder) {
+//        //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
+//        if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
+//            LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
+//            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已交清，不可以进行提交付款操作");
+//        }
+//        if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
+//            LOG.info("租赁单编号【{}】已发起退款，不可以进行提交付款操作", leaseOrder.getCode());
+//            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已发起退款，不可以进行提交付款操作");
+//        }
+//        if(LeaseOrderStateEnum.CANCELD.getCode().equals(leaseOrder.getState())){
+//            LOG.info("租赁单编号【{}】已取消，不可以进行提交付款操作", leaseOrder.getCode());
+//            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已取消，不可以进行提交付款操作");
+//        }
+//        if (amount.equals(0L) && !waitAmount.equals(0L)) {
+//            throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单费用已结清");
+//        }
+//        if (amount > leaseOrder.getWaitAmount()) {
+//            LOG.info("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());
+//            throw new BusinessException(ResultCode.DATA_ERROR,"支付金额大于待付金额");
+//        }
+//        if (!waitAmount.equals(leaseOrder.getWaitAmount())) {
+//            LOG.info("摊位租赁单待缴费金额已发生变更，请重试【ID {}】 旧金额【{}】新金额【{}】", id, waitAmount, leaseOrder.getWaitAmount());
+//            throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单待缴费金额已发生变更，请重试");
+//        }
+//    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
