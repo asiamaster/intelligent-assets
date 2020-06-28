@@ -9,6 +9,14 @@ import com.dili.ss.base.BaseService;
  */
 public interface StockInDetailService extends BaseService<StockInDetail, Long> {
 	
+	/**
+	 * 
+	 * @Title getByCode
+	 * @Description 根据code获取详情单
+	 * @param code
+	 * @return
+	 * @throws
+	 */
 	StockInDetail getByCode(String code);
 	
 }
