@@ -37,6 +37,7 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -84,6 +85,7 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
     private BusinessChargeItemService businessChargeItemService;
 
     @Override
+    @Transactional
     public BaseOutput saveLeaseOrder(AssetLeaseOrderListDto dto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
@@ -174,6 +176,7 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
             o.setStopRentState(StopRentStateEnum.NO_APPLY.getCode());
             assetLeaseOrderItemService.insertSelective(o);
 
+            //收费项新增
             if(CollectionUtils.isNotEmpty(o.getBusinessChargeItems())){
                 o.getBusinessChargeItems().forEach(bci->{
                     bci.setBusinessId(o.getId());
