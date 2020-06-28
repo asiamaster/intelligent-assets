@@ -1,8 +1,10 @@
 package com.dili.ia.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.domain.dto.StockInDto;
+import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.service.StockInService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -64,8 +66,9 @@ public class StockInController {
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute StockIn stockIn) throws Exception {
-        return stockInService.listEasyuiPageByExample(stockIn, true).toString();
+    public @ResponseBody String listPage(@ModelAttribute StockInQueryDto stockIn) throws Exception {
+    	
+        return stockInService.listPageAction(stockIn);
     }
 
     /**
@@ -114,7 +117,7 @@ public class StockInController {
     	stockInService.updateStockIn(stockIn);
         return BaseOutput.success();
     }
-
+    
     /**
      * 取消(逻辑删除)StockIn
      * @param id

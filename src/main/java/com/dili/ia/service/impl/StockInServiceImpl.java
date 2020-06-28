@@ -8,6 +8,7 @@ import com.dili.ia.domain.StockWeighmanRecord;
 import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
+import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockWeighmanRecordDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.StockInStateEnum;
@@ -328,6 +329,20 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		details.forEach(detail -> {
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), "退款businessCode");
 		});
+	}
+
+	@Override
+	public String listPageAction(StockInQueryDto stockIn) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		//TODO 数据隔离
+		stockIn.setMarketId(userTicket.getFirmId());
+		try {
+			return this.listEasyuiPageByExample(stockIn, true).toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		};
+		return null;
 	}
 
 	

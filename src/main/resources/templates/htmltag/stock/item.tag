@@ -128,7 +128,7 @@
 					</div>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
-					    <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100"></textarea>
+					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100"></textarea>
 					</div>
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>

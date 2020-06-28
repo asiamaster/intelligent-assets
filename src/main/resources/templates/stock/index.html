@@ -16,17 +16,21 @@
                     <option value="2">零散入库</option>
                     <option value="3">司磅入库</option> -->
                 </select>
+                <#bcomboProvider _id="type" _provider="stockInTypeProvider" />
+                
             </div>
             <div class="form-group col">
-                <label for="categoryId">品类<i class="red">*</i></label>
+                <label for="categoryId">品类</label>
                 <select id="categoryId" name="categoryId" class="form-control" required multiple>
                 </select>
                 <#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption" />
             </div>
             <div class="form-group col">
                 <label for="state">状态</label>
-                <select id="state" name="state" class="form-control" required>
+                
+                <select id="state" name="state" class="form-control" >
                 </select>
+                <#bcomboProvider _id="state" _provider="stockInStateProvider" />
             </div>
             <div class="form-group col">
                 <label for="customerName">客户姓名</label>
@@ -61,13 +65,13 @@
                 <label for="createdStart">到期时间</label>
                 <div class="form-inline">
                     <div class="input-group">
-                        <input type="text" name="createdStart" id="createdStart" class="form-control laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <input type="text" name="expireStart" id=""expireStart"" class="form-control laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
                         <div class="input-group-append">
                             <label for="createdStart"  class="input-group-text fa fa-calendar"></label>
                         </div>
                     </div>&nbsp;&nbsp;至&nbsp;&nbsp;
                     <div class="input-group">
-                        <input type="text" name="createdEnd" id="createdEnd" class="form-control laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <input type="text" name="expireEnd" id="expireEnd" class="form-control laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
                         <div class="input-group-append">
                             <label for="createdEnd"  class="input-group-text fa fa-calendar"></label>
                         </div>
@@ -124,7 +128,7 @@
         <th data-field="type" data-sortable="true" data-align="center" data-sort-name="type" data-provider="leaseOrderStateProvider">
             入库类型
         </th>
-        <th data-field="departmentName" data-sortable="true" data-align="center">
+        <th data-field="departmentName" data-sortable="true" data-align="center" data-provider="stockInTypeProvider" >
             部门
         </th>
         <th data-field="customerName" data-sortable="true" data-sort-name="customer_name" data-align="center">
