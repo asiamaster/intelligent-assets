@@ -1,5 +1,9 @@
 package com.dili.ia.domain.dto;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+
 /**
  * <B>Description</B>
  * 本软件源代码版权归农丰时代及其团队所有,未经许可不得任意复制与传播
@@ -11,9 +15,10 @@ package com.dili.ia.domain.dto;
  */
 public class PayInfoDto {
 	
+	@NotNull(message = "code is null")
 	private String businessCode;
 	
-	private Long payMoney;
+	private Long amount;
 	
 	private String password;
 	
@@ -29,12 +34,12 @@ public class PayInfoDto {
 		this.businessCode = businessCode;
 	}
 
-	public Long getPayMoney() {
-		return payMoney;
+	public Long getAmount() {
+		return amount;
 	}
 
-	public void setPayMoney(Long payMoney) {
-		this.payMoney = payMoney;
+	public void setAmount(Long amount) {
+		this.amount = amount;
 	}
 
 	public String getPassword() {

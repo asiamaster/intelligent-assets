@@ -1,8 +1,11 @@
 package com.dili.ia.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.domain.dto.StockInDto;
+import com.dili.ia.domain.dto.StockInQueryDto;
+import com.dili.ia.domain.dto.StockInRefundDto;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.service.StockInService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -13,10 +16,13 @@ import com.dili.ss.exception.BusinessException;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,8 +70,9 @@ public class StockInController {
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute StockIn stockIn) throws Exception {
-        return stockInService.listEasyuiPageByExample(stockIn, true).toString();
+    public @ResponseBody String listPage(@ModelAttribute StockInQueryDto stockIn) throws Exception {
+    	
+        return stockInService.listPageAction(stockIn);
     }
 
     /**
@@ -114,7 +121,7 @@ public class StockInController {
     	stockInService.updateStockIn(stockIn);
         return BaseOutput.success();
     }
-
+    
     /**
      * 取消(逻辑删除)StockIn
      * @param id
@@ -160,7 +167,7 @@ public class StockInController {
      */
     @RequestMapping(value="/pay.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput pay(PayInfoDto payInfoDto) {
+    public @ResponseBody BaseOutput pay(@Validated PayInfoDto payInfoDto) {
         stockInService.pay(payInfoDto);
         return BaseOutput.success("新增成功");
     }
@@ -171,9 +178,9 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput refund(String code) {	
-        stockInService.refund(code);
+    //@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput refund(@Validated StockInRefundDto stockInRefundDto) {	
+        stockInService.refund(stockInRefundDto);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("新增成功");
     }

@@ -35,7 +35,7 @@ public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long>
 		PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
 		paymentOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
 		paymentOrder.setBusinessCode(payInfoDto.getBusinessCode());
-		paymentOrder.setAmount(payInfoDto.getPayMoney());
+		paymentOrder.setAmount(payInfoDto.getAmount());
 		paymentOrder.setCreateTime(new Date());
 		paymentOrder.setCreator(userTicket.getUserName());
 		paymentOrder.setCreatorId(userTicket.getId());

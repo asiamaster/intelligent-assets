@@ -181,7 +181,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		stockOut.setDistrictName(stock.getDistrictName());
 		stockOut.setMarketId(stock.getMarketId());
 		stockOut.setMarketCode(stock.getMarketCode());
-		stockOut.setCreator(userTicket.getUserName());
+		stockOut.setCreator(userTicket.getRealName());
 		stockOut.setCreatorId(userTicket.getId());
 		stockOut.setCreateTime(new Date());
 		stockOut.setNotes(notes);
