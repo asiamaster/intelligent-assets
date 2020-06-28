@@ -357,10 +357,12 @@
                                                     method: 'get',
                                                     idField: 'id',
                                                     treeField: 'name',
-                                                    showFooter:true,
                                                     singleSelect:true,
                                                     remoteSort:false,
                                                     multiSort:false,
+                                                    pagination: true,
+                                                    pageSize: 10,
+                                                    pageList: [10,20,50],
                                                     _parentIdField: 'parentId',
                                                     loadFilter:treegridLoadFilter
                                                 ">
@@ -369,12 +371,13 @@
                     <th data-options="field:'ck',checkbox:true"></th>
                     <th data-options="field:'name',sortable:true,formatter:formatterView" width="20%">摊位编号</th>
                     <th data-options="field:'number',sortable:true" width="10%">数量</th>
-                    <th data-options="field:'unit',_provider:'dataDictionaryValueProvider'" width="10%">单位</th>
-                    <th data-options="field:'area',_provider:'districtProvider'" width="10%">区域</th>
-                    <th data-options="field:'departmentId',_provider:'departmentProvider'" width="10%">部门</th>
-                    <th data-options="field:'createTime',_provider:'datetimeProvider'" width="10%">创建时间</th>
-                    <th data-options="field:'state',_provider:'boothStateProvider',formatter:stateFormatter" width="10%">状态</th>
-                    <th data-options="field:'bb',_provider:'boothPathProvider'" width="20%">路径</th>
+                    <th data-options="field:'unit',sortable:true,_provider:'dataDictionaryValueProvider'" width="10%">单位</th>
+                    <th data-options="field:'area',sortable:true,_provider:'districtProvider'" width="10%">一级区域</th>
+                    <th data-options="field:'secondArea',sortable:true,_provider:'districtProvider'" width="10%">二级区域</th>
+                    <th data-options="field:'departmentId',sortable:true,_provider:'departmentProvider'" width="10%">部门</th>
+                    <th data-options="field:'createTime',sortable:true,_provider:'datetimeProvider'" width="10%">创建时间</th>
+                    <th data-options="field:'state',sortable:true,_provider:'boothStateProvider',formatter:stateFormatter" width="10%">状态</th>
+                    <th data-options="field:'bb',sortable:true,_provider:'boothPathProvider'" width="10%">路径</th>
                 </tr>
                 </thead>
             </table>
