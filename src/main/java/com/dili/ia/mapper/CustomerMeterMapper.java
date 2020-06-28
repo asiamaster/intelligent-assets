@@ -27,12 +27,13 @@ public interface CustomerMeterMapper extends MyMapper<CustomerMeter> {
      */
     List<CustomerMeterDto> listCustomerMeters(CustomerMeterDto customerMeterDto);
 
+
     /**
      * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        type
-     * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
+     * @date:        2020/6/28
+     * @param        meterId
+     * @return       CustomerMeter
+     * @description：根据表主键id获取表绑定的用户信息
      */
-    List<Meter> getUnbindMeterByType(Long type);
+    CustomerMeter getBindInfoByMeterId(Long meterId);
 }

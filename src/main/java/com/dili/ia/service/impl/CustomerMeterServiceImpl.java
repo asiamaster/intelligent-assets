@@ -157,19 +157,16 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
 
     /**
      * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        type
+     * @date:        2020/6/28
+     * @param        meterId
      * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
+     * @description：根据表主键id获取表绑定的用户信息
      */
     @Override
-    public BaseOutput<Meter> getUnbindMeterByType(Long type) {
+    public BaseOutput<CustomerMeter> getBindInfoByMeterId(Long meterId) {
         BaseOutput baseOutput = new BaseOutput();
-
-        // TODO sql 未完成
-        List<Meter> meterList = this.getActualDao().getUnbindMeterByType(type);
-        baseOutput.setData(meterList);
-
+        CustomerMeter customerMeter = this.getActualDao().getBindInfoByMeterId(meterId);
+        baseOutput.setData(customerMeter);
         return baseOutput;
     }
 }

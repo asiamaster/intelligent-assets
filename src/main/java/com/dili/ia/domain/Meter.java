@@ -70,7 +70,7 @@ public class Meter extends BaseDomain {
     private Long assetsId;
 
     /**
-     * 对应编号,名称
+     * 对应编号,名称(摊位地址)
      */
     @Column(name = "`assets_name`")
     private String assetsName;

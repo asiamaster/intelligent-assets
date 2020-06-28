@@ -26,13 +26,13 @@ public class MeterDto extends Meter {
      * 关键字(搜索的条件，表编号或表地址)
      */
     @Transient
-    private String keyWord;
+    private String keyword;
 
-    public String getKeyWord() {
-        return keyWord;
+    public String getKeyword() {
+        return keyword;
     }
 
-    public void setKeyWord(String keyWord) {
-        this.keyWord = keyWord;
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 }

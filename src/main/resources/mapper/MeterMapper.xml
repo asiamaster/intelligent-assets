@@ -109,4 +109,41 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="getUnbindMeterByType" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT
+            m.id,
+            m.assets_name,
+            m.number,
+            m.department_id,
+            m.department_name,
+            m.assets_type,
+            m.assets_id
+        FROM
+            meter m
+        WHERE
+            m.id NOT IN (
+        SELECT
+            cm.meter_id
+        FROM
+            customer_meter cm
+        WHERE
+            cm.state = 1
+            AND m.id = cm.meter_id
+            AND m.type = #{value}
+
+            )
+        AND m.type = #{type}
+    </select>
+
+  <select id="getMeterLikeNumber" parameterType="com.dili.ia.domain.Meter" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List" />
+    from
+        meter
+    where
+        type = #{type,jdbcType=INTEGER}
+    and
+        number like CONCAT('%',#{number,jdbcType=VARCHAR},'%' )
+  </select>
 </mapper>

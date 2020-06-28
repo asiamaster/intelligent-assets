@@ -2,10 +2,13 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.CustomerMeterDto;
+import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ss.domain.BaseOutput;
 import java.util.List;
 
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,13 +80,13 @@ public class MeterDetailController {
     /**
      * @author:      xiaosa
      * @date:        2020/6/23
-     * @param:
-     * @return:
-     * @description：分页请求
+     * @param:       meterDetailDto
+     * @return:      String
+     * @description：根据条件分页查询列表
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute MeterDetail meterDetail) throws Exception {
-        return meterDetailService.listEasyuiPageByExample(meterDetail, true).toString();
+    public @ResponseBody String listPage(@ModelAttribute MeterDetailDto meterDetailDto) throws Exception {
+        return meterDetailService.listMeterDetails(meterDetailDto, true).toString();
     }
 
     /**
@@ -111,9 +114,10 @@ public class MeterDetailController {
      * @return:      BaseOutput
      * @description：新增 水电费单
      */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute MeterDetail meterDetail) {
-        meterDetailService.insertSelective(meterDetail);
+    @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput insert(@ModelAttribute MeterDetailDto meterDetailDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        meterDetailService.addMeterDetail(meterDetailDto, userTicket);
         return BaseOutput.success("新增成功");
     }
 
