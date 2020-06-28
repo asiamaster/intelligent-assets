@@ -27,9 +27,9 @@ public class StockOutController {
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
+    @RequestMapping(value="/list.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
-        return "stockOut/index";
+        return "stock/stockOut/index";
     }
 
     /**
@@ -43,36 +43,4 @@ public class StockOutController {
         return stockOutService.listEasyuiPageByExample(stockOut, true).toString();
     }
 
-    /**
-     * 新增StockOut
-     * @param stockOut
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute StockOut stockOut) {
-        stockOutService.insertSelective(stockOut);
-        return BaseOutput.success("新增成功");
-    }
-
-    /**
-     * 修改StockOut
-     * @param stockOut
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute StockOut stockOut) {
-        stockOutService.updateSelective(stockOut);
-        return BaseOutput.success("修改成功");
-    }
-
-    /**
-     * 删除StockOut
-     * @param id
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        stockOutService.delete(id);
-        return BaseOutput.success("删除成功");
-    }
 }

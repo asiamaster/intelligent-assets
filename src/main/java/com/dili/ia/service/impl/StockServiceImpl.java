@@ -115,6 +115,8 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		domain.setCategoryName(stockInDetail.getCategoryName());
 		domain.setCustomerName(stockIn.getCustomerName());	
 		domain.setDistrictName(stockInDetail.getDistrictName());
+		domain.setDepartmentId(stockIn.getDepartmentId());
+		domain.setDepartmentName(stockIn.getDepartmentName());
 		domain.setMarketId(stockIn.getMarketId());
 		domain.setMarketCode(stockIn.getMarketCode());
 		domain.setVersion(1);

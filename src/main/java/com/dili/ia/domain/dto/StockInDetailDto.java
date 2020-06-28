@@ -61,6 +61,13 @@ public class StockInDetailDto {
 	private Long districtId;
 
 	private String districtName;
+	
+	/**
+	 * 品类
+	 */
+	private Long categoryId;
+	
+	private String categoryName;
 
 	/**
 	 * 应收款
@@ -298,5 +305,21 @@ public class StockInDetailDto {
 		this.stockWeighmanRecordDto = stockWeighmanRecordDto;
 	}
 
+	public Long getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
+	}
+
+	public String getCategoryName() {
+		return categoryName;
+	}
+
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
 	
+
 }

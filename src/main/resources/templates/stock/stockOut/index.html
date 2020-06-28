@@ -27,6 +27,10 @@
                 <label for="customerCellPhone">手机号</label>
                 <input type="text" class="form-control" name="customerCellPhone" id="customerCellPhone" maxlength="50"/>
             </div>
+            <div class="form-group col">
+                <label for="creator">操作员</label>
+                <input type="text" class="form-control" name="creator" id="operator" maxlength="50"/>
+            </div>
             <div class="col align-self-center mt-3">
                 <button id="clear" type="button" class="btn btn-outline-primary mr-2" onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
                 <button id="query" type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
@@ -49,29 +53,39 @@
                 <thead>
                  <tr>
                     <th data-radio="true"></th>
-                    <th data-field="assetsId" data-sortable="true" data-align="center" data-width-unit="%" >
-                        冷库编号
+                    <th data-field="stockInCode" data-sortable="true" data-align="center" data-width-unit="%" >
+                        出库单号
                     </th>
-                    <th data-field="districtId" data-sortable="true" data-align="center" data-sort-name="type" data-provider="leaseOrderStateProvider">
-                        冷库区域
-                    </th>
-                    <th data-field="departmentName" data-sortable="true" data-align="center">
-                       部门
-                    </th>
+        
                     <th data-field="customerName" data-sortable="true" data-sort-name="customer_name" data-align="center">
                         客户名称
                     </th>
                     <th data-field="customerCellphone" data-sortable="true" data-align="center" >
                         联系电话
                     </th>
+                    <th data-field="departmentName" data-sortable="true" data-align="center">
+                       部门
+                    </th>
+                    <th data-field="districtId" data-sortable="true" data-align="center" data-sort-name="type" >
+                        冷库区域
+                    </th>
+                    <th data-field="assetsName" data-sortable="true" data-align="center">
+                       冷库编号
+                    </th>
                      <th data-field="categoryName" data-sortable="true" data-sort-name="category_name" data-align="center">
                         货物品类
                     </th>
                     <th data-field="quantity" data-sortable="true" data-sort-name="quantity" data-align="center">
-                        当前库存(件)
+                        出库件数
                     </th>
-                    <th data-field="weight" data-sortable="true" data-sort-name="weight" data-align="center">
-                        当前库存(斤)
+                    <th data-field="stockOutDate" data-sortable="true" data-sort-name="weight" data-align="center" data-provider="dateProvider">
+                        出库日期
+                    </th>
+                     <th data-field="creator" data-sortable="true" data-sort-name="weight" data-align="center" >
+                       操作员
+                    </th>
+                     <th data-field="notes" data-sortable="true" data-sort-name="weight" data-align="center" >
+                        备注
                     </th>
                 </tr>
                 </thead>
@@ -82,25 +96,3 @@
 
 </div>
 </#bs4Body>
-<#stock_stockOut_indexJs />
-
-
-<script id="stockOut" type="text/html">
-	<form id="saveForm" role="form" novalidate>
-        <div class="row row-cols-3 detail" id="detailInfo">
-            <input type="hidden" class="form-control" name="stockId" value="{{selectedRow.id}}" required />
-            <div class="form-group col">
-                <label for="" class="">当前库存：<i class="red">*</i></label> <input id="stockQuantity" type="number" class="form-control floatReserve"
-                 name="stockQuantity" range="0 9999999" value="{{selectedRow.quantity}}" readonly required />
-            </div>
-            <div class="form-group col">
-                <label for="weight" class="">出库件数：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
-                 name="quantity" range="0 9999999"  required />
-            </div>
-            <div class="form-group col">
-                <label for="notes">备注</label>
-                <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100" ></textarea>
-            </div>
-        </div>
-	</form>			
-</script>

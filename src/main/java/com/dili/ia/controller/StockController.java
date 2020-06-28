@@ -35,7 +35,7 @@ public class StockController {
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
-        return "stock/stockOut/index";
+        return "stock/stock/index";
     }
 
     /**

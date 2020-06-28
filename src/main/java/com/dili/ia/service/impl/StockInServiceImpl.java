@@ -186,7 +186,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		
 		//TODO 调用收费接口,缴费
 		StockIn domain = new StockIn(userTicket);
-		
+		//domain.setp
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		//入库 库存
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
