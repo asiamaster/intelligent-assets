@@ -18,6 +18,8 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 
+import cn.hutool.core.bean.BeanUtil;
+
 import java.util.Date;
 import java.util.List;
 
@@ -171,25 +173,15 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		String code = uidRpcResolver.bizNumber(stock.getMarketCode()+"_"+BizNumberTypeEnum.STOCK_IN_DETAIL_CODE.getCode());
 		stockOut.setCode(code);
 		stockOut.setQuantity(quantity);
-		stockOut.setCustomerId(stock.getCustomerId());
-		stockOut.setCategoryName(stock.getCategoryName());
-		// stockOut.setCustomerCellphone(customerCellphone);
-		stockOut.setCategoryId(stock.getCategoryId());
-		stockOut.setCategoryName(stock.getCategoryName());
-		stockOut.setCustomerId(stock.getCustomerId());
-		stockOut.setAssetsId(stock.getAssetsId());
-		stockOut.setDistrictId(stock.getDistrictId());
-		stockOut.setAssetsName(stock.getAssetsName());
-		stockOut.setDistrictName(stock.getDistrictName());
-		stockOut.setMarketId(stock.getMarketId());
-		stockOut.setMarketCode(stock.getMarketCode());
+		BeanUtil.copyProperties(stock, stockOut,"id");
 		stockOut.setCreator(userTicket.getRealName());
 		stockOut.setCreatorId(userTicket.getId());
 		stockOut.setCreateTime(new Date());
+		stockOut.setStockOutDate(new Date());
 		stockOut.setNotes(notes);
 		stockOutService.insertSelective(stockOut);
 		//出库流水记录
-		buildStockRecord(stock.getWeight(), stock.getQuantity(), code, stock,StockRecordTypeEnum.STOCK_OUT);
+		buildStockRecord(weight, quantity, code, stock,StockRecordTypeEnum.STOCK_OUT);
 	}
 
 	@Override

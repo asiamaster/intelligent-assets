@@ -27,7 +27,7 @@ public class StockOutController {
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/list.html", method = RequestMethod.GET)
+    @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         return "stock/stockOut/index";
     }

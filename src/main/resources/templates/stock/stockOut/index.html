@@ -15,7 +15,7 @@
             </div>
             <div class="form-group col">
                 <label for="categoryId">品类<i class="red">*</i></label>
-                <select id="categoryId" name="categoryId" class="form-control" multiple >
+                <select id="categoryId" name="categoryId" class="form-control"  >
                 </select>
                 <#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption"  />
             </div>
@@ -53,7 +53,7 @@
                 <thead>
                  <tr>
                     <th data-radio="true"></th>
-                    <th data-field="stockInCode" data-sortable="true" data-align="center" data-width-unit="%" >
+                    <th data-field="code" data-sortable="true" data-align="center" data-width-unit="%" >
                         出库单号
                     </th>
         
@@ -96,3 +96,5 @@
 
 </div>
 </#bs4Body>
+
+<#stock_stockOut_indexJs />
