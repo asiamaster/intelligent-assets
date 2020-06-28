@@ -42,4 +42,13 @@ public interface MeterService extends BaseService<Meter, Long> {
      * @description：修改表信息
      */
     BaseOutput<Meter> updateMeter(MeterDto meterDto);
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/28
+     * @param        type, name
+     * @return       String
+     * @description：根据表类型、表编号查询表信息
+     */
+    BaseOutput getMeterLikeNumber(Integer type, String name);
 }

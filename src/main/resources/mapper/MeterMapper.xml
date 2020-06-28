@@ -109,4 +109,15 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="getMeterLikeNumber" parameterType="com.dili.ia.domain.Meter" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List" />
+    from
+        meter
+    where
+        type = #{type,jdbcType=INTEGER}
+    and
+        number like CONCAT('%',#{number,jdbcType=VARCHAR},'%' )
+  </select>
 </mapper>

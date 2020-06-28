@@ -185,4 +185,20 @@
 
     </select>
 
+    <select id="getBindInfoByMeterId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+            id,
+            customer_id,
+            customer_cellphone,
+            meter_id,
+            start_date,
+            notes,
+            creator_dep_id,
+            cm.customer_name
+        FROM
+            customer_meter
+        WHERE
+            meter_id = #{meterId} and state = 1
+    </select>
+
 </mapper>

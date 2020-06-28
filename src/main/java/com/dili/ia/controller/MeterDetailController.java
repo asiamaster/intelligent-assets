@@ -2,6 +2,7 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.CustomerMeterDto;
+import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ss.domain.BaseOutput;
 import java.util.List;
@@ -77,13 +78,13 @@ public class MeterDetailController {
     /**
      * @author:      xiaosa
      * @date:        2020/6/23
-     * @param:
-     * @return:
-     * @description：分页请求
+     * @param:       meterDetailDto
+     * @return:      String
+     * @description：分页带条件请求列表数据
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute MeterDetail meterDetail) throws Exception {
-        return meterDetailService.listEasyuiPageByExample(meterDetail, true).toString();
+    public @ResponseBody String listPage(@ModelAttribute MeterDetailDto meterDetailDto) throws Exception {
+        return meterDetailService.listMeterDetails(meterDetailDto, true).toString();
     }
 
     /**

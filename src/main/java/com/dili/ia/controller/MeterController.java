@@ -110,7 +110,6 @@ public class MeterController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute MeterDto meterDto) throws Exception {
-        EasyuiPageOutput easyuiPageOutput = new EasyuiPageOutput();
         return meterService.listEasyuiPageByExample(meterDto, true).toString();
     }
 
@@ -161,4 +160,17 @@ public class MeterController {
 
         return output;
     }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/28
+     * @param        type, name
+     * @return       String
+     * @description：根据表类型、表编号查询表信息
+     */
+    @RequestMapping(value="/getMeterLikeNumber.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput getMeterLikeNumber(Integer type,String name) throws Exception {
+        return meterService.getMeterLikeNumber(type, name);
+    }
+
 }

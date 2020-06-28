@@ -142,4 +142,12 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="listMeterDetails" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">
+
+
+
+
+
+  </select>
 </mapper>

@@ -141,4 +141,26 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         return BaseOutput.success();
     }
 
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/28
+     * @param        type, name
+     * @return       String
+     * @description：根据表类型、表编号查询表信息
+     */
+    @Override
+    public BaseOutput getMeterLikeNumber(Integer type, String name) {
+        // 如果表地址未输入,则直接返回空
+        BaseOutput baseOutput = new BaseOutput();
+        Meter meter = new Meter();
+        baseOutput.setData(meter);
+        if (StringUtils.isNotEmpty(name)) {
+            meter.setType(type);
+            meter.setNumber(name);
+            Meter meterInfo = this.getActualDao().getMeterLikeNumber(meter);
+            baseOutput.setData(meterInfo);
+        }
+        return baseOutput;
+    }
+
 }

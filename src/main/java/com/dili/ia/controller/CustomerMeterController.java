@@ -228,8 +228,23 @@ public class CustomerMeterController {
      * @description：根据表类型获取未绑定的表编号
      */
     @RequestMapping(value="/getUnbindMeterByType.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput down() {
+    public @ResponseBody BaseOutput getUnbindMeterByType() {
+        // TODO sql 未完成
         BaseOutput<Meter> output = customerMeterService.getUnbindMeterByType(1L);
+        return output;
+    }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/28
+     * @param        meterId
+     * @return       BaseOutput
+     * @description：根据表主键id获取表绑定的用户信息
+     */
+    @RequestMapping(value="/getBindInfoByMeterId.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput getBindInfoByMeterId(Long meterId) {
+        // TODO 不知道该方法是否可行
+        BaseOutput<CustomerMeter> output = customerMeterService.getBindInfoByMeterId(meterId);
         return output;
     }
 }
