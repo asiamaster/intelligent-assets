@@ -10,7 +10,7 @@ import javax.persistence.*;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-24 16:27:18.
+ * This file was generated on 2020-06-28 11:29:09.
  */
 @Table(name = "`deposit_order`")
 public class DepositOrder extends BaseDomain {
@@ -140,16 +140,16 @@ public class DepositOrder extends BaseDomain {
     private Boolean isRelated;
 
     /**
-     * 关联订单ID
-     */
-    @Column(name = "`business_id`")
-    private Long businessId;
-
-    /**
      * 关联订单业务类型
      */
     @Column(name = "`biz_type`")
     private Integer bizType;
+
+    /**
+     * 关联订单ID
+     */
+    @Column(name = "`business_id`")
+    private Long businessId;
 
     /**
      * （1：已创建 2：已取消 3：已提交 4：已交费5：已退款）
@@ -664,26 +664,6 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
-     * 获取关联订单ID
-     *
-     * @return business_id - 关联订单ID
-     */
-    @FieldDef(label="关联订单ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getBusinessId() {
-        return businessId;
-    }
-
-    /**
-     * 设置关联订单ID
-     *
-     * @param businessId 关联订单ID
-     */
-    public void setBusinessId(Long businessId) {
-        this.businessId = businessId;
-    }
-
-    /**
      * 获取关联订单业务类型
      *
      * @return biz_type - 关联订单业务类型
@@ -701,6 +681,26 @@ public class DepositOrder extends BaseDomain {
      */
     public void setBizType(Integer bizType) {
         this.bizType = bizType;
+    }
+
+    /**
+     * 获取关联订单ID
+     *
+     * @return business_id - 关联订单ID
+     */
+    @FieldDef(label="关联订单ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getBusinessId() {
+        return businessId;
+    }
+
+    /**
+     * 设置关联订单ID
+     *
+     * @param businessId 关联订单ID
+     */
+    public void setBusinessId(Long businessId) {
+        this.businessId = businessId;
     }
 
     /**

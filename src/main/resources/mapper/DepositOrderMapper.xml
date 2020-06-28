@@ -26,8 +26,8 @@
     <result column="refund_amount" jdbcType="BIGINT" property="refundAmount" />
     <result column="notes" jdbcType="VARCHAR" property="notes" />
     <result column="is_related" jdbcType="BIT" property="isRelated" />
-    <result column="business_id" jdbcType="BIGINT" property="businessId" />
     <result column="biz_type" jdbcType="INTEGER" property="bizType" />
+    <result column="business_id" jdbcType="BIGINT" property="businessId" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="pay_state" jdbcType="BIT" property="payState" />
     <result column="refund_state" jdbcType="BIT" property="refundState" />
@@ -52,7 +52,7 @@
     id, create_time, modify_time, code, customer_id, customer_name, certificate_number, 
     customer_cellphone, department_id, department_name, type_code, type_name, assets_type, 
     assets_id, assets_name, amount, paid_amount, wait_amount, refund_amount, notes, is_related, 
-    business_id, biz_type, state, pay_state, refund_state, creator_id, creator, submitter_id, 
+    biz_type, business_id, state, pay_state, refund_state, creator_id, creator, submitter_id, 
     submitter, submit_time, withdraw_operator_id, withdraw_operator, canceler_id, canceler, 
     market_id, market_code, version, is_import
   </sql>
@@ -131,11 +131,11 @@
       <if test="isRelated != null">
         is_related = #{isRelated,jdbcType=BIT},
       </if>
-      <if test="businessId != null">
-        business_id = #{businessId,jdbcType=BIGINT},
-      </if>
       <if test="bizType != null">
         biz_type = #{bizType,jdbcType=INTEGER},
+      </if>
+      <if test="businessId != null">
+        business_id = #{businessId,jdbcType=BIGINT},
       </if>
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
