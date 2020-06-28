@@ -19,6 +19,7 @@ public enum BizNumberTypeEnum {
     TRANSACTION_CODE("transactionCode", "客户账户流水号"),
     STOCK_IN_CODE("stockInCode", "入库单号"),
     STOCK_IN_DETAIL_CODE("stockInDetail", "入库详情单号"),
+    METER_DETAIL_CODE("meterDetail", "水电费单号"),
     ;
 
     private String name;

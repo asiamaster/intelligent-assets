@@ -58,15 +58,6 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
 
     /**
      * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        type
-     * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
-     */
-    BaseOutput<Meter> getUnbindMeterByType(Long type);
-
-    /**
-     * @author:      xiaosa
      * @date:        2020/6/28
      * @param        meterId
      * @return       BaseOutput

@@ -7,6 +7,8 @@ import com.dili.ia.service.MeterDetailService;
 import com.dili.ss.domain.BaseOutput;
 import java.util.List;
 
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +82,7 @@ public class MeterDetailController {
      * @date:        2020/6/23
      * @param:       meterDetailDto
      * @return:      String
-     * @description：分页带条件请求列表数据
+     * @description：根据条件分页查询列表
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute MeterDetailDto meterDetailDto) throws Exception {
@@ -112,9 +114,10 @@ public class MeterDetailController {
      * @return:      BaseOutput
      * @description：新增 水电费单
      */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute MeterDetail meterDetail) {
-        meterDetailService.insertSelective(meterDetail);
+    @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput insert(@ModelAttribute MeterDetailDto meterDetailDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        meterDetailService.addMeterDetail(meterDetailDto, userTicket);
         return BaseOutput.success("新增成功");
     }
 

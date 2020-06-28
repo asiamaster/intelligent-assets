@@ -106,7 +106,7 @@ public class CustomerMeterController {
      * @author:      xiaosa
      * @date:        2020/6/17
      * @param        customerMeterDto
-     * @description：分页根据条件查询列表
+     * @description：根据条件分页查询列表
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute CustomerMeterDto customerMeterDto) throws Exception {
@@ -222,20 +222,6 @@ public class CustomerMeterController {
 
     /**
      * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param
-     * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
-     */
-    @RequestMapping(value="/getUnbindMeterByType.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getUnbindMeterByType() {
-        // TODO sql 未完成
-        BaseOutput<Meter> output = customerMeterService.getUnbindMeterByType(1L);
-        return output;
-    }
-
-    /**
-     * @author:      xiaosa
      * @date:        2020/6/28
      * @param        meterId
      * @return       BaseOutput
@@ -243,7 +229,6 @@ public class CustomerMeterController {
      */
     @RequestMapping(value="/getBindInfoByMeterId.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput getBindInfoByMeterId(Long meterId) {
-        // TODO 不知道该方法是否可行
         BaseOutput<CustomerMeter> output = customerMeterService.getBindInfoByMeterId(meterId);
         return output;
     }

@@ -104,9 +104,9 @@ public class MeterController {
     /**
      * @author:      xiaosa
      * @date:        2020/6/16
-     * @param
+     * @param        meterDto
      * @return       String
-     * @description：分页查询Meter，返回easyui分页信息
+     * @description：根据条件分页查询列表
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute MeterDto meterDto) throws Exception {
@@ -158,6 +158,19 @@ public class MeterController {
             LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
 
+        return output;
+    }
+
+    /**
+     * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        type
+     * @return       BaseOutput
+     * @description：根据表类型获取未绑定的表编号
+     */
+    @RequestMapping(value="/getUnbindMeterByType.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput getUnbindMeterByType(Integer type) {
+        BaseOutput<Meter> output = meterService.getUnbindMeterByType(type);
         return output;
     }
 

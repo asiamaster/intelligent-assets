@@ -45,6 +45,15 @@ public interface MeterService extends BaseService<Meter, Long> {
 
     /**
      * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        type
+     * @return       BaseOutput
+     * @description：根据表类型获取未绑定的表编号
+     */
+    BaseOutput<Meter> getUnbindMeterByType(Integer type);
+
+    /**
+     * @author:      xiaosa
      * @date:        2020/6/28
      * @param        type, name
      * @return       String

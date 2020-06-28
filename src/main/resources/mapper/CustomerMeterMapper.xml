@@ -179,22 +179,15 @@
 
   </select>
 
-    <select id="getUnbindMeterByType" parameterType="java.lang.Long" resultMap="BaseResultMap">
-        select * from customer_meter
-
-
-    </select>
-
     <select id="getBindInfoByMeterId" parameterType="java.lang.Long" resultMap="BaseResultMap">
         SELECT
             id,
             customer_id,
             customer_cellphone,
             meter_id,
-            start_date,
             notes,
             creator_dep_id,
-            cm.customer_name
+            customer_name
         FROM
             customer_meter
         WHERE

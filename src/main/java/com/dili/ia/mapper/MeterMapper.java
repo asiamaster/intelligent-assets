@@ -15,6 +15,15 @@ public interface MeterMapper extends MyMapper<Meter> {
 
     /**
      * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        type
+     * @return       BaseOutput
+     * @description：根据表类型获取未绑定的表编号
+     */
+    List<Meter> getUnbindMeterByType(Integer type);
+
+    /**
+     * @author:      xiaosa
      * @date:        2020/6/28
      * @param        meter
      * @return       String

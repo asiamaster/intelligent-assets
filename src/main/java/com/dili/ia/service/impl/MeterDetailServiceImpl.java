@@ -1,18 +1,20 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.controller.CustomerMeterController;
 import com.dili.ia.domain.MeterDetail;
-import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.domain.dto.MeterDetailDto;
+import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.mapper.MeterDetailMapper;
+import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.metadata.ValueProviderUtils;
+import com.dili.uap.sdk.domain.UserTicket;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +33,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     public MeterDetailMapper getActualDao() {
         return (MeterDetailMapper)getDao();
     }
+
+    @Autowired
+    private UidRpcResolver UidRpcResolver;
 
 
     /**
@@ -59,5 +64,16 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         long total = meterDetailDtooList instanceof Page ? ((Page)meterDetailDtooList).getTotal() : (long)meterDetailDtooList.size();
         List results = useProvider ? ValueProviderUtils.buildDataByProvider(meterDetailDto, meterDetailDtooList) : meterDetailDtooList;
         return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results);
+    }
+
+    @Override
+    public void addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket) {
+        MeterDetail meterDetail = new MeterDetail();
+        // 生成水电费单号的 code
+        meterDetail.setCode(UidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+ BizNumberTypeEnum.METER_DETAIL_CODE.getCode()));
+
+
+
+
     }
 }

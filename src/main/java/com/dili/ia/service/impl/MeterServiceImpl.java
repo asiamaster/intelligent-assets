@@ -143,6 +143,21 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
 
     /**
      * @author:      xiaosa
+     * @date:        2020/6/16
+     * @param        type
+     * @return       BaseOutput
+     * @description：根据表类型获取未绑定的表编号
+     */
+    @Override
+    public BaseOutput<Meter> getUnbindMeterByType(Integer type) {
+        BaseOutput baseOutput = new BaseOutput();
+        List<Meter> meterList = this.getActualDao().getUnbindMeterByType(type);
+        baseOutput.setData(meterList);
+        return baseOutput;
+    }
+
+    /**
+     * @author:      xiaosa
      * @date:        2020/6/28
      * @param        type, name
      * @return       String
