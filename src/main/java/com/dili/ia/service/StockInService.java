@@ -9,6 +9,7 @@ import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
+import com.dili.ia.domain.dto.StockInRefundDto;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ss.base.BaseService;
 
@@ -85,10 +86,10 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * 
 	 * @Title refund
 	 * @Description 退款
-	 * @param code
+	 * @param stockInRefundDto
 	 * @throws
 	 */
-	void refund(String code);
+	void refund(StockInRefundDto stockInRefundDto);
 	
 	/**
 	 * 

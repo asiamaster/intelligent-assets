@@ -125,10 +125,10 @@
         <th data-field="code" data-sortable="true" data-align="center" data-width-unit="%" >
             入库单号
         </th>
-        <th data-field="type" data-sortable="true" data-align="center" data-sort-name="type" data-provider="leaseOrderStateProvider">
+        <th data-field="type" data-sortable="true" data-align="center" data-sort-name="type" data-provider="stockInTypeProvider">
             入库类型
         </th>
-        <th data-field="departmentName" data-sortable="true" data-align="center" data-provider="stockInTypeProvider" >
+        <th data-field="departmentName" data-sortable="true" data-align="center"  >
             部门
         </th>
         <th data-field="customerName" data-sortable="true" data-sort-name="customer_name" data-align="center">
@@ -149,7 +149,7 @@
         <th data-field="weight" data-sortable="true" data-sort-name="weight" data-align="center">
             单价
         </th>
-        <th data-field="totalAmount" data-sortable="true" data-sort-name="total_amount" data-align="center">
+        <th data-field="amount" data-sortable="true" data-sort-name="total_amount" data-align="center">
             总金额
         </th>
         <th data-field="operatorName" data-sortable="true" data-sort-name="operator_name" data-align="center">
@@ -183,8 +183,8 @@
 <#stock_indexJs />
 
 <script id="pay" type="text/html">
-    <form id="pay" role="form" novalidate>
-        <input type="hidden" class="form-control" name="code" value="{{selectedRow.code}}" required />
+    <form id="payForm" role="form" novalidate>
+        <input type="hidden" class="form-control" name="businessCode" value="{{selectedRow.code}}" required />
         <div class="row row-cols-2">
             <div class="form-group col">
                 <label for="customerName">客户信息：<i class="red">*</i></label>
@@ -192,7 +192,7 @@
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">支付金额：<i class="red">*</i></label>
-                <input id="payMoney" type="number" class="form-control floatReserve" name="payMoney"  value={{selectedRow.money}} range="0 9999999" required />
+                <input id="amount" type="number" class="form-control floatReserve" name="amount"  value={{selectedRow.amount}} range="0 9999999" required />
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">输入密码：<i class="red">*</i></label>
@@ -204,7 +204,7 @@
 
 
 <script id="refund" type="text/html">
-    <form id="refund" role="form" novalidate>
+    <form id="refundForm" role="form" novalidate>
         <input type="hidden" class="form-control" name="code" value="{{selectedRow.code}}" required />
         <div class="row row-cols-2">
             <div class="form-group col">
@@ -213,7 +213,7 @@
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">可退金额：<i class="red">*</i></label>
-                <input id="money" type="number" class="form-control floatReserve" name="money" range="0 9999999" required />
+                <input id="amount" type="number" class="form-control floatReserve" value="{{selectedRow.amount}}" name="amount" range="0 9999999" required />
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">退款方式：<i class="red">*</i></label>

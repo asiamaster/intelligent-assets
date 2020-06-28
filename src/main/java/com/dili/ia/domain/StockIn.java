@@ -196,7 +196,7 @@ public class StockIn extends BaseDomain {
     public StockIn(UserTicket userTicket) {
 		super();
 		this.operatorId = userTicket.getId();
-		this.operatorName = userTicket.getUserName();
+		this.operatorName = userTicket.getRealName();
 	}
     
 

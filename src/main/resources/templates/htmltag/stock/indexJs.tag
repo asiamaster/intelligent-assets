@@ -304,7 +304,7 @@ function openPayHandler() {
 	
 	            }
 	        }, {label: '确定',className: 'btn btn-primary',onClick(e){
-	        		let formData = $('#refund').serializeObject();
+	        		let formData = $('#payForm').serializeObject();
 	                bui.util.debounce(pay(formData),1000,true)()
 	                return false;
 	            }
@@ -356,7 +356,7 @@ function openRefundHandler() {
 	
 	            }
 	        }, {label: '确定',className: 'btn btn-primary',onClick(e){
-	        		let formData = $('#refund').serializeObject();
+	        		let formData = $('#refundForm').serializeObject();
 	                bui.util.debounce(refund(formData),1000,true)()
 	                return false;
 	            }

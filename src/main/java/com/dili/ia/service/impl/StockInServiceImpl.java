@@ -2,6 +2,7 @@ package com.dili.ia.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockWeighmanRecord;
@@ -9,13 +10,16 @@ import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
+import com.dili.ia.domain.dto.StockInRefundDto;
 import com.dili.ia.domain.dto.StockWeighmanRecordDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.glossary.StockInTypeEnum;
 import com.dili.ia.mapper.StockInMapper;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.StockInDetailService;
 import com.dili.ia.service.StockInService;
 import com.dili.ia.service.StockService;
@@ -23,6 +27,8 @@ import com.dili.ia.service.StockWeighmanRecordService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTO;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -37,6 +43,8 @@ import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,7 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implements StockInService {
-
+	 private final static Logger LOG = LoggerFactory.getLogger(StockInServiceImpl.class);
 	@Autowired
 	private UidRpcResolver UidRpcResolver;
 	
@@ -63,6 +71,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	@Autowired
 	private PaymentOrderService paymentOrderService;
+	
+	@Autowired
+	private RefundOrderService refundOrderService;
 	
     public StockInMapper getActualDao() {
         return (StockInMapper)getDao();
@@ -84,7 +95,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockIn.setCode(UidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
 		stockIn.setCreateTime(new Date());
 		stockIn.setState(StockInStateEnum.CREATED.getCode());
-		stockIn.setCreator(userTicket.getUserName());
+		stockIn.setCreator(userTicket.getRealName());
 		stockIn.setCreatorId(userTicket.getId());
 		stockIn.setMarketId(userTicket.getFirmId());
 		stockIn.setMarketCode(userTicket.getFirmCode());
@@ -152,13 +163,13 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		//提交入库单
 		StockIn domain = new StockIn(userTicket);
 		domain.setSubmitterId(userTicket.getId());
-		domain.setSubmitter(userTicket.getUserName());
+		domain.setSubmitter(userTicket.getRealName());
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED);
 		//创建收费单费用收取
 		//TODO 创建收费单(支付生成or提交生成??)
 		PayInfoDto payInfoDto = new PayInfoDto();
 		payInfoDto.setBusinessCode(code);
-		payInfoDto.setPayMoney(stockIn.getAmount());
+		payInfoDto.setAmount(stockIn.getAmount());
 		PaymentOrder paymentOrder = paymentOrderService.savePaymentOrder(userTicket, payInfoDto);
 		//
 	}
@@ -207,6 +218,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	private void updateState(StockIn domain,String code,Integer version,StockInStateEnum state) {
 		domain.setVersion(version+1);
+		domain.setState(state.getCode());
 		StockIn condition = new StockIn();
 		condition.setCode(code);
 		condition.setVersion(version);
@@ -296,7 +308,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		StockIn domain = new StockIn(userTicket);
 		domain.setCancelerId(userTicket.getId());
-		domain.setCanceler(userTicket.getUserName());
+		domain.setCanceler(userTicket.getRealName());
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
 	}
 
@@ -315,20 +327,39 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 
 	@Override
 	@Transactional
-	public void refund(String code) {
+	public void refund(StockInRefundDto stockInRefundDto) {
+		String code = stockInRefundDto.getCode();
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		StockIn domain = new StockIn(userTicket);
-		domain.setWithdrawOperator(userTicket.getUserName());
-		domain.setWithdrawOperatorId(userTicket.getId());
+		//domain.setWithdrawOperator(userTicket.getRealName());
+		//domain.setWithdrawOperatorId(userTicket.getId());
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
 		List<StockInDetail> details = getStockInDetailsByStockCode(code);
 		details.forEach(detail -> {
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), "退款businessCode");
 		});
+		//TODO 退款单
+		RefundOrder refundOrder = DTOUtils.newInstance(RefundOrder.class);
+		refundOrder.setBusinessCode(code);
+		refundOrder.setBusinessId(stockIn.getId());
+		refundOrder.setCustomerId(stockIn.getCustomerId());
+		refundOrder.setCustomerName(stockIn.getCustomerName());
+		refundOrder.setCustomerCellphone(stockIn.getCustomerCellphone());
+		refundOrder.setCertificateNumber("0000");
+		refundOrder.setTotalRefundAmount(stockInRefundDto.getAmount());
+		refundOrder.setPayeeAmount(stockInRefundDto.getAmount());
+		refundOrder.setRefundReason(stockInRefundDto.getNotes());
+		refundOrder.setBizType(BizTypeEnum.STOCKIN.getCode());
+		refundOrder.setCode(UidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
+		if(!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
+			LOG.info("入库单【编号：{}】退款申请接口异常",refundOrder.getBusinessCode());
+            throw new BusinessException(ResultCode.DATA_ERROR,"退款申请接口异常");
+		}
+		
 	}
 
 	@Override
