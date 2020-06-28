@@ -7,6 +7,7 @@ import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -29,10 +30,12 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
 
     /**
      * 保证金 --提交
-     * @param depositOrderId 保证金单ID
+     * @param id 保证金单ID
+     * @param amount 付款金额
+     * @param waitAmount 待付金额
      * @return BaseOutput
      * */
-    BaseOutput<DepositOrder> submitDepositOrder(Long depositOrderId);
+    BaseOutput<DepositOrder> submitDepositOrder(Long id, Long amount, Long waitAmount);
     /**
      * 保证金 --撤回
      * @param depositOrderId 保证金单ID

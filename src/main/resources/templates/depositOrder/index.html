@@ -74,7 +74,7 @@
                         <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                     </#resource>
                     <#resource code="submitDepositOrder">
-                        <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
+                        <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
                     </#resource>
                     <#resource code="withdrawDepositOrder">
                         <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
@@ -138,3 +138,20 @@
 </#bs4Body>
 
 <#depositOrder_indexJs />
+
+<!-- 提交付款模板 -->
+<script id="submitPaymentTpl" type="text/html">
+    <form id="submitPaymentForm">
+        <div class="row mb-3">
+            <div class="col-12"><i class="red">提交后业务单信息不可改，并可进行缴费，确认提交？</i></div>
+        </div>
+        <div class="row">
+            <div class="col-2 col-form-label">
+                <label for="amount" class="justify-content-end w-100px">本期付款金额：</label>
+            </div>
+            <div class="col-8 ml-2">
+                <input type="number" id="amount" name="amount" class="form-control floatReserve" value="{{waitAmount}}" min="{{minAmount}}" max="{{waitAmount}}" required/>
+            </div>
+        </div>
+    </form>
+</script>
