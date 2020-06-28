@@ -1,25 +1,20 @@
 package com.dili.ia.domain;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.ss.domain.BaseDomain;
-import com.dili.ss.metadata.FieldEditor;
-import com.dili.ss.metadata.annotation.EditMode;
-import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import tk.mybatis.mapper.annotation.Version;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
-import javax.persistence.*;
 
 /**
  * 由MyBatis Generator工具自动生成
  * 资产租赁订单项
  * This file was generated on 2020-05-29 14:40:05.
  */
-@Table(name = "`asset_lease_order_item`")
+@Table(name = "`lease_order_item`")
 public class AssetLeaseOrderItem extends BaseDomain {
     @Id
     @Column(name = "`id`")
@@ -180,17 +175,11 @@ public class AssetLeaseOrderItem extends BaseDomain {
     private Integer refundState;
 
     /**
-     * 退款总金额
-     */
-    @Column(name = "`refund_amount`")
-    private Long refundAmount;
-
-    /**
      * 乐观锁，版本号
      */
     @Version
     @Column(name = "`version`")
-    private Byte version;
+    private Integer version;
 
     @Override
     public Long getId() {
@@ -442,19 +431,11 @@ public class AssetLeaseOrderItem extends BaseDomain {
         this.refundState = refundState;
     }
 
-    public Long getRefundAmount() {
-        return refundAmount;
-    }
-
-    public void setRefundAmount(Long refundAmount) {
-        this.refundAmount = refundAmount;
-    }
-
-    public Byte getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(Byte version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 }

@@ -18,7 +18,7 @@ import javax.persistence.*;
  * 资产租赁订单
  * This file was generated on 2020-05-29 14:40:05.
  */
-@Table(name = "`asset_lease_order`")
+@Table(name = "`lease_order`")
 public class AssetLeaseOrder extends BaseDomain {
     @Id
     @Column(name = "`id`")
@@ -226,6 +226,9 @@ public class AssetLeaseOrder extends BaseDomain {
     @Column(name = "`is_delete`")
     private Integer isDelete;
 
+    @Column(name = "`is_show`")
+    private Integer isShow;
+
     /**
      * 市场
      */
@@ -240,7 +243,7 @@ public class AssetLeaseOrder extends BaseDomain {
      */
     @Version
     @Column(name = "`version`")
-    private Byte version;
+    private Integer version;
 
     @Override
     public Long getId() {
@@ -580,6 +583,14 @@ public class AssetLeaseOrder extends BaseDomain {
         this.isDelete = isDelete;
     }
 
+    public Integer getIsShow() {
+        return isShow;
+    }
+
+    public void setIsShow(Integer isShow) {
+        this.isShow = isShow;
+    }
+
     public Long getMarketId() {
         return marketId;
     }
@@ -596,11 +607,11 @@ public class AssetLeaseOrder extends BaseDomain {
         this.marketCode = marketCode;
     }
 
-    public Byte getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(Byte version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 }
