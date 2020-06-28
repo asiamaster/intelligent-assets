@@ -21,8 +21,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-06-12 11:35:07.
+ * @author:      xiaosa
+ * @date:        2020/6/16
+ * @version:     农批业务系统重构
+ * @description: 表用户关系 service 实现层
  */
 @Service
 public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Long> implements CustomerMeterService {
@@ -52,8 +54,6 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      */
     @Override
     public EasyuiPageOutput listCustomerMeters(CustomerMeterDto customerMeterDto, boolean useProvider) throws Exception {
-        EasyuiPageOutput pageOutput = new EasyuiPageOutput();
-
         // 分页
         if (customerMeterDto.getRows() != null && customerMeterDto.getRows() >= 1) {
             PageHelper.startPage(customerMeterDto.getPage(), customerMeterDto.getRows());

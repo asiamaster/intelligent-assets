@@ -105,9 +105,11 @@ public class MeterDetailController {
     }
 
     /**
-     * 新增MeterDetail
-     * @param meterDetail
-     * @return BaseOutput
+     * @author:      xiaosa
+     * @date:        2020/6/23
+     * @param:       meterDetail
+     * @return:      BaseOutput
+     * @description：新增 水电费单
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput insert(@ModelAttribute MeterDetail meterDetail) {
@@ -116,9 +118,11 @@ public class MeterDetailController {
     }
 
     /**
-     * 修改MeterDetail
-     * @param meterDetail
-     * @return BaseOutput
+     * @author:      xiaosa
+     * @date:        2020/6/23
+     * @param:       meterDetail
+     * @return:      BaseOutput
+     * @description：修改 水电费单
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(@ModelAttribute MeterDetail meterDetail) {
@@ -127,9 +131,11 @@ public class MeterDetailController {
     }
 
     /**
-     * 删除MeterDetail
-     * @param id
-     * @return BaseOutput
+     * @author:      xiaosa
+     * @date:        2020/6/23
+     * @param:
+     * @return:      
+     * @description：
      */
     @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput delete(Long id) {

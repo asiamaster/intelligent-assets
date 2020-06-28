@@ -4,8 +4,10 @@ import com.dili.ia.domain.MeterDetail;
 import com.dili.ss.base.BaseService;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-06-12 11:35:07.
+ * @author:      xiaosa
+ * @date:        2020/6/23
+ * @version:     农批业务系统重构
+ * @description: 水电费 service 层接口
  */
 public interface MeterDetailService extends BaseService<MeterDetail, Long> {
 
