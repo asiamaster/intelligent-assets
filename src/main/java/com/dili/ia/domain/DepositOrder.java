@@ -10,7 +10,7 @@ import javax.persistence.*;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-24 16:27:18.
+ * This file was generated on 2020-06-29 15:11:22.
  */
 @Table(name = "`deposit_order`")
 public class DepositOrder extends BaseDomain {
@@ -168,6 +168,18 @@ public class DepositOrder extends BaseDomain {
      */
     @Column(name = "`refund_state`")
     private Boolean refundState;
+
+    /**
+     * 审批状态
+     */
+    @Column(name = "`approval_state`")
+    private Boolean approvalState;
+
+    /**
+     *  流程实例ID
+     */
+    @Column(name = "`process_instance_id`")
+    private Long processInstanceId;
 
     /**
      * 创建操作员ID
@@ -761,6 +773,46 @@ public class DepositOrder extends BaseDomain {
      */
     public void setRefundState(Boolean refundState) {
         this.refundState = refundState;
+    }
+
+    /**
+     * 获取审批状态
+     *
+     * @return approval_state - 审批状态
+     */
+    @FieldDef(label="审批状态")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Boolean getApprovalState() {
+        return approvalState;
+    }
+
+    /**
+     * 设置审批状态
+     *
+     * @param approvalState 审批状态
+     */
+    public void setApprovalState(Boolean approvalState) {
+        this.approvalState = approvalState;
+    }
+
+    /**
+     * 获取 流程实例ID
+     *
+     * @return process_instance_id -  流程实例ID
+     */
+    @FieldDef(label=" 流程实例ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    /**
+     * 设置 流程实例ID
+     *
+     * @param processInstanceId  流程实例ID
+     */
+    public void setProcessInstanceId(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
     }
 
     /**
