@@ -194,7 +194,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		
 	}
 	
-	private StockIn getStockInByCode(String code) {
+	@Override
+	public StockIn getStockInByCode(String code) {
 		StockIn example = new StockIn();
 		example.setCode(code);
 		//根据code获取入库单

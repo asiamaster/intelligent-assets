@@ -1,9 +1,16 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.StockInDetail;
+import com.dili.ia.domain.dto.StockInDetailQueryDto;
 import com.dili.ia.service.StockInDetailService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.domain.PageOutput;
+import com.github.pagehelper.Page;
+
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -31,6 +38,17 @@ public class StockInDetailController {
     public String index(ModelMap modelMap) {
         return "stock/stockInDetail/index";
     }
+    
+    /**
+     * 跳转到StockInDetail详情页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    public String view(ModelMap modelMap,String code) {
+    	modelMap.putAll(stockInDetailService.viewStockInDetail(code));
+        return "stock/stockInDetail/view";
+    }
 
     /**
      * 分页查询StockInDetail，返回easyui分页信息
@@ -39,8 +57,9 @@ public class StockInDetailController {
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute StockInDetail stockInDetail) throws Exception {
-        return stockInDetailService.listEasyuiPageByExample(stockInDetail, true).toString();
+    public @ResponseBody String listPage(@ModelAttribute StockInDetailQueryDto stockInDetailQueryDto) throws Exception {
+    	Page<Map<String, String>> page = stockInDetailService.selectByContion(stockInDetailQueryDto);
+    	return new EasyuiPageOutput(Integer.parseInt(String.valueOf(page.getTotal())), page.getResult()).toString();
     }
 
    

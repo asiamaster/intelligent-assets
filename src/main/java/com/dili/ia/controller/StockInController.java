@@ -62,7 +62,8 @@ public class StockInController {
     public String index(ModelMap modelMap) {
         return "stock/index";
     }
-
+    //http://ia.diligrp.com:8381/stock/stockIn/indetail.html
+    
     /**
      * 分页查询StockIn，返回easyui分页信息
      * @param stockIn

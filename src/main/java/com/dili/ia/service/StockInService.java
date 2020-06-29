@@ -100,5 +100,14 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @throws
 	 */
 	String listPageAction(StockInQueryDto stockIn);
+
+	/**
+	 * @Title getStockInByCode
+	 * @Description 获取入库单
+	 * @param code
+	 * @return
+	 * @throws
+	 */
+	StockIn getStockInByCode(String code);
 	
 }

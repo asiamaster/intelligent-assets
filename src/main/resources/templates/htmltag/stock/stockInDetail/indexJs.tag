@@ -9,7 +9,6 @@ let _modal = $('#_modal');
 var dia;
 /*********************变量定义区 end***************/
 
-
 /******************************驱动执行区 begin***************************/
 $(function() {
 	$(window).resize(function() {
@@ -27,9 +26,10 @@ $(function() {
 function queryDataHandler() {
 	_grid.bootstrapTable('refreshOptions', {
 		pageNumber: 1,
-		url: '/stock/stock/listPage.action'
+		url: '/stock/stockInDetail/listPage.action'
 	});
 }
+
 
 //品类搜索
 //品类搜索自动完成
@@ -82,95 +82,20 @@ function queryParams(params) {
 
 
 /**
-查看入库详情
+ 打开查看窗口
  */
-function openStockInListHandler() {
+function openViewHandler() {
 	//获取选中行的数据
 	let rows = _grid.bootstrapTable('getSelections');
 	if (null == rows || rows.length == 0) {
 		bs4pop.alert('请选中一条数据');
 		return false;
 	}
-	window.location.href = "${contextPath}/stock/stock/inList.html?assetsId=" + rows[0].assetsId +"&customerId=" + rows[0].customerId +"&categoryId="+ rows[0].categoryId;
-}
-
-/**
-查看出库详情
- */
-function openStockOutListHandler() {
-	//获取选中行的数据
-	let rows = _grid.bootstrapTable('getSelections');
-	if (null == rows || rows.length == 0) {
-		bs4pop.alert('请选中一条数据');
-		return false;
-	}
-	window.location.href = "${contextPath}/stock/stock/outList.html?assetsId=" + rows[0].assetsId +"&customerId=" + rows[0].customerId +"&categoryId="+ rows[0].categoryId;
-}
-
-
-/**
- * 打开新增窗口:页面层
- */
-function openStockOutHandler() {
-	if (isSelectRow()) {
-		let rows = _grid.bootstrapTable('getSelections');
-		let selectedRow = rows[0];
-		dia = bs4pop.dialog({
-			title: '出库办理', //对话框title
-			content: bui.util.HTMLDecode(template("stockOut", {
-				selectedRow
-			})), //对话框内容，可以是 string、element，$object
-			width: '30%', //宽度
-			height: '50%', //高度
-			btns: [{
-				label: '取消',
-				className: 'btn btn-secondary',
-				onClick(e) {
-
-				}
-			}, {
-				label: '确定',
-				className: 'btn btn-primary',
-				onClick(e) {
-					bui.util.debounce(stockOut, 1000, true)()
-					return false;
-				}
-			}]
-		});
-
-	}
+	window.location.href = "${contextPath}/stock/stockInDetail/view.html?code=" + rows[0].code;
 
 }
 
-/**
- 提交处理
- */
-function stockOut() {
-	let formData = $('#saveForm').serializeObject();
-	$.ajax({
-		type: "POST",
-		url: "${contextPath}/stock/stock/stockOut.action",
-		data: formData,
-		processData: true,
-		dataType: "json",
-		success: function(ret) {
-			bui.loading.hide();
-			if (ret.success) {
-				queryDataHandler();
-			} else {
-				bs4pop.alert(ret.message, {
-					type: 'error'
-				});
-			}
-		},
-		error: function() {
-			bui.loading.hide();
-			bs4pop.alert('远程访问失败', {
-				type: 'error'
-			});
-		}
-	});
-}
+
 
 
 /*****************************************函数区 end**************************************/
