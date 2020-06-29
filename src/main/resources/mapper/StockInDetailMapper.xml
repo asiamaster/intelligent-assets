@@ -33,23 +33,58 @@
     <result column="car_plate" jdbcType="VARCHAR" property="carPlate" />
     <result column="car_type_public_code" jdbcType="VARCHAR" property="carTypePublicCode" />
   </resultMap>
+ 
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbg.generated
     -->
-    id, create_time, modify_time, stock_in_code, code, state, unit_weight, check_operator_id, 
-    check_operator, pickup_number, weightman_id, assets_id, assets_code, notes, district_id, 
-    district_name, receivable, cope, category_id, category_name, quantity, weight, version, 
-    market_id, market_code, car_plate, car_type_public_code
+    sid.id, sid.create_time createTime, sid.modify_time modifyTime, sid.stock_in_code stockInCode, sid.code, sid.state, sid.unit_weight, sid.check_operator_id, 
+    check_operator, pickup_number, weightman_id, assets_id, assets_code, sid.notes, district_id, 
+    district_name districtName, receivable, cope, sid.category_id, sid.category_name categoryName, sid.quantity, sid.weight, 
+    sid.market_id, sid.market_code, car_plate, car_type_public_code
   </sql>
-  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+  <select id="selectByContion" parameterType="com.dili.ia.domain.dto.StockInDetailQueryDto" resultType="map">
     <!--
       WARNING - @mbg.generated
     -->
     select 
-    <include refid="Base_Column_List" />
-    from stock_in_detail
-    where id = #{id,jdbcType=BIGINT}
+    <include refid="Base_Column_List" />,type,customer_id,customer_name customerName,customer_cellphone customerCellphone,department_id,department_name departmentName,expire_date expireDate
+    from stock_in_detail as sid join stock_in as si on sid.stock_in_code = si.code
+    <where>
+            <if test="districtId != null">
+                and sid.district_id = #{districtId}
+            </if>
+            <if test="assetsId != null">
+                and sid.assets_id = #{assetsId}
+            </if>
+            <if test="categoryId != null">
+                and sid.category_id = #{categoryId}
+            </if>
+            <if test="customerName != null">
+                and si.customer_name = #{customerName}
+            </if>
+            <if test="customerCellphone != null">
+                and si.customer_cellphone = #{customerCellphone}
+            </if>
+            <if test="stockInCode != null">
+                and sid.stock_in_code = #{stockInCode}
+            </if>
+            <if test="stockInDetailCode != null">
+                and sid.code = #{stockInDetailCode}
+            </if>
+            <if test="type != null">
+                and si.type = #{type}
+            </if>
+            <if test="expireDate != null">
+                and si.expireDate = #{expireDate}
+            </if>
+            <if test="state != null">
+                and si.state = #{assetsId}
+            </if>
+            <if test="departmentId != null">
+                and si.department_id = #{departmentId}
+            </if>
+    </where>
   </select>
   <update id="updateBy" parameterType="com.dili.ia.domain.StockInDetail">
     <!--
@@ -138,4 +173,6 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+  
+  
 </mapper>
