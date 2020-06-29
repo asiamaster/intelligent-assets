@@ -16,7 +16,7 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
     /**
      * @author:      xiaosa
      * @date:        2020/6/16
-     * @param:       customerMeterDto
+     * @param:       id
      * @return:      BaseOutput
      * @description：根据主键 id 查询
      */
@@ -43,7 +43,8 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
     /**
      * @author:      xiaosa
      * @date:        2020/6/16
-     * @param:       customerMeterDto
+     * @param:       id
+     * @return :     BaseOutput
      * @description：删除表用户关系
      */
     BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id);
@@ -51,7 +52,7 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
     /**
      * @author:      xiaosa
      * @date:        2020/6/17
-     * @param        customerMeterDto
+     * @param        customerMeterDto, useProvider
      * @description：分页根据条件查询列表
      */
     EasyuiPageOutput listCustomerMeters(CustomerMeterDto customerMeterDto, boolean useProvider) throws Exception;

@@ -22,4 +22,13 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * @description：根据条件查询缴费信息、表信息
      */
     List<MeterDetailDto> listMeterDetails(MeterDetailDto meterDetailDto);
+
+    /**
+     * @author:       xiaosa
+     * @date:         2020/6/29
+     * @param:        meterDetailDto
+     * @return:       List
+     * @description： 根据 meterId、customerId、业务类型查询未缴费单的数量
+     */
+    List<Long> countUnPayByMeterAndCustomer(MeterDetailDto meterDetailDto);
 }

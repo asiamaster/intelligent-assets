@@ -3,6 +3,7 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.mapper.MeterDetailMapper;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.MeterDetailService;
@@ -12,10 +13,12 @@ import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -75,5 +78,28 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
 
 
+    }
+
+    /**
+     * @author:       xiaosa
+     * @date:         2020/6/29
+     * @param:        meterId, customerId
+     * @return:       Integer
+     * @description： 根据 meterId、customerId 查询未缴费单的数量
+     */
+    @Override
+    public Integer countUnPayByMeterAndCustomer(Long meterId, Long customerId) {
+        MeterDetailDto meterDetailDto = new MeterDetailDto();
+        // 业务类型(水表、电表)
+        List<Integer> bizTypeList = Lists.newArrayList(BizTypeEnum.WATER_METER.getCode(), BizTypeEnum.ELECTRIC_METER.getCode());
+        String bizTypes = bizTypeList.toString().replace("[", "").replace("]", "");
+        meterDetailDto.setBizTypes(bizTypes);
+        meterDetailDto.setMeterId(meterId);
+        meterDetailDto.setCustomerId(customerId);
+        List<Long> list = this.getActualDao().countUnPayByMeterAndCustomer(meterDetailDto);
+        if (CollectionUtils.isEmpty(list)){
+            return 0;
+        }
+        return list.size();
     }
 }

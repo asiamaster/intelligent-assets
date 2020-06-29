@@ -20,7 +20,7 @@ public interface MeterMapper extends MyMapper<Meter> {
      * @return       BaseOutput
      * @description：根据表类型获取未绑定的表编号
      */
-    List<Meter> getUnbindMeterByType(Integer type);
+    List<Meter> listUnbindMetersByType(Integer type);
 
     /**
      * @author:      xiaosa

@@ -28,7 +28,17 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @date:         2020/6/28
      * @param:        
      * @return:       
-     * @description： 
+     * @description： 新增水电费单
      */
     void addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket);
+
+
+    /**
+     * @author:       xiaosa
+     * @date:         2020/6/29
+     * @param:        meterId, customerId
+     * @return:       Integer
+     * @description： 根据 meterId、customerId 查询未缴费单的数量
+     */
+    Integer countUnPayByMeterAndCustomer(Long meterId, Long customerId);
 }

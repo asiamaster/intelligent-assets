@@ -23,7 +23,7 @@ public interface CustomerMeterMapper extends MyMapper<CustomerMeter> {
      * @date:        2020/6/16
      * @param:       customerMeterDto
      * @return:      BaseOutput
-     * @description：查询列表
+     * @description： 根据状态、表类型、部门以及表编号、地址、客户姓名查询列表
      */
     List<CustomerMeterDto> listCustomerMeters(CustomerMeterDto customerMeterDto);
 
