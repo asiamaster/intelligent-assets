@@ -82,67 +82,29 @@ function queryParams(params) {
 
 
 /**
- 打开查看窗口
+查看入库详情
  */
-function openViewHandler(type) {
+function openInViewHandler(type) {
 	//获取选中行的数据
 	let rows = _grid.bootstrapTable('getSelections');
 	if (null == rows || rows.length == 0) {
 		bs4pop.alert('请选中一条数据');
 		return false;
 	}
-	window.location.href = "${contextPath}/stockIn/view.html?code=" + rows[0].code;
-
-}
-
-
-/**
- * 打开新增窗口:页面层
- */
-function openInsertHandler() {
-	dia = bs4pop.dialog({
-		title: '页面层新增', //对话框title
-		content: bui.util.HTMLDecode(template('addForm', {})), //对话框内容，可以是 string、element，$object
-		width: '80%', //宽度
-		height: '95%', //高度
-		btns: [{
-			label: '取消',
-			className: 'btn btn-secondary',
-			onClick(e) {
-
-			}
-		}, {
-			label: '确定',
-			className: 'btn btn-primary',
-			onClick(e) {
-				bui.util.debounce(saveOrUpdateHandler, 1000, true)()
-				return false;
-			}
-		}]
-	});
+	window.location.href = "${contextPath}/stock/inList.html?code=" + rows[0].assetsId +"customerId=" + rows[0].customerId +"categoryId="+ rows[0].categoryId;
 }
 
 /**
- 打开更新窗口:iframe
+查看出库详情
  */
-function openInsertIframeHandler() {
-	dia = bs4pop.dialog({
-		title: 'iframe新增', //对话框title
-		content: '${contextPath}/customer/preSave.html?', //对话框内容，可以是 string、element，$object
-		width: '80%', //宽度
-		height: '700px', //高度
-		isIframe: true, //默认是页面层，非iframe
-		//按钮放在父页面用此处的 btns 选项。也可以放在页面里直接在页面写div。
-		/*btns: [{label: '取消',className: 'btn btn-secondary',onClick(e, $iframe){
-
-		    }
-		}, {label: '确定',className: 'btn btn-primary',onClick(e, $iframe){
-		        let diaWindow = $iframe[0].contentWindow;
-		        bui.util.debounce(diaWindow.saveOrUpdateHandler,1000,true)()
-		        return false;
-		    }
-		}]*/
-	});
+function openOutViewHandler(type) {
+	//获取选中行的数据
+	let rows = _grid.bootstrapTable('getSelections');
+	if (null == rows || rows.length == 0) {
+		bs4pop.alert('请选中一条数据');
+		return false;
+	}
+	window.location.href = "${contextPath}/stock/outList.html?code=" + rows[0].assetsId +"customerId=" + rows[0].customerId +"categoryId="+ rows[0].categoryId;
 }
 
 

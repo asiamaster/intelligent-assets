@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * This file was generated on 2020-06-12 11:14:28.
  */
 @Controller
-@RequestMapping("/stockIn")
+@RequestMapping("/stock/stockIn")
 public class StockInController {
     @Autowired
     StockInService stockInService;
