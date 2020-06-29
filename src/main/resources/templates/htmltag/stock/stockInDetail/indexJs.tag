@@ -9,7 +9,6 @@ let _modal = $('#_modal');
 var dia;
 /*********************变量定义区 end***************/
 
-
 /******************************驱动执行区 begin***************************/
 $(function() {
 	$(window).resize(function() {
@@ -30,6 +29,7 @@ function queryDataHandler() {
 		url: '/stock/stockInDetail/listPage.action'
 	});
 }
+
 
 //品类搜索
 //品类搜索自动完成

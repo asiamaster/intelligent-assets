@@ -4,6 +4,8 @@ import java.util.Date;
 
 import org.apache.ibatis.io.ResolverUtil.IsA;
 
+import com.dili.ss.domain.BaseDomain;
+
 /**
  * 
  * <B>Description</B>
@@ -14,7 +16,7 @@ import org.apache.ibatis.io.ResolverUtil.IsA;
  * @author yangfan
  * @date 2020年6月12日
  */
-public class StockInDetailQueryDto {
+public class StockInDetailQueryDto extends BaseDomain{
 
 	/**
 	 * 入库详情编号

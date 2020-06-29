@@ -84,27 +84,27 @@ function queryParams(params) {
 /**
 查看入库详情
  */
-function openInViewHandler(type) {
+function openStockInListHandler() {
 	//获取选中行的数据
 	let rows = _grid.bootstrapTable('getSelections');
 	if (null == rows || rows.length == 0) {
 		bs4pop.alert('请选中一条数据');
 		return false;
 	}
-	window.location.href = "${contextPath}/stock/inList.html?code=" + rows[0].assetsId +"customerId=" + rows[0].customerId +"categoryId="+ rows[0].categoryId;
+	window.location.href = "${contextPath}/stock/stock/inList.html?assetsId=" + rows[0].assetsId +"&customerId=" + rows[0].customerId +"&categoryId="+ rows[0].categoryId;
 }
 
 /**
 查看出库详情
  */
-function openOutViewHandler(type) {
+function openStockOutListHandler() {
 	//获取选中行的数据
 	let rows = _grid.bootstrapTable('getSelections');
 	if (null == rows || rows.length == 0) {
 		bs4pop.alert('请选中一条数据');
 		return false;
 	}
-	window.location.href = "${contextPath}/stock/outList.html?code=" + rows[0].assetsId +"customerId=" + rows[0].customerId +"categoryId="+ rows[0].categoryId;
+	window.location.href = "${contextPath}/stock/stock/outList.html?assetsId=" + rows[0].assetsId +"&customerId=" + rows[0].customerId +"&categoryId="+ rows[0].categoryId;
 }
 
 
@@ -149,7 +149,7 @@ function stockOut() {
 	let formData = $('#saveForm').serializeObject();
 	$.ajax({
 		type: "POST",
-		url: "${contextPath}/stock/stockOut.action",
+		url: "${contextPath}/stock/stock/stockOut.action",
 		data: formData,
 		processData: true,
 		dataType: "json",

@@ -47,7 +47,7 @@ public class StockInDetailServiceImpl extends BaseServiceImpl<StockInDetail, Lon
 
 	@Override
 	public Page<Map<String, String>> selectByContion(StockInDetailQueryDto stockInDetailQueryDto) {
-		Page<Map<String, String>> result = PageHelper.startPage(1, 5);
+		Page<Map<String, String>> result = PageHelper.startPage(stockInDetailQueryDto.getPage(), stockInDetailQueryDto.getRows());
 		getActualDao().selectByContion(stockInDetailQueryDto);
 		return result;
 	}

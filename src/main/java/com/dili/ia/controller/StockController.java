@@ -47,6 +47,32 @@ public class StockController {
     public String index(ModelMap modelMap) {
         return "stock/stock/index";
     }
+    
+    /**
+     * 客户库存 入库列表
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/inList.html", method = RequestMethod.GET)
+    public String inList(ModelMap modelMap,Long assetsId,Long categoryId,Long customerId) {
+    	modelMap.put("assetsId", assetsId);
+    	modelMap.put("categoryId", categoryId);
+    	modelMap.put("customerId", customerId);
+        return "stock/stock/inList";
+    }
+    
+    /**
+     * 客户库存 出库列表
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/outList.html", method = RequestMethod.GET)
+    public String outList(ModelMap modelMap,Long assetsId,Long categoryId,Long customerId) {
+    	modelMap.put("assetsId", assetsId);
+    	modelMap.put("categoryId", categoryId);
+    	modelMap.put("customerId", customerId);
+        return "stock/stock/outList";
+    }
 
     /**
      * 分页查询Stock，返回easyui分页信息
@@ -56,7 +82,6 @@ public class StockController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute Stock stock) throws Exception {
-    	System.err.println(stockService.listEasyuiPageByExample(stock, true).toString());
         return stockService.listEasyuiPageByExample(stock, true).toString();
     }
     
@@ -73,17 +98,5 @@ public class StockController {
         return BaseOutput.success("新增成功");
     }
     
-    /**
-     * 冷库出库单列表
-     * @param stockIn
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/outList.html", method = {RequestMethod.GET, RequestMethod.POST})
-    public String outList(ModelMap modelMap, Long customerId,Long categoryId,Long assetsId) {
-    	
-    	//stockService.stockOut(stockId, weight, quantity,notes);
-        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        return "stock/stock/outList";
-    }
 
 }

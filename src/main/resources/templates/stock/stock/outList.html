@@ -1,0 +1,54 @@
+
+<#bs4Body>
+<div class="row">
+        <div class="col-12">
+            <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+				<button id="btn_view" type="button" class="btn btn-primary" onclick="openStockOutHandler()"><i class="fa fa-eye"></i> 查看</button>
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(2)"><i class="fa fa-eye"></i> 返回</button>
+            </div>
+            <#stock_stockOut_list />
+        </div>
+    </div>
+<script>
+/*********************变量定义区 begin*************/
+//行索引计数器
+//如 let itemIndex = 0;
+let _grid = $('#grid');
+let _form = $('#_form');
+let _modal = $('#_modal');
+var dia;
+/*********************变量定义区 end***************/
+
+/******************************驱动执行区 begin***************************/
+$(function() {
+	$(window).resize(function() {
+		_grid.bootstrapTable('resetView')
+	});
+	queryDataHandler();
+});
+/******************************驱动执行区 end****************************/
+
+/*****************************************函数区 begin************************************/
+
+/**
+* 查询处理
+*/
+function queryDataHandler() {
+	_grid.bootstrapTable( {
+		pageNumber: 1,
+		url: '/stock/stockOut/listPage.action',
+		queryParams:function(params){
+			let curParams = {
+			        categoryId: ${categoryId!},
+					assetsId: ${assetsId!},
+					customerId: ${customerId!}
+			    };
+			return curParams;
+		}
+	});
+}
+</script>
+</#bs4Body>
+
+
+
