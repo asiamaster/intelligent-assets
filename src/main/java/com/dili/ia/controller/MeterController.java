@@ -36,11 +36,11 @@ public class MeterController {
     MeterService meterService;
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        modelMap
-     * @return       String
-     * @description：跳转到Meter页面
+     * 跳转到欢迎页面
+     *
+     * @param  modelMap
+     * @return 欢迎页面地址
+     * @date   2020/6/16
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
@@ -48,11 +48,11 @@ public class MeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        modelMap
-     * @return       String
-     * @description：跳转到水电表-新增页面
+     * 跳转到新增页面
+     *
+     * @param  modelMap
+     * @return 新增页面地址
+     * @date   2020/6/16
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap) {
@@ -60,11 +60,11 @@ public class MeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        modelMap
-     * @return       String
-     * @description：跳转到水电表-查看页面
+     * 跳转到查看页面
+     *
+     * @param  id 表主键
+     * @return 查看页面地址
+     * @date   2020/6/16
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap, Long id) {
@@ -78,11 +78,11 @@ public class MeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        modelMap
-     * @return       String
-     * @description：跳转到水电表-修改页面
+     * 跳转到修改页面
+     *
+     * @param  id 表主键
+     * @return 修改页面地址
+     * @date   2020/6/16
      */
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
     public String update(ModelMap modelMap, Long id) {
@@ -96,11 +96,11 @@ public class MeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        meterDto
-     * @return       String
-     * @description：根据条件分页查询列表
+     * 查询表的集合(分页)
+     *
+     * @param  meterDto
+     * @return meterDtoList
+     * @date   2020/6/16
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute MeterDto meterDto) throws Exception {
@@ -108,15 +108,15 @@ public class MeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        meterDto
-     * @return       BaseOutput
-     * @description：新增 Meter
+     * 新增表信息
+     *
+     * @param  meterDto
+     * @return 是否成功
+     * @date   2020/6/16
      */
     @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute MeterDto meterDto) {
+    public @ResponseBody BaseOutput addMeter(@ModelAttribute MeterDto meterDto) {
 
         // 新增
         BaseOutput<Meter> output = meterService.addMeter(meterDto);
@@ -132,15 +132,15 @@ public class MeterController {
     }
 
     /**
-     * @author:       xiaosa
-     * @date:         2020/6/29
-     * @param:·       meterDto
-     * @return:       BaseOutput
-     * @description： 修改表信息
+     * 修改表信息
+     *
+     * @param  meterDto
+     * @return 是否成功
+     * @date   2020/6/29
      */
     @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute MeterDto meterDto) {
+    public @ResponseBody BaseOutput updateMeter(@ModelAttribute MeterDto meterDto) {
 
         // 修改
         BaseOutput<Meter> output = meterService.updateMeter(meterDto);
@@ -156,11 +156,11 @@ public class MeterController {
     }
 
     /**
-     * @author:       xiaosa
-     * @date:         2020/6/16
-     * @param         type
-     * @return        BaseOutput
-     * @description： 根据表类型, 获取未绑定的表编号集合(新增表用户关系页面回显)
+     * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)
+     *
+     * @param  type 表类型,有枚举 meterTypeEnum
+     * @return meterList
+     * @date   2020/6/16
      */
     @RequestMapping(value="/listUnbindMetersByType.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput listUnbindMetersByType(Integer type) {
@@ -168,15 +168,16 @@ public class MeterController {
     }
 
     /**
-     * @author:       xiaosa
-     * @date:         2020/6/28
-     * @param         type, name
-     * @return        String
-     * @description： 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
+     * 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
+     *
+     * @param  type   表类型,有枚举 meterTypeEnum
+     * @param  number 表编号
+     * @return meterList
+     * @date   2020/6/28
      */
     @RequestMapping(value="/getMeterLikeNumber.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getMeterLikeNumber(Integer type,String name) throws Exception {
-        return meterService.getMeterLikeNumber(type, name);
+    public @ResponseBody BaseOutput getMeterLikeNumber(Integer type,String number) throws Exception {
+        return meterService.getMeterLikeNumber(type, number);
     }
 
 }

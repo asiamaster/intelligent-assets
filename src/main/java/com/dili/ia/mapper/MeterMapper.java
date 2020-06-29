@@ -14,20 +14,20 @@ import java.util.List;
 public interface MeterMapper extends MyMapper<Meter> {
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        type
-     * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
+     * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)
+     *
+     * @param  type 表类型,有枚举 meterTypeEnum
+     * @return meterList
+     * @date   2020/6/16
      */
     List<Meter> listUnbindMetersByType(Integer type);
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/28
-     * @param        meter
-     * @return       String
-     * @description：根据表类型、表编号查询表信息
+     * 根据表类型 type、表编号 number 查询表信息(新增缴水电费时页面回显)
+     *
+     * @param  meter
+     * @return meterList
+     * @date   2020/6/28
      */
     Meter getMeterLikeNumber(Meter meter);
 }

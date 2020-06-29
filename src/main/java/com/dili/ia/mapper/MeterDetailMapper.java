@@ -15,20 +15,20 @@ import java.util.List;
 public interface MeterDetailMapper extends MyMapper<MeterDetail> {
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/28
-     * @param:       meterDetailDto.type,
-     * @return:
-     * @description：根据条件查询缴费信息、表信息
+     * meter、meterDetail 两表查询水电费单集合(分页)
+     *
+     * @param  meterDetailDto
+     * @return MeterDetailDtoList
+     * @date   2020/6/28
      */
     List<MeterDetailDto> listMeterDetails(MeterDetailDto meterDetailDto);
 
     /**
-     * @author:       xiaosa
-     * @date:         2020/6/29
-     * @param:        meterDetailDto
-     * @return:       List
-     * @description： 根据 meterId、customerId、业务类型查询未缴费单的数量
+     * 根据表 meterId、用户 customerId 查询未缴费单的数量
+     *
+     * @param  meterDetailDto
+     * @return 未缴费单的数量
+     * @date   2020/6/29
      */
     List<Long> countUnPayByMeterAndCustomer(MeterDetailDto meterDetailDto);
 }

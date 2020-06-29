@@ -3,6 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ss.base.BaseService;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 
@@ -15,30 +16,41 @@ import com.dili.uap.sdk.domain.UserTicket;
 public interface MeterDetailService extends BaseService<MeterDetail, Long> {
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/28
-     * @param:       meterDetail
-     * @return:      EasyuiPageOutput
-     * @description：查询缴水电费的列表
+     * 查询水电费单的集合(分页)
+     *
+     * @param  meterDetailDto
+     * @param  useProvider
+     * @return MeterDetailDtoList
+     * @date   2020/6/28
      */
-    EasyuiPageOutput listMeterDetails(MeterDetailDto meterDetailDto, boolean b) throws Exception;
+    EasyuiPageOutput listMeterDetails(MeterDetailDto meterDetailDto, boolean useProvider) throws Exception;
 
     /**
-     * @author:       xiaosa
-     * @date:         2020/6/28
-     * @param:        
-     * @return:       
-     * @description： 新增水电费单
+     * 新增水电费单
+     *
+     * @param  meterDetailDto
+     * @param  userTicket 用户信息
+     * @return 是否成功
+     * @date   2020/6/28
      */
     void addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket);
 
-
     /**
-     * @author:       xiaosa
-     * @date:         2020/6/29
-     * @param:        meterId, customerId
-     * @return:       Integer
-     * @description： 根据 meterId、customerId 查询未缴费单的数量
+     * 根据 meterId、customerId 查询未缴费单的数量
+     *
+     * @param  meterId
+     * @param  customerId
+     * @return 未缴费单的数量
+     * @date   2020/6/28
      */
     Integer countUnPayByMeterAndCustomer(Long meterId, Long customerId);
+
+    /**
+     * 根据 meterId 获取初始值
+     *
+     * @param  meterId
+     * @return 初始值(上期指数)
+     * @date   2020/6/29
+     */
+    BaseOutput getLastAmount(Long meterId);
 }
