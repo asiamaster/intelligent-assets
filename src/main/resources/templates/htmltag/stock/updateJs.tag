@@ -188,7 +188,7 @@ function doAddEarnestHandler() {
 
 	$.ajax({
 		type: "POST",
-		url: "${contextPath}/stockIn/update.action",
+		url: "${contextPath}/stock/stockIn/update.action",
 		data: buildFormData(),
 		dataType: "json",
 		contentType: "application/json",

@@ -25,7 +25,7 @@ $(function () {
  * 查询处理
  */
 function queryDataHandler() {
-    _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '/stockIn/listPage.action'});
+    _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '/stock/stockIn/listPage.action'});
 }
 
 //品类搜索
@@ -82,7 +82,7 @@ function queryParams(params) {
      打开新增窗口
      */
     function openAddHandler(type) {
-    	window.location.href = "${contextPath}/stockIn/add.html?type="+type;
+    	window.location.href = "${contextPath}/stock/stockIn/add.html?type="+type;
 
     }
     /**
@@ -95,7 +95,7 @@ function queryParams(params) {
         bs4pop.alert('请选中一条数据');
         return false;
     }
-    	window.location.href = "${contextPath}/stockIn/view.html?code="+rows[0].code;
+    	window.location.href = "${contextPath}/stock/stockIn/view.html?code="+rows[0].code;
 
     }
 /**
@@ -108,7 +108,7 @@ function openUpdateHandler() {
         bs4pop.alert('请选中一条数据');
         return false;
     }
-    	window.location.href = "${contextPath}/stockIn/update.html?code="+rows[0].code;
+    	window.location.href = "${contextPath}/stock/stockIn/update.html?code="+rows[0].code;
 }
     
 
@@ -138,41 +138,6 @@ function openInsertIframeHandler() {
 
 
 
-/**
- 撤回
- */
-function openWithdrawHandler() {
-    if(isSelectRow()){
-        bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', {}, function (sure) {
-            if(sure){
-                bui.loading.show('努力提交中，请稍候。。。');
-                //获取选中行的数据
-                let rows = _grid.bootstrapTable('getSelections');
-                let selectedRow = rows[0];
-
-                $.ajax({
-                    type: "POST",
-                    url: "${contextPath}/customer/withdraw.action",
-                    data: {id: selectedRow.id},
-                    processData:true,
-                    dataType: "json",
-                    success : function(ret) {
-                        bui.loading.hide();
-                        if(ret.success){
-                            queryDataHandler();
-                        }else{
-                            bs4pop.alert(ret.message, {type: 'error'});
-                        }
-                    },
-                    error : function() {
-                        bui.loading.hide();
-                        bs4pop.alert('远程访问失败', {type: 'error'});
-                    }
-                });
-            }
-        })
-    }
-}
 
 /**
  取消
@@ -188,7 +153,7 @@ function openCancelHandler() {
 
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/stockIn/cancel.action",
+                    url: "${contextPath}/stock/stockIn/cancel.action",
                     data: {code: selectedRow.code},
                     processData:true,
                     dataType: "json",
@@ -225,7 +190,7 @@ function openSubmitHandler() {
 
                     $.ajax({
                         type: "POST",
-                        url: "${contextPath}/stockIn/submit.action",
+                        url: "${contextPath}/stock/stockIn/submit.action",
                         data: {code: selectedRow.code},
                         processData:true,
                         dataType: "json",
@@ -262,7 +227,7 @@ function openRemoveHandler() {
                     let selectedRow = rows[0];
                     $.ajax({
                         type: "POST",
-                        url: "${contextPath}/stockIn/remove.action",
+                        url: "${contextPath}/stock/stockIn/remove.action",
                         data: {code: selectedRow.code},
                         processData:true,
                         dataType: "json",
@@ -319,7 +284,7 @@ function openPayHandler() {
 function pay(formData) {
 $.ajax({
                         type: "POST",
-                        url: "${contextPath}/stockIn/pay.action",
+                        url: "${contextPath}/stock/stockIn/pay.action",
                         data: formData,
                         processData:true,
                         dataType: "json",
@@ -371,7 +336,7 @@ function openRefundHandler() {
 function refund(formData) {
 $.ajax({
                         type: "POST",
-                        url: "${contextPath}/stockIn/refund.action",
+                        url: "${contextPath}/stock/stockIn/refund.action",
                         data: formData,
                         processData:true,
                         dataType: "json",

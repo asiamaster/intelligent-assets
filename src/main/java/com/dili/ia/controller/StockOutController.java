@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * This file was generated on 2020-06-12 11:14:28.
  */
 @Controller
-@RequestMapping("/stockOut")
+@RequestMapping("/stock/stockOut")
 public class StockOutController {
     @Autowired
     StockOutService stockOutService;

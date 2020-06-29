@@ -23,13 +23,23 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * This file was generated on 2020-06-12 11:14:28.
  */
 @Controller
-@RequestMapping("/stock")
+@RequestMapping("/stock/stock")
 public class StockController {
     @Autowired
     StockService stockService;
 
     /**
-     * 跳转到Stock页面
+     * 跳转到出库页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/out.html", method = RequestMethod.GET)
+    public String out(ModelMap modelMap) {
+        return "stock/stock/out";
+    }
+    
+    /**
+     * 客户库存
      * @param modelMap
      * @return String
      */
@@ -46,6 +56,7 @@ public class StockController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute Stock stock) throws Exception {
+    	System.err.println(stockService.listEasyuiPageByExample(stock, true).toString());
         return stockService.listEasyuiPageByExample(stock, true).toString();
     }
     
@@ -60,6 +71,19 @@ public class StockController {
     	stockService.stockOut(stockId, weight, quantity,notes);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("新增成功");
+    }
+    
+    /**
+     * 冷库出库单列表
+     * @param stockIn
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/outList.html", method = {RequestMethod.GET, RequestMethod.POST})
+    public String outList(ModelMap modelMap, Long customerId,Long categoryId,Long assetsId) {
+    	
+    	//stockService.stockOut(stockId, weight, quantity,notes);
+        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        return "stock/stock/outList";
     }
 
 }

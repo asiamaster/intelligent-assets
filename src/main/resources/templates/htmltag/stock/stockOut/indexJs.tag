@@ -27,7 +27,7 @@ $(function() {
 function queryDataHandler() {
 	_grid.bootstrapTable('refreshOptions', {
 		pageNumber: 1,
-		url: '/stockOut/listPage.action'
+		url: '/stock/stockOut/listPage.action'
 	});
 }
 
@@ -91,7 +91,7 @@ function openViewHandler(type) {
 		bs4pop.alert('请选中一条数据');
 		return false;
 	}
-	window.location.href = "${contextPath}/stockIn/view.html?code=" + rows[0].code;
+	window.location.href = "${contextPath}/stock/stockIn/view.html?code=" + rows[0].code;
 
 }
 
