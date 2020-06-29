@@ -199,9 +199,9 @@
 
     // 根据表编号查询表信息
     var customerMeterCompleteOption = {
-        serviceUrl: '/customerMeter/listUnbindcustomerMeter.action',
-        paramName: 'keyword',
-        displayFieldName: 'name',
+        serviceUrl: '/meter/listUnbindMetersByType.action',
+        paramName: 'type',
+        displayFieldName: 'number',
         showNoSuggestionNotice: true,
         noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此表</a>',
         transformResult: function (result) {

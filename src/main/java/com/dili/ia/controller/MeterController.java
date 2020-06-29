@@ -1,8 +1,5 @@
 package com.dili.ia.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.dili.ia.domain.EarnestOrder;
-import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ia.service.MeterService;
@@ -10,10 +7,7 @@ import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
-import java.util.List;
 
-import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
@@ -138,11 +132,11 @@ public class MeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        meterDto
-     * @return       BaseOutput
-     * @description：修改Meter
+     * @author:       xiaosa
+     * @date:         2020/6/29
+     * @param:·       meterDto
+     * @return:       BaseOutput
+     * @description： 修改表信息
      */
     @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -162,24 +156,23 @@ public class MeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        type
-     * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
+     * @author:       xiaosa
+     * @date:         2020/6/16
+     * @param         type
+     * @return        BaseOutput
+     * @description： 根据表类型, 获取未绑定的表编号集合(新增表用户关系页面回显)
      */
-    @RequestMapping(value="/getUnbindMeterByType.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getUnbindMeterByType(Integer type) {
-        BaseOutput<Meter> output = meterService.getUnbindMeterByType(type);
-        return output;
+    @RequestMapping(value="/listUnbindMetersByType.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput listUnbindMetersByType(Integer type) {
+        return meterService.listUnbindMetersByType(type);
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/28
-     * @param        type, name
-     * @return       String
-     * @description：根据表类型、表编号查询表信息
+     * @author:       xiaosa
+     * @date:         2020/6/28
+     * @param         type, name
+     * @return        String
+     * @description： 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
      */
     @RequestMapping(value="/getMeterLikeNumber.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput getMeterLikeNumber(Integer type,String name) throws Exception {

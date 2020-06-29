@@ -12,6 +12,8 @@ public enum BizTypeEnum {
     BOOTH_LEASE(1, "摊位租赁"),
     EARNEST(2, "定金"),
     STOCKIN(3, "入库单"),
+    WATER_METER(4, "水表"),
+    ELECTRIC_METER(5, "电表"),
     ;
 
     private String name;

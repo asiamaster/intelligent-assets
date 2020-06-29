@@ -50,7 +50,7 @@ public interface MeterService extends BaseService<Meter, Long> {
      * @return       BaseOutput
      * @description：根据表类型获取未绑定的表编号
      */
-    BaseOutput<Meter> getUnbindMeterByType(Integer type);
+    BaseOutput<Meter> listUnbindMetersByType(Integer type);
 
     /**
      * @author:      xiaosa

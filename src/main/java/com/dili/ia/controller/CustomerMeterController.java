@@ -114,10 +114,10 @@ public class CustomerMeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        customerMeterDto
-     * @description：新增 CustomerMeter
+     * @author:       xiaosa
+     * @date:         2020/6/16
+     * @param         customerMeterDto
+     * @description： 新增 CustomerMeter
      */
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -134,18 +134,6 @@ public class CustomerMeterController {
         }
 
         return output;
-    }
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/22
-     * @param        likeName
-     * @description：获取所有未绑定的表
-     */
-    @RequestMapping(value="/listUnbindCustomerMeter.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listUnbindCustomerMeter(String likeName) throws Exception {
-//        return customerMeterService.listCustomerMeters(customerMeterDto, true).toString();
-        return null;
     }
 
     /**

@@ -14,6 +14,7 @@ import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,14 +68,14 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         // 校验用户是否登陆
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
-            return BaseOutput.failure("未登录");
+            return BaseOutput.failure("表信息新增失败,未登录");
         }
 
         // 根据表编号查询是否已存在
         meter.setNumber(meterDto.getNumber());
         List<Meter> meterList = this.getActualDao().select(meter);
         if (meterList != null && meterList.size() > 0) {
-            return BaseOutput.failure("表编号已存在");
+            return BaseOutput.failure("表信息新增失败,表编号已存在！");
         }
 
         // 获取部门名称
@@ -115,29 +116,30 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         // 校验用户是否登陆, 并设置相关信息
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
-            return BaseOutput.failure("未登录");
+            return BaseOutput.failure("表信息修改失败,未登录");
         }
 
         // 根据表编号查询是否已存在
         meter.setNumber(meterDto.getNumber());
         List<Meter> meterList = this.getActualDao().select(meter);
-        if (meterList != null && meterList.size() > 0) {
+        if (CollectionUtils.isNotEmpty(meterList)) {
             for (Meter meterRe : meterList) {
                 if (!meterRe.getId().equals(meterDto.getId())) {
-                    return BaseOutput.failure("表编号已存在");
+                    return BaseOutput.failure("表信息修改失败,表编号已存在");
                 }
             }
         }
 
         Meter meterInfo = this.get(meterDto.getId());
-
         meterDto.setModifyTime(new Date());
         meterDto.setVersion(meterInfo.getVersion() + 1);
 
-        //修改
+        //修改操作
         BeanUtils.copyProperties(meterDto, meter);
-        this.updateSelective(meter);
-
+        int code = this.updateSelective(meter);
+        if (code == 0) {
+            return BaseOutput.failure("当前数据正在被其他用户操作，提交失败！请关闭当前弹窗重新选择操作");
+        }
         return BaseOutput.success();
     }
 
@@ -149,9 +151,9 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * @description：根据表类型获取未绑定的表编号
      */
     @Override
-    public BaseOutput<Meter> getUnbindMeterByType(Integer type) {
+    public BaseOutput<Meter> listUnbindMetersByType(Integer type) {
         BaseOutput baseOutput = new BaseOutput();
-        List<Meter> meterList = this.getActualDao().getUnbindMeterByType(type);
+        List<Meter> meterList = this.getActualDao().listUnbindMetersByType(type);
         baseOutput.setData(meterList);
         return baseOutput;
     }

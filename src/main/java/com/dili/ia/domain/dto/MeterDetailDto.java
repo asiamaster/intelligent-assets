@@ -1,6 +1,7 @@
 package com.dili.ia.domain.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.dili.ia.domain.MeterDetail;
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
@@ -18,7 +19,7 @@ import java.util.Date;
  * @version:     农批业务系统重构
  * @description: 水电费 - 缴水电费Dto
  */
-public class MeterDetailDto extends BaseDomain {
+public class MeterDetailDto extends MeterDetail {
 
     /**
      * 表类型
@@ -55,7 +56,10 @@ public class MeterDetailDto extends BaseDomain {
      */
     private Long balance;
 
-
+    /**
+     * 业务类型(该用能是水表、电表)
+     */
+    private String bizTypes;
 
     public String getKeyword() {
         return keyword;
@@ -111,5 +115,13 @@ public class MeterDetailDto extends BaseDomain {
 
     public void setBalance(Long balance) {
         this.balance = balance;
+    }
+
+    public String getBizTypes() {
+        return bizTypes;
+    }
+
+    public void setBizTypes(String bizTypes) {
+        this.bizTypes = bizTypes;
     }
 }

@@ -150,4 +150,25 @@
 
 
   </select>
+
+  <select id="countUnPayByMeterAndCustomer" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="long">
+    SELECT
+    DISTINCT
+        md.id
+    FROM
+        meter_detail md
+    LEFT JOIN
+        payment_order po ON md.id = po.business_id
+    WHERE
+        md.meter_id = #{meterId} AND md.customer_id = #{customerId}
+    <if test = "status != null" >
+      AND
+        da.STATUS IN (#{STATUS})
+    </if>
+    AND
+        da.biz_type IN (#{bizTypes})
+
+
+
+  </select>
 </mapper>
