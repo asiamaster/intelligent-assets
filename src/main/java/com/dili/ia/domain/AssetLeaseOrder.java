@@ -170,7 +170,7 @@ public class AssetLeaseOrder extends BaseDomain {
     private Long waitAmount;
 
     @Column(name = "`payment_id`")
-    private String paymentId;
+    private Long paymentId;
 
     /**
      * 创建人ID
@@ -487,11 +487,11 @@ public class AssetLeaseOrder extends BaseDomain {
         this.waitAmount = waitAmount;
     }
 
-    public String getPaymentId() {
+    public Long getPaymentId() {
         return paymentId;
     }
 
-    public void setPaymentId(String paymentId) {
+    public void setPaymentId(Long paymentId) {
         this.paymentId = paymentId;
     }
 
