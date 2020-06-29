@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * This file was generated on 2020-06-12 11:14:28.
  */
 @Controller
-@RequestMapping("/stockInDetail")
+@RequestMapping("/stock/stockInDetail")
 public class StockInDetailController {
     @Autowired
     StockInDetailService stockInDetailService;
@@ -29,7 +29,7 @@ public class StockInDetailController {
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
-        return "stockInDetail/index";
+        return "stock/stockInDetail/index";
     }
 
     /**
@@ -43,36 +43,5 @@ public class StockInDetailController {
         return stockInDetailService.listEasyuiPageByExample(stockInDetail, true).toString();
     }
 
-    /**
-     * 新增StockInDetail
-     * @param stockInDetail
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute StockInDetail stockInDetail) {
-        stockInDetailService.insertSelective(stockInDetail);
-        return BaseOutput.success("新增成功");
-    }
-
-    /**
-     * 修改StockInDetail
-     * @param stockInDetail
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute StockInDetail stockInDetail) {
-        stockInDetailService.updateSelective(stockInDetail);
-        return BaseOutput.success("修改成功");
-    }
-
-    /**
-     * 删除StockInDetail
-     * @param id
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        stockInDetailService.delete(id);
-        return BaseOutput.success("删除成功");
-    }
+   
 }

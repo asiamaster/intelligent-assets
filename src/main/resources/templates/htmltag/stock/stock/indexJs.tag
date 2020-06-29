@@ -27,7 +27,7 @@ $(function() {
 function queryDataHandler() {
 	_grid.bootstrapTable('refreshOptions', {
 		pageNumber: 1,
-		url: '/stock/listPage.action'
+		url: '/stock/stock/listPage.action'
 	});
 }
 
