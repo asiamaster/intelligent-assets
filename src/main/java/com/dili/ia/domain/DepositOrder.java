@@ -10,7 +10,7 @@ import javax.persistence.*;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-28 11:29:09.
+ * This file was generated on 2020-06-29 15:11:22.
  */
 @Table(name = "`deposit_order`")
 public class DepositOrder extends BaseDomain {
@@ -140,16 +140,16 @@ public class DepositOrder extends BaseDomain {
     private Boolean isRelated;
 
     /**
-     * 关联订单业务类型
-     */
-    @Column(name = "`biz_type`")
-    private Integer bizType;
-
-    /**
      * 关联订单ID
      */
     @Column(name = "`business_id`")
     private Long businessId;
+
+    /**
+     * 关联订单业务类型
+     */
+    @Column(name = "`biz_type`")
+    private Integer bizType;
 
     /**
      * （1：已创建 2：已取消 3：已提交 4：已交费5：已退款）
@@ -168,6 +168,18 @@ public class DepositOrder extends BaseDomain {
      */
     @Column(name = "`refund_state`")
     private Boolean refundState;
+
+    /**
+     * 审批状态
+     */
+    @Column(name = "`approval_state`")
+    private Boolean approvalState;
+
+    /**
+     *  流程实例ID
+     */
+    @Column(name = "`process_instance_id`")
+    private Long processInstanceId;
 
     /**
      * 创建操作员ID
@@ -664,26 +676,6 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
-     * 获取关联订单业务类型
-     *
-     * @return biz_type - 关联订单业务类型
-     */
-    @FieldDef(label="关联订单业务类型")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Integer getBizType() {
-        return bizType;
-    }
-
-    /**
-     * 设置关联订单业务类型
-     *
-     * @param bizType 关联订单业务类型
-     */
-    public void setBizType(Integer bizType) {
-        this.bizType = bizType;
-    }
-
-    /**
      * 获取关联订单ID
      *
      * @return business_id - 关联订单ID
@@ -701,6 +693,26 @@ public class DepositOrder extends BaseDomain {
      */
     public void setBusinessId(Long businessId) {
         this.businessId = businessId;
+    }
+
+    /**
+     * 获取关联订单业务类型
+     *
+     * @return biz_type - 关联订单业务类型
+     */
+    @FieldDef(label="关联订单业务类型")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getBizType() {
+        return bizType;
+    }
+
+    /**
+     * 设置关联订单业务类型
+     *
+     * @param bizType 关联订单业务类型
+     */
+    public void setBizType(Integer bizType) {
+        this.bizType = bizType;
     }
 
     /**
@@ -761,6 +773,46 @@ public class DepositOrder extends BaseDomain {
      */
     public void setRefundState(Boolean refundState) {
         this.refundState = refundState;
+    }
+
+    /**
+     * 获取审批状态
+     *
+     * @return approval_state - 审批状态
+     */
+    @FieldDef(label="审批状态")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Boolean getApprovalState() {
+        return approvalState;
+    }
+
+    /**
+     * 设置审批状态
+     *
+     * @param approvalState 审批状态
+     */
+    public void setApprovalState(Boolean approvalState) {
+        this.approvalState = approvalState;
+    }
+
+    /**
+     * 获取 流程实例ID
+     *
+     * @return process_instance_id -  流程实例ID
+     */
+    @FieldDef(label=" 流程实例ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    /**
+     * 设置 流程实例ID
+     *
+     * @param processInstanceId  流程实例ID
+     */
+    public void setProcessInstanceId(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
     }
 
     /**
