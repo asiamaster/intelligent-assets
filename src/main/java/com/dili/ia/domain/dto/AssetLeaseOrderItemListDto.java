@@ -45,7 +45,7 @@ public class AssetLeaseOrderItemListDto extends AssetLeaseOrderItem {
     private List<BusinessChargeItem> businessChargeItems;
 
     /**
-     * 业务收费项 {id:amount}
+     * 业务收费项 {id:amount}｛1：200，2：300｝
      */
     @Transient
     private Map<String,String> businessChargeItem;

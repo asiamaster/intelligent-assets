@@ -1,5 +1,7 @@
 package com.dili.ia.domain.dto;
 
+import com.dili.ia.domain.BusinessChargeItem;
+import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ss.domain.annotation.Like;
@@ -9,6 +11,7 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 
 import javax.persistence.Column;
+import javax.persistence.Transient;
 import java.util.Date;
 import java.util.List;
 
@@ -51,16 +54,8 @@ public interface RefundOrderDto extends RefundOrder {
     List<TransferDeductionItem> getTransferDeductionItems();
     void setTransferDeductionItems(List<TransferDeductionItem> transferDeductionItems);
 
-    //保证金
-    Long getDepositRefundAmount();
-    void setDepositRefundAmount(Long depositRefundAmount);
-
-    //物管费
-    Long getManageRefundAmount();
-    void setManageRefundAmount(Long manageRefundAmount);
-
-    //租金
-    Long getRentRefundAmount();
-    void setRentRefundAmount(Long rentRefundAmount);
+    //业务退款项
+    List<RefundFeeItem> getRefundFeeItems();
+    void setRefundFeeItems(List<RefundFeeItem> refundFeeItems);
 
 }

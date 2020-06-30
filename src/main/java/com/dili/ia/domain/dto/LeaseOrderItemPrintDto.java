@@ -1,5 +1,7 @@
 package com.dili.ia.domain.dto;
 
+import java.util.Map;
+
 public class LeaseOrderItemPrintDto {
     //摊位名称
     private String boothName;
@@ -29,6 +31,9 @@ public class LeaseOrderItemPrintDto {
     private String manageRefundAmount;
     //保证金退款额
     private String depositRefundAmount;
+
+    //业务收费项
+    private Map<String,String> businessChargeItem;
 
     public String getBoothName() {
         return boothName;
@@ -140,5 +145,13 @@ public class LeaseOrderItemPrintDto {
 
     public void setDepositRefundAmount(String depositRefundAmount) {
         this.depositRefundAmount = depositRefundAmount;
+    }
+
+    public Map<String, String> getBusinessChargeItem() {
+        return businessChargeItem;
+    }
+
+    public void setBusinessChargeItem(Map<String, String> businessChargeItem) {
+        this.businessChargeItem = businessChargeItem;
     }
 }

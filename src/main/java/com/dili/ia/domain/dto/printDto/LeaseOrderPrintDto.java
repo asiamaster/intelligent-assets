@@ -1,11 +1,12 @@
 package com.dili.ia.domain.dto.printDto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.ia.domain.dto.LeaseOrderItemPrintDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public class LeaseOrderPrintDto {
@@ -13,7 +14,7 @@ public class LeaseOrderPrintDto {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date printTime;
+    private LocalDate printTime;
     //补打标记
     private String reprint;
     //订单编号
@@ -28,12 +29,12 @@ public class LeaseOrderPrintDto {
     @JSONField(format = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date startTime;
+    private LocalDate startTime;
     //结束日期
     @JSONField(format = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date endTime;
+    private LocalDate endTime;
     //是否续签(1:是 2：否)
     private String isRenew;
     //经营品类
@@ -42,8 +43,6 @@ public class LeaseOrderPrintDto {
     private String notes;
     //总金额
     private String totalAmount;
-    //保证金转抵
-    private String depositDeduction;
     //定金转抵
     private String earnestDeduction;
     //转抵扣
@@ -62,12 +61,14 @@ public class LeaseOrderPrintDto {
     private String submitter;
     //订单项
     private List<LeaseOrderItemPrintDto> leaseOrderItems;
+    //全量收费项
+    private List<BusinessChargeItemDto> chargeItems;
 
-    public Date getPrintTime() {
+    public LocalDate getPrintTime() {
         return printTime;
     }
 
-    public void setPrintTime(Date printTime) {
+    public void setPrintTime(LocalDate printTime) {
         this.printTime = printTime;
     }
 
@@ -111,19 +112,19 @@ public class LeaseOrderPrintDto {
         this.customerCellphone = customerCellphone;
     }
 
-    public Date getStartTime() {
+    public LocalDate getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDate startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public LocalDate getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDate endTime) {
         this.endTime = endTime;
     }
 
@@ -157,14 +158,6 @@ public class LeaseOrderPrintDto {
 
     public void setTotalAmount(String totalAmount) {
         this.totalAmount = totalAmount;
-    }
-
-    public String getDepositDeduction() {
-        return depositDeduction;
-    }
-
-    public void setDepositDeduction(String depositDeduction) {
-        this.depositDeduction = depositDeduction;
     }
 
     public String getEarnestDeduction() {
@@ -237,5 +230,13 @@ public class LeaseOrderPrintDto {
 
     public void setLeaseOrderItems(List<LeaseOrderItemPrintDto> leaseOrderItems) {
         this.leaseOrderItems = leaseOrderItems;
+    }
+
+    public List<BusinessChargeItemDto> getChargeItems() {
+        return chargeItems;
+    }
+
+    public void setChargeItems(List<BusinessChargeItemDto> chargeItems) {
+        this.chargeItems = chargeItems;
     }
 }
