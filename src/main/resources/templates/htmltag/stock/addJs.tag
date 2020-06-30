@@ -137,6 +137,9 @@ $('#adddetailItem').on('click', function() {
 //删除行事件 （删除子单）
 $(document).on('click', '.item-del', function() {
 	$(this).closest('.detail').remove();
+	countNumber("quantity");
+	countNumber("weight");
+	countNumber("amount");
 });
 
 //计算金额,重量,数量
@@ -153,6 +156,7 @@ function countNumber(name){
 	});
 }
 
+//数据组装
 function buildFormData() {
 	// let formData = new FormData($('#saveForm')[0]);
 	let departmentName = $('#departmentId').find("option:selected").text();
@@ -169,14 +173,6 @@ function buildFormData() {
 		detail.districtName = districtName;
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
-		/* let detail = {};
-		$(this).find("input").each(function(t, el) {
-			let fieldName = $(this).attr("name").split('_')[0];
-			if ($(this).val() != "") {
-				detail[fieldName] = $(this).val();
-			}
-		}); */
-		
 		if (detail != {}) {
 			stockDetails.push(detail);
 		}
@@ -184,126 +180,6 @@ function buildFormData() {
 	formData.stockInDetailDtos = stockDetails;
 	return JSON.stringify(formData);
 }
-
-//主表数据验证
-let validateSaveForm = $("#saveForm").validate(saveForm);
-let saveForm = {
-	    onkeyup: false,
-	    rules: {
-	    	customerName: {
-	            required: true
-	        },
-	        customerCellphone: {
-	        	required: true,
-	            maxlength: 20
-	        },
-	        departmentId: {
-	        	required: true,
-	        },
-	        categoryId: {
-	        	required: true,
-	        },
-	        quantity: {
-	        	required: true,
-	        },
-	        weight: {
-	        	required: true,
-	        },
-	        amount: {
-	        	required: true,
-	        },
-	        stockInDate: {
-	        	required: true
-	        },
-	        expireDate: {
-	        	required: true
-	        },
-	    },
-	    messages: {
-	    	customerName: {
-	            required: "客户必填"
-	        },
-	        customerCellphone: {
-	        	required:"客户联系方式必填",
-	            maxlength: "不能超过{0}"
-	        },
-	        departmentId: {
-	        	required: "部门必填",
-	        },
-	        categoryId: {
-	        	required: "品类必填",
-	        },
-	        quantity: {
-	        	required: "数量必填",
-	        },
-	        weight: {
-	        	required: "重量必填",
-	        },
-	        amount: {
-	        	required: "数量必填",
-	        },
-	        stockInDate: {
-	        	required: "入库时间必填"
-	        },
-	        expireDate: {
-	        	required: "过期时间必填"
-	        }
-	    },
-	    focusCleanup: true
-};
-
-//子表数据验证
-let saveFormDetail = {
-	    onkeyup: false,
-	    rules: {
-	    	districtId: {
-	            required: true
-	        },
-	        assetsId: {
-	        	required: true,
-	        },
-	        quantity: {
-	        	required: true,
-	        },
-	        weight: {
-	        	required: true,
-	        },
-	        amount: {
-	        	required: true,
-	        },
-	        stockInDate: {
-	        	required: true
-	        },
-	        expireDate: {
-	        	required: true
-	        },
-	    },
-	    messages: {
-	    	districtId: {
-	            required: "区域必填"
-	        },
-	        assetsId: {
-	        	required:"冷库必填",
-	        },
-	        quantity: {
-	        	required: "数量必填",
-	        },
-	        weight: {
-	        	required: "重量必填",
-	        },
-	        amount: {
-	        	required: "数量必填",
-	        },
-	        stockInDate: {
-	        	required: "入库时间必填"
-	        },
-	        expireDate: {
-	        	required: "过期时间必填"
-	        }
-	    },
-	    focusCleanup: true
-	}
-
 
 
 // 提交保存
@@ -313,9 +189,10 @@ function doAddEarnestHandler() {
 		return;
 	}
 	for(let i=1;i<=itemIndex;i++){
-		
-		if(!$("#saveForm_"+i).validate().form()){
-			return;
+		if(document.getElementById("#saveForm_"+i)){
+			if(!$("#saveForm_"+i).validate().form()){
+				return;
+			}  
 		}
 	}
 	return;
@@ -344,17 +221,6 @@ function doAddEarnestHandler() {
 	});
 }
 
-function form2JsonString(formId) {
-	var paramArray = $('#' + formId).serializeArray();
-	/*请求参数转json对象*/
-	var jsonObj = {};
-	$(paramArray).each(function() {
-		jsonObj[this.name] = this.value;
-
-	});
-	// json对象再转换成json字符串
-	return JSON.stringify(jsonObj);
-}
 
 /**
  * 打开新增窗口:页面层
