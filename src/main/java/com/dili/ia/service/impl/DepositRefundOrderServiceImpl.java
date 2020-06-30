@@ -37,7 +37,7 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     DepositOrderService depositOrderService;
 
     @Override
-    public Set<Integer> getBizType() {
+    public Set<String> getBizType() {
         return Sets.newHashSet(BizTypeEnum.DEPOSIT_ORDER.getCode());
     }
 
