@@ -157,18 +157,31 @@
         md.id
     FROM
         meter_detail md
-    LEFT JOIN
-        payment_order po ON md.id = po.business_id
+        LEFT JOIN payment_order po ON md.id = po.business_id
     WHERE
-        md.meter_id = #{meterId} AND md.customer_id = #{customerId}
-    <if test = "status != null" >
-      AND
-        da.STATUS IN (#{STATUS})
+        md.meter_id = #{meterId}
+    AND md.customer_id = #{customerId}
+    AND po.biz_type IN (#{bizTypes})
+    <if test = "state != null" >
+        AND po.state IN (#{state})
     </if>
-    AND
-        da.biz_type IN (#{bizTypes})
-
-
-
   </select>
+
+    <select id="getLastAmountByMeterId" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="long">
+    SELECT
+        md.last_amount
+    FROM
+        meter_detail md
+        LEFT JOIN payment_order po ON md.id = po.business_id
+    WHERE
+        md.meter_id = #{meterId}
+    and po.biz_type in (${bizTypes})
+    and md.submit_time is not null
+    <if test="state != null and state !=''">
+        AND po.state = #{state}
+    </if>
+    order by
+        md.last_amount desc
+    LIMIT 1
+    </select>
 </mapper>

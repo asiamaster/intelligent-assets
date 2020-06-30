@@ -123,14 +123,14 @@
             meter m
         WHERE
             m.id NOT IN (
-          SELECT
-              cm.meter_id
-          FROM
-              customer_meter cm
-          WHERE
-              cm.state = 1
-              AND m.id = cm.meter_id
-              AND m.type = #{value}
+              SELECT
+                  cm.meter_id
+              FROM
+                  customer_meter cm
+              WHERE
+                  cm.state = 1
+                  AND m.id = cm.meter_id
+                  AND m.type = #{value}
             )
         AND m.type = #{type}
     </select>
@@ -142,7 +142,6 @@
             meter
         where
             type = #{type,jdbcType=INTEGER}
-        and
-            number like CONCAT('%',#{number,jdbcType=VARCHAR},'%' )
+        and number like CONCAT('%',#{number,jdbcType=VARCHAR},'%' )
     </select>
 </mapper>

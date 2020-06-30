@@ -1,12 +1,15 @@
 package com.dili.ia.service.impl;
 
+import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.mapper.MeterDetailMapper;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.MeterDetailService;
+import com.dili.ia.service.MeterService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
@@ -37,6 +40,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     public MeterDetailMapper getActualDao() {
         return (MeterDetailMapper)getDao();
     }
+
+    @Autowired
+    private MeterService meterService;
 
     @Autowired
     private UidRpcResolver UidRpcResolver;
@@ -88,6 +94,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     /**
      * 根据表 meterId、用户 customerId 查询未缴费单的数量
      *
+     *
      * @param  meterId
      * @param  customerId
      * @return 未缴费单的数量
@@ -118,6 +125,35 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     @Override
     public BaseOutput getLastAmount(Long meterId) {
+        // 先查询表信息是否存在
+        Meter meter = meterService.get(meterId);
+        if (meter == null) {
+            BaseOutput.failure("表信息不存在。");
+        }
+
+        // 查询缴费历史中,已缴费的最新数据
+        Long actual = this.getLastAmountByMeterId(meterId);
+
         return null;
+    }
+
+    /**
+     * 根据表ID和用户ID查询最近的一次已交费的记录的实际值/本期指数值
+     *
+     * @param  meterId
+     * @return 实际值/本期指数值
+     * @date   2020/6/30
+     */
+    private Long getLastAmountByMeterId(Long meterId) {
+        MeterDetailDto meterDetailDto = new MeterDetailDto();
+
+        // 业务类型(水表、电表)
+        List<Integer> bizTypeList = Lists.newArrayList(BizTypeEnum.WATER_METER.getCode(), BizTypeEnum.ELECTRIC_METER.getCode());
+        String bizTypes = bizTypeList.toString().replace("[", "").replace("]", "");
+        meterDetailDto.setMeterId(meterId);
+        meterDetailDto.setState(PaymentOrderStateEnum.PAID.getCode());
+        meterDetailDto.setBizTypes(bizTypes);
+
+        return this.getActualDao().getLastAmountByMeterId(meterDetailDto);
     }
 }

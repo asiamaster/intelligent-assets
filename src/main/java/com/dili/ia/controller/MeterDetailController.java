@@ -58,8 +58,6 @@ public class MeterDetailController {
         return "meterDetail/add";
     }
 
-
-
     /**
      * 跳转到修改页面
      * 

@@ -31,4 +31,13 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * @date   2020/6/29
      */
     List<Long> countUnPayByMeterAndCustomer(MeterDetailDto meterDetailDto);
+
+    /**
+     * 根据表ID和用户ID查询最近的一次已交费的记录的实际值/本期指数值
+     *
+     * @param  meterDetailDto
+     * @return 实际值/本期指数值
+     * @date   2020/6/30
+     */
+    Long getLastAmountByMeterId(MeterDetailDto meterDetailDto);
 }

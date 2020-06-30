@@ -142,7 +142,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     }
 
     /**
-     * 删除表用户关系
+     * 删除表用户关系,如果有未缴费的单,则不能删除
      *
      * @param  id 表用户关系主键
      * @return 是否成功
