@@ -9,11 +9,13 @@ import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.glossary.*;
+import com.dili.ia.mapper.DepositBalanceMapper;
 import com.dili.ia.mapper.DepositOrderMapper;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
+import com.dili.ia.service.DepositBalanceService;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
@@ -69,6 +71,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     UidFeignRpc uidFeignRpc;
     @Autowired
     RefundOrderService refundOrderService;
+    @Autowired
+    DepositBalanceMapper depositBalanceMapper;
+    @Autowired
+    DepositBalanceService depositBalanceService;
 
     public DepositOrderMapper getActualDao() {
         return (DepositOrderMapper)getDao();
@@ -105,9 +111,14 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrderQuery.setCreatorId(userTicket.getId());
         depositOrderQuery.setCreator(userTicket.getRealName());
         depositOrderQuery.setMarketId(userTicket.getFirmId());
+        depositOrderQuery.setMarketCode(userTicket.getFirmCode());
         depositOrderQuery.setDepartmentName(depOut.getData().getName());
         depositOrderQuery.setState(DepositOrderStateEnum.CREATED.getCode());
-        depositOrderQuery.setVersion(0L);
+        depositOrderQuery.setPayState(PayStateEnum.NOT_PAID.getCode());
+        depositOrderQuery.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
+        depositOrderQuery.setIsImport(YesOrNoEnum.NO.getCode());
+        depositOrderQuery.setIsRelated(YesOrNoEnum.NO.getCode());
+
         this.insertSelective(depositOrderQuery);
         return BaseOutput.success().setData(depositOrderQuery);
     }
@@ -438,8 +449,37 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("缴费单成功回调 -- 更新【保证金单】状态,乐观锁生效！【保证金单EarnestOrderID:{}】", depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
+        //更新保证金余额 --- 缴费成功保证金余额增加
+        this.updateDepositBalance(depositOrder, paymentOrderPO.getAmount());
 
         return BaseOutput.success().setData(depositOrder);
+    }
+
+    private BaseOutput<String> updateDepositBalance(DepositOrder depositOrder, Long payAmount){
+        DepositBalance params = new DepositBalance();
+        // 保证金余额维度： 保证金类型，资产类型，资产编号，客户
+        params.setCustomerId(depositOrder.getCustomerId());
+        params.setTypeCode(depositOrder.getTypeCode());
+        params.setAssetsType(depositOrder.getAssetsType());
+        params.setAssetsId(depositOrder.getAssetsId());
+        params.setMarketId(depositOrder.getMarketId());
+        params.setMarketCode(depositOrder.getMarketCode());
+        DepositBalance depositBalance = depositBalanceMapper.selectOne(params);
+        if (depositBalance == null){//创建客户账户余额
+            params.setAssetsName(depositOrder.getAssetsName());
+            params.setBalance(payAmount);
+            params.setCertificateNumber(depositOrder.getCertificateNumber());
+            params.setCustomerCellphone(depositOrder.getCustomerCellphone());
+            params.setCustomerName(depositOrder.getCustomerName());
+            params.setTypeName(depositOrder.getTypeName());
+            depositBalanceMapper.insertSelective(params);
+        }
+
+        DepositBalance upDep = new DepositBalance();
+        upDep.setId(depositBalance.getId());
+        upDep.setBalance(depositBalance.getBalance() + payAmount);
+        depositBalanceService.updateSelective(upDep);
+        return BaseOutput.success();
     }
 
     @Override
@@ -498,6 +538,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("保证金单退款申请结算退款成功 更新保证金单乐观锁生效 【保证金单ID {}】", depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
+        //更新保证金余额 ---- 退款扣减保证金余额
+        this.updateDepositBalance(depositOrder, 0 - refundOrder.getTotalRefundAmount());
+
         return BaseOutput.success();
     }
 
