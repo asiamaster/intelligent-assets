@@ -1,5 +1,8 @@
 package com.dili.ia.domain.dto;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import org.apache.ibatis.io.ResolverUtil.IsA;
 
 /**
@@ -18,7 +21,7 @@ public class StockInDetailDto {
 	 * 入库详情编号
 	 */
 	private String code;
-
+	
 	private Integer state;
 
 	/**
@@ -36,6 +39,7 @@ public class StockInDetailDto {
 	/**
 	 * 接车单号
 	 */
+	@Size(max = 30,message = "接车单号太长")
 	private String pickupNumber;
 
 	/**
@@ -46,6 +50,7 @@ public class StockInDetailDto {
 	/**
 	 * 库位ID
 	 */
+	@NotNull
 	private Long assetsId;
 
 	private String assetsCode;
@@ -58,6 +63,7 @@ public class StockInDetailDto {
 	/**
 	 * 区域id
 	 */
+	@NotNull
 	private Long districtId;
 
 	private String districtName;
@@ -65,6 +71,7 @@ public class StockInDetailDto {
 	/**
 	 * 品类
 	 */
+	@NotNull
 	private Long categoryId;
 	
 	private String categoryName;
@@ -82,16 +89,19 @@ public class StockInDetailDto {
 	/**
 	 * 入库数量
 	 */
+	@NotNull
 	private Long quantity;
 
 	/**
 	 * 入库总量
 	 */
+	@NotNull
 	private Long weight;
 	
 	/**
 	 * 入库金额
 	 */
+	@NotNull
 	private Long amount;
 
 	/**

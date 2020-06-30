@@ -14,8 +14,8 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库区域：<i class="red">*</i></label>
-						<input id="districtId_{{index}}" type="text" class="form-control floatReserve"
-						 name="districtId" range="0 9999999" required />
+						<input id="districtId_{{index}}" type="text" class="form-control"
+						 name="districtId"  required />
 						
 					</div>	
 					<div class="form-group col-4">
@@ -25,15 +25,15 @@
 						
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control floatReserve"
+						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control numberChange"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control floatReserve"
+						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control numberChange"
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control floatReserve money"
+						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control numberChange money"
 						 name="amount" range="0 9999999" required />
 					</div>
 					<div class="form-group col-8">
@@ -75,16 +75,16 @@
 						
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control floatReserve"
+						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control numberChange"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control floatReserve"
+						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control numberChange"
 						 name="weight" range="0 9999999" required />
 						 <button type="button" class="btn btn-secondary px-5" onclick="openWeightHandler()">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control floatReserve money"
+						<label for="" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control numberChange money"
 						 name="amount" range="0 9999999" required />
 					</div>
 					<div class="form-group col-8">
@@ -115,15 +115,15 @@
 						
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control floatReserve"
+						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control numberChange"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control floatReserve"
+						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control numberChange"
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control floatReserve money"
+						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control numberChange money"
 						 name="amount" range="0 9999999" required />
 					</div>
 					<div class="form-group col-8">
@@ -143,28 +143,28 @@
 				<div class="form-group row col-8">
 					<div class="form-group col-12">
 						<label for="_certificateNumber">称台重量(公斤)：<i class="red">*</i></label>
-						<input id="weight" type="number" class="form-control floatReserve"
+						<input id="weight" type="number" class="form-control "
 						 name="weight" range="0 9999999" required readonly/>
 						<button>写入重量</button>
 					</div>
 					<div class="form-group col-6">
 						<label for="_certificateNumber">毛重(公斤)：<i class="red">*</i></label>
-						<input id="grossWeight" type="number" class="form-control floatReserve"
+						<input id="grossWeight" type="number" class="form-control "
 						 name="grossWeight" range="0 9999999" required readonly/>
 						
 					</div>	
 					<div class="form-group col-6">
 						<label for="_certificateNumber">毛重时间：<i class="red">*</i></label>
-						<input id="grossWeightDate" type="number" class="form-control floatReserve"
+						<input id="grossWeightDate" type="number" class="form-control "
 						 name="grossWeightDate" required readonly/>
 						
 					</div>
 					<div class="form-group col-6">
-						<label for="tareWeight" class="">皮重(公斤)：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
+						<label for="tareWeight" class="">皮重(公斤)：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control "
 						 name="tareWeight" range="0 9999999" required readonly />
 					</div>
 					<div class="form-group col-6">
-						<label for="tareWeightDate" class="">皮重时间：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
+						<label for="tareWeightDate" class="">皮重时间：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control "
 						 name="tareWeightDate" required readonly />
 					</div>
 				</div>

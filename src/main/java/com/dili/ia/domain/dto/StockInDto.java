@@ -3,6 +3,14 @@ package com.dili.ia.domain.dto;
 import java.util.Date;
 import java.util.List;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Length;
+
 import com.dili.ia.domain.StockInDetail;
 
 /**
@@ -27,10 +35,14 @@ public class StockInDto {
     /**
      * 客户id
      */
+    @NotNull
     private Long customerId;
-
+    
+    @NotNull
+    @Size(max = 40, message = "客户名称太长")
     private String customerName;
 
+    @NotNull
     private String customerCellphone;
 
     /**
@@ -53,13 +65,17 @@ public class StockInDto {
     /**
      * 入库类型
      */
+    @NotNull
     private Integer type;
 
     /**
      * 品类id
      */
+    @NotNull
     private Long categoryId;
 
+    @NotNull
+    @Size(max = 40, message = "品类名称太长")
     private String categoryName;
 
     /**
@@ -75,8 +91,11 @@ public class StockInDto {
     /**
      * 部门
      */
+    @NotNull
     private Long departmentId;
 
+    @NotNull
+    @Size(max = 40, message = "部门名称太长")
     private String departmentName;
 
     /**
@@ -96,11 +115,14 @@ public class StockInDto {
      */
     private Long amount;
     
+    @NotNull
     private Date expireDate;
     
     /**
      * 入库单详情(子单)
      */
+    @Valid
+    @NotNull
     private List<StockInDetailDto> stockInDetailDtos;
     
     

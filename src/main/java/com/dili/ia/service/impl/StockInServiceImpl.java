@@ -119,6 +119,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			detail.setCreateTime(new Date());
 			detail.setMarketId(stockIn.getMarketId());
 			detail.setMarketCode(stockIn.getMarketCode());
+			detail.setModifyTime(new Date());
 			detail.setVersion(1);
 			totalWeight += stockInDetailDto.getWeight();
 			totalQuantity += stockInDetailDto.getQuantity();
@@ -156,21 +157,23 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	public void submit(String code) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
-		if(stockIn.getState() != StockInStateEnum.CREATED.getCode()) {
+		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		getStockInDetailsByStockCode(code);
-		//提交入库单
-		StockIn domain = new StockIn(userTicket);
-		domain.setSubmitterId(userTicket.getId());
-		domain.setSubmitter(userTicket.getRealName());
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED);
-		//创建收费单费用收取
-		//TODO 创建收费单(支付生成or提交生成??)
+
+		// 创建收费单费用收取
 		PayInfoDto payInfoDto = new PayInfoDto();
 		payInfoDto.setBusinessCode(code);
 		payInfoDto.setAmount(stockIn.getAmount());
 		PaymentOrder paymentOrder = paymentOrderService.savePaymentOrder(userTicket, payInfoDto);
+
+		// 提交入库单
+		StockIn domain = new StockIn(userTicket);
+		domain.setSubmitterId(userTicket.getId());
+		domain.setSubmitter(userTicket.getRealName());
+		domain.setPaymentOrderCode(paymentOrder.getCode());
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED);
 		//
 	}
 
@@ -267,7 +270,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			// 修改子单
 			StockInDetail detail = stockInDetailService.getByCode(stockInDetailDto.getCode());
 			if(stockInDetailDto.getDelete()) {
-				//TODO 删除
 				stockInDetailService.delete(detail.getId());
 				continue;
 			}
@@ -322,8 +324,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		StockIn domain = new StockIn(userTicket);
+		domain.setPaymentOrderCode("");
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CREATED);
-		
+		//TODO 是否需要将结算单的状态改变
 	}
 
 	@Override
@@ -371,7 +374,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		try {
 			return this.listEasyuiPageByExample(stockIn, true).toString();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		};
 		return null;

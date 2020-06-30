@@ -118,10 +118,10 @@ public class StockIn extends BaseDomain {
     private Date expireDate;
 
     /**
-     * 支付方式 1 现金，2 POS，3 刷卡
+     * 缴费单
      */
-    @Column(name = "`pay_type`")
-    private Integer payType;
+    @Column(name = "`payment_order_code`")
+    private String paymentOrderCode;
 
     /**
      * 部门
@@ -537,26 +537,6 @@ public class StockIn extends BaseDomain {
     }
 
     /**
-     * 获取支付方式 1 现金，2 POS，3 刷卡
-     *
-     * @return pay_type - 支付方式 1 现金，2 POS，3 刷卡
-     */
-    @FieldDef(label="支付方式 1 现金，2 POS，3 刷卡")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public Integer getPayType() {
-        return payType;
-    }
-
-    /**
-     * 设置支付方式 1 现金，2 POS，3 刷卡
-     *
-     * @param payType 支付方式 1 现金，2 POS，3 刷卡
-     */
-    public void setPayType(Integer payType) {
-        this.payType = payType;
-    }
-
-    /**
      * 获取部门
      *
      * @return department_id - 部门
@@ -762,6 +742,14 @@ public class StockIn extends BaseDomain {
 
 	public void setCanceler(String canceler) {
 		this.canceler = canceler;
+	}
+
+	public String getPaymentOrderCode() {
+		return paymentOrderCode;
+	}
+
+	public void setPaymentOrderCode(String paymentOrderCode) {
+		this.paymentOrderCode = paymentOrderCode;
 	}
 	
 	

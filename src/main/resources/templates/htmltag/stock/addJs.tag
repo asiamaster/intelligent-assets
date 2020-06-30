@@ -1,7 +1,6 @@
 <script>
 
-
-//行索引计数器
+//子单索引计数器
 let itemIndex = 0;
 //入库类型
 let type = ${type};
@@ -119,6 +118,7 @@ function adddetailItem() {
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo'+type, {
 		index: ++itemIndex
 	})))
+	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 }
 
 // 添加子单
@@ -138,6 +138,20 @@ $('#adddetailItem').on('click', function() {
 $(document).on('click', '.item-del', function() {
 	$(this).closest('.detail').remove();
 });
+
+//计算金额,重量,数量
+$(document).on('change', '.numberChange', function() {
+	let fieldName = $(this).attr("name");
+	countNumber(fieldName);
+});
+
+function countNumber(name){
+	let total = 0;
+	$("#details").find("form").find("[name="+name+"]").each(function() {
+		total = parseInt(total) + parseInt($(this).val());
+		$("#saveForm").find("[name="+name+"]").val(total);
+	});
+}
 
 function buildFormData() {
 	// let formData = new FormData($('#saveForm')[0]);
@@ -171,12 +185,143 @@ function buildFormData() {
 	return JSON.stringify(formData);
 }
 
+//主表数据验证
+let validateSaveForm = $("#saveForm").validate(saveForm);
+let saveForm = {
+	    onkeyup: false,
+	    rules: {
+	    	customerName: {
+	            required: true
+	        },
+	        customerCellphone: {
+	        	required: true,
+	            maxlength: 20
+	        },
+	        departmentId: {
+	        	required: true,
+	        },
+	        categoryId: {
+	        	required: true,
+	        },
+	        quantity: {
+	        	required: true,
+	        },
+	        weight: {
+	        	required: true,
+	        },
+	        amount: {
+	        	required: true,
+	        },
+	        stockInDate: {
+	        	required: true
+	        },
+	        expireDate: {
+	        	required: true
+	        },
+	    },
+	    messages: {
+	    	customerName: {
+	            required: "客户必填"
+	        },
+	        customerCellphone: {
+	        	required:"客户联系方式必填",
+	            maxlength: "不能超过{0}"
+	        },
+	        departmentId: {
+	        	required: "部门必填",
+	        },
+	        categoryId: {
+	        	required: "品类必填",
+	        },
+	        quantity: {
+	        	required: "数量必填",
+	        },
+	        weight: {
+	        	required: "重量必填",
+	        },
+	        amount: {
+	        	required: "数量必填",
+	        },
+	        stockInDate: {
+	        	required: "入库时间必填"
+	        },
+	        expireDate: {
+	        	required: "过期时间必填"
+	        }
+	    },
+	    focusCleanup: true
+};
+
+//子表数据验证
+let saveFormDetail = {
+	    onkeyup: false,
+	    rules: {
+	    	districtId: {
+	            required: true
+	        },
+	        assetsId: {
+	        	required: true,
+	        },
+	        quantity: {
+	        	required: true,
+	        },
+	        weight: {
+	        	required: true,
+	        },
+	        amount: {
+	        	required: true,
+	        },
+	        stockInDate: {
+	        	required: true
+	        },
+	        expireDate: {
+	        	required: true
+	        },
+	    },
+	    messages: {
+	    	districtId: {
+	            required: "区域必填"
+	        },
+	        assetsId: {
+	        	required:"冷库必填",
+	        },
+	        quantity: {
+	        	required: "数量必填",
+	        },
+	        weight: {
+	        	required: "重量必填",
+	        },
+	        amount: {
+	        	required: "数量必填",
+	        },
+	        stockInDate: {
+	        	required: "入库时间必填"
+	        },
+	        expireDate: {
+	        	required: "过期时间必填"
+	        }
+	    },
+	    focusCleanup: true
+	}
+
+
+
 // 提交保存
 function doAddEarnestHandler() {
-
+	
+	if(!$("#saveForm").validate().form()){
+		return;
+	}
+	for(let i=1;i<=itemIndex;i++){
+		
+		if(!$("#saveForm_"+i).validate().form()){
+			return;
+		}
+	}
+	return;
 	$.ajax({
 		type: "POST",
-		url: "${contextPath}/stockIn/insert.action",
+		url: "${contextPath}/stock/stockIn/insert.action",
 		data: buildFormData(),
 		dataType: "json",
 		contentType: "application/json",
