@@ -58,8 +58,6 @@ public class MeterDetailController {
         return "meterDetail/add";
     }
 
-
-
     /**
      * 跳转到修改页面
      * 
@@ -109,7 +107,7 @@ public class MeterDetailController {
     }
 
     /**
-     * 新增水电费单
+     * 新增水电费单(仅保存收费单信息)
      *
      * @param  meterDetailDto
      * @return 是否成功
@@ -118,8 +116,8 @@ public class MeterDetailController {
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput insert(@ModelAttribute MeterDetailDto meterDetailDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        meterDetailService.addMeterDetail(meterDetailDto, userTicket);
-        return BaseOutput.success("新增成功");
+
+        return meterDetailService.addMeterDetail(meterDetailDto, userTicket);
     }
 
     /**
@@ -146,6 +144,7 @@ public class MeterDetailController {
     @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput delete(Long id) {
         meterDetailService.delete(id);
+
         return BaseOutput.success("删除成功");
     }
 

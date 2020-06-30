@@ -61,6 +61,21 @@ public class MeterDetailDto extends MeterDetail {
      */
     private String bizTypes;
 
+    /**
+     * 状态数组
+     */
+    private String status;
+
+    /**
+     * 使用月份的第一天,用于查询
+     */
+    private Date startTime;
+
+    /**
+     * 使用月份的最后一天,用于查询
+     */
+    private Date endTime;
+
     public String getKeyword() {
         return keyword;
     }
@@ -123,5 +138,29 @@ public class MeterDetailDto extends MeterDetail {
 
     public void setBizTypes(String bizTypes) {
         this.bizTypes = bizTypes;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 }

@@ -33,7 +33,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/6/28
      */
-    void addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket);
+    BaseOutput addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket);
 
     /**
      * 根据 meterId、customerId 查询未缴费单的数量

@@ -93,10 +93,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-  <select id="getMeterById" parameterType="java.lang.Long" resultType="com.dili.ia.domain.dto.CustomerMeterDto">
-    <!--
-      WARNING - @mbg.generated
-    -->
+    <select id="getMeterById" parameterType="java.lang.Long" resultType="com.dili.ia.domain.dto.CustomerMeterDto">
       select
           cm.id as id,
           cm.create_time as create_time,
@@ -119,19 +116,11 @@
           me.assets_name as assetsName
       from
         customer_meter as cm
-      left join
-        meter as me
-      on
-        cm.meter_id = me.id
+        left join meter as me on cm.meter_id = me.id
       where
         cm.id = #{id,jdbcType=BIGINT}
-  </select>
-
-
-  <select id="listCustomerMeters" parameterType="com.dili.ia.domain.dto.CustomerMeterDto" resultType="com.dili.ia.domain.dto.CustomerMeterDto">
-    <!--
-      WARNING - @mbg.generated
-    -->
+    </select>
+    <select id="listCustomerMeters" parameterType="com.dili.ia.domain.dto.CustomerMeterDto" resultType="com.dili.ia.domain.dto.CustomerMeterDto">
     select
         cm.id as id,
         cm.create_time as create_time,
@@ -154,30 +143,26 @@
         me.assets_name as assetsName
     from
         customer_meter as cm
-    left join
-        meter as me
-    on
-        cm.meter_id = me.id
+        left join meter as me on cm.meter_id = me.id
     <where>
         <if test="state != null">
-          and cm.state = #{state,jdbcType=INTEGER}
+            and cm.state = #{state,jdbcType=INTEGER}
         </if>
         <if test="type != null">
-          and me.type = #{type,jdbcType=INTEGER}
+            and me.type = #{type,jdbcType=INTEGER}
         </if>
         <if test="departmentId != null">
-          and me.department_id = #{departmentId,jdbcType=INTEGER}
+            and me.department_id = #{departmentId,jdbcType=INTEGER}
         </if>
         <if test="keyword != null and keyword != ''">
-          and (
-            me.number =  #{keyword}
-            or me.assets_name like concat('', #{keyword}, '%')
-            or cm.customer_name like concat('', #{keyword}, '%')
+            and (
+                me.number =  #{keyword}
+                or me.assets_name like concat('', #{keyword}, '%')
+                or cm.customer_name like concat('', #{keyword}, '%')
           )
         </if>
     </where>
-
-  </select>
+    </select>
 
     <select id="getBindInfoByMeterId" parameterType="java.lang.Long" resultMap="BaseResultMap">
         SELECT
@@ -191,7 +176,7 @@
         FROM
             customer_meter
         WHERE
-            meter_id = #{meterId} and state = 1
+            meter_id = #{meterId}
+            and state = 1
     </select>
-
 </mapper>

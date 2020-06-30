@@ -18,6 +18,7 @@ import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -48,6 +49,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     @Override
     public CustomerMeterDto getMeterById(Long id) {
         CustomerMeterDto customerMeterDto = this.getActualDao().getMeterById(id);
+
         return customerMeterDto;
     }
 
@@ -72,6 +74,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         // 基础代码
         long total = customerMeterDtoList instanceof Page ? ((Page)customerMeterDtoList).getTotal() : (long)customerMeterDtoList.size();
         List results = useProvider ? ValueProviderUtils.buildDataByProvider(customerMeterDto, customerMeterDtoList) : customerMeterDtoList;
+
         return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results);
     }
 
@@ -83,6 +86,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      * @date   2020/6/16
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseOutput<CustomerMeter> addCustomerMeter(CustomerMeterDto customerMeterDto) {
         CustomerMeter customerMeter = new CustomerMeter();
 
@@ -116,6 +120,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      * @date   2020/6/16
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseOutput<CustomerMeter> updateCustomerMeter(CustomerMeterDto customerMeterDto) {
         CustomerMeter customerMeter = new CustomerMeter();
 
@@ -142,13 +147,14 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     }
 
     /**
-     * 删除表用户关系
+     * 删除表用户关系,如果有未缴费的单,则不能删除
      *
      * @param  id 表用户关系主键
      * @return 是否成功
      * @date   2020/6/16
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id) {
         // 先查询是否还存在该用户表关系
         CustomerMeter customerMeter = this.getActualDao().getMeterById(id);
@@ -156,7 +162,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
             return BaseOutput.failure("删除失败，该数据已删除。");
         }
 
-        // 根据表 meterId、用户 customerId 查询未缴费单的数量
+        // 根据表 meterId、用户 customerId 查询未缴费的记录数量
         Integer count = meterDetailService.countUnPayByMeterAndCustomer(customerMeter.getMeterId(), customerMeter.getCustomerId());
         if (count > 0) {
             return BaseOutput.failure("该表用户当前存在交费记录，不允许删除。");
@@ -181,8 +187,10 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     @Override
     public BaseOutput<CustomerMeter> getBindInfoByMeterId(Long meterId) {
         BaseOutput baseOutput = new BaseOutput();
+
         CustomerMeter customerMeter = this.getActualDao().getBindInfoByMeterId(meterId);
         baseOutput.setData(customerMeter);
+
         return baseOutput;
     }
 }

@@ -157,18 +157,78 @@
         md.id
     FROM
         meter_detail md
-    LEFT JOIN
-        payment_order po ON md.id = po.business_id
+        LEFT JOIN payment_order po ON md.id = po.business_id
     WHERE
-        md.meter_id = #{meterId} AND md.customer_id = #{customerId}
+        md.meter_id = #{meterId}
+    AND md.customer_id = #{customerId}
+    AND po.biz_type IN (#{bizTypes})
     <if test = "status != null" >
-      AND
-        da.STATUS IN (#{STATUS})
+        AND po.state IN (#{status})
     </if>
-    AND
-        da.biz_type IN (#{bizTypes})
+  </select>
 
+    <select id="getLastAmountByMeterId" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="long">
+    SELECT
+        md.last_amount
+    FROM
+        meter_detail md
+        LEFT JOIN payment_order po ON md.id = po.business_id
+    WHERE
+        md.meter_id = #{meterId}
+    and po.biz_type in (${bizTypes})
+    and md.submit_time is not null
+    <if test="state != null and state !=''">
+        AND po.state = #{state}
+    </if>
+    order by
+        md.last_amount desc
+    LIMIT 1
+    </select>
 
-
+  <select id="listUnPayUnSubmitByMeter" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">
+    SELECT DISTINCT
+        md.id,
+        md.create_time,
+        md.modify_time,
+        md.code,
+        md.meter_id,
+        md.usage_time,
+        md.customer_id,
+        md.customer_name,
+        md.recorder_id,
+        md.recorder_name,
+        md.state,
+        md.last_amount,
+        md.this_amount,
+        md.usage_amount,
+        md.creator_dep_id,
+        md.notes,
+        md.submitter_id,
+        md.submitter,
+        md.submit_time,
+        md.withdraw_operator_id,
+        md.withdraw_operator,
+        md.canceler_id,
+        md.canceler,
+        md.creator_id,
+        md.creator,
+        md.market_id,
+        md.market_code,
+        md.version
+    FROM
+        meter_detail md
+    LEFT JOIN payment_order po ON md.id = po.business_id
+    WHERE
+        md.meter_id = #{meterId}
+    AND po.biz_type IN (#{bizTypes})
+    <if test = "status != null" >
+        AND po.state IN (#{status})
+    </if>
+    <if test="startTime != null">
+        and md.usage_time  <![CDATA[ >= ]]> #{startTime}
+    </if>
+    <if test="endTime != null">
+        and md.usage_time  <![CDATA[ <= ]]> #{endTime}
+    </if>
   </select>
 </mapper>

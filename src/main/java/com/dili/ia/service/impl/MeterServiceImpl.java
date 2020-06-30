@@ -129,6 +129,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         if (code == 0) {
             return BaseOutput.failure("当前数据正在被其他用户操作，提交失败！请关闭当前弹窗重新选择操作");
         }
+
         return BaseOutput.success();
     }
 
@@ -142,8 +143,10 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
     @Override
     public BaseOutput<Meter> listUnbindMetersByType(Integer type) {
         BaseOutput baseOutput = new BaseOutput();
+
         List<Meter> meterList = this.getActualDao().listUnbindMetersByType(type);
         baseOutput.setData(meterList);
+
         return baseOutput;
     }
 
@@ -157,8 +160,9 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      */
     @Override
     public BaseOutput getMeterLikeNumber(Integer type, String number) {
-        // 如果表地址未输入,则直接返回空
         BaseOutput baseOutput = new BaseOutput();
+
+        // 如果表地址未输入,则直接返回空
         Meter meter = new Meter();
         baseOutput.setData(meter);
         if (StringUtils.isNotEmpty(number)) {
@@ -167,6 +171,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
             Meter meterInfo = this.getActualDao().getMeterLikeNumber(meter);
             baseOutput.setData(meterInfo);
         }
+
         return baseOutput;
     }
 
