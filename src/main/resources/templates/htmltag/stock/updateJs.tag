@@ -1,8 +1,6 @@
 <script>
-
-
-	//行索引计数器
-	let itemIndex = 0;
+//行索引计数器
+let itemIndex = 0;
 
 //获取table Index
 function getIndex(str) {
@@ -102,6 +100,7 @@ var districtAutoCompleteOption = {
 	}
 }
 
+
 //入库类型
 let type = ${stockIn.type!};
 
@@ -121,6 +120,7 @@ function adddetailItem() {
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo' + type, {
 		index: ++itemIndex
 	})))
+	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 }
 
 /**
@@ -130,6 +130,7 @@ function initDetailItem(stockDetail) {
 	$('#details').append(bui.util.HTMLDecode(template('initDetailInfo' + type, {
 		stockDetail,index: ++itemIndex
 	})))
+	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 }
 
 // 添加子单
@@ -150,11 +151,32 @@ let removeDetails = [];
 $(document).on('click', '.item-del', function() {
 	let detail = $(this).closest('form').serializeObject();
 	if(detail.code != ""){
+		detail.categoryId = $('#categoryId').val();
 		detail.delete = true;
 		removeDetails.push(detail);
 	}
 	$(this).closest('form').remove();
+	countNumber("quantity");
+	countNumber("weight");
+	countNumber("amount");
 });
+
+
+
+//计算金额,重量,数量
+$(document).on('change', '.numberChange', function() {
+	let fieldName = $(this).attr("name");
+	countNumber(fieldName);
+});
+
+function countNumber(name){
+	let total = 0;
+	$("#details").find("form").find("[name="+name+"]").each(function() {
+		total = parseInt(total) + parseInt($(this).val());
+		$("#saveForm").find("[name="+name+"]").val(total);
+	});
+}
+
 
 function buildFormData() {
 	// let formData = new FormData($('#saveForm')[0]);
@@ -185,7 +207,16 @@ function buildFormData() {
 
 // 提交保存
 function doAddEarnestHandler() {
-
+	if(!$("#saveForm").validate().form()){
+		return;
+	}
+	for(let i=1;i<=itemIndex;i++){
+		if(document.getElementById("#saveForm_"+i)){
+			if(!$("#saveForm_"+i).validate().form()){
+				return;
+			}  
+		}
+	}
 	$.ajax({
 		type: "POST",
 		url: "${contextPath}/stock/stockIn/update.action",

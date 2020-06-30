@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class StockInController {
     @Autowired
     StockInService stockInService;
-
+    
     /**
      * 跳转到StockIn页面
      * @param modelMap
@@ -83,7 +83,7 @@ public class StockInController {
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
     //@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput insert(@RequestBody StockInDto stockInDto) {
+    public @ResponseBody BaseOutput insert(@RequestBody @Validated StockInDto stockInDto) {
         stockInService.createStockIn(stockInDto);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("新增成功");
@@ -118,7 +118,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@RequestBody StockInDto stockIn) {
+    public @ResponseBody BaseOutput update(@RequestBody @Validated StockInDto stockIn) {
     	stockInService.updateStockIn(stockIn);
         return BaseOutput.success();
     }
@@ -180,9 +180,8 @@ public class StockInController {
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
     //@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput refund(@Validated StockInRefundDto stockInRefundDto) {	
-        stockInService.refund(stockInRefundDto);
-        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        return BaseOutput.success("新增成功");
+    public @ResponseBody BaseOutput refund(@Validated StockInRefundDto stockInRefundDto) {	        //throw new BusinessException("2000", "errorCode");
+    	stockInService.refund(stockInRefundDto);
+    	return BaseOutput.success("新增成功");
     }
 }

@@ -1,7 +1,6 @@
 <script>
 
-
-//行索引计数器
+//子单索引计数器
 let itemIndex = 0;
 //入库类型
 let type = ${type};
@@ -119,6 +118,7 @@ function adddetailItem() {
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo'+type, {
 		index: ++itemIndex
 	})))
+	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 }
 
 // 添加子单
@@ -137,8 +137,26 @@ $('#adddetailItem').on('click', function() {
 //删除行事件 （删除子单）
 $(document).on('click', '.item-del', function() {
 	$(this).closest('.detail').remove();
+	countNumber("quantity");
+	countNumber("weight");
+	countNumber("amount");
 });
 
+//计算金额,重量,数量
+$(document).on('change', '.numberChange', function() {
+	let fieldName = $(this).attr("name");
+	countNumber(fieldName);
+});
+
+function countNumber(name){
+	let total = 0;
+	$("#details").find("form").find("[name="+name+"]").each(function() {
+		total = parseInt(total) + parseInt($(this).val());
+		$("#saveForm").find("[name="+name+"]").val(total);
+	});
+}
+
+//数据组装
 function buildFormData() {
 	// let formData = new FormData($('#saveForm')[0]);
 	let departmentName = $('#departmentId').find("option:selected").text();
@@ -155,14 +173,6 @@ function buildFormData() {
 		detail.districtName = districtName;
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
-		/* let detail = {};
-		$(this).find("input").each(function(t, el) {
-			let fieldName = $(this).attr("name").split('_')[0];
-			if ($(this).val() != "") {
-				detail[fieldName] = $(this).val();
-			}
-		}); */
-		
 		if (detail != {}) {
 			stockDetails.push(detail);
 		}
@@ -171,12 +181,24 @@ function buildFormData() {
 	return JSON.stringify(formData);
 }
 
+
 // 提交保存
 function doAddEarnestHandler() {
-
+	
+	if(!$("#saveForm").validate().form()){
+		return;
+	}
+	for(let i=1;i<=itemIndex;i++){
+		if(document.getElementById("#saveForm_"+i)){
+			if(!$("#saveForm_"+i).validate().form()){
+				return;
+			}  
+		}
+	}
+	return;
 	$.ajax({
 		type: "POST",
-		url: "${contextPath}/stockIn/insert.action",
+		url: "${contextPath}/stock/stockIn/insert.action",
 		data: buildFormData(),
 		dataType: "json",
 		contentType: "application/json",
@@ -199,17 +221,6 @@ function doAddEarnestHandler() {
 	});
 }
 
-function form2JsonString(formId) {
-	var paramArray = $('#' + formId).serializeArray();
-	/*请求参数转json对象*/
-	var jsonObj = {};
-	$(paramArray).each(function() {
-		jsonObj[this.name] = this.value;
-
-	});
-	// json对象再转换成json字符串
-	return JSON.stringify(jsonObj);
-}
 
 /**
  * 打开新增窗口:页面层
