@@ -10,30 +10,30 @@ import java.util.List;
 public interface CustomerMeterMapper extends MyMapper<CustomerMeter> {
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       customerMeterDto
-     * @return:      BaseOutput
-     * @description：根据主键 id 查询
+     * 根据主键 id 查询表用户关系
+     *
+     * @param  id 表用户关系主键
+     * @return CustomerMeterDto
+     * @date   2020/6/29
      */
     CustomerMeterDto getMeterById(Long id);
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       customerMeterDto
-     * @return:      BaseOutput
-     * @description： 根据状态、表类型、部门以及表编号、地址、客户姓名查询列表
+     * meter、customerMeter 查询表用户关系的集合(分页)
+     *
+     * @param  customerMeterDto
+     * @return customerMeterDtoList
+     * @date   2020/6/17
      */
     List<CustomerMeterDto> listCustomerMeters(CustomerMeterDto customerMeterDto);
 
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/28
-     * @param        meterId
-     * @return       CustomerMeter
-     * @description：根据表主键id获取表绑定的用户信息
+     * 根据表主键 meterId 获取表绑定的用户信息
+     *
+     * @param  meterId
+     * @return CustomerMeter
+     * @date   2020/6/28
      */
     CustomerMeter getBindInfoByMeterId(Long meterId);
 }

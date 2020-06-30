@@ -35,11 +35,11 @@ public class MeterDetailController {
     MeterDetailService meterDetailService;
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/23
-     * @param:
-     * @return:
-     * @description：跳转到欢迎页面
+     * 跳转到欢迎页面
+     * 
+     * @param  modelMap
+     * @return 欢迎页面地址
+     * @date   2020/6/29
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
@@ -47,11 +47,11 @@ public class MeterDetailController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/23
-     * @param:
-     * @return:      
-     * @description：跳转到新增页面
+     * 跳转到新增页面
+     *
+     * @param  modelMap
+     * @return 新增页面地址
+     * @date   2020/6/29
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap) {
@@ -59,12 +59,13 @@ public class MeterDetailController {
     }
 
 
+
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/23
-     * @param:
-     * @return:
-     * @description：跳转到修改页面
+     * 跳转到修改页面
+     * 
+     * @param  id 水电费单主键
+     * @return 修改页面地址
+     * @date   2020/6/29
      */
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
     public String update(ModelMap modelMap, Long id) {
@@ -78,23 +79,11 @@ public class MeterDetailController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/23
-     * @param:       meterDetailDto
-     * @return:      String
-     * @description：根据条件分页查询列表
-     */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute MeterDetailDto meterDetailDto) throws Exception {
-        return meterDetailService.listMeterDetails(meterDetailDto, true).toString();
-    }
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/23
-     * @param:
-     * @return:
-     * @description：跳转到查看页面
+     * 跳转到查看页面
+     *
+     * @param  id 水电费单主键id
+     * @return 查看页面地址
+     * @date   2020/6/29
      */
     @RequestMapping(value="/view.action", method = {RequestMethod.GET, RequestMethod.POST})
     public String view(ModelMap modelMap, Long id) {
@@ -108,11 +97,23 @@ public class MeterDetailController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/23
-     * @param:       meterDetail
-     * @return:      BaseOutput
-     * @description：新增 水电费单
+     * 查询水电费单的集合(分页)
+     *
+     * @param  meterDetailDto
+     * @return MeterDetailDtoList
+     * @date   2020/6/28
+     */
+    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody String listPage(@ModelAttribute MeterDetailDto meterDetailDto) throws Exception {
+        return meterDetailService.listMeterDetails(meterDetailDto, true).toString();
+    }
+
+    /**
+     * 新增水电费单
+     *
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/6/28
      */
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput insert(@ModelAttribute MeterDetailDto meterDetailDto) {
@@ -122,28 +123,41 @@ public class MeterDetailController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/23
-     * @param:       meterDetail
-     * @return:      BaseOutput
-     * @description：修改 水电费单
+     * 修改 水电费单
+     * 
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/6/29
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute MeterDetail meterDetail) {
-        meterDetailService.updateSelective(meterDetail);
+    public @ResponseBody BaseOutput update(@ModelAttribute MeterDetailDto meterDetailDto) {
+
         return BaseOutput.success("修改成功");
     }
 
+
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/23
-     * @param:
-     * @return:      
-     * @description：
+     * 删除水电费单
+     *
+     * @param  id 水电费单主键
+     * @return 是否成功
+     * @date   2020/6/29
      */
     @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput delete(Long id) {
         meterDetailService.delete(id);
         return BaseOutput.success("删除成功");
+    }
+
+    /**
+     * 根据 meterId 获取初始值
+     *
+     * @param  meterId
+     * @return 初始值(上期指数)
+     * @date   2020/6/29
+     */
+    @RequestMapping(value = "/getLastAmount.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput getLastAmount(Long meterId){
+        return meterDetailService.getLastAmount(meterId);
     }
 }

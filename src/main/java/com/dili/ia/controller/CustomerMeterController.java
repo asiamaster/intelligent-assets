@@ -42,11 +42,11 @@ public class CustomerMeterController {
     CustomerMeterService customerMeterService;
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        modelMap
-     * @return       String
-     * @description：跳转到CustomerMeter页面
+     * 跳转到欢迎页面
+     *
+     * @param  modelMap
+     * @return 欢迎页面地址
+     * @date   2020/6/16
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
@@ -54,11 +54,11 @@ public class CustomerMeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        modelMap
-     * @return       String
-     * @description：跳转到表用户关系-新增页面
+     * 跳转到新增页面
+     *
+     * @param  modelMap
+     * @return 新增页面地址
+     * @date   2020/6/16
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap) {
@@ -66,11 +66,11 @@ public class CustomerMeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        modelMap
-     * @return       String
-     * @description：跳转到表用户关系-查看页面
+     * 跳转到查看页面
+     *
+     * @param  id 表用户关系主键
+     * @return 查看页面地址
+     * @date   2020/6/16
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap, Long id) {
@@ -84,11 +84,11 @@ public class CustomerMeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        modelMap
-     * @return       String
-     * @description：跳转到表用户关系-修改页面
+     * 跳转到修改页面
+     *
+     * @param  id 表用户关系主键
+     * @return 修改页面地址
+     * @date   2020/6/16
      */
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
     public String update(ModelMap modelMap, Long id) {
@@ -101,12 +101,12 @@ public class CustomerMeterController {
         return "customerMeter/update";
     }
 
-
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/17
-     * @param        customerMeterDto
-     * @description：根据条件分页查询列表
+     * 查询表用户关系的集合(分页)
+     *
+     * @param  customerMeterDto
+     * @return customerMeterDtoList
+     * @date   2020/6/17
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute CustomerMeterDto customerMeterDto) throws Exception {
@@ -114,10 +114,11 @@ public class CustomerMeterController {
     }
 
     /**
-     * @author:       xiaosa
-     * @date:         2020/6/16
-     * @param         customerMeterDto
-     * @description： 新增 CustomerMeter
+     * 新增表用户关系
+     * 
+     * @param  customerMeterDto
+     * @return 是否成功
+     * @date   2020/6/16
      */
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -137,10 +138,11 @@ public class CustomerMeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        customerMeterDto
-     * @description：修改 CustomerMeter(解绑同接口)
+     * 修改表用户关系
+     *
+     * @param  customerMeterDto
+     * @return 是否成功
+     * @date   2020/6/16
      */
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -160,10 +162,11 @@ public class CustomerMeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        id
-     * @description：解绑 CustomerMeter
+     * 解绑表用户关系
+     *
+     * @param  id 表用户关系主键
+     * @return 是否成功
+     * @date   2020/6/16
      */
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/unbind.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -186,10 +189,11 @@ public class CustomerMeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        id
-     * @description：删除 CustomerMeter
+     * 删除表用户关系
+     *
+     * @param  id 表用户关系主键
+     * @return 是否成功
+     * @date   2020/6/16
      */
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="delete", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -209,11 +213,11 @@ public class CustomerMeterController {
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/28
-     * @param        meterId
-     * @return       BaseOutput
-     * @description：根据表主键id获取表绑定的用户信息
+     * 根据表主键 meterId 获取表绑定的用户信息
+     *
+     * @param  meterId 表主键
+     * @return CustomerMeter
+     * @date   2020/6/28
      */
     @RequestMapping(value="/getBindInfoByMeterId.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput getBindInfoByMeterId(Long meterId) {

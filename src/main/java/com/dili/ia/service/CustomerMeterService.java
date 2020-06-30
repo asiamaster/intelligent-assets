@@ -8,61 +8,65 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-06-12 11:35:07.
+ * @author:       xiaosa
+ * @date:         2020/6/12
+ * @version:      农批业务系统重构
+ * @description:  表用户关系 service
  */
 public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       id
-     * @return:      BaseOutput
-     * @description：根据主键 id 查询
+     * 根据主键 id 查询表用户关系
+     *
+     * @param  id 表用户关系主键
+     * @return CustomerMeterDto
+     * @date   2020/6/29
      */
     CustomerMeterDto getMeterById(Long id);
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       customerMeterDto
-     * @return:      BaseOutput
-     * @description：新增表用户关系
+     * 新增表用户关系
+     *
+     * @param  customerMeterDto
+     * @return 是否成功
+     * @date   2020/6/16
      */
     BaseOutput<CustomerMeter> addCustomerMeter(CustomerMeterDto customerMeterDto);
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       customerMeterDto
-     * @return:      BaseOutput
-     * @description：修改表用户关系
+     * 修改表用户关系(解绑)
+     *
+     * @param  customerMeterDto
+     * @return 是否成功
+     * @date   2020/6/16
      */
     BaseOutput<CustomerMeter> updateCustomerMeter(CustomerMeterDto customerMeterDto);
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       id
-     * @return :     BaseOutput
-     * @description：删除表用户关系
+     * 删除表用户关系
+     *
+     * @param  id 表用户关系主键
+     * @return 是否成功
+     * @date   2020/6/16
      */
     BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id);
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/17
-     * @param        customerMeterDto, useProvider
-     * @description：分页根据条件查询列表
+     * 查询表用户关系的集合(分页)
+     *
+     * @param  customerMeterDto
+     * @param  useProvider
+     * @return customerMeterDtoList
+     * @date   2020/6/17
      */
     EasyuiPageOutput listCustomerMeters(CustomerMeterDto customerMeterDto, boolean useProvider) throws Exception;
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/28
-     * @param        meterId
-     * @return       BaseOutput
-     * @description：根据表主键id获取表绑定的用户信息
+     * 根据表主键 meterId 获取表绑定的用户信息
+     * 
+     * @param  meterId
+     * @return CustomerMeter
+     * @date   2020/6/28
      */
     BaseOutput<CustomerMeter> getBindInfoByMeterId(Long meterId);
 }

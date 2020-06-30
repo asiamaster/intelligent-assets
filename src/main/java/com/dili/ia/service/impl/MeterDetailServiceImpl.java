@@ -8,6 +8,7 @@ import com.dili.ia.mapper.MeterDetailMapper;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -40,13 +41,13 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     @Autowired
     private UidRpcResolver UidRpcResolver;
 
-
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/28
-     * @param:       meterDetail
-     * @return:      EasyuiPageOutput
-     * @description：meter、meterDetail 两表查询列表数据
+     * meter、meterDetail 两表查询水电费单集合(分页)
+     *
+     * @param  meterDetailDto
+     * @param  useProvider
+     * @return MeterDetailDtoList
+     * @date   2020/6/28
      */
     @Override
     public EasyuiPageOutput listMeterDetails(MeterDetailDto meterDetailDto, boolean useProvider) throws Exception {
@@ -69,23 +70,28 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results);
     }
 
+    /**
+     * 新增水电费单
+     *
+     * @param  meterDetailDto
+     * @param  userTicket 用户信息
+     * @return 是否成功
+     * @date   2020/6/28
+     */
     @Override
     public void addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket) {
         MeterDetail meterDetail = new MeterDetail();
         // 生成水电费单号的 code
         meterDetail.setCode(UidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+ BizNumberTypeEnum.METER_DETAIL_CODE.getCode()));
-
-
-
-
     }
 
     /**
-     * @author:       xiaosa
-     * @date:         2020/6/29
-     * @param:        meterId, customerId
-     * @return:       Integer
-     * @description： 根据 meterId、customerId 查询未缴费单的数量
+     * 根据表 meterId、用户 customerId 查询未缴费单的数量
+     *
+     * @param  meterId
+     * @param  customerId
+     * @return 未缴费单的数量
+     * @date   2020/6/29
      */
     @Override
     public Integer countUnPayByMeterAndCustomer(Long meterId, Long customerId) {
@@ -101,5 +107,17 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             return 0;
         }
         return list.size();
+    }
+
+    /**
+     * 根据 meterId 获取初始值
+     *
+     * @param  meterId
+     * @return 初始值(上期指数)
+     * @date   2020/6/29
+     */
+    @Override
+    public BaseOutput getLastAmount(Long meterId) {
+        return null;
     }
 }

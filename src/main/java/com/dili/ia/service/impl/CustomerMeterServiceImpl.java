@@ -39,11 +39,11 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     private MeterDetailService meterDetailService;
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       customerMeterDto
-     * @return:      BaseOutput
-     * @description：根据主键 id 查询
+     * 根据主键 id 查询表用户关系
+     *
+     * @param  id 表用户关系主键
+     * @return CustomerMeterDto
+     * @date   2020/6/29
      */
     @Override
     public CustomerMeterDto getMeterById(Long id) {
@@ -52,10 +52,12 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/17
-     * @param        customerMeterDto
-     * @description：分页根据条件查询列表
+     * meter、customerMeter 查询表用户关系的集合(分页)
+     *
+     * @param  customerMeterDto
+     * @param  useProvider
+     * @return customerMeterDtoList
+     * @date   2020/6/17
      */
     @Override
     public EasyuiPageOutput listCustomerMeters(CustomerMeterDto customerMeterDto, boolean useProvider) throws Exception {
@@ -74,11 +76,11 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       customerMeterDto
-     * @return:      BaseOutput
-     * @description：新增表用户关系
+     * 新增表用户关系
+     *
+     * @param  customerMeterDto
+     * @return 是否成功
+     * @date   2020/6/16
      */
     @Override
     public BaseOutput<CustomerMeter> addCustomerMeter(CustomerMeterDto customerMeterDto) {
@@ -107,11 +109,11 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       customerMeterDto
-     * @return:      BaseOutput
-     * @description：修改表用户关系
+     * 修改表用户关系(解绑)
+     *
+     * @param  customerMeterDto
+     * @return 是否成功
+     * @date   2020/6/16
      */
     @Override
     public BaseOutput<CustomerMeter> updateCustomerMeter(CustomerMeterDto customerMeterDto) {
@@ -140,10 +142,11 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     }
 
     /**
-     * @author:       xiaosa
-     * @date:         2020/6/16
-     * @param:        customerMeterDto
-     * @description： 删除表用户关系
+     * 删除表用户关系
+     *
+     * @param  id 表用户关系主键
+     * @return 是否成功
+     * @date   2020/6/16
      */
     @Override
     public BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id) {
@@ -153,7 +156,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
             return BaseOutput.failure("删除失败，该数据已删除。");
         }
 
-        // 查询是否有未缴费的记录
+        // 根据表 meterId、用户 customerId 查询未缴费单的数量
         Integer count = meterDetailService.countUnPayByMeterAndCustomer(customerMeter.getMeterId(), customerMeter.getCustomerId());
         if (count > 0) {
             return BaseOutput.failure("该表用户当前存在交费记录，不允许删除。");
@@ -169,11 +172,11 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     }
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/28
-     * @param        meterId
-     * @return       BaseOutput
-     * @description：根据表主键id获取表绑定的用户信息
+     * 根据表主键 meterId 获取表绑定的用户信息
+     *
+     * @param  meterId
+     * @return CustomerMeter
+     * @date   2020/6/28
      */
     @Override
     public BaseOutput<CustomerMeter> getBindInfoByMeterId(Long meterId) {

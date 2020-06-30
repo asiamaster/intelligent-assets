@@ -15,49 +15,40 @@ import com.dili.ss.domain.EasyuiPageOutput;
  */
 public interface MeterService extends BaseService<Meter, Long> {
 
-
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:
-     * @return:      
-     * @description：
-     */
-    void downMeterList(MeterDto meterDto);
-
-    /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       meterDto
-     * @return:      BaseOutput
-     * @description：新增表信息
+     * 新增表信息
+     *
+     * @param  meterDto
+     * @return 是否成功
+     * @date   2020/6/16
      */
     BaseOutput<Meter> addMeter(MeterDto meterDto);
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param:       meterDto
-     * @return:      BaseOutput
-     * @description：修改表信息
+     * 修改表信息
+     *
+     * @param  meterDto
+     * @return 是否成功
+     * @date   2020/6/29
      */
     BaseOutput<Meter> updateMeter(MeterDto meterDto);
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/16
-     * @param        type
-     * @return       BaseOutput
-     * @description：根据表类型获取未绑定的表编号
+     * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)
+     *
+     * @param  type 表类型,有枚举 meterTypeEnum
+     * @return meterList
+     * @date   2020/6/16
      */
     BaseOutput<Meter> listUnbindMetersByType(Integer type);
 
     /**
-     * @author:      xiaosa
-     * @date:        2020/6/28
-     * @param        type, name
-     * @return       String
-     * @description：根据表类型、表编号查询表信息
+     * 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
+     *
+     * @param  type   表类型,有枚举 meterTypeEnum
+     * @param  number 表编号
+     * @return meterList
+     * @date   2020/6/28
      */
-    BaseOutput getMeterLikeNumber(Integer type, String name);
+    BaseOutput getMeterLikeNumber(Integer type, String number);
 }
