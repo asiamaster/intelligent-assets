@@ -137,7 +137,7 @@ public class DepositOrder extends BaseDomain {
      * 是否关联订单1，是，0否
      */
     @Column(name = "`is_related`")
-    private Boolean isRelated;
+    private Integer isRelated;
 
     /**
      * 关联订单ID
@@ -161,19 +161,19 @@ public class DepositOrder extends BaseDomain {
      * 支付状态（1：未交清 2：已交清）
      */
     @Column(name = "`pay_state`")
-    private Boolean payState;
+    private Integer payState;
 
     /**
      * 1:待申请 2：退款中 3：已退款
      */
     @Column(name = "`refund_state`")
-    private Boolean refundState;
+    private Integer refundState;
 
     /**
      * 审批状态
      */
     @Column(name = "`approval_state`")
-    private Boolean approvalState;
+    private Integer approvalState;
 
     /**
      *  流程实例ID
@@ -257,7 +257,7 @@ public class DepositOrder extends BaseDomain {
      * 是否老数据导入订单，1是，0否
      */
     @Column(name = "`is_import`")
-    private Boolean isImport;
+    private Integer isImport;
 
     /**
      * @return id
@@ -662,7 +662,7 @@ public class DepositOrder extends BaseDomain {
      */
     @FieldDef(label="是否关联订单1，是，0否")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Boolean getIsRelated() {
+    public Integer getIsRelated() {
         return isRelated;
     }
 
@@ -671,7 +671,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param isRelated 是否关联订单1，是，0否
      */
-    public void setIsRelated(Boolean isRelated) {
+    public void setIsRelated(Integer isRelated) {
         this.isRelated = isRelated;
     }
 
@@ -742,7 +742,7 @@ public class DepositOrder extends BaseDomain {
      */
     @FieldDef(label="支付状态（1：未交清 2：已交清）")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Boolean getPayState() {
+    public Integer getPayState() {
         return payState;
     }
 
@@ -751,7 +751,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param payState 支付状态（1：未交清 2：已交清）
      */
-    public void setPayState(Boolean payState) {
+    public void setPayState(Integer payState) {
         this.payState = payState;
     }
 
@@ -762,7 +762,7 @@ public class DepositOrder extends BaseDomain {
      */
     @FieldDef(label="1:待申请 2：退款中 3：已退款")
     @EditMode(editor = FieldEditor.Number, required = true)
-    public Boolean getRefundState() {
+    public Integer getRefundState() {
         return refundState;
     }
 
@@ -771,7 +771,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param refundState 1:待申请 2：退款中 3：已退款
      */
-    public void setRefundState(Boolean refundState) {
+    public void setRefundState(Integer refundState) {
         this.refundState = refundState;
     }
 
@@ -782,7 +782,7 @@ public class DepositOrder extends BaseDomain {
      */
     @FieldDef(label="审批状态")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Boolean getApprovalState() {
+    public Integer getApprovalState() {
         return approvalState;
     }
 
@@ -791,7 +791,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param approvalState 审批状态
      */
-    public void setApprovalState(Boolean approvalState) {
+    public void setApprovalState(Integer approvalState) {
         this.approvalState = approvalState;
     }
 
@@ -1040,6 +1040,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @return version - 版本控制,乐观锁
      */
+    @Version
     @FieldDef(label="版本控制,乐观锁")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Long getVersion() {
@@ -1062,7 +1063,7 @@ public class DepositOrder extends BaseDomain {
      */
     @FieldDef(label="是否老数据导入订单，1是，0否")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Boolean getIsImport() {
+    public Integer getIsImport() {
         return isImport;
     }
 
@@ -1071,7 +1072,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param isImport 是否老数据导入订单，1是，0否
      */
-    public void setIsImport(Boolean isImport) {
+    public void setIsImport(Integer isImport) {
         this.isImport = isImport;
     }
 }

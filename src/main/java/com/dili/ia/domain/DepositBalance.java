@@ -410,6 +410,7 @@ public class DepositBalance extends BaseDomain {
      *
      * @return version - 版本控制,乐观锁
      */
+    @Version
     @FieldDef(label="版本控制,乐观锁")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Long getVersion() {
