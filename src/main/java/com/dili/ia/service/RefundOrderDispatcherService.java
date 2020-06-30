@@ -51,5 +51,5 @@ public interface RefundOrderDispatcherService extends BaseService<RefundOrder, L
     /**
      * 退款单 --获取业务类型
      * */
-    Set<Integer> getBizType();
+    Set<String> getBizType();
 }

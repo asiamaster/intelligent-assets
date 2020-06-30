@@ -67,7 +67,7 @@ public interface TransactionDetails extends IBaseDomain {
     @EditMode(editor = FieldEditor.Number, required = false)
     Integer getBizType();
 
-    void setBizType(Integer bizType);
+    void setBizType(String bizType);
 
     @Column(name = "`order_id`")
     @FieldDef(label="发生订单ID")
