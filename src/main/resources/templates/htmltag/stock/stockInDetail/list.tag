@@ -29,28 +29,28 @@
                     <th data-field="districtId" data-sortable="true" data-align="center" data-sort-name="type" >
                         冷库区域
                     </th>
-                    <th data-field="assetsName" data-sortable="true" data-align="center">
+                    <th data-field="assetsId" data-sortable="true" data-align="center">
                        冷库编号
                     </th>
                      <th data-field="categoryName" data-sortable="true" data-sort-name="category_name" data-align="center">
                         货物品类
                     </th>
-                     <th data-field="weight" data-sortable="true" data-sort-name="quantity" data-align="center">
+                     <th data-field="weight" data-sortable="true" data-sort-name="weight" data-align="center">
                        货物净重
                     </th>
                     <th data-field="quantity" data-sortable="true" data-sort-name="quantity" data-align="center">
                        件数
                     </th>
-                     <th data-field="amount" data-sortable="true" data-sort-name="quantity" data-align="center">
+                     <th data-field="amount" data-sortable="true" data-sort-name="amount" data-align="center">
                        入库金额
                     </th>
                     <th data-field="createTime" data-sortable="true" data-sort-name="create_time" data-align="center" data-provider="dateProvider">
                         入库日期
                     </th>
-                     <th data-field="expireTime" data-sortable="true" data-sort-name="weight" data-align="center" data-provider="dateProvider" >
+                     <th data-field="expireDate" data-sortable="true" data-sort-name="weight" data-align="center" data-provider="dateProvider" >
                        到期日期
                     </th>
-                     <th data-field="state" data-sortable="true" data-sort-name="weight" data-align="center" >
+                     <th data-field="state" data-sortable="true" data-sort-name="state" data-align="center" data-provider="stockInStateProvider">
                         状态
                     </th>
                 </tr>

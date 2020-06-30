@@ -53,6 +53,9 @@ public class StockInDetailQueryDto extends BaseDomain{
 	
 	private Long departmentId;
 
+	/*private String orderByColumn;
+	
+	private String sort;*/
 	
 
 	public String getStockInDetailCode() {
@@ -159,8 +162,20 @@ public class StockInDetailQueryDto extends BaseDomain{
 		this.departmentId = departmentId;
 	}
 
+	/*public String getOrderByColumn() {
+		return orderByColumn;
+	}
 	
+	public void setOrderByColumn(String orderByColumn) {
+		this.orderByColumn = orderByColumn;
+	}
 	
+	public String getSort() {
+		return sort;
+	}
 	
-	
+	public void setSort(String sort) {
+		this.sort = sort;
+	}
+	*/
 }

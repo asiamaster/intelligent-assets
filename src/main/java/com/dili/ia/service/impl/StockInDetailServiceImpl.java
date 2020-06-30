@@ -9,6 +9,7 @@ import com.dili.ia.service.StockInService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.metadata.ValueProviderUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
@@ -48,7 +49,7 @@ public class StockInDetailServiceImpl extends BaseServiceImpl<StockInDetail, Lon
 	@Override
 	public Page<Map<String, String>> selectByContion(StockInDetailQueryDto stockInDetailQueryDto) {
 		Page<Map<String, String>> result = PageHelper.startPage(stockInDetailQueryDto.getPage(), stockInDetailQueryDto.getRows());
-		getActualDao().selectByContion(stockInDetailQueryDto);
+		getActualDao().selectByContion(stockInDetailQueryDto);;
 		return result;
 	}
 

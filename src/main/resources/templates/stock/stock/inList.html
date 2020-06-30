@@ -43,12 +43,12 @@ function queryDataHandler() {
 		pageNumber: 1,
 		url: '/stock/stockInDetail/listPage.action',
 		queryParams:function(params){
-			let curParams = {
-			        categoryId: ${categoryId!},
-					assetsId: ${assetsId!},
-					customerId: ${customerId!}
-			    };
-			return curParams;
+			params.page = params.offset / params.limit + 1,
+			params.rows = params.limit
+			params.categoryId = ${categoryId!};
+			params.assetsId = ${assetsId!};
+			params.customerId = ${customerId!};
+			return params;
 		}
 	});
 }

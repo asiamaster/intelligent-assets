@@ -54,6 +54,9 @@ public class Stock extends BaseDomain {
     @Column(name = "`customer_name`")
     private String customerName;
     
+    @Column(name = "`customer_cellphone`")
+    private String customerCellphone;
+    
     /**
      * 部门
      */
@@ -347,6 +350,13 @@ public class Stock extends BaseDomain {
 	public void setDepartmentName(String departmentName) {
 		this.departmentName = departmentName;
 	}
-    
+
+	public String getCustomerCellphone() {
+		return customerCellphone;
+	}
+
+	public void setCustomerCellphone(String customerCellphone) {
+		this.customerCellphone = customerCellphone;
+	}
     
 }

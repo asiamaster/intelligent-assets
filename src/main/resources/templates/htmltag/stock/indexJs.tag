@@ -271,7 +271,7 @@ function openPayHandler() {
 	        }, {label: '确定',className: 'btn btn-primary',onClick(e){
 	        		let formData = $('#payForm').serializeObject();
 	                bui.util.debounce(pay(formData),1000,true)()
-	                return false;
+	                
 	            }
 	        }]
 	    });

@@ -34,21 +34,17 @@
     <result column="car_type_public_code" jdbcType="VARCHAR" property="carTypePublicCode" />
   </resultMap>
  
+ 	<!-- 详情列表查询 -->
   <sql id="Base_Column_List">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    sid.id, sid.create_time createTime, sid.modify_time modifyTime, sid.stock_in_code stockInCode, sid.code, sid.state, sid.unit_weight, sid.check_operator_id, 
+    sid.id, sid.create_time createTime, sid.modify_time modifyTime, sid.stock_in_code stockInCode, sid.code, sid.unit_weight, sid.check_operator_id, 
     check_operator, pickup_number, weightman_id, assets_id, assets_code, sid.notes, district_id, 
-    district_name districtName, receivable, cope, sid.category_id, sid.category_name categoryName, sid.quantity, sid.weight, 
+    district_name districtName, receivable, cope, sid.category_id, sid.category_name categoryName, sid.quantity, sid.weight, sid.amount,
     sid.market_id, sid.market_code, car_plate, car_type_public_code
   </sql>
   <select id="selectByContion" parameterType="com.dili.ia.domain.dto.StockInDetailQueryDto" resultType="map">
-    <!--
-      WARNING - @mbg.generated
-    -->
     select 
-    <include refid="Base_Column_List" />,type,customer_id,customer_name customerName,customer_cellphone customerCellphone,department_id,department_name departmentName,expire_date expireDate
+    <include refid="Base_Column_List" />,type,customer_id,customer_name customerName,customer_cellphone customerCellphone,department_id,department_name departmentName,
+    expire_date expireDate,si.state state
     from stock_in_detail as sid join stock_in as si on sid.stock_in_code = si.code
     <where>
             <if test="districtId != null">
@@ -85,6 +81,7 @@
                 and si.department_id = #{departmentId}
             </if>
     </where>
+    order by ${sort} ${order}
   </select>
   <update id="updateBy" parameterType="com.dili.ia.domain.StockInDetail">
     <!--

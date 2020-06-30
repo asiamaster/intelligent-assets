@@ -1,13 +1,5 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.StockInDetail;
-import com.dili.ia.domain.dto.StockInDetailQueryDto;
-import com.dili.ia.service.StockInDetailService;
-import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.domain.PageOutput;
-import com.github.pagehelper.Page;
-
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +10,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.dili.ia.domain.dto.StockInDetailQueryDto;
+import com.dili.ia.service.StockInDetailService;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.metadata.ValueProviderUtils;
+import com.github.pagehelper.Page;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -49,7 +47,7 @@ public class StockInDetailController {
     	modelMap.putAll(stockInDetailService.viewStockInDetail(code));
         return "stock/stockInDetail/view";
     }
-
+    
     /**
      * 分页查询StockInDetail，返回easyui分页信息
      * @param stockInDetail
@@ -59,7 +57,10 @@ public class StockInDetailController {
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute StockInDetailQueryDto stockInDetailQueryDto) throws Exception {
     	Page<Map<String, String>> page = stockInDetailService.selectByContion(stockInDetailQueryDto);
-    	return new EasyuiPageOutput(Integer.parseInt(String.valueOf(page.getTotal())), page.getResult()).toString();
+    	Map<String, String> map = stockInDetailQueryDto.getMetadata();
+    	List<Map> result = ValueProviderUtils.buildDataByProvider(map, page.getResult());
+    	System.err.println(result.get(0).get("state"));
+    	return new EasyuiPageOutput(Integer.parseInt(String.valueOf(page.getTotal())), result ).toString();
     }
 
    
