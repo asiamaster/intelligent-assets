@@ -87,40 +87,41 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<DepositOrder> addDepositOrder(DepositOrderQuery depositOrderQuery) {
+    public BaseOutput<DepositOrder> addDepositOrder(DepositOrderQuery depositOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
             return BaseOutput.failure("未登录");
         }
         //检查客户状态
-        checkCustomerState(depositOrderQuery.getCustomerId(),userTicket.getFirmId());
-        if(depositOrderQuery.getAssetsId() != null){
+        checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
+        if(depositOrder.getAssetsId() != null){
 //            if (depositOrderListDto.getAssetsType().equals(AssetsTypeEnum.BOOTH.getTypeCode())){
                 //检查摊位状态
-                checkBoothState(depositOrderQuery.getAssetsId());
+                checkBoothState(depositOrder.getAssetsId());
 //            }
             // @TODO 检查冷库，公寓状态
         }
-        BaseOutput<Department> depOut = departmentRpc.get(depositOrderQuery.getDepartmentId());
+        BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
 
-        depositOrderQuery.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
-        depositOrderQuery.setCreatorId(userTicket.getId());
-        depositOrderQuery.setCreator(userTicket.getRealName());
-        depositOrderQuery.setMarketId(userTicket.getFirmId());
-        depositOrderQuery.setMarketCode(userTicket.getFirmCode());
-        depositOrderQuery.setDepartmentName(depOut.getData().getName());
-        depositOrderQuery.setState(DepositOrderStateEnum.CREATED.getCode());
-        depositOrderQuery.setPayState(PayStateEnum.NOT_PAID.getCode());
-        depositOrderQuery.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
-        depositOrderQuery.setIsImport(YesOrNoEnum.NO.getCode());
-        depositOrderQuery.setIsRelated(YesOrNoEnum.NO.getCode());
+        depositOrder.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
+        depositOrder.setCreatorId(userTicket.getId());
+        depositOrder.setCreator(userTicket.getRealName());
+        depositOrder.setMarketId(userTicket.getFirmId());
+        depositOrder.setMarketCode(userTicket.getFirmCode());
+        depositOrder.setDepartmentName(depOut.getData().getName());
+        depositOrder.setState(DepositOrderStateEnum.CREATED.getCode());
+        depositOrder.setPayState(DepositPayStateEnum.UNPAID.getCode());
+        depositOrder.setRefundState(DepositRefundStateEnum.NO_REFUNDED.getCode());
+        depositOrder.setIsImport(YesOrNoEnum.NO.getCode());
+        depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
+        depositOrder.setWaitAmount(depositOrder.getAmount());
 
-        this.insertSelective(depositOrderQuery);
-        return BaseOutput.success().setData(depositOrderQuery);
+        this.insertSelective(depositOrder);
+        return BaseOutput.success().setData(depositOrder);
     }
 
     private String getBizNumber(String type){
@@ -303,7 +304,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
         //@TODO 结算单需要调整类型，为String
-//        settleOrder.setBusinessType(BizTypeEnum.DEPOSIT_ORDER.getCode()); // 业务类型
+        settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.DEPOSIT_ORDER.getCode())); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
@@ -505,7 +506,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrderPrintDto.setCustomerName(depositOrder.getCustomerName());
         depositOrderPrintDto.setCustomerCellphone(depositOrder.getCustomerCellphone());
         depositOrderPrintDto.setNotes(depositOrder.getNotes());
-        depositOrderPrintDto.setAmount(MoneyUtils.centToYuan(depositOrder.getAmount()));
+        depositOrderPrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount())); // 付款金额
         depositOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
         depositOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         depositOrderPrintDto.setSubmitter(paymentOrder.getCreator());

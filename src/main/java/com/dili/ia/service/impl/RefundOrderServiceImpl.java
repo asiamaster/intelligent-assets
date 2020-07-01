@@ -260,7 +260,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
         settleOrder.setSubmitTime(LocalDateTime.now());
         //@TODO 结算单需要调整类型，为String
-//        settleOrder.setBusinessType(ro.getBizType()); // 业务类型
+        settleOrder.setBusinessType(Integer.valueOf(ro.getBizType())); // 业务类型
         settleOrder.setAppId(settlementAppId);//应用ID
         settleOrder.setType(SettleTypeEnum.REFUND.getCode());// "结算类型  -- 退款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
