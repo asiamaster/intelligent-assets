@@ -92,9 +92,11 @@ function openViewHandler() {
 		return false;
 	}
 	window.location.href = "${contextPath}/stock/stockInDetail/view.html?code=" + rows[0].code;
-
 }
 
+function doExport(){
+	bui.util.doExport("grid", "queryForm");
+}
 
 
 

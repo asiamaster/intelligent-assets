@@ -59,7 +59,6 @@ public class StockInDetailController {
     	Page<Map<String, String>> page = stockInDetailService.selectByContion(stockInDetailQueryDto);
     	Map<String, String> map = stockInDetailQueryDto.getMetadata();
     	List<Map> result = ValueProviderUtils.buildDataByProvider(map, page.getResult());
-    	System.err.println(result.get(0).get("state"));
     	return new EasyuiPageOutput(Integer.parseInt(String.valueOf(page.getTotal())), result ).toString();
     }
 

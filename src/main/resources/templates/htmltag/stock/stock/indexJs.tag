@@ -31,6 +31,10 @@ function queryDataHandler() {
 	});
 }
 
+function doExport(){
+	bui.util.doExport("grid", "queryForm");
+}
+
 //品类搜索
 //品类搜索自动完成
 var categoryAutoCompleteOption = {

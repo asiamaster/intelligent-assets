@@ -28,6 +28,10 @@ function queryDataHandler() {
     _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '/stock/stockIn/listPage.action'});
 }
 
+function doExport(){
+	bui.util.doExport("grid", "queryForm");
+}
+
 //品类搜索
 //品类搜索自动完成
 var categoryAutoCompleteOption = {

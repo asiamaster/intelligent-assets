@@ -22,4 +22,14 @@ public interface PaymentOrderService extends BaseService<PaymentOrder, Long> {
 	 */
 	PaymentOrder savePaymentOrder(UserTicket userTicket, PayInfoDto payInfoDto);
 	
+	/**
+	 * 
+	 * @Title getByCode
+	 * @Description 通过id获取缴费单
+	 * @param code
+	 * @return
+	 * @throws
+	 */
+	PaymentOrder getByCode(String code);
+		
 }

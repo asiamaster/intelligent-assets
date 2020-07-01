@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.PayStateEnum;
@@ -9,10 +10,13 @@ import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 
 import java.util.Date;
+import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +49,16 @@ public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long>
 		paymentOrder.setState(PayStateEnum.NOT_PAID.getCode());
 		this.insertSelective(paymentOrder);
 		return paymentOrder;
+	}
+
+	@Override
+	public PaymentOrder getByCode(String code) {
+		PaymentOrder condtion = DTOUtils.newInstance(PaymentOrder.class);
+		condtion.setCode(code);
+		List<PaymentOrder> paymentOrders = this.listByExample(condtion);
+		if (CollectionUtils.isEmpty(paymentOrders) || paymentOrders.size() != 1) {
+			return null;
+		}
+		return paymentOrders.get(0);
 	}
 }

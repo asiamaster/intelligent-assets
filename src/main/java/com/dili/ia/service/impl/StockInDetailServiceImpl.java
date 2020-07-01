@@ -1,13 +1,16 @@
 package com.dili.ia.service.impl;
 
+import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.dto.StockInDetailQueryDto;
 import com.dili.ia.mapper.StockInDetailMapper;
+import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.StockInDetailService;
 import com.dili.ia.service.StockInService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.PageOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValueProviderUtils;
 import com.github.pagehelper.Page;
@@ -30,6 +33,9 @@ public class StockInDetailServiceImpl extends BaseServiceImpl<StockInDetail, Lon
 
 	@Autowired
 	private StockInService stockInService;
+	
+	@Autowired
+	private PaymentOrderService paymentOrderService;
 	
     public StockInDetailMapper getActualDao() {
         return (StockInDetailMapper)getDao();
@@ -57,9 +63,11 @@ public class StockInDetailServiceImpl extends BaseServiceImpl<StockInDetail, Lon
 	public Map<String, Object> viewStockInDetail(String code) {
 		StockInDetail stockInDetail = getByCode(code);
 		StockIn stockIn = stockInService.getStockInByCode(stockInDetail.getStockInCode());
+		PaymentOrder paymentOrder = paymentOrderService.getByCode(stockIn.getPaymentOrderCode());
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("stockInDetail", stockInDetail);
 		result.put("stockIn", stockIn);
+		result.put("paymentOrder", paymentOrder == null?DTOUtils.newInstance(PaymentOrder.class):paymentOrder);
 		// TODO 缴费单
 		return result;
 	}

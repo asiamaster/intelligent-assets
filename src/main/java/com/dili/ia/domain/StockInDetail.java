@@ -43,9 +43,6 @@ public class StockInDetail extends BaseDomain {
     @Column(name = "`code`")
     private String code;
 
-    @Column(name = "`state`")
-    private Byte state;
-
     /**
      * 单件重量
      */
@@ -258,22 +255,6 @@ public class StockInDetail extends BaseDomain {
      */
     public void setCode(String code) {
         this.code = code;
-    }
-
-    /**
-     * @return state
-     */
-    @FieldDef(label="state")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getState() {
-        return state;
-    }
-
-    /**
-     * @param state
-     */
-    public void setState(Byte state) {
-        this.state = state;
     }
 
     /**
