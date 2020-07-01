@@ -3,8 +3,8 @@
 <div class="row">
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
-				<button id="btn_view" type="button" class="btn btn-primary" onclick="openStockOutHandler()"><i class="fa fa-eye"></i> 查看</button>
-                <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(2)"><i class="fa fa-eye"></i> 返回</button>
+				<button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="javascript:history.go(-1);"><i class="fa fa-eye"></i> 返回</button>
             </div>
             <#stock_stockOut_list />
         </div>
@@ -38,14 +38,28 @@ function queryDataHandler() {
 		pageNumber: 1,
 		url: '/stock/stockOut/listPage.action',
 		queryParams:function(params){
-			let curParams = {
-			        categoryId: ${categoryId!},
-					assetsId: ${assetsId!},
-					customerId: ${customerId!}
-			    };
-			return curParams;
+			params.page = params.offset / params.limit + 1,
+			params.rows = params.limit
+			params.categoryId = ${categoryId!};
+			params.assetsId = ${assetsId!};
+			params.customerId = ${customerId!};
+			return params;
 		}
 	});
+}
+
+/**
+打开查看窗口
+*/
+function openViewHandler(type) {
+	//获取选中行的数据
+	let rows = _grid.bootstrapTable('getSelections');
+	if (null == rows || rows.length == 0) {
+		bs4pop.alert('请选中一条数据');
+		return false;
+	}
+	window.location.href = "${contextPath}/stock/stockOut/view.html?code=" + rows[0].code;
+
 }
 </script>
 </#bs4Body>

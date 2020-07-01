@@ -99,7 +99,7 @@
 				</div>
 				<div class="form-group col">
 					<label for="">入库日期<i class="red">*</i></label> <input id="stockInDate" type="text" class="form-control floatReserve"
-					 name="stockInDate" value="${stockIn.stockInDate!}" readonly />
+					 name="stockInDate" value="${stockIn.stockInDate!}" data-provider="dateProvider" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">到期日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
@@ -112,24 +112,24 @@
 			</div>
 			<div class="row row-cols-4 collapse show" id="payInfo">
 				<div class="form-group col">
-					<label for="">结算单号<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
-					 name="expireDate" value="${stockIn.expireDate!}" readonly />
+					<label for="">缴费单号<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
+					 name="expireDate" value="${paymentOrder.code!}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">缴费日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
-					 name="expireDate" value="${stockIn.expireDate!}" readonly />
+					 name="expireDate" value="${paymentOrder.payedTime!}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">缴费金额<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
-					 name="expireDate" value="${stockIn.expireDate!}" readonly />
+					 name="expireDate" value="${paymentOrder.amount!}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">卡号<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
-					 name="expireDate" value="${stockIn.expireDate!}" readonly />
+					 name="expireDate" value="" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">收费员<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control floatReserve"
-					 name="expireDate" value="${stockIn.expireDate!}" readonly />
+					 name="expireDate" value="${paymentOrder.settlementOperator!}" readonly />
 				</div>
 				
 			</div>

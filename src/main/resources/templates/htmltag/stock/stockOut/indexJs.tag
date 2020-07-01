@@ -84,14 +84,14 @@ function queryParams(params) {
 /**
  打开查看窗口
  */
-function openViewHandler(type) {
+function openViewHandler() {
 	//获取选中行的数据
 	let rows = _grid.bootstrapTable('getSelections');
 	if (null == rows || rows.length == 0) {
 		bs4pop.alert('请选中一条数据');
 		return false;
 	}
-	window.location.href = "${contextPath}/stock/stockIn/view.html?code=" + rows[0].code;
+	window.location.href = "${contextPath}/stock/stockOut/view.html?code=" + rows[0].code;
 
 }
 

@@ -31,6 +31,10 @@ function queryDataHandler() {
 	});
 }
 
+function doExport(){
+	bui.util.doExport("grid", "queryForm");
+}
+
 //品类搜索
 //品类搜索自动完成
 var categoryAutoCompleteOption = {
@@ -133,7 +137,7 @@ function openStockOutHandler() {
 				className: 'btn btn-primary',
 				onClick(e) {
 					bui.util.debounce(stockOut, 1000, true)()
-					return false;
+					//return false;
 				}
 			}]
 		});
@@ -156,6 +160,7 @@ function stockOut() {
 		success: function(ret) {
 			bui.loading.hide();
 			if (ret.success) {
+				bs4pop.alert(ret.message, {type: 'success'});
 				queryDataHandler();
 			} else {
 				bs4pop.alert(ret.message, {

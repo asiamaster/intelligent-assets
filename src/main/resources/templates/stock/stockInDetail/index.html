@@ -43,10 +43,15 @@
     <div class="row">
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
-				<button id="btn_view" type="button" class="btn btn-primary" onclick="openStockOutHandler()"><i class="fa fa-eye"></i> 下载</button>
-                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler(2)"><i class="fa fa-eye"></i> 查看</button>
+				<#resource code="viewStockInDetail">
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
+           		</#resource>
+           		<#resource code="doExport">
+            	<button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
+            	</#resource>
             </div>
-            <#stock_stockInDetail_list />
+            
+			<#stock_stockInDetail_list />
         </div>
     </div>
 </div>

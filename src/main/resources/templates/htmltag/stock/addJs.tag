@@ -195,7 +195,6 @@ function doAddEarnestHandler() {
 			}  
 		}
 	}
-	return;
 	$.ajax({
 		type: "POST",
 		url: "${contextPath}/stock/stockIn/insert.action",
