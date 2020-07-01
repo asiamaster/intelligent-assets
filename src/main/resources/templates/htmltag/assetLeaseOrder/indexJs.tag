@@ -500,24 +500,18 @@
         $(cur_table).on('check.bs.table', function (e,row, $element){
             e.stopPropagation();
             let state = row.$_state;
+            $('#toolbar'+index+' button').attr('disabled', true);
             //（未生效 || 已生效）&& 已交清方可停租
             if ((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
                 || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
-                && row.payState == ${@com.dili.ia.glossary.PayStateEnum.PAID.getCode()}) {
-                $('#toolbar'+index+' button').attr('disabled', true);
+                && row.payState == ${@com.dili.ia.glossary.PayStateEnum.PAID.getCode()}
+                && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}
+            ) {
                 $('#btn_stop_rent'+index).attr('disabled', false);
-            } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}
-            || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()}) {
-                // 退款条件
-                // 1.已到期或已停租 AND 2.未发起过退款 AND 3.保证金未被冻结 4.订单费用已交清
-                $('#toolbar'+index+' button').attr('disabled', true);
-                if(row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}
-                    && row.depositAmountFlag != ${@com.dili.ia.glossary.DepositAmountFlagEnum.FROZEN.getCode()}
-                    && row.payState == ${@com.dili.ia.glossary.PayStateEnum.PAID.getCode()}){
-                    $('#btn_refund_apply'+index).attr('disabled', false);
-                }
-            } else{
-                $('#toolbar'+index+' button').attr('disabled', true);
+            }
+
+            if(row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}){
+                $('#btn_refund_apply'+index).attr('disabled', false);
             }
         });
     });
@@ -567,10 +561,6 @@
             if(row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){
                 $('#btn_submit').attr('disabled', false);
             }
-            //未交清且未发起过退款申请
-            if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()} && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}) {
-                $('#btn_refund_apply').attr('disabled', false);
-            }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
@@ -587,10 +577,6 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
-            //未交清且未发起过退款申请
-            if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()} && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}) {
-                $('#btn_refund_apply').attr('disabled', false);
-            }
         }
         $('#btn_edit').attr('disabled', false);
         $('#btn_renew').attr('disabled', false);

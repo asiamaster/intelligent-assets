@@ -2,13 +2,9 @@ package com.dili.ia.domain;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.ss.domain.BaseDomain;
-import com.dili.ss.metadata.FieldEditor;
-import com.dili.ss.metadata.annotation.EditMode;
-import com.dili.ss.metadata.annotation.FieldDef;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -60,6 +56,18 @@ public class BusinessChargeItem extends BaseDomain {
      */
     @Column(name = "`amount`")
     private Long amount;
+
+    /**
+     * 已付金额
+     */
+    @Column(name = "`paid_amount`")
+    private Long paidAmount;
+
+    /**
+     * 待付金额
+     */
+    @Column(name = "`wait_amount`")
+    private Long waitAmount;
 
 
     //创建时间
@@ -128,6 +136,22 @@ public class BusinessChargeItem extends BaseDomain {
 
     public void setAmount(Long amount) {
         this.amount = amount;
+    }
+
+    public Long getPaidAmount() {
+        return paidAmount;
+    }
+
+    public void setPaidAmount(Long paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+
+    public Long getWaitAmount() {
+        return waitAmount;
+    }
+
+    public void setWaitAmount(Long waitAmount) {
+        this.waitAmount = waitAmount;
     }
 
     public LocalDateTime getCreateTime() {

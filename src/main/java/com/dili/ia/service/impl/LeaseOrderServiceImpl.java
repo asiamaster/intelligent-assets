@@ -828,7 +828,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         settleOrder.setBusinessCode(leaseOrder.getCode());
         settleOrder.setBusinessDepId(leaseOrder.getDepartmentId());
         settleOrder.setBusinessDepName(leaseOrder.getDepartmentName());
-        settleOrder.setBusinessType(BizTypeEnum.BOOTH_LEASE.getCode());
+        settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.BOOTH_LEASE.getCode()));
         settleOrder.setCustomerId(leaseOrder.getCustomerId());
         settleOrder.setCustomerName(leaseOrder.getCustomerName());
         settleOrder.setCustomerPhone(leaseOrder.getCustomerCellphone());

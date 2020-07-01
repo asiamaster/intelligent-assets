@@ -5,8 +5,13 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
+import com.dili.ss.metadata.FieldEditor;
+import com.dili.ss.metadata.annotation.EditMode;
+import com.dili.ss.metadata.annotation.FieldDef;
 
 import javax.persistence.Column;
+import javax.persistence.Transient;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -52,5 +57,10 @@ public interface RefundOrderDto extends RefundOrder {
     //业务退款项
     List<RefundFeeItem> getRefundFeeItems();
     void setRefundFeeItems(List<RefundFeeItem> refundFeeItems);
+
+    @Transient
+    LocalDateTime getStopTime();
+
+    void setStopTime(LocalDateTime stopTime);
 
 }

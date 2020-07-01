@@ -74,6 +74,11 @@ public class AssetLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetLeaseOr
         leaseOrderItem.setStopOperatorName(userTicket.getRealName());
         AssetLeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
         AssetLeaseOrder leaseOrder = assetLeaseOrderService.get(leaseOrderItemOld.getLeaseOrderId());
+
+        if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
+            throw new BusinessException(ResultCode.DATA_ERROR,"已发起过退款申请，不能发起停租");
+        }
+
         if(!StopRentStateEnum.NO_APPLY.getCode().equals(leaseOrderItemOld.getStopRentState())){
             throw new BusinessException(ResultCode.DATA_ERROR,"已发起过停租，不能多次发起停租");
         }

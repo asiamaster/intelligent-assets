@@ -44,7 +44,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     TransferDeductionItemService transferDeductionItemService;
 
     @Override
-    public Set<Integer> getBizType() {
+    public Set<String> getBizType() {
         return Sets.newHashSet(BizTypeEnum.BOOTH_LEASE.getCode());
     }
 

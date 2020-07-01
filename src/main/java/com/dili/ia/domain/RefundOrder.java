@@ -52,7 +52,7 @@ public interface RefundOrder extends IBaseDomain {
 
     @Column(name = "`biz_type`")
     @FieldDef(label="业务类型")
-    @EditMode(editor = FieldEditor.Number, required = false)
+    @EditMode(editor = FieldEditor.Text, required = false)
     String getBizType();
 
     void setBizType(String bizType);
