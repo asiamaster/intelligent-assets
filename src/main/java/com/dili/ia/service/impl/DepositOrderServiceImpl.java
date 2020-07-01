@@ -303,7 +303,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
         //@TODO 结算单需要调整类型，为String
-//        settleOrder.setBusinessType(BizTypeEnum.DEPOSIT_ORDER.getCode()); // 业务类型
+        settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.DEPOSIT_ORDER.getCode())); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
