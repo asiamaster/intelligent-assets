@@ -7,6 +7,8 @@ import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 
+import java.util.List;
+
 /**
  * @author:      xiaosa
  * @date:        2020/6/12
@@ -40,7 +42,7 @@ public interface MeterService extends BaseService<Meter, Long> {
      * @return meterList
      * @date   2020/6/16
      */
-    BaseOutput<Meter> listUnbindMetersByType(Integer type);
+    List<Meter> listUnbindMetersByType(Integer type);
 
     /**
      * 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
@@ -50,5 +52,5 @@ public interface MeterService extends BaseService<Meter, Long> {
      * @return meterList
      * @date   2020/6/28
      */
-    BaseOutput getMeterLikeNumber(Integer type, String number);
+    Meter getMeterLikeNumber(Integer type, String number);
 }

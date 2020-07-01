@@ -68,5 +68,5 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * @return CustomerMeter
      * @date   2020/6/28
      */
-    BaseOutput<CustomerMeter> getBindInfoByMeterId(Long meterId);
+    CustomerMeter getBindInfoByMeterId(Long meterId);
 }

@@ -221,7 +221,11 @@ public class CustomerMeterController {
      */
     @RequestMapping(value="/getBindInfoByMeterId.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput getBindInfoByMeterId(Long meterId) {
-        BaseOutput<CustomerMeter> output = customerMeterService.getBindInfoByMeterId(meterId);
-        return output;
+        BaseOutput baseOutput = new BaseOutput();
+
+        CustomerMeter customerMeterInfo = customerMeterService.getBindInfoByMeterId(meterId);
+        baseOutput.setData(customerMeterInfo);
+
+        return baseOutput;
     }
 }

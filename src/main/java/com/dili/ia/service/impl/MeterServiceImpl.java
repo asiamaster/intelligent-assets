@@ -141,13 +141,10 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * @date   2020/6/16
      */
     @Override
-    public BaseOutput<Meter> listUnbindMetersByType(Integer type) {
-        BaseOutput baseOutput = new BaseOutput();
-
+    public List<Meter> listUnbindMetersByType(Integer type) {
         List<Meter> meterList = this.getActualDao().listUnbindMetersByType(type);
-        baseOutput.setData(meterList);
 
-        return baseOutput;
+        return meterList;
     }
 
     /**
@@ -159,20 +156,18 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * @date   2020/6/28
      */
     @Override
-    public BaseOutput getMeterLikeNumber(Integer type, String number) {
-        BaseOutput baseOutput = new BaseOutput();
+    public Meter getMeterLikeNumber(Integer type, String number) {
+        Meter meterInfo = new Meter();
 
         // 如果表地址未输入,则直接返回空
         Meter meter = new Meter();
-        baseOutput.setData(meter);
         if (StringUtils.isNotEmpty(number)) {
             meter.setType(type);
             meter.setNumber(number);
-            Meter meterInfo = this.getActualDao().getMeterLikeNumber(meter);
-            baseOutput.setData(meterInfo);
+            meterInfo = this.getActualDao().getMeterLikeNumber(meter);
         }
 
-        return baseOutput;
+        return meterInfo;
     }
 
 }

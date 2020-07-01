@@ -1,19 +1,28 @@
 package com.dili.ia.service.impl;
 
+import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.MeterDetail;
+import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.MeterDetailStateEnum;
+import com.dili.ia.glossary.MeterTypeEnum;
+import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.mapper.MeterDetailMapper;
 import com.dili.ia.rpc.UidRpcResolver;
+import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.service.MeterService;
+import com.dili.ia.service.PaymentOrderService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.metadata.ValueProviderUtils;
+import com.dili.ss.util.BeanConver;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -52,6 +61,12 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
     @Autowired
     private UidRpcResolver UidRpcResolver;
+
+    @Autowired
+    private PaymentOrderService paymentOrderService;
+
+    @Autowired
+    private CustomerMeterService customerMeterService;
 
     /**
      * meter、meterDetail 两表查询水电费单集合(分页)
@@ -102,21 +117,79 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
 
         //在更新状态之前查询指数信息，不然可能会查询出当前数据(脏读)
-        BaseOutput lastAmount = this.getLastAmount(meterDetailDto.getMeterId());
-        if (!lastAmount.isSuccess()){
+        BaseOutput lastAmountReturn = this.getLastAmount(meterDetailDto.getMeterId());
+        if (!lastAmountReturn.isSuccess()){
             return BaseOutput.failure("该表初始指数获取失败,保存失败!");
         }
-
-
-
-
-
-
+        Long lastAmount = (Long) lastAmountReturn.getData();
 
         // 生成水电费单号的 code
-        meterDetail.setCode(UidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+ BizNumberTypeEnum.METER_DETAIL_CODE.getCode()));
+        String meterDetailCode = UidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.METER_DETAIL_CODE.getCode());
+        // 新增 缴水电费单 数据
+        meterDetail.setCode(meterDetailCode);
+        meterDetail.setCreatorId(userTicket.getId());
+        meterDetail.setCreator(userTicket.getRealName());
+        meterDetail.setCreatorDepId(userTicket.getDepartmentId());
+        meterDetail.setMarketId(userTicket.getFirmId());
+        meterDetail.setMarketCode(userTicket.getFirmCode());
+        meterDetail.setState(MeterDetailStateEnum.UNSUBMITED.getCode());
 
-        return null;
+        this.getActualDao().insertSelective(meterDetail);
+
+        // 新增 缴费单 数据
+        PaymentOrder meterPaymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+        // 生成 缴费单 的 code
+        String paymentOrderCode = UidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+        meterPaymentOrder.setCode(paymentOrderCode);
+        meterPaymentOrder.setCreateTime(new Date());
+        meterPaymentOrder.setModifyTime(new Date());
+        // TODO
+        meterPaymentOrder.setBusinessId(1L);
+        meterPaymentOrder.setBusinessCode(meterDetailCode);
+        meterPaymentOrder.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
+        meterPaymentOrder.setIsSettle(PayStateEnum.NOT_PAID.getCode());
+        // TODO
+        meterPaymentOrder.setAmount(1L);
+        meterPaymentOrder.setCreatorId(userTicket.getId());
+        meterPaymentOrder.setCreator(userTicket.getRealName());
+        meterPaymentOrder.setMarketId(userTicket.getFirmId());
+        meterPaymentOrder.setMarketCode(userTicket.getFirmCode());
+        meterPaymentOrder.setPayedTime(new Date());
+        // 水表
+        meterPaymentOrder.setBizType(BizTypeEnum.WATER_METER.getCode());
+        if(MeterTypeEnum.ELECTRIC_METER.getCode().equals(meterDetailDto.getType())) {
+            // 电表
+            meterPaymentOrder.setBizType(BizTypeEnum.ELECTRIC_METER.getCode());
+        }
+
+        // 有公摊费, 则有多个缴费单
+        List<PaymentOrder> saveList = Lists.newArrayList();
+        // 如果有公摊费,设置公摊费信息
+        Long sharedAmount = meterDetailDto.getSharedAmount();
+        if (sharedAmount != null) {
+            // TODO
+            //如果有公摊费，水电费的应收金额则需减去公摊费(前端页面)
+
+            //设置公摊费的相关信息
+            PaymentOrder sharedPaymentOrder = BeanConver.copyBean(meterPaymentOrder, PaymentOrder.class);
+            sharedPaymentOrder.setAmount(sharedAmount);
+            saveList.add(sharedPaymentOrder);
+        }
+        saveList.add(meterPaymentOrder);
+
+        paymentOrderService.batchInsert(saveList);
+
+        CustomerMeter customerMeter = customerMeterService.getBindInfoByMeterId(meterDetail.getMeterId());
+        if (null == customerMeter || !customerMeter.getCustomerId().equals(meterDetail.getCustomerId())) {
+            //已被解绑或删除
+            BaseOutput.failure("表已被解绑或删除，请刷新数据后重试!");
+        }
+
+        Boolean isEquals = meterDetailDto.getLastAmount().equals(lastAmount);
+        if (!isEquals){
+            BaseOutput.failure("上期指数已发生变化,请修改后重新提交!");
+        }
+        return BaseOutput.success("新增成功");
     }
 
     /**
