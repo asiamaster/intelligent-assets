@@ -12,8 +12,8 @@ public enum DepositOrderStateEnum {
     CREATED(1, "已创建"),
     CANCELD(2, "已取消"),
     SUBMITTED(3, "已提交"),
-    NOT_PAID(4, "未交清"),
-    PAID(5, "已交清"),
+    PAID(4, "已交费"),
+    REFUNDING(5, "退款中"),
     REFUND(6, "已退款"),
     ;
 
