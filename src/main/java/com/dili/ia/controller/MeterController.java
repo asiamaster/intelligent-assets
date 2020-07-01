@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 /**
  * @author:      xiaosa
  * @date:        2020/6/12
@@ -164,7 +166,13 @@ public class MeterController {
      */
     @RequestMapping(value="/listUnbindMetersByType.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput listUnbindMetersByType(Integer type) {
-        return meterService.listUnbindMetersByType(type);
+        BaseOutput baseOutput = new BaseOutput();
+
+        List<Meter> meterList = meterService.listUnbindMetersByType(type);
+        baseOutput.setData(meterList);
+
+        return baseOutput;
+
     }
 
     /**
@@ -177,7 +185,12 @@ public class MeterController {
      */
     @RequestMapping(value="/getMeterLikeNumber.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput getMeterLikeNumber(Integer type,String number) throws Exception {
-        return meterService.getMeterLikeNumber(type, number);
+        BaseOutput baseOutput = new BaseOutput();
+
+        Meter meterInfo = meterService.getMeterLikeNumber(type, number);
+        baseOutput.setData(meterInfo);
+
+        return baseOutput;
     }
 
 }

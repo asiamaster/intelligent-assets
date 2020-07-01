@@ -115,6 +115,7 @@ public class MeterDetailController {
      */
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput insert(@ModelAttribute MeterDetailDto meterDetailDto) {
+
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         return meterDetailService.addMeterDetail(meterDetailDto, userTicket);

@@ -185,12 +185,9 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      * @date   2020/6/28
      */
     @Override
-    public BaseOutput<CustomerMeter> getBindInfoByMeterId(Long meterId) {
-        BaseOutput baseOutput = new BaseOutput();
+    public CustomerMeter getBindInfoByMeterId(Long meterId) {
+        CustomerMeter customerMeterInfo = this.getActualDao().getBindInfoByMeterId(meterId);
 
-        CustomerMeter customerMeter = this.getActualDao().getBindInfoByMeterId(meterId);
-        baseOutput.setData(customerMeter);
-
-        return baseOutput;
+        return customerMeterInfo;
     }
 }

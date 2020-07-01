@@ -11,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -75,6 +76,21 @@ public class MeterDetailDto extends MeterDetail {
      * 使用月份的最后一天,用于查询
      */
     private Date endTime;
+
+    /**
+     * 公摊费用
+     */
+    private Long sharedAmount;
+
+    /**
+     * 应收金额
+     */
+    private Long receivable;
+
+    /**
+     * 实收金额
+     */
+    private Long cope;
 
     public String getKeyword() {
         return keyword;
@@ -162,5 +178,29 @@ public class MeterDetailDto extends MeterDetail {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public Long getSharedAmount() {
+        return sharedAmount;
+    }
+
+    public void setSharedAmount(Long sharedAmount) {
+        this.sharedAmount = sharedAmount;
+    }
+
+    public Long getReceivable() {
+        return receivable;
+    }
+
+    public void setReceivable(Long receivable) {
+        this.receivable = receivable;
+    }
+
+    public Long getCope() {
+        return cope;
+    }
+
+    public void setCope(Long cope) {
+        this.cope = cope;
     }
 }

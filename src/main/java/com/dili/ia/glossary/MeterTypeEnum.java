@@ -7,8 +7,8 @@ package com.dili.ia.glossary;
  * @description: 表类别枚举
  */
 public enum MeterTypeEnum {
-    CREATED(1, "水表"),
-    CANCELD(2, "电表"),
+    WATER_METER(1, "水表"),
+    ELECTRIC_METER(2, "电表"),
     ;
 
     private String name;
