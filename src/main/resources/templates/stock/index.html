@@ -91,9 +91,9 @@
     <div class="col-12">
         <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
         	<#resource code="addStockIn">
-            <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(1)"><i class="fa fa-eye"></i> 整车入库</button>
-            <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(2)"><i class="fa fa-eye"></i> 零散入库</button>
-            <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(3)"><i class="fa fa-eye"></i> 司磅入库</button>
+            <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(1)"><i class="fa fa-truck"></i> 整车入库</button>
+            <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(2)"><i class="fa fa-truck"></i> 零散入库</button>
+            <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(3)"><i class="fa fa-truck"></i> 司磅入库</button>
             </#resource>
             <#resource code="doExport">
             <button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
@@ -111,7 +111,7 @@
     		<button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
 			</#resource>
 			<#resource code="payStockIn">
-			<button id="btn_submit" type="button" class="btn btn-primary" onclick="openPayHandler()"><i class="fa fa-paper-plane"></i> 支付</button>
+			<button id="btn_submit" type="button" class="btn btn-primary" onclick="openPayHandler()"><i class="fa fa-paypal"></i> 支付</button>
 			</#resource>
 			<#resource code="removeStockIn">
 			<button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openRemoveHandler()"><i class="fa fa-undo"></i> 撤回</button>
@@ -192,13 +192,20 @@
     <form id="payForm" role="form" novalidate>
         <input type="hidden" class="form-control" name="businessCode" value="{{selectedRow.code}}" required />
         <div class="row row-cols-2">
-            <div class="form-group col">
+            <div class="form-group col-12">
                 <label for="customerName">客户信息：<i class="red">*</i></label>
-                <input id="customerName" type="text" class="form-control floatReserve" name="customerName" value={{selectedRow.customerName}}  required />
+                <input  type="text" class="form-control floatReserve" name="customerName" value={{selectedRow.customerName}}  required />
+            </div>
+			<div class="form-group col">
+                <label for="_certificateNumber">支付账号：<i class="red">*</i></label>
+                <input  type="text" class="form-control" name="payCustomerId" required />
+            </div>
+			<div class="form-group col">
+                <button type="button" class="btn btn-primary" ><i class="fa fa-credit-card"></i>刷卡</button>
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">支付金额：<i class="red">*</i></label>
-                <input id="amount" type="number" class="form-control floatReserve" name="amount"  value={{selectedRow.amount}} range="0 9999999" required />
+                <input  type="number" class="form-control" name="amount"  value={{selectedRow.amount}} range="0 9999999" required />
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">输入密码：<i class="red">*</i></label>
