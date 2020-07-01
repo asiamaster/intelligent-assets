@@ -498,27 +498,6 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
     }
 
     /**
-     * 退款 解冻租赁订单所有摊位
-     * @param leaseOrder
-     */
-    public void unFrozenAllBoothForRefund(AssetLeaseOrder leaseOrder) {
-        BoothRentDTO boothRentDTO = new BoothRentDTO();
-        boothRentDTO.setOrderId(leaseOrder.getId().toString());
-        BaseOutput assetsOutput = null;
-        if(LeaseOrderStateEnum.NOT_ACTIVE.getCode().equals(leaseOrder.getState())){
-            assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
-        }else if(LeaseOrderStateEnum.EFFECTIVE.getCode().equals(leaseOrder.getState())){
-            boothRentDTO.setEnd(new Date());
-            assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
-        }
-
-        if(null != assetsOutput && !assetsOutput.isSuccess()){
-            LOG.info("解冻租赁订单【租赁单编号:{}】所有摊位异常{}", leaseOrder.getCode(), assetsOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
-        }
-    }
-
-    /**
      * 级联更新摊位租赁订单状态 订单项状态级联发生变化
      *
      * @param leaseOrder
@@ -1111,6 +1090,7 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
     }
 
     @Override
+    @GlobalTransactional
     @Transactional
     public BaseOutput settleSuccessRefundOrderHandler(RefundOrder refundOrder) {
         AssetLeaseOrder leaseOrder = get(refundOrder.getBusinessId());
@@ -1120,18 +1100,17 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
             LOG.info("此单已退款【leaseOrderItemId={}】", refundOrder.getBusinessItemId());
             return BaseOutput.success();
         }
-
         leaseOrderItem.setRefundState(RefundStateEnum.REFUNDED.getCode());
         leaseOrderItem.setState(LeaseOrderItemStateEnum.REFUNDED.getCode());
-        //退款发起停租
-        leaseOrderItem.setStopRentState(StopRentStateEnum.WAIT_TIMER_EXE.getCode());
         if (assetLeaseOrderItemService.updateSelective(leaseOrderItem) == 0) {
             LOG.info("摊位租赁单订单项退款申请结算退款成功 更新租赁单订单项乐观锁生效 【租赁单订单项ID {}】", leaseOrderItem.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
+        //停止租赁 释放时间段
+        assetLeaseOrderItemService.stopBoothRent(leaseOrderItem, leaseOrder.getStartTime(), leaseOrderItem.getStopTime());
         //级联检查其他订单项状态，如果全部为已退款，则需联动更新订单状态为已退款
-        AssetLeaseOrderItem condition = DTOUtils.newInstance(AssetLeaseOrderItem.class);
+        AssetLeaseOrderItem condition = new AssetLeaseOrderItem();
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.listByExample(condition);
         boolean isUpdateLeaseOrderState = true;

@@ -6,6 +6,7 @@ import com.dili.ia.domain.dto.AssetLeaseOrderItemListDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -19,6 +20,13 @@ public interface AssetLeaseOrderItemService extends BaseService<AssetLeaseOrderI
      * @return
      */
     BaseOutput stopRent(AssetLeaseOrderItem leaseOrderItem);
+    /**
+     * 停租摊位租赁
+     * @param assetLeaseOrderItem
+     * @param startTime
+     * @param stopTime
+     */
+    void stopBoothRent(AssetLeaseOrderItem assetLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime);
 
     /**
      * 摊位订单项停租处理

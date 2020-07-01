@@ -103,28 +103,39 @@ public class AssetLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetLeaseOr
             leaseOrderItem.setVersion(leaseOrderItemOld.getVersion());
         }
 
-        //修改摊位租赁时间段
-        BoothRentDTO boothRentDTO = new BoothRentDTO();
-        boothRentDTO.setBoothId(leaseOrderItemOld.getAssetId());
-        boothRentDTO.setOrderId(leaseOrderItemOld.getLeaseOrderId().toString());
-        BaseOutput assetsOutput;
-        if(leaseOrderItem.getStopTime().isBefore(leaseOrder.getStartTime())){
-            //未生效停租 结束时间比开始时间小 直接释放时间段
-            assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
-        }else{
-            boothRentDTO.setEnd(DateUtils.localDateTimeToUdate(leaseOrderItem.getStopTime()));
-            assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
-        }
-        if(!assetsOutput.isSuccess()){
-            LOG.info("摊位订单项停租异常，【订单项ID:{},摊位名称:{},异常MSG:{}】", leaseOrderItemOld.getId(), leaseOrderItemOld.getAssetName(), assetsOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
-        }
+        stopBoothRent(leaseOrderItemOld,leaseOrder.getStartTime(),leaseOrderItem.getStopTime());
         if(updateSelective(leaseOrderItem) == 0){
             LOG.info("摊位订单项停租异常,乐观锁生效【订单项ID:{},摊位名称:{}】", leaseOrderItemOld.getId(), leaseOrderItemOld.getAssetName());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
         LoggerUtil.buildLoggerContext(leaseOrderItemOld.getLeaseOrderId(),leaseOrderItemOld.getLeaseOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),leaseOrderItem.getStopReason());
         return BaseOutput.success();
+    }
+
+    /**
+     * 停租摊位租赁
+     * @param assetLeaseOrderItem
+     * @param startTime
+     * @param stopTime
+     */
+    @Override
+    public void stopBoothRent(AssetLeaseOrderItem assetLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime) {
+        //修改摊位租赁时间段
+        BoothRentDTO boothRentDTO = new BoothRentDTO();
+        boothRentDTO.setBoothId(assetLeaseOrderItem.getAssetId());
+        boothRentDTO.setOrderId(assetLeaseOrderItem.getLeaseOrderId().toString());
+        BaseOutput assetsOutput;
+        if (stopTime.isBefore(startTime)) {
+            //未生效停租 结束时间比开始时间小 直接释放时间段
+            assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
+        } else {
+            boothRentDTO.setEnd(DateUtils.localDateTimeToUdate(stopTime));
+            assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
+        }
+        if (!assetsOutput.isSuccess()) {
+            LOG.info("摊位订单项停租异常，【订单项ID:{},摊位名称:{},异常MSG:{}】", assetLeaseOrderItem.getId(), assetLeaseOrderItem.getAssetName(), assetsOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, assetsOutput.getMessage());
+        }
     }
 
     /**
