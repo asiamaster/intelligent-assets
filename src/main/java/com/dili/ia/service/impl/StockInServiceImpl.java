@@ -7,6 +7,7 @@ import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockWeighmanRecord;
 import com.dili.ia.domain.dto.PayInfoDto;
+import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
@@ -14,9 +15,12 @@ import com.dili.ia.domain.dto.StockInRefundDto;
 import com.dili.ia.domain.dto.StockWeighmanRecordDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.PayStateEnum;
+import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.glossary.StockInTypeEnum;
 import com.dili.ia.mapper.StockInMapper;
+import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
@@ -25,10 +29,12 @@ import com.dili.ia.service.StockInService;
 import com.dili.ia.service.StockService;
 import com.dili.ia.service.StockWeighmanRecordService;
 import com.dili.ia.util.LoggerUtil;
+import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.SettleStateEnum;
+import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTO;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -47,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +66,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	 private final static Logger LOG = LoggerFactory.getLogger(StockInServiceImpl.class);
 	@Autowired
 	private UidRpcResolver UidRpcResolver;
+	
+	@Autowired
+	private SettlementRpcResolver settlementRpcResolver;
 	
 	@Autowired 
 	private StockInDetailService stockInDetailService;
@@ -74,6 +84,11 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	@Autowired
 	private RefundOrderService refundOrderService;
+	
+	@Value("${settlement.app-id}")
+    private Long settlementAppId;
+    
+    private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/earnestOrder/settlementDealHandler";
 	
     public StockInMapper getActualDao() {
         return (StockInMapper)getDao();
@@ -154,98 +169,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 
 	@Override
 	@Transactional
-	public void submit(String code) {
-		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-		StockIn stockIn = getStockInByCode(code);
-		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()) {
-			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-		}
-		getStockInDetailsByStockCode(code);
-
-		// 创建收费单费用收取
-		PayInfoDto payInfoDto = new PayInfoDto();
-		payInfoDto.setBusinessCode(code);
-		payInfoDto.setAmount(stockIn.getAmount());
-		PaymentOrder paymentOrder = paymentOrderService.savePaymentOrder(userTicket, payInfoDto);
-
-		// 提交入库单
-		StockIn domain = new StockIn(userTicket);
-		domain.setSubmitterId(userTicket.getId());
-		domain.setSubmitter(userTicket.getRealName());
-		domain.setPaymentOrderCode(paymentOrder.getCode());
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED);
-		//
-	}
-
-	@Override
-	@Transactional
-	public void pay(PayInfoDto payInfoDto) {
-		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-		String code = payInfoDto.getBusinessCode();
-		StockIn stockIn = getStockInByCode(code);
-		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
-			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-		}
-		
-		//TODO 调用收费接口,缴费
-		StockIn domain = new StockIn(userTicket);
-		//domain.setp
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
-		//入库 库存
-		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
-		stockService.inStock(stockInDetails, stockIn);
-		
-	}
-	
-	@Override
-	public StockIn getStockInByCode(String code) {
-		StockIn example = new StockIn();
-		example.setCode(code);
-		//根据code获取入库单
-		List<StockIn> stockInList = listByExample(example);
-		if(CollectionUtils.isEmpty(stockInList) || stockInList.size() != 1) {
-			throw new BusinessException(ResultCode.DATA_ERROR, "入库单不存在");
-		}
-		return stockInList.get(0);
-	}
-	
-	private List<StockInDetail> getStockInDetailsByStockCode(String code){
-		StockInDetail example = new StockInDetail();
-		example.setStockInCode(code);
-		//根据code获取入库单
-		List<StockInDetail> details = stockInDetailService.listByExample(example);
-		if(CollectionUtils.isEmpty(details)) {
-			throw new BusinessException(ResultCode.DATA_ERROR, "子单记录不存在");
-		}
-		return details;
-	}
-	
-	private void updateState(StockIn domain,String code,Integer version,StockInStateEnum state) {
-		domain.setVersion(version+1);
-		domain.setState(state.getCode());
-		StockIn condition = new StockIn();
-		condition.setCode(code);
-		condition.setVersion(version);
-		//修改入库单状态提交入库单
-		int row = updateSelectiveByExample(domain, condition);
-		if(row != 1) {
-			throw new BusinessException(ResultCode.DATA_ERROR, "业务繁忙,稍后再试");
-		}
-	}
-
-	@Override
-	public StockInDto view(String code) {
-		StockIn stockIn = getStockInByCode(code);
-		StockInDto stockInDto = new StockInDto();
-		BeanUtils.copyProperties(stockIn, stockInDto);
-		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
-		stockInDto.setStockInDetails(stockInDetails);
-		stockInDto.setJsonStockInDetailDtos(JSON.toJSONString(stockInDetails));
-		return stockInDto;
-	}
-
-	@Override
-	@Transactional
 	public void updateStockIn(StockInDto stockInDto) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(stockInDto.getCode());
@@ -300,6 +223,121 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		condition.setVersion(stockIn.getVersion());
 		updateSelectiveByExample(domain, condition);
 	}
+	
+	@Override
+	@Transactional
+	//@GlobalTransactional
+	public void submit(String code) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		StockIn stockIn = getStockInByCode(code);
+		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+		}
+		getStockInDetailsByStockCode(code);
+
+		// 创建收费单费用收取
+		PayInfoDto payInfoDto = new PayInfoDto();
+		payInfoDto.setBusinessCode(code);
+		payInfoDto.setAmount(stockIn.getAmount());
+		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, payInfoDto);
+
+		// 提交入库单
+		StockIn domain = new StockIn(userTicket);
+		domain.setSubmitterId(userTicket.getId());
+		domain.setSubmitter(userTicket.getRealName());
+		domain.setPaymentOrderCode(paymentOrder.getCode());
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED);
+		//
+		// 调用结算接口,缴费
+		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, paymentOrder.getCode(), paymentOrder.getAmount());
+		SettleOrder settleOrder = settlementRpcResolver.submit(settleOrderDto);
+		
+		
+		paymentOrderService.insertSelective(paymentOrder);
+	}
+
+	@Override
+	@Transactional
+	//@GlobalTransactional
+	public void pay(PayInfoDto payInfoDto) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		String code = payInfoDto.getBusinessCode();
+		StockIn stockIn = getStockInByCode(code);
+		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+		}
+		// 获取缴费单
+		PaymentOrder paymentOrder = paymentOrderService.getByCode(stockIn.getPaymentOrderCode());
+		
+		// 调用收费接口,缴费
+		//SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket,stockIn);;
+		//SettleOrder settleOrder = settlementRpcResolver.submit(settleOrderDto);
+		
+		/*paymentOrder.setSettlementCode(settleOrder.getCode());
+		paymentOrder.setSettlementOperator(settleOrder.getOperatorName());
+		paymentOrder.setSettlementWay(settleOrder.getWay());
+		
+		// 变更缴费单状态
+		paymentOrderService.updateSelective(paymentOrder);
+		//paymentOrder.setIsSettle();
+		StockIn domain = new StockIn(userTicket);
+		//domain.setp
+		//domain.set
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
+		//入库 库存
+		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
+		stockService.inStock(stockInDetails, stockIn);*/
+		
+	}
+	
+	@Override
+	public StockIn getStockInByCode(String code) {
+		StockIn example = new StockIn();
+		example.setCode(code);
+		//根据code获取入库单
+		List<StockIn> stockInList = listByExample(example);
+		if(CollectionUtils.isEmpty(stockInList) || stockInList.size() != 1) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "入库单不存在");
+		}
+		return stockInList.get(0);
+	}
+	
+	private List<StockInDetail> getStockInDetailsByStockCode(String code){
+		StockInDetail example = new StockInDetail();
+		example.setStockInCode(code);
+		//根据code获取入库单
+		List<StockInDetail> details = stockInDetailService.listByExample(example);
+		if(CollectionUtils.isEmpty(details)) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "子单记录不存在");
+		}
+		return details;
+	}
+	
+	private void updateState(StockIn domain,String code,Integer version,StockInStateEnum state) {
+		domain.setVersion(version+1);
+		domain.setState(state.getCode());
+		StockIn condition = new StockIn();
+		condition.setCode(code);
+		condition.setVersion(version);
+		//修改入库单状态提交入库单
+		int row = updateSelectiveByExample(domain, condition);
+		if(row != 1) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "业务繁忙,稍后再试");
+		}
+	}
+
+	@Override
+	public StockInDto view(String code) {
+		StockIn stockIn = getStockInByCode(code);
+		StockInDto stockInDto = new StockInDto();
+		BeanUtils.copyProperties(stockIn, stockInDto);
+		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
+		stockInDto.setStockInDetails(stockInDetails);
+		stockInDto.setJsonStockInDetailDtos(JSON.toJSONString(stockInDetails));
+		return stockInDto;
+	}
+
+	
 
 	@Override
 	@Transactional
@@ -317,16 +355,21 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 
 	@Override
 	@Transactional
-	public void remove(String code) {
+	public void withdraw(String code) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		StockIn domain = new StockIn(userTicket);
-		domain.setPaymentOrderCode("");
+		domain.setWithdrawOperator(userTicket.getRealName());
+		domain.setWithdrawOperatorId(userTicket.getId());
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CREATED);
-		//TODO 是否需要将结算单的状态改变
+		// 撤销缴费单/结算单
+		PaymentOrder paymentOrder = paymentOrderService.getByCode(stockIn.getPaymentOrderCode());
+		paymentOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
+		paymentOrderService.updateSelective(paymentOrder);
+		settlementRpcResolver.cancel(settlementAppId, paymentOrder.getCode());
 	}
 
 	@Override
@@ -346,24 +389,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		details.forEach(detail -> {
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), "退款businessCode");
 		});
-		//TODO 退款单
-		RefundOrder refundOrder = DTOUtils.newInstance(RefundOrder.class);
-		refundOrder.setBusinessCode(code);
-		refundOrder.setBusinessId(stockIn.getId());
-		refundOrder.setCustomerId(stockIn.getCustomerId());
-		refundOrder.setCustomerName(stockIn.getCustomerName());
-		refundOrder.setCustomerCellphone(stockIn.getCustomerCellphone());
-		refundOrder.setCertificateNumber("0000");
-		refundOrder.setTotalRefundAmount(stockInRefundDto.getAmount());
-		refundOrder.setPayeeAmount(stockInRefundDto.getAmount());
-		refundOrder.setRefundReason(stockInRefundDto.getNotes());
-		refundOrder.setBizType(BizTypeEnum.STOCKIN.getCode());
-		refundOrder.setCode(UidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
-		if(!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
-			LOG.info("入库单【编号：{}】退款申请接口异常",refundOrder.getBusinessCode());
-            throw new BusinessException(ResultCode.DATA_ERROR,"退款申请接口异常");
-		}
-		
+		RefundOrder refundOrder = buildRefundOrderDto(userTicket, stockInRefundDto, stockIn);
+		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, refundOrder.getCode(), refundOrder.getPayeeAmount());;
 	}
 
 	@Override
@@ -379,5 +406,67 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		return null;
 	}
 
+	
+	private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, StockIn stockIn,String orderCode,Long amount) {
+		SettleOrderInfoDto settleOrderInfoDto = 
+				new SettleOrderInfoDto(userTicket, BizTypeEnum.STOCKIN,SettleTypeEnum.PAY,SettleStateEnum.WAIT_DEAL);
+		settleOrderInfoDto.setBusinessCode(stockIn.getCode());
+		settleOrderInfoDto.setOrderCode(orderCode);
+		settleOrderInfoDto.setAmount(amount);
+		settleOrderInfoDto.setAppId(settlementAppId);
+		settleOrderInfoDto.setBusinessDepId(stockIn.getDepartmentId());
+		settleOrderInfoDto.setBusinessDepName(stockIn.getDepartmentName());
+		settleOrderInfoDto.setCustomerId(stockIn.getCustomerId());
+		settleOrderInfoDto.setCustomerName(stockIn.getCustomerName());
+		settleOrderInfoDto.setCustomerPhone(stockIn.getCustomerCellphone());
+		settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+		return settleOrderInfoDto;
+	}
+	
+	private RefundOrder buildRefundOrderDto(UserTicket userTicket, StockInRefundDto stockInRefundDto, StockIn stockIn) {
+		// TODO 退款单
+		RefundOrder refundOrder = DTOUtils.newInstance(RefundOrder.class);
+		refundOrder.setBusinessCode(stockIn.getCode());
+		refundOrder.setBusinessId(stockIn.getId());
+		refundOrder.setCustomerId(stockIn.getCustomerId());
+		refundOrder.setCustomerName(stockIn.getCustomerName());
+		refundOrder.setCustomerCellphone(stockIn.getCustomerCellphone());
+		refundOrder.setCertificateNumber("0000");
+		refundOrder.setTotalRefundAmount(stockInRefundDto.getAmount());
+		refundOrder.setPayeeAmount(stockInRefundDto.getAmount());
+		refundOrder.setRefundReason(stockInRefundDto.getNotes());
+		refundOrder.setBizType(BizTypeEnum.STOCKIN.getCode());
+		refundOrder.setCode(UidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
+		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
+			LOG.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
+			throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+		}
+		return refundOrder;
+	}
+
+	@Override
+	public void settlementDealHandler(SettleOrder settleOrder) {
+		String code = settleOrder.getBusinessCode();
+		StockIn stockIn = getStockInByCode(code);
+		if (stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+		}
+		// 获取缴费单
+		PaymentOrder paymentOrder = paymentOrderService.getByCode(stockIn.getPaymentOrderCode());
+		paymentOrder.setState(PaymentOrderStateEnum.PAID.getCode());
+		// 填充缴费单的结算单信息
+		paymentOrder.setSettlementCode(settleOrder.getCode());
+		paymentOrder.setSettlementOperator(settleOrder.getOperatorName());
+		paymentOrder.setSettlementWay(settleOrder.getWay());
+		// TODO 变更缴费单状态
+		paymentOrderService.updateSelective(paymentOrder);
+		// paymentOrder.setIsSettle();
+		StockIn domain = new StockIn();
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
+		// 入库 库存
+		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
+		stockService.inStock(stockInDetails, stockIn);
+
+	}
 	
 }

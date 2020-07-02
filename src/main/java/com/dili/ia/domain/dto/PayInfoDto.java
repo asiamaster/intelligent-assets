@@ -19,7 +19,7 @@ public class PayInfoDto {
 	private String businessCode;
 	
 	private Long amount;
-	
+		
 	private String password;
 	
 	private Integer payType;

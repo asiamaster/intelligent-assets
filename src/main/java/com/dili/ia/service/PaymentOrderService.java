@@ -13,14 +13,14 @@ public interface PaymentOrderService extends BaseService<PaymentOrder, Long> {
 	
 	/**
 	 * 
-	 * @Title savePaymentOrder
+	 * @Title buildPaymentOrder
 	 * @Description 创建缴费单
 	 * @param userTicket
 	 * @param payInfoDto
 	 * @return
 	 * @throws
 	 */
-	PaymentOrder savePaymentOrder(UserTicket userTicket, PayInfoDto payInfoDto);
+	PaymentOrder buildPaymentOrder(UserTicket userTicket, PayInfoDto payInfoDto);
 	
 	/**
 	 * 
@@ -31,5 +31,17 @@ public interface PaymentOrderService extends BaseService<PaymentOrder, Long> {
 	 * @throws
 	 */
 	PaymentOrder getByCode(String code);
+	
+	/**
+	 * 
+	 * @Title updatePaymentOrder
+	 * @Description 更新数据(版本号检查)
+	 * @param domain
+	 * @param version (code,version)
+	 * @param code (code,version)
+	 * @return
+	 * @throws
+	 */
+	void updatePaymentOrder(PaymentOrder domain, Integer version, String code);
 		
 }

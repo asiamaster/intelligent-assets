@@ -40,7 +40,7 @@ public class UidRpcResolver {
 		BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(type);
         if(!bizNumberOutput.isSuccess()){
         	LOG.info("编号生成失败!" + type);
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成失败!");
+            throw new BusinessException(ResultCode.APP_ERROR, "编号生成失败!");
         }
 		return bizNumberOutput.getData();	
 	};
