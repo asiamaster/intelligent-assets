@@ -61,23 +61,30 @@
 
     //品类搜索自动完成
     var categoryAutoCompleteOption = {
-        paramName: 'keyword',
-        displayFieldName: 'name',
-        serviceUrl: '/category/search.action',
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
+        width: '100%',
+        language: 'zh-CN',
+        maximumSelectionLength: 10,
+        ajax: {
+            type:'post',
+            url: '/category/search.action',
+            data: function (params) {
                 return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '(' + dataItem.code + ')'
-                            }
-                        );
-                    })
+                    keyword: params.term,
                 }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return;
+            },
+            processResults: function (result) {
+                if(result.success){
+                    let data = result.data;
+                    return {
+                        results: $.map(data, function (dataItem) {
+                            dataItem.text = dataItem.name + (dataItem.cusName ? '(' + dataItem.cusName + ')' : '');
+                            return dataItem;
+                        })
+                    };
+                }else{
+                    bs4pop.alert(result.message, {type: 'error'});
+                    return;
+                }
             }
         }
     }
@@ -362,6 +369,9 @@
             leaseTermName,
             engageName,
             departmentName,
+            categorys: $.map($('#categorys').select2('data'), function (dataItem) {
+                return {id: dataItem.id, text: dataItem.text}
+            }),
             logContent: $('#id').val() ? Log.buildUpdateContent() : ''
         });
         return formData;

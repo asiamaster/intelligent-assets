@@ -1,8 +1,5 @@
 package com.dili.ia.service.impl;
-import java.util.Map;
 
-import com.dili.assets.sdk.dto.BoothDTO;
-import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
@@ -45,16 +42,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -85,8 +81,6 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
     @Autowired
     private CustomerAccountService customerAccountService;
     @Autowired
-    private AssetsRpc assetsRpc;
-    @Autowired
     private RefundOrderService refundOrderService;
     @Autowired
     private CustomerRpc customerRpc;
@@ -99,6 +93,16 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
     @Autowired
     private TransferDeductionItemService transferDeductionItemService;
 
+    @Autowired @Lazy
+    private List<AssetLeaseService> assetLeaseServices;
+    private Map<Integer,AssetLeaseService> assetLeaseServiceMap = new HashMap<>();
+    @PostConstruct
+    public void init() {
+        for(AssetLeaseService service : assetLeaseServices) {
+            this.assetLeaseServiceMap.put(service.getAssetsType(), service);
+        }
+    }
+
     @Override
     @Transactional
     public BaseOutput saveLeaseOrder(AssetLeaseOrderListDto dto) {
@@ -109,15 +113,20 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
 
         //检查客户状态
         checkCustomerState(dto.getCustomerId(),userTicket.getFirmId());
+        AssetLeaseService assetLeaseService = assetLeaseServiceMap.get(dto.getAssetType());
         dto.getLeaseOrderItems().forEach(o->{
-            //检查摊位状态
-            checkBoothState(o.getAssetId());
+            //检查资产状态
+            assetLeaseService.checkAssetState(o.getAssetId());
         });
 
         dto.setMarketId(userTicket.getFirmId());
         dto.setMarketCode(userTicket.getFirmCode());
         dto.setCreatorId(userTicket.getId());
         dto.setCreator(userTicket.getRealName());
+        if(CollectionUtils.isNotEmpty(dto.getCategorys())){
+            dto.setCategoryId(dto.getCategorys().stream().map(o->o.getId()).collect(Collectors.joining(",")));
+            dto.setCategoryName(dto.getCategorys().stream().map(o->o.getText()).collect(Collectors.joining(",")));
+        }
 
         if (null == dto.getId()) {
             //租赁单新增
@@ -145,6 +154,8 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
             SpringUtil.copyPropertiesIgnoreNull(dto,oldLeaseOrder);
             oldLeaseOrder.setContractNo(dto.getContractNo());
             oldLeaseOrder.setNotes(dto.getNotes());
+            oldLeaseOrder.setCategoryId(dto.getCategoryId());
+            oldLeaseOrder.setCategoryName(dto.getCategoryName());
             if (update(oldLeaseOrder) == 0) {
                 LOG.info("摊位租赁单修改异常,乐观锁生效 【租赁单编号:{}】", dto.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
@@ -225,24 +236,6 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
         }
     }
 
-    /**
-     * 检查摊位状态
-     * @param boothId
-     */
-    private void checkBoothState(Long boothId){
-        BaseOutput<BoothDTO> output = assetsRpc.getBoothById(boothId);
-        if(!output.isSuccess()){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位接口调用异常 "+output.getMessage());
-        }
-        BoothDTO booth = output.getData();
-        if(null == booth){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位不存在，请重新修改后保存");
-        }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位"+booth.getName()+"已禁用，请重新修改后保存");
-        }else if(YesOrNoEnum.YES.getCode().equals(booth.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位"+booth.getName()+"已删除，请重新修改后保存");
-        }
-    }
 
     /**
      * 检查客户状态
@@ -287,13 +280,14 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.listByExample(condition);
 
+        AssetLeaseService assetLeaseService = assetLeaseServiceMap.get(leaseOrder.getAssetType());
         /***************************检查是否可以提交付款 begin*********************/
         if(leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())){
             //检查客户状态
             checkCustomerState(leaseOrder.getCustomerId(),leaseOrder.getMarketId());
             leaseOrderItems.forEach(o->{
-                //检查摊位状态
-                checkBoothState(o.getAssetId());
+                //检查资产状态
+                assetLeaseService.checkAssetState(o.getAssetId());
             });
         }
         //检查是否可以进行提交付款
@@ -322,7 +316,7 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
                 }
             }
             //冻结摊位
-            frozenBooth(leaseOrder,leaseOrderItems);
+            assetLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
             leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
             leaseOrder.setPaymentId(paymentOrder.getId());
             //更新摊位租赁单状态
@@ -457,44 +451,6 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
         settleOrder.setType(SettleTypeEnum.PAY.getCode());
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         return settleOrder;
-    }
-
-
-    /**
-     * 冻结摊位
-     * @param leaseOrderItems
-     */
-    private void frozenBooth(AssetLeaseOrder leaseOrder,List<AssetLeaseOrderItem> leaseOrderItems) {
-        leaseOrderItems.forEach(o->{
-            BoothRentDTO boothRentDTO = new BoothRentDTO();
-            boothRentDTO.setBoothId(o.getAssetId());
-            boothRentDTO.setStart(DateUtils.localDateTimeToUdate(leaseOrder.getStartTime()));
-            boothRentDTO.setEnd(DateUtils.localDateTimeToUdate(leaseOrder.getEndTime()));
-            boothRentDTO.setOrderId(leaseOrder.getId().toString());
-            BaseOutput assetsOutput = assetsRpc.addBoothRent(boothRentDTO);
-            if(!assetsOutput.isSuccess()){
-                LOG.info("冻结摊位异常【编号：{}】", leaseOrder.getCode());
-                if(assetsOutput.getCode().equals("2500")){
-                    throw new BusinessException(ResultCode.DATA_ERROR,o.getAssetName()+"选择的时间期限重复，请修改后重新保存");
-                }else{
-                    throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
-                }
-            }
-        });
-    }
-
-    /**
-     * 解冻租赁订单所有摊位
-     * @param leaseOrderId
-     */
-    public void unFrozenAllBooth(Long leaseOrderId) {
-        BoothRentDTO boothRentDTO = new BoothRentDTO();
-        boothRentDTO.setOrderId(leaseOrderId.toString());
-        BaseOutput assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
-        if(!assetsOutput.isSuccess()){
-            LOG.info("解冻租赁订单【leaseOrderId:{}】所有摊位异常{}", leaseOrderId, assetsOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
-        }
     }
 
     /**
@@ -633,7 +589,8 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
             throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
         }
         //解冻摊位
-        unFrozenAllBooth(leaseOrder.getId());
+        AssetLeaseService assetLeaseService = assetLeaseServiceMap.get(leaseOrder.getAssetType());
+        assetLeaseService.unFrozenAllAsset(leaseOrder.getId());
         //日志上下文构建
         LoggerUtil.buildLoggerContext(leaseOrder.getId(),leaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
         return BaseOutput.success();
@@ -686,7 +643,8 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
                 throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
             }
             //解冻出租摊位
-            leaseBooth(leaseOrder);
+            AssetLeaseService assetLeaseService = assetLeaseServiceMap.get(leaseOrder.getAssetType());
+            assetLeaseService.leaseAsset(leaseOrder);
         }
 
         /***************************更新租赁单及其订单项相关字段 begin*********************/
@@ -743,20 +701,6 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
         businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
         businessLog.setSystemCode("INTELLIGENT_ASSETS");
         return businessLog;
-    }
-
-    /**
-     * 解冻消费摊位
-     * @param leaseOrder
-     */
-    private void leaseBooth(AssetLeaseOrder leaseOrder) {
-        BoothRentDTO boothRentDTO = new BoothRentDTO();
-        boothRentDTO.setOrderId(leaseOrder.getId().toString());
-        BaseOutput assetsOutput = assetsRpc.rentBoothRent(boothRentDTO);
-        if(!assetsOutput.isSuccess()){
-            LOG.info("摊位解冻出租异常{}",assetsOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
-        }
     }
 
     /**
@@ -987,33 +931,6 @@ public class AssetLeaseOrderServiceImpl extends BaseServiceImpl<AssetLeaseOrder,
             });
         }
         return BaseOutput.success();
-    }
-
-    /**
-     * 摊位租赁单退款申请条件检查
-     * @param refundOrderDto
-     * @param leaseOrder
-     */
-    private void checkRefundApplyWithLeaseOrder(RefundOrderDto refundOrderDto, AssetLeaseOrder leaseOrder, UserTicket userTicket) {
-        //收款人和转抵扣收款人客户状态验证
-        checkCustomerState(refundOrderDto.getPayeeId(),userTicket.getFirmId());
-        List<TransferDeductionItem> transferDeductionItems = refundOrderDto.getTransferDeductionItems();
-        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
-            for (TransferDeductionItem transferDeductionItem : transferDeductionItems
-            ) {
-                checkCustomerState(transferDeductionItem.getPayeeId(), userTicket.getFirmId());
-            }
-        }
-        if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"租赁单状态已发生变更，不能发起退款申请");
-        }
-        if(PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"租赁单费用已交清不能，只能在租赁摊位上进行退款");
-        }
-        //退款总金额不能大于未交清可退金额 （已交金额+所有抵扣项）
-        if (refundOrderDto.getTotalRefundAmount() > (leaseOrder.getPaidAmount() +  leaseOrder.getEarnestDeduction() + leaseOrder.getTransferDeduction())) {
-            throw new BusinessException(ResultCode.DATA_ERROR,"退款总金额不能大于可退金额");
-        }
     }
 
     /**

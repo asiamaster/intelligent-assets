@@ -101,7 +101,7 @@ public class AssetLeaseOrder extends BaseDomain {
 
     //品类id
     @Column(name = "`category_id`")
-    private Long categoryId;
+    private String categoryId;
 
     //品类名称
     @Column(name = "`category_name`")
@@ -383,11 +383,11 @@ public class AssetLeaseOrder extends BaseDomain {
         this.engageName = engageName;
     }
 
-    public Long getCategoryId() {
+    public String getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(Long categoryId) {
+    public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
     }
 

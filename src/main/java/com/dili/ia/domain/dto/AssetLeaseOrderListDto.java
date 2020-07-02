@@ -1,9 +1,6 @@
 package com.dili.ia.domain.dto;
 
-import com.dili.ia.domain.AssetLeaseOrder;
-import com.dili.ia.domain.AssetLeaseOrderItem;
-import com.dili.ia.domain.LeaseOrder;
-import com.dili.ia.domain.LeaseOrderItem;
+import com.dili.ia.domain.*;
 import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
 
@@ -64,6 +61,9 @@ public class AssetLeaseOrderListDto extends AssetLeaseOrder {
     @Column(name = "`start_time`")
     @Operator(Operator.LITTLE_EQUAL_THAN)
     private LocalDateTime endTimeLT;
+
+    @Transient
+    private List<IdTextPair> categorys;
 
     public LocalDateTime getCreatedStart() {
         return createdStart;
@@ -151,5 +151,13 @@ public class AssetLeaseOrderListDto extends AssetLeaseOrder {
 
     public void setEndTimeLT(LocalDateTime endTimeLT) {
         this.endTimeLT = endTimeLT;
+    }
+
+    public List<IdTextPair> getCategorys() {
+        return categorys;
+    }
+
+    public void setCategorys(List<IdTextPair> categorys) {
+        this.categorys = categorys;
     }
 }
