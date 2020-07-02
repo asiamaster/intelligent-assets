@@ -1,8 +1,8 @@
 package com.dili.ia.service;
 
-import com.dili.ia.domain.AssetLeaseOrder;
+import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.dto.AssetLeaseOrderListDto;
+import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.settlement.domain.SettleOrder;
@@ -13,13 +13,13 @@ import com.dili.ss.domain.BaseOutput;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-05-29 14:40:05.
  */
-public interface AssetLeaseOrderService extends BaseService<AssetLeaseOrder, Long> {
+public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, Long> {
     /**
      * 摊位租赁订单保存
      * @param dto
      * @return
      */
-    BaseOutput saveLeaseOrder(AssetLeaseOrderListDto dto);
+    BaseOutput saveLeaseOrder(AssetsLeaseOrderListDto dto);
 
     /**
      * 客户状态检查
@@ -62,13 +62,13 @@ public interface AssetLeaseOrderService extends BaseService<AssetLeaseOrder, Lon
      * 租赁单生效处理
      * @param o
      */
-    void leaseOrderEffectiveHandler(AssetLeaseOrder o);
+    void leaseOrderEffectiveHandler(AssetsLeaseOrder o);
 
     /**
      * 租赁单到期处理
      * @param o
      */
-    void leaseOrderExpiredHandler(AssetLeaseOrder o);
+    void leaseOrderExpiredHandler(AssetsLeaseOrder o);
 
     /**
      * 查询打印数据
@@ -105,5 +105,5 @@ public interface AssetLeaseOrderService extends BaseService<AssetLeaseOrder, Lon
      * @param leaseOrder
      * @return
      */
-    BaseOutput supplement(AssetLeaseOrder leaseOrder);
+    BaseOutput supplement(AssetsLeaseOrder leaseOrder);
 }

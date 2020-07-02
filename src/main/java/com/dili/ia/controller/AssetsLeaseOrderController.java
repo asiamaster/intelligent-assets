@@ -1,13 +1,11 @@
 package com.dili.ia.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.AssetLeaseOrder;
-import com.dili.ia.domain.AssetLeaseOrderItem;
+import com.dili.ia.domain.AssetsLeaseOrder;
+import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.dto.AssetLeaseOrderItemListDto;
-import com.dili.ia.domain.dto.AssetLeaseOrderListDto;
+import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
@@ -25,7 +23,6 @@ import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,24 +31,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-05-29 14:40:05.
  */
 @Controller
-@RequestMapping("/assetLeaseOrder")
-public class AssetLeaseOrderController {
+@RequestMapping("/assetsLeaseOrder")
+public class AssetsLeaseOrderController {
     private final static Logger LOG = LoggerFactory.getLogger(LeaseOrderController.class);
     @Autowired
-    AssetLeaseOrderService assetLeaseOrderService;
+    AssetsLeaseOrderService assetLeaseOrderService;
     @Autowired
-    AssetLeaseOrderItemService assetLeaseOrderItemService;
+    AssetsLeaseOrderItemService assetLeaseOrderItemService;
     @Autowired
     PaymentOrderService paymentOrderService;
     @Autowired
@@ -65,11 +60,11 @@ public class AssetLeaseOrderController {
     /**
      * 跳转到LeaseOrder页面
      * @param modelMap
-     * @param assetType
+     * @param assetsType
      * @return String
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
-    public String index(ModelMap modelMap,Integer assetType) {
+    public String index(ModelMap modelMap,Integer assetsType) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
         Calendar c = Calendar.getInstance();
         c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
@@ -85,10 +80,10 @@ public class AssetLeaseOrderController {
             throw new RuntimeException("未登录");
         }
 
-        modelMap.put("chargeItems", businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), null));
+        modelMap.put("chargeItems", businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), null));
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
-        modelMap.put("assetType", assetType);
+        modelMap.put("assetsType", assetsType);
         return "assetLeaseOrder/index";
     }
 
@@ -100,7 +95,7 @@ public class AssetLeaseOrderController {
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap,Long id,String orderCode) {
-        AssetLeaseOrder leaseOrder = null;
+        AssetsLeaseOrder leaseOrder = null;
         if(null != id) {
             leaseOrder = assetLeaseOrderService.get(id);
         }else if(StringUtils.isNotBlank(orderCode)){
@@ -115,13 +110,13 @@ public class AssetLeaseOrderController {
             throw new RuntimeException("未登录");
         }
 
-        AssetLeaseOrderItem condition = new AssetLeaseOrderItem();
+        AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
         condition.setLeaseOrderId(id);
-        List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
         modelMap.put("leaseOrder",leaseOrder);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetType()).getBizType(), YesOrNoEnum.YES.getCode());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
-        modelMap.put("leaseOrderItems", assetLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetType()).getBizType(), chargeItemDtos));
+        modelMap.put("leaseOrderItems", assetLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
         try{
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
@@ -143,24 +138,24 @@ public class AssetLeaseOrderController {
      * @return String
      */
     @RequestMapping(value="/preSave.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap,Long id,Integer assetType,Integer isRenew) {
+    public String add(ModelMap modelMap,Long id,Integer assetsType,Integer isRenew) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), YesOrNoEnum.YES.getCode());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
         if(null != id){
-            AssetLeaseOrder leaseOrder = assetLeaseOrderService.get(id);
+            AssetsLeaseOrder leaseOrder = assetLeaseOrderService.get(id);
             modelMap.put("leaseOrder",leaseOrder);
 
-            AssetLeaseOrderItem condition = new AssetLeaseOrderItem();
+            AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
             condition.setLeaseOrderId(id);
-            List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
+            List<AssetsLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
 
-            modelMap.put("leaseOrderItems", assetLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType(), chargeItemDtos));
+            modelMap.put("leaseOrderItems", assetLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), chargeItemDtos));
         }
-        modelMap.put("assetType", assetType);
+        modelMap.put("assetsType", assetsType);
         modelMap.put("isRenew", YesOrNoEnum.YES.getCode().equals(isRenew) ? YesOrNoEnum.YES.getCode() : YesOrNoEnum.NO.getCode());
         return "assetLeaseOrder/preSave";
     }
@@ -177,7 +172,7 @@ public class AssetLeaseOrderController {
         if(LeaseOrderRefundTypeEnum.LEASE_ORDER_REFUND.getCode().equals(type)){
             modelMap.put("leaseOrder",assetLeaseOrderService.get(id));
         }else if(LeaseOrderRefundTypeEnum.LEASE_ORDER_ITEM_REFUND.getCode().equals(type)){
-            AssetLeaseOrderItem leaseOrderItem = assetLeaseOrderItemService.get(id);
+            AssetsLeaseOrderItem leaseOrderItem = assetLeaseOrderItemService.get(id);
             modelMap.put("leaseOrderItem",leaseOrderItem);
             modelMap.put("leaseOrder",assetLeaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
         }
@@ -191,7 +186,7 @@ public class AssetLeaseOrderController {
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(AssetLeaseOrderListDto leaseOrder) throws Exception {
+    public @ResponseBody String listPage(AssetsLeaseOrderListDto leaseOrder) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");
@@ -203,10 +198,10 @@ public class AssetLeaseOrderController {
 //        leaseOrder.setMarketId(userTicket.getFirmId());
 //        leaseOrder.setDepartmentIds(departmentIdList);
 //
-//        if (StringUtils.isNotBlank(leaseOrder.getAssetName())) {
-//            AssetLeaseOrderItem leaseOrderItemCondition = new AssetLeaseOrderItem();
-//            leaseOrderItemCondition.setAssetName(leaseOrder.getAssetName());
-//            leaseOrder.setIds(assetLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
+//        if (StringUtils.isNotBlank(leaseOrder.getAssetsName())) {
+//            AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
+//            leaseOrderItemCondition.setAssetsName(leaseOrder.getAssetsName());
+//            leaseOrder.setIds(assetLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
 //            if(CollectionUtils.isEmpty(leaseOrder.getIds())){
 //                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
 //            }
@@ -221,7 +216,7 @@ public class AssetLeaseOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${contractNo}",operationType="reNumber",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/supplement.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput supplement(AssetLeaseOrder leaseOrder){
+    public @ResponseBody BaseOutput supplement(AssetsLeaseOrder leaseOrder){
         try {
             return assetLeaseOrderService.supplement(leaseOrder);
         }catch (BusinessException e){
@@ -282,7 +277,7 @@ public class AssetLeaseOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content="${logContent!}", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/saveLeaseOrder.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput saveLeaseOrder(@RequestBody AssetLeaseOrderListDto leaseOrder){
+    public @ResponseBody BaseOutput saveLeaseOrder(@RequestBody AssetsLeaseOrderListDto leaseOrder){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 23:59:59");
         DateTimeFormatter formatterDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         leaseOrder.setEndTime(LocalDateTime.parse(leaseOrder.getEndTime().format(formatter), formatterDateTime));

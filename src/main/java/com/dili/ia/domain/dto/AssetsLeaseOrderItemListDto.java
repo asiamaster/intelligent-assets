@@ -1,6 +1,6 @@
 package com.dili.ia.domain.dto;
 
-import com.dili.ia.domain.AssetLeaseOrderItem;
+import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ss.domain.annotation.Operator;
 
@@ -15,7 +15,7 @@ import java.util.Map;
  * 租赁订单列表查询dto
  * This file was generated on 2020-02-11 15:54:49.
  */
-public class AssetLeaseOrderItemListDto extends AssetLeaseOrderItem {
+public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
     private LocalDateTime createdStart;
