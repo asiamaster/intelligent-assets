@@ -5,19 +5,9 @@
     <form id="queryForm" role="form" >
         <div class="row row-cols-6">
             <div class="form-group col">
-                <label for="departmentId">部门:</label>
-                <select id="departmentId" name="departmentId" class="form-control"></select>
-                <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
-            </div>
-            <div class="form-group col">
                 <label for="type">表类型:</label>
                 <select id="type" name="type" class="form-control"></select>
                 <#bcomboProvider _id="type" _provider="meterTypeProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
-            </div>
-            <div class="form-group col">
-                <label for="state">状态:</label>
-                <select id="state" name="state" class="form-control"></select>
-                <#bcomboProvider _id="state" _provider="customerMeterStateProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
                 <label for="keyword">表编号、表地址、客户姓名:</label>
@@ -37,16 +27,8 @@
                 <#resource code="addCustomerMeter">
                 <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
                 </#resource>
-                <#resource code="updateCustomerMeter">
-                <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
-                </#resource>
                 <#resource code="unbindCustomerMeter">
                 <button id="btn_unbind" type="button" class="btn btn-primary" onclick="openUnbindHandler()"><i class="fa fa-pencil-square-o"></i> 解绑</button>
-                </#resource>
-                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
-                <#resource code="deleteCustomerMeter">
-                <button id="btn_delete" type="button" class="btn btn-primary" onclick="openDeleteHandler()">
-                    <i class="fa fa-trash-o"></i> 删除</button>
                 </#resource>
                 <button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
             </div>
@@ -60,11 +42,11 @@
                 <thead>
                 <tr>
                     <th data-radio="true"></th>
-                    <th data-field="createTime" data-sortable="true" data-align="center"  data-provider="dateProvider" >
-                        创建日期
-                    </th>
                     <th data-field="customerName" data-sortable="true" data-align="center" data-formatter="codeFormatter">
                         客户姓名
+                    </th>
+                    <th data-field="customerCellphone" data-sortable="true" data-align="center">
+                        联系电话
                     </th>
                     <th data-field="number" data-sortable="true" data-align="center" data-formatter="codeFormatter">
                         表编号
@@ -75,17 +57,11 @@
                     <th data-field="assetsName" data-sortable="true" data-align="center">
                         表地址
                     </th>
-                    <th data-field="departmentName" data-sortable="true" data-align="center">
-                        部门
-                    </th>
-                    <th data-field="customerCellphone" data-sortable="true" data-align="center">
-                        联系电话
-                    </th>
+<!--                    <th data-field="departmentName" data-sortable="true" data-align="center">-->
+<!--                        部门-->
+<!--                    </th>-->
                     <th data-field="notes" data-sortable="true" data-align="center" >
                         备注
-                    </th>
-                    <th data-field="state" data-sortable="true" data-align="center" data-provider="customerMeterStateProvider">
-                        状态
                     </th>
                 </tr>
                 </thead>

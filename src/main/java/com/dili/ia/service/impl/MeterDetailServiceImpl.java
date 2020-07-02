@@ -328,6 +328,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailDto.setBizTypes(bizTypes);
         meterDetailDto.setMeterId(meterId);
         meterDetailDto.setCustomerId(customerId);
+        meterDetailDto.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
         List<Long> list = this.getActualDao().countUnPayByMeterAndCustomer(meterDetailDto);
         if (CollectionUtils.isEmpty(list)){
             return 0;

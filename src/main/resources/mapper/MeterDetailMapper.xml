@@ -164,8 +164,8 @@
     <if test = "customerId != null" >
         AND md.customer_id = #{customerId}
     </if>
-    <if test = "status != null" >
-        AND po.state IN (#{status})
+    <if test = "state != null" >
+        AND po.state = #{state}
     </if>
   </select>
 

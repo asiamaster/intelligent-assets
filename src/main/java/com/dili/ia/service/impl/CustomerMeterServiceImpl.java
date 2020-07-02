@@ -3,6 +3,7 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
+import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.mapper.CustomerMeterMapper;
 import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.service.MeterDetailService;
@@ -68,6 +69,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
             PageHelper.startPage(customerMeterDto.getPage(), customerMeterDto.getRows());
         }
 
+        customerMeterDto.setState(CustomerMeterStateEnum.CREATED.getCode());
         // 查询
         List<CustomerMeterDto> customerMeterDtoList= this.getActualDao().listCustomerMeters(customerMeterDto);
 
@@ -130,9 +132,15 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
             return BaseOutput.failure("表用户操作失败,用户未登录。");
         }
 
-        CustomerMeter customerMeterInfo = get(customerMeterDto.getId());
+        CustomerMeter customerMeterInfo = this.get(customerMeterDto.getId());
         if (customerMeterInfo == null) {
             return BaseOutput.failure("表用户操作失败,记录不存在。");
+        }
+
+        // 根据表 meterId、用户 customerId 查询未缴费的记录数量
+        Integer count = meterDetailService.countUnPayByMeterAndCustomer(customerMeterInfo.getMeterId(), customerMeterInfo.getCustomerId());
+        if (count > 0) {
+            return BaseOutput.failure("该表用户当前存在交费记录，不允许删除。");
         }
 
         customerMeterDto.setModifyTime(new Date());

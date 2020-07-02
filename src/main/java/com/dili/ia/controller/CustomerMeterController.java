@@ -138,30 +138,6 @@ public class CustomerMeterController {
     }
 
     /**
-     * 修改表用户关系
-     *
-     * @param  customerMeterDto
-     * @return 是否成功
-     * @date   2020/6/16
-     */
-    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute CustomerMeterDto customerMeterDto) {
-
-        // 修改
-        BaseOutput<CustomerMeter> output = customerMeterService.updateCustomerMeter(customerMeterDto);
-
-        // 写业务日志
-        if (output.isSuccess()) {
-            CustomerMeter customerMeter = output.getData();
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(customerMeter.getId(), customerMeterDto.getId().toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        }
-
-        return output;
-    }
-
-    /**
      * 解绑表用户关系
      *
      * @param  id 表用户关系主键
@@ -189,30 +165,6 @@ public class CustomerMeterController {
     }
 
     /**
-     * 删除表用户关系
-     *
-     * @param  id 表用户关系主键
-     * @return 是否成功
-     * @date   2020/6/16
-     */
-    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="delete", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-
-        // 删除
-        BaseOutput<CustomerMeter> output = customerMeterService.deleteCustomerMeter(id);
-
-        // 写业务日志
-        if (output.isSuccess()) {
-            CustomerMeter customerMeter = output.getData();
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(customerMeter.getId(), id.toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        }
-
-        return output;
-    }
-
-    /**
      * 根据表主键 meterId 获取表绑定的用户信息
      *
      * @param  meterId 表主键
@@ -228,4 +180,52 @@ public class CustomerMeterController {
 
         return baseOutput;
     }
+
+    //    /**
+//     * 修改表用户关系
+//     *
+//     * @param  customerMeterDto
+//     * @return 是否成功
+//     * @date   2020/6/16
+//     */
+//    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
+//    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
+//    public @ResponseBody BaseOutput update(@ModelAttribute CustomerMeterDto customerMeterDto) {
+//
+//        // 修改
+//        BaseOutput<CustomerMeter> output = customerMeterService.updateCustomerMeter(customerMeterDto);
+//
+//        // 写业务日志
+//        if (output.isSuccess()) {
+//            CustomerMeter customerMeter = output.getData();
+//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//            LoggerUtil.buildLoggerContext(customerMeter.getId(), customerMeterDto.getId().toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+//        }
+//
+//        return output;
+//    }
+
+    //    /**
+//     * 删除表用户关系
+//     *
+//     * @param  id 表用户关系主键
+//     * @return 是否成功
+//     * @date   2020/6/16
+//     */
+//    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="delete", systemCode = "INTELLIGENT_ASSETS")
+//    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
+//    public @ResponseBody BaseOutput delete(Long id) {
+//
+//        // 删除
+//        BaseOutput<CustomerMeter> output = customerMeterService.deleteCustomerMeter(id);
+//
+//        // 写业务日志
+//        if (output.isSuccess()) {
+//            CustomerMeter customerMeter = output.getData();
+//            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//            LoggerUtil.buildLoggerContext(customerMeter.getId(), id.toString(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+//        }
+//
+//        return output;
+//    }
 }
