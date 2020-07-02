@@ -132,7 +132,7 @@ public class StockInController {
     public @ResponseBody BaseOutput cancel(String code) {
     	//throw new BusinessException("", "");
         stockInService.cancel(code);
-        return BaseOutput.success("删除成功");
+        return BaseOutput.success("取消成功");
     }
     
     /**
@@ -145,7 +145,7 @@ public class StockInController {
     public @ResponseBody BaseOutput submit(String code) {
         stockInService.submit(code);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        return BaseOutput.success("新增成功");
+        return BaseOutput.success("提交成功");
     }
     
     /**
@@ -158,7 +158,7 @@ public class StockInController {
     public @ResponseBody BaseOutput remove(String code) {
         stockInService.withdraw(code);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        return BaseOutput.success("新增成功");
+        return BaseOutput.success("撤回成功");
     }
     
     /**
@@ -170,7 +170,7 @@ public class StockInController {
     @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput pay(@Validated PayInfoDto payInfoDto) {
         stockInService.pay(payInfoDto);
-        return BaseOutput.success("新增成功");
+        return BaseOutput.success("支付成功");
     }
     
     /**
@@ -182,6 +182,6 @@ public class StockInController {
     //@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput refund(@Validated StockInRefundDto stockInRefundDto) {	        //throw new BusinessException("2000", "errorCode");
     	stockInService.refund(stockInRefundDto);
-    	return BaseOutput.success("新增成功");
+    	return BaseOutput.success("退款成功");
     }
 }

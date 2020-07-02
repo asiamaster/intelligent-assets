@@ -136,6 +136,7 @@ function openCancelHandler() {
 					success : function(ret) {
 						bui.loading.hide();
 						if(ret.success){
+							bs4pop.alert(ret.message, {type: 'success'});
 							queryDataHandler();
 						}else{
 							bs4pop.alert(ret.message, {type: 'error'});
@@ -172,6 +173,7 @@ function openSubmitHandler() {
 						success : function(ret) {
 							bui.loading.hide();
 							if(ret.success){
+								bs4pop.alert(ret.message, {type: 'success'});
 								queryDataHandler();
 							}else{
 								bs4pop.alert(ret.message, {type: 'error'});
@@ -209,6 +211,7 @@ function openWithdrawHandler() {
 						success : function(ret) {
 							bui.loading.hide();
 							if(ret.success){
+								bs4pop.alert(ret.message, {type: 'success'});
 								queryDataHandler();
 							}else{
 								bs4pop.alert(ret.message, {type: 'error'});
@@ -300,6 +303,7 @@ function openRefundHandler() {
 					success : function(ret) {
 						bui.loading.hide();
 						if(ret.success){
+							bs4pop.alert(ret.message, {type: 'success'});
 							queryDataHandler();
 						}else{
 							bs4pop.alert(ret.message, {type: 'error'});

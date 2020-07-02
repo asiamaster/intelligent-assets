@@ -16,7 +16,6 @@
 						<label for="">冷库区域：<i class="red">*</i></label>
 						<input id="districtId_{{index}}" type="text" class="form-control"
 						 name="districtId"  required />
-						
 					</div>	
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>

@@ -80,9 +80,6 @@
                     <th data-field="quantity" data-sortable="true" data-sort-name="quantity" data-align="center">
                         当前库存(件)
                     </th>
-                    <th data-field="weight" data-sortable="true" data-sort-name="weight" data-align="center">
-                        当前库存(斤)
-                    </th>
                 </tr>
                 </thead>
             </table>
@@ -100,11 +97,11 @@
         <div class="row row-cols-3 detail" id="detailInfo">
             <input type="hidden" class="form-control" name="stockId" value="{{selectedRow.id}}" required />
             <div class="form-group col">
-                <label for="" class="">当前库存：<i class="red">*</i></label> <input id="stockQuantity" type="number" class="form-control floatReserve"
+                <label for="" class="">当前库存：<i class="red">*</i></label> <input id="stockQuantity" type="number" class="form-control"
                  name="stockQuantity" range="0 9999999" value="{{selectedRow.quantity}}" readonly required />
             </div>
             <div class="form-group col">
-                <label for="weight" class="">出库件数：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
+                <label for="weight" class="">出库件数：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control"
                  name="quantity" range="0 9999999"  required />
             </div>
             <div class="form-group col">

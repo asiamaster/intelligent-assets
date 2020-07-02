@@ -252,7 +252,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, paymentOrder.getCode(), paymentOrder.getAmount());
 		SettleOrder settleOrder = settlementRpcResolver.submit(settleOrderDto);
 		
-		
 		paymentOrderService.insertSelective(paymentOrder);
 	}
 

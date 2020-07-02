@@ -194,7 +194,7 @@
         <div class="row row-cols-2">
             <div class="form-group col-12">
                 <label for="customerName">客户信息：<i class="red">*</i></label>
-                <input  type="text" class="form-control floatReserve" name="customerName" value={{selectedRow.customerName}}  required />
+                <input  type="text" class="form-control  " name="customerName" value={{selectedRow.customerName}}  required />
             </div>
 			<div class="form-group col">
                 <label for="_certificateNumber">支付账号：<i class="red">*</i></label>
@@ -209,7 +209,7 @@
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">输入密码：<i class="red">*</i></label>
-                <input id="payPassword" type="password" class="form-control floatReserve" name="payPassword" required />
+                <input id="payPassword" type="password" class="form-control" name="payPassword" required />
             </div>
         </div>
     </form>
@@ -226,15 +226,15 @@
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">可退金额：<i class="red">*</i></label>
-                <input id="amount" type="number" class="form-control floatReserve" value="{{selectedRow.amount}}" name="amount" range="0 9999999" required />
+                <input id="amount" type="number" class="form-control" value="{{selectedRow.amount}}" name="amount" range="0 9999999" required />
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">退款方式：<i class="red">*</i></label>
-                <input id="payType" type="text" class="form-control floatReserve" name="payType" range="0 9999999" required readonly/>
+                <input id="payType" type="text" class="form-control" name="payType" range="0 9999999" required readonly/>
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">收款人：<i class="red">*</i></label>
-                <input id="payUser" type="number" class="form-control floatReserve" name="payUser" required readonly/>
+                <input id="payUser" type="number" class="form-control " name="payUser" required readonly/>
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">退款原因：<i class="red">*</i></label>

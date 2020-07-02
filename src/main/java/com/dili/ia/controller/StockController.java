@@ -95,7 +95,7 @@ public class StockController {
     public @ResponseBody BaseOutput stockOut(Long stockId,Long weight,Long quantity,String notes) {
     	stockService.stockOut(stockId, weight, quantity,notes);
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        return BaseOutput.success("新增成功");
+        return BaseOutput.success("出库成功");
     }
     
 
