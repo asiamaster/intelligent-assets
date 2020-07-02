@@ -312,7 +312,11 @@
             if (payState == ${@com.dili.ia.glossary.DepositPayStateEnum.NOT_PAID.getCode()}){
                 $('#btn_submit').attr('disabled', false);
             }
-        } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.REFUND.getCode()}) {
+        }  else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.REFUNDING.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+        }else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.REFUND.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);

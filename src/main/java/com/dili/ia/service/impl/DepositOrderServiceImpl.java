@@ -5,11 +5,9 @@ import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.DepositOrderQuery;
-import com.dili.ia.domain.dto.LeaseOrderItemListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.glossary.*;
-import com.dili.ia.mapper.DepositBalanceMapper;
 import com.dili.ia.mapper.DepositOrderMapper;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.CustomerRpc;
@@ -46,8 +44,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -71,8 +67,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     UidFeignRpc uidFeignRpc;
     @Autowired
     RefundOrderService refundOrderService;
-    @Autowired
-    DepositBalanceMapper depositBalanceMapper;
     @Autowired
     DepositBalanceService depositBalanceService;
 
@@ -349,25 +343,25 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Override
     public BaseOutput<DepositOrder> withdrawDepositOrder(Long depositOrderId) {
         //改状态，删除缴费单，通知撤回结算中心缴费单
-        DepositOrder ea = this.get(depositOrderId);
-        if (null == ea || !ea.getState().equals(DepositOrderStateEnum.SUBMITTED.getCode())){
+        DepositOrder depositOrder = this.get(depositOrderId);
+        if (null == depositOrder || !depositOrder.getState().equals(DepositOrderStateEnum.SUBMITTED.getCode())){
             return BaseOutput.failure("撤回失败，状态已变更！");
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
         }
-        ea.setState(DepositOrderStateEnum.CREATED.getCode());
-        ea.setWithdrawOperatorId(userTicket.getId());
-        ea.setWithdrawOperator(userTicket.getRealName());
-        if (this.updateSelective(ea) == 0) {
+        depositOrder.setState(DepositOrderStateEnum.CREATED.getCode());
+        depositOrder.setWithdrawOperatorId(userTicket.getId());
+        depositOrder.setWithdrawOperator(userTicket.getRealName());
+        if (this.updateSelective(depositOrder) == 0) {
             LOG.info("撤回保证金【修改保证金单状态】失败,乐观锁生效。【保证金单ID：】" + depositOrderId);
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        PaymentOrder pb = this.findPaymentOrder(userTicket.getFirmId(),PaymentOrderStateEnum.NOT_PAID.getCode(), ea.getId(), ea.getCode());
+        PaymentOrder pb = this.findPaymentOrder(userTicket.getFirmId(),PaymentOrderStateEnum.NOT_PAID.getCode(), depositOrder.getId(), depositOrder.getCode());
         withdrawPaymentOrder(pb);
-        return BaseOutput.success().setData(ea);
+        return BaseOutput.success().setData(depositOrder);
     }
 
     /**
@@ -420,10 +414,19 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("保证金退款申请，保证金单【ID:{}】不存在！", refundOrder.getBusinessId());
             return BaseOutput.failure("保证金业务单不存在！");
         }
+        if (DepositOrderStateEnum.REFUNDING.getCode().equals(refundOrder.getState())){
+            return BaseOutput.failure("创建失败，已存在退款中的业务单！");
+        }
         Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getAmount() < totalRefundAmount){
             return BaseOutput.failure("退款金额不能大于订单金额！");
         }
+        depositOrder.setState(DepositOrderStateEnum.REFUNDING.getCode());
+        if (this.updateSelective(depositOrder) == 0) {
+            LOG.info("撤回保证金【修改保证金单状态】失败,乐观锁生效。【保证金单ID：】" + depositOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
         refundOrder.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
         refundOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
         refundOrder.setTotalRefundAmount(refundOrder.getPayeeAmount());
@@ -449,6 +452,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("缴费单状态已变更！状态为：" + PaymentOrderStateEnum.getPaymentOrderStateEnum(paymentOrderPO.getState()).getName() );
             return BaseOutput.failure("缴费单状态已变更！");
         }
+        Long paidAmount = depositOrder.getPaidAmount() + paymentOrderPO.getAmount();
+        Long waitAmount = depositOrder.getWaitAmount() - paymentOrderPO.getAmount();
+        if (!depositOrder.getAmount().equals(paidAmount + waitAmount)){
+            LOG.info("校验数据异常，业务单完成此单缴费后【已交金额:{}】 + 【待付金额:{}】 ！= 【业务单总金额:{}】", paidAmount,waitAmount,depositOrder.getAmount() );
+            return BaseOutput.failure("校验数据异常，业务单完成此单缴费后【已交金额】 + 【待付金额】 ！= 【业务单总金额】");
+        }
+
         //缴费单数据更新
         paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
         paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
@@ -461,7 +471,16 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
 
         //修改订单状态
+        if (paymentOrderPO.getAmount() < depositOrder.getWaitAmount()){ // 如果付款金额 < 待付金额 ,当前业务单付款状态为【未交清】
+            depositOrder.setPayState(DepositPayStateEnum.NOT_PAID.getCode());
+        }
+        if (paymentOrderPO.getAmount().equals(depositOrder.getWaitAmount())){ // 如果付款金额 == 待付金额 ,当前业务单付款状态为【已交清】
+            depositOrder.setPayState(DepositPayStateEnum.PAID.getCode());
+        }
         depositOrder.setState(DepositOrderStateEnum.PAID.getCode());
+        depositOrder.setPaidAmount(paidAmount);
+        depositOrder.setWaitAmount(waitAmount);
+
         if (this.updateSelective(depositOrder) == 0) {
             LOG.info("缴费单成功回调 -- 更新【保证金单】状态,乐观锁生效！【保证金单EarnestOrderID:{}】", depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -481,7 +500,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         params.setAssetsId(depositOrder.getAssetsId());
         params.setMarketId(depositOrder.getMarketId());
         params.setMarketCode(depositOrder.getMarketCode());
-        DepositBalance depositBalance = depositBalanceMapper.selectOne(params);
+        DepositBalance depositBalance = depositBalanceService.listByExample(params).stream().findFirst().orElse(null);
         if (depositBalance == null){//创建客户账户余额
             params.setAssetsName(depositOrder.getAssetsName());
             params.setBalance(payAmount);
@@ -489,7 +508,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             params.setCustomerCellphone(depositOrder.getCustomerCellphone());
             params.setCustomerName(depositOrder.getCustomerName());
             params.setTypeName(depositOrder.getTypeName());
-            depositBalanceMapper.insertSelective(params);
+            depositBalanceService.insertSelective(params);
         }
 
         DepositBalance upDep = new DepositBalance();
@@ -537,20 +556,27 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     public BaseOutput refundSuccessHandler(RefundOrder refundOrder) {
         DepositOrder depositOrder = get(refundOrder.getBusinessId());
-        if (DepositOrderStateEnum.REFUND.getCode().equals(depositOrder.getState())) {
-            LOG.info("此单已退款【depositOrderId={}】", refundOrder.getBusinessId());
+        if (RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) {
+            LOG.info("此单已退款【refundOrderId={}】", refundOrder.getId());
             return BaseOutput.success();
         }
-        Long totalRefundAmount = refundOrder.getTotalRefundAmount() + depositOrder.getRefundAmount();
+        if (!RefundOrderStateEnum.SUBMITTED.equals(refundOrder.getState())){
+            LOG.info("此退款单状态已变更【refundOrderId={}】【状态：{}】，退款失败！", refundOrder.getId(), RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.getState()).getName());
+            return BaseOutput.failure("此退款单状态已变更，退款失败！");
+        }
+        Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getAmount() < totalRefundAmount){
             LOG.error("异常订单！！！---- 保证金单退款申请结算退款成功 但是退款单退款总金额大于订单可退金额【保证金单ID {}，退款单ID{}】", depositOrder.getId(), refundOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "异常订单！！！-- 退款金额不能大于保证金单可退金额！");
         }
-        //@TODO fixbug多次退款，退款金额没有变化
-        depositOrder.setRefundAmount(depositOrder.getRefundAmount() + refundOrder.getPayeeAmount());
-        //@TODO 退款转入市场金额（罚款金额）
-//            depositOrder.setChargebackAmount();
+        if (depositOrder.getAmount().equals(totalRefundAmount)){
+            depositOrder.setRefundState(DepositRefundStateEnum.REFUNDED.getCode());
+        }else {
+            depositOrder.setRefundState(DepositRefundStateEnum.PART_REFUND.getCode());
+        }
+        depositOrder.setRefundAmount(totalRefundAmount);
         depositOrder.setState(DepositOrderStateEnum.REFUND.getCode());
+
         if (updateSelective(depositOrder) == 0) {
             LOG.info("保证金单退款申请结算退款成功 更新保证金单乐观锁生效 【保证金单ID {}】", depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
