@@ -243,8 +243,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
         }else {//非第一次付款，相关业务实现---直接撤回已提交的未支付的缴费单然后创建新的缴费单。
             //判断缴费单是否需要撤回 需要撤回则撤回
-            PaymentOrder pb = this.findPaymentOrder(userTicket.getFirmId(),PaymentOrderStateEnum.NOT_PAID.getCode(), de.getId(), de.getCode());
-            withdrawPaymentOrder(pb);
+            PaymentOrder oldPb = this.findPaymentOrder(userTicket.getFirmId(),PaymentOrderStateEnum.NOT_PAID.getCode(), de.getId(), de.getCode());
+            if (null != oldPb){
+                withdrawPaymentOrder(oldPb);
+            }
         }
         PaymentOrder pb = this.buildPaymentOrder(userTicket, de, amount);
         paymentOrderService.insertSelective(pb);
@@ -555,7 +557,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BaseOutput refundSuccessHandler(RefundOrder refundOrder) {
-        DepositOrder depositOrder = get(refundOrder.getBusinessId());
+        DepositOrder depositOrder = this.get(refundOrder.getBusinessId());
         if (RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) {
             LOG.info("此单已退款【refundOrderId={}】", refundOrder.getId());
             return BaseOutput.success();
