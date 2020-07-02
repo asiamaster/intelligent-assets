@@ -191,7 +191,7 @@ function openSubmitHandler() {
 /**
  撤回处理
  */
-function openRemoveHandler() {
+function openWithdrawHandler() {
 	if(isSelectRow()){
 		bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', {}, function (sure) {
 			if(sure){

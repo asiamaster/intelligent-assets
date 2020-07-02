@@ -11,6 +11,7 @@ import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
 import com.dili.ia.glossary.StockInStateEnum;
+import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 
 /**
@@ -75,12 +76,12 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	
 	/**
 	 * 
-	 * @Title remove
+	 * @Title withdraw
 	 * @Description 撤回入库单
 	 * @param code
 	 * @throws
 	 */
-	void remove(String code);
+	void withdraw(String code);
 	
 	/**
 	 * 
@@ -109,5 +110,14 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @throws
 	 */
 	StockIn getStockInByCode(String code);
+	
+	/**
+	 * 
+	 * @Title settlementDealHandler
+	 * @Description 冷库结算成功回调
+	 * @param settleOrder
+	 * @throws
+	 */
+	void settlementDealHandler(SettleOrder settleOrder);
 	
 }
