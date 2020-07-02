@@ -19,7 +19,7 @@ import javax.persistence.*;
  * This file was generated on 2020-05-29 14:40:05.
  */
 @Table(name = "`lease_order`")
-public class AssetLeaseOrder extends BaseDomain {
+public class AssetsLeaseOrder extends BaseDomain {
     @Id
     @Column(name = "`id`")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,8 +48,8 @@ public class AssetLeaseOrder extends BaseDomain {
     /**
      *  1:摊位 2：冷库 3：公寓
      */
-    @Column(name = "`asset_type`")
-    private Integer assetType;
+    @Column(name = "`assets_type`")
+    private Integer assetsType;
 
     //客户名称
     @Column(name = "`customer_name`")
@@ -287,12 +287,12 @@ public class AssetLeaseOrder extends BaseDomain {
         this.customerId = customerId;
     }
 
-    public Integer getAssetType() {
-        return assetType;
+    public Integer getAssetsType() {
+        return assetsType;
     }
 
-    public void setAssetType(Integer assetType) {
-        this.assetType = assetType;
+    public void setAssetsType(Integer assetsType) {
+        this.assetsType = assetsType;
     }
 
     public String getCustomerName() {

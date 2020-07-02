@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  * This file was generated on 2020-05-29 14:40:05.
  */
 @Table(name = "`lease_order_item`")
-public class AssetLeaseOrderItem extends BaseDomain {
+public class AssetsLeaseOrderItem extends BaseDomain {
     @Id
     @Column(name = "`id`")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,20 +49,20 @@ public class AssetLeaseOrderItem extends BaseDomain {
     /**
      *  1:摊位 2：冷库 3：公寓
      */
-    @Column(name = "`asset_type`")
-    private Integer assetType;
+    @Column(name = "`assets_type`")
+    private Integer assetsType;
 
     /**
      * 资产ID
      */
-    @Column(name = "`asset_id`")
-    private Long assetId;
+    @Column(name = "`assets_id`")
+    private Long assetsId;
 
     /**
      * 资产名称
      */
-    @Column(name = "`asset_name`")
-    private String assetName;
+    @Column(name = "`assets_name`")
+    private String assetsName;
 
     /**
      * 客户ID
@@ -231,28 +231,28 @@ public class AssetLeaseOrderItem extends BaseDomain {
         this.leaseOrderCode = leaseOrderCode;
     }
 
-    public Integer getAssetType() {
-        return assetType;
+    public Integer getAssetsType() {
+        return assetsType;
     }
 
-    public void setAssetType(Integer assetType) {
-        this.assetType = assetType;
+    public void setAssetsType(Integer assetsType) {
+        this.assetsType = assetsType;
     }
 
-    public Long getAssetId() {
-        return assetId;
+    public Long getAssetsId() {
+        return assetsId;
     }
 
-    public void setAssetId(Long assetId) {
-        this.assetId = assetId;
+    public void setAssetsId(Long assetsId) {
+        this.assetsId = assetsId;
     }
 
-    public String getAssetName() {
-        return assetName;
+    public String getAssetsName() {
+        return assetsName;
     }
 
-    public void setAssetName(String assetName) {
-        this.assetName = assetName;
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
     }
 
     public Long getCustomerId() {

@@ -4,11 +4,11 @@ import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.AssetLeaseOrder;
-import com.dili.ia.domain.AssetLeaseOrderItem;
+import com.dili.ia.domain.AssetsLeaseOrder;
+import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.rpc.AssetsRpc;
-import com.dili.ia.service.AssetLeaseService;
+import com.dili.ia.service.AssetsLeaseService;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class BoothLeaseServiceImpl implements AssetLeaseService {
+public class BoothLeaseServiceImpl implements AssetsLeaseService {
     private final static Logger LOG = LoggerFactory.getLogger(BoothLeaseServiceImpl.class);
     @Autowired
     private AssetsRpc assetsRpc;
@@ -32,8 +32,8 @@ public class BoothLeaseServiceImpl implements AssetLeaseService {
     }
 
     @Override
-    public void checkAssetState(Long assetId) {
-        BaseOutput<BoothDTO> output = assetsRpc.getBoothById(assetId);
+    public void checkAssetState(Long assetsId) {
+        BaseOutput<BoothDTO> output = assetsRpc.getBoothById(assetsId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR,"摊位接口调用异常 "+output.getMessage());
         }
@@ -48,10 +48,10 @@ public class BoothLeaseServiceImpl implements AssetLeaseService {
     }
 
     @Override
-    public void frozenAsset(AssetLeaseOrder leaseOrder, List<AssetLeaseOrderItem> leaseOrderItems) {
+    public void frozenAsset(AssetsLeaseOrder leaseOrder, List<AssetsLeaseOrderItem> leaseOrderItems) {
         leaseOrderItems.forEach(o->{
             BoothRentDTO boothRentDTO = new BoothRentDTO();
-            boothRentDTO.setBoothId(o.getAssetId());
+            boothRentDTO.setBoothId(o.getAssetsId());
             boothRentDTO.setStart(DateUtils.localDateTimeToUdate(leaseOrder.getStartTime()));
             boothRentDTO.setEnd(DateUtils.localDateTimeToUdate(leaseOrder.getEndTime()));
             boothRentDTO.setOrderId(leaseOrder.getId().toString());
@@ -59,7 +59,7 @@ public class BoothLeaseServiceImpl implements AssetLeaseService {
             if(!assetsOutput.isSuccess()){
                 LOG.info("冻结摊位异常【编号：{}】", leaseOrder.getCode());
                 if(assetsOutput.getCode().equals("2500")){
-                    throw new BusinessException(ResultCode.DATA_ERROR,o.getAssetName()+"选择的时间期限重复，请修改后重新保存");
+                    throw new BusinessException(ResultCode.DATA_ERROR,o.getAssetsName()+"选择的时间期限重复，请修改后重新保存");
                 }else{
                     throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
                 }
@@ -87,7 +87,7 @@ public class BoothLeaseServiceImpl implements AssetLeaseService {
      * @param leaseOrder
      */
     @Override
-    public void leaseAsset(AssetLeaseOrder leaseOrder) {
+    public void leaseAsset(AssetsLeaseOrder leaseOrder) {
         BoothRentDTO boothRentDTO = new BoothRentDTO();
         boothRentDTO.setOrderId(leaseOrder.getId().toString());
         BaseOutput assetsOutput = assetsRpc.rentBoothRent(boothRentDTO);

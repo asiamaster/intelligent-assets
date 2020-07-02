@@ -46,13 +46,13 @@
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#leaseInfo" aria-expanded="true" aria-controls="leaseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
             <div class="row row-cols-4 collapse show" id="leaseInfo">
-                <% if(leaseOrder.assetType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
+                <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
                 <div class="form-group col">
                     <label for="engageName">经营范围</label>
                     <input type="text" class="form-control" id="engageName" name="engageName" value="${leaseOrder.engageName!}" readonly/>
                 </div>
                 <% } %>
-                <% if(leaseOrder.assetType != @com.dili.ia.glossary.AssetsTypeEnum.LODGING.getCode()){%>
+                <% if(leaseOrder.assetsType != @com.dili.ia.glossary.AssetsTypeEnum.LODGING.getCode()){%>
                 <div class="form-group col">
                     <label for="categoryName">经营品类</label>
                     <input type="text" class="form-control" id="categoryName" name="categoryName" value="${leaseOrder.categoryName!}" readonly/>
@@ -94,7 +94,7 @@
                     <tr>
                         <th class="text-center align-middle" style="font-weight:normal;">资产编号</th>
                         <th class="text-center align-middle" style="font-weight:normal;">规格</th>
-                        <% if(leaseOrder.assetType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+                        <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <th class="text-center align-middle" style="font-weight:normal;">租赁数量</th>
                         <% } %>
                         <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
@@ -109,9 +109,9 @@
                     if(leaseOrderItems.~size>0){
                     for(item in leaseOrderItems){%>
                     <tr>
-                        <td class="text-center align-middle" title="${item.assetName!}">${item.assetName!}</td>
+                        <td class="text-center align-middle" title="${item.assetsName!}">${item.assetsName!}</td>
                         <td class="text-center align-middle" >${item.number!}${item.unitName!}</td>
-                        <% if(leaseOrder.assetType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+                        <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <td style="padding: .25rem!important;"><input type="number" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" readonly></td>
                         <% } %>
                         <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){

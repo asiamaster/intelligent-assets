@@ -1,8 +1,8 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.AssetLeaseOrderItem;
+import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.glossary.StopWayEnum;
-import com.dili.ia.service.AssetLeaseOrderItemService;
+import com.dili.ia.service.AssetsLeaseOrderItemService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * This file was generated on 2020-05-29 14:40:05.
  */
 @Controller
-@RequestMapping("/assetLeaseOrderItem")
-public class AssetLeaseOrderItemController {
-    private final static Logger LOG = LoggerFactory.getLogger(AssetLeaseOrderItemController.class);
+@RequestMapping("/assetsLeaseOrderItem")
+public class AssetsLeaseOrderItemController {
+    private final static Logger LOG = LoggerFactory.getLogger(AssetsLeaseOrderItemController.class);
     @Autowired
-    AssetLeaseOrderItemService assetLeaseOrderItemService;
+    AssetsLeaseOrderItemService assetLeaseOrderItemService;
 
 
     /**
@@ -36,7 +36,7 @@ public class AssetLeaseOrderItemController {
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(AssetLeaseOrderItem leaseOrderItem) throws Exception {
+    public @ResponseBody String listPage(AssetsLeaseOrderItem leaseOrderItem) throws Exception {
         return assetLeaseOrderItemService.listEasyuiPageByExample(leaseOrderItem, true).toString();
     }
 
@@ -47,7 +47,7 @@ public class AssetLeaseOrderItemController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${boothName} ${isNotEmpty(stopTime)?'停租时间:'+stopTime : ''}",operationType="stopLease",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/stopRent.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput stopRent(AssetLeaseOrderItem leaseOrderItem){
+    public @ResponseBody BaseOutput stopRent(AssetsLeaseOrderItem leaseOrderItem){
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             if (userTicket == null) {

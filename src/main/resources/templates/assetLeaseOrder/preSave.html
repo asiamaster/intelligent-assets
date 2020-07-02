@@ -6,7 +6,7 @@
             <input type="hidden" id="id" name="id" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.id!}">
             <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
             <input type="hidden" name="isRenew" value="${isRenew!}">
-            <input type="hidden" id="assetType" name="assetType" value="${assetType!}">
+            <input type="hidden" id="assetsType" name="assetsType" value="${assetsType!}">
             <div class="breadcrumb" >
                 客户信息 ${isNotEmpty(isRenew) && isRenew == 1?'':'<a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>'}
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
@@ -40,7 +40,7 @@
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#leaseInfo" aria-expanded="true" aria-controls="leaseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
             <div class="row row-cols-4 collapse show" id="leaseInfo">
-                <% if(assetType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
+                <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
                 <div class="form-group col">
                     <label for="engageCode">经营范围<i class="red">*</i></label>
                     <select id="engageCode" name="engageCode" class="form-control" required></select>
@@ -74,7 +74,7 @@
                     <#bcomboProvider _log="业务所属部门" _id="departmentId" _provider="authDepartmentProvider" _value="${leaseOrder.departmentId!}"/>
 
                 </div>
-                <% if(assetType != @com.dili.ia.glossary.AssetsTypeEnum.LODGING.getCode()){%>
+                <% if(assetsType != @com.dili.ia.glossary.AssetsTypeEnum.LODGING.getCode()){%>
                 <div class="form-group col-9">
                     <label for="categorys" _log>经营品类</label>
                     <select id="categorys" name="categorys" multiple>
@@ -102,7 +102,7 @@
                         <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
                         <th style="font-weight:normal;" >资产编号<i class="red">*</i></th>
                         <th style="font-weight:normal;width: 7rem;">规格<i class="red">*</i></th>
-                        <% if(assetType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+                        <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <th style="font-weight:normal;width: 7rem;">租赁数量<i class="red">*</i></th>
                         <% } %>
                         <th style="font-weight:normal;width: 5rem;">转角</th>
@@ -128,10 +128,10 @@
                             <input type="hidden" id="districtName_${itemLP.index}" name="districtName_${itemLP.index}" value="${item.districtName!}">
                             <input type="hidden" id="number_${itemLP.index}" name="number_${itemLP.index}" value="${item.number!}"/>
                             <input type="hidden" id="unitName_${itemLP.index}" name="unitName_${itemLP.index}" value="${item.unitName!}"/>
-                            <#bautoCompleteProvider _log="资产编号" _hiddenDomainId="assetId_${itemLP.index}" _hiddenDomainName="assetId_${itemLP.index}" _displayDomainId="assetName_${itemLP.index}" _displayDomainName="assetName_${itemLP.index}" _value="${item.assetId!}" _text="${item.assetName!}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
+                            <#bautoCompleteProvider _log="资产编号" _hiddenDomainId="assetsId_${itemLP.index}" _hiddenDomainName="assetsId_${itemLP.index}" _displayDomainId="assetsName_${itemLP.index}" _displayDomainName="assetsName_${itemLP.index}" _value="${item.assetsId!}" _text="${item.assetsName!}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
                         </td>
                         <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="sku_${itemLP.index}" name="sku_${itemLP.index}" value="${item.number!}${item.unitName!}" readonly uncheck/></td>
-                        <% if(assetType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+                        <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <td style="padding: .25rem!important;"><input _log="租赁数量" type="number" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
                         <% } %>
                         <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="isCorner_${itemLP.index}" name="isCorner_${itemLP.index}" value="${item.isCorner!}" readonly uncheck/></td>
@@ -214,10 +214,10 @@
             <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}">
             <input type="hidden" id="number_{{index}}" name="number_{{index}}"/>
             <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}"/>
-            <#bautoCompleteProvider _log="资产编号" _escape="true" _hiddenDomainId="assetId_{{index}}" _hiddenDomainName="assetId_{{index}}" _displayDomainId="assetName_{{index}}" _displayDomainName="assetName_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
+            <#bautoCompleteProvider _log="资产编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
         </td>
         <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="sku_{{index}}" name="sku_{{index}}" readonly uncheck/></td>
-        <% if(assetType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+        <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
         <td style="padding: .25rem!important;"><input _log="租赁数量" type="number" id="leasesNum_{{index}}" name="leasesNum_{{index}}" value="{{leasesNum}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <% } %>
         <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" readonly uncheck/></td>

@@ -1,10 +1,9 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.AssetLeaseOrderItem;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
-import com.dili.ia.domain.dto.AssetLeaseOrderItemListDto;
+import com.dili.ia.domain.dto.AssetsLeaseOrderItemListDto;
 import com.dili.ia.domain.dto.LeaseOrderItemPrintDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
@@ -159,9 +158,9 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
      * @param leaseOrderItem
      * @return
      */
-    static LeaseOrderItemPrintDto leaseOrderItem2PrintDto(AssetLeaseOrderItemListDto leaseOrderItem) {
+    static LeaseOrderItemPrintDto leaseOrderItem2PrintDto(AssetsLeaseOrderItemListDto leaseOrderItem) {
         LeaseOrderItemPrintDto leaseOrderItemPrintDto = new LeaseOrderItemPrintDto();
-        leaseOrderItemPrintDto.setBoothName(leaseOrderItem.getAssetName());
+        leaseOrderItemPrintDto.setBoothName(leaseOrderItem.getAssetsName());
         leaseOrderItemPrintDto.setDistrictName(leaseOrderItem.getDistrictName());
         leaseOrderItemPrintDto.setNumber(leaseOrderItem.getNumber().toString());
         leaseOrderItemPrintDto.setUnitName(leaseOrderItem.getUnitName());

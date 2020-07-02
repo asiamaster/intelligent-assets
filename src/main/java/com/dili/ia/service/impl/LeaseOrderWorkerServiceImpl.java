@@ -1,13 +1,13 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.AssetLeaseOrder;
-import com.dili.ia.domain.AssetLeaseOrderItem;
-import com.dili.ia.domain.dto.AssetLeaseOrderItemListDto;
-import com.dili.ia.domain.dto.AssetLeaseOrderListDto;
+import com.dili.ia.domain.AssetsLeaseOrder;
+import com.dili.ia.domain.AssetsLeaseOrderItem;
+import com.dili.ia.domain.dto.AssetsLeaseOrderItemListDto;
+import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
 import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.glossary.StopRentStateEnum;
-import com.dili.ia.service.AssetLeaseOrderItemService;
-import com.dili.ia.service.AssetLeaseOrderService;
+import com.dili.ia.service.AssetsLeaseOrderItemService;
+import com.dili.ia.service.AssetsLeaseOrderService;
 import com.dili.ia.service.LeaseOrderWorkerService;
 import com.dili.ss.domain.BaseOutput;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,9 +23,9 @@ import java.util.List;
 public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
     private final static Logger LOG = LoggerFactory.getLogger(LeaseOrderWorkerServiceImpl.class);
     @Autowired
-    private AssetLeaseOrderService assetLeaseOrderService;
+    private AssetsLeaseOrderService assetLeaseOrderService;
     @Autowired
-    private AssetLeaseOrderItemService assetLeaseOrderItemService;
+    private AssetsLeaseOrderItemService assetLeaseOrderItemService;
 
     /**
      * 扫描待生效的订单，做生效处理
@@ -36,12 +36,12 @@ public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
     public BaseOutput<Boolean> scanEffectiveLeaseOrder() {
         LOG.info("=========================摊位租赁生效处理调度执行 begin====================================");
         while (true) {
-            AssetLeaseOrderListDto condition = new AssetLeaseOrderListDto();
+            AssetsLeaseOrderListDto condition = new AssetsLeaseOrderListDto();
             condition.setStartTimeLT(LocalDateTime.now());
             condition.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
             condition.setRows(100);
             condition.setPage(1);
-            List<AssetLeaseOrder> leaseOrders = assetLeaseOrderService.listByExample(condition);
+            List<AssetsLeaseOrder> leaseOrders = assetLeaseOrderService.listByExample(condition);
             if (CollectionUtils.isEmpty(leaseOrders)) {
                 break;
             }
@@ -68,12 +68,12 @@ public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
     public BaseOutput<Boolean> scanExpiredLeaseOrder() {
         LOG.info("=========================摊位租赁到期处理调度执行 begin====================================");
         while (true) {
-            AssetLeaseOrderListDto condition = new AssetLeaseOrderListDto();
+            AssetsLeaseOrderListDto condition = new AssetsLeaseOrderListDto();
             condition.setEndTimeLT(LocalDateTime.now());
             condition.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
             condition.setRows(100);
             condition.setPage(1);
-            List<AssetLeaseOrder> leaseOrders = assetLeaseOrderService.listByExample(condition);
+            List<AssetsLeaseOrder> leaseOrders = assetLeaseOrderService.listByExample(condition);
             if (CollectionUtils.isEmpty(leaseOrders)) {
                 break;
             }
@@ -99,12 +99,12 @@ public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
     public BaseOutput<Boolean> scanWaitStopRentLeaseOrder() {
         LOG.info("=========================摊位租赁停租处理调度执行 begin====================================");
         while (true) {
-            AssetLeaseOrderItemListDto condition = new AssetLeaseOrderItemListDto();
+            AssetsLeaseOrderItemListDto condition = new AssetsLeaseOrderItemListDto();
             condition.setStopRentState(StopRentStateEnum.WAIT_TIMER_EXE.getCode());
             condition.setStopTimeLet(LocalDateTime.now());
             condition.setRows(100);
             condition.setPage(1);
-            List<AssetLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.listByExample(condition);
+            List<AssetsLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.listByExample(condition);
             if (CollectionUtils.isEmpty(leaseOrderItems)) {
                 break;
             }

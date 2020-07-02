@@ -353,14 +353,14 @@
                     let businessChargeItem = {};
                     businessChargeItem.chargeItemName = this.dataset.chargeItemName;
                     businessChargeItem.chargeItemId = this.dataset.chargeItemId;
-                    businessChargeItem.bizType = ${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetType).getBizType()};
+                    businessChargeItem.bizType = ${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType()};
                     businessChargeItem.amount = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
                     leaseOrderItem.businessChargeItems.push(businessChargeItem);
                 }else{
                     leaseOrderItem[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
                 }
             });
-            leaseOrderItem.assetType = $('#assetType').val();
+            leaseOrderItem.assetsType = $('#assetsType').val();
             leaseOrderItems.push(leaseOrderItem);
         });
 
@@ -407,23 +407,23 @@
             return false;
         }
 
-        let assetIds = $("table input[name^='assetId']").filter(function () {
+        let assetsIds = $("table input[name^='assetsId']").filter(function () {
             return this.value
         }).map(function(){
-            return $('#assetId_'+getIndex(this.id)).val();
+            return $('#assetsId_'+getIndex(this.id)).val();
         }).get();
 
-        if(!assetIds || assetIds.length == 0){
+        if(!assetsIds || assetsIds.length == 0){
             bs4pop.alert('请添加资产！')
             return false;
         }
 
-        if(arrRepeatCheck(assetIds)){
+        if(arrRepeatCheck(assetsIds)){
             bs4pop.alert('存在重复资产，请检查！')
             return false;
         }
 
-        if(assetIds.length > 10){
+        if(assetsIds.length > 10){
             bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'warning'});
         }
 
