@@ -22,11 +22,11 @@ public interface AssetsLeaseOrderItemService extends BaseService<AssetsLeaseOrde
     BaseOutput stopRent(AssetsLeaseOrderItem leaseOrderItem);
     /**
      * 停租摊位租赁
-     * @param assetLeaseOrderItem
+     * @param assetsLeaseOrderItem
      * @param startTime
      * @param stopTime
      */
-    void stopBoothRent(AssetsLeaseOrderItem assetLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime);
+    void stopBoothRent(AssetsLeaseOrderItem assetsLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime);
 
     /**
      * 摊位订单项停租处理
@@ -36,10 +36,10 @@ public interface AssetsLeaseOrderItemService extends BaseService<AssetsLeaseOrde
 
     /**
      * PO lIST转DTO LIST
-     * @param assetLeaseOrderItems
+     * @param assetsLeaseOrderItems
      * @param bizType
      * @param chargeItemDtos
      * @return
      */
-    List<AssetsLeaseOrderItemListDto> leaseOrderItemListToDto(List<AssetsLeaseOrderItem> assetLeaseOrderItems, String bizType, List<BusinessChargeItemDto> chargeItemDtos);
+    List<AssetsLeaseOrderItemListDto> leaseOrderItemListToDto(List<AssetsLeaseOrderItem> assetsLeaseOrderItems, String bizType, List<BusinessChargeItemDto> chargeItemDtos);
 }

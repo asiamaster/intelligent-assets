@@ -44,9 +44,9 @@ import java.util.*;
 public class AssetsLeaseOrderController {
     private final static Logger LOG = LoggerFactory.getLogger(LeaseOrderController.class);
     @Autowired
-    AssetsLeaseOrderService assetLeaseOrderService;
+    AssetsLeaseOrderService assetsLeaseOrderService;
     @Autowired
-    AssetsLeaseOrderItemService assetLeaseOrderItemService;
+    AssetsLeaseOrderItemService assetsLeaseOrderItemService;
     @Autowired
     PaymentOrderService paymentOrderService;
     @Autowired
@@ -84,7 +84,7 @@ public class AssetsLeaseOrderController {
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
         modelMap.put("assetsType", assetsType);
-        return "assetLeaseOrder/index";
+        return "assetsLeaseOrder/index";
     }
 
     /**
@@ -97,11 +97,11 @@ public class AssetsLeaseOrderController {
     public String view(ModelMap modelMap,Long id,String orderCode) {
         AssetsLeaseOrder leaseOrder = null;
         if(null != id) {
-            leaseOrder = assetLeaseOrderService.get(id);
+            leaseOrder = assetsLeaseOrderService.get(id);
         }else if(StringUtils.isNotBlank(orderCode)){
             PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
             paymentOrder.setCode(orderCode);
-            leaseOrder = assetLeaseOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
+            leaseOrder = assetsLeaseOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
             id = leaseOrder.getId();
         }
 
@@ -112,11 +112,11 @@ public class AssetsLeaseOrderController {
 
         AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
         condition.setLeaseOrderId(id);
-        List<AssetsLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
         modelMap.put("leaseOrder",leaseOrder);
         List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
-        modelMap.put("leaseOrderItems", assetLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
+        modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
         try{
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
@@ -129,7 +129,7 @@ public class AssetsLeaseOrderController {
         }catch (Exception e){
             LOG.error("日志服务查询异常",e);
         }
-        return "assetLeaseOrder/view";
+        return "assetsLeaseOrder/view";
     }
 
     /**
@@ -146,18 +146,18 @@ public class AssetsLeaseOrderController {
         List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
         if(null != id){
-            AssetsLeaseOrder leaseOrder = assetLeaseOrderService.get(id);
+            AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(id);
             modelMap.put("leaseOrder",leaseOrder);
 
             AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
             condition.setLeaseOrderId(id);
-            List<AssetsLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.list(condition);
+            List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
 
-            modelMap.put("leaseOrderItems", assetLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), chargeItemDtos));
+            modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), chargeItemDtos));
         }
         modelMap.put("assetsType", assetsType);
         modelMap.put("isRenew", YesOrNoEnum.YES.getCode().equals(isRenew) ? YesOrNoEnum.YES.getCode() : YesOrNoEnum.NO.getCode());
-        return "assetLeaseOrder/preSave";
+        return "assetsLeaseOrder/preSave";
     }
 
     /**
@@ -170,13 +170,13 @@ public class AssetsLeaseOrderController {
     @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
     public String refundApply(ModelMap modelMap,Long id,Integer type) {
         if(LeaseOrderRefundTypeEnum.LEASE_ORDER_REFUND.getCode().equals(type)){
-            modelMap.put("leaseOrder",assetLeaseOrderService.get(id));
+            modelMap.put("leaseOrder",assetsLeaseOrderService.get(id));
         }else if(LeaseOrderRefundTypeEnum.LEASE_ORDER_ITEM_REFUND.getCode().equals(type)){
-            AssetsLeaseOrderItem leaseOrderItem = assetLeaseOrderItemService.get(id);
+            AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(id);
             modelMap.put("leaseOrderItem",leaseOrderItem);
-            modelMap.put("leaseOrder",assetLeaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
+            modelMap.put("leaseOrder",assetsLeaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
         }
-        return "assetLeaseOrder/refundApply";
+        return "assetsLeaseOrder/refundApply";
     }
 
     /**
@@ -201,12 +201,12 @@ public class AssetsLeaseOrderController {
 //        if (StringUtils.isNotBlank(leaseOrder.getAssetsName())) {
 //            AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
 //            leaseOrderItemCondition.setAssetsName(leaseOrder.getAssetsName());
-//            leaseOrder.setIds(assetLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
+//            leaseOrder.setIds(assetsLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
 //            if(CollectionUtils.isEmpty(leaseOrder.getIds())){
 //                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
 //            }
 //        }
-        return assetLeaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
+        return assetsLeaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
     }
 
     /**
@@ -218,7 +218,7 @@ public class AssetsLeaseOrderController {
     @RequestMapping(value="/supplement.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput supplement(AssetsLeaseOrder leaseOrder){
         try {
-            return assetLeaseOrderService.supplement(leaseOrder);
+            return assetsLeaseOrderService.supplement(leaseOrder);
         }catch (BusinessException e){
             LOG.info("租赁订单信息补录异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
@@ -239,7 +239,7 @@ public class AssetsLeaseOrderController {
     @RequestMapping(value="/cancelOrder.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput cancelOrder(Long id){
         try {
-            return assetLeaseOrderService.cancelOrder(id);
+            return assetsLeaseOrderService.cancelOrder(id);
         }catch (BusinessException e){
             LOG.info("租赁订单取消异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
@@ -260,7 +260,7 @@ public class AssetsLeaseOrderController {
     @RequestMapping(value="/withdrawOrder.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput withdrawOrder(Long id){
         try {
-            return assetLeaseOrderService.withdrawOrder(id);
+            return assetsLeaseOrderService.withdrawOrder(id);
         }catch (BusinessException e){
             LOG.info("租赁订单撤回异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
@@ -282,7 +282,7 @@ public class AssetsLeaseOrderController {
         DateTimeFormatter formatterDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         leaseOrder.setEndTime(LocalDateTime.parse(leaseOrder.getEndTime().format(formatter), formatterDateTime));
         try{
-            BaseOutput output = assetLeaseOrderService.saveLeaseOrder(leaseOrder);
+            BaseOutput output = assetsLeaseOrderService.saveLeaseOrder(leaseOrder);
             //写业务日志
             if (output.isSuccess()){
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -324,7 +324,7 @@ public class AssetsLeaseOrderController {
                     return BaseOutput.failure("支付金额必须等于0");
                 }
             }
-            return assetLeaseOrderService.submitPayment(id,amount,waitAmount);
+            return assetsLeaseOrderService.submitPayment(id,amount,waitAmount);
         }catch (BusinessException e){
             LOG.info("资产租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
@@ -347,7 +347,7 @@ public class AssetsLeaseOrderController {
             throw new RuntimeException("未登录");
         }
         try{
-            BaseOutput output = assetLeaseOrderService.createRefundOrder(refundOrderDto);
+            BaseOutput output = assetsLeaseOrderService.createRefundOrder(refundOrderDto);
             if(output.isSuccess()){
                 LoggerUtil.buildLoggerContext(refundOrderDto.getBusinessId(),refundOrderDto.getBusinessCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),refundOrderDto.getRefundReason());
             }

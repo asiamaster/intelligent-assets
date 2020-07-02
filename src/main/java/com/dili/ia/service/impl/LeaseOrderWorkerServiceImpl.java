@@ -23,9 +23,9 @@ import java.util.List;
 public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
     private final static Logger LOG = LoggerFactory.getLogger(LeaseOrderWorkerServiceImpl.class);
     @Autowired
-    private AssetsLeaseOrderService assetLeaseOrderService;
+    private AssetsLeaseOrderService assetsLeaseOrderService;
     @Autowired
-    private AssetsLeaseOrderItemService assetLeaseOrderItemService;
+    private AssetsLeaseOrderItemService assetsLeaseOrderItemService;
 
     /**
      * 扫描待生效的订单，做生效处理
@@ -41,14 +41,14 @@ public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
             condition.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
             condition.setRows(100);
             condition.setPage(1);
-            List<AssetsLeaseOrder> leaseOrders = assetLeaseOrderService.listByExample(condition);
+            List<AssetsLeaseOrder> leaseOrders = assetsLeaseOrderService.listByExample(condition);
             if (CollectionUtils.isEmpty(leaseOrders)) {
                 break;
             }
 
             leaseOrders.stream().forEach(o -> {
                 try {
-                    assetLeaseOrderService.leaseOrderEffectiveHandler(o);
+                    assetsLeaseOrderService.leaseOrderEffectiveHandler(o);
                 } catch (Exception e) {
                     LOG.error("租赁单【编号：{}】变更生效异常。{}", o.getCode(), e.getMessage());
                     LOG.error("租赁单变更生效异常", e);
@@ -73,14 +73,14 @@ public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
             condition.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
             condition.setRows(100);
             condition.setPage(1);
-            List<AssetsLeaseOrder> leaseOrders = assetLeaseOrderService.listByExample(condition);
+            List<AssetsLeaseOrder> leaseOrders = assetsLeaseOrderService.listByExample(condition);
             if (CollectionUtils.isEmpty(leaseOrders)) {
                 break;
             }
 
             leaseOrders.stream().forEach(o -> {
                 try {
-                    assetLeaseOrderService.leaseOrderExpiredHandler(o);
+                    assetsLeaseOrderService.leaseOrderExpiredHandler(o);
                 } catch (Exception e) {
                     LOG.error("租赁单【编号：{}】变更到期异常。{}", o.getCode(), e.getMessage());
                     LOG.error("租赁单变更到期异常", e);
@@ -104,14 +104,14 @@ public class LeaseOrderWorkerServiceImpl implements LeaseOrderWorkerService {
             condition.setStopTimeLet(LocalDateTime.now());
             condition.setRows(100);
             condition.setPage(1);
-            List<AssetsLeaseOrderItem> leaseOrderItems = assetLeaseOrderItemService.listByExample(condition);
+            List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
             if (CollectionUtils.isEmpty(leaseOrderItems)) {
                 break;
             }
 
             leaseOrderItems.stream().forEach(o -> {
                 try {
-                    assetLeaseOrderItemService.stopRentLeaseOrderItemFromTimer(o);
+                    assetsLeaseOrderItemService.stopRentLeaseOrderItemFromTimer(o);
                 } catch (Exception e) {
                     LOG.error("租赁订单项【id:{}】执行停租异常。{}", o.getId(), e.getMessage());
                     LOG.error("租赁单执行停租异常", e);
