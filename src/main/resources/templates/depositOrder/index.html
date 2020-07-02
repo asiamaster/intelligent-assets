@@ -115,10 +115,22 @@
                                 联系电话
                             </th>
                             <th data-field="state" data-sortable="true" data-provider="depositOrderStateProvider" data-align="center">
-                                状态
+                                业务状态
+                            </th>
+                            <th data-field="payState" data-sortable="true" data-provider="depositPayStateProvider" data-align="center">
+                                交费状态
+                            </th>
+                            <th data-field="refundState" data-sortable="true" data-provider="depositRefundStateProvider" data-align="center">
+                                退款状态
                             </th>
                             <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
                                 保证金金额
+                            </th>
+                            <th data-field="paidAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                                已交金额
+                            </th>
+                            <th data-field="waitAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                                待交金额
                             </th>
                             <th data-field="creator" data-sortable="true" data-align="center">
                                 创建人

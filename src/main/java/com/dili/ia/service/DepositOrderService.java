@@ -31,8 +31,8 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
     /**
      * 保证金 --提交
      * @param id 保证金单ID
-     * @param amount 付款金额
-     * @param waitAmount 待付金额
+     * @param amount  本次提交付款金额
+     * @param waitAmount  提交付款时候的待付金额
      * @return BaseOutput
      * */
     BaseOutput<DepositOrder> submitDepositOrder(Long id, Long amount, Long waitAmount);
