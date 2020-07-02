@@ -578,7 +578,6 @@
             $('#btn_renew').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
         }
-        $('#btn_edit').attr('disabled', false);
         $('#btn_renew').attr('disabled', false);
 
     });
