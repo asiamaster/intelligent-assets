@@ -69,6 +69,25 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     private CustomerMeterService customerMeterService;
 
     /**
+     * 根据主键 id 查看详情
+     *
+     * @param  id
+     * @return MeterDetail
+     * @date   2020/7/1
+     */
+    @Override
+    public MeterDetail getMeterDetailById(Long id) {
+
+
+
+
+
+
+
+        return null;
+    }
+
+    /**
      * meter、meterDetail 两表查询水电费单集合(分页)
      *
      * @param  meterDetailDto
@@ -169,7 +188,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         if (sharedAmount != null) {
             // TODO
             //如果有公摊费，水电费的应收金额则需减去公摊费(前端页面)
-
             //设置公摊费的相关信息
             PaymentOrder sharedPaymentOrder = BeanConver.copyBean(meterPaymentOrder, PaymentOrder.class);
             sharedPaymentOrder.setAmount(sharedAmount);
@@ -184,12 +202,42 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             //已被解绑或删除
             BaseOutput.failure("表已被解绑或删除，请刷新数据后重试!");
         }
-
         Boolean isEquals = meterDetailDto.getLastAmount().equals(lastAmount);
         if (!isEquals){
             BaseOutput.failure("上期指数已发生变化,请修改后重新提交!");
         }
+
         return BaseOutput.success("新增成功");
+    }
+
+    /**
+     * 修改 水电费单
+     *
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/7/1
+     */
+    @Override
+    public BaseOutput updateMeterDetail(MeterDetailDto meterDetailDto) {
+        BaseOutput baseOutput = new BaseOutput();
+        
+        // 先查询
+        MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
+        if (meterDetailInfo == null) {
+            return BaseOutput.failure("该记录已删除，修改失败。");
+        }
+
+        //在更新状态之前查询指数信息，不然可能会查询出当前数据(脏读)
+        BaseOutput lastAmountReturn = this.getLastAmount(meterDetailDto.getMeterId());
+        if (!lastAmountReturn.isSuccess()){
+            return BaseOutput.failure("该表初始指数获取失败,保存失败!");
+        }
+        Long lastAmount = (Long) lastAmountReturn.getData();
+
+
+
+
+        return null;
     }
 
     /**

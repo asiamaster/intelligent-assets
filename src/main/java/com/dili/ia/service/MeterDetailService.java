@@ -16,6 +16,15 @@ import com.dili.uap.sdk.domain.UserTicket;
 public interface MeterDetailService extends BaseService<MeterDetail, Long> {
 
     /**
+     * 根据主键 id 查看详情
+     *
+     * @param  id
+     * @return MeterDetail
+     * @date   2020/7/1
+     */
+    MeterDetail getMeterDetailById(Long id);
+
+    /**
      * 查询水电费单的集合(分页)
      *
      * @param  meterDetailDto
@@ -36,6 +45,15 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
     BaseOutput addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket);
 
     /**
+     * 修改 水电费单
+     *
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/7/1
+     */
+    BaseOutput updateMeterDetail(MeterDetailDto meterDetailDto);
+
+    /**
      * 根据 meterId、customerId 查询未缴费单的数量
      *
      * @param  meterId
@@ -53,4 +71,6 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @date   2020/6/29
      */
     BaseOutput getLastAmount(Long meterId);
+
+
 }
