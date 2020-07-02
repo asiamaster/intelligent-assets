@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class AssetsLeaseOrderItemController {
     private final static Logger LOG = LoggerFactory.getLogger(AssetsLeaseOrderItemController.class);
     @Autowired
-    AssetsLeaseOrderItemService assetLeaseOrderItemService;
+    AssetsLeaseOrderItemService assetsLeaseOrderItemService;
 
 
     /**
@@ -37,7 +37,7 @@ public class AssetsLeaseOrderItemController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(AssetsLeaseOrderItem leaseOrderItem) throws Exception {
-        return assetLeaseOrderItemService.listEasyuiPageByExample(leaseOrderItem, true).toString();
+        return assetsLeaseOrderItemService.listEasyuiPageByExample(leaseOrderItem, true).toString();
     }
 
     /**
@@ -59,7 +59,7 @@ public class AssetsLeaseOrderItemController {
             if(StopWayEnum.TIMING.getCode().equals(leaseOrderItem.getStopWay()) && null == leaseOrderItem.getStopTime()){
                 return BaseOutput.failure("参数错误");
             }
-            BaseOutput output = assetLeaseOrderItemService.stopRent(leaseOrderItem);
+            BaseOutput output = assetsLeaseOrderItemService.stopRent(leaseOrderItem);
             return output;
         }catch (BusinessException e){
             LOG.info("摊位停租异常！", e);

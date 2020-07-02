@@ -25,7 +25,7 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {url: '/assetLeaseOrder/listPage.action',pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {url: '/assetsLeaseOrder/listPage.action',pageSize: parseInt(size)});
     });
 
 
@@ -38,7 +38,7 @@
     function openInsertHandler() {
        dia = bs4pop.dialog({
             title: '新增租赁',
-           content: '/assetLeaseOrder/preSave.html?assetsType=' + $('#assetsType').val(),
+           content: '/assetsLeaseOrder/preSave.html?assetsType=' + $('#assetsType').val(),
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -61,7 +61,7 @@
 
         dia = bs4pop.dialog({
             title: '修改租赁',
-            content: '/assetLeaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
+            content: '/assetsLeaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -89,7 +89,7 @@
 
         dia = bs4pop.dialog({
             title: '摊位租赁详情',
-            content: '/assetLeaseOrder/view.action?id='+id,
+            content: '/assetsLeaseOrder/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -136,7 +136,7 @@
                         bui.loading.show('努力提交中，请稍候。。。');
                         $.ajax({
                             type: "POST",
-                            url: "${contextPath}/assetLeaseOrder/supplement.action",
+                            url: "${contextPath}/assetsLeaseOrder/supplement.action",
                             data: {id: rows[0].id,contractNo : $('#contractNo').val()},
                             processData:true,
                             dataType: "json",
@@ -175,7 +175,7 @@
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/assetLeaseOrder/cancelOrder.action",
+                    url: "${contextPath}/assetsLeaseOrder/cancelOrder.action",
                     data: {id: selectedRow.id},
                     dataType: "json",
                     success : function(ret) {
@@ -214,7 +214,7 @@
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/assetLeaseOrder/withdrawOrder.action",
+                    url: "${contextPath}/assetsLeaseOrder/withdrawOrder.action",
                     data: {id: selectedRow.id},
                     dataType: "json",
                     success : function(ret) {
@@ -264,7 +264,7 @@
                         bui.loading.show('努力提交中，请稍候。。。');
                         $.ajax({
                             type: "POST",
-                            url: "${contextPath}/assetLeaseOrder/submitPayment.action",
+                            url: "${contextPath}/assetsLeaseOrder/submitPayment.action",
                             data: {
                                 id: rows[0].id,
                                 waitAmount: rows[0].$_waitAmount,
@@ -304,7 +304,7 @@
 
         dia = bs4pop.dialog({
             title: '摊位续租',
-            content: '/assetLeaseOrder/preSave.html?isRenew=1&id=' + rows[0].id + '&assetsType=' + rows[0].assetsType,
+            content: '/assetsLeaseOrder/preSave.html?isRenew=1&id=' + rows[0].id + '&assetsType=' + rows[0].assetsType,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -411,7 +411,7 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-        let url = '/assetLeaseOrder/refundApply.html?id=' + rows[0].id + '&type=' + type;
+        let url = '/assetsLeaseOrder/refundApply.html?id=' + rows[0].id + '&type=' + type;
         dia = bs4pop.dialog({
             title: '退款申请',
             content: url,
@@ -495,7 +495,7 @@
 
         var cur_table = $detail.html(template('subTable',{index})).find('table');
         $(cur_table).bootstrapTable();
-        $(cur_table).bootstrapTable('refreshOptions', {url: '/assetLeaseOrderItem/listPage.action?leaseOrderId='+row.id});
+        $(cur_table).bootstrapTable('refreshOptions', {url: '/assetsLeaseOrderItem/listPage.action?leaseOrderId='+row.id});
         //选中行事件
         $(cur_table).on('check.bs.table', function (e,row, $element){
             e.stopPropagation();
@@ -578,7 +578,6 @@
             $('#btn_renew').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
         }
-        $('#btn_edit').attr('disabled', false);
         $('#btn_renew').attr('disabled', false);
 
     });

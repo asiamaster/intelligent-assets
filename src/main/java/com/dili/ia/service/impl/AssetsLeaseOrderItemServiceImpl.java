@@ -51,7 +51,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
     private final static Logger LOG = LoggerFactory.getLogger(AssetsLeaseOrderItemServiceImpl.class);
 
     @Autowired
-    private AssetsLeaseOrderService assetLeaseOrderService;
+    private AssetsLeaseOrderService assetsLeaseOrderService;
     @Autowired
     private AssetsRpc assetsRpc;
 
@@ -73,7 +73,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
         leaseOrderItem.setStopOperatorId(userTicket.getId());
         leaseOrderItem.setStopOperatorName(userTicket.getRealName());
         AssetsLeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
-        AssetsLeaseOrder leaseOrder = assetLeaseOrderService.get(leaseOrderItemOld.getLeaseOrderId());
+        AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(leaseOrderItemOld.getLeaseOrderId());
 
         if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
             throw new BusinessException(ResultCode.DATA_ERROR,"已发起过退款申请，不能发起停租");
@@ -114,16 +114,16 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
 
     /**
      * 停租摊位租赁
-     * @param assetLeaseOrderItem
+     * @param assetsLeaseOrderItem
      * @param startTime
      * @param stopTime
      */
     @Override
-    public void stopBoothRent(AssetsLeaseOrderItem assetLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime) {
+    public void stopBoothRent(AssetsLeaseOrderItem assetsLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime) {
         //修改摊位租赁时间段
         BoothRentDTO boothRentDTO = new BoothRentDTO();
-        boothRentDTO.setBoothId(assetLeaseOrderItem.getAssetsId());
-        boothRentDTO.setOrderId(assetLeaseOrderItem.getLeaseOrderId().toString());
+        boothRentDTO.setBoothId(assetsLeaseOrderItem.getAssetsId());
+        boothRentDTO.setOrderId(assetsLeaseOrderItem.getLeaseOrderId().toString());
         BaseOutput assetsOutput;
         if (stopTime.isBefore(startTime)) {
             //未生效停租 结束时间比开始时间小 直接释放时间段
@@ -133,7 +133,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
             assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
         }
         if (!assetsOutput.isSuccess()) {
-            LOG.info("摊位订单项停租异常，【订单项ID:{},摊位名称:{},异常MSG:{}】", assetLeaseOrderItem.getId(), assetLeaseOrderItem.getAssetsName(), assetsOutput.getMessage());
+            LOG.info("摊位订单项停租异常，【订单项ID:{},摊位名称:{},异常MSG:{}】", assetsLeaseOrderItem.getId(), assetsLeaseOrderItem.getAssetsName(), assetsOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, assetsOutput.getMessage());
         }
     }
@@ -147,7 +147,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
         condition.setLeaseOrderId(leaseOrderItemOld.getLeaseOrderId());
         List<AssetsLeaseOrderItem> leaseOrderItems = list(condition);
 
-        AssetsLeaseOrder leaseOrder = assetLeaseOrderService.get(leaseOrderItemOld.getLeaseOrderId());
+        AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(leaseOrderItemOld.getLeaseOrderId());
         boolean isUpdateLeaseOrderState = true;
         if(leaseOrderItems.size() > 1){
             isUpdateLeaseOrderState = true;
@@ -165,7 +165,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
         if(isUpdateLeaseOrderState){
             leaseOrder.setState(LeaseOrderStateEnum.RENTED_OUT.getCode());
             //租赁单状态不更新为停租也需要版本号+1，状态的联动需要 各订单项需要共同一把锁
-            if(assetLeaseOrderService.updateSelective(leaseOrder) == 0){
+            if(assetsLeaseOrderService.updateSelective(leaseOrder) == 0){
                 LOG.info("级联更新租赁单状态异常,乐观锁生效 【租赁单编号:{},摊位名称:{}】", leaseOrderItemOld.getLeaseOrderCode(), leaseOrderItemOld.getAssetsName());
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
@@ -192,15 +192,15 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
     }
 
     @Override
-    public List<AssetsLeaseOrderItemListDto> leaseOrderItemListToDto(List<AssetsLeaseOrderItem> assetLeaseOrderItems, String bizType, List<BusinessChargeItemDto> chargeItemDtos) {
-        List<Map<String, String>> businessChargeItems = businessChargeItemService.queryBusinessChargeItem(bizType, assetLeaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()), chargeItemDtos);
+    public List<AssetsLeaseOrderItemListDto> leaseOrderItemListToDto(List<AssetsLeaseOrderItem> assetsLeaseOrderItems, String bizType, List<BusinessChargeItemDto> chargeItemDtos) {
+        List<Map<String, String>> businessChargeItems = businessChargeItemService.queryBusinessChargeItem(bizType, assetsLeaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()), chargeItemDtos);
         Map<Long,Map<String,String>> businessChargeItemMap = new HashMap<>();
         businessChargeItems.forEach(bct->{
             businessChargeItemMap.put(Long.valueOf(bct.get("businessId")),bct);
         });
 
         List<AssetsLeaseOrderItemListDto> assetsLeaseOrderItemListDtos = new ArrayList<>();
-        assetLeaseOrderItems.forEach(o->{
+        assetsLeaseOrderItems.forEach(o->{
             AssetsLeaseOrderItemListDto assetsLeaseOrderItemListDto = new AssetsLeaseOrderItemListDto();
             try {
                 BeanUtils.copyProperties(assetsLeaseOrderItemListDto,o);
