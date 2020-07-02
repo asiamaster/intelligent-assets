@@ -285,6 +285,8 @@
     //选中行事件 -- 可操作按钮控制
     _grid.on('check.bs.table', function (e, row, $element) {
         let state = row.$_state;
+        let payState = row.$_payState;
+        let refundState = row.$_refundState;
         if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
@@ -301,16 +303,22 @@
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_withdraw').attr('disabled', false);
+            $('#btn_submit').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.PAID.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_refund_apply').attr('disabled', false);
+            if (payState == ${@com.dili.ia.glossary.DepositPayStateEnum.NOT_PAID.getCode()}){
+                $('#btn_submit').attr('disabled', false);
+            }
         } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.REFUND.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
-            $('#btn_refund_apply').attr('disabled', false);
+            if(refundState == ${@com.dili.ia.glossary.DepositRefundStateEnum.PART_REFUND.getCode()}){
+                $('#btn_refund_apply').attr('disabled', false);
+            }
         }
     });
 

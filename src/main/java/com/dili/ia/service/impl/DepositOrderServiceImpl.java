@@ -238,21 +238,20 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 //                checkBoothState(o.getAssetsId());
 //            });
 //        }
-        if (!de.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
-            return BaseOutput.failure("提交失败，状态已变更！");
+        //检查是否可以进行提交付款
+        checkSubmitPayment(id, amount, waitAmount, de);
+        //首次提交更改状态为 -- > 已提交
+        if (de.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
+            de.setState(DepositOrderStateEnum.SUBMITTED.getCode());
+            if (this.updateSelective(de) == 0) {
+                LOG.info("提交保证金【修改保证金单状态】失败 ,乐观锁生效！【保证金单ID:{}】", de.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
+        }else {//非第一次付款，相关业务实现---直接撤回已提交的未支付的缴费单然后创建新的缴费单。
+            //判断缴费单是否需要撤回 需要撤回则撤回
+            PaymentOrder pb = this.findPaymentOrder(userTicket.getFirmId(),PaymentOrderStateEnum.NOT_PAID.getCode(), de.getId(), de.getCode());
+            withdrawPaymentOrder(pb);
         }
-        if (!de.getAmount().equals(amount + waitAmount)){
-            return BaseOutput.failure("提交失败，金额已变更！");
-        }
-        de.setState(DepositOrderStateEnum.SUBMITTED.getCode());
-        de.setSubmitterId(userTicket.getId());
-        de.setSubmitter(userTicket.getRealName());
-        de.setSubmitTime(new Date());
-        if (this.updateSelective(de) == 0) {
-            LOG.info("提交保证金【修改保证金单状态】失败 ,乐观锁生效！【保证金单ID:{}】", de.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-
         PaymentOrder pb = this.buildPaymentOrder(userTicket, de, amount);
         paymentOrderService.insertSelective(pb);
 
@@ -314,35 +313,37 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     /**
      * 检查是否可以进行提交付款
-//     * @param amount
-//     * @param waitAmount
+     * @param id 保证金单ID
+     * @param amount 保证金单付款金额
+     * @param waitAmount 保证金单待付金额
+     * @param depositOrder 原来保证金单
      */
-//    private void checkSubmitPayment(Long amount, Long waitAmount,DepositOrder depositOrder) {
-//        //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
-//        if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
-//            LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
-//            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已交清，不可以进行提交付款操作");
-//        }
-//        if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
-//            LOG.info("租赁单编号【{}】已发起退款，不可以进行提交付款操作", leaseOrder.getCode());
-//            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已发起退款，不可以进行提交付款操作");
-//        }
-//        if(LeaseOrderStateEnum.CANCELD.getCode().equals(leaseOrder.getState())){
-//            LOG.info("租赁单编号【{}】已取消，不可以进行提交付款操作", leaseOrder.getCode());
-//            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已取消，不可以进行提交付款操作");
-//        }
-//        if (amount.equals(0L) && !waitAmount.equals(0L)) {
-//            throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单费用已结清");
-//        }
-//        if (amount > leaseOrder.getWaitAmount()) {
-//            LOG.info("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());
-//            throw new BusinessException(ResultCode.DATA_ERROR,"支付金额大于待付金额");
-//        }
-//        if (!waitAmount.equals(leaseOrder.getWaitAmount())) {
-//            LOG.info("摊位租赁单待缴费金额已发生变更，请重试【ID {}】 旧金额【{}】新金额【{}】", id, waitAmount, leaseOrder.getWaitAmount());
-//            throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单待缴费金额已发生变更，请重试");
-//        }
-//    }
+    private void checkSubmitPayment(Long id, Long amount, Long waitAmount,DepositOrder depositOrder) {
+        //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
+        if (DepositPayStateEnum.PAID.getCode().equals(depositOrder.getPayState())) {
+            LOG.info("保证金单编号【{}】 已交清，不可以进行提交付款操作", depositOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "保证金单编号【" + depositOrder.getCode() + "】 已交清，不可以进行提交付款操作");
+        }
+        if(!DepositRefundStateEnum.NO_REFUNDED.getCode().equals(depositOrder.getRefundState())){
+            LOG.info("保证金单编号【{}】已发起退款，不可以进行提交付款操作", depositOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "保证金单编号【" + depositOrder.getCode() + "】 已发起退款，不可以进行提交付款操作");
+        }
+        if(DepositOrderStateEnum.CANCELD.getCode().equals(depositOrder.getState())){
+            LOG.info("保证金单编号【{}】已取消，不可以进行提交付款操作", depositOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "保证金单编号【" + depositOrder.getCode() + "】 已取消，不可以进行提交付款操作");
+        }
+        if (!amount.equals(0L) && waitAmount.equals(0L)) {
+            throw new BusinessException(ResultCode.DATA_ERROR,"保证金单费用已结清");
+        }
+        if (amount > depositOrder.getWaitAmount()) {
+            LOG.info("保证金单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, depositOrder.getWaitAmount());
+            throw new BusinessException(ResultCode.DATA_ERROR,"支付金额大于待付金额");
+        }
+        if (!waitAmount.equals(depositOrder.getWaitAmount())) {
+            LOG.info("保证金单待缴费金额已发生变更，请重试【ID {}】 旧金额【{}】新金额【{}】", id, waitAmount, depositOrder.getWaitAmount());
+            throw new BusinessException(ResultCode.DATA_ERROR,"保证金单待缴费金额已发生变更，请重试");
+        }
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -364,26 +365,40 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        PaymentOrder pb = this.findPaymentOrder(userTicket, ea.getId(), ea.getCode());
-        if (paymentOrderService.delete(pb.getId()) == 0) {
-            LOG.info("撤回保证金【删除缴费单】失败.");
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-        BaseOutput<String>  setOut = settlementRpc.cancel(settlementAppId, pb.getCode());
-        if (!setOut.isSuccess()){
-            LOG.info("撤回，调用结算中心修改状态失败！" + setOut.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "撤回，调用结算中心修改状态失败！" + setOut.getMessage());
-        }
+        PaymentOrder pb = this.findPaymentOrder(userTicket.getFirmId(),PaymentOrderStateEnum.NOT_PAID.getCode(), ea.getId(), ea.getCode());
+        withdrawPaymentOrder(pb);
         return BaseOutput.success().setData(ea);
     }
 
-    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
+    /**
+     * 撤回缴费单 判断缴费单是否需要撤回 需要撤回则撤回
+     *
+     * @param payingOrder
+     */
+    public void withdrawPaymentOrder(PaymentOrder payingOrder) {
+        if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
+            String paymentCode = payingOrder.getCode();
+            BaseOutput output = settlementRpc.cancel(settlementAppId,paymentCode);
+            if (!output.isSuccess()) {
+                LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
+                throw new BusinessException(ResultCode.DATA_ERROR,output.getMessage());
+            }
+
+            payingOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
+            if(paymentOrderService.updateSelective(payingOrder) == 0){
+                LOG.info("撤回缴费单异常，乐观锁生效，【缴费单编号:{}】",payingOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
+            }
+        }
+    }
+
+    private PaymentOrder findPaymentOrder(Long marketId, Integer state, Long businessId, String businessCode){
         PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
         pb.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
-        pb.setMarketId(userTicket.getFirmId());
-        pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
+        pb.setMarketId(marketId);
+        pb.setState(state);
         PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
         if (null == order) {
             LOG.info("没有查询到付款单PaymentOrder【业务单businessId：{}】 【业务单businessCode:{}】", businessId, businessCode);
