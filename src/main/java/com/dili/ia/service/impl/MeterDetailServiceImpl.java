@@ -356,7 +356,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         // 查询缴费历史中,已缴费的最新数据
         Long lastAmount = this.getLastAmountByMeterId(meterId);
         if (lastAmount == null) {
-            lastAmount = meterInfo.getInitAmount();
+            lastAmount = meterInfo.getThisAmount();
         }
         baseOutput.setData(lastAmount);
 

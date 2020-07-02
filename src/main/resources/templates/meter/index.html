@@ -10,11 +10,6 @@
                 <#bcomboProvider _id="type" _provider="meterTypeProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
-                <label for="departmentId">部门:</label>
-                <select id="departmentId" name="departmentId" class="form-control"></select>
-                <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
-            </div>
-            <div class="form-group col">
                 <label for="assetsId">类别:</label>
                 <select id="assetsId" name="assetsId" class="form-control"></select>
                 <#bcomboProvider _id="assetsId" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
@@ -22,10 +17,6 @@
             <div class="form-group col">
                 <label for="number">表编号:</label>
                 <input type="number" class="form-control" name="number" id="number" maxlength="50"/>
-            </div>
-            <div class="form-group col">
-                <label for="assetsName">表地址:</label>
-                <input type="assetsName" class="form-control" name="assetsName" id="assetsName" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
@@ -72,8 +63,8 @@
                     <th data-field="assetsName" data-sortable="true" data-align="center">
                         表地址
                     </th>
-                    <th data-field="initAmount" data-sortable="true" data-align="center">
-                        初始指数
+                    <th data-field="thisAmount" data-sortable="true" data-align="center">
+                        当前指数
                     </th>
                     <th data-field="price" data-sortable="true" data-align="center">
                         单价

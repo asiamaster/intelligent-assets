@@ -78,8 +78,8 @@ public class Meter extends BaseDomain {
     /**
      * 表初始值
      */
-    @Column(name = "`init_amount`")
-    private Long initAmount;
+    @Column(name = "`this_amount`")
+    private Long thisAmount;
 
     /**
      * 单价
@@ -227,12 +227,12 @@ public class Meter extends BaseDomain {
 
     @FieldDef(label="表初始值")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getInitAmount() {
-        return initAmount;
+    public Long getThisAmount() {
+        return thisAmount;
     }
 
-    public void setInitAmount(Long initAmount) {
-        this.initAmount = initAmount;
+    public void setThisAmount(Long thisAmount) {
+        this.thisAmount = thisAmount;
     }
 
     @FieldDef(label="单价")
