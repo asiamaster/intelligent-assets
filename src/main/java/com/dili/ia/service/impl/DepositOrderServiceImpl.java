@@ -509,12 +509,12 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             params.setCustomerName(depositOrder.getCustomerName());
             params.setTypeName(depositOrder.getTypeName());
             depositBalanceService.insertSelective(params);
+        }else {
+            DepositBalance upDep = new DepositBalance();
+            upDep.setId(depositBalance.getId());
+            upDep.setBalance(depositBalance.getBalance() + payAmount);
+            depositBalanceService.updateSelective(upDep);
         }
-
-        DepositBalance upDep = new DepositBalance();
-        upDep.setId(depositBalance.getId());
-        upDep.setBalance(depositBalance.getBalance() + payAmount);
-        depositBalanceService.updateSelective(upDep);
         return BaseOutput.success();
     }
 
