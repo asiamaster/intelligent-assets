@@ -2,15 +2,12 @@ package com.dili.ia.service;
 
 import java.util.Map;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.dili.ia.domain.StockIn;
-import com.dili.ia.domain.dto.PayInfoDto;
+import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
-import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 
@@ -46,15 +43,6 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @throws
 	 */
 	void submit(String code);
-	
-	/**
-	 * 
-	 * @Title pay
-	 * @Description 结算入库单
-	 * @param payInfoDto 入库单
-	 * @throws
-	 */
-	void pay(PayInfoDto payInfoDto);
 	
 	/**
 	 * 
@@ -119,5 +107,16 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @throws
 	 */
 	void settlementDealHandler(SettleOrder settleOrder);
+	
+	/**
+	 * 
+	 * @Title receiptData
+	 * @Description 打印入库收款单据
+	 * @param orderCode 业务单号
+	 * @param reprint 补打标记
+	 * @return
+	 * @throws
+	 */
+	PrintDataDto<Map<String,Object>> receiptData(String orderCode, Integer reprint);
 	
 }

@@ -6,7 +6,7 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockWeighmanRecord;
-import com.dili.ia.domain.dto.PayInfoDto;
+import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
@@ -35,6 +35,7 @@ import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -46,6 +47,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -236,11 +238,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		getStockInDetailsByStockCode(code);
 
 		// 创建收费单费用收取
-		PayInfoDto payInfoDto = new PayInfoDto();
-		payInfoDto.setBusinessCode(code);
-		payInfoDto.setAmount(stockIn.getAmount());
-		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, payInfoDto);
-
+		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
+		paymentOrder.setBusinessCode(code);
+		paymentOrder.setAmount(stockIn.getAmount());
+		paymentOrderService.insertSelective(paymentOrder);
 		// 提交入库单
 		StockIn domain = new StockIn(userTicket);
 		domain.setSubmitterId(userTicket.getId());
@@ -250,43 +251,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		//
 		// 调用结算接口,缴费
 		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, paymentOrder.getCode(), paymentOrder.getAmount());
-		SettleOrder settleOrder = settlementRpcResolver.submit(settleOrderDto);
-		
-		paymentOrderService.insertSelective(paymentOrder);
-	}
-
-	@Override
-	@Transactional
-	//@GlobalTransactional
-	public void pay(PayInfoDto payInfoDto) {
-		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-		String code = payInfoDto.getBusinessCode();
-		StockIn stockIn = getStockInByCode(code);
-		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
-			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-		}
-		// 获取缴费单
-		PaymentOrder paymentOrder = paymentOrderService.getByCode(stockIn.getPaymentOrderCode());
-		
-		// 调用收费接口,缴费
-		//SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket,stockIn);;
-		//SettleOrder settleOrder = settlementRpcResolver.submit(settleOrderDto);
-		
-		/*paymentOrder.setSettlementCode(settleOrder.getCode());
-		paymentOrder.setSettlementOperator(settleOrder.getOperatorName());
-		paymentOrder.setSettlementWay(settleOrder.getWay());
-		
-		// 变更缴费单状态
-		paymentOrderService.updateSelective(paymentOrder);
-		//paymentOrder.setIsSettle();
-		StockIn domain = new StockIn(userTicket);
-		//domain.setp
-		//domain.set
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
-		//入库 库存
-		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
-		stockService.inStock(stockInDetails, stockIn);*/
-		
+		settlementRpcResolver.submit(settleOrderDto);
 	}
 	
 	@Override
@@ -389,7 +354,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), "退款businessCode");
 		});
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, stockInRefundDto, stockIn);
-		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, refundOrder.getCode(), refundOrder.getPayeeAmount());;
+		//BaseOutput out = refundOrderService.doSubmitDispatcher(refundOrder);
+		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, refundOrder.getCode(), refundOrder.getPayeeAmount());
+		settlementRpcResolver.submit(settleOrderDto);
 	}
 
 	@Override
@@ -466,6 +433,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
 		stockService.inStock(stockInDetails, stockIn);
 
+	}
+
+	@Override
+	public PrintDataDto<Map<String, Object>> receiptData(String orderCode, Integer reprint) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

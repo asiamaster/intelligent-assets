@@ -2,7 +2,6 @@ package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.dili.ia.domain.StockIn;
-import com.dili.ia.domain.dto.PayInfoDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
@@ -166,12 +165,12 @@ public class StockInController {
      * @param stockIn
      * @return BaseOutput
      */
-    @RequestMapping(value="/pay.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput pay(@Validated PayInfoDto payInfoDto) {
-        stockInService.pay(payInfoDto);
-        return BaseOutput.success("支付成功");
-    }
+	/*@RequestMapping(value="/pay.action", method = {RequestMethod.GET, RequestMethod.POST})
+	@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+	public @ResponseBody BaseOutput pay(@Validated PayInfoDto payInfoDto) {
+	    stockInService.pay(payInfoDto);
+	    return BaseOutput.success("支付成功");
+	}*/
     
     /**
      * 退款
