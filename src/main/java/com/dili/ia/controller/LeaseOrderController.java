@@ -6,7 +6,7 @@ import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
-import com.dili.ia.domain.dto.RefundOrderDto;
+import com.dili.ia.domain.dto.LeaseRefundOrderDto;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
@@ -402,7 +402,7 @@ public class LeaseOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${totalRefundAmountFormatStr}",operationType="refundApply",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/createRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
+    public @ResponseBody BaseOutput createRefundOrder(LeaseRefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");
