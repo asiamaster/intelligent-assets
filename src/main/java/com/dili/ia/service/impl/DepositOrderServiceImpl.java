@@ -372,6 +372,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * @param payingOrder
      */
     public void withdrawPaymentOrder(PaymentOrder payingOrder) {
+        if (null == payingOrder) {
+            LOG.info("没有查询到付款单PaymentOrder");
+            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到付款单！");
+        }
         if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
             String paymentCode = payingOrder.getCode();
             BaseOutput output = settlementRpc.cancel(settlementAppId,paymentCode);
@@ -396,10 +400,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         pb.setMarketId(marketId);
         pb.setState(state);
         PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
-        if (null == order) {
-            LOG.info("没有查询到付款单PaymentOrder【业务单businessId：{}】 【业务单businessCode:{}】", businessId, businessCode);
-            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到付款单！");
-        }
         return order;
     }
 
