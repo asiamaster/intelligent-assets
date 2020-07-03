@@ -62,7 +62,7 @@ public class MeterController {
     }
 
     /**
-     * 跳转到查看页面
+     * 跳转到复制页面
      *
      * @param  id 表主键
      * @return 查看页面地址

@@ -20,7 +20,7 @@
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
     <result column="version" jdbcType="INTEGER" property="version" />
-<!--    <result column="version" jdbcType="INTEGER" property="version" />-->
+    <result column="certificate_number" jdbcType="VARCHAR" property="certificateNumber" />
 <!--    <result column="version" jdbcType="INTEGER" property="version" />-->
 <!--    <result column="version" jdbcType="INTEGER" property="version" />-->
 <!--    <result column="version" jdbcType="INTEGER" property="version" />-->
@@ -29,7 +29,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, create_time, modify_time, meter_id, customer_id, customer_name, customer_cellphone, 
+    id, create_time, modify_time, meter_id, customer_id, customer_name, customer_cellphone,certificate_number,
     creator_dep_id, state, notes, creator_id, creator, market_id, market_code, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -102,6 +102,7 @@
           cm.customer_id as customer_id,
           cm.customer_name as customer_name,
           cm.customer_cellphone as customer_cellphone,
+          cm.certificate_number as certificate_number,
           cm.creator_dep_id as creator_dep_id,
           cm.state as state,
           cm.notes as notes,
@@ -129,6 +130,7 @@
         cm.customer_id as customer_id,
         cm.customer_name as customer_name,
         cm.customer_cellphone as customer_cellphone,
+        cm.certificate_number as certificate_number,
         cm.creator_dep_id as creator_dep_id,
         cm.state as state,
         cm.notes as notes,

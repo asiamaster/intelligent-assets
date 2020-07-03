@@ -4,6 +4,7 @@ import com.dili.ia.controller.MeterController;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ia.mapper.MeterMapper;
+import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.service.MeterService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -42,6 +43,9 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
     public MeterMapper getActualDao() {
         return (MeterMapper)getDao();
     }
+
+    @Autowired
+    private MeterDetailService meterDetailService;
 
     /**
      * 新增表信息
@@ -106,6 +110,12 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
             return BaseOutput.failure("表信息修改失败,未登录");
+        }
+
+        // 根据表 meterId、用户 customerId 查询未缴费的记录数量
+        Integer count = meterDetailService.countUnPayByMeterAndCustomer(meterDto.getId(), null);
+        if (count > 0) {
+            return BaseOutput.failure("该表存在待交费单，不能修改");
         }
 
         // 根据表编号查询是否已存在

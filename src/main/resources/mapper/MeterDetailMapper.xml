@@ -160,10 +160,12 @@
         LEFT JOIN payment_order po ON md.id = po.business_id
     WHERE
         md.meter_id = #{meterId}
-    AND md.customer_id = #{customerId}
     AND po.biz_type IN (#{bizTypes})
-    <if test = "status != null" >
-        AND po.state IN (#{status})
+    <if test = "customerId != null" >
+        AND md.customer_id = #{customerId}
+    </if>
+    <if test = "state != null" >
+        AND po.state = #{state}
     </if>
   </select>
 

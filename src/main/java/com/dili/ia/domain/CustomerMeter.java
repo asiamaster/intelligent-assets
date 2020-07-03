@@ -57,6 +57,12 @@ public class CustomerMeter extends BaseDomain {
     private String customerCellphone;
 
     /**
+     * 客户证件号
+     */
+    @Column(name = "`certificate_number`")
+    private String certificateNumber;
+
+    /**
      * 创建人所属于部门ID
      */
     @Column(name = "`creator_dep_id`")
@@ -162,6 +168,16 @@ public class CustomerMeter extends BaseDomain {
 
     public void setCustomerCellphone(String customerCellphone) {
         this.customerCellphone = customerCellphone;
+    }
+
+    @FieldDef(label="客户证件号", maxLength = 40)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getCertificateNumber() {
+        return certificateNumber;
+    }
+
+    public void setCertificateNumber(String certificateNumber) {
+        this.certificateNumber = certificateNumber;
     }
 
     @FieldDef(label="创建人所属于部门ID")

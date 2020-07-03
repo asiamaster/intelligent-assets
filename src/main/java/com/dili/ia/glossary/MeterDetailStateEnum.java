@@ -7,10 +7,10 @@ package com.dili.ia.glossary;
  * @description: 表类别枚举
  */
 public enum MeterDetailStateEnum {
-    UNSUBMITED(1, "未提交"),
+    UNSUBMITED(1, "已创建"),
     SUBMITED(2, "已提交"),
-    PAID(3, "已缴费"),
-    ABOLISHED(4, "已作废"),
+    PAID(3, "已取消"),
+    ABOLISHED(4, "已缴费"),
     ;
 
     private String name;

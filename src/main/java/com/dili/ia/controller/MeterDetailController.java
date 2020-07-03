@@ -59,8 +59,26 @@ public class MeterDetailController {
     }
 
     /**
+     * 跳转到查看页面
+     *
+     * @param  id 水电费单主键id
+     * @return 查看页面地址
+     * @date   2020/6/29
+     */
+    @RequestMapping(value="/view.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public String view(ModelMap modelMap, Long id) {
+        MeterDetail meterDetail = null;
+        if (id != null) {
+            meterDetail = meterDetailService.getMeterDetailById(id);
+        }
+        logger.info(meterDetail.toString());
+        modelMap.put("meterDetail", meterDetail);
+        return "meterDetail/view";
+    }
+
+    /**
      * 跳转到修改页面
-     * 
+     *
      * @param  id 水电费单主键
      * @return 修改页面地址
      * @date   2020/6/29
@@ -74,24 +92,6 @@ public class MeterDetailController {
         logger.info(meterDetail.toString());
         modelMap.put("meterDetail", meterDetail);
         return "meterDetail/update";
-    }
-
-    /**
-     * 跳转到查看页面
-     *
-     * @param  id 水电费单主键id
-     * @return 查看页面地址
-     * @date   2020/6/29
-     */
-    @RequestMapping(value="/view.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public String view(ModelMap modelMap, Long id) {
-        MeterDetail meterDetail = null;
-        if (id != null) {
-            meterDetail = meterDetailService.get(id);
-        }
-        logger.info(meterDetail.toString());
-        modelMap.put("meterDetail", meterDetail);
-        return "meterDetail/view";
     }
 
     /**
@@ -131,12 +131,12 @@ public class MeterDetailController {
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(@ModelAttribute MeterDetailDto meterDetailDto) {
 
-        return BaseOutput.success("修改成功");
+        return meterDetailService.updateMeterDetail(meterDetailDto);
     }
 
 
     /**
-     * 删除水电费单
+     * 删除 水电费单
      *
      * @param  id 水电费单主键
      * @return 是否成功
@@ -144,7 +144,11 @@ public class MeterDetailController {
      */
     @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput delete(Long id) {
-        meterDetailService.delete(id);
+
+        int code = meterDetailService.delete(id);
+        if (code <= 0){
+            return BaseOutput.failure("删除失败,数据已被其他用户删除!");
+        }
 
         return BaseOutput.success("删除成功");
     }
