@@ -36,7 +36,7 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
     FirmRpc firmRpc;
 
     @Override
-    public TransactionDetails buildByConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId, Long operaterId, String operatorName) {
+    public TransactionDetails buildByConditions(Integer sceneType, String bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId, Long operaterId, String operatorName) {
         TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
         BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
         if(!out.isSuccess()){

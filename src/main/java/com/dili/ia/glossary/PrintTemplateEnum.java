@@ -15,6 +15,8 @@ public enum PrintTemplateEnum {
     BOOTH_LEASE_REFUND_PAID("BoothLeaseRefundPaid", "摊位租赁退款已交清"),
     EARNEST_ORDER("EarnestOrder", "定金单"),
     EARNEST_REFUND_ORDER("EarnestRefundOrder", "定金退款单"),
+    DEPOSIT_ORDER("DepositOrder", "保证金单"),
+    DEPOSIT_REFUND_ORDER("DepositRefundOrder", "保证金退款单"),
     ;
 
     private String name;

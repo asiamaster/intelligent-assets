@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.ia.mapper.DepositOrderMapper">
+  <resultMap id="BaseResultMap" type="com.dili.ia.domain.DepositOrder">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="customer_id" jdbcType="BIGINT" property="customerId" />
+    <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
+    <result column="certificate_number" jdbcType="VARCHAR" property="certificateNumber" />
+    <result column="customer_cellphone" jdbcType="VARCHAR" property="customerCellphone" />
+    <result column="department_id" jdbcType="BIGINT" property="departmentId" />
+    <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
+    <result column="type_code" jdbcType="VARCHAR" property="typeCode" />
+    <result column="type_name" jdbcType="VARCHAR" property="typeName" />
+    <result column="assets_type" jdbcType="VARCHAR" property="assetsType" />
+    <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
+    <result column="assets_name" jdbcType="VARCHAR" property="assetsName" />
+    <result column="amount" jdbcType="BIGINT" property="amount" />
+    <result column="paid_amount" jdbcType="BIGINT" property="paidAmount" />
+    <result column="wait_amount" jdbcType="BIGINT" property="waitAmount" />
+    <result column="refund_amount" jdbcType="BIGINT" property="refundAmount" />
+    <result column="notes" jdbcType="VARCHAR" property="notes" />
+    <result column="is_related" jdbcType="BIT" property="isRelated" />
+    <result column="business_id" jdbcType="BIGINT" property="businessId" />
+    <result column="biz_type" jdbcType="INTEGER" property="bizType" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="pay_state" jdbcType="BIT" property="payState" />
+    <result column="refund_state" jdbcType="BIT" property="refundState" />
+    <result column="approval_state" jdbcType="BIT" property="approvalState" />
+    <result column="process_instance_id" jdbcType="BIGINT" property="processInstanceId" />
+    <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="submitter_id" jdbcType="BIGINT" property="submitterId" />
+    <result column="submitter" jdbcType="VARCHAR" property="submitter" />
+    <result column="submit_time" jdbcType="TIMESTAMP" property="submitTime" />
+    <result column="withdraw_operator_id" jdbcType="BIGINT" property="withdrawOperatorId" />
+    <result column="withdraw_operator" jdbcType="VARCHAR" property="withdrawOperator" />
+    <result column="canceler_id" jdbcType="BIGINT" property="cancelerId" />
+    <result column="canceler" jdbcType="VARCHAR" property="canceler" />
+    <result column="market_id" jdbcType="BIGINT" property="marketId" />
+    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
+    <result column="version" jdbcType="BIGINT" property="version" />
+    <result column="is_import" jdbcType="BIT" property="isImport" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, create_time, modify_time, code, customer_id, customer_name, certificate_number, 
+    customer_cellphone, department_id, department_name, type_code, type_name, assets_type, 
+    assets_id, assets_name, amount, paid_amount, wait_amount, refund_amount, notes, is_related, 
+    business_id, biz_type, state, pay_state, refund_state, approval_state, process_instance_id, 
+    creator_id, creator, submitter_id, submitter, submit_time, withdraw_operator_id, 
+    withdraw_operator, canceler_id, canceler, market_id, market_code, version, is_import
+  </sql>
+  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from deposit_order
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <update id="updateBy" parameterType="com.dili.ia.domain.DepositOrder">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update deposit_order
+    <set>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null">
+        customer_id = #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="customerName != null">
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="certificateNumber != null">
+        certificate_number = #{certificateNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="customerCellphone != null">
+        customer_cellphone = #{customerCellphone,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentId != null">
+        department_id = #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentName != null">
+        department_name = #{departmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="typeCode != null">
+        type_code = #{typeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="typeName != null">
+        type_name = #{typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="assetsType != null">
+        assets_type = #{assetsType,jdbcType=VARCHAR},
+      </if>
+      <if test="assetsId != null">
+        assets_id = #{assetsId,jdbcType=BIGINT},
+      </if>
+      <if test="assetsName != null">
+        assets_name = #{assetsName,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=BIGINT},
+      </if>
+      <if test="paidAmount != null">
+        paid_amount = #{paidAmount,jdbcType=BIGINT},
+      </if>
+      <if test="waitAmount != null">
+        wait_amount = #{waitAmount,jdbcType=BIGINT},
+      </if>
+      <if test="refundAmount != null">
+        refund_amount = #{refundAmount,jdbcType=BIGINT},
+      </if>
+      <if test="notes != null">
+        notes = #{notes,jdbcType=VARCHAR},
+      </if>
+      <if test="isRelated != null">
+        is_related = #{isRelated,jdbcType=BIT},
+      </if>
+      <if test="businessId != null">
+        business_id = #{businessId,jdbcType=BIGINT},
+      </if>
+      <if test="bizType != null">
+        biz_type = #{bizType,jdbcType=INTEGER},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="payState != null">
+        pay_state = #{payState,jdbcType=BIT},
+      </if>
+      <if test="refundState != null">
+        refund_state = #{refundState,jdbcType=BIT},
+      </if>
+      <if test="approvalState != null">
+        approval_state = #{approvalState,jdbcType=BIT},
+      </if>
+      <if test="processInstanceId != null">
+        process_instance_id = #{processInstanceId,jdbcType=BIGINT},
+      </if>
+      <if test="creatorId != null">
+        creator_id = #{creatorId,jdbcType=BIGINT},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="submitterId != null">
+        submitter_id = #{submitterId,jdbcType=BIGINT},
+      </if>
+      <if test="submitter != null">
+        submitter = #{submitter,jdbcType=VARCHAR},
+      </if>
+      <if test="submitTime != null">
+        submit_time = #{submitTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="withdrawOperatorId != null">
+        withdraw_operator_id = #{withdrawOperatorId,jdbcType=BIGINT},
+      </if>
+      <if test="withdrawOperator != null">
+        withdraw_operator = #{withdrawOperator,jdbcType=VARCHAR},
+      </if>
+      <if test="cancelerId != null">
+        canceler_id = #{cancelerId,jdbcType=BIGINT},
+      </if>
+      <if test="canceler != null">
+        canceler = #{canceler,jdbcType=VARCHAR},
+      </if>
+      <if test="marketId != null">
+        market_id = #{marketId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCode != null">
+        market_code = #{marketCode,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null">
+        version = #{version,jdbcType=BIGINT},
+      </if>
+      <if test="isImport != null">
+        is_import = #{isImport,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <sql id="paginate">
+    <if test="orderField != null">
+      order by ${orderField}
+      <if test="isAsc == false">desc</if>
+      <if test="isAsc == true">asc</if>
+    </if>
+    limit #{startRow},#{pageSize}
+  </sql>
+
+  <select id="selectBalanceList" parameterType="DepositOrder" resultType="DepositOrder">
+    SELECT customer_id AS customerId, customer_name AS customerName, certificate_number AS certificateNumber, customer_cellphone AS customerCellphone, type_name AS typeName, assets_name AS assetsName,
+    SUM(amount - refund_amount - chargeback_amount) AS amount
+    FROM deposit_order
+    WHERE 1 = 1 AND (state=4 OR state=5)
+    <if test="customerName != null and customerName != ''">
+      AND customer_name=#{customerName}
+    </if>
+    <if test="customerCellphone != null and customerCellphone != ''">
+      AND customer_cellphone=#{customerCellphone}
+    </if>
+    <if test="certificateNumber != null and certificateNumber != ''">
+      AND certificate_number=#{certificateNumber}
+    </if>
+    <if test="typeCode != null and typeCode != ''">
+      AND type_code=#{typeCode}
+    </if>
+    <if test="assetsName != null and assetsName != ''">
+      AND assets_name=#{assetsName}
+    </if>
+    GROUP BY customer_id, assets_id, assets_type
+  </select>
+
+  <select id="countBalanceList" parameterType="DepositOrder" resultType="int">
+    select count(customerId) from (SELECT customer_id AS customerId, customer_name AS customerName, certificate_number AS certificateNumber, customer_cellphone AS customerCellphone, type_name AS typeName, assets_name AS assetsName,
+    SUM(amount - refund_amount) AS balance
+    FROM deposit_order
+    WHERE 1 = 1 AND (state=4 OR state=5)
+    <if test="customerName != null and customerName != ''">
+      AND customer_name=#{customerName}
+    </if>
+    <if test="customerCellphone != null and customerCellphone != ''">
+      AND customer_cellphone=#{customerCellphone}
+    </if>
+    <if test="certificateNumber != null and certificateNumber != ''">
+      AND certificate_number=#{certificateNumber}
+    </if>
+    <if test="typeCode != null and typeCode != ''">
+      AND type_code=#{typeCode}
+    </if>
+    <if test="assetsName != null and assetsName != ''">
+      AND assets_name=#{assetsName}
+    </if>
+    GROUP BY customerId, assets_id, assets_type
+    ) dep
+  </select>
+
+  <select id="sumBalance" parameterType="DepositOrder" resultType="long">
+    SELECT SUM(balance) AS balance
+    FROM(
+    SELECT customer_id AS customerId, customer_name AS customerName, certificate_number AS certificateNumber, customer_cellphone AS customerCellphone, type_name AS typeName, assets_name AS assetsName,
+    SUM(amount - refund_amount) AS balance
+    FROM deposit_order
+    WHERE 1 = 1 AND (state=4 OR state=5)
+    <if test="customerName != null and customerName != ''">
+      AND customer_name=#{customerName}
+    </if>
+    <if test="customerCellphone != null and customerCellphone != ''">
+      AND customer_cellphone=#{customerCellphone}
+    </if>
+    <if test="certificateNumber != null and certificateNumber != ''">
+      AND certificate_number=#{certificateNumber}
+    </if>
+    <if test="typeCode != null and typeCode != ''">
+      AND type_code=#{typeCode}
+    </if>
+    <if test="assetsName != null and assetsName != ''">
+      AND assets_name=#{assetsName}
+    </if>
+    GROUP BY customer_id, assets_id, assets_type
+    )dep
+  </select>
+
+</mapper>

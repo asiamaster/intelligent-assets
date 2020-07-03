@@ -67,9 +67,9 @@ public interface PaymentOrder extends IBaseDomain {
     @Column(name = "`biz_type`")
     @FieldDef(label="业务类型")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Integer getBizType();
+    String getBizType();
 
-    void setBizType(Integer bizType);
+    void setBizType(String bizType);
 
     @Column(name = "`state`")
     @FieldDef(label="状态")

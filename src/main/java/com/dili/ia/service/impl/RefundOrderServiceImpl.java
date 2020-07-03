@@ -5,11 +5,10 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.PrintDataDto;
-import com.dili.ia.domain.dto.RefundOrderPrintDto;
+import com.dili.ia.domain.dto.printDto.RefundOrderPrintDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.EarnestOrderStateEnum;
 import com.dili.ia.glossary.RefundOrderStateEnum;
-import com.dili.ia.glossary.RefundTypeEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
@@ -82,11 +81,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
     @Autowired @Lazy
     private List<RefundOrderDispatcherService> refundBizTypes;
-    private Map<Integer,RefundOrderDispatcherService> refundBiz = new HashMap<>();
+    private Map<String,RefundOrderDispatcherService> refundBiz = new HashMap<>();
     @PostConstruct
     public void init() {
         for(RefundOrderDispatcherService service : refundBizTypes) {
-            for(Integer bizType : service.getBizType()) {
+            for(String bizType : service.getBizType()) {
                 this.refundBiz.put(bizType, service);
             }
 
@@ -260,7 +259,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             settleOrder.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         }
         settleOrder.setSubmitTime(LocalDateTime.now());
-        settleOrder.setBusinessType(ro.getBizType()); // 业务类型
+        //@TODO 结算单需要调整类型，为String
+        settleOrder.setBusinessType(Integer.valueOf(ro.getBizType())); // 业务类型
         settleOrder.setAppId(settlementAppId);//应用ID
         settleOrder.setType(SettleTypeEnum.REFUND.getCode());// "结算类型  -- 退款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
@@ -407,11 +407,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         return roPrintDto;
     }
 
-    public Map<Integer, RefundOrderDispatcherService> getRefundBiz() {
+    public Map<String, RefundOrderDispatcherService> getRefundBiz() {
         return refundBiz;
     }
 
-    public void setRefundBiz(Map<Integer, RefundOrderDispatcherService> refundBiz) {
+    public void setRefundBiz(Map<String, RefundOrderDispatcherService> refundBiz) {
         this.refundBiz = refundBiz;
     }
 }

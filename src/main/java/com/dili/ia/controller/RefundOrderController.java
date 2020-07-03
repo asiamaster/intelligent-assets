@@ -117,6 +117,8 @@ public class RefundOrderController {
 
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
                 return "refundOrder/earnestRefundOrderView";
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
+                return "refundOrder/depositRefundOrderView";
             }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
                 TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
                 transferDeductionItemCondition.setRefundOrderId(id);

@@ -511,7 +511,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         this.rechargeTransfer(customerId, amount, marketId);
         Integer sceneType = TransactionSceneTypeEnum.TRANSFER_IN.getCode();
-        Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
+        String bizType = BizTypeEnum.BOOTH_LEASE.getCode();
         Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
         TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
         transactionDetailsService.insertSelective(detail);
@@ -559,7 +559,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     @Transactional(rollbackFor = Exception.class)
     public void addTransactionDetails(Integer sceneType,Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName){
-        Integer bizType = BizTypeEnum.BOOTH_LEASE.getCode();
+        String bizType = BizTypeEnum.BOOTH_LEASE.getCode();
         //写入 定金，转抵，保证金对应 sceneType 的流水 --- 抵扣项为 null 或者 0 元 不写入流水记录
         if (earnestDeduction != null && !earnestDeduction.equals(0L)){ //定金流水
             Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();

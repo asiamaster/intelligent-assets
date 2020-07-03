@@ -9,22 +9,23 @@ package com.dili.ia.glossary;
  * @createTime 2020-02-17 18:51
  */
 public enum BizTypeEnum {
-    BOOTH_LEASE(1, "摊位租赁"),
-    EARNEST(2, "定金"),
-    STOCKIN(3, "入库单"),
-    WATER_METER(4, "水表"),
-    ELECTRIC_METER(5, "电表"),
+    BOOTH_LEASE("1", "摊位租赁"),
+    EARNEST("2", "定金"),
+    DEPOSIT_ORDER("3", "保证金"),
+    STOCKIN("4", "入库单"),
+    WATER_METER("5", "水表"),
+    ELECTRIC_METER("6", "电表"),
     ;
 
     private String name;
-    private Integer code ;
+    private String code ;
 
-    BizTypeEnum(Integer code, String name){
+    BizTypeEnum(String code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static BizTypeEnum getBizTypeEnum(Integer code) {
+    public static BizTypeEnum getBizTypeEnum(String code) {
         for (BizTypeEnum anEnum : BizTypeEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
@@ -33,7 +34,7 @@ public enum BizTypeEnum {
         return null;
     }
 
-    public Integer getCode() {
+    public String getCode() {
         return code;
     }
 
