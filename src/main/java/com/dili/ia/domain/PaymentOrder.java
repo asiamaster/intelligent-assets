@@ -4,6 +4,10 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -25,17 +29,17 @@ public class PaymentOrder extends BaseDomain {
     @Column(name = "`code`")
     private String code;
 
-    /**
-     * 创建时间
-     */
+    //创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
-    /**
-     * 修改时间
-     */
+    //修改时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 业务单ID
@@ -86,10 +90,12 @@ public class PaymentOrder extends BaseDomain {
     private String creator;
 
     /**
-     * 支付时间
+     * 交费时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`payed_time`")
-    private Date payedTime;
+    private LocalDateTime payedTime;
 
     /**
      * 结算编号
@@ -161,43 +167,19 @@ public class PaymentOrder extends BaseDomain {
         this.code = code;
     }
 
-    /**
-     * 获取创建时间
-     *
-     * @return create_time - 创建时间
-     */
-    @FieldDef(label="创建时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
-    /**
-     * 设置创建时间
-     *
-     * @param createTime 创建时间
-     */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
-    /**
-     * 获取修改时间
-     *
-     * @return modify_time - 修改时间
-     */
-    @FieldDef(label="修改时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
-    /**
-     * 设置修改时间
-     *
-     * @param modifyTime 修改时间
-     */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -361,23 +343,11 @@ public class PaymentOrder extends BaseDomain {
         this.creator = creator;
     }
 
-    /**
-     * 获取支付时间
-     *
-     * @return payed_time - 支付时间
-     */
-    @FieldDef(label="支付时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getPayedTime() {
+    public LocalDateTime getPayedTime() {
         return payedTime;
     }
 
-    /**
-     * 设置支付时间
-     *
-     * @param payedTime 支付时间
-     */
-    public void setPayedTime(Date payedTime) {
+    public void setPayedTime(LocalDateTime payedTime) {
         this.payedTime = payedTime;
     }
 

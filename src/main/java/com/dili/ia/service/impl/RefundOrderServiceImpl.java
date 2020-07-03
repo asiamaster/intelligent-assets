@@ -184,7 +184,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //检查收款人客户状态
         checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
         refundOrder.setState(RefundOrderStateEnum.SUBMITTED.getCode());
-        refundOrder.setSubmitTime(new Date());
+        refundOrder.setSubmitTime(LocalDateTime.now());
         refundOrder.setSubmitterId(userTicket.getId());
         refundOrder.setSubmitter(userTicket.getRealName());
         if (refundOrderService.updateSelective(refundOrder) == 0){

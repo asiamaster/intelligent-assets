@@ -340,8 +340,8 @@ public class AssetsLeaseOrderController {
      * @return BaseOutput
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${totalRefundAmountFormatStr}",operationType="refundApply",systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/createRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput createRefundOrder(LeaseRefundOrderDto refundOrderDto) {
+    @RequestMapping(value="/createRefundOrder.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput createRefundOrder(@RequestBody LeaseRefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");

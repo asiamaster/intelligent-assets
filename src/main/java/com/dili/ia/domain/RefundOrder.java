@@ -4,6 +4,10 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -25,17 +29,17 @@ public class RefundOrder extends BaseDomain {
     @Column(name = "`code`")
     private String code;
 
-    /**
-     * 创建时间
-     */
+    //创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
-    /**
-     * 修改时间
-     */
+    //修改时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 业务类型
@@ -106,8 +110,10 @@ public class RefundOrder extends BaseDomain {
     /**
      * 提交时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`submit_time`")
-    private Date submitTime;
+    private LocalDateTime submitTime;
 
     /**
      * 退款结算单号
@@ -293,43 +299,19 @@ public class RefundOrder extends BaseDomain {
         this.code = code;
     }
 
-    /**
-     * 获取创建时间
-     *
-     * @return create_time - 创建时间
-     */
-    @FieldDef(label="创建时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
-    /**
-     * 设置创建时间
-     *
-     * @param createTime 创建时间
-     */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
-    /**
-     * 获取修改时间
-     *
-     * @return modify_time - 修改时间
-     */
-    @FieldDef(label="修改时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
-    /**
-     * 设置修改时间
-     *
-     * @param modifyTime 修改时间
-     */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -553,23 +535,11 @@ public class RefundOrder extends BaseDomain {
         this.totalRefundAmount = totalRefundAmount;
     }
 
-    /**
-     * 获取提交时间
-     *
-     * @return submit_time - 提交时间
-     */
-    @FieldDef(label="提交时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getSubmitTime() {
+    public LocalDateTime getSubmitTime() {
         return submitTime;
     }
 
-    /**
-     * 设置提交时间
-     *
-     * @param submitTime 提交时间
-     */
-    public void setSubmitTime(Date submitTime) {
+    public void setSubmitTime(LocalDateTime submitTime) {
         this.submitTime = submitTime;
     }
 

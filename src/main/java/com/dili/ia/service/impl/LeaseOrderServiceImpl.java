@@ -292,7 +292,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
-        paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
+        paymentOrderPO.setPayedTime(settleOrder.getOperateTime());
         if(leaseOrder.getWaitAmount().equals(paymentOrderPO.getAmount())){
             paymentOrderPO.setIsSettle(YesOrNoEnum.YES.getCode());
         }
@@ -1391,7 +1391,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
 
         //转抵扣充值
-        TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
+        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
         transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){

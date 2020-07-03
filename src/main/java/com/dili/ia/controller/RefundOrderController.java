@@ -120,7 +120,7 @@ public class RefundOrderController {
             } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
                 return "refundOrder/depositRefundOrderView";
             }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
-                TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
+                TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
                 transferDeductionItemCondition.setRefundOrderId(id);
                 modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
                 if(null != refundOrder.getBusinessItemId()){

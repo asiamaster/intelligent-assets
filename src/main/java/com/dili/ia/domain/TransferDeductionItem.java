@@ -1,71 +1,173 @@
 package com.dili.ia.domain;
 
-import com.dili.ss.dto.IBaseDomain;
+import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 /**
  * 由MyBatis Generator工具自动生成
  * 转抵项
- * This file was generated on 2020-02-11 15:54:49.
+ * This file was generated on 2020-07-03 16:06:17.
  */
 @Table(name = "`transfer_deduction_item`")
-public interface TransferDeductionItem extends IBaseDomain {
+public class TransferDeductionItem extends BaseDomain {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`id`")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    //创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "`create_time`")
+    private LocalDateTime createTime;
+
+    //修改时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "`modify_time`")
+    private LocalDateTime modifyTime;
+
+    /**
+     * 收款人ID
+     */
+    @Column(name = "`payee_id`")
+    private Long payeeId;
+
+    /**
+     * 收款人客户名称
+     */
+    @Column(name = "`payee`")
+    private String payee;
+
+    /**
+     * 退款单ID
+     */
+    @Column(name = "`refund_order_id`")
+    private Long refundOrderId;
+
+    /**
+     * 收款人收款金额
+     */
+    @Column(name = "`payee_amount`")
+    private Long payeeAmount;
+
+    /**
+     * @return id
+     */
     @FieldDef(label="id")
     @EditMode(editor = FieldEditor.Number, required = true)
-    Long getId();
+    public Long getId() {
+        return id;
+    }
 
-    void setId(Long id);
+    /**
+     * @param id
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    @Column(name = "`create_time`")
-    @FieldDef(label="创建时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    Date getCreateTime();
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
 
-    void setCreateTime(Date createTime);
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
 
-    @Column(name = "`modify_time`")
-    @FieldDef(label="修改时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    Date getModifyTime();
+    public LocalDateTime getModifyTime() {
+        return modifyTime;
+    }
 
-    void setModifyTime(Date modifyTime);
+    public void setModifyTime(LocalDateTime modifyTime) {
+        this.modifyTime = modifyTime;
+    }
 
-    @Column(name = "`payee_id`")
+    /**
+     * 获取收款人ID
+     *
+     * @return payee_id - 收款人ID
+     */
     @FieldDef(label="收款人ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getPayeeId();
+    public Long getPayeeId() {
+        return payeeId;
+    }
 
-    void setPayeeId(Long payeeId);
+    /**
+     * 设置收款人ID
+     *
+     * @param payeeId 收款人ID
+     */
+    public void setPayeeId(Long payeeId) {
+        this.payeeId = payeeId;
+    }
 
-    @Column(name = "`payee`")
-    @FieldDef(label="收款人", maxLength = 20)
+    /**
+     * 获取收款人客户名称
+     *
+     * @return payee - 收款人客户名称
+     */
+    @FieldDef(label="收款人客户名称", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getPayee();
+    public String getPayee() {
+        return payee;
+    }
 
-    void setPayee(String payee);
+    /**
+     * 设置收款人客户名称
+     *
+     * @param payee 收款人客户名称
+     */
+    public void setPayee(String payee) {
+        this.payee = payee;
+    }
 
-    @Column(name = "`refund_order_id`")
+    /**
+     * 获取退款单ID
+     *
+     * @return refund_order_id - 退款单ID
+     */
     @FieldDef(label="退款单ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getRefundOrderId();
+    public Long getRefundOrderId() {
+        return refundOrderId;
+    }
 
-    void setRefundOrderId(Long refundOrderId);
+    /**
+     * 设置退款单ID
+     *
+     * @param refundOrderId 退款单ID
+     */
+    public void setRefundOrderId(Long refundOrderId) {
+        this.refundOrderId = refundOrderId;
+    }
 
-    @Column(name = "`payee_amount`")
+    /**
+     * 获取收款人收款金额
+     *
+     * @return payee_amount - 收款人收款金额
+     */
     @FieldDef(label="收款人收款金额")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getPayeeAmount();
+    public Long getPayeeAmount() {
+        return payeeAmount;
+    }
 
-    void setPayeeAmount(Long payeeAmount);
+    /**
+     * 设置收款人收款金额
+     *
+     * @param payeeAmount 收款人收款金额
+     */
+    public void setPayeeAmount(Long payeeAmount) {
+        this.payeeAmount = payeeAmount;
+    }
 }

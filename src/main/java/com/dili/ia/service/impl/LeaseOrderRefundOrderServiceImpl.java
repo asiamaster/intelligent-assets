@@ -49,7 +49,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
-        TransferDeductionItem condition = DTOUtils.newInstance(TransferDeductionItem.class);
+        TransferDeductionItem condition = new TransferDeductionItem();
         condition.setRefundOrderId(refundOrder.getId());
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(condition);
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){
@@ -109,7 +109,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
      * @return
      */
     private List<Map<String,Object>> buildTransferDeductionItemsPrintDto(Long refundOrderId) {
-        TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
+        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
         transferDeductionItemCondition.setRefundOrderId(refundOrderId);
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         List<Map<String,Object>> transferMaps = new ArrayList<>();
@@ -130,7 +130,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
      * @return
      */
     private void buildTransferDeductionItems(Long refundOrderId, Map<String, Object> resultMap) {
-        TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
+        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
         transferDeductionItemCondition.setRefundOrderId(refundOrderId);
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         List<Map<String,Object>> transferMaps = new ArrayList<>();
