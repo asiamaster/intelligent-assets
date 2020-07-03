@@ -13,6 +13,7 @@
     <result column="business_code" jdbcType="VARCHAR" property="businessCode" />
     <result column="biz_type" jdbcType="BIT" property="bizType" />
     <result column="state" jdbcType="BIT" property="state" />
+    <result column="is_settle" jdbcType="BIT" property="isSettle" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
     <result column="creator" jdbcType="VARCHAR" property="creator" />
@@ -29,8 +30,8 @@
       WARNING - @mbg.generated
     -->
     id, code, create_time, modify_time, business_id, business_code, biz_type, state, 
-    amount, creator_id, creator, payed_time, settlement_code, settlement_way, settlement_operator, 
-    market_id, market_code, version
+    is_settle, amount, creator_id, creator, payed_time, settlement_code, settlement_way, 
+    settlement_operator, market_id, market_code, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -67,6 +68,9 @@
       </if>
       <if test="state != null">
         state = #{state,jdbcType=BIT},
+      </if>
+      <if test="isSettle != null">
+        is_settle = #{isSettle,jdbcType=BIT},
       </if>
       <if test="amount != null">
         amount = #{amount,jdbcType=BIGINT},

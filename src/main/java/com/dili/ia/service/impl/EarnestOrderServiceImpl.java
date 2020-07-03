@@ -389,7 +389,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (null == settleOrder){
             return BaseOutput.failure("回调参数为空！");
         }
-        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder condition = new PaymentOrder();
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
         condition.setBizType(BizTypeEnum.EARNEST.getCode());
@@ -431,7 +431,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
-        PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder paymentOrderCondition = new PaymentOrder();
         paymentOrderCondition.setCode(orderCode);
         paymentOrderCondition.setBizType(BizTypeEnum.EARNEST.getCode());
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);

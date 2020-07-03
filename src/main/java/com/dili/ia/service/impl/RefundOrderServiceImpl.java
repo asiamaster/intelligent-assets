@@ -312,7 +312,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @GlobalTransactional
     @Override
     public BaseOutput<RefundOrder> doRefundSuccessHandler(SettleOrder settleOrder) {
-        RefundOrder condition = DTOUtils.newInstance(RefundOrder.class);
+        RefundOrder condition = new RefundOrder();
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
         RefundOrder refundOrder = this.listByExample(condition).stream().findFirst().orElse(null);

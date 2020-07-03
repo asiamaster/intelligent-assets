@@ -151,7 +151,7 @@ public class LeaseOrderController {
         if(null != id) {
             leaseOrder = leaseOrderService.get(id);
         }else if(StringUtils.isNotBlank(orderCode)){
-            PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+            PaymentOrder paymentOrder = new PaymentOrder();
             paymentOrder.setCode(orderCode);
             leaseOrder = leaseOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
             id = leaseOrder.getId();

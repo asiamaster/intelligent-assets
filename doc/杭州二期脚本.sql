@@ -8,6 +8,8 @@ ADD COLUMN `asset_type` tinyint(1) NULL COMMENT '资产类型 1：摊位 2：冷
 ADD COLUMN `leases_num` decimal(32, 2) NULL COMMENT '租赁数量' AFTER `number`;
 ALTER TABLE `dili-assets`.`refund_order`
 MODIFY COLUMN `biz_type` varchar(120) NULL DEFAULT NULL COMMENT '业务类型' AFTER `modify_time`;
+ALTER TABLE `dili-assets`.`payment_order`
+MODIFY COLUMN `biz_type` varchar(120) NULL DEFAULT NULL COMMENT '业务类型' AFTER `business_code`;
 
 -- 字段删除脚本（数据迁移完后执行）
 ALTER TABLE `dili-assets`.`lease_order`

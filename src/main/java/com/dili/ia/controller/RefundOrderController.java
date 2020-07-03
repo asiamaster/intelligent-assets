@@ -95,7 +95,7 @@ public class RefundOrderController {
         if(null != id) {
             refundOrder = refundOrderService.get(id);
         }else if(StringUtils.isNotBlank(orderCode)){
-            RefundOrder query = DTOUtils.newInstance(RefundOrder.class);
+            RefundOrder query = new RefundOrder();
             query.setCode(orderCode);
             refundOrder = refundOrderService.get(refundOrderService.listByExample(query).stream().findFirst().orElse(null).getId());
             id = refundOrder.getId();

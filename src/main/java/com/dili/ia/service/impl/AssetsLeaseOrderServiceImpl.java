@@ -400,7 +400,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (userTicket == null) {
             throw new BusinessException(ResultCode.DATA_ERROR,"未登录");
         }
-        PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder paymentOrder = new PaymentOrder();
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
         if (!bizNumberOutput.isSuccess()) {
             LOG.info("租赁单【编号：{}】,缴费单编号生成异常",leaseOrder.getCode());
@@ -607,7 +607,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     @GlobalTransactional
     public BaseOutput<Boolean> updateLeaseOrderBySettleInfo(SettleOrder settleOrder) {
         /*****************************更新缴费单相关字段 begin***********************/
-        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder condition = new PaymentOrder();
         condition.setCode(settleOrder.getOrderCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
         AssetsLeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
@@ -768,7 +768,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
-        PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder paymentOrderCondition = new PaymentOrder();
         paymentOrderCondition.setCode(orderCode);
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
         if (null == paymentOrder) {
@@ -805,7 +805,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         Long totalPayAmountExcludeLast = 0L;
         //已结清时  定金需要加前几次支付金额
         if(YesOrNoEnum.YES.getCode().equals(paymentOrder.getIsSettle())){
-            PaymentOrder paymentOrderConditions = DTOUtils.newInstance(PaymentOrder.class);
+            PaymentOrder paymentOrderConditions = new PaymentOrder();
             paymentOrderConditions.setBusinessId(paymentOrder.getBusinessId());
             paymentOrderConditions.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
             List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);

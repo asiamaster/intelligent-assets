@@ -254,7 +254,7 @@ public class DepositOrderController {
         if(null != id) {
             depositOrder = depositOrderService.get(id);
         }else if(StringUtils.isNotBlank(orderCode)){
-            PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+            PaymentOrder paymentOrder = new PaymentOrder();
             paymentOrder.setCode(orderCode);
             paymentOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
             depositOrder = depositOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());

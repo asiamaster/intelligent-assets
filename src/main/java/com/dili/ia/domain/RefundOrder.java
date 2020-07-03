@@ -253,6 +253,7 @@ public class RefundOrder extends BaseDomain {
     /**
      * 乐观锁，版本号
      */
+    @Version
     @Column(name = "`version`")
     private Integer version;
 
