@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -94,8 +95,8 @@ public class PrintTemplateController {
         try {
             file.transferTo(dest);
             printTemplate.setPath("/getTemplate/" + fileName);
-            printTemplate.setCreateTime(new Date());
-            printTemplate.setModifyTime(new Date());
+            printTemplate.setCreateTime(LocalDateTime.now());
+            printTemplate.setModifyTime(LocalDateTime.now());
             printTemplateService.saveOrUpdate(printTemplate);
         } catch (IOException e) {
             e.printStackTrace();
@@ -129,7 +130,7 @@ public class PrintTemplateController {
                 printTemplate.setPath("/getTemplate/" + fileName);
             }
         }
-        printTemplate.setModifyTime(new Date());
+        printTemplate.setModifyTime(LocalDateTime.now());
         printTemplateService.updateSelective(printTemplate);
         return BaseOutput.success();
     }
