@@ -4,7 +4,7 @@ import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.PrintDataDto;
-import com.dili.ia.domain.dto.RefundOrderDto;
+import com.dili.ia.domain.dto.LeaseRefundOrderDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -83,7 +83,7 @@ public interface LeaseOrderService extends BaseService<LeaseOrder, Long> {
      * @param refundOrderDto
      * @return
      */
-    BaseOutput createRefundOrder(RefundOrderDto refundOrderDto);
+    BaseOutput createRefundOrder(LeaseRefundOrderDto refundOrderDto);
 
     /**
      * 取消退款单回调处理

@@ -1018,7 +1018,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Override
     @Transactional
     @GlobalTransactional
-    public BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
+    public BaseOutput createRefundOrder(LeaseRefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
@@ -1094,7 +1094,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param refundOrderDto
      * @param leaseOrder
      */
-    private void checkRefundApplyWithLeaseOrder(RefundOrderDto refundOrderDto, LeaseOrder leaseOrder, UserTicket userTicket) {
+    private void checkRefundApplyWithLeaseOrder(LeaseRefundOrderDto refundOrderDto, LeaseOrder leaseOrder, UserTicket userTicket) {
         //收款人和转抵扣收款人客户状态验证
         checkCustomerState(refundOrderDto.getPayeeId(),userTicket.getFirmId());
         List<TransferDeductionItem> transferDeductionItems = refundOrderDto.getTransferDeductionItems();
@@ -1121,7 +1121,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param refundOrderDto
      * @param leaseOrderItem
      */
-    private void checkRufundApplyWithLeaseOrderItem(RefundOrderDto refundOrderDto, LeaseOrderItem leaseOrderItem, UserTicket userTicket) {
+    private void checkRufundApplyWithLeaseOrderItem(LeaseRefundOrderDto refundOrderDto, LeaseOrderItem leaseOrderItem, UserTicket userTicket) {
         //收款人和转抵扣收款人客户状态验证
         checkCustomerState(refundOrderDto.getPayeeId(), userTicket.getFirmId());
         List<TransferDeductionItem> transferDeductionItems = refundOrderDto.getTransferDeductionItems();

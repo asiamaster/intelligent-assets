@@ -9,7 +9,7 @@
     <result column="code" jdbcType="VARCHAR" property="code" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
-    <result column="biz_type" jdbcType="INTEGER" property="bizType" />
+    <result column="biz_type" jdbcType="VARCHAR" property="bizType" />
     <result column="business_item_id" jdbcType="BIGINT" property="businessItemId" />
     <result column="business_item_code" jdbcType="VARCHAR" property="businessItemCode" />
     <result column="business_id" jdbcType="BIGINT" property="businessId" />
@@ -41,7 +41,7 @@
     <result column="refund_operator_id" jdbcType="BIGINT" property="refundOperatorId" />
     <result column="refund_operator" jdbcType="VARCHAR" property="refundOperator" />
     <result column="license_state" jdbcType="INTEGER" property="licenseState" />
-    <result column="department_id" jdbcType="INTEGER" property="departmentId" />
+    <result column="department_id" jdbcType="BIGINT" property="departmentId" />
     <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
@@ -51,9 +51,9 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, code, create_time, modify_time, biz_type, business_item_id, business_item_code, business_id,
-    business_code, customer_id, customer_name, certificate_number, customer_cellphone, state,
-    total_refund_amount, submit_time, settlement_code, refund_type, bank, bank_card_no, 
+    id, code, create_time, modify_time, biz_type, business_item_id, business_item_code, 
+    business_id, business_code, customer_id, customer_name, certificate_number, customer_cellphone, 
+    state, total_refund_amount, submit_time, settlement_code, refund_type, bank, bank_card_no, 
     creator_id, creator, submitter_id, submitter, payee_id, payee, payee_amount, withdraw_operator_id, 
     withdraw_operator, canceler_id, canceler, refund_reason, refund_time, refund_operator_id, 
     refund_operator, license_state, department_id, department_name, market_id, market_code, 
@@ -84,7 +84,7 @@
         modify_time = #{modifyTime,jdbcType=TIMESTAMP},
       </if>
       <if test="bizType != null">
-        biz_type = #{bizType,jdbcType=INTEGER},
+        biz_type = #{bizType,jdbcType=VARCHAR},
       </if>
       <if test="businessItemId != null">
         business_item_id = #{businessItemId,jdbcType=BIGINT},
@@ -180,7 +180,7 @@
         license_state = #{licenseState,jdbcType=INTEGER},
       </if>
       <if test="departmentId != null">
-        department_id = #{departmentId,jdbcType=INTEGER},
+        department_id = #{departmentId,jdbcType=BIGINT},
       </if>
       <if test="departmentName != null">
         department_name = #{departmentName,jdbcType=VARCHAR},
