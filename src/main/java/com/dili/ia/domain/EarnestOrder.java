@@ -4,6 +4,8 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 import tk.mybatis.mapper.annotation.Version;
 
 import java.time.LocalDateTime;
@@ -28,12 +30,16 @@ public class EarnestOrder extends BaseDomain {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`create_time`")
     private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`modify_time`")
     private LocalDateTime modifyTime;
 
@@ -64,12 +70,16 @@ public class EarnestOrder extends BaseDomain {
     /**
      * 开始时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`start_time`")
     private LocalDateTime startTime;
 
     /**
      * 截止时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`end_time`")
     private LocalDateTime endTime;
 
@@ -137,7 +147,7 @@ public class EarnestOrder extends BaseDomain {
      * 提交时间
      */
     @Column(name = "`sub_date`")
-    private Date subDate;
+    private LocalDateTime subDate;
 
     /**
      * 备注
@@ -568,7 +578,7 @@ public class EarnestOrder extends BaseDomain {
      */
     @FieldDef(label="提交时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getSubDate() {
+    public LocalDateTime getSubDate() {
         return subDate;
     }
 
@@ -577,7 +587,7 @@ public class EarnestOrder extends BaseDomain {
      *
      * @param subDate 提交时间
      */
-    public void setSubDate(Date subDate) {
+    public void setSubDate(LocalDateTime subDate) {
         this.subDate = subDate;
     }
 

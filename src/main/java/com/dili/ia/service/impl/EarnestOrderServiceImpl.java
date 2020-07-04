@@ -267,7 +267,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setState(EarnestOrderStateEnum.SUBMITTED.getCode());
         ea.setSubmitterId(userTicket.getId());
         ea.setSubmitter(userTicket.getRealName());
-        ea.setSubDate(new Date());
+        ea.setSubDate(LocalDateTime.now());
         if (this.updateSelective(ea) == 0) {
             LOG.info("提交定金【修改定金单状态】失败 ,乐观锁生效！【定金单ID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");

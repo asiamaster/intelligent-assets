@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -162,7 +163,7 @@ public class EarnestOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
+    public @ResponseBody BaseOutput doAdd(@RequestBody EarnestOrderListDto earnestOrder) {
         if (null != earnestOrder.getEndTime()){
             LocalDateTime endTime = LocalDateTime.of(earnestOrder.getEndTime().getYear(), earnestOrder.getEndTime().getMonth(), earnestOrder.getEndTime().getDayOfMonth(), 23,59,59);
             earnestOrder.setEndTime(endTime);

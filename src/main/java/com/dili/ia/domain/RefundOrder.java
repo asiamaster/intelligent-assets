@@ -214,6 +214,8 @@ public class RefundOrder extends BaseDomain {
     /**
      * 退款时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`refund_time`")
     private Date refundTime;
 
