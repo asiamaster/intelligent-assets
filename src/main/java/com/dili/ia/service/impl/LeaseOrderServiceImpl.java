@@ -14,7 +14,6 @@ import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
-import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.ResultCodeConst;
@@ -717,8 +716,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                     ,BizTypeEnum.BOOTH_LEASE.getCode(),TransactionItemTypeEnum.DEPOSIT.getCode()
                     , item.getDepositAmount(),item.getId(),item.getBoothName()
                     ,leaseOrder.getCustomerId(),leaseOrder.getCode(),leaseOrder.getMarketId(),null,null);
-            transactionDetails.setCreateTime(new Date());
-            transactionDetails.setModifyTime(new Date());
+            transactionDetails.setCreateTime(LocalDateTime.now());
+            transactionDetails.setModifyTime(LocalDateTime.now());
             transactionDetailsList.add(transactionDetails);
         }
         transactionDetailsService.batchInsert(transactionDetailsList);

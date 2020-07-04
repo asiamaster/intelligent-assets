@@ -1,14 +1,10 @@
 package com.dili.ia.domain.dto.printDto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.dili.ss.metadata.FieldEditor;
-import com.dili.ss.metadata.annotation.EditMode;
-import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Column;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * <B>Description</B>
@@ -20,10 +16,9 @@ import java.util.Date;
  */
 public class RefundOrderPrintDto {
     //打印时间
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date printTime;
+    private LocalDateTime printTime;
 
     //补打标记
     private String reprint;
@@ -65,11 +60,11 @@ public class RefundOrderPrintDto {
         this.printTemplateCode = printTemplateCode;
     }
 
-    public Date getPrintTime() {
+    public LocalDateTime getPrintTime() {
         return printTime;
     }
 
-    public void setPrintTime(Date printTime) {
+    public void setPrintTime(LocalDateTime printTime) {
         this.printTime = printTime;
     }
 

@@ -5,7 +5,7 @@ import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
 
 import javax.persistence.Column;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -19,11 +19,11 @@ import java.util.List;
 public class TransactionDetailsListDto extends TransactionDetails {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
-    private Date createdStart;
+    private LocalDateTime createdStart;
 
     @Column(name = "`create_time`")
     @Operator(Operator.LITTLE_EQUAL_THAN)
-    private Date createdEnd;
+    private LocalDateTime createdEnd;
 
     /**
      * 昵称模糊查询
@@ -37,19 +37,19 @@ public class TransactionDetailsListDto extends TransactionDetails {
     @Column(name = "item_type")
     private List<Integer> itemTypes;
 
-    public Date getCreatedStart() {
+    public LocalDateTime getCreatedStart() {
         return createdStart;
     }
 
-    public void setCreatedStart(Date createdStart) {
+    public void setCreatedStart(LocalDateTime createdStart) {
         this.createdStart = createdStart;
     }
 
-    public Date getCreatedEnd() {
+    public LocalDateTime getCreatedEnd() {
         return createdEnd;
     }
 
-    public void setCreatedEnd(Date createdEnd) {
+    public void setCreatedEnd(LocalDateTime createdEnd) {
         this.createdEnd = createdEnd;
     }
 

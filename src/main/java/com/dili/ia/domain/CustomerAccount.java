@@ -6,6 +6,7 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import tk.mybatis.mapper.annotation.Version;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -26,13 +27,13 @@ public class CustomerAccount extends BaseDomain {
      * 创建时间
      */
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 客户ID
@@ -129,7 +130,7 @@ public class CustomerAccount extends BaseDomain {
      */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -138,7 +139,7 @@ public class CustomerAccount extends BaseDomain {
      *
      * @param createTime 创建时间
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -149,7 +150,7 @@ public class CustomerAccount extends BaseDomain {
      */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -158,7 +159,7 @@ public class CustomerAccount extends BaseDomain {
      *
      * @param modifyTime 修改时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 

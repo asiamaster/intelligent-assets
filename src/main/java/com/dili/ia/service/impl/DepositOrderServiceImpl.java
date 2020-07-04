@@ -206,7 +206,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setDepartmentId(dto.getDepartmentId());
         depositOrder.setAmount(dto.getAmount());
         depositOrder.setNotes(dto.getNotes());
-        depositOrder.setModifyTime(new Date());
+        depositOrder.setModifyTime(LocalDateTime.now());
         depositOrder.setVersion(dto.getVersion());
 
         return depositOrder;
@@ -536,7 +536,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         DepositOrder depositOrder = get(paymentOrder.getBusinessId());
 
         DepositOrderPrintDto depositOrderPrintDto = new DepositOrderPrintDto();
-        depositOrderPrintDto.setPrintTime(new Date());
+        depositOrderPrintDto.setPrintTime(LocalDateTime.now());
         depositOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         depositOrderPrintDto.setCode(depositOrder.getCode());
         depositOrderPrintDto.setCustomerName(depositOrder.getCustomerName());

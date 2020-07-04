@@ -23,9 +23,7 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -234,7 +232,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setDepartmentId(dto.getDepartmentId());
         earnestOrder.setAmount(dto.getAmount());
         earnestOrder.setNotes(dto.getNotes());
-        earnestOrder.setModifyTime(new Date());
+        earnestOrder.setModifyTime(LocalDateTime.now());
         earnestOrder.setVersion(dto.getVersion());
 
         return earnestOrder;
@@ -444,7 +442,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
         EarnestOrder earnestOrder = get(paymentOrder.getBusinessId());
         EarnestOrderPrintDto earnestOrderPrintDto = new EarnestOrderPrintDto();
-        earnestOrderPrintDto.setPrintTime(new Date());
+        earnestOrderPrintDto.setPrintTime(LocalDateTime.now());
         earnestOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         earnestOrderPrintDto.setCode(earnestOrder.getCode());
         earnestOrderPrintDto.setCustomerName(earnestOrder.getCustomerName());

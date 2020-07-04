@@ -6,6 +6,7 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import tk.mybatis.mapper.annotation.Version;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -28,13 +29,13 @@ public class EarnestOrder extends BaseDomain {
      * 创建时间
      */
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 客户ID
@@ -64,13 +65,13 @@ public class EarnestOrder extends BaseDomain {
      * 开始时间
      */
     @Column(name = "`start_time`")
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 截止时间
      */
     @Column(name = "`end_time`")
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /**
      * 业务单业务部门ID
@@ -207,7 +208,7 @@ public class EarnestOrder extends BaseDomain {
      */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -216,7 +217,7 @@ public class EarnestOrder extends BaseDomain {
      *
      * @param createTime 创建时间
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -227,7 +228,7 @@ public class EarnestOrder extends BaseDomain {
      */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -236,7 +237,7 @@ public class EarnestOrder extends BaseDomain {
      *
      * @param modifyTime 修改时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -327,7 +328,7 @@ public class EarnestOrder extends BaseDomain {
      */
     @FieldDef(label="开始时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
@@ -336,7 +337,7 @@ public class EarnestOrder extends BaseDomain {
      *
      * @param startTime 开始时间
      */
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
@@ -347,7 +348,7 @@ public class EarnestOrder extends BaseDomain {
      */
     @FieldDef(label="截止时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
@@ -356,7 +357,7 @@ public class EarnestOrder extends BaseDomain {
      *
      * @param endTime 截止时间
      */
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 

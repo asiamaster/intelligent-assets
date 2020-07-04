@@ -7,7 +7,7 @@ import com.dili.ss.domain.annotation.Operator;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -21,11 +21,11 @@ import java.util.List;
 public class EarnestOrderListDto extends EarnestOrder {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
-    private Date createdStart;
+    private LocalDateTime createdStart;
 
     @Column(name = "`create_time`")
     @Operator(Operator.LITTLE_EQUAL_THAN)
-    private Date createdEnd;
+    private LocalDateTime createdEnd;
 
     /**
      * 昵称模糊查询
@@ -42,19 +42,19 @@ public class EarnestOrderListDto extends EarnestOrder {
     @Transient
     private List<EarnestOrderDetail> earnestOrderdetails;
 
-    public Date getCreatedStart() {
+    public LocalDateTime getCreatedStart() {
         return createdStart;
     }
 
-    public void setCreatedStart(Date createdStart) {
+    public void setCreatedStart(LocalDateTime createdStart) {
         this.createdStart = createdStart;
     }
 
-    public Date getCreatedEnd() {
+    public LocalDateTime getCreatedEnd() {
         return createdEnd;
     }
 
-    public void setCreatedEnd(Date createdEnd) {
+    public void setCreatedEnd(LocalDateTime createdEnd) {
         this.createdEnd = createdEnd;
     }
 

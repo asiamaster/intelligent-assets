@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -57,14 +58,11 @@ public class RefundOrderController {
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
-        Calendar c = Calendar.getInstance();
-        c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-        c.add(Calendar.DAY_OF_MONTH, -2);
-        Date createdStart = c.getTime();
-
-        Calendar ce = Calendar.getInstance();
-        ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
-        Date  createdEnd = ce.getTime();
+        LocalDateTime nowTime = LocalDateTime.now();
+        LocalDateTime createdStart = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() -2 , 0, 0 ,0);
+        LocalDateTime createdEnd = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() , 23, 59 ,59);
+        modelMap.put("createdStart", createdStart);
+        modelMap.put("createdEnd", createdEnd);
 
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
