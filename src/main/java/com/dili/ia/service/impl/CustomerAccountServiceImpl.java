@@ -55,7 +55,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     @Override
     public Boolean checkCustomerAccountExist(Long customerId, Long marketId) {
-        CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
+        CustomerAccount customerAccount = new CustomerAccount();
         customerAccount.setCustomerId(customerId);
         customerAccount.setMarketId(marketId);
         List<CustomerAccount> list = getActualDao().select(customerAccount);
@@ -67,7 +67,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     @Override
     public CustomerAccount getCustomerAccountByCustomerId(Long customerId, Long marketId) {
-        CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
+        CustomerAccount customerAccount = new CustomerAccount();
         customerAccount.setCustomerId(customerId);
         customerAccount.setMarketId(marketId);
         List<CustomerAccount> list = this.listByExample(customerAccount);
@@ -170,7 +170,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             return BaseOutput.failure("客户不存在！");
         }
 
-        CustomerAccount customerAccount = DTOUtils.newDTO(CustomerAccount.class);
+        CustomerAccount customerAccount = new CustomerAccount();
         customerAccount.setMarketId(userTicket.getFirmId());
         customerAccount.setCustomerId(customerId);
         customerAccount.setCustomerCellphone(customer.getContactsPhone());
@@ -533,7 +533,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
                 throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
             }
 
-            CustomerAccount customerAccount = DTOUtils.newInstance(CustomerAccount.class);
+            CustomerAccount customerAccount = new CustomerAccount();
             customerAccount.setMarketId(marketId);
             customerAccount.setCustomerId(customerId);
             customerAccount.setCustomerCellphone(customer.getContactsPhone());

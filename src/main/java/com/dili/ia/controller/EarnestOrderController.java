@@ -107,7 +107,7 @@ public class EarnestOrderController {
             earnestOrder = earnestOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
             id = earnestOrder.getId();
         }
-            EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
+            EarnestOrderDetail condition = new EarnestOrderDetail();
             condition.setEarnestOrderId(id);
             List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
             modelMap.put("earnestOrder",earnestOrder);
@@ -135,7 +135,7 @@ public class EarnestOrderController {
     public String update(ModelMap modelMap, Long id) {
         if(null != id){
             EarnestOrder earnestOrder = earnestOrderService.get(id);
-            EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
+            EarnestOrderDetail condition = new EarnestOrderDetail();
             condition.setEarnestOrderId(id);
             List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
             modelMap.put("earnestOrder",earnestOrder);

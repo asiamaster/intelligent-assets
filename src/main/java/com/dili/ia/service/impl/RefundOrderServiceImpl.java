@@ -350,7 +350,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
         try {
-            RefundOrder refundOrderCondition = DTOUtils.newDTO(RefundOrder.class);
+            RefundOrder refundOrderCondition = new RefundOrder();
             refundOrderCondition.setCode(orderCode);
             RefundOrder refundOrder = refundOrderService.list(refundOrderCondition).stream().findFirst().orElse(null);
             if (null == refundOrder){

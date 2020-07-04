@@ -11,6 +11,9 @@ MODIFY COLUMN `biz_type` varchar(120) NULL DEFAULT NULL COMMENT '业务类型' A
 ALTER TABLE `dili-assets`.`payment_order`
 MODIFY COLUMN `biz_type` varchar(120) NULL DEFAULT NULL COMMENT '业务类型' AFTER `business_code`;
 
+ALTER TABLE `dili-assets`.`transaction_details`
+MODIFY COLUMN `biz_type` varchar(120) NULL DEFAULT NULL COMMENT '业务类型' ;
+
 -- 字段删除脚本（数据迁移完后执行）
 ALTER TABLE `dili-assets`.`lease_order`
 DROP COLUMN `rent_amount`,

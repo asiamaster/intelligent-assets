@@ -262,7 +262,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, DepositOrder depositOrder, Long paidAmount){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(paidAmount);
         pb.setBusinessId(depositOrder.getId());
@@ -393,7 +393,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     private PaymentOrder findPaymentOrder(Long marketId, Integer state, Long businessId, String businessCode){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);

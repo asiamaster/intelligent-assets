@@ -53,7 +53,7 @@ public class TransactionDetails extends BaseDomain {
      * 摊位租赁，定金管理等等
      */
     @Column(name = "`biz_type`")
-    private Integer bizType;
+    private String bizType;
 
     /**
      * 发生订单ID
@@ -244,7 +244,7 @@ public class TransactionDetails extends BaseDomain {
      */
     @FieldDef(label="摊位租赁，定金管理等等")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Integer getBizType() {
+    public String getBizType() {
         return bizType;
     }
 
@@ -253,7 +253,7 @@ public class TransactionDetails extends BaseDomain {
      *
      * @param bizType 摊位租赁，定金管理等等
      */
-    public void setBizType(Integer bizType) {
+    public void setBizType(String bizType) {
         this.bizType = bizType;
     }
 

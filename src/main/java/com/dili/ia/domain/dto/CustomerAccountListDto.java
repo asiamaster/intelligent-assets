@@ -15,18 +15,32 @@ import java.util.List;
  * @author qinkelan
  * @createTime 2020-03-19 11:43
  */
-public interface CustomerAccountListDto extends CustomerAccount {
+public class CustomerAccountListDto extends CustomerAccount {
     /**
      * 昵称模糊查询
      * @return
      */
     @Column(name = "customer_name")
     @Like
-    String getLikeCustomerName();
-    void setLikeCustomerName(String likeCustomerName);
+    private String likeCustomerName;
 
     @Operator(Operator.IN)
     @Column(name = "market_id")
-    List<Long> getMarketIds();
-    void setMarketIds(List<Long> marketIds);
+    private List<Long> marketIds;
+
+    public String getLikeCustomerName() {
+        return likeCustomerName;
+    }
+
+    public void setLikeCustomerName(String likeCustomerName) {
+        this.likeCustomerName = likeCustomerName;
+    }
+
+    public List<Long> getMarketIds() {
+        return marketIds;
+    }
+
+    public void setMarketIds(List<Long> marketIds) {
+        this.marketIds = marketIds;
+    }
 }

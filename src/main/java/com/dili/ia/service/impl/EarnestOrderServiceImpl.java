@@ -206,7 +206,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     private void deleteEarnestOrderDetailByEarnestOrderId(Long earnestOrderId){
-        EarnestOrderDetail eod = DTOUtils.newDTO(EarnestOrderDetail.class);
+        EarnestOrderDetail eod = new EarnestOrderDetail();
         eod.setEarnestOrderId(earnestOrderId);
         List<EarnestOrderDetail> eodlist = earnestOrderDetailService.list(eod);
         if (CollectionUtils.isNotEmpty(eodlist)){
@@ -254,7 +254,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         //检查客户状态
         checkCustomerState(ea.getCustomerId(),userTicket.getFirmId());
-        EarnestOrderDetail query = DTOUtils.newInstance(EarnestOrderDetail.class);
+        EarnestOrderDetail query = new EarnestOrderDetail();
         query.setEarnestOrderId(ea.getId());
         List<EarnestOrderDetail> detailList = earnestOrderDetailService.listByExample(query);
         if (CollectionUtils.isNotEmpty(detailList)){
@@ -320,7 +320,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, EarnestOrder earnestOrder){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(earnestOrder.getAmount());
         pb.setBusinessId(earnestOrder.getId());
@@ -336,7 +336,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
@@ -458,7 +458,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrderPrintDto.setSubmitter(paymentOrder.getCreator());
         earnestOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
 
-        EarnestOrderDetail earnestOrderDetail = DTOUtils.newInstance(EarnestOrderDetail.class);
+        EarnestOrderDetail earnestOrderDetail = new EarnestOrderDetail();
         earnestOrderDetail.setEarnestOrderId(earnestOrder.getId());
         StringBuffer assetsItems = new StringBuffer();
         earnestOrderDetailService.list(earnestOrderDetail).forEach(o -> {
