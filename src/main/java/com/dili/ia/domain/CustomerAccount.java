@@ -1,6 +1,6 @@
 package com.dili.ia.domain;
 
-import com.dili.ss.dto.IBaseDomain;
+import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
@@ -8,123 +8,398 @@ import tk.mybatis.mapper.annotation.Version;
 
 import java.util.Date;
 import javax.persistence.*;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 /**
  * 由MyBatis Generator工具自动生成
  * 客户余额管理,包含定金，转抵金额。定金可用来源于定金缴费，别人转移。
 转抵金额只来源于租赁退款
- * This file was generated on 2020-02-28 18:25:12.
+ * This file was generated on 2020-07-04 09:48:04.
  */
 @Table(name = "`customer_account`")
-public interface CustomerAccount extends IBaseDomain {
+public class CustomerAccount extends BaseDomain {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`id`")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    /**
+     * 创建时间
+     */
+    @Column(name = "`create_time`")
+    private Date createTime;
+
+    /**
+     * 修改时间
+     */
+    @Column(name = "`modify_time`")
+    private Date modifyTime;
+
+    /**
+     * 客户ID
+     */
+    @Column(name = "`customer_id`")
+    private Long customerId;
+
+    /**
+     * 客户名称
+     */
+    @Column(name = "`customer_name`")
+    private String customerName;
+
+    /**
+     * 客户电话
+     */
+    @Column(name = "`customer_cellphone`")
+    private String customerCellphone;
+
+    /**
+     * 客户证件号
+     */
+    @Column(name = "`certificate_number`")
+    private String certificateNumber;
+
+    /**
+     * 定金余额= 定金可用余额 + 定金冻结金额
+     */
+    @Column(name = "`earnest_balance`")
+    private Long earnestBalance;
+
+    /**
+     * 转抵余额=转抵可用余额 + 转抵冻结金额
+     */
+    @Column(name = "`transfer_balance`")
+    private Long transferBalance;
+
+    /**
+     * 定金可用余额=定金余额 - 定金冻结金额
+     */
+    @Column(name = "`earnest_available_balance`")
+    private Long earnestAvailableBalance;
+
+    /**
+     * 转抵可用余额=转抵余额 - 转抵冻结金额
+     */
+    @Column(name = "`transfer_available_balance`")
+    private Long transferAvailableBalance;
+
+    /**
+     * 定金冻结金额
+     */
+    @Column(name = "`earnest_frozen_amount`")
+    private Long earnestFrozenAmount;
+
+    /**
+     * 转抵冻结金额
+     */
+    @Column(name = "`transfer_frozen_amount`")
+    private Long transferFrozenAmount;
+
+    /**
+     * 市场ID
+     */
+    @Column(name = "`market_id`")
+    private Long marketId;
+
+    /**
+     * 版本控制,乐观锁
+     */
+    @Column(name = "`version`")
+    private Long version;
+
+    /**
+     * @return id
+     */
     @FieldDef(label="id")
     @EditMode(editor = FieldEditor.Number, required = true)
-    Long getId();
+    public Long getId() {
+        return id;
+    }
 
-    void setId(Long id);
+    /**
+     * @param id
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    @Column(name = "`create_time`")
+    /**
+     * 获取创建时间
+     *
+     * @return create_time - 创建时间
+     */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    Date getCreateTime();
+    public Date getCreateTime() {
+        return createTime;
+    }
 
-    void setCreateTime(Date createTime);
+    /**
+     * 设置创建时间
+     *
+     * @param createTime 创建时间
+     */
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
 
-    @Column(name = "`modify_time`")
+    /**
+     * 获取修改时间
+     *
+     * @return modify_time - 修改时间
+     */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    Date getModifyTime();
+    public Date getModifyTime() {
+        return modifyTime;
+    }
 
-    void setModifyTime(Date modifyTime);
+    /**
+     * 设置修改时间
+     *
+     * @param modifyTime 修改时间
+     */
+    public void setModifyTime(Date modifyTime) {
+        this.modifyTime = modifyTime;
+    }
 
-    @Column(name = "`customer_id`")
+    /**
+     * 获取客户ID
+     *
+     * @return customer_id - 客户ID
+     */
     @FieldDef(label="客户ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getCustomerId();
+    public Long getCustomerId() {
+        return customerId;
+    }
 
-    void setCustomerId(Long customerId);
+    /**
+     * 设置客户ID
+     *
+     * @param customerId 客户ID
+     */
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
 
-    @Column(name = "`customer_name`")
-    @FieldDef(label="客户名称", maxLength = 20)
+    /**
+     * 获取客户名称
+     *
+     * @return customer_name - 客户名称
+     */
+    @FieldDef(label="客户名称", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getCustomerName();
+    public String getCustomerName() {
+        return customerName;
+    }
 
-    void setCustomerName(String customerName);
+    /**
+     * 设置客户名称
+     *
+     * @param customerName 客户名称
+     */
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 
-    @Column(name = "`customer_cellphone`")
+    /**
+     * 获取客户电话
+     *
+     * @return customer_cellphone - 客户电话
+     */
     @FieldDef(label="客户电话", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getCustomerCellphone();
+    public String getCustomerCellphone() {
+        return customerCellphone;
+    }
 
-    void setCustomerCellphone(String customerCellphone);
+    /**
+     * 设置客户电话
+     *
+     * @param customerCellphone 客户电话
+     */
+    public void setCustomerCellphone(String customerCellphone) {
+        this.customerCellphone = customerCellphone;
+    }
 
-    @Column(name = "`certificate_number`")
+    /**
+     * 获取客户证件号
+     *
+     * @return certificate_number - 客户证件号
+     */
     @FieldDef(label="客户证件号", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getCertificateNumber();
+    public String getCertificateNumber() {
+        return certificateNumber;
+    }
 
-    void setCertificateNumber(String certificateNumber);
+    /**
+     * 设置客户证件号
+     *
+     * @param certificateNumber 客户证件号
+     */
+    public void setCertificateNumber(String certificateNumber) {
+        this.certificateNumber = certificateNumber;
+    }
 
-    @Column(name = "`earnest_balance`")
+    /**
+     * 获取定金余额= 定金可用余额 + 定金冻结金额
+     *
+     * @return earnest_balance - 定金余额= 定金可用余额 + 定金冻结金额
+     */
     @FieldDef(label="定金余额= 定金可用余额 + 定金冻结金额")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getEarnestBalance();
+    public Long getEarnestBalance() {
+        return earnestBalance;
+    }
 
-    void setEarnestBalance(Long earnestBalance);
+    /**
+     * 设置定金余额= 定金可用余额 + 定金冻结金额
+     *
+     * @param earnestBalance 定金余额= 定金可用余额 + 定金冻结金额
+     */
+    public void setEarnestBalance(Long earnestBalance) {
+        this.earnestBalance = earnestBalance;
+    }
 
-    @Column(name = "`transfer_balance`")
+    /**
+     * 获取转抵余额=转抵可用余额 + 转抵冻结金额
+     *
+     * @return transfer_balance - 转抵余额=转抵可用余额 + 转抵冻结金额
+     */
     @FieldDef(label="转抵余额=转抵可用余额 + 转抵冻结金额")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getTransferBalance();
+    public Long getTransferBalance() {
+        return transferBalance;
+    }
 
-    void setTransferBalance(Long transferBalance);
+    /**
+     * 设置转抵余额=转抵可用余额 + 转抵冻结金额
+     *
+     * @param transferBalance 转抵余额=转抵可用余额 + 转抵冻结金额
+     */
+    public void setTransferBalance(Long transferBalance) {
+        this.transferBalance = transferBalance;
+    }
 
-    @Column(name = "`earnest_available_balance`")
+    /**
+     * 获取定金可用余额=定金余额 - 定金冻结金额
+     *
+     * @return earnest_available_balance - 定金可用余额=定金余额 - 定金冻结金额
+     */
     @FieldDef(label="定金可用余额=定金余额 - 定金冻结金额")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getEarnestAvailableBalance();
+    public Long getEarnestAvailableBalance() {
+        return earnestAvailableBalance;
+    }
 
-    void setEarnestAvailableBalance(Long earnestAvailableBalance);
+    /**
+     * 设置定金可用余额=定金余额 - 定金冻结金额
+     *
+     * @param earnestAvailableBalance 定金可用余额=定金余额 - 定金冻结金额
+     */
+    public void setEarnestAvailableBalance(Long earnestAvailableBalance) {
+        this.earnestAvailableBalance = earnestAvailableBalance;
+    }
 
-    @Column(name = "`transfer_available_balance`")
+    /**
+     * 获取转抵可用余额=转抵余额 - 转抵冻结金额
+     *
+     * @return transfer_available_balance - 转抵可用余额=转抵余额 - 转抵冻结金额
+     */
     @FieldDef(label="转抵可用余额=转抵余额 - 转抵冻结金额")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getTransferAvailableBalance();
+    public Long getTransferAvailableBalance() {
+        return transferAvailableBalance;
+    }
 
-    void setTransferAvailableBalance(Long transferAvailableBalance);
+    /**
+     * 设置转抵可用余额=转抵余额 - 转抵冻结金额
+     *
+     * @param transferAvailableBalance 转抵可用余额=转抵余额 - 转抵冻结金额
+     */
+    public void setTransferAvailableBalance(Long transferAvailableBalance) {
+        this.transferAvailableBalance = transferAvailableBalance;
+    }
 
-    @Column(name = "`earnest_frozen_amount`")
+    /**
+     * 获取定金冻结金额
+     *
+     * @return earnest_frozen_amount - 定金冻结金额
+     */
     @FieldDef(label="定金冻结金额")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getEarnestFrozenAmount();
+    public Long getEarnestFrozenAmount() {
+        return earnestFrozenAmount;
+    }
 
-    void setEarnestFrozenAmount(Long earnestFrozenAmount);
+    /**
+     * 设置定金冻结金额
+     *
+     * @param earnestFrozenAmount 定金冻结金额
+     */
+    public void setEarnestFrozenAmount(Long earnestFrozenAmount) {
+        this.earnestFrozenAmount = earnestFrozenAmount;
+    }
 
-    @Column(name = "`transfer_frozen_amount`")
+    /**
+     * 获取转抵冻结金额
+     *
+     * @return transfer_frozen_amount - 转抵冻结金额
+     */
     @FieldDef(label="转抵冻结金额")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getTransferFrozenAmount();
+    public Long getTransferFrozenAmount() {
+        return transferFrozenAmount;
+    }
 
-    void setTransferFrozenAmount(Long transferFrozenAmount);
+    /**
+     * 设置转抵冻结金额
+     *
+     * @param transferFrozenAmount 转抵冻结金额
+     */
+    public void setTransferFrozenAmount(Long transferFrozenAmount) {
+        this.transferFrozenAmount = transferFrozenAmount;
+    }
 
-    @Column(name = "`market_id`")
+    /**
+     * 获取市场ID
+     *
+     * @return market_id - 市场ID
+     */
     @FieldDef(label="市场ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getMarketId();
+    public Long getMarketId() {
+        return marketId;
+    }
 
-    void setMarketId(Long marketId);
+    /**
+     * 设置市场ID
+     *
+     * @param marketId 市场ID
+     */
+    public void setMarketId(Long marketId) {
+        this.marketId = marketId;
+    }
+
+    /**
+     * 获取版本控制,乐观锁
+     *
+     * @return version - 版本控制,乐观锁
+     */
     @Version
-    @Column(name = "`version`")
     @FieldDef(label="版本控制,乐观锁")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getVersion();
+    public Long getVersion() {
+        return version;
+    }
 
-    void setVersion(Long version);
+    /**
+     * 设置版本控制,乐观锁
+     *
+     * @param version 版本控制,乐观锁
+     */
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 }
