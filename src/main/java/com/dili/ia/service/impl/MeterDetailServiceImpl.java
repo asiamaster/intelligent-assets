@@ -260,7 +260,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         statusBuff.append(PaymentOrderStateEnum.PAID.getCode());
 
         // 业务类型(水表、电表)
-        List<Integer> bizTypeList = Lists.newArrayList(BizTypeEnum.WATER_METER.getCode(), BizTypeEnum.ELECTRIC_METER.getCode());
+        List<Integer> bizTypeList = Lists.newArrayList(Integer.valueOf(BizTypeEnum.WATER_METER.getCode()), Integer.valueOf(BizTypeEnum.ELECTRIC_METER.getCode()));
         String bizTypes = bizTypeList.toString().replace("[", "").replace("]", "");
 
         // 设置查询参数
@@ -323,7 +323,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         MeterDetailDto meterDetailDto = new MeterDetailDto();
 
         // 业务类型(水表、电表)
-        List<Integer> bizTypeList = Lists.newArrayList(BizTypeEnum.WATER_METER.getCode(), BizTypeEnum.ELECTRIC_METER.getCode());
+        List<Integer> bizTypeList = Lists.newArrayList(Integer.valueOf(BizTypeEnum.WATER_METER.getCode()), Integer.valueOf(BizTypeEnum.ELECTRIC_METER.getCode()));
         String bizTypes = bizTypeList.toString().replace("[", "").replace("]", "");
         meterDetailDto.setBizTypes(bizTypes);
         meterDetailDto.setMeterId(meterId);
@@ -375,7 +375,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         MeterDetailDto meterDetailDto = new MeterDetailDto();
 
         // 业务类型(水表、电表)
-        List<Integer> bizTypeList = Lists.newArrayList(BizTypeEnum.WATER_METER.getCode(), BizTypeEnum.ELECTRIC_METER.getCode());
+        List<Integer> bizTypeList = Lists.newArrayList(Integer.valueOf(BizTypeEnum.WATER_METER.getCode()), Integer.valueOf(BizTypeEnum.ELECTRIC_METER.getCode()));
         String bizTypes = bizTypeList.toString().replace("[", "").replace("]", "");
         meterDetailDto.setMeterId(meterId);
         meterDetailDto.setState(PaymentOrderStateEnum.PAID.getCode());
