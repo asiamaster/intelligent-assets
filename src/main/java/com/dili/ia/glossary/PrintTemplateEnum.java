@@ -17,6 +17,8 @@ public enum PrintTemplateEnum {
     EARNEST_REFUND_ORDER("EarnestRefundOrder", "定金退款单"),
     DEPOSIT_ORDER("DepositOrder", "保证金单"),
     DEPOSIT_REFUND_ORDER("DepositRefundOrder", "保证金退款单"),
+    STOCKIN_ORDER("StockInOrder", "入库单"),
+    STOCK_OUT_ORDER("StockOutInOrder", "出库单"),
     ;
 
     private String name;

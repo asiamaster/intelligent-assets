@@ -1,5 +1,21 @@
 package com.dili.ia.service.impl;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.alibaba.fastjson.JSON;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -14,11 +30,12 @@ import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
 import com.dili.ia.domain.dto.StockWeighmanRecordDto;
 import com.dili.ia.domain.dto.printDto.StockInPrintDto;
-import com.dili.ia.domain.dto.printDto.StockInPrintDto.StockInPrintItemDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintItemDto;
+import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.PayStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
+import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.glossary.StockInTypeEnum;
 import com.dili.ia.mapper.StockInMapper;
@@ -37,7 +54,6 @@ import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -45,22 +61,6 @@ import com.dili.uap.sdk.session.SessionContext;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -450,7 +450,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	}
 
 	@Override
-	public PrintDataDto<Map<String, Object>> receiptData(String orderCode, Integer reprint) {
+	public PrintDataDto<StockInPrintDto> receiptPaymentData(String orderCode, Integer reprint) {
 		PaymentOrder paymentOrder = paymentOrderService.getByCode(orderCode);
 		if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
@@ -470,13 +470,25 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setSubmitter("");
 		stockInPrintDto.setReviewer("");
 		stockInPrintDto.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
-		
-		
-		//StockInPrintItemDto stockInPrintItemDto = stockInPrintDto.getItemDto();
-		
-		return null;
+		//详情
+		List<StockInPrintItemDto> stockInItems =  new ArrayList<>();;
+		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(stockIn.getCode());
+		stockInDetails.forEach(detail -> {
+			StockInPrintItemDto stockInPrintItemDto = new StockInPrintItemDto();
+			BeanUtil.copyProperties(detail, stockInPrintItemDto);
+			stockInPrintItemDto.setExpireDate(stockIn.getExpireDate());
+			stockInPrintItemDto.setPayWay("paymentOrder.get");
+			stockInPrintItemDto.setProxyPayer("proxyPayer");
+			stockInPrintItemDto.setStockInDate(stockIn.getStockInDate());
+			stockInPrintItemDto.setStockInType(String.valueOf(stockIn.getType()));
+			stockInPrintItemDto.setUnitPrice("unitPrice");
+			stockInItems.add(stockInPrintItemDto);
+		});
+		stockInPrintDto.setStockInItems(stockInItems);
+		PrintDataDto<StockInPrintDto> printDataDto = new PrintDataDto<>();
+		printDataDto.setName(PrintTemplateEnum.STOCKIN_ORDER.getCode());
+		printDataDto.setItem(stockInPrintDto);
+		return printDataDto;	
 	}
-
-	
 	
 }

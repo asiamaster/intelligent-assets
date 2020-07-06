@@ -5,6 +5,8 @@ import java.util.List;
 import com.dili.ia.domain.Stock;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
+import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import com.dili.ss.base.BaseService;
 
 /**
@@ -45,5 +47,7 @@ public interface StockService extends BaseService<Stock, Long> {
 	 * @throws
 	 */
 	void stockDeduction(StockInDetail detail,Long customerId,String businessCode);
+	
+	
 	
 }

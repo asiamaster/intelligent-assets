@@ -5,6 +5,8 @@ import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockOut;
 import com.dili.ia.domain.StockRecord;
+import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.StockRecordTypeEnum;
 import com.dili.ia.mapper.StockMapper;

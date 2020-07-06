@@ -8,6 +8,8 @@ import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto;
+import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 
@@ -117,7 +119,7 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @return
 	 * @throws
 	 */
-	PrintDataDto<Map<String,Object>> receiptData(String orderCode, Integer reprint);
+	PrintDataDto<StockInPrintDto> receiptPaymentData(String orderCode, Integer reprint);
 	
 	/**
 	 * 
@@ -128,5 +130,6 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @throws
 	 */
 	void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder);
+
 	
 }
