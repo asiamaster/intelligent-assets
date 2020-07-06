@@ -27,7 +27,6 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
@@ -667,7 +666,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试");
         }
-        AssetsLeaseOrderItem leaseOrderItemCondition = DTOUtils.newInstance(AssetsLeaseOrderItem.class);
+        AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(leaseOrderItemCondition);
         leaseOrderItems.stream().forEach(o -> {
@@ -875,11 +874,36 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         List<AssetsLeaseOrderItemListDto> leaseOrderItems = assetsLeaseOrderItemService.leaseOrderItemListToDto(assetsLeaseOrderItemService.list(leaseOrderItemCondition), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos);
         List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
         leaseOrderItems.forEach(o -> {
-            leaseOrderItemPrintDtos.add(LeaseOrderRefundOrderServiceImpl.leaseOrderItem2PrintDto(o));
+            leaseOrderItemPrintDtos.add(leaseOrderItem2PrintDto(o));
         });
         leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemPrintDtos);
         printDataDto.setItem(leaseOrderPrintDto);
         return BaseOutput.success().setData(printDataDto);
+    }
+
+    /**
+     * 订单项Bean转PrintDto
+     * @param leaseOrderItem
+     * @return
+     */
+    static LeaseOrderItemPrintDto leaseOrderItem2PrintDto(AssetsLeaseOrderItemListDto leaseOrderItem) {
+        LeaseOrderItemPrintDto leaseOrderItemPrintDto = new LeaseOrderItemPrintDto();
+        leaseOrderItemPrintDto.setBoothName(leaseOrderItem.getAssetsName());
+        leaseOrderItemPrintDto.setDistrictName(leaseOrderItem.getDistrictName());
+        leaseOrderItemPrintDto.setNumber(leaseOrderItem.getNumber().toString());
+        leaseOrderItemPrintDto.setUnitName(leaseOrderItem.getUnitName());
+        leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
+        leaseOrderItemPrintDto.setIsCorner(leaseOrderItem.getIsCorner());
+        leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
+        leaseOrderItemPrintDto.setDiscountAmount(MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
+        leaseOrderItemPrintDto.setBusinessChargeItem(leaseOrderItem.getBusinessChargeItem());
+//        leaseOrderItemPrintDto.setRentAmount(MoneyUtils.centToYuan(leaseOrderItem.getRentAmount()));
+//        leaseOrderItemPrintDto.setManageAmount(MoneyUtils.centToYuan(leaseOrderItem.getManageAmount()));
+//        leaseOrderItemPrintDto.setDepositAmount(MoneyUtils.centToYuan(leaseOrderItem.getDepositAmount()));
+//        leaseOrderItemPrintDto.setRentRefundAmount(MoneyUtils.centToYuan(leaseOrderItem.getRentRefundAmount()));
+//        leaseOrderItemPrintDto.setManageRefundAmount(MoneyUtils.centToYuan(leaseOrderItem.getManageRefundAmount()));
+//        leaseOrderItemPrintDto.setDepositRefundAmount(MoneyUtils.centToYuan(leaseOrderItem.getDepositRefundAmount()));
+        return leaseOrderItemPrintDto;
     }
 
     @Override
@@ -965,42 +989,18 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
     @Override
     @Transactional
-    public BaseOutput cancelRefundOrderHandler(Long leaseOrderId,Long leaseOrderItemId) {
-        if(null == leaseOrderItemId){
-            AssetsLeaseOrder leaseOrder = get(leaseOrderId);
-            if(!RefundStateEnum.REFUNDING.getCode().equals(leaseOrder.getRefundState())){
-                LOG.info("租赁单【编号：{}】退款状态已发生变更，不能取消退款",leaseOrder.getCode());
-                throw new BusinessException(ResultCode.DATA_ERROR,"退款状态已发生变更，不能取消退款");
-            }
-            leaseOrder.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
-            leaseOrder.setRefundAmount(0L);
-            if(updateSelective(leaseOrder) == 0){
-                LOG.info("摊位租赁单取消退款申请异常 更新租赁单乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
-            }
+    public BaseOutput cancelRefundOrderHandler(Long leaseOrderItemId) {
+        //订单项退款申请
+        AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(leaseOrderItemId);
+        if (!RefundStateEnum.REFUNDING.getCode().equals(leaseOrderItem.getRefundState())) {
+            LOG.info("租赁单【编号：{}】退款状态已发生变更，不能取消退款", leaseOrderItem.getLeaseOrderCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款状态已发生变更，不能取消退款");
+        }
 
-            //级联订单项退款状态
-            AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
-            condition.setLeaseOrderId(leaseOrder.getId());
-            List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
-            leaseOrderItems.stream().forEach(o -> o.setRefundState(RefundStateEnum.WAIT_APPLY.getCode()));
-            if (assetsLeaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
-                LOG.info("摊位租赁单取消退款申请异常 级联批量更新租赁单订单项乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
-            }
-        }else{
-            //订单项退款申请
-            AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(leaseOrderItemId);
-            if(!RefundStateEnum.REFUNDING.getCode().equals(leaseOrderItem.getRefundState())){
-                LOG.info("租赁单【编号：{}】退款状态已发生变更，不能取消退款",leaseOrderItem.getLeaseOrderCode());
-                throw new BusinessException(ResultCode.DATA_ERROR,"退款状态已发生变更，不能取消退款");
-            }
-
-            leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
-            if(assetsLeaseOrderItemService.updateSelective(leaseOrderItem) == 0){
-                LOG.info("摊位租赁单订单项取消退款申请异常 更新租赁单订单项乐观锁生效 【摊位租赁订单项ID {}】", leaseOrderItem.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
-            }
+        leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
+        if (assetsLeaseOrderItemService.updateSelective(leaseOrderItem) == 0) {
+            LOG.info("摊位租赁单订单项取消退款申请异常 更新租赁单订单项乐观锁生效 【摊位租赁订单项ID {}】", leaseOrderItem.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         return BaseOutput.success();
     }
