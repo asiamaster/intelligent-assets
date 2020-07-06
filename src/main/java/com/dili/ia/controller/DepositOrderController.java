@@ -180,10 +180,10 @@ public class DepositOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput doAdd(DepositOrderQuery depositOrderQuery) {
+    public @ResponseBody BaseOutput doAdd(DepositOrder depositOrder) {
 
         try{
-            BaseOutput<DepositOrder> output = depositOrderService.addDepositOrder(depositOrderQuery);
+            BaseOutput<DepositOrder> output = depositOrderService.addDepositOrder(depositOrder);
             //写业务日志
             if (output.isSuccess()){
                 DepositOrder order = output.getData();

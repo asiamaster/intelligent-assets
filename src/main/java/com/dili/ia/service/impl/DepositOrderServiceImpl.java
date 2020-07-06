@@ -4,7 +4,6 @@ import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
-import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.glossary.*;
@@ -26,14 +25,13 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +40,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -81,7 +80,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<DepositOrder> addDepositOrder(DepositOrderQuery depositOrder) {
+    public BaseOutput<DepositOrder> addDepositOrder(DepositOrder depositOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
             return BaseOutput.failure("未登录");
@@ -602,5 +601,91 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Override
     public Long sumBalance(DepositOrder depositOrder) {
         return this.getActualDao().sumBalance(depositOrder);
+    }
+
+
+    @Override
+    public BaseOutput batchAddDepositOrder(List<DepositOrder> depositOrderList) {
+        if (CollectionUtils.isEmpty(depositOrderList)){
+            return BaseOutput.success();
+        }
+        depositOrderList.stream().forEach(o ->{
+            o.setIsRelated(YesOrNoEnum.YES.getCode());
+            this.addDepositOrder(o);
+
+        });
+        return BaseOutput.success();
+    }
+
+    @Override
+    public BaseOutput batchSubmitDepositOrder(String bizType, Map<Long, Long> map) {
+        if (map == null){
+            return BaseOutput.success();
+        }
+        if (bizType == null){
+            return BaseOutput.failure("参数bizType 不能为空！");
+        }
+        map.forEach((key, value) -> {
+            DepositOrder depositOrder = this.queryDepositOrder(bizType, key);
+            if (depositOrder != null){
+                this.submitDepositOrder(depositOrder.getId(), value, depositOrder.getWaitAmount());
+            }
+        });
+        return BaseOutput.success();
+    }
+
+    private DepositOrder queryDepositOrder(String bizType, Long businessId){
+        DepositOrder query = new DepositOrder();
+        query.setBizType(bizType);
+        query.setBusinessId(businessId);
+        query.setIsRelated(YesOrNoEnum.YES.getCode());
+        List<DepositOrder> list = this.listByExample(query);
+        return list.stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public BaseOutput batchWithdrawDepositOrder(String bizType, List<Long> businessIds) {
+        if (CollectionUtils.isEmpty(businessIds)){
+            return BaseOutput.success();
+        }
+        if (bizType == null){
+            return BaseOutput.failure("参数bizType 不能为空！");
+        }
+        businessIds.stream().forEach(o -> {
+            DepositOrder depositOrder = this.queryDepositOrder(bizType, o);
+            if (depositOrder != null){
+                this.withdrawDepositOrder(depositOrder.getId());
+            }
+        });
+        return BaseOutput.success();
+    }
+
+    @Override
+    public BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds) {
+        if (bizType == null){
+            return BaseOutput.failure("参数bizType 不能为空！");
+        }
+        if (customerId == null){
+            return BaseOutput.failure("参数customerId 不能为空！");
+        }
+        if (CollectionUtils.isEmpty(assetsIds)){
+            return BaseOutput.success();
+        }
+        List<DepositBalance> list = new ArrayList<>();
+        assetsIds.stream().forEach(o -> {
+            DepositBalance depositBalance = this.queryDepositBalance(customerId, o);
+            if (depositBalance != null){
+                list.add(depositBalance);
+            }
+        });
+
+        return BaseOutput.success().setData(list);
+    }
+
+    private DepositBalance queryDepositBalance(Long customerId, Long assetsId){
+        DepositBalance depositBalance = new DepositBalance();
+        depositBalance.setCustomerId(customerId);
+        depositBalance.setAssetsId(assetsId);
+        return depositBalanceService.listByExample(depositBalance).stream().findFirst().orElse(null);
     }
 }
