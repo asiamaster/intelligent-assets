@@ -13,8 +13,7 @@ public enum BizTypeEnum {
     EARNEST("2", "定金"),
     DEPOSIT_ORDER("3", "保证金"),
     STOCKIN("4", "入库单"),
-    WATER_METER("5", "水表"),
-    ELECTRIC_METER("6", "电表"),
+    UTTLITIES("5", "水电费"),
     ;
 
     private String name;
