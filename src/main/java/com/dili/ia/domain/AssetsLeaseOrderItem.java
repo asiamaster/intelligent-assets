@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * 资产租赁订单项
  * This file was generated on 2020-05-29 14:40:05.
  */
-@Table(name = "`lease_order_item`")
+@Table(name = "`assets_lease_order_item`")
 public class AssetsLeaseOrderItem extends BaseDomain {
     @Id
     @Column(name = "`id`")

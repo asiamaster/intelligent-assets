@@ -18,7 +18,7 @@ import javax.persistence.*;
  * 资产租赁订单
  * This file was generated on 2020-05-29 14:40:05.
  */
-@Table(name = "`lease_order`")
+@Table(name = "`assets_lease_order`")
 public class AssetsLeaseOrder extends BaseDomain {
     @Id
     @Column(name = "`id`")
