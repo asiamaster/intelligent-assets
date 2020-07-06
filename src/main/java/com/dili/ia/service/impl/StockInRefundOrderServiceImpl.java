@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.dili.ia.domain.RefundOrder;
@@ -12,6 +13,7 @@ import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.service.RefundOrderDispatcherService;
+import com.dili.ia.service.StockInService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -19,6 +21,8 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.BasePage;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Sets;
 
 /**
@@ -33,9 +37,23 @@ import com.google.common.collect.Sets;
 @Service
 public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> implements RefundOrderDispatcherService{
 
+	@Autowired
+	private StockInService stockInService;
+	
 	@Override
 	public BaseOutput submitHandler(RefundOrder refundOrder) {
-		return null;
+		String code = refundOrder.getBusinessCode();
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		StockIn stockIn = stockInService.getStockInByCode(code);
+		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+		}
+		StockIn condtion = new StockIn(userTicket);
+		condtion.setId(stockIn.getId());
+		condtion.setState(StockInStateEnum.SUBMITTED_REFUND.getCode());
+		stockInService.updateSelective(condtion);
+		//stockInService
+		return BaseOutput.success();
 	}
 
 	@Override
@@ -46,8 +64,8 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 
 	@Override
 	public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
-		// TODO Auto-generated method stub
-		return null;
+		stockInService.refundSuccessHandler(settleOrder, refundOrder);
+		return BaseOutput.success();
 	}
 
 	@Override
@@ -63,6 +81,6 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 	}
 
 	@Override
-	public Set<Integer> getBizType() {
+	public Set<String> getBizType() {
 		return Sets.newHashSet(BizTypeEnum.STOCKIN.getCode());
 	}}

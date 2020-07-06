@@ -2,7 +2,7 @@ package com.dili.ia.service;
 
 import java.util.Map;
 
-
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.StockInDto;
@@ -118,5 +118,15 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @throws
 	 */
 	PrintDataDto<Map<String,Object>> receiptData(String orderCode, Integer reprint);
+	
+	/**
+	 * 
+	 * @Title refundSuccessHandler
+	 * @Description 退款成功回调
+	 * @param settleOrder
+	 * @param refundOrder
+	 * @throws
+	 */
+	void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder);
 	
 }

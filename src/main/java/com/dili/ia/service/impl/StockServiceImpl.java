@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements StockService {
+    private final static Logger LOG = LoggerFactory.getLogger(StockServiceImpl.class);
 
 	@Autowired
 	private StockRecordService stockRecordService;
@@ -52,9 +55,8 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 	@Override
 	@Transactional
 	public void inStock(List<StockInDetail> details,StockIn stockIn) {
-		// TODO Auto-generated method stub
 		if(CollectionUtils.isEmpty(details)) {
-			return;
+			throw new BusinessException(ResultCode.DATA_ERROR, "入库单详情为空");
 		}
 		for (StockInDetail stockInDetail : details) {
 			//根据customerId categoryId assetsId 获取唯一库存信息

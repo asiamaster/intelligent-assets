@@ -26,9 +26,9 @@ import com.dili.ss.exception.BusinessException;
  */
 @RestController
 @RequestMapping("/api/stockIn")
-public class StockApi {
+public class StockInApi {
 	
-    private final static Logger LOG = LoggerFactory.getLogger(StockApi.class);
+    private final static Logger LOG = LoggerFactory.getLogger(StockInApi.class);
 
 	@Autowired
 	private StockInService stockInService;

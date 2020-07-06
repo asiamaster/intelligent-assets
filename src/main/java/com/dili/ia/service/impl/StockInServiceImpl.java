@@ -13,6 +13,8 @@ import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
 import com.dili.ia.domain.dto.StockWeighmanRecordDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto.StockInPrintItemDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PayStateEnum;
@@ -44,6 +46,7 @@ import com.dili.uap.sdk.session.SessionContext;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -90,7 +93,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
     
-    private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/earnestOrder/settlementDealHandler";
+    private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/stock/stockIn/settlementDealHandler";
 	
     public StockInMapper getActualDao() {
         return (StockInMapper)getDao();
@@ -247,7 +250,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		domain.setSubmitterId(userTicket.getId());
 		domain.setSubmitter(userTicket.getRealName());
 		domain.setPaymentOrderCode(paymentOrder.getCode());
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED);
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED_PAY);
 		//
 		// 调用结算接口,缴费
 		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, paymentOrder.getCode(), paymentOrder.getAmount());
@@ -322,7 +325,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	public void withdraw(String code) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
-		if(stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
+		if(stockIn.getState() != StockInStateEnum.SUBMITTED_PAY.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		StockIn domain = new StockIn(userTicket);
@@ -345,6 +348,21 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
+		RefundOrder refundOrder = buildRefundOrderDto(userTicket, stockInRefundDto, stockIn);
+		//BaseOutput out = refundOrderService.doSubmitDispatcher(refundOrder);
+		//SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, refundOrder.getCode(), refundOrder.getPayeeAmount());
+		//settlementRpcResolver.submit(settleOrderDto);
+		refundOrderService.doSubmitDispatcher(refundOrder);
+	}
+	
+	@Override
+	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
+		String code = refundOrder.getBusinessCode();
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		StockIn stockIn = getStockInByCode(code);
+		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+		}
 		StockIn domain = new StockIn(userTicket);
 		//domain.setWithdrawOperator(userTicket.getRealName());
 		//domain.setWithdrawOperatorId(userTicket.getId());
@@ -353,12 +371,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		details.forEach(detail -> {
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), "退款businessCode");
 		});
-		RefundOrder refundOrder = buildRefundOrderDto(userTicket, stockInRefundDto, stockIn);
-		//BaseOutput out = refundOrderService.doSubmitDispatcher(refundOrder);
-		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, refundOrder.getCode(), refundOrder.getPayeeAmount());
-		settlementRpcResolver.submit(settleOrderDto);
 	}
-
+	
 	@Override
 	public String listPageAction(StockInQueryDto stockIn) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -390,7 +404,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	}
 	
 	private RefundOrder buildRefundOrderDto(UserTicket userTicket, StockInRefundDto stockInRefundDto, StockIn stockIn) {
-		// TODO 退款单
+		//退款单
 		RefundOrder refundOrder = DTOUtils.newInstance(RefundOrder.class);
 		refundOrder.setBusinessCode(stockIn.getCode());
 		refundOrder.setBusinessId(stockIn.getId());
@@ -414,7 +428,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	public void settlementDealHandler(SettleOrder settleOrder) {
 		String code = settleOrder.getBusinessCode();
 		StockIn stockIn = getStockInByCode(code);
-		if (stockIn.getState() != StockInStateEnum.SUBMITTED.getCode()) {
+		if (stockIn.getState() != StockInStateEnum.SUBMITTED_PAY.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		// 获取缴费单
@@ -424,7 +438,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		paymentOrder.setSettlementCode(settleOrder.getCode());
 		paymentOrder.setSettlementOperator(settleOrder.getOperatorName());
 		paymentOrder.setSettlementWay(settleOrder.getWay());
-		// TODO 变更缴费单状态
+		// 变更缴费单状态
 		paymentOrderService.updateSelective(paymentOrder);
 		// paymentOrder.setIsSettle();
 		StockIn domain = new StockIn();
@@ -437,8 +451,32 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 
 	@Override
 	public PrintDataDto<Map<String, Object>> receiptData(String orderCode, Integer reprint) {
-		// TODO Auto-generated method stub
+		PaymentOrder paymentOrder = paymentOrderService.getByCode(orderCode);
+		if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
+		}
+		StockIn stockIn = getStockInByCode(paymentOrder.getBusinessCode());
+		StockInPrintDto stockInPrintDto = new StockInPrintDto();
+		//stockInPrintDto.set
+		stockInPrintDto.setBusinessType("businessType");
+		stockInPrintDto.setCardNo("");
+		stockInPrintDto.setCategoryName(stockIn.getCategoryName());
+		stockInPrintDto.setCustomerCellphone(stockIn.getCustomerCellphone());
+		stockInPrintDto.setCustomerName(stockIn.getCustomerName());
+		stockInPrintDto.setDepartmentName(stockIn.getDepartmentName());
+		stockInPrintDto.setPrintTime(LocalDate.now());
+		stockInPrintDto.setReprint("1");
+		stockInPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+		stockInPrintDto.setSubmitter("");
+		stockInPrintDto.setReviewer("");
+		stockInPrintDto.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
+		
+		
+		//StockInPrintItemDto stockInPrintItemDto = stockInPrintDto.getItemDto();
+		
 		return null;
 	}
+
+	
 	
 }

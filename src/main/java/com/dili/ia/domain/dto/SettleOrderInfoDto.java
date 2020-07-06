@@ -21,7 +21,7 @@ public class SettleOrderInfoDto extends SettleOrderDto{
 	
 	public SettleOrderInfoDto(UserTicket userTicket,BizTypeEnum bizType,SettleTypeEnum payType,SettleStateEnum stateEnum) {
 		super();
-		this.setBusinessType(bizType.getCode());
+		this.setBusinessType(Integer.valueOf(bizType.getCode()));
 		this.setMarketId(userTicket.getFirmId());
 		this.setMarketCode(userTicket.getFirmCode());
 		this.setSubmitterDepId(userTicket.getDepartmentId());
