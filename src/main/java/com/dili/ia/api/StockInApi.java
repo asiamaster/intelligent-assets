@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.ia.service.StockInService;
+import com.dili.ia.service.StockOutService;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
@@ -33,6 +34,9 @@ public class StockInApi {
 	@Autowired
 	private StockInService stockInService;
 	
+	@Autowired
+	private StockOutService stockOutService;
+	
 	/**
      * 冷库结算成功回调
      * @param settleOrder
@@ -46,11 +50,49 @@ public class StockInApi {
             
             return BaseOutput.success();
         }catch (BusinessException e){
-            LOG.error("定金结算成功回调异常！", e);
+            LOG.error("冷库结算成功回调异常！", e);
             return BaseOutput.failure(e.getErrorMsg()).setData(false);
         }catch (Exception e){
-            LOG.error("定金结算成功回调异常！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            LOG.error("冷库结算成功回调异常！", e);
+            return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
+        }
+    }
+    
+    /**
+     * 冷库结算票据打印
+     * @param settleOrder
+     * @return
+     */
+    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, Integer reprint){
+        try{
+            return BaseOutput.success().setData(stockInService.receiptPaymentData(orderCode, reprint));
+        }catch (BusinessException e){
+            LOG.error("冷库结算票据打印异常！", e);
+            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+        }catch (Exception e){
+            LOG.error("冷库结算票据打印异常！", e);
+            return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
+        }
+    }
+    
+    /**
+     * 冷库结算票据打印
+     * @param settleOrder
+     * @return
+     */
+    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/queryPrintData/stock_out", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput<Boolean> queryStockOutPrintData(String orderCode, Integer reprint){
+        try{
+            return BaseOutput.success().setData(stockOutService.receiptStockOutData(orderCode, reprint));
+        }catch (BusinessException e){
+            LOG.error("冷库出库票据打印异常！", e);
+            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+        }catch (Exception e){
+            LOG.error("冷库出库票据打印异常！", e);
+            return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
         }
     }
     

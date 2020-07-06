@@ -18,7 +18,7 @@ public class StockInPrintDto {
 	// 补打标记
 	private String reprint;
 	// 订单编号
-	private String leaseOrderCode;
+	private String stockInCode;
 	// 业务类型
 	private String businessType;
 	// 客户名称
@@ -46,7 +46,7 @@ public class StockInPrintDto {
 	// 复核人
 	private String reviewer;
 	// 订单项
-	private List<StockInPrintItemDto> leaseOrderItems;
+	private List<StockInPrintItemDto> stockInItems;
 
 	public LocalDate getPrintTime() {
 		return printTime;
@@ -64,12 +64,12 @@ public class StockInPrintDto {
 		this.reprint = reprint;
 	}
 
-	public String getLeaseOrderCode() {
-		return leaseOrderCode;
+	public String getStockInCode() {
+		return stockInCode;
 	}
 
-	public void setLeaseOrderCode(String leaseOrderCode) {
-		this.leaseOrderCode = leaseOrderCode;
+	public void setStockInCode(String stockInCode) {
+		this.stockInCode = stockInCode;
 	}
 
 	public String getBusinessType() {
@@ -176,135 +176,14 @@ public class StockInPrintDto {
 		this.reviewer = reviewer;
 	}
 
-	public List<StockInPrintItemDto> getLeaseOrderItems() {
-		return leaseOrderItems;
+	public List<StockInPrintItemDto> getStockInItems() {
+		return stockInItems;
 	}
 
-	public void setLeaseOrderItems(List<StockInPrintItemDto> leaseOrderItems) {
-		this.leaseOrderItems = leaseOrderItems;
+	public void setStockInItems(List<StockInPrintItemDto> stockInItems) {
+		this.stockInItems = stockInItems;
 	}
 
-	public StockInPrintItemDto getItemDto() {
-		return new StockInPrintItemDto();
-	}
+	
 
-	public class StockInPrintItemDto {
-		// 冷库编号
-		private String assetsCode;
-		// 入库方式
-		private String stockInType;
-		// 单价
-		private String unitPrice;
-		// 件数
-		private String quantity;
-		// 净重
-		private String weight;
-		// 付款方式
-		private String payWay;
-		// 代缴人
-		private String proxyPayer;
-		// 汽车编号
-		private String carPlate;
-		// 汽车类型
-		private String carTypePublicCode;
-		// 入库时间
-		@JSONField(format = "yyyy-MM-dd")
-		@JsonFormat(pattern = "yyyy-MM-dd")
-		@DateTimeFormat(pattern = "yyyy-MM-dd")
-		private LocalDate stockInDate;
-
-		@JSONField(format = "yyyy-MM-dd")
-		@JsonFormat(pattern = "yyyy-MM-dd")
-		@DateTimeFormat(pattern = "yyyy-MM-dd")
-		private LocalDate expireDate;
-
-		public String getAssetsCode() {
-			return assetsCode;
-		}
-
-		public void setAssetsCode(String assetsCode) {
-			this.assetsCode = assetsCode;
-		}
-
-		public String getStockInType() {
-			return stockInType;
-		}
-
-		public void setStockInType(String stockInType) {
-			this.stockInType = stockInType;
-		}
-
-		public String getUnitPrice() {
-			return unitPrice;
-		}
-
-		public void setUnitPrice(String unitPrice) {
-			this.unitPrice = unitPrice;
-		}
-
-		public String getQuantity() {
-			return quantity;
-		}
-
-		public void setQuantity(String quantity) {
-			this.quantity = quantity;
-		}
-
-		public String getWeight() {
-			return weight;
-		}
-
-		public void setWeight(String weight) {
-			this.weight = weight;
-		}
-
-		public String getPayWay() {
-			return payWay;
-		}
-
-		public void setPayWay(String payWay) {
-			this.payWay = payWay;
-		}
-
-		public String getProxyPayer() {
-			return proxyPayer;
-		}
-
-		public void setProxyPayer(String proxyPayer) {
-			this.proxyPayer = proxyPayer;
-		}
-
-		public LocalDate getStockInDate() {
-			return stockInDate;
-		}
-
-		public void setStockInDate(LocalDate stockInDate) {
-			this.stockInDate = stockInDate;
-		}
-
-		public LocalDate getExpireDate() {
-			return expireDate;
-		}
-
-		public void setExpireDate(LocalDate expireDate) {
-			this.expireDate = expireDate;
-		}
-
-		public String getCarPlate() {
-			return carPlate;
-		}
-
-		public void setCarPlate(String carPlate) {
-			this.carPlate = carPlate;
-		}
-
-		public String getCarTypePublicCode() {
-			return carTypePublicCode;
-		}
-
-		public void setCarTypePublicCode(String carTypePublicCode) {
-			this.carTypePublicCode = carTypePublicCode;
-		}
-
-	}
 }
