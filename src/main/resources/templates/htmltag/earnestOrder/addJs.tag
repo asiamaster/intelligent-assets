@@ -103,9 +103,12 @@
                     earnestOrderdetail[fieldName] = $(this).val();
                 }
             });
-            if (earnestOrderdetail != {}){
+            if (Object.keys(earnestOrderdetail).length) {
                 earnestOrderdetails.push(earnestOrderdetail);
             }
+            // if (earnestOrderdetail != {}){
+            //     earnestOrderdetails.push(earnestOrderdetail);
+            // }
         });
 
         $.extend(formData,{earnestOrderdetails});
@@ -140,6 +143,7 @@
             type: "POST",
             url: "${contextPath}/earnestOrder/doAdd.action",
             data: buildFormData(),
+            contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (ret) {
                 bui.loading.hide();
