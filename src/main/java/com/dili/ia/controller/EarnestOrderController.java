@@ -193,7 +193,7 @@ public class EarnestOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doUpdate(EarnestOrderListDto earnestOrder) {
+    public @ResponseBody BaseOutput doUpdate(@RequestBody EarnestOrderListDto earnestOrder) {
         if (null != earnestOrder.getEndTime()){
             LocalDateTime endTime = LocalDateTime.of(earnestOrder.getEndTime().getYear(), earnestOrder.getEndTime().getMonth(), earnestOrder.getEndTime().getDayOfMonth(), 23,59,59);
             earnestOrder.setEndTime(endTime);
