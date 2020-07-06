@@ -157,7 +157,7 @@ public class DepositOrder extends BaseDomain {
      * 关联订单业务类型
      */
     @Column(name = "`biz_type`")
-    private Integer bizType;
+    private String bizType;
 
     /**
      * （1：已创建 2：已取消 3：已提交 4：已交费5：已退款）
@@ -710,7 +710,7 @@ public class DepositOrder extends BaseDomain {
      */
     @FieldDef(label="关联订单业务类型")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Integer getBizType() {
+    public String getBizType() {
         return bizType;
     }
 
@@ -719,7 +719,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param bizType 关联订单业务类型
      */
-    public void setBizType(Integer bizType) {
+    public void setBizType(String bizType) {
         this.bizType = bizType;
     }
 
