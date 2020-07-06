@@ -19,7 +19,7 @@ import javax.persistence.Id;
  * 租赁期限
  * This file was generated on 2020-02-11 15:54:49.
  */
-@Table(name = "`lease_order`")
+@Table(name = "`assets_lease_order`")
 public interface LeaseOrder extends IBaseDomain, IMybatisForceParams {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
