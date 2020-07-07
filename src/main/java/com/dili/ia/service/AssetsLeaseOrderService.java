@@ -87,11 +87,10 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
 
     /**
      * 取消退款单回调处理
-     * @param leaseOrderId
      * @param leaseOrderItemId
      * @return
      */
-    BaseOutput cancelRefundOrderHandler(Long leaseOrderId,Long leaseOrderItemId);
+    BaseOutput cancelRefundOrderHandler(Long leaseOrderItemId);
 
     /**
      * 结算退款单成功回调处理

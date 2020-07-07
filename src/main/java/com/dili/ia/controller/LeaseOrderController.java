@@ -8,7 +8,10 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.domain.dto.LeaseRefundOrderDto;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
-import com.dili.ia.service.*;
+import com.dili.ia.service.DataAuthService;
+import com.dili.ia.service.LeaseOrderItemService;
+import com.dili.ia.service.LeaseOrderService;
+import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -21,7 +24,6 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.util.ExcelUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
@@ -35,11 +37,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -61,8 +63,6 @@ public class LeaseOrderController {
     BusinessLogRpc businessLogRpc;
     @Autowired
     DataAuthService dataAuthService;
-    @Autowired
-    LeaseOrderImportService leaseOrderImportService;
 
     /**
      * 跳转到LeaseOrder页面
@@ -84,59 +84,6 @@ public class LeaseOrderController {
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
         return "leaseOrder/index";
-    }
-
-    /**
-     * 跳转到LeaseOrder页面
-     * @param modelMap
-     * @return String
-     */
-    @RequestMapping(value="/importLeaseOrder.action", method = RequestMethod.GET)
-    public String importLeaseOrder(ModelMap modelMap) {
-        return "leaseOrder/importLeaseOrder";
-    }
-
-    /**
-     * 初始化老数据导入
-     * @param file
-     * @return
-     * @throws IOException
-     */
-    @RequestMapping(value = "/upload.action",method = RequestMethod.POST)
-    public String upload(@RequestParam MultipartFile file,@RequestParam Boolean isCheck,ModelMap modelMap) throws IOException {
-        InputStream is = file.getInputStream();
-        List<List<Map<String, Object>>> list = ExcelUtils.getSheetsDatas(is, 0);
-
-        List<Map<String, Object>> errorList = new ArrayList<>();
-        list.forEach(sheet->{
-            List<Map<String, Object>> firstSheet = sheet;
-            firstSheet.forEach(o -> {
-                try {
-                    leaseOrderImportService.importLeaseOrder(o,isCheck);
-                } catch (BusinessException e) {
-                    Map<String, Object> errorMap = new HashMap<>();
-                    errorMap.put("customerName",o.get("客户名称"));
-                    errorMap.put("cardNo",LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))));
-                    errorMap.put("boothName",o.get("摊位编号"));
-                    errorMap.put("depositAmount",o.get("保证金"));
-                    errorMap.put("errorInfo",e.getErrorMsg());
-                    errorList.add(errorMap);
-                    LOG.error(o.get("客户名称") + " " + LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))) +  " " + o.get("摊位编号")  + e.getErrorMsg());
-                } catch (Exception e) {
-                    Map<String, Object> errorMap = new HashMap<>();
-                    errorMap.put("customerName",o.get("客户名称"));
-                    errorMap.put("cardNo",LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))));
-                    errorMap.put("boothName",o.get("摊位编号"));
-                    errorMap.put("depositAmount",o.get("保证金"));
-                    errorMap.put("errorInfo",e.getMessage());
-                    errorList.add(errorMap);
-                    LOG.error(o.get("客户名称") + " " + LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))) +  " " + o.get("摊位编号")  + e.getMessage());
-                }
-            });
-        });
-
-        modelMap.put("errorList", errorList);
-        return "leaseOrder/importResult";
     }
 
     /**
