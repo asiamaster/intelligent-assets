@@ -1,5 +1,6 @@
 package com.dili.ia.domain.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -22,49 +23,49 @@ import com.dili.ss.domain.annotation.Operator;
 public class StockInQueryDto extends StockIn {
 	@Column(name = "`create_time`")
 	@Operator(Operator.GREAT_EQUAL_THAN)
-	private Date createdStart;
+	private LocalDateTime createdStart;
 	
 	@Column(name = "`create_time`")
 	@Operator(Operator.LITTLE_EQUAL_THAN)
-	private Date createdEnd;
+	private LocalDateTime createdEnd;
 	
 	@Column(name = "`expire_date`")
 	@Operator(Operator.GREAT_EQUAL_THAN)
-	private Date expireStart;
+	private LocalDateTime expireStart;
 	
 	@Column(name = "`expire_date`")
 	@Operator(Operator.LITTLE_EQUAL_THAN)
-	private Date expireEnd;
+	private LocalDateTime expireEnd;
 
-	public Date getCreatedStart() {
+	public LocalDateTime getCreatedStart() {
 		return createdStart;
 	}
 
-	public void setCreatedStart(Date createdStart) {
+	public void setCreatedStart(LocalDateTime createdStart) {
 		this.createdStart = createdStart;
 	}
 
-	public Date getCreatedEnd() {
+	public LocalDateTime getCreatedEnd() {
 		return createdEnd;
 	}
 
-	public void setCreatedEnd(Date createdEnd) {
+	public void setCreatedEnd(LocalDateTime createdEnd) {
 		this.createdEnd = createdEnd;
 	}
 
-	public Date getExpireStart() {
+	public LocalDateTime getExpireStart() {
 		return expireStart;
 	}
 
-	public void setExpireStart(Date expireStart) {
+	public void setExpireStart(LocalDateTime expireStart) {
 		this.expireStart = expireStart;
 	}
 
-	public Date getExpireEnd() {
+	public LocalDateTime getExpireEnd() {
 		return expireEnd;
 	}
 
-	public void setExpireEnd(Date expireEnd) {
+	public void setExpireEnd(LocalDateTime expireEnd) {
 		this.expireEnd = expireEnd;
 	}
 	

@@ -1,5 +1,6 @@
 package com.dili.ia.domain.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.apache.ibatis.io.ResolverUtil.IsA;
@@ -45,11 +46,11 @@ public class StockInDetailQueryDto extends BaseDomain{
 	
 	private String stockInCode;
 
-	private Date startDate;
+	private LocalDateTime startDate;
 	
-	private Date endDate;
+	private LocalDateTime endDate;
 	
-	private Date expireDate;
+	private LocalDateTime expireDate;
 	
 	private Long departmentId;
 
@@ -130,27 +131,27 @@ public class StockInDetailQueryDto extends BaseDomain{
 		this.stockInCode = stockInCode;
 	}
 
-	public Date getStartDate() {
+	public LocalDateTime getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
+	public void setStartDate(LocalDateTime startDate) {
 		this.startDate = startDate;
 	}
 
-	public Date getEndDate() {
+	public LocalDateTime getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
+	public void setEndDate(LocalDateTime endDate) {
 		this.endDate = endDate;
 	}
 
-	public Date getExpireDate() {
+	public LocalDateTime getExpireDate() {
 		return expireDate;
 	}
 
-	public void setExpireDate(Date expireDate) {
+	public void setExpireDate(LocalDateTime expireDate) {
 		this.expireDate = expireDate;
 	}
 

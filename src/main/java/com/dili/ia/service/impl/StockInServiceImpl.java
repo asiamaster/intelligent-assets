@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -114,7 +115,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockIn stockIn = new StockIn(userTicket);
 		BeanUtils.copyProperties(stockInDto, stockIn, "operatorId", "operatorName");
 		stockIn.setCode(UidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
-		stockIn.setCreateTime(new Date());
+		stockIn.setCreateTime(LocalDateTime.now());
 		stockIn.setState(StockInStateEnum.CREATED.getCode());
 		stockIn.setCreator(userTicket.getRealName());
 		stockIn.setCreatorId(userTicket.getId());
@@ -137,10 +138,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			BeanUtils.copyProperties(stockInDetailDto, detail);
 			detail.setCode(UidRpcResolver.bizNumber(stockIn.getMarketCode()+"_"+BizNumberTypeEnum.STOCK_IN_DETAIL_CODE.getCode()));
 			detail.setStockInCode(stockIn.getCode());
-			detail.setCreateTime(new Date());
+			detail.setCreateTime(LocalDateTime.now());
 			detail.setMarketId(stockIn.getMarketId());
 			detail.setMarketCode(stockIn.getMarketCode());
-			detail.setModifyTime(new Date());
+			detail.setModifyTime(LocalDateTime.now());
 			detail.setVersion(1);
 			totalWeight += stockInDetailDto.getWeight();
 			totalQuantity += stockInDetailDto.getQuantity();
@@ -478,7 +479,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setCustomerCellphone(stockIn.getCustomerCellphone());
 		stockInPrintDto.setCustomerName(stockIn.getCustomerName());
 		stockInPrintDto.setDepartmentName(stockIn.getDepartmentName());
-		stockInPrintDto.setPrintTime(LocalDate.now());
+		stockInPrintDto.setPrintTime(LocalDateTime.now());
 		stockInPrintDto.setReprint("1");
 		stockInPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
 		stockInPrintDto.setSubmitter("");

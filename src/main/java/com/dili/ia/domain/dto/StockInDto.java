@@ -1,5 +1,6 @@
 package com.dili.ia.domain.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class StockInDto {
     /**
      * 入库时间
      */
-    private Date stockInDate;
+    private LocalDateTime stockInDate;
 
     /**
      * 客户id
@@ -116,7 +117,7 @@ public class StockInDto {
     private Long amount;
     
     @NotNull
-    private Date expireDate;
+    private LocalDateTime expireDate;
     
     /**
      * 入库单详情(子单)
@@ -144,11 +145,11 @@ public class StockInDto {
 		this.code = code;
 	}
 
-	public Date getStockInDate() {
+	public LocalDateTime getStockInDate() {
 		return stockInDate;
 	}
 
-	public void setStockInDate(Date stockInDate) {
+	public void setStockInDate(LocalDateTime stockInDate) {
 		this.stockInDate = stockInDate;
 	}
 
@@ -320,11 +321,11 @@ public class StockInDto {
 		this.amount = amount;
 	}
 
-	public Date getExpireDate() {
+	public LocalDateTime getExpireDate() {
 		return expireDate;
 	}
 
-	public void setExpireDate(Date expireDate) {
+	public void setExpireDate(LocalDateTime expireDate) {
 		this.expireDate = expireDate;
 	}
 	

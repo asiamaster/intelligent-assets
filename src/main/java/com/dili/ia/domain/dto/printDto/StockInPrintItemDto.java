@@ -1,6 +1,7 @@
 package com.dili.ia.domain.dto.printDto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -40,12 +41,12 @@ public class StockInPrintItemDto {
 	@JSONField(format = "yyyy-MM-dd")
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private Date stockInDate;
+	private LocalDateTime stockInDate;
 
 	@JSONField(format = "yyyy-MM-dd")
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private Date expireDate;
+	private LocalDateTime expireDate;
 
 	public String getAssetsCode() {
 		return assetsCode;
@@ -103,19 +104,19 @@ public class StockInPrintItemDto {
 		this.proxyPayer = proxyPayer;
 	}
 
-	public Date getStockInDate() {
+	public LocalDateTime getStockInDate() {
 		return stockInDate;
 	}
 
-	public void setStockInDate(Date stockInDate) {
+	public void setStockInDate(LocalDateTime stockInDate) {
 		this.stockInDate = stockInDate;
 	}
 
-	public Date getExpireDate() {
+	public LocalDateTime getExpireDate() {
 		return expireDate;
 	}
 
-	public void setExpireDate(Date expireDate) {
+	public void setExpireDate(LocalDateTime expireDate) {
 		this.expireDate = expireDate;
 	}
 

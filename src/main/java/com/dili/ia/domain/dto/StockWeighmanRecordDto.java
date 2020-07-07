@@ -1,5 +1,6 @@
 package com.dili.ia.domain.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -34,7 +35,7 @@ public class StockWeighmanRecordDto {
     /**
      * 皮重时间
      */
-    private Date tareWeightDate;
+    private LocalDateTime tareWeightDate;
     
     /**
      * 毛重司磅员
@@ -90,11 +91,11 @@ public class StockWeighmanRecordDto {
 		this.tareWeight = tareWeight;
 	}
 
-	public Date getTareWeightDate() {
+	public LocalDateTime getTareWeightDate() {
 		return tareWeightDate;
 	}
 
-	public void setTareWeightDate(Date tareWeightDate) {
+	public void setTareWeightDate(LocalDateTime tareWeightDate) {
 		this.tareWeightDate = tareWeightDate;
 	}
 

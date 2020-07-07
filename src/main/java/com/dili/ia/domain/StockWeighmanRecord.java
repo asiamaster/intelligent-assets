@@ -4,6 +4,8 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -26,13 +28,13 @@ public class StockWeighmanRecord extends BaseDomain {
      * 创建时间
      */
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 毛重
@@ -44,7 +46,7 @@ public class StockWeighmanRecord extends BaseDomain {
      * 毛重时间
      */
     @Column(name = "`gross_weight_date`")
-    private Date grossWeightDate;
+    private LocalDateTime grossWeightDate;
 
     /**
      * 皮重
@@ -56,7 +58,7 @@ public class StockWeighmanRecord extends BaseDomain {
      * 皮重时间
      */
     @Column(name = "`tare_weight_date`")
-    private Date tareWeightDate;
+    private LocalDateTime tareWeightDate;
 
     /**
      * 净重
@@ -112,7 +114,7 @@ public class StockWeighmanRecord extends BaseDomain {
      */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = true)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -121,7 +123,7 @@ public class StockWeighmanRecord extends BaseDomain {
      *
      * @param createTime 创建时间
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -132,7 +134,7 @@ public class StockWeighmanRecord extends BaseDomain {
      */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = true)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -141,7 +143,7 @@ public class StockWeighmanRecord extends BaseDomain {
      *
      * @param modifyTime 修改时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -172,7 +174,7 @@ public class StockWeighmanRecord extends BaseDomain {
      */
     @FieldDef(label="毛重时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getGrossWeightDate() {
+    public LocalDateTime getGrossWeightDate() {
         return grossWeightDate;
     }
 
@@ -181,7 +183,7 @@ public class StockWeighmanRecord extends BaseDomain {
      *
      * @param grossWeightDate 毛重时间
      */
-    public void setGrossWeightDate(Date grossWeightDate) {
+    public void setGrossWeightDate(LocalDateTime grossWeightDate) {
         this.grossWeightDate = grossWeightDate;
     }
 
@@ -212,7 +214,7 @@ public class StockWeighmanRecord extends BaseDomain {
      */
     @FieldDef(label="皮重时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getTareWeightDate() {
+    public LocalDateTime getTareWeightDate() {
         return tareWeightDate;
     }
 
@@ -221,7 +223,7 @@ public class StockWeighmanRecord extends BaseDomain {
      *
      * @param tareWeightDate 皮重时间
      */
-    public void setTareWeightDate(Date tareWeightDate) {
+    public void setTareWeightDate(LocalDateTime tareWeightDate) {
         this.tareWeightDate = tareWeightDate;
     }
 
