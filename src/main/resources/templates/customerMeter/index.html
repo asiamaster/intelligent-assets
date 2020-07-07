@@ -30,7 +30,6 @@
                 <#resource code="unbindCustomerMeter">
                 <button id="btn_unbind" type="button" class="btn btn-primary" onclick="openUnbindHandler()"><i class="fa fa-pencil-square-o"></i> 解绑</button>
                 </#resource>
-                <button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
             </div>
             <table id="grid" data-toggle="table" data-title="表用户管理" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"
@@ -57,9 +56,6 @@
                     <th data-field="assetsName" data-sortable="true" data-align="center">
                         表地址
                     </th>
-<!--                    <th data-field="departmentName" data-sortable="true" data-align="center">-->
-<!--                        部门-->
-<!--                    </th>-->
                     <th data-field="notes" data-sortable="true" data-align="center" >
                         备注
                     </th>
