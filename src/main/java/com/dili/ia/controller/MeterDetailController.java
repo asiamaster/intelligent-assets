@@ -67,12 +67,13 @@ public class MeterDetailController {
      */
     @RequestMapping(value="/view.action", method = {RequestMethod.GET, RequestMethod.POST})
     public String view(ModelMap modelMap, Long id) {
-        MeterDetail meterDetail = null;
+        MeterDetailDto meterDetailDto = null;
+
         if (id != null) {
-            meterDetail = meterDetailService.getMeterDetailById(id);
+            meterDetailDto = meterDetailService.getMeterDetailById(id);
         }
-        logger.info(meterDetail.toString());
-        modelMap.put("meterDetail", meterDetail);
+        modelMap.put("meterDetail", meterDetailDto);
+
         return "meterDetail/view";
     }
 
@@ -87,7 +88,7 @@ public class MeterDetailController {
     public String update(ModelMap modelMap, Long id) {
         MeterDetail meterDetail = null;
         if (id != null) {
-            meterDetail = meterDetailService.get(id);
+            meterDetail = meterDetailService.getMeterDetailById(id);
         }
         logger.info(meterDetail.toString());
         modelMap.put("meterDetail", meterDetail);
@@ -122,7 +123,52 @@ public class MeterDetailController {
     }
 
     /**
-     * 修改 水电费单
+     * 提交水电费单(生缴费单和结算单)
+     *
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/7/6
+     */
+    @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput submit(@ModelAttribute MeterDetailDto meterDetailDto) {
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
+        return meterDetailService.submit(meterDetailDto, userTicket);
+    }
+
+    /**
+     * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)
+     *
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/7/6
+     */
+    @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput withdraw(@ModelAttribute MeterDetailDto meterDetailDto) {
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
+        return meterDetailService.withdraw(meterDetailDto, userTicket);
+    }
+
+    /**
+     * 取消水电费单
+     *
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/7/6
+     */
+    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput cancel(@ModelAttribute MeterDetailDto meterDetailDto) {
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
+        return meterDetailService.cancel(meterDetailDto, userTicket);
+    }
+
+    /**
+     * 修改水电费单
      * 
      * @param  meterDetailDto
      * @return 是否成功

@@ -38,19 +38,14 @@ public class MeterDetailDto extends MeterDetail {
     private String number;
 
     /**
+     * 对应编号,名称(类别)
+     */
+    private String assetsType;
+
+    /**
      * 对应编号,名称(表地址)
      */
     private String assetsName;
-
-    /**
-     * 部门
-     */
-    private String departmentName;
-
-    /**
-     * 部门 id
-     */
-    private Long departmentId;
 
     /**
      * 水电预存余额
@@ -92,6 +87,10 @@ public class MeterDetailDto extends MeterDetail {
      */
     private Long cope;
 
+    /**
+     * 业务记录
+     */
+
     public String getKeyword() {
         return keyword;
     }
@@ -116,28 +115,20 @@ public class MeterDetailDto extends MeterDetail {
         this.number = number;
     }
 
+    public String getAssetsType() {
+        return assetsType;
+    }
+
+    public void setAssetsType(String assetsType) {
+        this.assetsType = assetsType;
+    }
+
     public String getAssetsName() {
         return assetsName;
     }
 
     public void setAssetsName(String assetsName) {
         this.assetsName = assetsName;
-    }
-
-    public String getDepartmentName() {
-        return departmentName;
-    }
-
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
-    }
-
-    public Long getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(Long departmentId) {
-        this.departmentId = departmentId;
     }
 
     public Long getBalance() {

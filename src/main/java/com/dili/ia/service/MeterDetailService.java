@@ -1,7 +1,9 @@
 package com.dili.ia.service;
 
+import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
+import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
@@ -22,7 +24,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return MeterDetail
      * @date   2020/7/1
      */
-    MeterDetail getMeterDetailById(Long id);
+    MeterDetailDto getMeterDetailById(Long id);
 
     /**
      * 查询水电费单的集合(分页)
@@ -72,5 +74,39 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      */
     BaseOutput getLastAmount(Long meterId);
 
+    /**
+     * 提交水电费单(生缴费单和结算单)
+     *
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/7/6
+     */
+    BaseOutput submit(MeterDetailDto meterDetailDto, UserTicket userTicket);
 
+    /**
+     * 缴费回调
+     *
+     * @param  settleOrder
+     * @return
+     * @date   2020/7/6
+     */
+    BaseOutput<EarnestOrder> settlementDealHandler(SettleOrder settleOrder);
+
+    /**
+     * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)
+     *
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/7/6
+     */
+    BaseOutput withdraw(MeterDetailDto meterDetailDto, UserTicket userTicket);
+
+    /**
+     * 取消水电费单(取消缴费单和结算单,将水电费单修改为已创建)
+     *
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/7/6
+     */
+    BaseOutput cancel(MeterDetailDto meterDetailDto, UserTicket userTicket);
 }

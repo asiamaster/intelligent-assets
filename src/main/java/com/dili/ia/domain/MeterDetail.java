@@ -63,6 +63,24 @@ public class MeterDetail extends BaseDomain {
     private String customerName;
 
     /**
+     * 客户手机号
+     */
+    @Column(name = "`customer_cellphone`")
+    private String customerCellphone;
+
+    /**
+     * 部门
+     */
+    @Column(name = "`department_id`")
+    private Long departmentId;
+
+    /**
+     * 部门名称
+     */
+    @Column(name = "`department_name`")
+    private String departmentName;
+
+    /**
      * 抄表员ID
      */
     @Column(name = "`recorder_id`")
@@ -250,6 +268,32 @@ public class MeterDetail extends BaseDomain {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    @FieldDef(label="客户姓名", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getCustomerCellphone() {
+        return customerCellphone;
+    }
+
+    public void setCustomerCellphone(String customerCellphone) {
+        this.customerCellphone = customerCellphone;
+    }
+
+    @FieldDef(label="部门")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    @FieldDef(label="部门名称", maxLength = 100)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getDepartmentName() {
+        return departmentName;
     }
 
     @FieldDef(label="抄表员ID")
