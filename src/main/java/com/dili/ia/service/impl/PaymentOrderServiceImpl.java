@@ -35,7 +35,7 @@ public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long>
 
 	@Override
 	public PaymentOrder buildPaymentOrder(UserTicket userTicket) {
-		PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+		PaymentOrder paymentOrder = new PaymentOrder();
 		paymentOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
 		paymentOrder.setCreateTime(LocalDateTime.now());
 		paymentOrder.setCreator(userTicket.getUserName());
@@ -49,7 +49,7 @@ public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long>
 
 	@Override
 	public PaymentOrder getByCode(String code) {
-		PaymentOrder condtion = DTOUtils.newInstance(PaymentOrder.class);
+		PaymentOrder condtion = new PaymentOrder();
 		condtion.setCode(code);
 		List<PaymentOrder> paymentOrders = this.listByExample(condtion);
 		if (CollectionUtils.isEmpty(paymentOrders) || paymentOrders.size() != 1) {

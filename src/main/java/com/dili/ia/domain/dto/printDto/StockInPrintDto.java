@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class StockInPrintDto {
@@ -14,7 +15,7 @@ public class StockInPrintDto {
 	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDate printTime;
+	private LocalDateTime printTime;
 	// 补打标记
 	private String reprint;
 	// 订单编号
@@ -48,11 +49,11 @@ public class StockInPrintDto {
 	// 订单项
 	private List<StockInPrintItemDto> stockInItems;
 
-	public LocalDate getPrintTime() {
+	public LocalDateTime getPrintTime() {
 		return printTime;
 	}
 
-	public void setPrintTime(LocalDate printTime) {
+	public void setPrintTime(LocalDateTime printTime) {
 		this.printTime = printTime;
 	}
 

@@ -22,6 +22,7 @@ import com.dili.uap.sdk.session.SessionContext;
 
 import cn.hutool.core.bean.BeanUtil;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -180,8 +181,8 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		stockOut.setQuantity(quantity);
 		stockOut.setCreator(userTicket.getRealName());
 		stockOut.setCreatorId(userTicket.getId());
-		stockOut.setCreateTime(new Date());
-		stockOut.setStockOutDate(new Date());
+		stockOut.setCreateTime(LocalDateTime.now());
+		stockOut.setStockOutDate(LocalDateTime.now());
 		stockOut.setNotes(notes);
 		stockOutService.insertSelective(stockOut);
 		//出库流水记录
