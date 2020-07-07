@@ -23,6 +23,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -85,8 +86,8 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         meterDto.setDepartmentName(depOut.getData().getName());
         meterDto.setMarketId(userTicket.getFirmId());
         meterDto.setMarketCode(userTicket.getFirmCode());
-        meterDto.setCreateTime(new Date());
-        meterDto.setModifyTime(new Date());
+        meterDto.setCreateTime(LocalDateTime.now());
+        meterDto.setModifyTime(LocalDateTime.now());
         meterDto.setVersion(1);
 
         BeanUtils.copyProperties(meterDto, meter);
@@ -130,7 +131,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         }
 
         Meter meterInfo = this.get(meterDto.getId());
-        meterDto.setModifyTime(new Date());
+        meterDto.setModifyTime(LocalDateTime.now());
         meterDto.setVersion(meterInfo.getVersion() + 1);
 
         //修改操作

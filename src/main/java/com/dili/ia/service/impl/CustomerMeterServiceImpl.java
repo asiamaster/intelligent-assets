@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -104,8 +105,8 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         customerMeterDto.setCreatorDepId(userTicket.getDepartmentId());
         customerMeterDto.setMarketId(userTicket.getFirmId());
         customerMeterDto.setMarketCode(userTicket.getFirmCode());
-        customerMeterDto.setCreateTime(new Date());
-        customerMeterDto.setModifyTime(new Date());
+        customerMeterDto.setCreateTime(LocalDateTime.now());
+        customerMeterDto.setModifyTime(LocalDateTime.now());
         customerMeterDto.setVersion(1);
 
         BeanUtils.copyProperties(customerMeterDto, customerMeter);
@@ -143,7 +144,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
             return BaseOutput.failure("该表用户当前存在交费记录，不允许删除。");
         }
 
-        customerMeterDto.setModifyTime(new Date());
+        customerMeterDto.setModifyTime(LocalDateTime.now());
         customerMeterDto.setVersion(customerMeterInfo.getVersion() + 1);
 
         BeanUtils.copyProperties(customerMeterDto, customerMeter);
