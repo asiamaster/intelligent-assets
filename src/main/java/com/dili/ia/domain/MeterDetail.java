@@ -4,6 +4,10 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -23,14 +27,18 @@ public class MeterDetail extends BaseDomain {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 业务编号
@@ -47,8 +55,10 @@ public class MeterDetail extends BaseDomain {
     /**
      * 使用月份
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`usage_time`")
-    private Date usageTime;
+    private LocalDateTime usageTime;
 
     /**
      * 客户ID
@@ -143,8 +153,10 @@ public class MeterDetail extends BaseDomain {
     /**
      * 提交时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`submit_time`")
-    private Date submitTime;
+    private LocalDateTime submitTime;
 
     /**
      * 撤回人ID
@@ -200,23 +212,43 @@ public class MeterDetail extends BaseDomain {
     @Column(name = "`version`")
     private Integer version;
 
+    /**
+     * 获取创建时间
+     *
+     * @return create_time - 创建时间
+     */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    /**
+     * 设置创建时间
+     *
+     * @param createTime 创建时间
+     */
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
+    /**
+     * 获取修改时间
+     *
+     * @return modify_time - 修改时间
+     */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
-    public void setModifyTime(Date modifyTime) {
+    /**
+     * 设置修改时间
+     *
+     * @param modifyTime 修改时间
+     */
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -242,11 +274,11 @@ public class MeterDetail extends BaseDomain {
 
     @FieldDef(label="使用月份")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getUsageTime() {
+    public LocalDateTime getUsageTime() {
         return usageTime;
     }
 
-    public void setUsageTime(Date usageTime) {
+    public void setUsageTime(LocalDateTime usageTime) {
         this.usageTime = usageTime;
     }
 
@@ -398,11 +430,11 @@ public class MeterDetail extends BaseDomain {
 
     @FieldDef(label="提交时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getSubmitTime() {
+    public LocalDateTime getSubmitTime() {
         return submitTime;
     }
 
-    public void setSubmitTime(Date submitTime) {
+    public void setSubmitTime(LocalDateTime submitTime) {
         this.submitTime = submitTime;
     }
 

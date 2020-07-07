@@ -45,6 +45,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -130,8 +133,8 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         if (meterDetailDto.getUsageTime() != null) {
             // 获取使用月份的第一天和最后一天时间,用于数据库查询
             Map dateTimeMap = this.getStartTimeAndEndTime(meterDetailDto.getUsageTime());
-            meterDetailDto.setStartTime((Date) dateTimeMap.get("startTime"));
-            meterDetailDto.setEndTime((Date) dateTimeMap.get("endTime"));
+            meterDetailDto.setStartTime((LocalDateTime) dateTimeMap.get("startTime"));
+            meterDetailDto.setEndTime((LocalDateTime) dateTimeMap.get("endTime"));
         }
         List<MeterDetailDto> meterDetailDtooList= this.getActualDao().listMeterDetails(meterDetailDto);
 
@@ -213,7 +216,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailInfo.setState(MeterDetailStateEnum.SUBMITED.getCode());
         meterDetailInfo.setSubmitterId(userTicket.getId());
         meterDetailInfo.setSubmitter(userTicket.getRealName());
-        meterDetailInfo.setSubmitTime(new Date());
+        meterDetailInfo.setSubmitTime(LocalDateTime.now());
         if (this.updateSelective(meterDetailInfo) == 0) {
             logger.info("多人提交水电费单!");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -357,7 +360,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
         meterDetailInfo.setWithdrawOperatorId(userTicket.getId());
         meterDetailInfo.setWithdrawOperator(userTicket.getRealName());
-        meterDetailInfo.setModifyTime(new Date());
+        meterDetailInfo.setModifyTime(LocalDateTime.now());
         meterDetailInfo.setState(MeterDetailStateEnum.UNSUBMITED.getCode());
 
         // 撤销缴费单
@@ -390,7 +393,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
         meterDetailInfo.setCancelerId(userTicket.getId());
         meterDetailInfo.setCanceler(userTicket.getRealName());
-        meterDetailInfo.setModifyTime(new Date());
+        meterDetailInfo.setModifyTime(LocalDateTime.now());
         meterDetailInfo.setState(MeterDetailStateEnum.PAID.getCode());
         if (this.updateSelective(meterDetailInfo) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -450,7 +453,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         Long lastAmount = (Long) lastAmountReturn.getData();
 
         BeanUtils.copyProperties(meterDetailDto, meterDetailInfo);
-        meterDetailInfo.setModifyTime(new Date());
+        meterDetailInfo.setModifyTime(LocalDateTime.now());
         if (this.updateSelective(meterDetailInfo) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
@@ -466,13 +469,13 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @return 缴费集合
      * @date   2020/6/30
      */
-    private List<MeterDetailDto> listUnPayUnSubmitByMeter(Long meterId, Date usageTime) {
+    private List<MeterDetailDto> listUnPayUnSubmitByMeter(Long meterId, LocalDateTime usageTime) {
         MeterDetailDto meterDetailDto = new MeterDetailDto();
         // 获取使用月份的第一天和最后一天时间,用于数据库查询
         if (usageTime != null) {
             Map dateTimeMap = this.getStartTimeAndEndTime(usageTime);
-            meterDetailDto.setStartTime((Date) dateTimeMap.get("startTime"));
-            meterDetailDto.setEndTime((Date) dateTimeMap.get("endTime"));
+            meterDetailDto.setStartTime((LocalDateTime) dateTimeMap.get("startTime"));
+            meterDetailDto.setEndTime((LocalDateTime) dateTimeMap.get("endTime"));
         }
 
         // 未缴费
@@ -498,14 +501,17 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @return map
      * @date   2020/6/30
      */
-    private Map getStartTimeAndEndTime(Date usageTime) {
+    private Map getStartTimeAndEndTime(LocalDateTime usageTime) {
         Map dateTimeMap = new HashMap();
         if (StringUtils.isBlank(usageTime.toString())){
             return null;
         }
+        ZoneId zoneId = ZoneId.systemDefault();
+        ZonedDateTime zdt = usageTime.atZone(zoneId);
+        Date date = Date.from(zdt.toInstant());
 
         Calendar c = Calendar.getInstance();
-        c.setTime(usageTime);
+        c.setTime(date);
         // 将开始时间设置为第一天的0时0分0秒
         c.set(Calendar.DAY_OF_MONTH, 1);
         c.set(Calendar.HOUR_OF_DAY, 0);

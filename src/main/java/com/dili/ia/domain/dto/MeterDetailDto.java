@@ -12,6 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -65,12 +66,12 @@ public class MeterDetailDto extends MeterDetail {
     /**
      * 使用月份的第一天,用于查询
      */
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 使用月份的最后一天,用于查询
      */
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /**
      * 公摊费用
@@ -155,19 +156,19 @@ public class MeterDetailDto extends MeterDetail {
         this.status = status;
     }
 
-    public Date getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
