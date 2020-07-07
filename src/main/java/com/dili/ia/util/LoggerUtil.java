@@ -15,7 +15,9 @@ import org.apache.commons.lang.StringUtils;
  */
 public class LoggerUtil {
     public static void buildLoggerContext(Long businessId, String businessCode, Long operatorId, String operatorName, Long marketId, String notes){
-        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, businessCode);
+        if (StringUtils.isNotEmpty(businessCode)) {
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, businessCode);
+        }
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, businessId);
         LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
         LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, operatorName);
