@@ -85,7 +85,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         BeanUtils.copyProperties(meterDto, meter);
         this.insertSelective(meter);
 
-        return BaseOutput.success();
+        return BaseOutput.success().setData(meter);
     }
 
     /**
@@ -133,7 +133,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
             return BaseOutput.failure("当前数据正在被其他用户操作，提交失败！请关闭当前弹窗重新选择操作");
         }
 
-        return BaseOutput.success();
+        return BaseOutput.success().setData(meter);
     }
 
     /**
