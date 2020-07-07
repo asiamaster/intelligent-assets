@@ -41,6 +41,18 @@
                 <label for="">联系电话</label>
                 <input type="text" class="form-control" value="${depositOrder.customerCellphone!}" disabled />
             </div>
+            <div class="form-group col">
+                <label for="">保证金金额</label>
+                <input type="text" class="form-control" value="<#centToYuan value='${depositOrder.amount!}'/>" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="">已交金额</label>
+                <input type="text" class="form-control" value="<#centToYuan value='${depositOrder.paidAmount!}'/>" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="">待交金额</label>
+                <input type="text" class="form-control" value="<#centToYuan value='${depositOrder.waitAmount!}'/>" disabled />
+            </div>
             <div class="form-group col-6">
                 <label for="">备注</label>
                 <textarea class="form-control" name="notes" rows="1" disabled>${depositOrder.notes!}</textarea>
