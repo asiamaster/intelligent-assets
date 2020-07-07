@@ -6,7 +6,7 @@ import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
-import com.dili.ia.domain.dto.RefundOrderDto;
+import com.dili.ia.domain.dto.LeaseRefundOrderDto;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
 import com.dili.ia.service.*;
@@ -19,7 +19,6 @@ import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -99,7 +98,7 @@ public class AssetsLeaseOrderController {
         if(null != id) {
             leaseOrder = assetsLeaseOrderService.get(id);
         }else if(StringUtils.isNotBlank(orderCode)){
-            PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+            PaymentOrder paymentOrder = new PaymentOrder();
             paymentOrder.setCode(orderCode);
             leaseOrder = assetsLeaseOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
             id = leaseOrder.getId();
@@ -340,8 +339,8 @@ public class AssetsLeaseOrderController {
      * @return BaseOutput
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${totalRefundAmountFormatStr}",operationType="refundApply",systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/createRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
+    @RequestMapping(value="/createRefundOrder.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput createRefundOrder(@RequestBody LeaseRefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");

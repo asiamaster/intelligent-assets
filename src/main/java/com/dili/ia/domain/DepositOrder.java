@@ -4,6 +4,10 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -22,14 +26,18 @@ public class DepositOrder extends BaseDomain {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 业务编号
@@ -149,7 +157,7 @@ public class DepositOrder extends BaseDomain {
      * 关联订单业务类型
      */
     @Column(name = "`biz_type`")
-    private Integer bizType;
+    private String bizType;
 
     /**
      * （1：已创建 2：已取消 3：已提交 4：已交费5：已退款）
@@ -209,7 +217,7 @@ public class DepositOrder extends BaseDomain {
      * 提交时间
      */
     @Column(name = "`submit_time`")
-    private Date submitTime;
+    private LocalDateTime submitTime;
 
     /**
      * 撤回人ID
@@ -282,7 +290,7 @@ public class DepositOrder extends BaseDomain {
      */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -291,7 +299,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param createTime 创建时间
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -302,7 +310,7 @@ public class DepositOrder extends BaseDomain {
      */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -311,7 +319,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param modifyTime 修改时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -702,7 +710,7 @@ public class DepositOrder extends BaseDomain {
      */
     @FieldDef(label="关联订单业务类型")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Integer getBizType() {
+    public String getBizType() {
         return bizType;
     }
 
@@ -711,7 +719,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param bizType 关联订单业务类型
      */
-    public void setBizType(Integer bizType) {
+    public void setBizType(String bizType) {
         this.bizType = bizType;
     }
 
@@ -902,7 +910,7 @@ public class DepositOrder extends BaseDomain {
      */
     @FieldDef(label="提交时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getSubmitTime() {
+    public LocalDateTime getSubmitTime() {
         return submitTime;
     }
 
@@ -911,7 +919,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param submitTime 提交时间
      */
-    public void setSubmitTime(Date submitTime) {
+    public void setSubmitTime(LocalDateTime submitTime) {
         this.submitTime = submitTime;
     }
 

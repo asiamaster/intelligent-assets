@@ -103,13 +103,16 @@
                     earnestOrderdetail[fieldName] = $(this).val();
                 }
             });
-            if (earnestOrderdetail != {}){
+            if (Object.keys(earnestOrderdetail).length) {
                 earnestOrderdetails.push(earnestOrderdetail);
             }
+            // if (earnestOrderdetail != {}){
+            //     earnestOrderdetails.push(earnestOrderdetail);
+            // }
         });
 
         $.extend(formData,{earnestOrderdetails});
-        return formData;
+        return JSON.stringify(formData);
     }
 
     // 提交保存
@@ -140,13 +143,15 @@
             type: "POST",
             url: "${contextPath}/earnestOrder/doAdd.action",
             data: buildFormData(),
+            contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (ret) {
+                debugger
                 bui.loading.hide();
-                if(!ret.success){
+                if(ret.code != '200'){
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
-                    parent.closeDialog(parent.dia);
+                    parent.dia.hide();
                 }
             },
             error: function (error) {

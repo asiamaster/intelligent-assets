@@ -23,9 +23,7 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -206,7 +204,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     private void deleteEarnestOrderDetailByEarnestOrderId(Long earnestOrderId){
-        EarnestOrderDetail eod = DTOUtils.newDTO(EarnestOrderDetail.class);
+        EarnestOrderDetail eod = new EarnestOrderDetail();
         eod.setEarnestOrderId(earnestOrderId);
         List<EarnestOrderDetail> eodlist = earnestOrderDetailService.list(eod);
         if (CollectionUtils.isNotEmpty(eodlist)){
@@ -234,7 +232,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setDepartmentId(dto.getDepartmentId());
         earnestOrder.setAmount(dto.getAmount());
         earnestOrder.setNotes(dto.getNotes());
-        earnestOrder.setModifyTime(new Date());
+        earnestOrder.setModifyTime(LocalDateTime.now());
         earnestOrder.setVersion(dto.getVersion());
 
         return earnestOrder;
@@ -254,7 +252,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         //检查客户状态
         checkCustomerState(ea.getCustomerId(),userTicket.getFirmId());
-        EarnestOrderDetail query = DTOUtils.newInstance(EarnestOrderDetail.class);
+        EarnestOrderDetail query = new EarnestOrderDetail();
         query.setEarnestOrderId(ea.getId());
         List<EarnestOrderDetail> detailList = earnestOrderDetailService.listByExample(query);
         if (CollectionUtils.isNotEmpty(detailList)){
@@ -269,7 +267,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setState(EarnestOrderStateEnum.SUBMITTED.getCode());
         ea.setSubmitterId(userTicket.getId());
         ea.setSubmitter(userTicket.getRealName());
-        ea.setSubDate(new Date());
+        ea.setSubDate(LocalDateTime.now());
         if (this.updateSelective(ea) == 0) {
             LOG.info("提交定金【修改定金单状态】失败 ,乐观锁生效！【定金单ID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -320,7 +318,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, EarnestOrder earnestOrder){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(earnestOrder.getAmount());
         pb.setBusinessId(earnestOrder.getId());
@@ -336,7 +334,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
@@ -389,7 +387,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (null == settleOrder){
             return BaseOutput.failure("回调参数为空！");
         }
-        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder condition = new PaymentOrder();
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
         condition.setBizType(BizTypeEnum.EARNEST.getCode());
@@ -404,7 +402,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         //缴费单数据更新
         paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
-        paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
+        paymentOrderPO.setPayedTime(settleOrder.getOperateTime());
         paymentOrderPO.setSettlementCode(settleOrder.getCode());
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
@@ -431,7 +429,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
-        PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder paymentOrderCondition = new PaymentOrder();
         paymentOrderCondition.setCode(orderCode);
         paymentOrderCondition.setBizType(BizTypeEnum.EARNEST.getCode());
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
@@ -444,7 +442,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
         EarnestOrder earnestOrder = get(paymentOrder.getBusinessId());
         EarnestOrderPrintDto earnestOrderPrintDto = new EarnestOrderPrintDto();
-        earnestOrderPrintDto.setPrintTime(new Date());
+        earnestOrderPrintDto.setPrintTime(LocalDateTime.now());
         earnestOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         earnestOrderPrintDto.setCode(earnestOrder.getCode());
         earnestOrderPrintDto.setCustomerName(earnestOrder.getCustomerName());
@@ -458,7 +456,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrderPrintDto.setSubmitter(paymentOrder.getCreator());
         earnestOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
 
-        EarnestOrderDetail earnestOrderDetail = DTOUtils.newInstance(EarnestOrderDetail.class);
+        EarnestOrderDetail earnestOrderDetail = new EarnestOrderDetail();
         earnestOrderDetail.setEarnestOrderId(earnestOrder.getId());
         StringBuffer assetsItems = new StringBuffer();
         earnestOrderDetailService.list(earnestOrderDetail).forEach(o -> {

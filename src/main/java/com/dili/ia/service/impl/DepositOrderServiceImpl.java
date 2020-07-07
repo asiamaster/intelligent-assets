@@ -4,7 +4,6 @@ import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
-import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.glossary.*;
@@ -26,14 +25,13 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +40,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -81,20 +80,18 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<DepositOrder> addDepositOrder(DepositOrderQuery depositOrder) {
+    public BaseOutput<DepositOrder> addDepositOrder(DepositOrder depositOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if(null == userTicket){
             return BaseOutput.failure("未登录");
         }
         //检查客户状态
         checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
-        if(depositOrder.getAssetsId() != null){
-//            if (depositOrderListDto.getAssetsType().equals(AssetsTypeEnum.BOOTH.getTypeCode())){
-                //检查摊位状态
-                checkBoothState(depositOrder.getAssetsId());
-//            }
-            // @TODO 检查冷库，公寓状态
+        //检查摊位状态 @TODO 检查公寓，冷库状态
+        if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType())){
+            checkBoothState(depositOrder.getAssetsId());
         }
+
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
@@ -206,7 +203,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setDepartmentId(dto.getDepartmentId());
         depositOrder.setAmount(dto.getAmount());
         depositOrder.setNotes(dto.getNotes());
-        depositOrder.setModifyTime(new Date());
+        depositOrder.setModifyTime(LocalDateTime.now());
         depositOrder.setVersion(dto.getVersion());
 
         return depositOrder;
@@ -226,12 +223,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //检查客户状态
         checkCustomerState(de.getCustomerId(),de.getMarketId());
-//        if (CollectionUtils.isNotEmpty(detailList)){
-//            detailList.forEach(o->{
-//                //检查摊位状态
-//                checkBoothState(o.getAssetsId());
-//            });
-//        }
+        //检查摊位状态 @TODO 检查公寓，冷库状态
+        if(AssetsTypeEnum.BOOTH.getCode().equals(de.getAssetsType())){
+            checkBoothState(de.getAssetsId());
+        }
         //检查是否可以进行提交付款
         checkSubmitPayment(id, amount, waitAmount, de);
         //首次提交更改状态为 -- > 已提交
@@ -262,7 +257,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, DepositOrder depositOrder, Long paidAmount){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(paidAmount);
         pb.setBusinessId(depositOrder.getId());
@@ -372,6 +367,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * @param payingOrder
      */
     public void withdrawPaymentOrder(PaymentOrder payingOrder) {
+        if (null == payingOrder) {
+            LOG.info("没有查询到付款单PaymentOrder");
+            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到付款单！");
+        }
         if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
             String paymentCode = payingOrder.getCode();
             BaseOutput output = settlementRpc.cancel(settlementAppId,paymentCode);
@@ -389,17 +388,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     private PaymentOrder findPaymentOrder(Long marketId, Integer state, Long businessId, String businessCode){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
         pb.setMarketId(marketId);
         pb.setState(state);
         PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
-        if (null == order) {
-            LOG.info("没有查询到付款单PaymentOrder【业务单businessId：{}】 【业务单businessCode:{}】", businessId, businessCode);
-            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到付款单！");
-        }
         return order;
     }
 
@@ -441,7 +436,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (null == settleOrder){
             return BaseOutput.failure("回调参数为空！");
         }
-        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder condition = new PaymentOrder();
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
         condition.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
@@ -463,7 +458,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
         //缴费单数据更新
         paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
-        paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
+        paymentOrderPO.setPayedTime(settleOrder.getOperateTime());
         paymentOrderPO.setSettlementCode(settleOrder.getCode());
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
@@ -522,7 +517,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
-        PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder paymentOrderCondition = new PaymentOrder();
         paymentOrderCondition.setCode(orderCode);
         paymentOrderCondition.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
@@ -536,7 +531,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         DepositOrder depositOrder = get(paymentOrder.getBusinessId());
 
         DepositOrderPrintDto depositOrderPrintDto = new DepositOrderPrintDto();
-        depositOrderPrintDto.setPrintTime(new Date());
+        depositOrderPrintDto.setPrintTime(LocalDateTime.now());
         depositOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         depositOrderPrintDto.setCode(depositOrder.getCode());
         depositOrderPrintDto.setCustomerName(depositOrder.getCustomerName());
@@ -602,5 +597,91 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Override
     public Long sumBalance(DepositOrder depositOrder) {
         return this.getActualDao().sumBalance(depositOrder);
+    }
+
+
+    @Override
+    public BaseOutput batchAddDepositOrder(List<DepositOrder> depositOrderList) {
+        if (CollectionUtils.isEmpty(depositOrderList)){
+            return BaseOutput.success();
+        }
+        depositOrderList.stream().forEach(o ->{
+            o.setIsRelated(YesOrNoEnum.YES.getCode());
+            this.addDepositOrder(o);
+
+        });
+        return BaseOutput.success();
+    }
+
+    @Override
+    public BaseOutput batchSubmitDepositOrder(String bizType, Map<Long, Long> map) {
+        if (map == null){
+            return BaseOutput.success();
+        }
+        if (bizType == null){
+            return BaseOutput.failure("参数bizType 不能为空！");
+        }
+        map.forEach((key, value) -> {
+            DepositOrder depositOrder = this.queryDepositOrder(bizType, key);
+            if (depositOrder != null){
+                this.submitDepositOrder(depositOrder.getId(), value, depositOrder.getWaitAmount());
+            }
+        });
+        return BaseOutput.success();
+    }
+
+    private DepositOrder queryDepositOrder(String bizType, Long businessId){
+        DepositOrder query = new DepositOrder();
+        query.setBizType(bizType);
+        query.setBusinessId(businessId);
+        query.setIsRelated(YesOrNoEnum.YES.getCode());
+        List<DepositOrder> list = this.listByExample(query);
+        return list.stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public BaseOutput batchWithdrawDepositOrder(String bizType, List<Long> businessIds) {
+        if (CollectionUtils.isEmpty(businessIds)){
+            return BaseOutput.success();
+        }
+        if (bizType == null){
+            return BaseOutput.failure("参数bizType 不能为空！");
+        }
+        businessIds.stream().forEach(o -> {
+            DepositOrder depositOrder = this.queryDepositOrder(bizType, o);
+            if (depositOrder != null){
+                this.withdrawDepositOrder(depositOrder.getId());
+            }
+        });
+        return BaseOutput.success();
+    }
+
+    @Override
+    public BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds) {
+        if (bizType == null){
+            return BaseOutput.failure("参数bizType 不能为空！");
+        }
+        if (customerId == null){
+            return BaseOutput.failure("参数customerId 不能为空！");
+        }
+        if (CollectionUtils.isEmpty(assetsIds)){
+            return BaseOutput.success();
+        }
+        List<DepositBalance> list = new ArrayList<>();
+        assetsIds.stream().forEach(o -> {
+            DepositBalance depositBalance = this.queryDepositBalance(customerId, o);
+            if (depositBalance != null){
+                list.add(depositBalance);
+            }
+        });
+
+        return BaseOutput.success().setData(list);
+    }
+
+    private DepositBalance queryDepositBalance(Long customerId, Long assetsId){
+        DepositBalance depositBalance = new DepositBalance();
+        depositBalance.setCustomerId(customerId);
+        depositBalance.setAssetsId(assetsId);
+        return depositBalanceService.listByExample(depositBalance).stream().findFirst().orElse(null);
     }
 }

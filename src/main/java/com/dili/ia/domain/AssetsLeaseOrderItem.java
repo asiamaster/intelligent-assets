@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * 资产租赁订单项
  * This file was generated on 2020-05-29 14:40:05.
  */
-@Table(name = "`lease_order_item`")
+@Table(name = "`assets_lease_order_item`")
 public class AssetsLeaseOrderItem extends BaseDomain {
     @Id
     @Column(name = "`id`")
@@ -167,6 +167,19 @@ public class AssetsLeaseOrderItem extends BaseDomain {
      */
     @Column(name = "`total_amount`")
     private Long totalAmount;
+
+
+    /**
+     * 已付金额
+     */
+    @Column(name = "`paid_amount`")
+    private Long paidAmount;
+
+    /**
+     * 待付金额
+     */
+    @Column(name = "`wait_amount`")
+    private Long waitAmount;
 
     /**
      * 1:待申请 2：退款中 3：已退款
@@ -421,6 +434,22 @@ public class AssetsLeaseOrderItem extends BaseDomain {
 
     public void setTotalAmount(Long totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public Long getPaidAmount() {
+        return paidAmount;
+    }
+
+    public void setPaidAmount(Long paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+
+    public Long getWaitAmount() {
+        return waitAmount;
+    }
+
+    public void setWaitAmount(Long waitAmount) {
+        this.waitAmount = waitAmount;
     }
 
     public Integer getRefundState() {

@@ -15,7 +15,6 @@ import com.dili.ia.util.LoggerUtil;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -143,7 +142,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
      * @param leaseOrderItemOld
      */
     private void stopRentCascadeLeaseOrderState(AssetsLeaseOrderItem leaseOrderItemOld) {
-        AssetsLeaseOrderItem condition = DTOUtils.newInstance(AssetsLeaseOrderItem.class);
+        AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
         condition.setLeaseOrderId(leaseOrderItemOld.getLeaseOrderId());
         List<AssetsLeaseOrderItem> leaseOrderItems = list(condition);
 

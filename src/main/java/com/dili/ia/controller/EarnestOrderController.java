@@ -19,7 +19,6 @@ import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -30,13 +29,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,15 +66,9 @@ public class EarnestOrderController {
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
-        Calendar c = Calendar.getInstance();
-        c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-        c.add(Calendar.DAY_OF_MONTH, -2);
-        Date createdStart = c.getTime();
-
-        Calendar ce = Calendar.getInstance();
-        ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
-        Date  createdEnd = ce.getTime();
-
+        LocalDateTime nowTime = LocalDateTime.now();
+        LocalDateTime createdStart = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() -2 , 0, 0 ,0);
+        LocalDateTime createdEnd = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() , 23, 59 ,59);
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
         return "earnestOrder/index";
@@ -101,13 +94,13 @@ public class EarnestOrderController {
         if(null != id) {
             earnestOrder = earnestOrderService.get(id);
         }else if(StringUtils.isNotBlank(orderCode)){
-            PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+            PaymentOrder paymentOrder = new PaymentOrder();
             paymentOrder.setCode(orderCode);
             paymentOrder.setBizType(BizTypeEnum.EARNEST.getCode());
             earnestOrder = earnestOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
             id = earnestOrder.getId();
         }
-            EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
+            EarnestOrderDetail condition = new EarnestOrderDetail();
             condition.setEarnestOrderId(id);
             List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
             modelMap.put("earnestOrder",earnestOrder);
@@ -135,7 +128,7 @@ public class EarnestOrderController {
     public String update(ModelMap modelMap, Long id) {
         if(null != id){
             EarnestOrder earnestOrder = earnestOrderService.get(id);
-            EarnestOrderDetail condition = DTOUtils.newInstance(EarnestOrderDetail.class);
+            EarnestOrderDetail condition = new EarnestOrderDetail();
             condition.setEarnestOrderId(id);
             List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
             modelMap.put("earnestOrder",earnestOrder);
@@ -170,14 +163,10 @@ public class EarnestOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput doAdd(EarnestOrderListDto earnestOrder) {
+    public @ResponseBody BaseOutput doAdd(@RequestBody EarnestOrderListDto earnestOrder) {
         if (null != earnestOrder.getEndTime()){
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(earnestOrder.getEndTime());
-            calendar.add(Calendar.HOUR_OF_DAY,23);
-            calendar.add(Calendar.MINUTE,59);
-            calendar.add(Calendar.SECOND,59);
-            earnestOrder.setEndTime(calendar.getTime());
+            LocalDateTime endTime = LocalDateTime.of(earnestOrder.getEndTime().getYear(), earnestOrder.getEndTime().getMonth(), earnestOrder.getEndTime().getDayOfMonth(), 23,59,59);
+            earnestOrder.setEndTime(endTime);
         }
         try{
             BaseOutput<EarnestOrder> output = earnestOrderService.addEarnestOrder(earnestOrder);
@@ -204,14 +193,10 @@ public class EarnestOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doUpdate(EarnestOrderListDto earnestOrder) {
+    public @ResponseBody BaseOutput doUpdate(@RequestBody EarnestOrderListDto earnestOrder) {
         if (null != earnestOrder.getEndTime()){
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(earnestOrder.getEndTime());
-            calendar.add(Calendar.HOUR_OF_DAY,23);
-            calendar.add(Calendar.MINUTE,59);
-            calendar.add(Calendar.SECOND,59);
-            earnestOrder.setEndTime(calendar.getTime());
+            LocalDateTime endTime = LocalDateTime.of(earnestOrder.getEndTime().getYear(), earnestOrder.getEndTime().getMonth(), earnestOrder.getEndTime().getDayOfMonth(), 23,59,59);
+            earnestOrder.setEndTime(endTime);
         }
         try{
            BaseOutput<EarnestOrder> output = earnestOrderService.updateEarnestOrder(earnestOrder);

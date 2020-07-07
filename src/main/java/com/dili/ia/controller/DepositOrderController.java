@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -64,14 +65,11 @@ public class DepositOrderController {
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
-        Calendar c = Calendar.getInstance();
-        c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-        c.add(Calendar.DAY_OF_MONTH, -2);
-        Date createdStart = c.getTime();
-
-        Calendar ce = Calendar.getInstance();
-        ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
-        Date  createdEnd = ce.getTime();
+        LocalDateTime nowTime = LocalDateTime.now();
+        LocalDateTime createdStart = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() -2 , 0, 0 ,0);
+        LocalDateTime createdEnd = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() , 23, 59 ,59);
+        modelMap.put("createdStart", createdStart);
+        modelMap.put("createdEnd", createdEnd);
 
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
@@ -94,43 +92,6 @@ public class DepositOrderController {
         depositOrderQuery.setMarketId(userTicket.getFirmId());
         depositOrderQuery.setDepartmentIds(departmentIdList);
         return depositOrderService.listEasyuiPageByExample(depositOrderQuery, true).toString();
-    }
-
-    /**
-     * 跳转到【保证金余额】页面
-     * @param modelMap
-     * @return String
-     */
-    @RequestMapping(value="/balanceList.html", method = RequestMethod.GET)
-    public String balanceList(ModelMap modelMap) {
-        return "depositOrder/balanceList";
-    }
-
-    /**
-     * 跳转到【保证金余额】页面
-     * @param depositOrder
-     * @return String
-     */
-    @RequestMapping(value="/balanceListPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String balanceListPage(DepositOrder depositOrder) throws Exception {
-        Integer total = depositOrderService.countBalanceList(depositOrder);
-        if (total < 1){
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
-        }
-        List<DepositOrder> results = depositOrderService.selectBalanceList(depositOrder);
-        List buildResults = ValueProviderUtils.buildDataByProvider(depositOrder, results);
-        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), buildResults).toString();
-    }
-
-    /**
-     * 计算【保证金余额】
-     * @param depositOrder
-     * @return String
-     */
-    @RequestMapping(value="/getTotalBalance.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<String> getTotalBalance(DepositOrder depositOrder){
-        Long totalBalance = depositOrderService.sumBalance(depositOrder);
-        return BaseOutput.success().setData(MoneyUtils.centToYuan(totalBalance));
     }
 
     /**
@@ -182,10 +143,10 @@ public class DepositOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput doAdd(DepositOrderQuery depositOrderQuery) {
+    public @ResponseBody BaseOutput doAdd(DepositOrder depositOrder) {
 
         try{
-            BaseOutput<DepositOrder> output = depositOrderService.addDepositOrder(depositOrderQuery);
+            BaseOutput<DepositOrder> output = depositOrderService.addDepositOrder(depositOrder);
             //写业务日志
             if (output.isSuccess()){
                 DepositOrder order = output.getData();
@@ -254,7 +215,7 @@ public class DepositOrderController {
         if(null != id) {
             depositOrder = depositOrderService.get(id);
         }else if(StringUtils.isNotBlank(orderCode)){
-            PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+            PaymentOrder paymentOrder = new PaymentOrder();
             paymentOrder.setCode(orderCode);
             paymentOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
             depositOrder = depositOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());

@@ -34,7 +34,7 @@
                             <div class="input-group">
                                 <input type="text" name="createdStart" id="createdStart"
                                     class="form-control date laydatetime laystart"
-                                    value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}" />
+                                    value="${createdStart!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
                                 <div class="input-group-append">
                                     <label for="createdStart" class="input-group-text fa fa-calendar"></label>
                                 </div>
@@ -42,7 +42,7 @@
                             <div class="input-group" id="datetimepicker3">
                                 <input type="text" name="createdEnd" id="createdEnd"
                                     class="form-control date laydatetime layend"
-                                    value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}" />
+                                    value="${createdEnd!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
                                 <div class="input-group-append">
                                     <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
                                 </div>
@@ -158,10 +158,10 @@
             <div class="col-12"><i class="red">提交后业务单信息不可改，并可进行缴费，确认提交？</i></div>
         </div>
         <div class="row">
-            <div class="col-2 col-form-label">
-                <label for="amount" class="justify-content-end w-100px">本期付款金额：</label>
+            <div class="col-auto col-form-label pr-0">
+                <label for="amount">本期付款金额：</label>
             </div>
-            <div class="col-8 ml-2">
+            <div class="col-8">
                 <input type="number" id="amount" name="amount" class="form-control floatReserve" value="{{waitAmount}}" min="{{minAmount}}" max="{{waitAmount}}" required/>
             </div>
         </div>

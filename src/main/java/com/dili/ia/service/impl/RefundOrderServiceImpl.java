@@ -184,7 +184,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //检查收款人客户状态
         checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
         refundOrder.setState(RefundOrderStateEnum.SUBMITTED.getCode());
-        refundOrder.setSubmitTime(new Date());
+        refundOrder.setSubmitTime(LocalDateTime.now());
         refundOrder.setSubmitterId(userTicket.getId());
         refundOrder.setSubmitter(userTicket.getRealName());
         if (refundOrderService.updateSelective(refundOrder) == 0){
@@ -312,7 +312,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @GlobalTransactional
     @Override
     public BaseOutput<RefundOrder> doRefundSuccessHandler(SettleOrder settleOrder) {
-        RefundOrder condition = DTOUtils.newInstance(RefundOrder.class);
+        RefundOrder condition = new RefundOrder();
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
         RefundOrder refundOrder = this.listByExample(condition).stream().findFirst().orElse(null);
@@ -350,7 +350,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
         try {
-            RefundOrder refundOrderCondition = DTOUtils.newDTO(RefundOrder.class);
+            RefundOrder refundOrderCondition = new RefundOrder();
             refundOrderCondition.setCode(orderCode);
             RefundOrder refundOrder = refundOrderService.list(refundOrderCondition).stream().findFirst().orElse(null);
             if (null == refundOrder){
@@ -388,7 +388,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
     private RefundOrderPrintDto buildCommonPrintDate(RefundOrder refundOrder, Integer reprint){
         RefundOrderPrintDto roPrintDto = new RefundOrderPrintDto();
-        roPrintDto.setPrintTime(new Date());
+        roPrintDto.setPrintTime(LocalDateTime.now());
         roPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         roPrintDto.setCode(refundOrder.getCode());
 

@@ -19,7 +19,7 @@ import javax.persistence.Id;
  * 租赁订单项
  * This file was generated on 2020-02-11 15:54:49.
  */
-@Table(name = "`lease_order_item`")
+@Table(name = "`assets_lease_order_item`")
 public interface LeaseOrderItem extends IBaseDomain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

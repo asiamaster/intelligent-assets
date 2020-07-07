@@ -37,7 +37,7 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
 
     @Override
     public TransactionDetails buildByConditions(Integer sceneType, String bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId, Long operaterId, String operatorName) {
-        TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
+        TransactionDetails tds = new TransactionDetails();
         BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
         if(!out.isSuccess()){
             LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());

@@ -4,7 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * <B>Description</B>
@@ -16,20 +16,17 @@ import java.util.Date;
  */
 public class DepositOrderPrintDto {
     //打印时间
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date printTime;
+    private LocalDateTime printTime;
     //开始日期
-    @JSONField(format = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date startTime;
+    private LocalDateTime startTime;
     //结束日期
-    @JSONField(format = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date endTime;
+    private LocalDateTime endTime;
 
     //补打标记
     private String reprint;
@@ -53,14 +50,6 @@ public class DepositOrderPrintDto {
     private String submitter;
     //摊位编号
     private String assetsItems;
-
-    public Date getPrintTime() {
-        return printTime;
-    }
-
-    public void setPrintTime(Date printTime) {
-        this.printTime = printTime;
-    }
 
     public String getReprint() {
         return reprint;
@@ -102,19 +91,27 @@ public class DepositOrderPrintDto {
         this.customerCellphone = customerCellphone;
     }
 
-    public Date getStartTime() {
+    public LocalDateTime getPrintTime() {
+        return printTime;
+    }
+
+    public void setPrintTime(LocalDateTime printTime) {
+        this.printTime = printTime;
+    }
+
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 

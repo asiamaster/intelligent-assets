@@ -7,7 +7,7 @@ import com.dili.ss.domain.annotation.Operator;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -18,16 +18,14 @@ import java.util.List;
  * @author qinkelan
  * @createTime 2020-02-18 15:28
  */
-public interface EarnestOrderListDto extends EarnestOrder {
+public class EarnestOrderListDto extends EarnestOrder {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
-    Date getCreatedStart();
-    void setCreatedStart(Date createdStart);
+    private LocalDateTime createdStart;
 
     @Column(name = "`create_time`")
     @Operator(Operator.LITTLE_EQUAL_THAN)
-    Date getCreatedEnd();
-    void setCreatedEnd(Date createdEnd);
+    private LocalDateTime createdEnd;
 
     /**
      * 昵称模糊查询
@@ -35,15 +33,52 @@ public interface EarnestOrderListDto extends EarnestOrder {
      */
     @Column(name = "customer_name")
     @Like
-    String getLikeCustomerName();
-    void setLikeCustomerName(String likeCustomerName);
+    private String likeCustomerName;
 
     @Operator(Operator.IN)
     @Column(name = "department_id")
-    List<Long> getDepartmentIds();
-    void setDepartmentIds(List<Long> departmentIds);
+    private List<Long> departmentIds;
 
     @Transient
-    List<EarnestOrderDetail> getEarnestOrderdetails();
-    void setEarnestOrderdetails(List<EarnestOrderDetail> earnestOrderdetails);
+    private List<EarnestOrderDetail> earnestOrderdetails;
+
+    public LocalDateTime getCreatedStart() {
+        return createdStart;
+    }
+
+    public void setCreatedStart(LocalDateTime createdStart) {
+        this.createdStart = createdStart;
+    }
+
+    public LocalDateTime getCreatedEnd() {
+        return createdEnd;
+    }
+
+    public void setCreatedEnd(LocalDateTime createdEnd) {
+        this.createdEnd = createdEnd;
+    }
+
+    public String getLikeCustomerName() {
+        return likeCustomerName;
+    }
+
+    public void setLikeCustomerName(String likeCustomerName) {
+        this.likeCustomerName = likeCustomerName;
+    }
+
+    public List<Long> getDepartmentIds() {
+        return departmentIds;
+    }
+
+    public void setDepartmentIds(List<Long> departmentIds) {
+        this.departmentIds = departmentIds;
+    }
+
+    public List<EarnestOrderDetail> getEarnestOrderdetails() {
+        return earnestOrderdetails;
+    }
+
+    public void setEarnestOrderdetails(List<EarnestOrderDetail> earnestOrderdetails) {
+        this.earnestOrderdetails = earnestOrderdetails;
+    }
 }

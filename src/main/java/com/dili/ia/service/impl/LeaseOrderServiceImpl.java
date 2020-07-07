@@ -14,7 +14,6 @@ import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
-import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.ResultCodeConst;
@@ -281,7 +280,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @GlobalTransactional
     public BaseOutput<Boolean> updateLeaseOrderBySettleInfo(SettleOrder settleOrder) {
         /*****************************更新缴费单相关字段 begin***********************/
-        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder condition = new PaymentOrder();
         condition.setCode(settleOrder.getOrderCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
         LeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
@@ -292,7 +291,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
-        paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
+        paymentOrderPO.setPayedTime(settleOrder.getOperateTime());
         if(leaseOrder.getWaitAmount().equals(paymentOrderPO.getAmount())){
             paymentOrderPO.setIsSettle(YesOrNoEnum.YES.getCode());
         }
@@ -717,8 +716,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
                     ,BizTypeEnum.BOOTH_LEASE.getCode(),TransactionItemTypeEnum.DEPOSIT.getCode()
                     , item.getDepositAmount(),item.getId(),item.getBoothName()
                     ,leaseOrder.getCustomerId(),leaseOrder.getCode(),leaseOrder.getMarketId(),null,null);
-            transactionDetails.setCreateTime(new Date());
-            transactionDetails.setModifyTime(new Date());
+            transactionDetails.setCreateTime(LocalDateTime.now());
+            transactionDetails.setModifyTime(LocalDateTime.now());
             transactionDetailsList.add(transactionDetails);
         }
         transactionDetailsService.batchInsert(transactionDetailsList);
@@ -793,7 +792,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         if (userTicket == null) {
             throw new BusinessException(ResultCode.DATA_ERROR,"未登录");
         }
-        PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder paymentOrder = new PaymentOrder();
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
         if (!bizNumberOutput.isSuccess()) {
             LOG.info("租赁单【编号：{}】,缴费单编号生成异常",leaseOrder.getCode());
@@ -1018,7 +1017,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
     @Override
     @Transactional
     @GlobalTransactional
-    public BaseOutput createRefundOrder(RefundOrderDto refundOrderDto) {
+    public BaseOutput createRefundOrder(LeaseRefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
@@ -1094,7 +1093,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param refundOrderDto
      * @param leaseOrder
      */
-    private void checkRefundApplyWithLeaseOrder(RefundOrderDto refundOrderDto, LeaseOrder leaseOrder, UserTicket userTicket) {
+    private void checkRefundApplyWithLeaseOrder(LeaseRefundOrderDto refundOrderDto, LeaseOrder leaseOrder, UserTicket userTicket) {
         //收款人和转抵扣收款人客户状态验证
         checkCustomerState(refundOrderDto.getPayeeId(),userTicket.getFirmId());
         List<TransferDeductionItem> transferDeductionItems = refundOrderDto.getTransferDeductionItems();
@@ -1121,7 +1120,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
      * @param refundOrderDto
      * @param leaseOrderItem
      */
-    private void checkRufundApplyWithLeaseOrderItem(RefundOrderDto refundOrderDto, LeaseOrderItem leaseOrderItem, UserTicket userTicket) {
+    private void checkRufundApplyWithLeaseOrderItem(LeaseRefundOrderDto refundOrderDto, LeaseOrderItem leaseOrderItem, UserTicket userTicket) {
         //收款人和转抵扣收款人客户状态验证
         checkCustomerState(refundOrderDto.getPayeeId(), userTicket.getFirmId());
         List<TransferDeductionItem> transferDeductionItems = refundOrderDto.getTransferDeductionItems();
@@ -1158,7 +1157,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
 
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
-        PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder paymentOrderCondition = new PaymentOrder();
         paymentOrderCondition.setCode(orderCode);
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
         if (null == paymentOrder) {
@@ -1196,7 +1195,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         Long totalPayAmountExcludeLast = 0L;
         //已结清时  定金需要加前几次支付金额
         if(YesOrNoEnum.YES.getCode().equals(paymentOrder.getIsSettle())){
-            PaymentOrder paymentOrderConditions = DTOUtils.newInstance(PaymentOrder.class);
+            PaymentOrder paymentOrderConditions = new PaymentOrder();
             paymentOrderConditions.setBusinessId(paymentOrder.getBusinessId());
             paymentOrderConditions.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
             List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);
@@ -1391,7 +1390,7 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         }
 
         //转抵扣充值
-        TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
+        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
         transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){

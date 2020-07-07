@@ -5,7 +5,7 @@ import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
 
 import javax.persistence.Column;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -16,16 +16,14 @@ import java.util.List;
  * @author qinkelan
  * @createTime 2020-03-19 14:26
  */
-public interface TransactionDetailsListDto extends TransactionDetails {
+public class TransactionDetailsListDto extends TransactionDetails {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
-    Date getCreatedStart();
-    void setCreatedStart(Date createdStart);
+    private LocalDateTime createdStart;
 
     @Column(name = "`create_time`")
     @Operator(Operator.LITTLE_EQUAL_THAN)
-    Date getCreatedEnd();
-    void setCreatedEnd(Date createdEnd);
+    private LocalDateTime createdEnd;
 
     /**
      * 昵称模糊查询
@@ -33,11 +31,41 @@ public interface TransactionDetailsListDto extends TransactionDetails {
      */
     @Column(name = "customer_name")
     @Like
-    String getLikeCustomerName();
-    void setLikeCustomerName(String likeCustomerName);
+    private String likeCustomerName;
 
     @Operator(Operator.IN)
     @Column(name = "item_type")
-    List<Integer> getItemTypes();
-    void setItemTypes(List<Integer> itemTypes);
+    private List<Integer> itemTypes;
+
+    public LocalDateTime getCreatedStart() {
+        return createdStart;
+    }
+
+    public void setCreatedStart(LocalDateTime createdStart) {
+        this.createdStart = createdStart;
+    }
+
+    public LocalDateTime getCreatedEnd() {
+        return createdEnd;
+    }
+
+    public void setCreatedEnd(LocalDateTime createdEnd) {
+        this.createdEnd = createdEnd;
+    }
+
+    public String getLikeCustomerName() {
+        return likeCustomerName;
+    }
+
+    public void setLikeCustomerName(String likeCustomerName) {
+        this.likeCustomerName = likeCustomerName;
+    }
+
+    public List<Integer> getItemTypes() {
+        return itemTypes;
+    }
+
+    public void setItemTypes(List<Integer> itemTypes) {
+        this.itemTypes = itemTypes;
+    }
 }

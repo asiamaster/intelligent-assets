@@ -1,9 +1,16 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.DepositBalance;
+import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.service.DepositBalanceService;
 import com.dili.ss.domain.BaseOutput;
+
+import java.util.Collections;
 import java.util.List;
+
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.metadata.ValueProviderUtils;
+import com.dili.ss.util.MoneyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -44,35 +51,13 @@ public class DepositBalanceController {
     }
 
     /**
-     * 新增DepositBalance
-     * @param depositBalance
-     * @return BaseOutput
+     * 计算【保证金余额】
+     * @param depositOrder
+     * @return String
      */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute DepositBalance depositBalance) {
-        depositBalanceService.insertSelective(depositBalance);
-        return BaseOutput.success("新增成功");
-    }
-
-    /**
-     * 修改DepositBalance
-     * @param depositBalance
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute DepositBalance depositBalance) {
-        depositBalanceService.updateSelective(depositBalance);
-        return BaseOutput.success("修改成功");
-    }
-
-    /**
-     * 删除DepositBalance
-     * @param id
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        depositBalanceService.delete(id);
-        return BaseOutput.success("删除成功");
+    @RequestMapping(value="/getTotalBalance.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput<String> getTotalBalance(DepositOrder depositOrder){
+//        Long totalBalance = depositOrderService.sumBalance(depositOrder);
+        return BaseOutput.success().setData(MoneyUtils.centToYuan(100L));
     }
 }
