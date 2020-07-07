@@ -35,31 +35,36 @@ import com.google.common.collect.Sets;
  * @date 2020年7月2日
  */
 @Service
-public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> implements RefundOrderDispatcherService{
+public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long>
+		implements RefundOrderDispatcherService {
 
 	@Autowired
 	private StockInService stockInService;
-	
+
 	@Override
 	public BaseOutput submitHandler(RefundOrder refundOrder) {
 		String code = refundOrder.getBusinessCode();
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = stockInService.getStockInByCode(code);
-		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
+		if (stockIn.getState() != StockInStateEnum.PAID.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		StockIn condtion = new StockIn(userTicket);
-		condtion.setId(stockIn.getId());
-		condtion.setState(StockInStateEnum.SUBMITTED_REFUND.getCode());
-		stockInService.updateSelective(condtion);
-		//stockInService
+		StockIn domain = new StockIn(userTicket);
+		updateState(domain, stockIn.getCode(), stockIn.getVersion(), StockInStateEnum.SUBMITTED_REFUND);
 		return BaseOutput.success();
 	}
 
 	@Override
 	public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-		// TODO Auto-generated method stub
-		return null;
+		String code = refundOrder.getBusinessCode();
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		StockIn stockIn = stockInService.getStockInByCode(code);
+		if (stockIn.getState() != StockInStateEnum.SUBMITTED_REFUND.getCode()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+		}
+		StockIn domain = new StockIn(userTicket);
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
+		return BaseOutput.success();
 	}
 
 	@Override
@@ -70,17 +75,31 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 
 	@Override
 	public BaseOutput cancelHandler(RefundOrder refundOrder) {
-		// TODO Auto-generated method stub
-		return null;
+		withdrawHandler(refundOrder);
+		return BaseOutput.success();
 	}
 
 	@Override
 	public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
 		// TODO Auto-generated method stub
-		return null;
+		return BaseOutput.success();
 	}
 
 	@Override
 	public Set<String> getBizType() {
 		return Sets.newHashSet(BizTypeEnum.STOCKIN.getCode());
-	}}
+	}
+
+	private void updateState(StockIn domain, String code, Integer version, StockInStateEnum state) {
+		domain.setVersion(version + 1);
+		domain.setState(state.getCode());
+		StockIn condition = new StockIn();
+		condition.setCode(code);
+		condition.setVersion(version);
+		// 修改入库单状态提交入库单
+		int row = stockInService.updateSelectiveByExample(domain, condition);
+		if (row != 1) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "业务繁忙,稍后再试");
+		}
+	}
+}

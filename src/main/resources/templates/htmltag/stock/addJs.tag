@@ -4,7 +4,8 @@
 let itemIndex = 0;
 //入库类型
 let type = ${type};
-
+//司磅入库相关消息
+let weightItems = new Map();
 //入库明细
 $(function() {
 	adddetailItem();
@@ -21,29 +22,6 @@ initSwipeCard({
 	id: 'getCustomer',
 });
 
-var boothAutoCompleteOption = {
-	paramName: 'keyword',
-	displayFieldName: 'name',
-	serviceUrl: '/booth/search.action',
-	transformResult: function(result) {
-		if (result.success) {
-			let data = result.data;
-			return {
-				suggestions: $.map(data, function(dataItem) {
-					return $.extend(dataItem, {
-						value: dataItem.name + '(' + (dataItem.secondAreaName ? dataItem.areaName + '->' + dataItem.secondAreaName :
-							dataItem.areaName) + ')'
-					});
-				})
-			}
-		} else {
-			bs4pop.alert(result.message, {
-				type: 'error'
-			});
-			return;
-		}
-	}
-}
 
 //品类搜索
 //品类搜索自动完成
@@ -168,11 +146,13 @@ function buildFormData() {
 	let stockDetails = [];
 	bui.util.yuanToCentForMoneyEl(formData);
 	$("#details").find("form").each(function() {
+		let index = $(this).attr("id").split("_")[1];
 		let detail = $(this).serializeObject();
 		let districtName = $(this).find("[name=districtId]").find("option:selected").text();
 		detail.districtName = districtName;
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
+		detail.stockWeighmanRecordDto = weightItems.get(index);
 		if (detail != {}) {
 			stockDetails.push(detail);
 		}
@@ -224,7 +204,10 @@ function doAddEarnestHandler() {
 /**
  * 打开新增窗口:页面层
  */
-function openWeightHandler() {
+/*
+function openWeightHandler(index) {
+	let weightItem = $("#saveForm_"+index)
+	console.log(weightItem.attr("id"));
     dia = bs4pop.dialog({
         title: '获取地磅读数',//对话框title
         content: bui.util.HTMLDecode(template("weighman", {})), //对话框内容，可以是 string、element，$object
@@ -234,11 +217,16 @@ function openWeightHandler() {
 
             }
         }, {label: '确定',className: 'btn-primary',onClick(e){
-                bui.util.debounce(saveOrUpdateHandler,1000,true)()
-                return false;
+        	let ob = $("#weighmanForm").serializeObject();
+        	weightItems.set(index,ob);
+        	weightItem.find("[name=weight]").val($("#grossWeight").val());
             }
         }]
     });
-}
+}*/
+
+
+
+
 
 </script>

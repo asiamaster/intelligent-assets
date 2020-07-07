@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.druid.sql.ast.expr.SQLCaseExpr.Item;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.StockIn;
@@ -31,7 +33,6 @@ import com.dili.ia.domain.dto.StockInRefundDto;
 import com.dili.ia.domain.dto.StockWeighmanRecordDto;
 import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.domain.dto.printDto.StockInPrintItemDto;
-import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
@@ -177,11 +178,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	public void updateStockIn(StockInDto stockInDto) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(stockInDto.getCode());
-		
-		// 总金额 件数 重量计算
-		// 总量 克 计算
-		// 金额 分 计算
-		// 人法地、地法天、天法道、道法自然
+		// 总金额 件数 重量计算 总量 克 计算金额 分 计算
 		Long totalWeight = 0L;
 		Long totalQuantity = 0L;
 		Long totalMoney = 0L;
@@ -191,17 +188,17 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		List<StockInDetailDto> addDetailDtos = new ArrayList<StockInDetailDto>();
 		List<StockInDetailDto> detailDtos = stockInDto.getStockInDetailDtos();
 		for (StockInDetailDto stockInDetailDto : detailDtos) {
-			if(StringUtils.isEmpty(stockInDetailDto.getCode())) {
+			if (StringUtils.isEmpty(stockInDetailDto.getCode())) {
 				addDetailDtos.add(stockInDetailDto);
 				continue;
 			}
 			// 修改子单
 			StockInDetail detail = stockInDetailService.getByCode(stockInDetailDto.getCode());
-			if(stockInDetailDto.getDelete()) {
+			if (stockInDetailDto.getDelete()) {
 				stockInDetailService.delete(detail.getId());
 				continue;
 			}
-			
+
 			totalWeight += stockInDetailDto.getWeight();
 			totalQuantity += stockInDetailDto.getQuantity();
 			totalMoney += stockInDetailDto.getAmount();
@@ -214,15 +211,23 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			condition.setVersion(detail.getVersion());
 			// update
 			stockInDetailService.updateSelectiveByExample(domain, condition);
+			// 司磅入库,修改司磅记录信息,司磅记录未更改前端不在回传参数
+			if (stockIn.getType() == StockInTypeEnum.WEIGHT.getCode() && stockInDetailDto.getStockWeighmanRecordDto() != null) {
+				StockWeighmanRecord stockWeighmanRecord = bulidWeighmanRecord(
+						stockInDetailDto.getStockWeighmanRecordDto(), detail);
+				stockWeighmanRecordService.updateSelective(stockWeighmanRecord);
+				detail.setWeightmanId(stockWeighmanRecord.getId());
+			}
+
 		}
 		// 新增子单
 		buildStockDetail(addDetailDtos, stockIn);
 		// 修改入库单信息
 		StockIn domain = new StockIn(userTicket);
-		BeanUtil.copyProperties(stockInDto, domain,CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));
-		domain.setWeight(stockIn.getWeight()+totalWeight);
-		domain.setQuantity(stockIn.getQuantity()+totalQuantity);
-		domain.setAmount(stockIn.getAmount()+totalMoney);
+		BeanUtil.copyProperties(stockInDto, domain, CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));
+		domain.setWeight(stockIn.getWeight() + totalWeight);
+		domain.setQuantity(stockIn.getQuantity() + totalQuantity);
+		domain.setAmount(stockIn.getAmount() + totalMoney);
 		StockIn condition = new StockIn();
 		condition.setCode(stockIn.getCode());
 		condition.setVersion(stockIn.getVersion());
@@ -299,8 +304,17 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockInDto stockInDto = new StockInDto();
 		BeanUtils.copyProperties(stockIn, stockInDto);
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
+		JSONArray details = new JSONArray();
+		//组装司磅入库信息
+		if(StockInTypeEnum.WEIGHT.getCode() == stockIn.getType()) {
+			stockInDetails.forEach(item -> {
+				JSONObject jsonObject = (JSONObject) JSONObject.toJSON(item);
+				jsonObject.put("stockWeighmanRecord", stockWeighmanRecordService.get(item.getWeightmanId()));
+				details.add(jsonObject);
+			});
+		}
 		stockInDto.setStockInDetails(stockInDetails);
-		stockInDto.setJsonStockInDetailDtos(JSON.toJSONString(stockInDetails));
+		stockInDto.setJsonStockInDetailDtos(JSON.toJSONString(details));
 		return stockInDto;
 	}
 

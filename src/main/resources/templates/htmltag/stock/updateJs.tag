@@ -1,7 +1,12 @@
 <script>
 //行索引计数器
 let itemIndex = 0;
-
+//入库类型
+let type = ${stockIn.type!};
+//司磅入库相关消息
+let weightItems = new Map();
+//记录删除子单
+let removeDetails = [];
 //获取table Index
 function getIndex(str) {
 	return str.split('_')[1];
@@ -11,30 +16,6 @@ function getIndex(str) {
 initSwipeCard({
 	id: 'getCustomer',
 });
-
-var boothAutoCompleteOption = {
-	paramName: 'keyword',
-	displayFieldName: 'name',
-	serviceUrl: '/booth/search.action',
-	transformResult: function(result) {
-		if (result.success) {
-			let data = result.data;
-			return {
-				suggestions: $.map(data, function(dataItem) {
-					return $.extend(dataItem, {
-						value: dataItem.name + '(' + (dataItem.secondAreaName ? dataItem.areaName + '->' + dataItem.secondAreaName :
-							dataItem.areaName) + ')'
-					});
-				})
-			}
-		} else {
-			bs4pop.alert(result.message, {
-				type: 'error'
-			});
-			return;
-		}
-	}
-}
 
 //品类搜索
 //品类搜索自动完成
@@ -100,10 +81,7 @@ var districtAutoCompleteOption = {
 	}
 }
 
-
-//入库类型
-let type = ${stockIn.type!};
-
+//初始化入库单信息
 $(function() {
 	let stockInDetails = JSON.parse('${stockIn.jsonStockInDetailDtos!}');
 	for (let stockDetail of stockInDetails) {
@@ -124,7 +102,7 @@ function adddetailItem() {
 }
 
 /**
- * 添加子单
+ * 初始化子单
  * */
 function initDetailItem(stockDetail) {
 	$('#details').append(bui.util.HTMLDecode(template('initDetailInfo' + type, {
@@ -146,7 +124,6 @@ $('#adddetailItem').on('click', function() {
 	//buildFormData()
 })
 
-let removeDetails = [];
 //删除行事件 （删除子单）
 $(document).on('click', '.item-del', function() {
 	let detail = $(this).closest('form').serializeObject();
@@ -195,6 +172,9 @@ function buildFormData() {
 		detail.assetsName = assetsName;
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
+		let index = $(this).attr("id").split("_")[1];
+		console.log(weightItems.get(index));
+		detail.stockWeighmanRecordDto = weightItems.get(index);
 		if (detail != {}) {
 			stockDetails.push(detail);
 		}
@@ -254,30 +234,6 @@ function form2JsonString(formId) {
 	return JSON.stringify(jsonObj);
 }
 
-/**
- * 打开新增窗口:页面层
- */
-function openWeightHandler() {
-	dia = bs4pop.dialog({
-		title: '获取地磅读数', //对话框title
-		content: bui.util.HTMLDecode(template("weighman", {})), //对话框内容，可以是 string、element，$object
-		width: '80%', //宽度
-		height: '95%', //高度
-		btns: [{
-			label: '取消',
-			className: 'btn btn-secondary',
-			onClick(e) {
 
-			}
-		}, {
-			label: '确定',
-			className: 'btn btn-primary',
-			onClick(e) {
-				bui.util.debounce(saveOrUpdateHandler, 1000, true)()
-				return false;
-			}
-		}]
-	});
-}
 
 </script>

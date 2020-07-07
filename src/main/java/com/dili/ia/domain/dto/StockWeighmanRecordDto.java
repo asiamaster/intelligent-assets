@@ -14,6 +14,8 @@ import java.util.Date;
  */
 public class StockWeighmanRecordDto {
 
+	private Long id;
+	
     /**
      * 毛重
      */
@@ -53,6 +55,16 @@ public class StockWeighmanRecordDto {
      * ,{name:"befortare",url:"/de/de/666.imag"},{name:"aftertare",url:"/de/de/666.imag"}]
      */
     private String imags;
+
+    
+    
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public Long getGrossWeight() {
 		return grossWeight;

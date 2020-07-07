@@ -1,3 +1,4 @@
+/*入库明细*/
 <!-- 整车入库 -->
 <script id="detailInfo1" type="text/html">
 	<form id="saveForm_{{index}}" role="form" novalidate>
@@ -79,8 +80,8 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control numberChange"
-						 name="weight" range="0 9999999" required />
-						 <button type="button" class="btn btn-secondary px-5" onclick="openWeightHandler()">连接地磅</button>
+						 name="weight" range="0 9999999" required  readonly/>
+						 <button type="button" class="btn btn-secondary px-5" onclick="openWeightHandler({{index}})">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control numberChange money"
@@ -136,42 +137,4 @@
 	</form>			
 </script>
 
-<script id="weighman" type="text/html">
-	<form id="weighman" role="form" novalidate>
-	<div class="row">
-				<div class="form-group row col-8">
-					<div class="form-group col-12">
-						<label for="_certificateNumber">称台重量(公斤)：<i class="red">*</i></label>
-						<input id="weight" type="number" class="form-control "
-						 name="weight" range="0 9999999" required readonly/>
-						<button>写入重量</button>
-					</div>
-					<div class="form-group col-6">
-						<label for="_certificateNumber">毛重(公斤)：<i class="red">*</i></label>
-						<input id="grossWeight" type="number" class="form-control "
-						 name="grossWeight" range="0 9999999" required readonly/>
-						
-					</div>	
-					<div class="form-group col-6">
-						<label for="_certificateNumber">毛重时间：<i class="red">*</i></label>
-						<input id="grossWeightDate" type="number" class="form-control "
-						 name="grossWeightDate" required readonly/>
-						
-					</div>
-					<div class="form-group col-6">
-						<label for="tareWeight" class="">皮重(公斤)：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control "
-						 name="tareWeight" range="0 9999999" required readonly />
-					</div>
-					<div class="form-group col-6">
-						<label for="tareWeightDate" class="">皮重时间：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control "
-						 name="tareWeightDate" required readonly />
-					</div>
-				</div>
-				<div class="form-group col-4">
-					
-					pic
-						
-				</div>
-				</div>
-	</form>			
-</script>
+
