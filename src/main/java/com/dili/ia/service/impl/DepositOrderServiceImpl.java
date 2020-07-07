@@ -585,22 +585,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     @Override
-    public List<DepositOrder> selectBalanceList(DepositOrder depositOrder) {
-        return this.getActualDao().selectBalanceList(depositOrder);
-    }
-
-    @Override
-    public Integer countBalanceList(DepositOrder depositOrder) {
-        return this.getActualDao().countBalanceList(depositOrder);
-    }
-
-    @Override
-    public Long sumBalance(DepositOrder depositOrder) {
-        return this.getActualDao().sumBalance(depositOrder);
-    }
-
-
-    @Override
     public BaseOutput batchAddDepositOrder(List<DepositOrder> depositOrderList) {
         if (CollectionUtils.isEmpty(depositOrderList)){
             return BaseOutput.success();

@@ -93,4 +93,25 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="sumBalance" parameterType="DepositBalanceQuery" resultType="long">
+    SELECT SUM(balance) AS balance
+    FROM deposit_balance
+    WHERE 1 = 1
+    <if test="likeCustomerName != null and likeCustomerName != ''">
+      AND customer_name LIKE concat('%', #{likeCustomerName}, '%')
+    </if>
+    <if test="customerCellphone != null and customerCellphone != ''">
+      AND customer_cellphone=#{customerCellphone}
+    </if>
+    <if test="certificateNumber != null and certificateNumber != ''">
+      AND certificate_number=#{certificateNumber}
+    </if>
+    <if test="typeCode != null and typeCode != ''">
+      AND type_code=#{typeCode}
+    </if>
+    <if test="assetsName != null and assetsName != ''">
+      AND assets_name=#{assetsName}
+    </if>
+  </select>
 </mapper>

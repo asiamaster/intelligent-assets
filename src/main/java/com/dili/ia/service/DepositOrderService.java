@@ -71,24 +71,6 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      */
     BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint);
     /**
-     * 保证金余额列表，维度 【按照客户-保证金类型-编号统计】
-     * @param depositOrder 订单
-     * @return List<DepositOrder>
-     */
-    List<DepositOrder> selectBalanceList(DepositOrder depositOrder);
-    /**
-     * 保证金余额记录条数 ，维度 【按照客户-保证金类型-编号统计】
-     * @param depositOrder 订单
-     * @return Integer
-     */
-    Integer countBalanceList(DepositOrder depositOrder);
-    /**
-     * 余额合计
-     * @param depositOrder 订单
-     * @return Long
-     */
-    Long sumBalance(DepositOrder depositOrder);
-    /**
      * 批量【新增】保证金单 --- 【摊位租赁同步生成使用】
      * @param depositOrderList 保证金订单列表
      * @return BaseOutput
