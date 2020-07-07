@@ -95,7 +95,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
             //已交清退款单打印数据
             resultMap.put("printTemplateCode", PrintTemplateEnum.BOOTH_LEASE_REFUND_PAID.getCode());
             //根据要求拼装订单项
-            buildLeaseOrderItem(assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId()), resultMap);
+            buildLeaseOrderItem(refundOrder, resultMap);
         }
         //resultMap.put("transferDeductionItems", buildTransferDeductionItemsPrintDto(refundOrder.getId()));
         buildTransferDeductionItems(refundOrder.getId(), resultMap);
@@ -154,10 +154,11 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
     /**
      * 构建打印map外层订单项
-     * @param leaseOrderItem
+     * @param refundOrder
      * @return
      */
-    static void buildLeaseOrderItem(AssetsLeaseOrderItem leaseOrderItem, Map<String, Object> resultMap) {
+    public void buildLeaseOrderItem(RefundOrder refundOrder, Map<String, Object> resultMap) {
+        AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId());
         resultMap.put("boothName", leaseOrderItem.getAssetsName());
         resultMap.put("districtName", leaseOrderItem.getDistrictName());
         resultMap.put("number", String.valueOf(leaseOrderItem.getNumber()));
@@ -168,7 +169,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
         resultMap.put("discountAmount", MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
 
         //TODO 退款项详情
-
+//        List<Map<String, String>> refundFeeItems = refundFeeItemService.queryRefundFeeItem(List.of(refundOrder.getId()),)
 
     }
 }

@@ -460,7 +460,7 @@
             sort: params.sort,
             order: params.order
         }
-        return $.extend(temp, bui.util.bindMetadata(this.id));
+        return $.extend(temp, bui.util.bindMetadata(this.id), {assetsType: $('#assetsType').val()});
     }
 
     /**
