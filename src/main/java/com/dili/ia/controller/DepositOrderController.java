@@ -95,43 +95,6 @@ public class DepositOrderController {
     }
 
     /**
-     * 跳转到【保证金余额】页面
-     * @param modelMap
-     * @return String
-     */
-    @RequestMapping(value="/balanceList.html", method = RequestMethod.GET)
-    public String balanceList(ModelMap modelMap) {
-        return "depositOrder/balanceList";
-    }
-
-    /**
-     * 跳转到【保证金余额】页面
-     * @param depositOrder
-     * @return String
-     */
-    @RequestMapping(value="/balanceListPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String balanceListPage(DepositOrder depositOrder) throws Exception {
-        Integer total = depositOrderService.countBalanceList(depositOrder);
-        if (total < 1){
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
-        }
-        List<DepositOrder> results = depositOrderService.selectBalanceList(depositOrder);
-        List buildResults = ValueProviderUtils.buildDataByProvider(depositOrder, results);
-        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), buildResults).toString();
-    }
-
-    /**
-     * 计算【保证金余额】
-     * @param depositOrder
-     * @return String
-     */
-    @RequestMapping(value="/getTotalBalance.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<String> getTotalBalance(DepositOrder depositOrder){
-        Long totalBalance = depositOrderService.sumBalance(depositOrder);
-        return BaseOutput.success().setData(MoneyUtils.centToYuan(totalBalance));
-    }
-
-    /**
      * 跳转到保证金管理-新增页面
      * @param modelMap
      * @return String

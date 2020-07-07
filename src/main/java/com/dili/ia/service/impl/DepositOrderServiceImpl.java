@@ -87,13 +87,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //检查客户状态
         checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
-        if(depositOrder.getAssetsId() != null){
-//            if (depositOrderListDto.getAssetsType().equals(AssetsTypeEnum.BOOTH.getTypeCode())){
-                //检查摊位状态
-                checkBoothState(depositOrder.getAssetsId());
-//            }
-            // @TODO 检查冷库，公寓状态
+        //检查摊位状态 @TODO 检查公寓，冷库状态
+        if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType())){
+            checkBoothState(depositOrder.getAssetsId());
         }
+
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
@@ -225,12 +223,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //检查客户状态
         checkCustomerState(de.getCustomerId(),de.getMarketId());
-//        if (CollectionUtils.isNotEmpty(detailList)){
-//            detailList.forEach(o->{
-//                //检查摊位状态
-//                checkBoothState(o.getAssetsId());
-//            });
-//        }
+        //检查摊位状态 @TODO 检查公寓，冷库状态
+        if(AssetsTypeEnum.BOOTH.getCode().equals(de.getAssetsType())){
+            checkBoothState(de.getAssetsId());
+        }
         //检查是否可以进行提交付款
         checkSubmitPayment(id, amount, waitAmount, de);
         //首次提交更改状态为 -- > 已提交
