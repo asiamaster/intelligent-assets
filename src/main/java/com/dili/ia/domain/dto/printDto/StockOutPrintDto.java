@@ -1,5 +1,6 @@
 package com.dili.ia.domain.dto.printDto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -15,7 +16,7 @@ public class StockOutPrintDto {
 	
 	private String stockOutCode;
 	
-	private Date stockOutDate;
+	private LocalDateTime stockOutDate;
 	
 	private String departmentName;
 	
@@ -38,11 +39,11 @@ public class StockOutPrintDto {
 		this.stockOutCode = stockOutCode;
 	}
 
-	public Date getStockOutDate() {
+	public LocalDateTime getStockOutDate() {
 		return stockOutDate;
 	}
 
-	public void setStockOutDate(Date stockOutDate) {
+	public void setStockOutDate(LocalDateTime stockOutDate) {
 		this.stockOutDate = stockOutDate;
 	}
 

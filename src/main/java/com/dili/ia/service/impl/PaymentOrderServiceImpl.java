@@ -10,6 +10,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -34,9 +35,9 @@ public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long>
 
 	@Override
 	public PaymentOrder buildPaymentOrder(UserTicket userTicket) {
-		PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
+		PaymentOrder paymentOrder = new PaymentOrder();
 		paymentOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
-		paymentOrder.setCreateTime(new Date());
+		paymentOrder.setCreateTime(LocalDateTime.now());
 		paymentOrder.setCreator(userTicket.getUserName());
 		paymentOrder.setCreatorId(userTicket.getId());
 		paymentOrder.setMarketCode(userTicket.getFirmCode());
@@ -48,7 +49,7 @@ public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long>
 
 	@Override
 	public PaymentOrder getByCode(String code) {
-		PaymentOrder condtion = DTOUtils.newInstance(PaymentOrder.class);
+		PaymentOrder condtion = new PaymentOrder();
 		condtion.setCode(code);
 		List<PaymentOrder> paymentOrders = this.listByExample(condtion);
 		if (CollectionUtils.isEmpty(paymentOrders) || paymentOrders.size() != 1) {

@@ -1,4 +1,5 @@
-/*司磅*/
+
+<!-- 司磅 -->
 <script id="weighman" type="text/html">
 	<form id="weighmanForm" role="form" novalidate>
 	<div class="row">

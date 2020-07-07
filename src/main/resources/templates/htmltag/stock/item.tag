@@ -1,4 +1,5 @@
-/*入库明细*/
+
+<!-- 入库明细 -->
 <!-- 整车入库 -->
 <script id="detailInfo1" type="text/html">
 	<form id="saveForm_{{index}}" role="form" novalidate>

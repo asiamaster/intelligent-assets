@@ -6,6 +6,7 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.dili.uap.sdk.domain.UserTicket;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -28,13 +29,13 @@ public class StockIn extends BaseDomain {
      * 创建时间
      */
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     @Column(name = "`code`")
     private String code;
@@ -43,7 +44,7 @@ public class StockIn extends BaseDomain {
      * 入库时间
      */
     @Column(name = "`stock_in_date`")
-    private Date stockInDate;
+    private LocalDateTime stockInDate;
 
     /**
      * 客户id
@@ -115,7 +116,7 @@ public class StockIn extends BaseDomain {
      * 过期时间
      */
     @Column(name = "`expire_date`")
-    private Date expireDate;
+    private LocalDateTime expireDate;
 
     /**
      * 缴费单
@@ -166,7 +167,7 @@ public class StockIn extends BaseDomain {
     private String submitter;
     
     @Column(name= "`sub_date`")
-    private Date subDate; 
+    private LocalDateTime subDate; 
     
     @Column(name= "`withdraw_operator_id`")
     private Long withdrawOperatorId;
@@ -223,7 +224,7 @@ public class StockIn extends BaseDomain {
      */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -232,7 +233,7 @@ public class StockIn extends BaseDomain {
      *
      * @param createTime 创建时间
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -243,7 +244,7 @@ public class StockIn extends BaseDomain {
      */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -252,7 +253,7 @@ public class StockIn extends BaseDomain {
      *
      * @param modifyTime 修改时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -279,7 +280,7 @@ public class StockIn extends BaseDomain {
      */
     @FieldDef(label="入库时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getStockInDate() {
+    public LocalDateTime getStockInDate() {
         return stockInDate;
     }
 
@@ -288,7 +289,7 @@ public class StockIn extends BaseDomain {
      *
      * @param stockInDate 入库时间
      */
-    public void setStockInDate(Date stockInDate) {
+    public void setStockInDate(LocalDateTime stockInDate) {
         this.stockInDate = stockInDate;
     }
 
@@ -523,7 +524,7 @@ public class StockIn extends BaseDomain {
      */
     @FieldDef(label="过期时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getExpireDate() {
+    public LocalDateTime getExpireDate() {
         return expireDate;
     }
 
@@ -532,7 +533,7 @@ public class StockIn extends BaseDomain {
      *
      * @param expireDate 过期时间
      */
-    public void setExpireDate(Date expireDate) {
+    public void setExpireDate(LocalDateTime expireDate) {
         this.expireDate = expireDate;
     }
 
@@ -704,11 +705,11 @@ public class StockIn extends BaseDomain {
 		this.submitter = submitter;
 	}
 
-	public Date getSubDate() {
+	public LocalDateTime getSubDate() {
 		return subDate;
 	}
 
-	public void setSubDate(Date subDate) {
+	public void setSubDate(LocalDateTime subDate) {
 		this.subDate = subDate;
 	}
 
