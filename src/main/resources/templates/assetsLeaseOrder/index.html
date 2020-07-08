@@ -183,7 +183,6 @@
             </#resource>
         </div>
         <table id="subGrid{{index}}" data-id="subGrid{{index}}" data-toggle="table" data-title="客户列表" class="table" data-toolbar="#toolbar{{index}}"
-               data-pagination="false" data-page-number="1" data-page-size="10"
                data-query-params="subQueryParams" data-method="POST"
                data-content-type="application/x-www-form-urlencoded" data-single-select="true"
                data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
@@ -209,7 +208,7 @@
                 <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                     for(item in chargeItems){
                 %>
-                <th data-field="chargeItemYuan${item.id!}" data-sortable="true" data-align="center" ${itemLP.index==1?'data-provider="businessChargeItemProvider"':''} data-query-params="{${itemLP.index==1?'assetsType:'+assetsType:''}}" >
+                <th data-field="businessChargeItem.chargeItemYuan${item.id!}" data-sortable="true" data-align="center">
                     ${item.chargeItem!}
                 </th>
                 <% } }%>
