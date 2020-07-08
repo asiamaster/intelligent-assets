@@ -29,8 +29,8 @@
                     <#bcomboProvider _id="state" _provider="meterDetailStateProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
                 </div>
                 <div class="form-group col">
-                    <label for="keyWord">单号/表编号/客户名称</label>
-                    <input type="keyWord" class="form-control" name="keyWord" id="keyWord" maxlength="50"/>
+                    <label for="keyword">单号/表编号/客户名称</label>
+                    <input type="keyword" class="form-control" name="keyword" id="keyword" maxlength="50"/>
                 </div>
                 <div class="col-auto align-self-center mt-3">
                     <button id="clear" type="button" class="btn btn-outline-primary mr-2" onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
@@ -58,40 +58,40 @@
                 <thead>
                 <tr>
                     <th data-checkbox="true"></th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="code" data-sortable="true" data-align="center">
                         单号
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="usageTime" data-sortable="true" data-align="center">
                         月份
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="number" data-sortable="true" data-align="center">
                         表编号
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="assetsName" data-sortable="true" data-align="center">
                         表地址
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="departmentName" data-sortable="true" data-align="center">
                         部门
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="customerName" data-sortable="true" data-align="center">
                         客户名称
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="assetsType" data-sortable="true" data-align="center" data-provider="assetsTypeProvider">
                         类别
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="usageAmount" data-sortable="true" data-align="center">
                         实用量
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="price" data-sortable="true" data-align="center">
                         单价
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="cope" data-sortable="true" data-align="center">
                         实收金额
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="balance" data-sortable="true" data-align="center">
                         预存金额
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="state" data-sortable="true" data-align="center" data-provider="meterDetailStateProvider">
                         状态
                     </th>
                 </tr>

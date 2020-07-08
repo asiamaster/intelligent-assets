@@ -96,6 +96,11 @@ public class MeterDetail extends BaseDomain {
     @Column(name = "`recorder_id`")
     private Long recorderId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "`record_time`")
+    private LocalDateTime recordTime;
+
     /**
      * 抄表员名称
      */
@@ -103,7 +108,7 @@ public class MeterDetail extends BaseDomain {
     private String recorderName;
 
     /**
-     * 状态，撤销/正常
+     * 状态，已创建1/已提交2/已取消3/已缴费4
      */
     @Column(name = "`state`")
     private Integer state;
@@ -328,14 +333,18 @@ public class MeterDetail extends BaseDomain {
         return departmentName;
     }
 
-    @FieldDef(label="抄表员ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getRecorderId() {
-        return recorderId;
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
     }
 
-    public void setRecorderId(Long recorderId) {
-        this.recorderId = recorderId;
+    @FieldDef(label="抄表时间")
+    @EditMode(editor = FieldEditor.Datetime, required = false)
+    public LocalDateTime getRecordTime() {
+        return recordTime;
+    }
+
+    public void setRecordTime(LocalDateTime recordTime) {
+        this.recordTime = recordTime;
     }
 
     @FieldDef(label="抄表员名称", maxLength = 40)

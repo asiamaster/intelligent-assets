@@ -74,17 +74,22 @@ public class MeterDetailDto extends MeterDetail {
     private LocalDateTime endTime;
 
     /**
+     * 单价
+     */
+    private Long price;
+
+    /**
      * 公摊费用
      */
     private Long sharedAmount;
 
     /**
-     * 应收金额
+     * 应收金额(水费或电费)
      */
     private Long receivable;
 
     /**
-     * 实收金额
+     * 实收金额(合计金额,水电费 + 公摊费等其他费用)
      */
     private Long cope;
 
@@ -194,5 +199,13 @@ public class MeterDetailDto extends MeterDetail {
 
     public void setCope(Long cope) {
         this.cope = cope;
+    }
+
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
     }
 }

@@ -120,6 +120,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     public EasyuiPageOutput listMeterDetails(MeterDetailDto meterDetailDto, boolean useProvider) throws Exception {
         // 查询列表时必须表类型不能为空
         Integer type = meterDetailDto.getType();
+        type = 1;
         if (type == null) {
             logger.info("水电表类型为空，报错！");
             throw new BusinessException(ResultCode.PARAMS_ERROR, "水电表类型为空，请刷新页面");

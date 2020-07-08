@@ -16,8 +16,8 @@
     <result column="customer_cellphone" jdbcType="VARCHAR" property="customerCellphone" />
     <result column="department_id" jdbcType="BIGINT" property="departmentId" />
     <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
-    <result column="recorder_id" jdbcType="BIGINT" property="recorderId" />
-    <result column="recorder_name" jdbcType="VARCHAR" property="recorderName" />
+    <result column="record_time" jdbcType="BIGINT" property="recordTime" />
+    <result column="recorder_name" jdbcType="TIMESTAMP" property="recorderName" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="last_amount" jdbcType="BIGINT" property="lastAmount" />
     <result column="this_amount" jdbcType="BIGINT" property="thisAmount" />
@@ -42,7 +42,7 @@
       WARNING - @mbg.generated
     -->
     id, create_time, modify_time, code, meter_id, usage_time, customer_id, customer_name, customer_cellphone, department_id, department_name,
-    recorder_id, recorder_name, state, last_amount, this_amount, usage_amount, creator_dep_id, 
+    record_time, recorder_name, state, last_amount, this_amount, usage_amount, creator_dep_id, 
     notes, submitter_id, submitter, submit_time, withdraw_operator_id, withdraw_operator, 
     canceler_id, canceler, creator_id, creator, market_id, market_code, version
   </sql>
@@ -82,8 +82,8 @@
       <if test="customerName != null">
         customer_name = #{customerName,jdbcType=VARCHAR},
       </if>
-      <if test="recorderId != null">
-        recorder_id = #{recorderId,jdbcType=BIGINT},
+      <if test="recordTime != null">
+        record_time = #{recordTime,jdbcType=TIMESTAMP},
       </if>
       <if test="recorderName != null">
         recorder_name = #{recorderName,jdbcType=VARCHAR},
@@ -159,7 +159,7 @@
         md.customer_cellphone,
         md.department_id,
         md.department_name,
-        md.recorder_id,
+        md.record_time,
         md.recorder_name,
         md.state,
         md.last_amount,
@@ -181,8 +181,9 @@
         md.version,
         m.number as number,
         m.type as type,
-        m.assets_name as assetsName
-        m.assets_type as assetsType
+        m.assets_name as assetsName,
+        m.assets_type as assetsType,
+        m.price as price
     FROM
         meter_detail md
     LEFT JOIN meter m on md.meter_id = m.id
@@ -261,7 +262,7 @@
         md.customer_cellphone,
         md.department_id,
         md.department_name,
-        md.recorder_id,
+        md.record_time,
         md.recorder_name,
         md.state,
         md.last_amount,
@@ -311,7 +312,7 @@
         md.customer_cellphone,
         md.department_id,
         md.department_name,
-        md.recorder_id,
+        md.record_time,
         md.recorder_name,
         md.state,
         md.last_amount,
