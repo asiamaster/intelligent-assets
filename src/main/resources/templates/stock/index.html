@@ -91,9 +91,9 @@
     <div class="col-12">
         <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
         	<#resource code="addStockIn">
-            <button id="btn_view" type="button" class="btn btn-primary btn_add" onclick="openAddHandler(1)"><i class="fa fa-truck"></i> 整车入库</button>
-            <button id="btn_view" type="button" class="btn btn-primary btn_add" onclick="openAddHandler(2)"><i class="fa fa-truck"></i> 零散入库</button>
-            <button id="btn_view" type="button" class="btn btn-primary btn_add" onclick="openAddHandler(3)"><i class="fa fa-truck"></i> 司磅入库</button>
+            <button id="btn_view" type="button" class="btn btn-primary btn_add" onclick="openAddHandler(1,'整车入库')"><i class="fa fa-truck"></i> 整车入库</button>
+            <button id="btn_view" type="button" class="btn btn-primary btn_add" onclick="openAddHandler(2,'零散入库')"><i class="fa fa-truck"></i> 零散入库</button>
+            <button id="btn_view" type="button" class="btn btn-primary btn_add" onclick="openAddHandler(3,'司磅入库')"><i class="fa fa-truck"></i> 司磅入库</button>
             </#resource>
             <#resource code="doExport">
             <button id="export" type="button" class="btn btn-primary btn_export" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>

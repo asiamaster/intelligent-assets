@@ -88,7 +88,7 @@ function queryParams(params) {
 /**
 查看入库详情
  */
-function openStockInListHandler() {
+/*function openStockInListHandler() {
 	//获取选中行的数据
 	let rows = _grid.bootstrapTable('getSelections');
 	if (null == rows || rows.length == 0) {
@@ -96,12 +96,28 @@ function openStockInListHandler() {
 		return false;
 	}
 	window.location.href = "${contextPath}/stock/stock/inList.html?assetsId=" + rows[0].assetsId +"&customerId=" + rows[0].customerId +"&categoryId="+ rows[0].categoryId;
-}
-
+}*/
+function openStockInListHandler() {
+	let rows = _grid.bootstrapTable('getSelections');
+	if (null == rows || rows.length == 0) {
+		bs4pop.alert('请选中一条数据');
+		return false;
+	}
+	  dia = bs4pop.dialog({
+	       title: "查看",
+	       content: "${contextPath}/stock/stock/inList.html?assetsId=" + rows[0].assetsId +"&customerId=" + rows[0].customerId +"&categoryId="+ rows[0].categoryId,
+	       isIframe : true,
+	       closeBtn: true,
+	       backdrop : 'static',
+	       width: '95%',
+	       height : '95%',
+	       btns: []
+	   });
+	}
 /**
 查看出库详情
  */
-function openStockOutListHandler() {
+/*function openStockOutListHandler() {
 	//获取选中行的数据
 	let rows = _grid.bootstrapTable('getSelections');
 	if (null == rows || rows.length == 0) {
@@ -109,8 +125,24 @@ function openStockOutListHandler() {
 		return false;
 	}
 	window.location.href = "${contextPath}/stock/stock/outList.html?assetsId=" + rows[0].assetsId +"&customerId=" + rows[0].customerId +"&categoryId="+ rows[0].categoryId;
-}
-
+}*/
+function openStockOutListHandler() {
+	let rows = _grid.bootstrapTable('getSelections');
+	if (null == rows || rows.length == 0) {
+		bs4pop.alert('请选中一条数据');
+		return false;
+	}
+	  dia = bs4pop.dialog({
+	       title: "查看",
+	       content: "${contextPath}/stock/stock/outList.html?assetsId=" + rows[0].assetsId +"&customerId=" + rows[0].customerId +"&categoryId="+ rows[0].categoryId,
+	       isIframe : true,
+	       closeBtn: true,
+	       backdrop : 'static',
+	       width: '95%',
+	       height : '95%',
+	       btns: []
+	   });
+	}
 
 /**
  * 打开新增窗口:页面层
