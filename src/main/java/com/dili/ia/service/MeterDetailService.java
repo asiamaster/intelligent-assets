@@ -77,11 +77,11 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
     /**
      * 提交水电费单(生缴费单和结算单)
      *
-     * @param  meterDetailDto
+     * @param  id
      * @return 是否成功
      * @date   2020/7/6
      */
-    BaseOutput<MeterDetail> submit(MeterDetailDto meterDetailDto, UserTicket userTicket);
+    BaseOutput<MeterDetail> submit(Long id, UserTicket userTicket);
 
     /**
      * 缴费回调
@@ -95,18 +95,18 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
     /**
      * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)
      *
-     * @param  meterDetailDto
+     * @param  id
      * @return 是否成功
      * @date   2020/7/6
      */
-    BaseOutput<MeterDetail> withdraw(MeterDetailDto meterDetailDto, UserTicket userTicket);
+    BaseOutput<MeterDetail> withdraw(Long id, UserTicket userTicket);
 
     /**
      * 取消水电费单(取消缴费单和结算单,将水电费单修改为已创建)
      *
-     * @param  meterDetailDto
+     * @param  id
      * @return 是否成功
      * @date   2020/7/6
      */
-    BaseOutput<MeterDetail> cancel(MeterDetailDto meterDetailDto, UserTicket userTicket);
+    BaseOutput<MeterDetail> cancel(Long id, UserTicket userTicket);
 }

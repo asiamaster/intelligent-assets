@@ -29,7 +29,6 @@ import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValueProviderUtils;
-import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.github.pagehelper.Page;
@@ -200,15 +199,15 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     /**
      * 提交水电费单(生成缴费单和结算单)
      *
-     * @param  meterDetailDto
+     * @param  id
      * @return 是否成功
      * @date   2020/7/6
      */
     @Override
     @Transactional
-    public BaseOutput<MeterDetail> submit(MeterDetailDto meterDetailDto, UserTicket userTicket) {
+    public BaseOutput<MeterDetail> submit(Long id, UserTicket userTicket) {
         // 先查询水电费单
-        MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
+        MeterDetail meterDetailInfo = this.get(id);
         if (meterDetailInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
         }
@@ -348,15 +347,15 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     /**
      * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)
      *
-     * @param  meterDetailDto
+     * @param  id
      * @return 是否成功
      * @date   2020/7/6
      */
     @Override
-    public BaseOutput<MeterDetail> withdraw(MeterDetailDto meterDetailDto, UserTicket userTicket) {
+    public BaseOutput<MeterDetail> withdraw(Long id, UserTicket userTicket) {
         // 查询数据,对比状态
-        MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
-        if (meterDetailInfo != null || !MeterDetailStateEnum.SUBMITED.getCode().equals(meterDetailInfo.getState())) {
+        MeterDetail meterDetailInfo = this.get(id);
+        if (meterDetailInfo != null && !MeterDetailStateEnum.SUBMITED.getCode().equals(meterDetailInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
         meterDetailInfo.setWithdrawOperatorId(userTicket.getId());
@@ -381,15 +380,15 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     /**
      * 取消水电费单(只有在已创建状态下可取消)
      *
-     * @param  meterDetailDto
+     * @param  id
      * @return 是否成功
      * @date   2020/7/6
      */
     @Override
-    public BaseOutput<MeterDetail> cancel(MeterDetailDto meterDetailDto, UserTicket userTicket) {
+    public BaseOutput<MeterDetail> cancel(Long id, UserTicket userTicket) {
         // 查询数据,对比状态
-        MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
-        if (meterDetailInfo != null || !MeterDetailStateEnum.UNSUBMITED.getCode().equals(meterDetailInfo.getState())) {
+        MeterDetail meterDetailInfo = this.get(id);
+        if (meterDetailInfo != null && !MeterDetailStateEnum.UNSUBMITED.getCode().equals(meterDetailInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
         meterDetailInfo.setCancelerId(userTicket.getId());

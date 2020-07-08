@@ -191,7 +191,7 @@
 
                     $.ajax({
                         type: "POST",
-                        url: "${contextPath}/customer/withdraw.action",
+                        url: "${contextPath}/meterDetail/withdraw.action",
                         data: {id: selectedRow.id},
                         processData:true,
                         dataType: "json",

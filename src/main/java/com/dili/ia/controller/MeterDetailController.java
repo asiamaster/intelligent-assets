@@ -136,17 +136,17 @@ public class MeterDetailController {
     /**
      * 提交水电费单(生缴费单和结算单)
      *
-     * @param  meterDetailDto
+     * @param  id
      * @return 是否成功
      * @date   2020/7/6
      */
     @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput submit(@ModelAttribute MeterDetailDto meterDetailDto) {
+    public @ResponseBody BaseOutput submit(Long id) {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        BaseOutput<MeterDetail> baseOutput = meterDetailService.submit(meterDetailDto, userTicket);
+        BaseOutput<MeterDetail> baseOutput = meterDetailService.submit(id, userTicket);
 
         // 写业务日志
         if (baseOutput.isSuccess()){
@@ -160,17 +160,17 @@ public class MeterDetailController {
     /**
      * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)
      *
-     * @param  meterDetailDto
+     * @param  id
      * @return 是否成功
      * @date   2020/7/6
      */
     @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput withdraw(@ModelAttribute MeterDetailDto meterDetailDto) {
+    public @ResponseBody BaseOutput withdraw(Long id) {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        BaseOutput<MeterDetail> baseOutput = meterDetailService.withdraw(meterDetailDto, userTicket);
+        BaseOutput<MeterDetail> baseOutput = meterDetailService.withdraw(id, userTicket);
 
         // 写业务日志
         if (baseOutput.isSuccess()){
@@ -184,17 +184,17 @@ public class MeterDetailController {
     /**
      * 取消水电费单
      *
-     * @param  meterDetailDto
+     * @param  id
      * @return 是否成功
      * @date   2020/7/6
      */
     @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput cancel(@ModelAttribute MeterDetailDto meterDetailDto) {
+    public @ResponseBody BaseOutput cancel(Long id) {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        BaseOutput<MeterDetail> baseOutput = meterDetailService.cancel(meterDetailDto, userTicket);
+        BaseOutput<MeterDetail> baseOutput = meterDetailService.cancel(id, userTicket);
 
         // 写业务日志
         if (baseOutput.isSuccess()){

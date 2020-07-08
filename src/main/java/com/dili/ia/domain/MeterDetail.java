@@ -90,12 +90,6 @@ public class MeterDetail extends BaseDomain {
     @Column(name = "`department_name`")
     private String departmentName;
 
-    /**
-     * 抄表员ID
-     */
-    @Column(name = "`recorder_id`")
-    private Long recorderId;
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`record_time`")
