@@ -131,6 +131,9 @@
                     <th data-field="payState" data-sortable="true" data-align="center" data-sort-name="pay_state" data-provider="payStateProvider">
                         交费状态
                     </th>
+                    <th data-field="refundState" data-sortable="true" data-align="center" data-sort-name="refund_state" data-provider="leaseRefundStateProvider">
+                        退款状态
+                    </th>
                     <th data-field="totalAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
                         合计金额
                     </th>
@@ -214,6 +217,9 @@
                 <% } }%>
                 <th data-field="state" data-sortable="true" data-align="center" data-provider="leaseOrderStateProvider">
                     状态
+                </th>
+                <th data-field="refundState" data-sortable="true" data-align="center" data-sort-name="refund_state" data-provider="leaseRefundStateProvider">
+                    退款状态
                 </th>
             </tr>
             </thead>
