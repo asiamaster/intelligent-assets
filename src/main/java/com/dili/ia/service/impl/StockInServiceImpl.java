@@ -70,7 +70,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
  */
 @Service
 public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implements StockInService {
-	 private final static Logger LOG = LoggerFactory.getLogger(StockInServiceImpl.class);
+	private final static Logger LOG = LoggerFactory.getLogger(StockInServiceImpl.class);
 	@Autowired
 	private UidRpcResolver UidRpcResolver;
 	
@@ -177,8 +177,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Override
 	@Transactional
 	public void updateStockIn(StockInDto stockInDto) {
+		
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(stockInDto.getCode());
+		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+		}
 		// 总金额 件数 重量计算 总量 克 计算金额 分 计算
 		Long totalWeight = 0L;
 		Long totalQuantity = 0L;
@@ -229,10 +233,13 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		domain.setWeight(stockIn.getWeight() + totalWeight);
 		domain.setQuantity(stockIn.getQuantity() + totalQuantity);
 		domain.setAmount(stockIn.getAmount() + totalMoney);
+		domain.setVersion(stockIn.getVersion()+1);
 		StockIn condition = new StockIn();
 		condition.setCode(stockIn.getCode());
 		condition.setVersion(stockIn.getVersion());
-		updateSelectiveByExample(domain, condition);
+		updateStockIn(domain, stockIn.getCode(), stockIn.getVersion(), StockInStateEnum.CREATED);
+		//updateSelectiveByExample(domain, condition);
+        LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 	
 	@Override
@@ -256,11 +263,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		domain.setSubmitterId(userTicket.getId());
 		domain.setSubmitter(userTicket.getRealName());
 		domain.setPaymentOrderCode(paymentOrder.getCode());
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED_PAY);
+		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED_PAY);
 		//
 		// 调用结算接口,缴费
 		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, paymentOrder.getCode(), paymentOrder.getAmount());
 		settlementRpcResolver.submit(settleOrderDto);
+        LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 	
 	@Override
@@ -286,7 +294,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		return details;
 	}
 	
-	private void updateState(StockIn domain,String code,Integer version,StockInStateEnum state) {
+	private void updateStockIn(StockIn domain,String code,Integer version,StockInStateEnum state) {
 		domain.setVersion(version+1);
 		domain.setState(state.getCode());
 		StockIn condition = new StockIn();
@@ -306,20 +314,21 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		BeanUtils.copyProperties(stockIn, stockInDto);
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
 		JSONArray details = new JSONArray();
-		//组装司磅入库信息
-		if(StockInTypeEnum.WEIGHT.getCode() == stockIn.getType()) {
-			stockInDetails.forEach(item -> {
-				JSONObject jsonObject = (JSONObject) JSONObject.toJSON(item);
+		stockInDetails.forEach(item -> {
+			JSONObject jsonObject = (JSONObject) JSONObject.toJSON(item);
+			// 组装司磅入库信息
+			if (StockInTypeEnum.WEIGHT.getCode() == stockIn.getType()) {
 				jsonObject.put("stockWeighmanRecord", stockWeighmanRecordService.get(item.getWeightmanId()));
-				details.add(jsonObject);
-			});
-		}
-		//结算单信息		
-		if(stockIn.getState() != StockInStateEnum.CREATED.getCode() &&
-				stockIn.getState() != StockInStateEnum.CANCELLED.getCode()) {
+			}
+			details.add(jsonObject);
+		});
+
+		// 结算单信息
+		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()
+				&& stockIn.getState() != StockInStateEnum.CANCELLED.getCode()) {
 			stockInDto.setSettleOrder(settlementRpcResolver.get(settlementAppId, stockIn.getPaymentOrderCode()));
 		}
-		
+
 		stockInDto.setStockInDetails(stockInDetails);
 		stockInDto.setJsonStockInDetailDtos(JSON.toJSONString(details));
 		return stockInDto;
@@ -338,7 +347,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockIn domain = new StockIn(userTicket);
 		domain.setCancelerId(userTicket.getId());
 		domain.setCanceler(userTicket.getRealName());
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
+		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
+        LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+
 	}
 
 	@Override
@@ -352,12 +363,14 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockIn domain = new StockIn(userTicket);
 		domain.setWithdrawOperator(userTicket.getRealName());
 		domain.setWithdrawOperatorId(userTicket.getId());
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CREATED);
+		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.CREATED);
 		// 撤销缴费单/结算单
 		PaymentOrder paymentOrder = paymentOrderService.getByCode(stockIn.getPaymentOrderCode());
 		paymentOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
 		paymentOrderService.updateSelective(paymentOrder);
 		settlementRpcResolver.cancel(settlementAppId, paymentOrder.getCode());
+        LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+
 	}
 
 	@Override
@@ -374,24 +387,28 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		//SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, refundOrder.getCode(), refundOrder.getPayeeAmount());
 		//settlementRpcResolver.submit(settleOrderDto);
 		refundOrderService.doSubmitDispatcher(refundOrder);
+        LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+
 	}
 	
 	@Override
+	@Transactional
 	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 		String code = refundOrder.getBusinessCode();
-		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		StockIn domain = new StockIn(userTicket);
+		StockIn domain = new StockIn(settleOrder.getOperatorId(), settleOrder.getOperatorName());
 		//domain.setWithdrawOperator(userTicket.getRealName());
 		//domain.setWithdrawOperatorId(userTicket.getId());
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
+		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
 		List<StockInDetail> details = getStockInDetailsByStockCode(code);
 		details.forEach(detail -> {
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), "退款businessCode");
 		});
+        LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
+
 	}
 	
 	@Override
@@ -446,6 +463,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	}
 
 	@Override
+	@Transactional
 	public void settlementDealHandler(SettleOrder settleOrder) {
 		String code = settleOrder.getBusinessCode();
 		StockIn stockIn = getStockInByCode(code);
@@ -463,11 +481,11 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		paymentOrderService.updateSelective(paymentOrder);
 		// paymentOrder.setIsSettle();
 		StockIn domain = new StockIn();
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
+		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		// 入库 库存
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
 		stockService.inStock(stockInDetails, stockIn);
-
+        LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
 	}
 
 	@Override

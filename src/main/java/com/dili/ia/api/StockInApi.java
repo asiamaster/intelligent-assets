@@ -47,14 +47,13 @@ public class StockInApi {
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
         	stockInService.settlementDealHandler(settleOrder);
-            
             return BaseOutput.success();
         }catch (BusinessException e){
-            LOG.error("冷库结算成功回调异常！", e);
+            LOG.error("冷库结算回调异常！结算单{},入库单{}",settleOrder.getCode(),settleOrder.getBusinessCode(), e);
             return BaseOutput.failure(e.getErrorMsg()).setData(false);
         }catch (Exception e){
-            LOG.error("冷库结算成功回调异常！", e);
-            return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
+            LOG.error("冷库结算回调异常！", e);
+            return BaseOutput.failure("冷库结算回调异常！").setData(false);
         }
     }
     

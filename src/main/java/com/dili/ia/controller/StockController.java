@@ -4,10 +4,14 @@ import com.dili.ia.domain.Stock;
 import com.dili.ia.service.StockService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -25,6 +29,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Controller
 @RequestMapping("/stock/stock")
 public class StockController {
+	
+	private final static Logger LOG = LoggerFactory.getLogger(StockInController.class);
+	
     @Autowired
     StockService stockService;
 
@@ -91,9 +98,17 @@ public class StockController {
      * @return BaseOutput
      */
     @RequestMapping(value="/stockOut.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "out", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput stockOut(Long stockId,Long weight,Long quantity,String notes) {
-    	stockService.stockOut(stockId, weight, quantity,notes);
+    	try {
+        	stockService.stockOut(stockId, weight, quantity,notes);
+    	}catch (BusinessException e) {
+			LOG.error("出库{}异常！",stockId, e);
+			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+		}catch (Exception e) {
+			LOG.error("出库{}异常！",stockId, e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("出库成功");
     }

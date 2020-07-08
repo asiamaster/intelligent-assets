@@ -7,9 +7,11 @@ import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.service.StockInService;
+import com.dili.ia.service.impl.StockInServiceImpl;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 
@@ -18,6 +20,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.apache.commons.collections4.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -38,6 +42,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Controller
 @RequestMapping("/stock/stockIn")
 public class StockInController {
+	
+	private final static Logger LOG = LoggerFactory.getLogger(StockInController.class);
+	
     @Autowired
     StockInService stockInService;
     
@@ -60,32 +67,6 @@ public class StockInController {
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         return "stock/index";
-    }
-    //http://ia.diligrp.com:8381/stock/stockIn/indetail.html
-    
-    /**
-     * 分页查询StockIn，返回easyui分页信息
-     * @param stockIn
-     * @return String
-     * @throws Exception
-     */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute StockInQueryDto stockIn) throws Exception {
-    	
-        return stockInService.listPageAction(stockIn);
-    }
-
-    /**
-     * 新增StockIn
-     * @param stockIn
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    //@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput insert(@RequestBody @Validated StockInDto stockInDto) {
-        stockInService.createStockIn(stockInDto);
-        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        return BaseOutput.success("新增成功");
     }
     
     /**
@@ -112,14 +93,56 @@ public class StockInController {
     }
     
     /**
+     * 分页查询StockIn，返回easyui分页信息
+     * @param stockIn
+     * @return String
+     * @throws Exception
+     */
+    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody String listPage(@ModelAttribute StockInQueryDto stockIn) throws Exception {
+    	
+        return stockInService.listPageAction(stockIn);
+    }
+
+    /**
+     * 新增StockIn
+     * @param stockIn
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput insert(@RequestBody @Validated StockInDto stockInDto) {
+    	try {
+    		stockInService.createStockIn(stockInDto);
+		}catch (BusinessException e) {
+			LOG.error("入库单保存异常！", e);
+			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+		}catch (Exception e) {
+			LOG.error("入库单保存异常！", e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        return BaseOutput.success("新增成功");
+    }
+    
+    /**
      * 修改StockIn
      * @param stockIn
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "update", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput update(@RequestBody @Validated StockInDto stockIn) {
-    	stockInService.updateStockIn(stockIn);
-        return BaseOutput.success();
+    	try {
+    		stockInService.updateStockIn(stockIn);
+    	}catch (BusinessException e) {
+			LOG.error("入库单{}修改异常！",stockIn.getCode(), e);
+			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+		}catch (Exception e) {
+			LOG.error("入库单{}修改异常！",stockIn.getCode(), e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+        return BaseOutput.success("修改成功");
     }
     
     /**
@@ -128,9 +151,17 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput cancel(String code) {
-    	//throw new BusinessException("", "");
-        stockInService.cancel(code);
+        try {
+            stockInService.cancel(code);
+    	}catch (BusinessException e) {
+			LOG.error("入库单{}取消异常！",code, e);
+			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+		}catch (Exception e) {
+			LOG.error("入库单{}取消异常！",code, e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
         return BaseOutput.success("取消成功");
     }
     
@@ -140,9 +171,17 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput submit(String code) {
-        stockInService.submit(code);
+        try {
+            stockInService.submit(code);
+    	}catch (BusinessException e) {
+			LOG.error("入库单{}提交异常！",code, e);
+			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+		}catch (Exception e) {
+			LOG.error("入库单{}提交异常！",code, e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("提交成功");
     }
@@ -153,10 +192,17 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/remove.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput remove(String code) {
-        stockInService.withdraw(code);
-        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        try {
+        	stockInService.withdraw(code);
+    	}catch (BusinessException e) {
+			LOG.error("入库单{}撤回异常！",code, e);
+			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+		}catch (Exception e) {
+			LOG.error("入库单{}撤回异常！",code, e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}//LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("撤回成功");
     }
     
@@ -173,14 +219,22 @@ public class StockInController {
 	}*/
     
     /**
-     * 退款
+     * 退款申请
      * @param stockIn
      * @return BaseOutput
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    //@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput refund(@Validated StockInRefundDto stockInRefundDto) {	        //throw new BusinessException("2000", "errorCode");
-    	stockInService.refund(stockInRefundDto);
+    	try {
+    		stockInService.refund(stockInRefundDto);
+    	}catch (BusinessException e) {
+			LOG.error("入库单{}退款申请异常！",stockInRefundDto.getCode(), e);
+			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+		}catch (Exception e) {
+			LOG.error("入库单{}退款申请异常！",stockInRefundDto.getCode(), e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
     	return BaseOutput.success("退款成功");
     }
 }

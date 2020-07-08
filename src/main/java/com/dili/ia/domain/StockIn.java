@@ -197,6 +197,16 @@ public class StockIn extends BaseDomain {
 		this.operatorName = userTicket.getRealName();
 	}
     
+    /**
+     * 记录操作人
+     * @param userTicket
+     */
+    public StockIn(Long operatorId,String operatorName) {
+		super();
+		this.operatorId = operatorId;
+		this.operatorName = operatorName;
+	}
+    
 
 	/**
      * @return id
