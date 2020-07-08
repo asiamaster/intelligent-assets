@@ -163,7 +163,7 @@ function buildFormData() {
 
 
 // 提交保存
-function doAddEarnestHandler() {
+function doAddStockInHandler() {
 	
 	if(!$("#saveForm").validate().form()){
 		return;

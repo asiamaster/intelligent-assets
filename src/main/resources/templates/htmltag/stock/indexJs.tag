@@ -85,14 +85,49 @@ function queryParams(params) {
 /**
      打开新增窗口
  */
-function openAddHandler(type) {
+/*function openAddHandler(type) {
 	window.location.href = "${contextPath}/stock/stockIn/add.html?type="+type;
 
+}*/
+
+/**
+ * 打开新增窗口
+ */
+function openAddHandler(type,title) {
+   dia = bs4pop.dialog({
+        title: title,
+        content: '${contextPath}/stock/stockIn/add.html?type=' +type,
+        isIframe : true,
+        closeBtn: true,
+        backdrop : 'static',
+        width: '95%',
+        height : '95%',
+        btns: []
+    });
 }
+
 /**
      打开查看窗口
  */
-function openViewHandler(type) {
+function openViewHandler() {
+	let rows = _grid.bootstrapTable('getSelections');
+	if (null == rows || rows.length == 0) {
+		bs4pop.alert('请选中一条数据');
+		return false;
+	}
+	   dia = bs4pop.dialog({
+	        title: "查看",
+	        content: "${contextPath}/stock/stockIn/view.html?code="+rows[0].code,
+	        isIframe : true,
+	        closeBtn: true,
+	        backdrop : 'static',
+	        width: '95%',
+	        height : '95%',
+	        btns: []
+	    });
+	}
+
+/*function openViewHandler(type) {
 	//获取选中行的数据
 	let rows = _grid.bootstrapTable('getSelections');
 	if (null == rows || rows.length == 0) {
@@ -100,12 +135,11 @@ function openViewHandler(type) {
 		return false;
 	}
 	window.location.href = "${contextPath}/stock/stockIn/view.html?code="+rows[0].code;
-
-}
+}*/
 /**
  * 修改
  */
-function openUpdateHandler() {
+/*function openUpdateHandler() {
 	//获取选中行的数据
 	let rows = _grid.bootstrapTable('getSelections');
 	if (null == rows || rows.length == 0) {
@@ -113,7 +147,25 @@ function openUpdateHandler() {
 		return false;
 	}
 	window.location.href = "${contextPath}/stock/stockIn/update.html?code="+rows[0].code;
-}
+}*/
+
+function openUpdateHandler() {
+	let rows = _grid.bootstrapTable('getSelections');
+	if (null == rows || rows.length == 0) {
+		bs4pop.alert('请选中一条数据');
+		return false;
+	}
+	   dia = bs4pop.dialog({
+	        title: "修改",
+	        content: "${contextPath}/stock/stockIn/update.html?code="+rows[0].code,
+	        isIframe : true,
+	        closeBtn: true,
+	        backdrop : 'static',
+	        width: '95%',
+	        height : '95%',
+	        btns: []
+	    });
+	}
 
 
 /**

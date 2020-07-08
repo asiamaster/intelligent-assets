@@ -31,6 +31,17 @@ public class StockOutController {
     public String index(ModelMap modelMap) {
         return "stock/stockOut/index";
     }
+    
+    /**
+     * 跳转到StockOut页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    public String view(ModelMap modelMap,String code) {
+    	modelMap.put("stockOut", stockOutService.getStockOut(code));
+        return "stock/stockOut/view";
+    }
 
     /**
      * 分页查询StockOut，返回easyui分页信息

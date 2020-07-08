@@ -84,7 +84,7 @@ function queryParams(params) {
 /**
  打开查看窗口
  */
-function openViewHandler() {
+/*function openViewHandler() {
 	//获取选中行的数据
 	let rows = _grid.bootstrapTable('getSelections');
 	if (null == rows || rows.length == 0) {
@@ -92,7 +92,30 @@ function openViewHandler() {
 		return false;
 	}
 	window.location.href = "${contextPath}/stock/stockInDetail/view.html?code=" + rows[0].code;
+}*/
+
+/**
+打开查看窗口
+*/
+function openViewHandler() {
+let rows = _grid.bootstrapTable('getSelections');
+if (null == rows || rows.length == 0) {
+	bs4pop.alert('请选中一条数据');
+	return false;
 }
+  dia = bs4pop.dialog({
+       title: "查看",
+       content: "${contextPath}/stock/stockInDetail/view.html?code=" + rows[0].code,
+       isIframe : true,
+       closeBtn: true,
+       backdrop : 'static',
+       width: '95%',
+       height : '95%',
+       btns: []
+   });
+}
+
+
 
 function doExport(){
 	bui.util.doExport("grid", "queryForm");
