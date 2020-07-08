@@ -1,9 +1,13 @@
 package com.dili.ia.controller;
 
+import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.service.MeterDetailService;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 import java.util.List;
 
@@ -114,13 +118,23 @@ public class MeterDetailController {
      * @return 是否成功
      * @date   2020/6/28
      */
+    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput insert(@ModelAttribute MeterDetailDto meterDetailDto) {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        return meterDetailService.addMeterDetail(meterDetailDto, userTicket);
+        BaseOutput<MeterDetail> baseOutput = meterDetailService.addMeterDetail(meterDetailDto, userTicket);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()){
+            MeterDetail meterDetail = baseOutput.getData();
+            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
+        return baseOutput;
     }
+
 
     /**
      * 提交水电费单(生缴费单和结算单)
@@ -129,12 +143,21 @@ public class MeterDetailController {
      * @return 是否成功
      * @date   2020/7/6
      */
+    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(@ModelAttribute MeterDetailDto meterDetailDto) {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        return meterDetailService.submit(meterDetailDto, userTicket);
+        BaseOutput<MeterDetail> baseOutput = meterDetailService.submit(meterDetailDto, userTicket);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()){
+            MeterDetail meterDetail = baseOutput.getData();
+            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
+        return baseOutput;
     }
 
     /**
@@ -144,12 +167,21 @@ public class MeterDetailController {
      * @return 是否成功
      * @date   2020/7/6
      */
+    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(@ModelAttribute MeterDetailDto meterDetailDto) {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        return meterDetailService.withdraw(meterDetailDto, userTicket);
+        BaseOutput<MeterDetail> baseOutput = meterDetailService.withdraw(meterDetailDto, userTicket);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()){
+            MeterDetail meterDetail = baseOutput.getData();
+            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
+        return baseOutput;
     }
 
     /**
@@ -159,12 +191,21 @@ public class MeterDetailController {
      * @return 是否成功
      * @date   2020/7/6
      */
+    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(@ModelAttribute MeterDetailDto meterDetailDto) {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        return meterDetailService.cancel(meterDetailDto, userTicket);
+        BaseOutput<MeterDetail> baseOutput = meterDetailService.cancel(meterDetailDto, userTicket);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()){
+            MeterDetail meterDetail = baseOutput.getData();
+            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
+        return baseOutput;
     }
 
     /**
@@ -174,29 +215,21 @@ public class MeterDetailController {
      * @return 是否成功
      * @date   2020/6/29
      */
+    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(@ModelAttribute MeterDetailDto meterDetailDto) {
 
-        return meterDetailService.updateMeterDetail(meterDetailDto);
-    }
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
+        BaseOutput<MeterDetail> baseOutput = meterDetailService.updateMeterDetail(meterDetailDto);
 
-    /**
-     * 删除 水电费单
-     *
-     * @param  id 水电费单主键
-     * @return 是否成功
-     * @date   2020/6/29
-     */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-
-        int code = meterDetailService.delete(id);
-        if (code <= 0){
-            return BaseOutput.failure("删除失败,数据已被其他用户删除!");
+        // 写业务日志
+        if (baseOutput.isSuccess()){
+            MeterDetail meterDetail = baseOutput.getData();
+            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
 
-        return BaseOutput.success("删除成功");
+        return baseOutput;
     }
 
     /**

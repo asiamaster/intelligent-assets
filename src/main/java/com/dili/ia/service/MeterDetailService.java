@@ -44,7 +44,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/6/28
      */
-    BaseOutput addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket);
+    BaseOutput<MeterDetail> addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket);
 
     /**
      * 修改 水电费单
@@ -53,7 +53,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/7/1
      */
-    BaseOutput updateMeterDetail(MeterDetailDto meterDetailDto);
+    BaseOutput<MeterDetail> updateMeterDetail(MeterDetailDto meterDetailDto);
 
     /**
      * 根据 meterId、customerId 查询未缴费单的数量
@@ -81,7 +81,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/7/6
      */
-    BaseOutput submit(MeterDetailDto meterDetailDto, UserTicket userTicket);
+    BaseOutput<MeterDetail> submit(MeterDetailDto meterDetailDto, UserTicket userTicket);
 
     /**
      * 缴费回调
@@ -99,7 +99,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/7/6
      */
-    BaseOutput withdraw(MeterDetailDto meterDetailDto, UserTicket userTicket);
+    BaseOutput<MeterDetail> withdraw(MeterDetailDto meterDetailDto, UserTicket userTicket);
 
     /**
      * 取消水电费单(取消缴费单和结算单,将水电费单修改为已创建)
@@ -108,5 +108,5 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/7/6
      */
-    BaseOutput cancel(MeterDetailDto meterDetailDto, UserTicket userTicket);
+    BaseOutput<MeterDetail> cancel(MeterDetailDto meterDetailDto, UserTicket userTicket);
 }

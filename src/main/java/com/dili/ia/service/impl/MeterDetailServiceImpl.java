@@ -155,7 +155,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseOutput addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket) {
+    public BaseOutput<MeterDetail> addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket) {
         MeterDetail meterDetail = new MeterDetail();
         BeanUtils.copyProperties(meterDetailDto, meterDetail);
 
@@ -205,7 +205,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     @Override
     @Transactional
-    public BaseOutput submit(MeterDetailDto meterDetailDto, UserTicket userTicket) {
+    public BaseOutput<MeterDetail> submit(MeterDetailDto meterDetailDto, UserTicket userTicket) {
         // 先查询水电费单
         MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
         if (meterDetailInfo == null) {
@@ -352,7 +352,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date   2020/7/6
      */
     @Override
-    public BaseOutput withdraw(MeterDetailDto meterDetailDto, UserTicket userTicket) {
+    public BaseOutput<MeterDetail> withdraw(MeterDetailDto meterDetailDto, UserTicket userTicket) {
         // 查询数据,对比状态
         MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
         if (meterDetailInfo != null || !MeterDetailStateEnum.SUBMITED.getCode().equals(meterDetailInfo.getState())) {
@@ -385,7 +385,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date   2020/7/6
      */
     @Override
-    public BaseOutput cancel(MeterDetailDto meterDetailDto, UserTicket userTicket) {
+    public BaseOutput<MeterDetail> cancel(MeterDetailDto meterDetailDto, UserTicket userTicket) {
         // 查询数据,对比状态
         MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
         if (meterDetailInfo != null || !MeterDetailStateEnum.UNSUBMITED.getCode().equals(meterDetailInfo.getState())) {
@@ -433,7 +433,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date   2020/7/1
      */
     @Override
-    public BaseOutput updateMeterDetail(MeterDetailDto meterDetailDto) {
+    public BaseOutput<MeterDetail> updateMeterDetail(MeterDetailDto meterDetailDto) {
         // 先查询
         MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
         if (meterDetailInfo == null) {
@@ -458,7 +458,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
 
-        return BaseOutput.success();
+        return BaseOutput.success().setData(meterDetailInfo);
     }
 
     /**
