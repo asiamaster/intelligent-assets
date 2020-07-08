@@ -4,7 +4,9 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.dto.StockInDetailQueryDto;
+import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.mapper.StockInDetailMapper;
+import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.StockInDetailService;
 import com.dili.ia.service.StockInService;
@@ -22,6 +24,7 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,11 +34,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class StockInDetailServiceImpl extends BaseServiceImpl<StockInDetail, Long> implements StockInDetailService {
 
+	@Value("${settlement.app-id}")
+    private Long settlementAppId;
+	
 	@Autowired
 	private StockInService stockInService;
 	
 	@Autowired
 	private PaymentOrderService paymentOrderService;
+	
+	@Autowired
+	private SettlementRpcResolver settlementRpcResolver;
 	
     public StockInDetailMapper getActualDao() {
         return (StockInDetailMapper)getDao();
@@ -63,11 +72,15 @@ public class StockInDetailServiceImpl extends BaseServiceImpl<StockInDetail, Lon
 	public Map<String, Object> viewStockInDetail(String code) {
 		StockInDetail stockInDetail = getByCode(code);
 		StockIn stockIn = stockInService.getStockInByCode(stockInDetail.getStockInCode());
-		PaymentOrder paymentOrder = paymentOrderService.getByCode(stockIn.getPaymentOrderCode());
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("stockInDetail", stockInDetail);
 		result.put("stockIn", stockIn);
-		result.put("paymentOrder", paymentOrder == null?DTOUtils.newInstance(PaymentOrder.class):paymentOrder);
+		// 结算单信息
+		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()
+				&& stockIn.getState() != StockInStateEnum.CANCELLED.getCode()) {
+			result.put("settleOrder",settlementRpcResolver.get(settlementAppId, stockIn.getPaymentOrderCode()));
+		}
+
 		// TODO 缴费单
 		return result;
 	}

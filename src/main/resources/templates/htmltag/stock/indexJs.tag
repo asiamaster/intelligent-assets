@@ -321,6 +321,41 @@ function openRefundHandler() {
 }
 
 
+
+//选中行事件
+_grid.on('uncheck.bs.table', function (e, row, $element) {
+    currentSelectRowIndex = undefined;
+});
+
+//选中行事件 -- 可操作按钮控制
+_grid.on('check.bs.table', function (e, row, $element) {
+    let state = row.$_state;
+    
+    if (state == ${@com.dili.ia.glossary.StockInStateEnum.CREATED.getCode()}) {
+        $('#toolbar button').attr('disabled', true);
+        $('.btn_update').attr('disabled', false);
+        $('.btn_cancel').attr('disabled', false);
+        $('.btn_submit').attr('disabled', false);
+       
+    } else if (state == ${@com.dili.ia.glossary.StockInStateEnum.CANCELLED.getCode()}) {
+        $('#toolbar button').attr('disabled', true);
+    } else if (state == ${@com.dili.ia.glossary.StockInStateEnum.SUBMITTED_PAY.getCode()}) {
+        $('#toolbar button').attr('disabled', true);
+        $('.btn_withdraw').attr('disabled', false);
+    } else if (state == ${@com.dili.ia.glossary.StockInStateEnum.PAID.getCode()}) {
+        $('#toolbar button').attr('disabled', true);
+        $('.btn_refund').attr('disabled', false);
+    }  else if (state == ${@com.dili.ia.glossary.StockInStateEnum.SUBMITTED_REFUND.getCode()}) {
+        $('#toolbar button').attr('disabled', true);
+        $('.btn_withdraw').attr('disabled', false);
+    }else if (state == ${@com.dili.ia.glossary.StockInStateEnum.REFUNDED.getCode()}) {
+        $('#toolbar button').attr('disabled', true);
+    }
+    $('.btn_add').attr('disabled', false);
+    $('.btn_view').attr('disabled', false);
+    $('.btn_export').attr('disabled', false);
+});
+
 /*****************************************函数区 end**************************************/
 
 /*****************************************自定义事件区 begin************************************/

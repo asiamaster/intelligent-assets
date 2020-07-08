@@ -101,7 +101,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
         return (StockInMapper)getDao();
     }
 
-	@Override
+    @Override
 	@Transactional
 	public void createStockIn(StockInDto stockInDto) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -314,6 +314,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				details.add(jsonObject);
 			});
 		}
+		//结算单信息		
+		if(stockIn.getState() != StockInStateEnum.CREATED.getCode() &&
+				stockIn.getState() != StockInStateEnum.CANCELLED.getCode()) {
+			stockInDto.setSettleOrder(settlementRpcResolver.get(settlementAppId, stockIn.getPaymentOrderCode()));
+		}
+		
 		stockInDto.setStockInDetails(stockInDetails);
 		stockInDto.setJsonStockInDetailDtos(JSON.toJSONString(details));
 		return stockInDto;
@@ -420,7 +426,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	private RefundOrder buildRefundOrderDto(UserTicket userTicket, StockInRefundDto stockInRefundDto, StockIn stockIn) {
 		//退款单
-		RefundOrder refundOrder = DTOUtils.newInstance(RefundOrder.class);
+		RefundOrder refundOrder = new RefundOrder();
 		refundOrder.setBusinessCode(stockIn.getCode());
 		refundOrder.setBusinessId(stockIn.getId());
 		refundOrder.setCustomerId(stockIn.getCustomerId());

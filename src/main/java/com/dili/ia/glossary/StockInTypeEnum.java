@@ -20,7 +20,7 @@ public enum StockInTypeEnum {
 		this.name = name;
 	}
 
-	public static StockInTypeEnum getRefundTypeEnum(Integer code) {
+	public static StockInTypeEnum getStockInTypeEnum(Integer code) {
 		for (StockInTypeEnum anEnum : StockInTypeEnum.values()) {
 			if (anEnum.getCode().equals(code)) {
 				return anEnum;
