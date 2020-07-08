@@ -40,13 +40,13 @@ public class SettlementRpcResolver {
      * @return
      */
     public SettleOrder submit(SettleOrderDto settleOrder){
-    	BaseOutput<SettleOrder> bizNumberOutput = settlementRpc.submit(settleOrder);
-        if(!bizNumberOutput.isSuccess()){
-        	LOG.info("结算调用失败!业务号:" + settleOrder.getBusinessCode()+",message"+bizNumberOutput.getErrorData());
+    	BaseOutput<SettleOrder> result = settlementRpc.submit(settleOrder);
+        if(!result.isSuccess()){
+        	LOG.info("结算调用失败!业务号:" + settleOrder.getBusinessCode()+",message"+result.getErrorData());
             throw new BusinessException(ResultCode.APP_ERROR, "结算调用失败!");
         }
         LOG.info("结算成功!业务号:" + settleOrder.getBusinessCode());
-		return bizNumberOutput.getData();	
+		return result.getData();	
     };
  
     /**
@@ -56,13 +56,29 @@ public class SettlementRpcResolver {
      * @return
      */
     public String cancel(Long appId, String orderCode){
-    	BaseOutput<String> bizNumberOutput = settlementRpc.cancel(appId,orderCode);
-        if(!bizNumberOutput.isSuccess()){
+    	BaseOutput<String> result = settlementRpc.cancel(appId,orderCode);
+        if(!result.isSuccess()){
         	LOG.info("结算撤回失败!业务号:" + orderCode);
             throw new BusinessException(ResultCode.APP_ERROR, "结算调用失败!");
         }
         LOG.info("结算撤回成功!业务号:" + orderCode);
-		return bizNumberOutput.getData();
+		return result.getData();
     };
     
+    /**
+     * 【查询】结算单 ---结算单查询
+     * @param appId
+     * @param orderCode
+     * @return
+     */
+    @RequestMapping(value = "/api/settleOrder/get", method = RequestMethod.POST)
+    public SettleOrder get(@RequestParam("appId") Long appId, @RequestParam("orderCode") String orderCode){
+    	BaseOutput<SettleOrder> result = settlementRpc.get(appId,orderCode);
+        if(!result.isSuccess()){
+        	LOG.info("获取结算单失败!业务号:" + orderCode);
+            throw new BusinessException(ResultCode.APP_ERROR, "获取结算单失败!");
+        }
+        LOG.info("结算撤回成功!业务号:" + orderCode);
+		return result.getData();
+    };
 }

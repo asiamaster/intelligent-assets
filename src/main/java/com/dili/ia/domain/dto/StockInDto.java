@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Length;
 
 import com.dili.ia.domain.StockInDetail;
+import com.dili.settlement.domain.SettleOrder;
 
 /**
  * 
@@ -126,6 +127,11 @@ public class StockInDto {
     @NotNull
     private List<StockInDetailDto> stockInDetailDtos;
     
+	/*用于数据展示*/
+    /**
+     * 结算单
+     */
+    private SettleOrder settleOrder;
     
     /**
      * 入库单详情(子单)
@@ -327,6 +333,14 @@ public class StockInDto {
 
 	public void setExpireDate(LocalDateTime expireDate) {
 		this.expireDate = expireDate;
+	}
+
+	public SettleOrder getSettleOrder() {
+		return settleOrder;
+	}
+
+	public void setSettleOrder(SettleOrder settleOrder) {
+		this.settleOrder = settleOrder;
 	}
 	
 	

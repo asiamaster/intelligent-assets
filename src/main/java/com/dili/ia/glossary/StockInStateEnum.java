@@ -25,7 +25,7 @@ public enum StockInStateEnum {
         this.name = name;
     }
 
-    public static StockInStateEnum getRefundTypeEnum(Integer code) {
+    public static StockInStateEnum getStockInStateEnum(Integer code) {
         for (StockInStateEnum anEnum : StockInStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

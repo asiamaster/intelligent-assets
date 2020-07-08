@@ -166,9 +166,6 @@ public class StockIn extends BaseDomain {
     @Column(name= "`submitter`")
     private String submitter;
     
-    @Column(name= "`sub_date`")
-    private LocalDateTime subDate; 
-    
     @Column(name= "`withdraw_operator_id`")
     private Long withdrawOperatorId;
     
@@ -703,14 +700,6 @@ public class StockIn extends BaseDomain {
 
 	public void setSubmitter(String submitter) {
 		this.submitter = submitter;
-	}
-
-	public LocalDateTime getSubDate() {
-		return subDate;
-	}
-
-	public void setSubDate(LocalDateTime subDate) {
-		this.subDate = subDate;
 	}
 
 	public Long getWithdrawOperatorId() {
