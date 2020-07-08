@@ -110,9 +110,9 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         customerMeterDto.setVersion(1);
 
         BeanUtils.copyProperties(customerMeterDto, customerMeter);
-        this.insertSelective(customerMeterDto);
+        this.insertSelective(customerMeter);
 
-        return BaseOutput.success();
+        return BaseOutput.success().setData(customerMeter);
     }
 
     /**
@@ -152,7 +152,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         if (code == 0) {
             return BaseOutput.failure("当前数据正在被其他用户操作，提交失败！请关闭当前弹窗重新选择操作");
         }
-        return BaseOutput.success("操作成功");
+        return BaseOutput.success().setData(customerMeter);
     }
 
     /**
@@ -183,7 +183,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
             return BaseOutput.failure("删除失败，数据已被其他用户操作。");
         }
 
-        return BaseOutput.success("删除成功");
+        return BaseOutput.success().setData(customerMeter);
     }
 
     /**

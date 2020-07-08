@@ -112,7 +112,6 @@
           cm.market_code as market_code,
           cm.version as version,
           me.number as number,
-          me.department_name as departmentName,
           me.type as type,
           me.assets_name as assetsName
       from
@@ -140,7 +139,6 @@
         cm.market_code as market_code,
         cm.version as version,
         me.number as number,
-        me.department_name as departmentName,
         me.type as type,
         me.assets_name as assetsName
     from

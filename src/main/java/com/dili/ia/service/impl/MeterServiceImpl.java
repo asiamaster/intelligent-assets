@@ -72,18 +72,10 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
             return BaseOutput.failure("表信息新增失败,表编号已存在！");
         }
 
-        // 获取部门名称
-        BaseOutput<Department> depOut = departmentRpc.get(meterDto.getDepartmentId());
-        if(!depOut.isSuccess()){
-            LOGGER.info("获取部门失败！" + depOut.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
-        }
-
         // 设置相关属性值
         meterDto.setCreatorId(userTicket.getId());
         meterDto.setCreator(userTicket.getUserName());
         meterDto.setCreatorDepId(userTicket.getDepartmentId());
-        meterDto.setDepartmentName(depOut.getData().getName());
         meterDto.setMarketId(userTicket.getFirmId());
         meterDto.setMarketCode(userTicket.getFirmCode());
         meterDto.setCreateTime(LocalDateTime.now());
@@ -93,7 +85,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         BeanUtils.copyProperties(meterDto, meter);
         this.insertSelective(meter);
 
-        return BaseOutput.success();
+        return BaseOutput.success().setData(meter);
     }
 
     /**
@@ -141,7 +133,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
             return BaseOutput.failure("当前数据正在被其他用户操作，提交失败！请关闭当前弹窗重新选择操作");
         }
 
-        return BaseOutput.success();
+        return BaseOutput.success().setData(meter);
     }
 
     /**

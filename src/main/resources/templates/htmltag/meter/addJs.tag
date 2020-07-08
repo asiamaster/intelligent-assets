@@ -9,6 +9,12 @@
         //行索引计数器
     let itemIndex = 0;
 
+    // 对应摊位
+    $(function () {
+        addBoothItem();
+        registerMsg();
+    });
+
 
     //获取table Index
     function getIndex(str) {
@@ -30,7 +36,7 @@
                 return {
                     suggestions: $.map(data, function (dataItem) {
                         return $.extend(dataItem, {
-                                value: dataItem.name + '(' + (dataItem.secondAreaName?dataItem.secondAreaName : dataItem.areaName) + ')'
+                                value: dataItem.name + '(' + (dataItem.secondAreaName? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
                             }
                         );
                     })
@@ -41,45 +47,17 @@
             }
         }
     }
+
     /**
-     * 摊位选择事件Handler
+     * 添加摊位
      * */
-    /******************************驱动执行区 begin***************************/
-    $(function () {
-        <% if(isNotEmpty(earnestOrderDetails)){ %>
-        let earnestOrderDetails = JSON.parse('${earnestOrderDetails}');
-        for (let earnestOrderDetail of earnestOrderDetails){
-            initBoothItem($.extend(earnestOrderDetail,{index: ++itemIndex}));
-        }
-        <% }else{%>
-        while (itemIndex<1) {
-            initBoothItem({index: ++itemIndex});
-        }
-        <% }%>
-
-        registerMsg();
-
-    });
-
-    /**
-     * 添加摊位
-     * @param leaseOrderItem
-     */
-    function initBoothItem(earnestOrderDetail){
-        $('#boothTable tbody').append(bui.util.HTMLDecode(template('initBoothItem',earnestOrderDetail)))
-    }
-
-    /**
-     * 添加摊位
-     * @param leaseOrderItem
-     */
     function addBoothItem(){
         $('#boothTable tbody').append(bui.util.HTMLDecode(template('boothItem', {index: ++itemIndex})))
     }
 
     // 添加摊位
     $('#addBooth').on('click', function () {
-        if ($('#boothTable tr').length < 11) {
+        if ($('#boothTable tr').length < 2) {
             debugger
             addBoothItem();
         } else {
@@ -93,27 +71,6 @@
             $(this).closest('tr').remove();
         }
     });
-
-    function buildFormData(){
-        // let formData = new FormData($('#saveForm')[0]);
-        let formData = $("input:not(table input),textarea,select").serializeObject();
-        let earnestOrderdetails = [];
-        bui.util.yuanToCentForMoneyEl(formData);
-        $("#boothTable tbody").find("tr").each(function(){
-            let earnestOrderdetail = {};
-            $(this).find("input").each(function(t,el){
-                let fieldName = $(this).attr("name").split('_')[0];
-                if ($(this).val() != ""){
-                    earnestOrderdetail[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
-                }
-            });
-            earnestOrderdetails.push(earnestOrderdetail);
-        });
-
-        $.extend(formData,{earnestOrderdetails,logContent:Log.buildUpdateContent()});
-        debugger
-        return formData;
-    }
 
     /**
      * 判断数组中的元素是否重复出现
@@ -132,14 +89,41 @@
         }
         return false;
     }
+
+    function buildFormData(){
+        // let formData = new FormData($('#saveForm')[0]);
+        let formData = $("input:not(table input),textarea,select").serializeObject();
+        let earnestOrderdetails = [];
+        bui.util.yuanToCentForMoneyEl(formData);
+        $("#boothTable tbody").find("tr").each(function(){
+            let earnestOrderdetail = {};
+            $(this).find("input").each(function(t,el){
+                let fieldName = $(this).attr("name").split('_')[0];
+                if ($(this).val() != ""){
+                    earnestOrderdetail[fieldName] = $(this).val();
+                }
+            });
+            if (earnestOrderdetail != {}){
+                earnestOrderdetails.push(earnestOrderdetail);
+            }
+        });
+
+        $.extend(formData,{earnestOrderdetails});
+        return formData;
+    }
+
     // 提交保存
-    function doUpdateEarnestHandler(){
-        let validator = $('#updateForm').validate({ignore:''})
+    function doAddEarnestHandler(){
+        let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
+            /*$(this).find('.collapse').each(function (index, element) {
+                $(element).trigger('show.bs.collapse');
+            });*/
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
             $('.collapse:not(.show)').addClass('show');
             return false;
         }
+
         let boothIds = $("table input[name^='assetsId']").filter(function () {
             return this.value
         }).map(function(){
@@ -151,10 +135,10 @@
             return false;
         }
         bui.loading.show('努力提交中，请稍候。。。');
-        // let _formData = new FormData($('#updateForm')[0]);
+        // let _formData = new FormData($('#saveForm')[0]);
         $.ajax({
             type: "POST",
-            url: "${contextPath}/meter/update.action",
+            url: "${contextPath}/meter/add.action",
             data: buildFormData(),
             dataType: "json",
             success: function (ret) {
@@ -171,5 +155,4 @@
             }
         });
     }
-
 </script>

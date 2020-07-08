@@ -53,18 +53,6 @@ public class Meter extends BaseDomain {
     private Integer type;
 
     /**
-     * 部门
-     */
-    @Column(name = "`department_id`")
-    private Long departmentId;
-
-    /**
-     * 部门名称
-     */
-    @Column(name = "`department_name`")
-    private String departmentName;
-
-    /**
      * 资产类型code
      */
     @Column(name = "`assets_type`")
@@ -83,7 +71,7 @@ public class Meter extends BaseDomain {
     private String assetsName;
 
     /**
-     * 表初始值
+     * 当前指数
      */
     @Column(name = "`this_amount`")
     private Long thisAmount;
@@ -180,26 +168,6 @@ public class Meter extends BaseDomain {
 
     public void setType(Integer type) {
         this.type = type;
-    }
-
-    @FieldDef(label="部门")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(Long departmentId) {
-        this.departmentId = departmentId;
-    }
-
-    @FieldDef(label="部门名称", maxLength = 100)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getDepartmentName() {
-        return departmentName;
-    }
-
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
     }
 
     @FieldDef(label="资产类型code", maxLength = 50)
