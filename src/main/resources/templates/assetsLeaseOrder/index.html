@@ -39,6 +39,11 @@
                         <label for="code">业务单号</label>
                         <input type="text" class="form-control" name="code" id="code" maxlength="50"/>
                     </div>
+                    <div class="form-group col">
+                        <label for="code">一级区域</label>
+                        <select id="firstDistrictId" name="firstDistrictId" class="form-control"></select>
+                        <#bcomboProvider _id="firstDistrictId" _provider="firstDistrictProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
+                    </div>
                     <div class="form-group col-auto">
                         <label for="createdStart">创建时间</label>
                         <div class="form-inline">
@@ -131,6 +136,9 @@
                     <th data-field="payState" data-sortable="true" data-align="center" data-sort-name="pay_state" data-provider="payStateProvider">
                         交费状态
                     </th>
+                    <th data-field="refundState" data-sortable="true" data-align="center" data-sort-name="refund_state" data-provider="leaseRefundStateProvider">
+                        退款状态
+                    </th>
                     <th data-field="totalAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
                         合计金额
                     </th>
@@ -214,6 +222,9 @@
                 <% } }%>
                 <th data-field="state" data-sortable="true" data-align="center" data-provider="leaseOrderStateProvider">
                     状态
+                </th>
+                <th data-field="refundState" data-sortable="true" data-align="center" data-sort-name="refund_state" data-provider="leaseRefundStateProvider">
+                    退款状态
                 </th>
             </tr>
             </thead>
