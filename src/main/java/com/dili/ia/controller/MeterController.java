@@ -121,16 +121,16 @@ public class MeterController {
     public @ResponseBody BaseOutput addMeter(@ModelAttribute MeterDto meterDto) {
 
         // 新增
-        BaseOutput<Meter> output = meterService.addMeter(meterDto);
+        BaseOutput<Meter> baseOutput = meterService.addMeter(meterDto);
 
         // 写业务日志
-        if (output.isSuccess()){
-            Meter meter = output.getData();
+        if (baseOutput.isSuccess()){
+            Meter meter = baseOutput.getData();
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
 
-        return output;
+        return baseOutput;
     }
 
     /**
@@ -145,16 +145,16 @@ public class MeterController {
     public @ResponseBody BaseOutput updateMeter(@ModelAttribute MeterDto meterDto) {
 
         // 修改
-        BaseOutput<Meter> output = meterService.updateMeter(meterDto);
+        BaseOutput<Meter> baseOutput = meterService.updateMeter(meterDto);
 
         // 写业务日志
-        if (output.isSuccess()){
-            Meter meter = output.getData();
+        if (baseOutput.isSuccess()){
+            Meter meter = baseOutput.getData();
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
 
-        return output;
+        return baseOutput;
     }
 
     /**
@@ -166,12 +166,10 @@ public class MeterController {
      */
     @RequestMapping(value="/listUnbindMetersByType.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput listUnbindMetersByType(Integer type) {
-        BaseOutput baseOutput = new BaseOutput();
 
         List<Meter> meterList = meterService.listUnbindMetersByType(type);
-        baseOutput.setData(meterList);
 
-        return baseOutput;
+        return BaseOutput.success().setData(meterList);
 
     }
 
@@ -188,9 +186,8 @@ public class MeterController {
         BaseOutput baseOutput = new BaseOutput();
 
         Meter meterInfo = meterService.getMeterLikeNumber(type, number);
-        baseOutput.setData(meterInfo);
 
-        return baseOutput;
+        return BaseOutput.success().setData(meterInfo);
     }
 
 }

@@ -94,7 +94,7 @@ public class MeterDetailDto extends MeterDetail {
     private Long cope;
 
     /**
-     * 业务记录
+     * 收费员、缴费日期
      */
 
     public String getKeyword() {

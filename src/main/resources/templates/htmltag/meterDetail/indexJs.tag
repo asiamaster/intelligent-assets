@@ -33,6 +33,34 @@
     /*****************************************函数区 begin************************************/
 
     /**
+     * 打开查看
+     * @param id
+     */
+    function openViewHandler(id) {
+        if(!id){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            id = rows[0].id;
+        }
+
+
+        dia = bs4pop.dialog({
+            title: '表信息详情',
+            content: '/meterDetail/view.action?id='+id,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '80%',
+            height : '95%',
+            btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
+        });
+    }
+
+    /**
      * 查询处理
      */
     function queryDataHandler() {

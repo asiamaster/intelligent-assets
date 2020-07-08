@@ -30,7 +30,7 @@
     var meterAutoCompleteOption = {
         paramName: 'number',
         displayFieldName: 'name',
-        serviceUrl: '/meter/getMeterLikeNumber.action?type=1',
+        serviceUrl: '/meter/getMeterLikeNumber.action',
         transformResult: function (result) {
             if(result.success){
                 let data = result.data;

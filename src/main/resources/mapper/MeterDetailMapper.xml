@@ -334,7 +334,9 @@
         md.version,
         m.number as number,
         m.type as type,
-        m.assets_name as assetsName
+        m.assets_name as assetsName,
+        m.assets_type as assetsType,
+        m.price as price
     FROM
         meter_detail md
     LEFT JOIN meter m on md.meter_id = m.id
