@@ -230,7 +230,7 @@ public class MeterDetailController {
     }
 
     /**
-     * 根据 meterId 获取初始值
+     * 根据 meterId 获取初始值(合并到 customerMeter 中的 getBindInfoByMeterId 方法)
      *
      * @param  meterId
      * @return 初始值(上期指数)

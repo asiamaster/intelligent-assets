@@ -165,7 +165,7 @@ public class CustomerMeterController {
     }
 
     /**
-     * 根据表主键 meterId 获取表绑定的用户信息
+     * 根据表主键 meterId 获取表绑定的用户信息以及上期指数
      *
      * @param  meterId 表主键
      * @return CustomerMeter

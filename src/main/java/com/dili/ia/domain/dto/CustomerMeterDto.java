@@ -51,6 +51,11 @@ public class CustomerMeterDto extends CustomerMeter {
      */
     private String assetsName;
 
+    /**
+     * 上期指数
+     */
+    private Long lastAmount;
+
     public String getDepartmentName() {
         return departmentName;
     }
@@ -97,5 +102,13 @@ public class CustomerMeterDto extends CustomerMeter {
 
     public void setAssetsName(String assetsName) {
         this.assetsName = assetsName;
+    }
+
+    public Long getLastAmount() {
+        return lastAmount;
+    }
+
+    public void setLastAmount(Long lastAmount) {
+        this.lastAmount = lastAmount;
     }
 }

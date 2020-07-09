@@ -183,6 +183,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetail.setState(MeterDetailStateEnum.UNSUBMITED.getCode());
         this.getActualDao().insertSelective(meterDetail);
 
+        // TODO
+        // 动态收费项，公摊费添加到 business_charge_item 表中
+
         CustomerMeter customerMeter = customerMeterService.getBindInfoByMeterId(meterDetail.getMeterId());
         if (null == customerMeter || !customerMeter.getCustomerId().equals(meterDetail.getCustomerId())) {
             //已被解绑或删除
@@ -190,7 +193,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
         Boolean isEquals = meterDetailDto.getLastAmount().equals(lastAmount);
         if (!isEquals){
-            BaseOutput.failure("上期指数已发生变化,请修改后重新提交!");
+            BaseOutput.failure("上期指数已发生变化，请修改后重新提交!");
         }
 
         return BaseOutput.success().setData(meterDetail);

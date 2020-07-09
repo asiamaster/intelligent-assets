@@ -8,8 +8,10 @@ import com.dili.ia.mapper.CustomerMeterMapper;
 import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -187,16 +189,28 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     }
 
     /**
-     * 根据表主键 meterId 获取表绑定的用户信息
+     * 根据表主键 meterId 获取表绑定的用户信息以及上期指数
      *
      * @param  meterId
      * @return CustomerMeter
      * @date   2020/6/28
      */
     @Override
-    public CustomerMeter getBindInfoByMeterId(Long meterId) {
-        CustomerMeter customerMeterInfo = this.getActualDao().getBindInfoByMeterId(meterId);
+    public CustomerMeterDto getBindInfoByMeterId(Long meterId) {
+        CustomerMeterDto customerMeterDto = new CustomerMeterDto();
 
-        return customerMeterInfo;
+        CustomerMeter customerMeterInfo = this.getActualDao().getBindInfoByMeterId(meterId);
+        if (customerMeterInfo == null) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "表已被删除");
+        }
+        BeanUtils.copyProperties(customerMeterInfo, customerMeterDto);
+
+        // 查询上期指数
+        BaseOutput lastAmountOut = meterDetailService.getLastAmount(meterId);
+        Long lastAmount = (Long)lastAmountOut.getData();
+
+        customerMeterDto.setLastAmount(lastAmount);
+
+        return customerMeterDto;
     }
 }
