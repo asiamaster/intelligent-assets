@@ -1,17 +1,12 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.controller.MeterController;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ia.mapper.MeterMapper;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.service.MeterService;
 import com.dili.ss.base.BaseServiceImpl;
-import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.exception.BusinessException;
-import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
@@ -24,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -140,12 +134,17 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)
      *
      * @param  type 表类型,有枚举 meterTypeEnum
+     * @param likeName
      * @return meterList
      * @date   2020/6/16
      */
     @Override
-    public List<Meter> listUnbindMetersByType(Integer type) {
-        List<Meter> meterList = this.getActualDao().listUnbindMetersByType(type);
+    public List<Meter> listUnbindMetersByType(Integer type, String likeName) {
+        MeterDto meterDto = new MeterDto();
+        meterDto.setType(type);
+        meterDto.setKeyword(likeName);
+
+        List<Meter> meterList = this.getActualDao().listUnbindMetersByType(meterDto);
 
         return meterList;
     }

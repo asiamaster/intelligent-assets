@@ -102,7 +102,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-    <select id="listUnbindMetersByType" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="listUnbindMetersByType" parameterType="com.dili.ia.domain.dto.MeterDto" resultMap="BaseResultMap">
         SELECT
             m.id,
             m.assets_name,
@@ -120,9 +120,13 @@
               WHERE
                   cm.state = 1
                   AND m.id = cm.meter_id
-                  AND m.type = #{value}
+                  AND m.type = #{type}
             )
         AND m.type = #{type}
+      <if test="keyword != null">
+        and m.number like CONCAT('%',#{keyword,jdbcType=VARCHAR},'%' )
+      </if>
+
     </select>
 
     <select id="getMeterLikeNumber" parameterType="com.dili.ia.domain.Meter" resultMap="BaseResultMap">

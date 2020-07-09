@@ -158,16 +158,16 @@ public class MeterController {
     }
 
     /**
-     * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)
+     * 根据表类型, 输入的关键字, 模糊获取未绑定的表编号集合(新增表用户关系页面回显)
      *
      * @param  type 表类型,有枚举 meterTypeEnum
      * @return meterList
      * @date   2020/6/16
      */
     @RequestMapping(value="/listUnbindMetersByType.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput listUnbindMetersByType(Integer type) {
+    public @ResponseBody BaseOutput listUnbindMetersByType(Integer type, String likeName) {
 
-        List<Meter> meterList = meterService.listUnbindMetersByType(type);
+        List<Meter> meterList = meterService.listUnbindMetersByType(type, likeName);
 
         return BaseOutput.success().setData(meterList);
 

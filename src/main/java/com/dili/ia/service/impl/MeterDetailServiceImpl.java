@@ -103,7 +103,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     public MeterDetailDto getMeterDetailById(Long id) {
         // 根据主键 id 查询到水电费单详情以及联表查询表信息
         MeterDetailDto meterDetailDtoInfo = this.getActualDao().getMeterDetailById(id);
-        // TODO 业务记录未完成
+        // TODO 动态收费项，操作日志的业务记录，计费规则
         return meterDetailDtoInfo;
     }
 
@@ -234,7 +234,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         paymentOrderService.insertSelective(paymentOrder);
 
 
-        // 有公摊费, 则有多个缴费单
+        // TODO 有公摊费, 多个缴费单还是动态计费
 //        List<PaymentOrder> saveList = Lists.newArrayList();
 //        // 如果有公摊费,设置公摊费信息
 //        Long sharedAmount = meterDetailDto.getSharedAmount();

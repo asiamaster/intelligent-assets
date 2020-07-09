@@ -65,7 +65,7 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * 根据表主键 meterId 获取表绑定的用户信息
      * 
      * @param  meterId
-     * @return CustomerMeter
+     * @return CustomerMeterDto
      * @date   2020/6/28
      */
     CustomerMeterDto getBindInfoByMeterId(Long meterId);
