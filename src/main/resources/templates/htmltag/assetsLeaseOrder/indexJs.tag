@@ -505,12 +505,12 @@
             if ((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
                 || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
                 && row.payState == ${@com.dili.ia.glossary.PayStateEnum.PAID.getCode()}
-                && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}
+                && row.refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}
             ) {
                 $('#btn_stop_rent'+index).attr('disabled', false);
             }
 
-            if(row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}){
+            if(row.refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}){
                 $('#btn_refund_apply'+index).attr('disabled', false);
             }
         });

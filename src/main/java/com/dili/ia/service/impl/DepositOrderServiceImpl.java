@@ -404,6 +404,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
         }
+        PaymentOrder paymentOrder = this.findPaymentOrder(userTicket.getFirmId(), PaymentOrderStateEnum.NOT_PAID.getCode(), refundOrder.getBusinessId(), refundOrder.getBusinessCode());
+        if (paymentOrder != null){
+            withdrawPaymentOrder(paymentOrder);
+        }
         //检查客户状态
         checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
         DepositOrder depositOrder = this.get(refundOrder.getBusinessId());
@@ -415,8 +419,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             return BaseOutput.failure("创建失败，已存在退款中的业务单！");
         }
         Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
-        if (depositOrder.getAmount() < totalRefundAmount){
-            return BaseOutput.failure("退款金额不能大于订单金额！");
+        if (depositOrder.getPaidAmount() < totalRefundAmount){
+            return BaseOutput.failure("退款金额不能大于订单已交费金额！");
         }
         depositOrder.setState(DepositOrderStateEnum.REFUNDING.getCode());
         if (this.updateSelective(depositOrder) == 0) {
@@ -553,20 +557,20 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     public BaseOutput refundSuccessHandler(RefundOrder refundOrder) {
         DepositOrder depositOrder = this.get(refundOrder.getBusinessId());
-        if (RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) {
-            LOG.info("此单已退款【refundOrderId={}】", refundOrder.getId());
-            return BaseOutput.success();
+        if (DepositRefundStateEnum.REFUNDED.getCode().equals(depositOrder.getRefundState())) {
+            LOG.info("此退款单【refundOrderId={}】关联的业务单【businessCode={}】已【全额退款】，退款失败！", refundOrder.getId(), refundOrder.getBusinessCode());
+            return BaseOutput.failure("此退款单关联的业务单已【全额退款】，退款失败！");
         }
-        if (!RefundOrderStateEnum.SUBMITTED.equals(refundOrder.getState())){
-            LOG.info("此退款单状态已变更【refundOrderId={}】【状态：{}】，退款失败！", refundOrder.getId(), RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.getState()).getName());
-            return BaseOutput.failure("此退款单状态已变更，退款失败！");
+        if (!DepositOrderStateEnum.REFUNDING.getCode().equals(depositOrder.getState())){
+            LOG.info("此退款单【refundOrderId={}】关联的业务单状态已变更【状态：{}】，退款失败！", refundOrder.getId(), DepositOrderStateEnum.getDepositOrderStateEnumName(depositOrder.getState()));
+            return BaseOutput.failure("此退款单关联的业务单状态已变更，退款失败！");
         }
         Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
-        if (depositOrder.getAmount() < totalRefundAmount){
+        if (depositOrder.getPaidAmount() < totalRefundAmount){
             LOG.error("异常订单！！！---- 保证金单退款申请结算退款成功 但是退款单退款总金额大于订单可退金额【保证金单ID {}，退款单ID{}】", depositOrder.getId(), refundOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "异常订单！！！-- 退款金额不能大于保证金单可退金额！");
         }
-        if (depositOrder.getAmount().equals(totalRefundAmount)){
+        if (depositOrder.getPaidAmount().equals(totalRefundAmount)){
             depositOrder.setRefundState(DepositRefundStateEnum.REFUNDED.getCode());
         }else {
             depositOrder.setRefundState(DepositRefundStateEnum.PART_REFUND.getCode());

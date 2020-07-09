@@ -1,6 +1,5 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -18,10 +17,7 @@ import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.metadata.ValueProviderUtils;
-import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.common.util.StringUtils;
@@ -37,7 +33,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -103,7 +100,9 @@ public class DepositOrderController {
     public String refundApply(ModelMap modelMap, Long id) {
         if(null != id){
             DepositOrder depositOrder = depositOrderService.get(id);
+            Long maxRefundAmount = depositOrder.getPaidAmount() - depositOrder.getRefundAmount();
             modelMap.put("depositOrder",depositOrder);
+            modelMap.put("maxRefundAmount", maxRefundAmount);
         }
         return "depositOrder/refundApply";
     }
