@@ -1,24 +1,35 @@
 <script>
+    /**
+     *
+     * @Date 2019-11-06 17:30:00
+     * @author jiangchengyong
+     *
+     ***/
 
-    let meterType = $('#metertype').val();
-    lay('.laymonth').each(function () {
-        laydate.render({
-            elem: this,
-            trigger: 'click',
-            type: 'month',
-            theme: '#007bff',
-            done: function () {
-            }
-        });
+        // 表类型
+    let meterType = '';
+
+    // 对应摊位
+    $(function () {
+        registerMsg();
     });
 
+    //初始化刷卡
+    initSwipeCard({
+        id:'getCustomer',
+    });
+
+    $('[name="type"]').on('change', function(){
+        // $('[name="number"]').autocomplete('setOptions', {serviceUrl: '/meter/listUnbindMetersByType.action'});
+        meterType = $(this).val();
+        $('[name="number"]').autocomplete('setOptions', {params: {'type': meterType }});
+    })
+
     var numberAutoCompleteOption = {
-        serviceUrl: '/meter/getMeterLikeNumber.action',
+        serviceUrl: '/meter/listUnbindMetersByType.action',
         paramName: 'likeName',
         displayFieldName: 'name',
-        params: {'type': meterType},
         transformResult: function (response) {
-            debugger
             if(response.success){
                 return {
                     suggestions: $.map(response.data, function(item) {
@@ -35,49 +46,36 @@
         selectFn: function (suggestion) {
             debugger
             $('[name="number"]').val(suggestion.value);
-            $('[name="assetsType"]').val(suggestion.assetsType);
+            $('[name="assetsId"]').val(suggestion.assetsId);
             $('[name="assetsName"]').val(suggestion.assetsName);
-            $('[name="departmentId"]').val(suggestion.departmentId);
-            $('[name="customerCellphone"]').val(suggestion.customerCellphone);
-            $('[name="customerName"]').val(suggestion.customerName);
-            $('[name="lastAmount"]').val(suggestion.lastAmount);
-            $('[name="price"]').val(suggestion.price);
-            $('#saveForm').validate().form();
+            $('[name="number"], [name="assetsId"], [name="assetsName"]').valid();
         }
     };
 
 
+
+
     // 提交保存
-    function saveOrUpdateHandler(){
-        let validator = $('#saveForm').validate({ignore:''})
-        debugger
+    function doAddEarnestHandler(){
+        let validator = $('#saveForm').validate({ignore:''});
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
             $('.collapse:not(.show)').addClass('show');
             return false;
         }
-
-        bui.loading.show('努力提交中，请稍候。。。');
-        let _formData = bui.util.removeKeyStartWith(_form.serializeObject(), "_");
-        let _url = null;
-
-        //没有id就新增
-        if (_formData.id == null || _formData.id == "") {
-            _url = "${contextPath}/meterDetail/insert.action";
-        } else {//有id就修改
-            _url = "${contextPath}/meterDetail/update.action";
-        }
+               bui.loading.show('努力提交中，请稍候。。。');
+        // let _formData = new FormData($('#saveForm')[0]);
         $.ajax({
             type: "POST",
-            url: _url,
-            data: _formData,
+            url: "${contextPath}/customerMeter/add.action",
+            data: $("input:not(table input),textarea,select").serializeObject(),
             dataType: "json",
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
-                    parent.dia.hide()
+                    parent.dia.hide();
                 }
             },
             error: function (error) {
@@ -86,5 +84,4 @@
             }
         });
     }
-
 </script>

@@ -1,6 +1,5 @@
 <script>
 
-    let meterType = $('#metertype').val();
     lay('.laymonth').each(function () {
         laydate.render({
             elem: this,
@@ -11,41 +10,27 @@
             }
         });
     });
-
-    var numberAutoCompleteOption = {
-        serviceUrl: '/meter/getMeterLikeNumber.action',
-        paramName: 'likeName',
+    var meterAutoCompleteOption = {
+        paramName: 'number',
         displayFieldName: 'name',
-        params: {'type': meterType},
-        transformResult: function (response) {
-            debugger
-            if(response.success){
+        serviceUrl: '/meter/getMeterLikeNumber.action',
+        transformResult: function (result) {
+            if(result.success){
+                let data = result.data;
                 return {
-                    suggestions: $.map(response.data, function(item) {
-                        return  $.extend(item, {
-                            value: item.assetsId + ''
-                        });
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '(' + (dataItem.secondAreaName? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
+                            }
+                        );
                     })
-                };
+                }
             }else{
                 bs4pop.alert(result.message, {type: 'error'});
-                return false;
+                return;
             }
-        },
-        selectFn: function (suggestion) {
-            debugger
-            $('[name="number"]').val(suggestion.value);
-            $('[name="assetsType"]').val(suggestion.assetsType);
-            $('[name="assetsName"]').val(suggestion.assetsName);
-            $('[name="departmentId"]').val(suggestion.departmentId);
-            $('[name="customerCellphone"]').val(suggestion.customerCellphone);
-            $('[name="customerName"]').val(suggestion.customerName);
-            $('[name="lastAmount"]').val(suggestion.lastAmount);
-            $('[name="price"]').val(suggestion.price);
-            $('#saveForm').validate().form();
         }
-    };
-
+    }
 
     // 提交保存
     function saveOrUpdateHandler(){

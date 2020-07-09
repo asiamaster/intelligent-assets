@@ -63,24 +63,4 @@
 
 </#bs4Body>
 
-<#customerMeter_updateJs />
-
-<script  id="boothItem"  type="text/html">
-    <tr data-index="{{index}}">
-        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
-        <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _log="摊位编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}"  _valueField="id" _textField="name" _value="{{boothId}}" _text="{{boothName}}" _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
-        </td>
-
-    </tr>
-</script>
-
-<script  id="initBoothItem"  type="text/html">
-    <tr data-index="{{index}}">
-        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
-        <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _log="摊位编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}"  _valueField="id" _textField="name" _value="{{assetsId}}" _text="{{assetsName}}" _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
-        </td>
-
-    </tr>
-</script>
+<#customerMeter_preSaveJs />

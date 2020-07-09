@@ -2,6 +2,7 @@
     <div class="container-fluid">
         <form id="saveForm" method="post" action="" class="pb-5">
             <input type="hidden" id="">
+            <input type="hidden" id="metertype" value="1">
             <div class="row row-cols-4" >
                 <div class="form-group col">
                     <label for="usageTime">月份<i class="red">*</i></label>
@@ -10,13 +11,13 @@
 
                 <div class="form-group col">
                     <label for="number">表编号<i class="red">*</i></label>
-                    <#bautoCompleteProvider _hiddenDomainId="number" _hiddenDomainName="number" _displayDomainId="number" _displayDomainName="number" _placeholder="" _validatorMethod="isSelected" _optionVariable="meterAutoCompleteOption" _required="true"/>
+                    <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="number" _displayDomainName="number" _placeholder="" _validatorMethod="isSelected" _optionVariable="numberAutoCompleteOption" _required="true"/>
                 </div>
-
                 <div class="form-group col">
                     <label for="assetsType">类别<i class="red">*</i></label>
-                    <select id="assetsType"  name="assetsType" class="form-control" required></select>
-                    <#bcomboProvider _id="assetsType" _provider="assetsTypeProvider"/>
+                    <input type="text" class="form-control" id="assetsType" name="assetsType" disabled />
+                    <!--  <select id="assetsType"  name="assetsType" class="form-control" required></select>
+                        <#bcomboProvider _id="assetsType" _provider="assetsTypeProvider"/>-->
                 </div>
                 <div class="form-group col">
                     <label for="assetsName">表地址</label>
@@ -83,4 +84,4 @@
 
 <#js_customerAutocompleteJs/>
 
-<#meterDetail_addJs />
+<#meterDetail_preSaveJs />
