@@ -141,9 +141,11 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
     @Override
     public List<Meter> listUnbindMetersByType(Integer type, String likeName) {
         MeterDto meterDto = new MeterDto();
-        meterDto.setType(type);
-        meterDto.setKeyword(likeName);
 
+        meterDto.setType(type);
+        if (StringUtils.isNotEmpty(likeName)) {
+            meterDto.setLikeName(likeName);
+        }
         List<Meter> meterList = this.getActualDao().listUnbindMetersByType(meterDto);
 
         return meterList;
@@ -153,23 +155,21 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
      *
      * @param  type   表类型,有枚举 meterTypeEnum
-     * @param  number 表编号
+     * @param  likeName 表编号
      * @return meterList
      * @date   2020/6/28
      */
     @Override
-    public Meter getMeterLikeNumber(Integer type, String number) {
-        Meter meterInfo = new Meter();
+    public List<Meter> listMetersLikeNumber(Integer type, String likeName) {
+        MeterDto meterDto = new MeterDto();
 
-        // 如果表地址未输入,则直接返回空
-        Meter meter = new Meter();
-        if (StringUtils.isNotEmpty(number)) {
-            meter.setType(type);
-            meter.setNumber(number);
-            meterInfo = this.getActualDao().getMeterLikeNumber(meter);
+        meterDto.setType(type);
+        if (StringUtils.isNotEmpty(likeName)) {
+            meterDto.setLikeName(likeName);
         }
+        List<Meter> meterList = this.getActualDao().listMetersLikeNumber(meterDto);
 
-        return meterInfo;
+        return meterList;
     }
 
 }

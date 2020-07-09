@@ -47,9 +47,9 @@ public interface MeterService extends BaseService<Meter, Long> {
      * 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
      *
      * @param  type   表类型,有枚举 meterTypeEnum
-     * @param  number 表编号
+     * @param  likeName 表编号
      * @return meterList
      * @date   2020/6/28
      */
-    Meter getMeterLikeNumber(Integer type, String number);
+    List<Meter> listMetersLikeNumber(Integer type, String likeName);
 }

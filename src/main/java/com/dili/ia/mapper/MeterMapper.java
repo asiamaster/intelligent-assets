@@ -26,9 +26,9 @@ public interface MeterMapper extends MyMapper<Meter> {
     /**
      * 根据表类型 type、表编号 number 查询表信息(新增缴水电费时页面回显)
      *
-     * @param  meter
+     * @param  meterDto
      * @return meterList
      * @date   2020/6/28
      */
-    Meter getMeterLikeNumber(Meter meter);
+    List<Meter> listMetersLikeNumber(MeterDto meterDto);
 }

@@ -123,19 +123,21 @@
                   AND m.type = #{type}
             )
         AND m.type = #{type}
-      <if test="keyword != null">
-        and m.number like CONCAT('%',#{keyword,jdbcType=VARCHAR},'%' )
+      <if test="likeName != null">
+        and m.number like CONCAT('%',#{likeName,jdbcType=VARCHAR},'%' )
       </if>
 
     </select>
 
-    <select id="getMeterLikeNumber" parameterType="com.dili.ia.domain.Meter" resultMap="BaseResultMap">
+    <select id="listMetersLikeNumber" parameterType="com.dili.ia.domain.dto.MeterDto" resultMap="BaseResultMap">
         select
             <include refid="Base_Column_List" />
         from
             meter
         where
             type = #{type,jdbcType=INTEGER}
-        and number like CONCAT('%',#{number,jdbcType=VARCHAR},'%' )
+        <if test="likeName != null">
+          and number like CONCAT('%',#{likeName,jdbcType=VARCHAR},'%' )
+        </if>
     </select>
 </mapper>

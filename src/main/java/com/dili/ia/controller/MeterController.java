@@ -158,7 +158,7 @@ public class MeterController {
     }
 
     /**
-     * 根据表类型, 输入的关键字, 模糊获取未绑定的表编号集合(新增表用户关系页面回显)
+     * 根据表类型, 输入的关键字, 模糊获取"未绑定"的表编号集合(新增表用户关系页面回显)
      *
      * @param  type 表类型,有枚举 meterTypeEnum
      * @return meterList
@@ -177,17 +177,16 @@ public class MeterController {
      * 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
      *
      * @param  type   表类型,有枚举 meterTypeEnum
-     * @param  number 表编号
+     * @param  likeName 表编号
      * @return meterList
      * @date   2020/6/28
      */
     @RequestMapping(value="/getMeterLikeNumber.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getMeterLikeNumber(Integer type,String number) throws Exception {
-        BaseOutput baseOutput = new BaseOutput();
+    public @ResponseBody BaseOutput getMeterLikeNumber(Integer type, String likeName) throws Exception {
 
-        Meter meterInfo = meterService.getMeterLikeNumber(type, number);
+        List<Meter> meterList = meterService.listMetersLikeNumber(type, likeName);
 
-        return BaseOutput.success().setData(meterInfo);
+        return BaseOutput.success().setData(meterList);
     }
 
 }
