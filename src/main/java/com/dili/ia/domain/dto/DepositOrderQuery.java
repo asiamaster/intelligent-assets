@@ -37,6 +37,10 @@ public class DepositOrderQuery extends DepositOrder {
     @Column(name = "department_id")
     private List<Long> departmentIds;
 
+    @Operator(Operator.IN)
+    @Column(name = "business_id")
+    private List<Long> businessIds;
+
     public LocalDateTime getCreatedStart() {
         return createdStart;
     }
@@ -67,5 +71,13 @@ public class DepositOrderQuery extends DepositOrder {
 
     public void setDepartmentIds(List<Long> departmentIds) {
         this.departmentIds = departmentIds;
+    }
+
+    public List<Long> getBusinessIds() {
+        return businessIds;
+    }
+
+    public void setBusinessIds(List<Long> businessIds) {
+        this.businessIds = businessIds;
     }
 }

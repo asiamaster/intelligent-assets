@@ -3,12 +3,8 @@ package com.dili.ia.controller;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.AssetsLeaseOrder;
-import com.dili.ia.domain.AssetsLeaseOrderItem;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.dto.AssetsLeaseOrderItemListDto;
-import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
-import com.dili.ia.domain.dto.LeaseRefundOrderDto;
+import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
 import com.dili.ia.rpc.AssetsRpc;
@@ -24,6 +20,7 @@ import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,6 +59,8 @@ public class AssetsLeaseOrderController {
     private BusinessChargeItemService businessChargeItemService;
     @Autowired
     private AssetsRpc assetsRpc;
+    @Autowired
+    private DepositOrderService depositOrderService;
 
 
     /**
@@ -384,6 +383,35 @@ public class AssetsLeaseOrderController {
             LOG.error("资产租赁退款申请异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
+    }
+
+    /**
+     * 客户批量资产保证金余额查询
+     * @param batchDepositBalanceQueryDto
+     * @return String
+     */
+    @RequestMapping(value="/batchQueryDepositBalance.action", method = { RequestMethod.POST})
+    public @ResponseBody BaseOutput<List<DepositBalance>> batchQueryDepositBalance(@RequestBody BatchDepositBalanceQueryDto batchDepositBalanceQueryDto){
+        return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds());
+    }
+
+    /**
+     * 批量订单项保证金（补交）查询
+     * @param depositOrderQuery
+     * @return String
+     */
+    @RequestMapping(value="/batchQueryDepositOrder.action", method = { RequestMethod.POST})
+    public @ResponseBody BaseOutput<List<DepositOrder>> batchQueryDepositOrder(DepositOrderQuery depositOrderQuery){
+        try{
+            return BaseOutput.success().setData(depositOrderService.listByExample(depositOrderQuery));
+        }catch (BusinessException e){
+            LOG.info("批量查询保证金单异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("批量查询保证金单异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+
     }
 
 }
