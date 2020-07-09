@@ -175,7 +175,7 @@ public class CustomerMeterController {
     public @ResponseBody BaseOutput getBindInfoByMeterId(Long meterId) {
         BaseOutput baseOutput = new BaseOutput();
 
-        CustomerMeter customerMeterInfo = customerMeterService.getBindInfoByMeterId(meterId);
+        CustomerMeterDto customerMeterInfo = customerMeterService.getBindInfoByMeterId(meterId);
         baseOutput.setData(customerMeterInfo);
 
         return baseOutput;
