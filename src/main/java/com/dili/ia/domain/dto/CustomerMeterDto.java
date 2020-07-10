@@ -1,17 +1,8 @@
 package com.dili.ia.domain.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.ia.domain.CustomerMeter;
-import com.dili.ss.domain.BaseDomain;
-import com.dili.ss.metadata.FieldEditor;
-import com.dili.ss.metadata.annotation.EditMode;
-import com.dili.ss.metadata.annotation.FieldDef;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
-import javax.persistence.Table;
-import java.util.Date;
 
 /**
  * @author:      xiaosa
@@ -47,6 +38,16 @@ public class CustomerMeterDto extends CustomerMeter {
     private String number;
 
     /**
+     * 资产类型 id
+     */
+    private Long assetsId;
+
+    /**
+     * 资产类型 类别
+     */
+    private String assetsType;
+
+    /**
      * 对应编号,名称(表地址)
      */
     private String assetsName;
@@ -55,6 +56,50 @@ public class CustomerMeterDto extends CustomerMeter {
      * 上期指数
      */
     private Long lastAmount;
+
+    /**
+     * 表主键
+     */
+    private Long meterId;
+
+    /**
+     * 单价
+     */
+    private Long price;
+
+    public Long getAssetsId() {
+        return assetsId;
+    }
+
+    public void setAssetsId(Long assetsId) {
+        this.assetsId = assetsId;
+    }
+
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
+
+    public String getAssetsType() {
+        return assetsType;
+    }
+
+    public void setAssetsType(String assetsType) {
+        this.assetsType = assetsType;
+    }
+
+    @Override
+    public Long getMeterId() {
+        return meterId;
+    }
+
+    @Override
+    public void setMeterId(Long meterId) {
+        this.meterId = meterId;
+    }
 
     public String getDepartmentName() {
         return departmentName;

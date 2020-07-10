@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 /**
  * @author:      xiaosa
  * @date:        2020/6/16
@@ -165,6 +167,20 @@ public class CustomerMeterController {
     }
 
     /**
+     * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)
+     *
+     * @param  keyword 输入编号
+     * @return 表客户List
+     * @date   2020/7/10
+     */
+    @RequestMapping(value="/listCustomerMeterByLikeName.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput listCustomerMeterByLikeName(Integer type, String keyword) {
+        List<CustomerMeterDto> customerMeterDtoList = customerMeterService.listCustomerMetersByLikeName(type, keyword);
+
+        return BaseOutput.success().setData(customerMeterDtoList);
+    }
+
+    /**
      * 根据表主键 meterId 获取表绑定的用户信息以及上期指数
      *
      * @param  meterId 表主键
@@ -173,11 +189,8 @@ public class CustomerMeterController {
      */
     @RequestMapping(value="/getBindInfoByMeterId.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput getBindInfoByMeterId(Long meterId) {
-        BaseOutput baseOutput = new BaseOutput();
-
         CustomerMeterDto customerMeterInfo = customerMeterService.getBindInfoByMeterId(meterId);
-        baseOutput.setData(customerMeterInfo);
 
-        return baseOutput;
+        return BaseOutput.success().setData(customerMeterInfo);
     }
 }

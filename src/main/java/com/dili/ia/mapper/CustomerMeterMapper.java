@@ -1,7 +1,6 @@
 package com.dili.ia.mapper;
 
 import com.dili.ia.domain.CustomerMeter;
-import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ss.base.MyMapper;
 
@@ -36,4 +35,15 @@ public interface CustomerMeterMapper extends MyMapper<CustomerMeter> {
      * @date   2020/6/28
      */
     CustomerMeter getBindInfoByMeterId(Long meterId);
+
+    /**
+     * 根据表编号模糊查询表客户信息列表
+     *
+     *
+     * @param  customerMeterDto 输入编号,类型
+     * @return 表客户List
+     * @date   2020/7/10
+     */
+    List<CustomerMeterDto> listCustomerMetersByLikeName(CustomerMeterDto customerMeterDto);
+
 }

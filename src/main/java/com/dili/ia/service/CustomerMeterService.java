@@ -1,11 +1,12 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.CustomerMeter;
-import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+
+import java.util.List;
 
 /**
  * @author:       xiaosa
@@ -69,4 +70,15 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * @date   2020/6/28
      */
     CustomerMeterDto getBindInfoByMeterId(Long meterId);
+
+    /**
+     * 根据表编号模糊查询表客户信息列表
+     *
+     *
+     * @param type
+     * @param  keyword 输入编号
+     * @return 表客户List
+     * @date   2020/7/10
+     */
+    List<CustomerMeterDto> listCustomerMetersByLikeName(Integer type, String keyword);
 }

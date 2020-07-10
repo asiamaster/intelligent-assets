@@ -27,14 +27,14 @@
 
     var numberAutoCompleteOption = {
         serviceUrl: '/meter/listUnbindMetersByType.action',
-        paramName: 'likeName',
+        paramName: 'keyword',
         displayFieldName: 'name',
         transformResult: function (response) {
             if(response.success){
                 return {
                     suggestions: $.map(response.data, function(item) {
                         return  $.extend(item, {
-                            value: item.assetsId + ''
+                            value: item.number + ''
                         });
                     })
                 };
@@ -44,7 +44,6 @@
             }
         },
         selectFn: function (suggestion) {
-            debugger
             $('[name="number"]').val(suggestion.value);
             $('[name="assetsId"]').val(suggestion.assetsId);
             $('[name="assetsName"]').val(suggestion.assetsName);

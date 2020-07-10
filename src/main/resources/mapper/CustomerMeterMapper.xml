@@ -179,4 +179,29 @@
             meter_id = #{meterId}
             and state = 1
     </select>
+
+    <select id="listCustomerMetersByLikeName" parameterType="com.dili.ia.domain.dto.CustomerMeterDto" resultType="com.dili.ia.domain.dto.CustomerMeterDto">
+        SELECT
+            me.id as meterId ,
+            me.number as number ,
+            me.assets_id as assetsId ,
+            me.assets_type as assetsType ,
+            me.assets_name as assetsName ,
+            me.price as price ,
+            cm.customer_id as customerId ,
+            cm.customer_name as customerName ,
+            cm.customer_cellphone as customerCellphone ,
+            cm.certificate_number as certificateNumber
+        FROM
+            meter as me
+        left join customer_meter as cm on cm.meter_id = me.id
+        <where>
+            <if test="type != null">
+                and me.type = #{type,jdbcType=INTEGER}
+            </if>
+            <if test="keyword != null">
+                and me.number like concat('', #{keyword}, '%')
+            </if>
+        </where>
+    </select>
 </mapper>

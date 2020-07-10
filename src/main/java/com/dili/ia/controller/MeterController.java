@@ -165,9 +165,9 @@ public class MeterController {
      * @date   2020/6/16
      */
     @RequestMapping(value="/listUnbindMetersByType.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput listUnbindMetersByType(Integer type, String likeName) {
+    public @ResponseBody BaseOutput listUnbindMetersByType(Integer type, String keyword) {
 
-        List<Meter> meterList = meterService.listUnbindMetersByType(type, likeName);
+        List<Meter> meterList = meterService.listUnbindMetersByType(type, keyword);
 
         return BaseOutput.success().setData(meterList);
 
@@ -177,16 +177,16 @@ public class MeterController {
      * 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
      *
      * @param  type   表类型,有枚举 meterTypeEnum
-     * @param  likeName 表编号
+     * @param  keyword 表编号
      * @return meterList
      * @date   2020/6/28
      */
-    @RequestMapping(value="/getMeterLikeNumber.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getMeterLikeNumber(Integer type, String likeName) throws Exception {
-
-        List<Meter> meterList = meterService.listMetersLikeNumber(type, likeName);
-
-        return BaseOutput.success().setData(meterList);
-    }
+//    @RequestMapping(value="/listMeterLikeNumber.action", method = {RequestMethod.GET, RequestMethod.POST})
+//    public @ResponseBody BaseOutput listMeterLikeNumber(Integer type, String keyword) throws Exception {
+//
+//        List<Meter> meterList = meterService.listMetersLikeNumber(type, keyword);
+//
+//        return BaseOutput.success().setData(meterList);
+//    }
 
 }

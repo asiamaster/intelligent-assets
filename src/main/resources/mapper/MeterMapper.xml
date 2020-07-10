@@ -123,8 +123,8 @@
                   AND m.type = #{type}
             )
         AND m.type = #{type}
-      <if test="likeName != null">
-        and m.number like CONCAT('%',#{likeName,jdbcType=VARCHAR},'%' )
+      <if test="keyword != null">
+        and m.number like CONCAT('%',#{keyword,jdbcType=VARCHAR},'%' )
       </if>
 
     </select>
@@ -136,8 +136,8 @@
             meter
         where
             type = #{type,jdbcType=INTEGER}
-        <if test="likeName != null">
-          and number like CONCAT('%',#{likeName,jdbcType=VARCHAR},'%' )
+        <if test="keyword != null">
+          and number like CONCAT('%',#{keyword,jdbcType=VARCHAR},'%' )
         </if>
     </select>
 </mapper>

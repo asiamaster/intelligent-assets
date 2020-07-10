@@ -134,17 +134,17 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)
      *
      * @param  type 表类型,有枚举 meterTypeEnum
-     * @param likeName
+     * @param keyword
      * @return meterList
      * @date   2020/6/16
      */
     @Override
-    public List<Meter> listUnbindMetersByType(Integer type, String likeName) {
+    public List<Meter> listUnbindMetersByType(Integer type, String keyword) {
         MeterDto meterDto = new MeterDto();
 
         meterDto.setType(type);
-        if (StringUtils.isNotEmpty(likeName)) {
-            meterDto.setLikeName(likeName);
+        if (StringUtils.isNotEmpty(keyword)) {
+            meterDto.setKeyword(keyword);
         }
         List<Meter> meterList = this.getActualDao().listUnbindMetersByType(meterDto);
 
@@ -155,17 +155,17 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
      *
      * @param  type   表类型,有枚举 meterTypeEnum
-     * @param  likeName 表编号
+     * @param  keyword 表编号
      * @return meterList
      * @date   2020/6/28
      */
     @Override
-    public List<Meter> listMetersLikeNumber(Integer type, String likeName) {
+    public List<Meter> listMetersLikeNumber(Integer type, String keyword) {
         MeterDto meterDto = new MeterDto();
 
         meterDto.setType(type);
-        if (StringUtils.isNotEmpty(likeName)) {
-            meterDto.setLikeName(likeName);
+        if (StringUtils.isNotEmpty(keyword)) {
+            meterDto.setKeyword(keyword);
         }
         List<Meter> meterList = this.getActualDao().listMetersLikeNumber(meterDto);
 

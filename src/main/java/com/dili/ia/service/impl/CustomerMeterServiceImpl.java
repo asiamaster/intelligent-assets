@@ -1,7 +1,6 @@
 package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.CustomerMeter;
-import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.mapper.CustomerMeterMapper;
@@ -17,14 +16,13 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import org.checkerframework.checker.units.qual.C;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -211,6 +209,26 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
 
         customerMeterDto.setLastAmount(lastAmount);
 
-        return customerMeterDto;
+        return null;
+    }
+
+    /**
+     * 根据表编号模糊查询表客户信息列表
+     *
+     *
+     * @param type
+     * @param  keyword 输入编号
+     * @return 表客户List
+     * @date   2020/7/10
+     */
+    @Override
+    public List<CustomerMeterDto> listCustomerMetersByLikeName(Integer type, String keyword) {
+        CustomerMeterDto customerMeterDto = new CustomerMeterDto();
+        customerMeterDto.setType(type);
+        if (StringUtils.isNotEmpty(keyword)) {
+            customerMeterDto.setKeyword(keyword);
+        }
+        List<CustomerMeterDto> customerMeterDtoList = this.getActualDao().listCustomerMetersByLikeName(customerMeterDto);
+        return customerMeterDtoList;
     }
 }

@@ -15,13 +15,13 @@ public class MeterDto extends Meter {
      * 关键字(搜索的条件，表编号或表地址)
      */
     @Transient
-    private String likeName;
+    private String keyword;
 
-    public String getLikeName() {
-        return likeName;
+    public String getKeyword() {
+        return keyword;
     }
 
-    public void setLikeName(String likeName) {
-        this.likeName = likeName;
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 }

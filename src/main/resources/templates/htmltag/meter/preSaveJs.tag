@@ -10,27 +10,27 @@
             }
         });
     });
-    var meterAutoCompleteOption = {
-        paramName: 'number',
-        displayFieldName: 'name',
-        serviceUrl: '/meter/getMeterLikeNumber.action',
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
-                return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '(' + (dataItem.secondAreaName? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
-                            }
-                        );
-                    })
-                }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return;
-            }
-        }
-    }
+    // var meterAutoCompleteOption = {
+    //     paramName: 'keyword',
+    //     displayFieldName: 'name',
+    //     serviceUrl: '/meter/listMeterLikeNumber.action',
+    //     transformResult: function (result) {
+    //         if(result.success){
+    //             let data = result.data;
+    //             return {
+    //                 suggestions: $.map(data, function (dataItem) {
+    //                     return $.extend(dataItem, {
+    //                             value: dataItem.name + '(' + (dataItem.secondAreaName? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
+    //                         }
+    //                     );
+    //                 })
+    //             }
+    //         }else{
+    //             bs4pop.alert(result.message, {type: 'error'});
+    //             return;
+    //         }
+    //     }
+    // }
 
     // 提交保存
     function saveOrUpdateHandler(){

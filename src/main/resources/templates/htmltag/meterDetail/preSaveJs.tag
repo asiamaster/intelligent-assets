@@ -13,17 +13,16 @@
     });
 
     var numberAutoCompleteOption = {
-        serviceUrl: '/meter/getMeterLikeNumber.action',
-        paramName: 'likeName',
+        serviceUrl: '/customerMeter/listCustomerMeterByLikeName.action',
+        paramName: 'keyword',
         displayFieldName: 'name',
         params: {'type': meterType},
         transformResult: function (response) {
-            debugger
             if(response.success){
                 return {
                     suggestions: $.map(response.data, function(item) {
                         return  $.extend(item, {
-                            value: item.assetsId + ''
+                            value: item.number + ''
                         });
                     })
                 };
@@ -33,7 +32,6 @@
             }
         },
         selectFn: function (suggestion) {
-            debugger
             $('[name="number"]').val(suggestion.value);
             $('[name="assetsType"]').val(suggestion.assetsType);
             $('[name="assetsName"]').val(suggestion.assetsName);
@@ -46,11 +44,35 @@
         }
     };
 
+    var lastAmountAutoCompleteOption = {
+        serviceUrl: '/customerMeter/getBindInfoByMeterId.action',
+        paramName: 'keyword',
+        displayFieldName: 'name',
+        params: {'meterId': meterId},
+        transformResult: function (response) {
+            if(response.success){
+                return {
+                    suggestions: $.map(response.data, function(item) {
+                        return  $.extend(item, {
+                            value: item.lastAmount + ''
+                        });
+                    })
+                };
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return false;
+            }
+        },
+        selectFn: function (suggestion) {
+            $('[name="lastAmount"]').val(suggestion.value);
+            $('#saveForm').validate().form();
+        }
+    };
+
 
     // 提交保存
     function saveOrUpdateHandler(){
         let validator = $('#saveForm').validate({ignore:''})
-        debugger
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
             $('.collapse:not(.show)').addClass('show');
