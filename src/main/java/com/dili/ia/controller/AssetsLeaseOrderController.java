@@ -338,7 +338,7 @@ public class AssetsLeaseOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${amountFormatStr}",operationType="submitPayment",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id, @RequestParam Long amount, @RequestParam Long waitAmount, @RequestParam String amountFormatStr){
+    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id, @RequestParam Long amount,  @RequestParam String amountFormatStr){
         try{
             return assetsLeaseOrderService.submitPayment(id,amount);
         }catch (BusinessException e){
