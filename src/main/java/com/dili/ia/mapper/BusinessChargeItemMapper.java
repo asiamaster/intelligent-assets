@@ -11,10 +11,21 @@ import java.util.Map;
 public interface BusinessChargeItemMapper extends MyMapper<BusinessChargeItem> {
     /**
      * 查询业务收费项（行转列）
+     *
      * @param bizType
      * @param businessIds
      * @param chargeItemDtos
      * @return
      */
     List<Map<String, String>> queryBusinessChargeItem(@Param("bizType") String bizType, @Param("businessIds") List<Long> businessIds, @Param("chargeItemDtos") List<BusinessChargeItemDto> chargeItemDtos);
+
+    /**
+     * 查询业务收费项，报表（行转列）
+     *
+     * @param bizType
+     * @param businessIds
+     * @param chargeItemDtos
+     * @return
+     */
+    List<Map<String, String>> queryForReport(@Param("bizType") String bizType, @Param("businessIds") List<Long> businessIds, @Param("chargeItemDtos") List<BusinessChargeItemDto> chargeItemDtos);
 }

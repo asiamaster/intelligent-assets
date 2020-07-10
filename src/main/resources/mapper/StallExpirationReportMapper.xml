@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.ia.mapper.StallExpirationReportMapper">
+    <select id="listByQueryParams" parameterType="com.dili.ia.domain.StallExpirationReport"
+            resultType="com.dili.ia.domain.StallExpirationReport">
+        SELECT
+          od.id AS 'orderItemId',
+          od.assets_name AS 'assetsName',
+          d1.`name` AS 'firstDistrictName',
+          d2.`name` AS 'secDistrictName',
+          a.number AS 'number',
+          a.unit AS 'unit',
+          a.corner AS 'corner',
+          od.customer_id AS 'customerId',
+          od.customer_name AS 'customerName',
+          o.certificate_number AS 'certificateNumber',
+          o.customer_cellphone AS 'customerCellphone',
+          o.start_time AS 'startTime',
+          o.days AS 'days',
+          o.end_time AS 'endTime',
+          b.amount AS 'amount',
+          c.balance AS 'balance',
+          o.total_amount AS 'totalAmount',
+          o.paid_amount AS 'paidAmount',
+          od.refund_state AS 'refundState',
+          od.stop_Time AS 'stopTime',
+          od.state AS 'state'
+        FROM assets_lease_order_item od
+        LEFT JOIN assets_lease_order o ON o.id=od.lease_order_id
+        LEFT JOIN `dili-basic-data`.assets a ON od.assets_id=a.id
+        LEFT JOIN `dili-basic-data`.district d1 ON d1.id=a.area
+        LEFT JOIN `dili-basic-data`.district d2 ON d2.id=a.second_area
+        LEFT JOIN
+        (
+         SELECT o.assets_id,ROUND(SUM(o.amount)/100,2) AS 'amount' FROM `dili-assets`.deposit_order o
+         WHERE 1 = 1 AND o.state NOT IN (2) GROUP BY o.assets_id
+        )b ON b.assets_id=a.id
+        LEFT JOIN
+        (
+         SELECT b.assets_id,ROUND(SUM(b.balance)/100,2) AS 'balance' FROM `dili-assets`.deposit_balance b
+         WHERE 1 = 1 GROUP BY b.assets_id
+        )c ON c.assets_id=a.id
+        WHERE 1 = 1
+          AND od.assets_type=1
+          <if test="certificateNumber!=null and certificateNumber!=''">
+              AND o.certificate_number =#{certificateNumber}
+          </if>
+          <if test="firstDistrictId!=null">
+              AND a.area=#{firstDistrictId}
+          </if>
+          <if test="secDistrictId!=null">
+              AND a.second_area=#{secDistrictId}
+          </if>
+          <if test="secDistrictId!=null">
+              AND a.second_area=#{secDistrictId}
+          </if>
+    </select>
+</mapper>
