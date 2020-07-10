@@ -6,6 +6,7 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
+import com.dili.ia.glossary.DepositOrderStateEnum;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.*;
@@ -403,6 +404,7 @@ public class AssetsLeaseOrderController {
     @RequestMapping(value="/batchQueryDepositOrder.action", method = { RequestMethod.POST})
     public @ResponseBody BaseOutput<List<DepositOrder>> batchQueryDepositOrder(DepositOrderQuery depositOrderQuery){
         try{
+            depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
             return BaseOutput.success().setData(depositOrderService.listByExample(depositOrderQuery));
         }catch (BusinessException e){
             LOG.info("批量查询保证金单异常！", e);

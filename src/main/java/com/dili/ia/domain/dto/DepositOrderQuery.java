@@ -37,9 +37,9 @@ public class DepositOrderQuery extends DepositOrder {
     @Column(name = "department_id")
     private List<Long> departmentIds;
 
-    @Operator(Operator.IN)
-    @Column(name = "business_id")
-    private List<Long> businessIds;
+    @Operator(Operator.NOT_EQUAL)
+    @Column(name = "state")
+    private Integer stateNotEquals;
 
     public LocalDateTime getCreatedStart() {
         return createdStart;
@@ -73,11 +73,11 @@ public class DepositOrderQuery extends DepositOrder {
         this.departmentIds = departmentIds;
     }
 
-    public List<Long> getBusinessIds() {
-        return businessIds;
+    public Integer getStateNotEquals() {
+        return stateNotEquals;
     }
 
-    public void setBusinessIds(List<Long> businessIds) {
-        this.businessIds = businessIds;
+    public void setStateNotEquals(Integer stateNotEquals) {
+        this.stateNotEquals = stateNotEquals;
     }
 }
