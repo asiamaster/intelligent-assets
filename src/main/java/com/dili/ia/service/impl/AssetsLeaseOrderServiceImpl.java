@@ -258,18 +258,102 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
     }
 
+    @Override
+    @Transactional
+    public BaseOutput submitForApproval(Long id) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new BusinessException(ResultCode.DATA_ERROR,"未登录");
+        }
+
+        AssetsLeaseOrder leaseOrder = get(id);
+        if(!(leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode()) && ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode().equals(leaseOrder.getApprovalState()))){
+            throw new BusinessException(ResultCode.DATA_ERROR,"状态已流转不能提交审批，请刷新后再试");
+        }
+
+        AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
+        condition.setLeaseOrderId(leaseOrder.getId());
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
+        AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
+        if(leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())){
+            //检查客户状态
+            checkCustomerState(leaseOrder.getCustomerId(),leaseOrder.getMarketId());
+            leaseOrderItems.forEach(o->{
+                //检查资产状态
+                assetsLeaseService.checkAssetState(o.getAssetsId());
+            });
+        }
+
+        //冻结定金和转抵
+        BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
+                leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
+                leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(),
+                leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
+        if(!customerAccountOutput.isSuccess()){
+            LOG.info("冻结定金和转抵异常【编号：{}】", leaseOrder.getCode());
+            if(ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())){
+                throw new BusinessException(ResultCode.DATA_ERROR,"客户定金可用金额不足，请核实修改后重新保存");
+            }else if(ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())){
+                throw new BusinessException(ResultCode.DATA_ERROR,"客户转抵可用金额不足，请核实修改后重新保存");
+            }else{
+                throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
+            }
+        }
+        //冻结摊位
+        assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
+        leaseOrder.setApprovalState(ApprovalStateEnum.IN_REVIEW.getCode());
+        if (updateSelective(leaseOrder) == 0) {
+            LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试");
+        }
+        return BaseOutput.success();
+    }
+
+    @Override
+    @Transactional
+    @GlobalTransactional
+    public BaseOutput approvedHandler(String code) {
+        AssetsLeaseOrder condition = new AssetsLeaseOrder();
+        condition.setCode(code);
+        AssetsLeaseOrder leaseOrder = getActualDao().selectOne(condition);
+        if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
+            //提交付款
+            Long paymentId = submitPay(leaseOrder);
+            leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
+            leaseOrder.setPaymentId(paymentId);
+            leaseOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
+            //更新摊位租赁单状态
+            cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
+        }
+        return BaseOutput.success();
+    }
+
+    @Override
+    public BaseOutput approvedDeniedHandler(String code) {
+        AssetsLeaseOrder condition = new AssetsLeaseOrder();
+        condition.setCode(code);
+        AssetsLeaseOrder leaseOrder = getActualDao().selectOne(condition);
+        if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
+            leaseOrder.setApprovalState(ApprovalStateEnum.APPROVAL_DENIED.getCode());
+            if (updateSelective(leaseOrder) == 0) {
+                LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试");
+            }
+        }
+        return BaseOutput.success();
+    }
+
     /**
      * 提交付款
      *
      * @param id         租赁单ID
      * @param amount     交费金额
-     * @param waitAmount 待缴费金额
      * @return
      */
     @Override
     @Transactional
     @GlobalTransactional
-    public BaseOutput submitPayment(Long id, Long amount, Long waitAmount) {
+    public BaseOutput submitPayment(Long id, Long amount) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new BusinessException(ResultCode.DATA_ERROR,"未登录");
@@ -291,52 +375,42 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             });
         }
         //检查是否可以进行提交付款
-        checkSubmitPayment(id, amount, waitAmount, leaseOrder);
+        checkSubmitPayment(id, amount, leaseOrderItems, leaseOrder);
         /***************************检查是否可以提交付款 end*********************/
 
+        //判断缴费单是否需要撤回 需要撤回则撤回
+        if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
+            withdrawPaymentOrder(leaseOrder.getPaymentId());
+        }
+
+        //提交付款
+        Long paymentId = submitPay(leaseOrder);
+        leaseOrder.setPaymentId(paymentId);
+        //更新摊位租赁单状态
+        if (updateSelective(leaseOrder) == 0) {
+            LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
+            throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单提交状态更新失败");
+        }
+
+        //日志上下文构建
+        LoggerUtil.buildLoggerContext(leaseOrder.getId(),leaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),leaseOrder.getMarketId(),null);
+        return BaseOutput.success();
+    }
+
+    /**
+     * 提交到付款
+     * @param leaseOrder
+     * @return
+     */
+    private Long submitPay(AssetsLeaseOrder leaseOrder){
         //新增缴费单
         PaymentOrder paymentOrder = buildPaymentOrder(leaseOrder);
-        paymentOrder.setAmount(amount);
+        paymentOrder.setAmount(leaseOrder.getPayAmount());
         paymentOrderService.insertSelective(paymentOrder);
-
-        if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
-            //冻结定金和转抵
-            BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
-                    leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
-                    leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(),
-                    leaseOrder.getMarketId(),userTicket.getId(),userTicket.getRealName());
-            if(!customerAccountOutput.isSuccess()){
-                LOG.info("冻结定金和转抵异常【编号：{}】", leaseOrder.getCode());
-                if(ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())){
-                    throw new BusinessException(ResultCode.DATA_ERROR,"客户定金可用金额不足，请核实修改后重新保存");
-                }else if(ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())){
-                    throw new BusinessException(ResultCode.DATA_ERROR,"客户转抵可用金额不足，请核实修改后重新保存");
-                }else{
-                    throw new BusinessException(ResultCode.DATA_ERROR,customerAccountOutput.getMessage());
-                }
-            }
-            //冻结摊位
-            assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
-            leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
-            leaseOrder.setPaymentId(paymentOrder.getId());
-            //更新摊位租赁单状态
-            cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
-        } else {//非第一次付款，相关业务实现
-            //判断缴费单是否需要撤回 需要撤回则撤回
-            if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
-                withdrawPaymentOrder(leaseOrder.getPaymentId());
-            }
-            leaseOrder.setPaymentId(paymentOrder.getId());
-            //更新摊位租赁单状态
-            if (updateSelective(leaseOrder) == 0) {
-                LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
-                throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单提交状态更新失败");
-            }
-        }
 
         //新增结算单
         SettleOrderDto settleOrder = buildSettleOrderDto(leaseOrder);
-        settleOrder.setAmount(amount);
+        settleOrder.setAmount(leaseOrder.getPayAmount());
         settleOrder.setOrderCode(paymentOrder.getCode());//订单号
         settleOrder.setBusinessCode(paymentOrder.getBusinessCode());//业务单号
         BaseOutput<SettleOrder> settlementOutput = settlementRpc.submit(settleOrder);
@@ -350,21 +424,22 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("提交付款调用结算异常【编号：{}】", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR,settlementOutput.getMessage());
         }
-
-        //日志上下文构建
-        LoggerUtil.buildLoggerContext(leaseOrder.getId(),leaseOrder.getCode(),userTicket.getId(),userTicket.getRealName(),leaseOrder.getMarketId(),null);
-        return settlementOutput;
+        return paymentOrder.getId();
     }
 
     /**
      * 检查是否可以进行提交付款
      * @param id
      * @param amount
-     * @param waitAmount
+     * @param leaseOrderItems
      * @param leaseOrder
      */
-    private void checkSubmitPayment(Long id, Long amount, Long waitAmount, AssetsLeaseOrder leaseOrder) {
+    private void checkSubmitPayment(Long id, Long amount, List<AssetsLeaseOrderItem> leaseOrderItems, AssetsLeaseOrder leaseOrder) {
         //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
+        if (!ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
+            LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已交清，不可以进行提交付款操作");
+        }
         if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
             LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已交清，不可以进行提交付款操作");
@@ -377,16 +452,14 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("租赁单编号【{}】已取消，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已取消，不可以进行提交付款操作");
         }
+
+        Long waitAmount = leaseOrderItems.stream().mapToLong(AssetsLeaseOrderItem::getWaitAmount).sum();
         if (amount.equals(0L) && !waitAmount.equals(0L)) {
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单费用已结清");
+            throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单付款必须大于0");
         }
-        if (amount > leaseOrder.getWaitAmount()) {
+        if (amount > waitAmount) {
             LOG.info("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());
             throw new BusinessException(ResultCode.DATA_ERROR,"支付金额大于待付金额");
-        }
-        if (!waitAmount.equals(leaseOrder.getWaitAmount())) {
-            LOG.info("摊位租赁单待缴费金额已发生变更，请重试【ID {}】 旧金额【{}】新金额【{}】", id, waitAmount, leaseOrder.getWaitAmount());
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单待缴费金额已发生变更，请重试");
         }
     }
 

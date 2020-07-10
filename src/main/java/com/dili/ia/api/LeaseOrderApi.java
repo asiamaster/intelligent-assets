@@ -191,4 +191,46 @@ public class LeaseOrderApi {
             return BaseOutput.failure(e.getMessage());
         }
     }
+
+    /**
+     *
+     * 审批通过处理
+     * @return
+     */
+    @RequestMapping(value="/approvedHandler")
+    public @ResponseBody BaseOutput approvedHandler(String code){
+        try{
+            if(StringUtils.isBlank(code) || null == code){
+                return BaseOutput.failure("参数不能为空");
+            }
+            return assetsLeaseOrderService.approvedHandler(code);
+        }catch (BusinessException e){
+            LOG.info("审批通过处理异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("审批通过处理异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * 审批拒绝处理
+     * @return
+     */
+    @RequestMapping(value="/approvedDeniedHandler")
+    public @ResponseBody BaseOutput approvedDeniedHandler(String code){
+        try{
+            if(StringUtils.isBlank(code) || null == code){
+                return BaseOutput.failure("参数不能为空");
+            }
+            return assetsLeaseOrderService.approvedDeniedHandler(code);
+        }catch (BusinessException e){
+            LOG.info("审批拒绝处理异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("审批拒绝处理异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
 }

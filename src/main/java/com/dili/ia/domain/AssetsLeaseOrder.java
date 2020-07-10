@@ -245,6 +245,24 @@ public class AssetsLeaseOrder extends BaseDomain {
     @Column(name = "`version`")
     private Integer version;
 
+    /**
+     * 流程实例ID
+     */
+    @Column(name = "`process_instance_id`")
+    private Integer processInstanceId;
+
+    /**
+     * 流程定义ID
+     */
+    @Column(name = "`process_definition_id`")
+    private Integer processDefinitionId;
+
+    /**
+     * 审批状态
+     */
+    @Column(name = "`approval_state`")
+    private Integer approvalState;
+
     @Override
     public Long getId() {
         return id;
@@ -613,5 +631,29 @@ public class AssetsLeaseOrder extends BaseDomain {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Integer getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    public void setProcessInstanceId(Integer processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
+    public Integer getProcessDefinitionId() {
+        return processDefinitionId;
+    }
+
+    public void setProcessDefinitionId(Integer processDefinitionId) {
+        this.processDefinitionId = processDefinitionId;
+    }
+
+    public Integer getApprovalState() {
+        return approvalState;
+    }
+
+    public void setApprovalState(Integer approvalState) {
+        this.approvalState = approvalState;
     }
 }
