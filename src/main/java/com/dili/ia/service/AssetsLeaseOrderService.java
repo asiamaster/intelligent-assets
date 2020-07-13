@@ -32,10 +32,15 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
      * 提交付款
      * @param id 租赁单ID
      * @param amount 交费金额
-     * @param waitAmount 待缴费金额
      * @return
      */
-    BaseOutput submitPayment(Long id,Long amount,Long waitAmount);
+    BaseOutput submitPayment(Long id,Long amount);
+
+    /**
+     * 提交审批
+     * @param id 租赁单ID
+     */
+    BaseOutput submitForApproval(Long id);
 
     /**
      * 摊位租赁订单取消
@@ -105,4 +110,18 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
      * @return
      */
     BaseOutput supplement(AssetsLeaseOrder leaseOrder);
+
+    /**
+     * 审批通过处理
+     * @param code
+     * @return
+     */
+    BaseOutput approvedHandler(String code);
+
+    /**
+     * 审批拒绝处理
+     * @param code
+     * @return
+     */
+    BaseOutput approvedDeniedHandler(String code);
 }

@@ -338,23 +338,33 @@ public class AssetsLeaseOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${amountFormatStr}",operationType="submitPayment",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id, @RequestParam Long amount, @RequestParam Long waitAmount, @RequestParam String amountFormatStr){
+    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id, @RequestParam Long amount,  @RequestParam String amountFormatStr){
         try{
-            if(waitAmount > 0L){
-                if(amount <= 0L){
-                    return BaseOutput.failure("支付金额必须大于0");
-                }
-            }else if(waitAmount.equals(0L)){
-                if(!amount.equals(0L)){
-                    return BaseOutput.failure("支付金额必须等于0");
-                }
-            }
-            return assetsLeaseOrderService.submitPayment(id,amount,waitAmount);
+            return assetsLeaseOrderService.submitPayment(id,amount);
         }catch (BusinessException e){
             LOG.info("资产租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("资产租赁订单提交付款异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     * 提交审批
+     * @param id
+     * @return
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,operationType="submitForApproval",systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/submitForApproval.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput submitForApproval(@RequestParam Long id){
+        try{
+            return assetsLeaseOrderService.submitForApproval(id);
+        }catch (BusinessException e){
+            LOG.info("资产租赁订单提交审批异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("资产租赁订单提交审批异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -404,6 +414,7 @@ public class AssetsLeaseOrderController {
     @RequestMapping(value="/batchQueryDepositOrder.action", method = { RequestMethod.POST})
     public @ResponseBody BaseOutput<List<DepositOrder>> batchQueryDepositOrder(DepositOrderQuery depositOrderQuery){
         try{
+            depositOrderQuery.setIsRelated(YesOrNoEnum.YES.getCode());
             depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
             return BaseOutput.success().setData(depositOrderService.listByExample(depositOrderQuery));
         }catch (BusinessException e){
