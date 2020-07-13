@@ -5,7 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,12 +55,16 @@ import com.dili.ia.service.StockInService;
 import com.dili.ia.service.StockService;
 import com.dili.ia.service.StockWeighmanRecordService;
 import com.dili.ia.util.LoggerUtil;
+import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
+import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
@@ -119,6 +125,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		insertSelective(stockIn);
 		//构建动态收费项
 		businessChargeItemService.batchInsert(buildBusinessCharge(stockInDto.getBusinessChargeItems(), stockIn.getId(),stockIn.getCode()));
+		//businessChargeItemService.save(BusinessChargeItem);
 		LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 	
@@ -569,6 +576,27 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		printDataDto.setName(PrintTemplateEnum.STOCKIN_ORDER.getCode());
 		printDataDto.setItem(stockInPrintDto);
 		return printDataDto;	
+	}
+	@Autowired
+	private ChargeRuleRpc chargeRuleRpc;
+	
+	@Override
+	public List<QueryFeeOutput> getCost(StockInDetailDto stockInDetail) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		List<QueryFeeInput> queryFeeInputs = new ArrayList<>();
+		stockInDetail.getBusinessChargeItems().forEach(itme -> {
+			QueryFeeInput queryFeeInput =new QueryFeeInput();
+			queryFeeInput.setMarketId(userTicket.getFirmId());
+			queryFeeInput.setBusinessType("STOCK_IN");
+			queryFeeInput.setChargeItem(itme.getChargeItemId());
+			Map<String, Object> calcParams = new HashMap<String, Object>();
+			calcParams.put("quantity", stockInDetail.getQuantity());
+			queryFeeInput.setCalcParams(calcParams);
+			queryFeeInputs.add(queryFeeInput);
+		});
+		BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
+		System.err.println(JSON.toJSONString(batchQueryFee));
+		return batchQueryFee.getData();
 	}
 	
 }
