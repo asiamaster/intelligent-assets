@@ -8,9 +8,10 @@ import java.util.Date;
 import javax.persistence.*;
 
 /**
- * 由MyBatis Generator工具自动生成
- * 精品停车记录表
- * This file was generated on 2020-07-13 10:49:05.
+ * @author:       xiaosa
+ * @date:         2020/7/13
+ * @version:      农批业务系统重构
+ * @description:  精品停车记录表实体类
  */
 @Table(name = "`boutique_entrance_record`")
 public class BoutiqueEntranceRecord extends BaseDomain {
@@ -71,7 +72,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
     private Long carTypeId;
 
     /**
-     * 业务部门
+     * 接车部门
      */
     @Column(name = "`department_id`")
     private Long departmentId;
@@ -147,26 +148,6 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     @Column(name = "`version`")
     private Integer version;
-
-    /**
-     * 获取id
-     *
-     * @return id - id
-     */
-    @FieldDef(label="id")
-    @EditMode(editor = FieldEditor.Number, required = true)
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * 设置id
-     *
-     * @param id id
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     /**
      * 获取创建时间

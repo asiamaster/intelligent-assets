@@ -97,4 +97,13 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="listByRecordId" parameterType="java.lang.Long" resultType="com.dili.ia.domain.dto.BoutiqueFeeOrderDto">
+    select
+        <include refid="Base_Column_List" />
+    from
+        boutique_fee_order
+    where
+        record_id = #{recordId,jdbcType=BIGINT}
+  </select>
 </mapper>

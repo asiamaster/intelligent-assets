@@ -14,6 +14,7 @@ public enum BizTypeEnum {
     DEPOSIT_ORDER("3", "保证金"),
     STOCKIN("4", "入库单"),
     UTTLITIES("5", "水电费"),
+    BOUTIQUE_ENTRANCE("6", "精品停车费"),
     ;
 
     private String name;

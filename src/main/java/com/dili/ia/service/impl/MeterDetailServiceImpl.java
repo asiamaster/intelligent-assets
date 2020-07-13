@@ -599,8 +599,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     @Override
     public BaseOutput getLastAmount(Long meterId) {
-        BaseOutput baseOutput = new BaseOutput();
-
         // 先查询表信息是否存在
         Meter meterInfo = meterService.get(meterId);
         if (meterInfo == null) {
@@ -612,9 +610,8 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         if (lastAmount == null) {
             lastAmount = meterInfo.getThisAmount();
         }
-        baseOutput.setData(lastAmount);
 
-        return baseOutput;
+        return BaseOutput.success().setData(lastAmount);
     }
 
     /**

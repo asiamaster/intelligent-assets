@@ -26,5 +26,8 @@ public class LogBizTypeConst {
     // 水电费
     public static final String UTILITIES="utilities";
 
+    // 精品停车
+    public static final String BOUTIQUE_ENTRANCE="boutiqueEntrance";
+
 
 }

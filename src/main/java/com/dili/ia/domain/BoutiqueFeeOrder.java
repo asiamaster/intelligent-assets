@@ -119,26 +119,6 @@ public class BoutiqueFeeOrder extends BaseDomain {
     private Integer version;
 
     /**
-     * 获取id
-     *
-     * @return id - id
-     */
-    @FieldDef(label="id")
-    @EditMode(editor = FieldEditor.Number, required = true)
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * 设置id
-     *
-     * @param id id
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
      * 获取创建时间
      *
      * @return create_time - 创建时间
