@@ -3,6 +3,8 @@ package com.dili.ia.service;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
+import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -109,4 +111,14 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @date   2020/7/6
      */
     BaseOutput<MeterDetail> cancel(Long id, UserTicket userTicket);
+
+    /**
+     * 票据打印
+     *
+     * @param  orderCode
+     * @param  reprint
+     * @return
+     * @date   2020/7/10
+     */
+    PrintDataDto<MeterDetailDto> receiptPaymentData(String orderCode, Integer reprint);
 }

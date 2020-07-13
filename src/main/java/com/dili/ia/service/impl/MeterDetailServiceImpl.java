@@ -6,11 +6,14 @@ import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.MeterDetailDto;
+import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.MeterDetailStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
+import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.MeterDetailMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
@@ -403,6 +406,30 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
 
         return BaseOutput.success().setData(meterDetailInfo);
+    }
+
+    /**
+     * 票据打印
+     *
+     * @param  orderCode
+     * @param  reprint
+     * @return
+     * @date   2020/7/10
+     */
+    @Override
+    public PrintDataDto<MeterDetailDto> receiptPaymentData(String orderCode, Integer reprint) {
+        PrintDataDto<MeterDetailDto> printDataDto = new PrintDataDto<>();
+
+        PaymentOrder paymentOrder = paymentOrderService.getByCode(orderCode);
+        if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
+        }
+
+        this.getActualDao().getMeterDetailByCode(paymentOrder.getBusinessCode());
+
+//        printDataDto.setName(PrintTemplateEnum.STOCKIN_ORDER.getCode());
+//        printDataDto.setItem(stockInPrintDto);
+        return printDataDto;
     }
 
     /**

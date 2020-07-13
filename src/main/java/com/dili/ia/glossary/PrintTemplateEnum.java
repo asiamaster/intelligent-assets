@@ -19,6 +19,8 @@ public enum PrintTemplateEnum {
     DEPOSIT_REFUND_ORDER("DepositRefundOrder", "保证金退款单"),
     STOCKIN_ORDER("StockInOrder", "入库单"),
     STOCK_OUT_ORDER("StockOutInOrder", "出库单"),
+    WATER_FEE("waterFee", "水费"),
+    ELECTRICITY_FEE("electricityFee", "电费"),
     ;
 
     private String name;

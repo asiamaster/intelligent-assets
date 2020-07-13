@@ -58,4 +58,13 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * @date   2020/7/6
      */
     MeterDetailDto getMeterDetailById(Long id);
+
+    /**
+     * 根据 code 查询实体
+     * 
+     * @param  code
+     * @return MeterDetailDto
+     * @date   2020/7/10
+     */
+    MeterDetailDto getMeterDetailByCode(String code);
 }

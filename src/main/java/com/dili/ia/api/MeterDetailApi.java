@@ -36,7 +36,7 @@ public class MeterDetailApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="meter_detail", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
@@ -54,6 +54,25 @@ public class MeterDetailApi {
         }catch (Exception e){
             LOG.error("定金结算成功回调异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
+        }
+    }
+
+    /**
+     * 水电费缴费票据打印
+     * @param orderCode
+     * @return
+     */
+    @BusinessLogger(businessType="meter_detail", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/queryPrintData/meter_detail", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, Integer reprint){
+        try{
+            return BaseOutput.success().setData(meterDetailService.receiptPaymentData(orderCode, reprint));
+        }catch (BusinessException e){
+            LOG.error("水电费结算票据打印异常！", e);
+            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+        }catch (Exception e){
+            LOG.error("水电费结算票据打印异常！", e);
+            return BaseOutput.failure("水电费票据打印异常！").setData(false);
         }
     }
 
