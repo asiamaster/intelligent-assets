@@ -38,37 +38,26 @@
             $('[name="departmentId"]').val(suggestion.departmentId);
             $('[name="customerCellphone"]').val(suggestion.customerCellphone);
             $('[name="customerName"]').val(suggestion.customerName);
-            $('[name="lastAmount"]').val(suggestion.lastAmount);
             $('[name="price"]').val(suggestion.price);
+            $.ajax({
+                type: "post",
+                url: '/meterDetail/getLastAmount.action',
+                datatype: 'json',
+                data: {'meterId': suggestion.meterId},
+                success: function(res){
+                    if(res.success === true) {
+                        $('[name="lastAmount"]').val();
+                    } else {
+                        bs4pop.alert("上期指数获取失败!", {type: 'error'});
+                    }
+                },
+                error: function(error){
+                    bs4pop.alert("上期指数获取失败!", {type: 'error'});
+                }
+            })
             $('#saveForm').validate().form();
         }
     };
-
-    var lastAmountAutoCompleteOption = {
-        serviceUrl: '/customerMeter/getBindInfoByMeterId.action',
-        paramName: 'keyword',
-        displayFieldName: 'name',
-        params: {'meterId': meterId},
-        transformResult: function (response) {
-            if(response.success){
-                return {
-                    suggestions: $.map(response.data, function(item) {
-                        return  $.extend(item, {
-                            value: item.lastAmount + ''
-                        });
-                    })
-                };
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return false;
-            }
-        },
-        selectFn: function (suggestion) {
-            $('[name="lastAmount"]').val(suggestion.value);
-            $('#saveForm').validate().form();
-        }
-    };
-
 
     // 提交保存
     function saveOrUpdateHandler(){
