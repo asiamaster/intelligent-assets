@@ -1,8 +1,13 @@
 package com.dili.ia.domain.dto;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -12,6 +17,8 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Length;
 
+import com.alibaba.fastjson.JSONArray;
+import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.settlement.domain.SettleOrder;
 
@@ -127,6 +134,11 @@ public class StockInDto {
     @NotNull
     private List<StockInDetailDto> stockInDetailDtos;
     
+    /**
+     * 动态收费项
+     */
+    private List<BusinessChargeItem> businessChargeItems;
+    
 	/*用于数据展示*/
     /**
      * 结算单
@@ -141,7 +153,7 @@ public class StockInDto {
     /**
      * 入库单详情(子单)
      */
-    private String jsonStockInDetailDtos;
+    private JSONArray jsonStockInDetailDtos;
 
 	public String getCode() {
 		return code;
@@ -303,11 +315,13 @@ public class StockInDto {
 		this.stockInDetailDtos = stockInDetailDtos;
 	}
 
-	public String getJsonStockInDetailDtos() {
+	
+
+	public JSONArray getJsonStockInDetailDtos() {
 		return jsonStockInDetailDtos;
 	}
 
-	public void setJsonStockInDetailDtos(String jsonStockInDetailDtos) {
+	public void setJsonStockInDetailDtos(JSONArray jsonStockInDetailDtos) {
 		this.jsonStockInDetailDtos = jsonStockInDetailDtos;
 	}
 
@@ -342,7 +356,15 @@ public class StockInDto {
 	public void setSettleOrder(SettleOrder settleOrder) {
 		this.settleOrder = settleOrder;
 	}
+
+	public List<BusinessChargeItem> getBusinessChargeItems() {
+		return businessChargeItems;
+	}
+
+	public void setBusinessChargeItems(List<BusinessChargeItem> businessChargeItems) {
+		this.businessChargeItems = businessChargeItems;
+	}
+
 	
 	
-    
 }

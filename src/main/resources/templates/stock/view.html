@@ -59,8 +59,18 @@
 				</div>
 				<div class="form-group col">
 					<label for="">入库总额(元)<i class="red">*</i></label> <input id="amount" type="text" class="form-control  "
-					 name="amount" value="${stockIn.amount!}" readonly />
+					 name="amount" value="<#centToYuan value='${stockIn.amount!}'/>" readonly />
 				</div>
+				<%
+                if(stockIn.businessChargeItems.~size>0){
+                for(item in stockIn.businessChargeItems){%>
+              	 <div class="form-group col">
+					<label for="amount" class="">${item.chargeItemName!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}" type="number" class="form-control chargeItem"
+					 name="chargeItem_${item.id!}"  value="<#centToYuan value='${item.amount!}'/>" range="0 9999999.99" required readonly />				
+		        </div>
+                <% } } %>
+				
+				
 				<div class="form-group col">
 					<label for="">到期日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.expireDate!,localDateTimeFormat='yyyy-MM-dd'}" readonly />
@@ -112,14 +122,19 @@
                     <th style="font-weight:normal; ">冷库编号</th>
                     <th style="font-weight:normal; ">入库件数</th>
                     <th style="font-weight:normal; ">货物净重</th>
-                    <th style="font-weight:normal; ">入库金额</th>
+                    <th style="font-weight:normal; ">总费用</th>
+                    <%
+	                if(stockIn.businessChargeItems.~size>0){
+	                for(chargeItem in stockIn.businessChargeItems){%>
+	              	 <th style="font-weight:normal; ">${chargeItem.chargeItemName}</th>
+	                <% } } %>
                     <th style="font-weight:normal; ">备注</th>
                 </tr>
                 </thead>
                 <tbody>
                 <%
-                if(stockIn.stockInDetails.~size>0){
-                for(item in stockIn.stockInDetails){%>
+                if(stockIn.jsonStockInDetailDtos.~size>0){
+                for(item in stockIn.jsonStockInDetailDtos){%>
                 <tr>
                     <td>
                         ${item.code!'--'}
@@ -147,8 +162,15 @@
                         ${item.weight!'--'}
                     </td>
                     <td>
-                        ${item.amount!'--'}
+                        <#centToYuan value='${item.amount!0}'/>
                     </td>
+                    <%
+	                if(item.businessChargeItem.~size>0){
+	                for(chargeItem in item.businessChargeItem){%>
+	              	 <td>
+	                        <#centToYuan value='${chargeItem.amount!0}'/>
+	                  </td>
+	                <% } } %>
                     <td>
                         ${item.notes!'--'}
                     </td>

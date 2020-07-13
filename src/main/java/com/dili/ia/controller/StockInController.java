@@ -1,39 +1,38 @@
 package com.dili.ia.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.dili.ia.domain.StockIn;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
-import com.dili.ia.glossary.StockInStateEnum;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.StockInService;
-import com.dili.ia.service.impl.StockInServiceImpl;
 import com.dili.ia.util.LogBizTypeConst;
-import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.Valid;
 
-import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -46,7 +45,13 @@ public class StockInController {
 	private final static Logger LOG = LoggerFactory.getLogger(StockInController.class);
 	
     @Autowired
-    StockInService stockInService;
+    private StockInService stockInService;
+    
+    @Autowired
+    private BusinessChargeItemService businessChargeItemService;
+    
+    @Autowired
+    private BusinessLogRpc businessLogRpc;
     
     /**
      * 跳转到StockIn页面
@@ -55,7 +60,23 @@ public class StockInController {
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap,Integer type) {
+    	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
     	modelMap.put("type", type == null ? 1:type);
+    	//TODO 动态收费项
+		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
+				queryBusinessChargeItemConfig(userTicket.getFirmId(), "5", YesOrNoEnum.YES.getCode());
+		/*List<BusinessChargeItemDto> chargeItemDtos = new ArrayList<>();
+		
+		BusinessChargeItemDto b = new BusinessChargeItemDto();
+		b.setChargeItem("物管费");
+		b.setId(20L);
+		BusinessChargeItemDto b1 = new BusinessChargeItemDto();
+		b1.setChargeItem("入库费");
+		b1.setId(20L);
+		chargeItemDtos.add(b);
+		chargeItemDtos.add(b1);*/
+    	
+        modelMap.put("chargeItems", chargeItemDtos);
         return "stock/add";
     }
     
@@ -77,7 +98,20 @@ public class StockInController {
     @RequestMapping(value="/view.html", method = {RequestMethod.GET, RequestMethod.POST})
     //@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public String view(ModelMap modelMap,String code) {
-    	modelMap.put("stockIn",stockInService.view(code));
+    	StockInDto stockInDto = stockInService.view(code);
+    	modelMap.put("stockIn",stockInDto);
+    	try{
+            //日志查询
+            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+            businessLogQueryInput.setBusinessCode(code);
+            businessLogQueryInput.setBusinessType(LogBizTypeConst.STOCK);
+            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            if(businessLogOutput.isSuccess()){
+                modelMap.put("logs",businessLogOutput.getData());
+            }
+        }catch (Exception e){
+            LOG.error("日志服务查询异常",e);
+        }
         return "stock/view";
     }
 
@@ -88,7 +122,11 @@ public class StockInController {
      */
     @RequestMapping(value="/update.html", method = {RequestMethod.GET, RequestMethod.POST})
     public String update(ModelMap modelMap,String code) {
+    	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
     	modelMap.put("stockIn",stockInService.view(code));
+    	List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
+				queryBusinessChargeItemConfig(userTicket.getFirmId(), "5", YesOrNoEnum.YES.getCode());
+    	modelMap.put("chargeItems", chargeItemDtos);
         return "stock/update";
     }
     

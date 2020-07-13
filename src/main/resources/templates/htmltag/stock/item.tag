@@ -26,17 +26,25 @@
 						
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control numberChange"
+						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control numberChange"
+						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control numberChange money"
-						 name="amount" range="0 9999999" required />
+						<label for="weight" class="">总金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
+						 name="amount" range="0 9999999" required readonly />
 					</div>
+					<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+				        for(item in chargeItems){
+				        %>
+				        <div class="form-group col-4">
+							<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
+							 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />
+						</div>
+				        <% } }%>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
 					    <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100"></textarea>
@@ -76,18 +84,26 @@
 						
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control numberChange"
+						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control numberChange"
+						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
 						 name="weight" range="0 9999999" required  readonly/>
 						 <button type="button" class="btn btn-secondary px-5" onclick="openWeightHandler({{index}})">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control numberChange money"
-						 name="amount" range="0 9999999" required />
+						<label for="" class="">总金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
+						 name="amount" range="0 9999999" required readonly/>
 					</div>
+					<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+				        for(item in chargeItems){
+				        %>
+				        <div class="form-group col-4">
+						<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
+						 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />
+					</div>
+				        <% } }%>
 					<div class="form-group col-8">
 					    <label for="">备注</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100"></textarea>
@@ -116,17 +132,25 @@
 						
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control numberChange"
+						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control numberChange"
+						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control numberChange money"
-						 name="amount" range="0 9999999" required />
+						<label for="weight" class="">总金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
+						 name="amount" range="0 9999999" required readonly/>
 					</div>
+					<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+				        for(item in chargeItems){
+				        %>
+				        <div class="form-group col-4">
+						<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
+						 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />
+					</div>
+				        <% } }%>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100"></textarea>

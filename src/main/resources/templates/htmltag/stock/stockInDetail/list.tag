@@ -41,7 +41,7 @@
                     <th data-field="quantity" data-sortable="true" data-sort-name="quantity" data-align="center">
                        件数
                     </th>
-                     <th data-field="amount" data-sortable="true" data-sort-name="amount" data-align="center">
+                     <th data-field="amount" data-sortable="true" data-sort-name="amount" data-align="center" data-provider="moneyProvider">
                        入库金额
                     </th>
                     <th data-field="createTime" data-sortable="true" data-sort-name="create_time" data-align="center" data-provider="dateProvider">

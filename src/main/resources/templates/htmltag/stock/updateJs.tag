@@ -102,13 +102,26 @@ function adddetailItem() {
 }
 
 /**
- * 初始化子单
+ * 子单数据回填
  * */
 function initDetailItem(stockDetail) {
+	stockDetail.amount = (stockDetail.amount/100).toFixed(2) + '';
 	$('#details').append(bui.util.HTMLDecode(template('initDetailInfo' + type, {
-		stockDetail,index: ++itemIndex
+		stockDetail,index: itemIndex
 	})))
+	for (let chargeItem of stockDetail.businessChargeItem) {
+		chargeItem.amount = (chargeItem.amount/100).toFixed(2) + '';
+		$("#saveForm_"+itemIndex).find(".chargeItems").after(bui.util.HTMLDecode(template('businessChargeItem', {
+			chargeItem
+		})))
+	}
+	/*for (let chargeItem of stockDetail.businessChargeItem) {
+		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).val(chargeItem.amount);
+		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).attr("item-id",chargeItem.id);
+	}*/
+	
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
+	itemIndex++;
 }
 
 // 添加子单
@@ -141,9 +154,11 @@ $(document).on('click', '.item-del', function() {
 
 
 //计算金额,重量,数量
-$(document).on('change', '.numberChange', function() {
+$(document).on('change', '.number_change', function() {
 	let fieldName = $(this).attr("name");
 	countNumber(fieldName);
+	countItemNumber($(this));
+
 });
 
 function countNumber(name){
@@ -153,7 +168,14 @@ function countNumber(name){
 		$("#saveForm").find("[name="+name+"]").val(total);
 	});
 }
-
+function countItemNumber(obj){
+	let total = 0;
+	obj.closest("form").find(".amount-item").each(function(){
+		total = parseInt(total) + parseInt($(this).val()==""?0:$(this).val());
+	})
+	obj.closest("form").find("[name=amount]").val(total);
+	countNumber("amount")
+}
 
 function buildFormData() {
 	// let formData = new FormData($('#saveForm')[0]);
@@ -163,6 +185,21 @@ function buildFormData() {
 	formData.departmentName = departmentName;
 	formData.categoryName = categoryName;
 	let stockDetails = [];
+	// 动态收费项
+	let businessChargeDtos = []
+	$('#saveForm').find('.chargeItem').each(function(){
+		let businessCharge = {};
+		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
+		businessCharge.chargeItemName=$(this).attr("chargeItem");
+		businessCharge.amount=parseInt($(this).val())*100;
+		if($(this).attr("item-id") != ""){
+			businessCharge.id=$(this).attr("item-id");
+		}
+		if (businessCharge != {}) {
+			businessChargeDtos.push(businessCharge);
+		}
+	})
+	formData.businessChargeItems=businessChargeDtos;
 	bui.util.yuanToCentForMoneyEl(formData);
 	$("#details").find("form").each(function() {
 		let detail = $(this).serializeObject();
@@ -175,7 +212,23 @@ function buildFormData() {
 		let index = $(this).attr("id").split("_")[1];
 		console.log(weightItems.get(index));
 		detail.stockWeighmanRecordDto = weightItems.get(index);
+		// 动态收费项
+		let itemBusinessChargeDtos = []
+		$(this).find('.chargeItem').each(function(){
+			let itemBusinessCharge = {};
+			itemBusinessCharge.chargeItemId=$(this).attr("name").split("_")[1];
+			itemBusinessCharge.chargeItemName=$(this).attr("chargeItem");
+			itemBusinessCharge.amount=parseInt($(this).val())*100;
+			if($(this).attr("item-id") != ""){
+				itemBusinessCharge.id=$(this).attr("item-id");
+			}
+			if (itemBusinessCharge != {}) {
+				itemBusinessChargeDtos.push(itemBusinessCharge);
+			}
+		})
+		detail.businessChargeItems=itemBusinessChargeDtos;
 		if (detail != {}) {
+			bui.util.yuanToCentForMoneyEl(detail);
 			stockDetails.push(detail);
 		}
 	});

@@ -31,9 +31,12 @@
 					<label for="">入库单号<i class="red">*</i></label> <input type="text" class="form-control" id="code"
 					 name="code" value="${stockIn.code!}"  readonly required />
 				</div>
+				
 				<div class="form-group col-4">
-					<label for="">入库类型<i class="red">*</i></label> <input type="text" class="form-control" id="type"
+					<input type="hidden" class="form-control" id=""
 					 name="type" value="${stockIn.type!}"  readonly required />
+					<label for="">入库类型<i class="red">*</i></label> <input type="text" class="form-control" id="type"
+					  value="${@com.dili.ia.glossary.StockInTypeEnum.getStockInTypeEnum(stockIn.type).getName()}"  readonly required />
 				</div>
 				<div class="form-group col-4">
 					<label for="">操作员<i class="red">*</i></label>
@@ -65,10 +68,17 @@
 					 name="weight" range="0 9999999" value="${stockIn.weight!}" required readonly />
 				</div>
 				<div class="form-group col-4">
-					<label for="amount" class="">总金额<i class="red">*</i></label> <input id="amount" type="number" class="form-control"
-					 name="amount" range="0 9999999.99" value="${stockIn.amount!}" required readonly />
+					<label for="amount" class="">总金额<i class="red">*</i></label> <input id="amount" type="number" class="form-control money"
+					 name="amount" range="0 9999999.99" value="<#centToYuan value='${stockIn.amount!}'/>" required readonly />
 				</div>
-				
+				<%if(isNotEmpty(stockIn.businessChargeItems) && stockIn.businessChargeItems.~size>0){
+		        for(item in stockIn.businessChargeItems){
+		        %>		        
+		        <div class="form-group col-4">
+					<label for="amount" class="">${item.chargeItemName!}<i class="red">*</i></label> <input id="chargeItem_${item.chargeItemId!}" type="number" class="form-control chargeItem money"
+					 name="chargeItem_${item.chargeItemId!}" item-id="${item.id!}" chargeItem="${item.chargeItemName!}" value = "<#centToYuan value='${item.amount!}'/>" range="0 9999999.99" required readonly />				
+		        </div>
+		        <% } }%>
 				<div class="form-group col-4">
 					<label for="expireDate">到期日期</label> <input type="text" id="expireDate" name="expireDate" class="form-control laydate layend"
 					value="${stockIn.expireDate!,localDateTimeFormat='yyyy-MM-dd'}"  readonly>
@@ -107,7 +117,7 @@
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
 						<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
-						<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber" name="pickupNumber" value="{{stockDetail.pickupNumber}}" required />
+						<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}" required />
 					</div>
 					<div class="form-group col-4">
 						<label for="">车型</label> <input type="text" class="form-control" id="carTypePublicCode_{{index}}" name="carTypePublicCode" value="{{stockDetail.carTypePublicCode}}"
@@ -128,17 +138,28 @@
 						 name="assetsId" value="{{stockDetail.assetsId}}" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" value="{{stockDetail.quantity}}" class="form-control numberChange"
+						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" value="{{stockDetail.quantity}}" class="form-control number_change"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" value="{{stockDetail.weight}}" class="form-control numberChange"
+						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" value="{{stockDetail.weight}}" class="form-control number_change"
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" value="{{stockDetail.amount}}" class="form-control numberChange money"
-						 name="amount" range="0 9999999" required />
+						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" value="{{stockDetail.amount}}" class="form-control number_change money"
+						 name="amount" range="0 9999999" required readonly />
 					</div>
+					<chargeItems class="chargeItems">
+						<!--用于标签定位-->
+					</chargeItems>
+					<!--<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+				        for(item in chargeItems){
+				        %>
+				        <div class="form-group col-4">
+							<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
+							 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />
+						</div>
+				        <% } }%>-->
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100" value="{{stockDetail.notes}}">{{stockDetail.notes}}</textarea>
@@ -178,18 +199,21 @@
 						 name="assetsId" value="{{stockDetail.assetsId}}" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control numberChange"
+						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
 						 name="quantity" value="{{stockDetail.quantity}}" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control numberChange"
+						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
 						 name="weight" value="{{stockDetail.weight}}" range="0 9999999" required readonly/>
 						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}},{{stockDetail.stockWeighmanRecord}})">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control numberChange money"
-						 name="amount" value="{{stockDetail.amount}}" range="0 9999999" required />
+						<label for="" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
+						 name="amount" value="{{stockDetail.amount}}" range="0 9999999" required readonly/>
 					</div>
+					<chargeItems class="chargeItems">
+						<!--用于标签定位-->
+					</chargeItems>
 					<div class="form-group col-8">
 					    <label for="">备注</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" value="{{stockDetail.notes}}" maxlength="100">{{stockDetail.notes}}</textarea>
@@ -218,17 +242,20 @@
 						 name="assetsId" value="{{stockDetail.assetsId}}" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control numberChange"
+						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
 						 name="quantity" range="0 9999999" value="{{stockDetail.quantity}}" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control numberChange"
+						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
 						 name="weight" range="0 9999999" value="{{stockDetail.weight}}" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control numberChange money"
-						 name="amount" range="0 9999999" value="{{stockDetail.amount}}" required />
+						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
+						 name="amount" range="0 9999999" value="<#centToYuan value='{{stockDetail.amount}}'/>" required readonly/>
 					</div>
+					<chargeItems class="chargeItems">
+						<!--用于标签定位-->
+					</chargeItems>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100" >{{stockDetail.notes}}</textarea>
@@ -238,4 +265,12 @@
 					</div>
 				</div>
 	</form>			
+</script>
+
+
+<script id="businessChargeItem" type="text/html">
+<div class="form-group col-4">
+	<label for="amount" class="">{{chargeItem.chargeItemName}}<i class="red">*</i></label> <input id="chargeItem_{{chargeItem.id}}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
+		name="chargeItem_{{chargeItem.chargeItemId}}" item-id="{{chargeItem.id}}" chargeItem="{{chargeItem.chargeItemName}}" value="{{chargeItem.amount}}" range="0 9999999.99" required  />
+</div>
 </script>

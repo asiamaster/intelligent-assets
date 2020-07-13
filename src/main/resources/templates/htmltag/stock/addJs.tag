@@ -121,10 +121,13 @@ $(document).on('click', '.item-del', function() {
 });
 
 //计算金额,重量,数量
-$(document).on('change', '.numberChange', function() {
+$(document).on('change', '.number_change', function() {
 	let fieldName = $(this).attr("name");
 	countNumber(fieldName);
+	countItemNumber($(this));
 });
+
+
 
 function countNumber(name){
 	let total = 0;
@@ -132,6 +135,15 @@ function countNumber(name){
 		total = parseInt(total) + parseInt($(this).val());
 		$("#saveForm").find("[name="+name+"]").val(total);
 	});
+}
+
+function countItemNumber(obj){
+	let total = 0;
+	obj.closest("form").find(".amount-item").each(function(){
+		total = parseInt(total) + parseInt($(this).val()==""?0:$(this).val());
+	})
+	obj.closest("form").find("[name=amount]").val(total);
+	countNumber("amount")
 }
 
 //数据组装
@@ -143,8 +155,21 @@ function buildFormData() {
 	formData.departmentName = departmentName;
 	formData.categoryName = categoryName;
 	formData.type = type;
-	let stockDetails = [];
+	// 动态收费项
+	let businessChargeDtos = []
+	$('#saveForm').find('.chargeItem').each(function(){
+		let businessCharge = {};
+		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
+		businessCharge.chargeItemName=$(this).attr("chargeItem");
+		businessCharge.amount=parseInt($(this).val())*100;
+		if (businessCharge != {}) {
+			businessChargeDtos.push(businessCharge);
+		}
+	})
 	bui.util.yuanToCentForMoneyEl(formData);
+	formData.businessChargeItems=businessChargeDtos;
+	// 子单
+	let stockDetails = [];
 	$("#details").find("form").each(function() {
 		let index = $(this).attr("id").split("_")[1];
 		let detail = $(this).serializeObject();
@@ -153,11 +178,27 @@ function buildFormData() {
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
 		detail.stockWeighmanRecordDto = weightItems.get(index);
+		
+		// 动态收费项
+		let itemBusinessChargeDtos = []
+		$(this).find('.chargeItem').each(function(){
+			let itemBusinessCharge = {};
+			itemBusinessCharge.chargeItemId=$(this).attr("name").split("_")[1];
+			itemBusinessCharge.chargeItemName=$(this).attr("chargeItem");
+			itemBusinessCharge.amount=parseInt($(this).val())*100;
+			if (itemBusinessCharge != {}) {
+				itemBusinessChargeDtos.push(itemBusinessCharge);
+			}
+			
+		})
+		bui.util.yuanToCentForMoneyEl(detail);
+		detail.businessChargeItems=itemBusinessChargeDtos;
 		if (detail != {}) {
 			stockDetails.push(detail);
 		}
 	});
 	formData.stockInDetailDtos = stockDetails;
+	
 	return JSON.stringify(formData);
 }
 

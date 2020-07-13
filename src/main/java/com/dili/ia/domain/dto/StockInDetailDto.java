@@ -1,9 +1,13 @@
 package com.dili.ia.domain.dto;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.apache.ibatis.io.ResolverUtil.IsA;
+
+import com.dili.ia.domain.BusinessChargeItem;
 
 /**
  * 
@@ -125,6 +129,11 @@ public class StockInDetailDto {
 	 * 入库子单删除
 	 */
 	private Boolean delete = false;
+	
+	/**
+     * 动态收费项
+     */
+    private List<BusinessChargeItem> businessChargeItems;
 	
 	/**
      * 司磅记录
@@ -330,6 +339,15 @@ public class StockInDetailDto {
 	public void setCategoryName(String categoryName) {
 		this.categoryName = categoryName;
 	}
-	
 
+	public List<BusinessChargeItem> getBusinessChargeItems() {
+		return businessChargeItems;
+	}
+
+	public void setBusinessChargeItems(List<BusinessChargeItem> businessChargeItems) {
+		this.businessChargeItems = businessChargeItems;
+	}
+
+	
+	
 }

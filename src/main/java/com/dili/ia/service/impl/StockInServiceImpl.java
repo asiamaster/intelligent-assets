@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import com.alibaba.druid.sql.ast.expr.SQLCaseExpr.Item;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.StockIn;
@@ -43,6 +45,7 @@ import com.dili.ia.glossary.StockInTypeEnum;
 import com.dili.ia.mapper.StockInMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.StockInDetailService;
@@ -58,6 +61,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 
@@ -92,10 +96,13 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Autowired
 	private RefundOrderService refundOrderService;
 	
+	@Autowired
+	private BusinessChargeItemService businessChargeItemService;
+	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
     
-    private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/stock/stockIn/settlementDealHandler";
+    private String settlerHandlerUrl = "http://10.28.1.47:8381/api/stockIn/settlementDealHandler";
 	
     public StockInMapper getActualDao() {
         return (StockInMapper)getDao();
@@ -105,9 +112,13 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Transactional
 	public void createStockIn(StockInDto stockInDto) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		//构建入库单
 		StockIn stockIn = buildStockIn(stockInDto, userTicket);
+		//构建入库单详情(子单)
 		buildStockDetail(stockInDto.getStockInDetailDtos(), stockIn);
 		insertSelective(stockIn);
+		//构建动态收费项
+		businessChargeItemService.batchInsert(buildBusinessCharge(stockInDto.getBusinessChargeItems(), stockIn.getId(),stockIn.getCode()));
 		LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 	
@@ -124,12 +135,20 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockIn.setVersion(1);
 		return stockIn;
 	}
+	
+	private List<BusinessChargeItem> buildBusinessCharge(List<BusinessChargeItem> businessChargeItems,Long businessId,String businessCode){
+		businessChargeItems.stream().forEach(item -> {
+			item.setBusinessId(businessId);
+			item.setBusinessCode(businessCode);
+			item.setPaidAmount(0L);
+			item.setWaitAmount(item.getAmount());
+		});
+		return businessChargeItems;
+	}
 	private List<StockInDetail> buildStockDetail(List<StockInDetailDto> detailDtos,StockIn stockIn) {
-		//List<StockInDetailDto> detailDtos = stockInDto.getAddStockInDetailDtos();
 		List<StockInDetail> detailList = new ArrayList<>();
-		// 总金额 件数 重量计算
-		// 总量 克 计算
-		// 金额 分 计算
+		List<BusinessChargeItem> businessChargeItems = new ArrayList<>();
+		// 总金额 件数 重量计算 总量 克 计算 金额 分 计算
 		Long totalWeight = 0L;
 		Long totalQuantity = 0L;
 		Long totalMoney = 0L;
@@ -153,13 +172,20 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				stockWeighmanRecordService.insertSelective(stockWeighmanRecord);
 				detail.setWeightmanId(stockWeighmanRecord.getId());
 			}
-			detailList.add(detail);
+			stockInDetailService.insertSelective(detail);
+			//detailList.add(detail);
+			businessChargeItems.addAll(buildBusinessCharge(stockInDetailDto.getBusinessChargeItems(), detail.getId(),detail.getCode()));
+			
 		}
+		
 		stockIn.setWeight(totalWeight);
 		stockIn.setQuantity(totalQuantity);
 		stockIn.setAmount(totalMoney);
-		if(CollectionUtils.isNotEmpty(detailList)) {
+		/*if(CollectionUtils.isNotEmpty(detailList)) {
 			stockInDetailService.batchInsert(detailList);
+		}*/
+		if(CollectionUtils.isNotEmpty(businessChargeItems)) {
+			businessChargeItemService.batchInsert(businessChargeItems);
 		}
 		
 		return detailList;
@@ -223,6 +249,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				stockWeighmanRecordService.updateSelective(stockWeighmanRecord);
 				detail.setWeightmanId(stockWeighmanRecord.getId());
 			}
+			//修改动态费用项
+			List<BusinessChargeItem> businessChargeItems = stockInDetailDto.getBusinessChargeItems();
+			businessChargeItemService.batchUpdateSelective(businessChargeItems);
+			/*businessChargeItems.stream().forEach(item -> {
+				businessChargeItemService.updateSelective(item);
+			});*/
 
 		}
 		// 新增子单
@@ -238,6 +270,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		condition.setCode(stockIn.getCode());
 		condition.setVersion(stockIn.getVersion());
 		updateStockIn(domain, stockIn.getCode(), stockIn.getVersion(), StockInStateEnum.CREATED);
+		//动态收费项
+		businessChargeItemService.batchUpdate(buildBusinessCharge(stockInDto.getBusinessChargeItems(), stockIn.getId(),stockIn.getCode()));
 		//updateSelectiveByExample(domain, condition);
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
@@ -320,17 +354,24 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			if (StockInTypeEnum.WEIGHT.getCode() == stockIn.getType()) {
 				jsonObject.put("stockWeighmanRecord", stockWeighmanRecordService.get(item.getWeightmanId()));
 			}
+			// 组装动态收费项
+			BusinessChargeItem condtion = new BusinessChargeItem();
+			condtion.setBusinessCode(item.getCode());
+			//jsonObject.put("amount",MoneyUtils.centToYuan(item.getAmount()));
+			jsonObject.put("businessChargeItem", businessChargeItemService.list(condtion));
 			details.add(jsonObject);
 		});
-
+		
 		// 结算单信息
 		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()
 				&& stockIn.getState() != StockInStateEnum.CANCELLED.getCode()) {
 			stockInDto.setSettleOrder(settlementRpcResolver.get(settlementAppId, stockIn.getPaymentOrderCode()));
 		}
-
+		BusinessChargeItem condtion = new BusinessChargeItem();
+		condtion.setBusinessCode(stockInDto.getCode());
+		stockInDto.setBusinessChargeItems(businessChargeItemService.list(condtion));
 		stockInDto.setStockInDetails(stockInDetails);
-		stockInDto.setJsonStockInDetailDtos(JSON.toJSONString(details));
+		stockInDto.setJsonStockInDetailDtos(details);
 		return stockInDto;
 	}
 
