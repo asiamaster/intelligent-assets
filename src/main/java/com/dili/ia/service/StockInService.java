@@ -1,15 +1,18 @@
 package com.dili.ia.service;
 
+import java.util.List;
 import java.util.Map;
 
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
 import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 
@@ -131,5 +134,13 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 */
 	void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder);
 
-	
+	/**
+	 * 
+	 * @Title getCost
+	 * @Description 通过计费规则算取费用
+	 * @param List<QueryFeeOutput>
+	 * @return
+	 * @throws
+	 */
+	List<QueryFeeOutput> getCost(StockInDetailDto stockInDetailDto);
 }

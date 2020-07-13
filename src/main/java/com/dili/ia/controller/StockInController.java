@@ -2,6 +2,7 @@ package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
@@ -64,7 +65,7 @@ public class StockInController {
     	modelMap.put("type", type == null ? 1:type);
     	//TODO 动态收费项
 		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
-				queryBusinessChargeItemConfig(userTicket.getFirmId(), "5", YesOrNoEnum.YES.getCode());
+				queryBusinessChargeItemConfig(userTicket.getFirmId(), "STOCK_IN", YesOrNoEnum.YES.getCode());
 		/*List<BusinessChargeItemDto> chargeItemDtos = new ArrayList<>();
 		
 		BusinessChargeItemDto b = new BusinessChargeItemDto();
@@ -125,7 +126,7 @@ public class StockInController {
     	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
     	modelMap.put("stockIn",stockInService.view(code));
     	List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
-				queryBusinessChargeItemConfig(userTicket.getFirmId(), "5", YesOrNoEnum.YES.getCode());
+				queryBusinessChargeItemConfig(userTicket.getFirmId(), "STOCK_IN", YesOrNoEnum.YES.getCode());
     	modelMap.put("chargeItems", chargeItemDtos);
         return "stock/update";
     }
@@ -274,5 +275,26 @@ public class StockInController {
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
 		}
     	return BaseOutput.success("退款成功");
+    }
+    
+    /**
+     * 通过计费规则算取费用
+     * @param stockIn
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/getCost.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput getCost(@RequestBody StockInDetailDto stockInDetailDto) {	        //throw new BusinessException("2000", "errorCode");
+    	BaseOutput baseOutput = BaseOutput.success();
+    	try {
+    		baseOutput.setData(stockInService.getCost(stockInDetailDto));
+    	}catch (BusinessException e) {
+			LOG.error("费用{}计算异常！",stockInDetailDto.getCode(), e);
+			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+		}catch (Exception e) {
+			LOG.error("费用{}计算异常！",stockInDetailDto.getCode(), e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+    	return baseOutput;
     }
 }
