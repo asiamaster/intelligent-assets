@@ -24,7 +24,11 @@
                 <input type="text" class="form-control" value="${depositOrder.departmentName!}" disabled />
             </div>
             <div class="form-group col">
-                <label for="" class="">对应编号</label>
+                <label for="" class="">资产类型</label>
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(depositOrder.assetsType).getName()}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">资产编号</label>
                 <input type="text" class="form-control" value="${depositOrder.assetsName!}" disabled />
             </div>
             <div class="form-group col">
