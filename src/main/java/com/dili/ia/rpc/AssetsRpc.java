@@ -89,6 +89,12 @@ public interface AssetsRpc {
     BaseOutput divisionSave(@RequestParam("parentId") Long parentId, @RequestParam("names") String[] names, @RequestParam("notes") String[] notes, @RequestParam("numbers") String[] numbers);
 
     /**
+     * 根据ID查询本身和子节点
+     */
+    @RequestMapping(value = "/api/district/listChild", method = RequestMethod.POST)
+    BaseOutput<List<DistrictDTO>> listDistrictChild(Long id);
+
+    /**
      * 修改搜索
      */
     @RequestMapping(value = "/api/district/search", method = RequestMethod.POST)
