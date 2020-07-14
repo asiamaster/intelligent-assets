@@ -249,13 +249,13 @@ public class AssetsLeaseOrder extends BaseDomain {
      * 流程实例ID
      */
     @Column(name = "`process_instance_id`")
-    private Integer processInstanceId;
+    private String processInstanceId;
 
     /**
      * 流程定义ID
      */
     @Column(name = "`process_definition_id`")
-    private Integer processDefinitionId;
+    private String processDefinitionId;
 
     /**
      * 审批状态
@@ -633,19 +633,19 @@ public class AssetsLeaseOrder extends BaseDomain {
         this.version = version;
     }
 
-    public Integer getProcessInstanceId() {
+    public String getProcessInstanceId() {
         return processInstanceId;
     }
 
-    public void setProcessInstanceId(Integer processInstanceId) {
+    public void setProcessInstanceId(String processInstanceId) {
         this.processInstanceId = processInstanceId;
     }
 
-    public Integer getProcessDefinitionId() {
+    public String getProcessDefinitionId() {
         return processDefinitionId;
     }
 
-    public void setProcessDefinitionId(Integer processDefinitionId) {
+    public void setProcessDefinitionId(String processDefinitionId) {
         this.processDefinitionId = processDefinitionId;
     }
 
