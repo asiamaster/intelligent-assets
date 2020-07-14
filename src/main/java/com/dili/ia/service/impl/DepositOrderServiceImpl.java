@@ -108,7 +108,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setPayState(DepositPayStateEnum.UNPAID.getCode());
         depositOrder.setRefundState(DepositRefundStateEnum.NO_REFUNDED.getCode());
         depositOrder.setIsImport(YesOrNoEnum.NO.getCode());
-        depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
+        if (depositOrder.getIsRelated() == null){
+            depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
+        }
         depositOrder.setWaitAmount(depositOrder.getAmount());
 
         this.insertSelective(depositOrder);
