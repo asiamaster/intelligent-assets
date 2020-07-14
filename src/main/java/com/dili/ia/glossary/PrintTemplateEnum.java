@@ -21,6 +21,7 @@ public enum PrintTemplateEnum {
     STOCK_OUT_ORDER("StockOutInOrder", "出库单"),
     WATER_FEE("waterFee", "水费"),
     ELECTRICITY_FEE("electricityFee", "电费"),
+    BOUTIQUE_ENTRANCE("boutique_entrance", "精品停车费"),
     ;
 
     private String name;

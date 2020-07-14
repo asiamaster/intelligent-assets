@@ -4,6 +4,8 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -27,13 +29,13 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      * 创建时间
      */
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 客户ID
@@ -78,34 +80,40 @@ public class BoutiqueEntranceRecord extends BaseDomain {
     private Long departmentId;
 
     /**
+     * 部门名称
+     */
+    @Column(name = "`department_name`")
+    private String departmentName;
+
+    /**
      * 进场时间
      */
     @Column(name = "`enter_time`")
-    private Date enterTime;
+    private LocalDateTime enterTime;
 
     /**
      * 确认时间
      */
     @Column(name = "`confirm_time`")
-    private Date confirmTime;
+    private LocalDateTime confirmTime;
 
     /**
      * 开始时间
      */
     @Column(name = "`start_time`")
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 计费时间
      */
     @Column(name = "`count_time`")
-    private Date countTime;
+    private LocalDateTime countTime;
 
     /**
      * 离场时间
      */
     @Column(name = "`leave_time`")
-    private Date leaveTime;
+    private LocalDateTime leaveTime;
 
     /**
      * 交费总额
@@ -135,7 +143,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      * 取消时间
      */
     @Column(name = "`cancel_time`")
-    private Date cancelTime;
+    private LocalDateTime cancelTime;
 
     /**
      * 进门记录id
@@ -156,7 +164,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -165,7 +173,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      *
      * @param createTime 创建时间
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -176,7 +184,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -185,7 +193,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      *
      * @param modifyTime 修改时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -329,6 +337,16 @@ public class BoutiqueEntranceRecord extends BaseDomain {
         this.departmentId = departmentId;
     }
 
+    @FieldDef(label="部门名称", maxLength = 100)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
     /**
      * 获取进场时间
      *
@@ -336,7 +354,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     @FieldDef(label="进场时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getEnterTime() {
+    public LocalDateTime getEnterTime() {
         return enterTime;
     }
 
@@ -345,7 +363,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      *
      * @param enterTime 进场时间
      */
-    public void setEnterTime(Date enterTime) {
+    public void setEnterTime(LocalDateTime enterTime) {
         this.enterTime = enterTime;
     }
 
@@ -356,7 +374,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     @FieldDef(label="确认时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getConfirmTime() {
+    public LocalDateTime getConfirmTime() {
         return confirmTime;
     }
 
@@ -365,7 +383,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      *
      * @param confirmTime 确认时间
      */
-    public void setConfirmTime(Date confirmTime) {
+    public void setConfirmTime(LocalDateTime confirmTime) {
         this.confirmTime = confirmTime;
     }
 
@@ -376,7 +394,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     @FieldDef(label="开始时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
@@ -385,7 +403,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      *
      * @param startTime 开始时间
      */
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
@@ -396,7 +414,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     @FieldDef(label="计费时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCountTime() {
+    public LocalDateTime getCountTime() {
         return countTime;
     }
 
@@ -405,7 +423,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      *
      * @param countTime 计费时间
      */
-    public void setCountTime(Date countTime) {
+    public void setCountTime(LocalDateTime countTime) {
         this.countTime = countTime;
     }
 
@@ -416,7 +434,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     @FieldDef(label="离场时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getLeaveTime() {
+    public LocalDateTime getLeaveTime() {
         return leaveTime;
     }
 
@@ -425,7 +443,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      *
      * @param leaveTime 离场时间
      */
-    public void setLeaveTime(Date leaveTime) {
+    public void setLeaveTime(LocalDateTime leaveTime) {
         this.leaveTime = leaveTime;
     }
 
@@ -516,7 +534,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     @FieldDef(label="取消时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCancelTime() {
+    public LocalDateTime getCancelTime() {
         return cancelTime;
     }
 
@@ -525,7 +543,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      *
      * @param cancelTime 取消时间
      */
-    public void setCancelTime(Date cancelTime) {
+    public void setCancelTime(LocalDateTime cancelTime) {
         this.cancelTime = cancelTime;
     }
 

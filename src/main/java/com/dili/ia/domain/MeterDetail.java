@@ -126,6 +126,12 @@ public class MeterDetail extends BaseDomain {
     private Long usageAmount;
 
     /**
+     * 使用量
+     */
+    @Column(name = "`amount`")
+    private Long amount;
+
+    /**
      * 创建人所属于部门ID
      */
     @Column(name = "`creator_dep_id`")
@@ -389,6 +395,16 @@ public class MeterDetail extends BaseDomain {
 
     public void setUsageAmount(Long usageAmount) {
         this.usageAmount = usageAmount;
+    }
+
+    @FieldDef(label="使用量")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Long amount) {
+        this.amount = amount;
     }
 
     @FieldDef(label="创建人所属于部门ID")

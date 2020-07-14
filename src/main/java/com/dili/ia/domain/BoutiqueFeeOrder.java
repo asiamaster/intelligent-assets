@@ -4,6 +4,8 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -26,13 +28,13 @@ public class BoutiqueFeeOrder extends BaseDomain {
      * 创建时间
      */
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 进门记录id
@@ -50,13 +52,13 @@ public class BoutiqueFeeOrder extends BaseDomain {
      * 开始时间
      */
     @Column(name = "`start_time`")
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 结束时间
      */
     @Column(name = "`end_time`")
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /**
      * 金额
@@ -104,13 +106,25 @@ public class BoutiqueFeeOrder extends BaseDomain {
      * 取消时间
      */
     @Column(name = "`cancel_time`")
-    private Date cancelTime;
+    private LocalDateTime cancelTime;
 
     /**
      * 备注
      */
     @Column(name = "`notes`")
     private String notes;
+
+    /**
+     * 市场Id
+     */
+    @Column(name = "`market_id`")
+    private Long marketId;
+
+    /**
+     * 市场CODE
+     */
+    @Column(name = "`market_code`")
+    private String marketCode;
 
     /**
      * 版本控制,乐观锁
@@ -125,7 +139,7 @@ public class BoutiqueFeeOrder extends BaseDomain {
      */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -134,7 +148,7 @@ public class BoutiqueFeeOrder extends BaseDomain {
      *
      * @param createTime 创建时间
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -145,7 +159,7 @@ public class BoutiqueFeeOrder extends BaseDomain {
      */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -154,7 +168,7 @@ public class BoutiqueFeeOrder extends BaseDomain {
      *
      * @param modifyTime 修改时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -205,7 +219,7 @@ public class BoutiqueFeeOrder extends BaseDomain {
      */
     @FieldDef(label="开始时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
@@ -214,7 +228,7 @@ public class BoutiqueFeeOrder extends BaseDomain {
      *
      * @param startTime 开始时间
      */
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
@@ -225,7 +239,7 @@ public class BoutiqueFeeOrder extends BaseDomain {
      */
     @FieldDef(label="结束时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
@@ -234,7 +248,7 @@ public class BoutiqueFeeOrder extends BaseDomain {
      *
      * @param endTime 结束时间
      */
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
@@ -385,7 +399,7 @@ public class BoutiqueFeeOrder extends BaseDomain {
      */
     @FieldDef(label="取消时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCancelTime() {
+    public LocalDateTime getCancelTime() {
         return cancelTime;
     }
 
@@ -394,7 +408,7 @@ public class BoutiqueFeeOrder extends BaseDomain {
      *
      * @param cancelTime 取消时间
      */
-    public void setCancelTime(Date cancelTime) {
+    public void setCancelTime(LocalDateTime cancelTime) {
         this.cancelTime = cancelTime;
     }
 
@@ -416,6 +430,26 @@ public class BoutiqueFeeOrder extends BaseDomain {
      */
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    @FieldDef(label="市场Id")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getMarketId() {
+        return marketId;
+    }
+
+    public void setMarketId(Long marketId) {
+        this.marketId = marketId;
+    }
+
+    @FieldDef(label="市场CODE", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getMarketCode() {
+        return marketCode;
+    }
+
+    public void setMarketCode(String marketCode) {
+        this.marketCode = marketCode;
     }
 
     /**

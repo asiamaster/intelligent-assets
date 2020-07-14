@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.BoutiqueEntranceRecord;
+import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
@@ -102,6 +103,46 @@ public class BoutiqueEntranceRecordController {
             BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
             LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
+        return baseOutput;
+    }
+
+    /**
+     * 跳转到交费页面
+     *
+     * @param  id 精品停车主键
+     * @return 查看页面地址
+     * @date   2020/7/13
+     */
+    @RequestMapping(value="/pay.action", method = RequestMethod.GET)
+    public String pay(ModelMap modelMap, Long id) {
+        BoutiqueEntranceRecordDto boutiqueEntranceRecordDto = null;
+        if (id != null) {
+            boutiqueEntranceRecordDto = boutiqueEntranceRecordService.getBoutiqueEntranceDtoById(id);
+        }
+        modelMap.put("boutiqueEntranceRecord", boutiqueEntranceRecordDto);
+        return "boutiqueEntranceRecord/pay";
+    }
+
+    /**
+     * 交费
+     *
+     * @param  feeOrder 交费单
+     * @return BaseOutput
+     * @date   2020/7/13
+     */
+    @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput submit(@ModelAttribute BoutiqueFeeOrder feeOrder) throws Exception {
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.submit(feeOrder, userTicket);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()){
+            BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
+            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
         return baseOutput;
     }
 
