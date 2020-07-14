@@ -109,12 +109,10 @@ public class AssetsLeaseOrderController {
             PaymentOrder paymentOrder = new PaymentOrder();
             paymentOrder.setCode(orderCode);
             leaseOrder = assetsLeaseOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
-            id = leaseOrder.getId();
         }else if(StringUtils.isNotBlank(code)){
             AssetsLeaseOrder condition = new AssetsLeaseOrder();
             condition.setCode(code);
             leaseOrder = assetsLeaseOrderService.list(condition).stream().findFirst().orElse(null);
-
         }
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -123,7 +121,7 @@ public class AssetsLeaseOrderController {
         }
 
         AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
-        condition.setLeaseOrderId(id);
+        condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
         modelMap.put("leaseOrder",leaseOrder);
         List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()));
