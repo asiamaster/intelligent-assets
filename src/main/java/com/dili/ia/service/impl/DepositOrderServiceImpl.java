@@ -447,6 +447,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         condition.setCode(settleOrder.getOrderCode());
         condition.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
+        if (paymentOrderPO == null){
+            LOG.info("缴费单异常，没有找到缴费单：{}, bizType={}",settleOrder.getOrderCode(),BizTypeEnum.DEPOSIT_ORDER.getCode());
+            return BaseOutput.failure("缴费单异常，没有找到缴费单：" + settleOrder.getOrderCode());
+        }
         DepositOrder depositOrder = this.get(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
             return BaseOutput.success().setData(depositOrder);
