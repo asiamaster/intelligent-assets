@@ -35,7 +35,6 @@
     // 提交保存
     function saveOrUpdateHandler(){
         let validator = $('#saveForm').validate({ignore:''})
-        debugger
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
             $('.collapse:not(.show)').addClass('show');
@@ -48,8 +47,10 @@
 
         //没有id就新增
         if (_formData.id == null || _formData.id == "") {
+            debugger
             _url = "${contextPath}/meterDetail/insert.action";
         } else {//有id就修改
+            debugger
             _url = "${contextPath}/meterDetail/update.action";
         }
         $.ajax({

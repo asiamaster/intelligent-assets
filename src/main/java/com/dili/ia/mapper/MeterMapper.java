@@ -31,4 +31,13 @@ public interface MeterMapper extends MyMapper<Meter> {
      * @date   2020/6/28
      */
     List<Meter> listMetersLikeNumber(MeterDto meterDto);
+
+    /**
+     * 根据 number 查询实体
+     *
+     * @param  number
+     * @return Meter
+     * @date   2020/7/14
+     */
+    Meter getMeterByNumber(String number);
 }
