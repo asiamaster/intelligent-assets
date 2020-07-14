@@ -246,14 +246,14 @@
             return;
         }
         dia = bs4pop.dialog({
-            title: '摊位租赁详情',
+            title: '提交付款',
             content: '/assetsLeaseOrder/submitPayment.html?id='+rows[0].id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
             width: '750px',
             height : '550px',
-            btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
+            btns: []
         });
     }
 
