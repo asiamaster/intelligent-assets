@@ -11,7 +11,7 @@ $(document).on('blur',".get-cost", function() {
 	console.log(3123123);
 	let index = $(this).attr("id").split("_")[1];
 	let detail = $("#saveForm_"+index).serializeObject();
-	detail.categoryId=$('#categoryId').find("option:selected").val();
+	detail.categoryId=$('#categoryId').val();
 	detail.assetsId=$("#saveForm_"+index).find("[name=assetsId]").find("option:selected").val();
 	if(isNull(detail.categoryId)  || isNull(detail.quantity)){
 		return;

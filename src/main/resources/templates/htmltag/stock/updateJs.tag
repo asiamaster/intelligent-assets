@@ -20,35 +20,30 @@ initSwipeCard({
 //品类搜索
 //品类搜索自动完成
 var categoryAutoCompleteOption = {
-	width: '100%',
-	language: 'zh-CN',
-	maximumSelectionLength: 10,
-	ajax: {
-		type: 'post',
-		url: '/category/search.action',
-		data: function(params) {
-			return {
-				keyword: params.term,
-			}
-		},
-		processResults: function(result) {
-			if (result.success) {
+		serviceUrl: '/category/search.action',
+		paramName : 'keyword',
+		displayFieldName : 'name',
+		showNoSuggestionNotice: true,
+		noSuggestionNotice: '无匹配结果',
+		transformResult: function (result) {
+			if(result.success){
 				let data = result.data;
 				return {
-					results: $.map(data, function(dataItem) {
-						dataItem.text = dataItem.name + (dataItem.cusName ? '(' + dataItem.cusName + ')' : '');
-						return dataItem;
+					suggestions: $.map(data, function (dataItem) {
+						return $.extend(dataItem, {
+							value: dataItem.name + '（' + dataItem.code + '）'
+						}
+						);
 					})
-				};
-			} else {
-				bs4pop.alert(result.message, {
-					type: 'error'
-				});
-				return;
+				}
+			}else{
+				bs4pop.alert(result.message, {type: 'error'});
+				return false;
 			}
-		}
-	}
-}
+		},
+		selectFn: function (suggestion) {
+			$('#payeeCertificateNumber').val(suggestion.certificateNumber);
+		}}
 
 var districtAutoCompleteOption = {
 	width: '100%',

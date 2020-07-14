@@ -51,10 +51,11 @@
 				</div>
 				<div class="form-group col-4">
 					<label for="categoryId">品类<i class="red">*</i></label>
-					<select id="categoryId" name="categoryId" class="form-control" required>
-					</select>
-					<#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption" _value="${stockIn.categoryId!}" />
+					<#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName"
+					 _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="categoryAutoCompleteOption"
+					 _required="true" _value="${stockIn.categoryId!}" _text="${stockIn.categoryName!}" />
 				</div>
+				
 				<div class="form-group col-4">
 					<label for="">产地<i class="red">*</i></label> <input type="text" class="form-control" id="origin" name="origin"
 					 value="${stockIn.origin!}" required />
@@ -127,11 +128,11 @@
 					<div class="form-group col-4">
 						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" value="{{stockDetail.carPlate}}" required />
 					</div>
+
 					<div class="form-group col-4">
 						<label for="">冷库区域：<i class="red">*</i></label>
-						<input id="districtId_{{index}}" name="districtId" class="form-control" value="{{stockDetail.districtId}}"
-						 required />
-						
+						<select id="districtId_{{index}}" name="districtId" class="form-control" required> 
+						</select>
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
@@ -169,7 +170,8 @@
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
 					</div>
 					
-					
+					<#bcomboProvider _id="districtId_{{index}}" _provider="districtProvider" _queryParams="{departmentId:54}"  _value="{{stockDetail.districtId}}"/>					
+
 				</div>
 	</form>			
 </script>
@@ -190,8 +192,8 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库区域：<i class="red">*</i></label>
-						<input id="districtId_{{index}}" name="districtId" class="form-control" value="{{stockDetail.districtId}}"
-						 required />
+						<select id="districtId_{{index}}" name="districtId" class="form-control" value="{{stockDetail.districtId}}"> 
+
 						
 					</div>
 					<div class="form-group col-4">
@@ -234,8 +236,8 @@
 					<input type="hidden" class="form-control" id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
 					
 						<label for="">冷库区域：<i class="red">*</i></label>
-						<input id="districtId_{{index}}" name="districtId" class="form-control" value="{{stockDetail.districtId}}"
-						 required />
+						<select id="districtId_{{index}}" name="districtId" class="form-control" value="{{stockDetail.districtId}}"> 
+
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
@@ -252,7 +254,7 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
-						 name="amount" range="0 9999999" value="<#centToYuan value='{{stockDetail.amount}}'/>" required readonly/>
+						 name="amount" range="0 9999999" value="{{stockDetail.amount}}" required readonly/>
 					</div>
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->
@@ -264,6 +266,8 @@
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
 					</div>
+					<#bcomboProvider _id="districtId_{{index}}" _provider="districtProvider" _queryParams="{departmentId:54}" />					
+
 				</div>
 	</form>			
 </script>

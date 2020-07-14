@@ -15,10 +15,11 @@
 						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="">冷库区域：<i class="red">*</i></label>
-						<input id="districtId_{{index}}" type="text" class="form-control"
-						 name="districtId"  required />
-					</div>	
+					<label for="">冷库区域：<i class="red">*</i></label>
+					<select id="districtId_{{index}}" name="districtId" class="form-control"
+						 required></select>
+						
+					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
 						<input id="assetsId_{{index}}" type="text" class="form-control"
@@ -53,7 +54,8 @@
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
 					</div>
 					
-					
+					<#bcomboProvider _id="districtId_{{index}}" _provider="districtProvider" _queryParams="{departmentId:{{departmentId}}}" />					
+
 				</div>
 	</form>			
 </script>
@@ -121,9 +123,9 @@
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
 						<label for="">冷库区域：<i class="red">*</i></label>
-
-						 <input id="districtId_{{index}}" type="text" class="form-control"
-							 name="districtId" required />
+						<select id="districtId_{{index}}" name="districtId" class="form-control"
+						 required></select>
+						
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
@@ -158,6 +160,8 @@
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
 					</div>
+					<#bcomboProvider _id="districtId_{{index}}" _provider="districtProvider" _queryParams="{departmentId:54}" />					
+
 				</div>
 	</form>			
 </script>

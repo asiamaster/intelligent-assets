@@ -12,9 +12,9 @@ package com.dili.ia.glossary;
 public enum StockInStateEnum {
 	CREATED(1, "已创建"),
 	CANCELLED(2, "已取消"),
-	SUBMITTED_PAY(3, "已提交(支付)"),
+	SUBMITTED_PAY(3, "已提交"),
 	PAID(4, "已缴费"),
-	SUBMITTED_REFUND(5, "已提交(退款)"),
+	SUBMITTED_REFUND(5, "退款中"),
 	REFUNDED(6, "已退款"),
     ;
     private String name;

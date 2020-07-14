@@ -33,9 +33,10 @@
 				
 				<div class="form-group col">
                 	<label for="categoryId">品类<i class="red">*</i></label>
-                	<select id="categoryId" name="categoryId" class="form-control">
-                	</select>
-               		<#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption" />
+                	
+                	<#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName"
+					 _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="categoryAutoCompleteOption"
+					 _required="true" />
             	</div>
 				<div class="form-group col">
 					<label for="">产地<i class="red">*</i></label> <input type="text" class="form-control" id="origin" name="origin"
