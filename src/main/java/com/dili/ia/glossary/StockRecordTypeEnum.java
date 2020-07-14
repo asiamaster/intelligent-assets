@@ -13,8 +13,8 @@ public enum StockRecordTypeEnum {
 	
 	STOCK_IN(1, "入库"),
 	STOCK_OUT(2, "出库"), 
-	// 退款扣减
-	STOCK_DEDUCTION(3, "库存扣减");
+	//作废
+	STOCK_CANCEL(3, "作废");
 
 
 	private String name;

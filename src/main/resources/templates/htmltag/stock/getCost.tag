@@ -38,7 +38,10 @@ $(document).on('blur',".get-cost", function() {
 				});
 			} else {
 				for (let item of ret.data) {
-					$("#saveForm_"+index).find("[name=chargeItem_"+item.chargeItem+"]").val(item.totalFee);
+					let obj = $("#saveForm_"+index).find("[name=chargeItem_"+item.chargeItem+"]");
+					obj.val(item.totalFee);
+					countNumber(obj.attr("name"));
+					countItemNumber(obj);
 				}
 				 
 			}

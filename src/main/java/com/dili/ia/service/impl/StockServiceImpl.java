@@ -194,7 +194,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 	public void stockDeduction(StockInDetail detail,Long customerId,String businessCode) {
 		Stock stock = getStock(detail.getCategoryId(), detail.getAssetsId(), customerId);
 		stockDeduction(stock, detail.getWeight(), detail.getQuantity());
-		buildStockRecord(detail.getWeight(), detail.getQuantity(), businessCode, stock, StockRecordTypeEnum.STOCK_DEDUCTION);
+		buildStockRecord(detail.getWeight(), detail.getQuantity(), businessCode, stock, StockRecordTypeEnum.STOCK_CANCEL);
 	}
 		
 }
