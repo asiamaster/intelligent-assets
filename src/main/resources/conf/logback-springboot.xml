@@ -114,7 +114,7 @@
         <!-- 不显示Flushing UNDO LOG  -->
         <logger name="io.seata.rm.datasource.undo" level="info"/>
     </springProfile>
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="appender" />
         <appender-ref ref="FILE" />
     </root>
