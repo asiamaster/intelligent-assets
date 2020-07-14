@@ -21,7 +21,6 @@ import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
@@ -70,8 +69,8 @@ public class AssetsLeaseOrderController {
      * @param assetsType
      * @return String
      */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
-    public String index(ModelMap modelMap,Integer assetsType) {
+    @RequestMapping(value="/{assetsType}/index.html", method = RequestMethod.GET)
+    public String index(ModelMap modelMap,@PathVariable Integer assetsType) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
         Calendar c = Calendar.getInstance();
         c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
