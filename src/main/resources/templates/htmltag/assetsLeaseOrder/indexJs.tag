@@ -245,49 +245,15 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-
-        bs4pop.dialog({
-            title: '提交付款',
-            content: template('submitPaymentTpl', {
-                waitAmount: rows[0].waitAmount,
-                minAmount: rows[0].$_waitAmount == 0 ? 0 : 0.01
-            }),
+        dia = bs4pop.dialog({
+            title: '摊位租赁详情',
+            content: '/assetsLeaseOrder/submitPayment.html?id='+rows[0].id,
+            isIframe : true,
             closeBtn: true,
             backdrop : 'static',
-            width: '550px',
-            btns: [
-                {
-                    label: '确定', className: 'btn-primary', onClick(e) {
-                        if (!$('#submitPaymentForm').valid()) {
-                            return false;
-                        }
-                        bui.loading.show('努力提交中，请稍候。。。');
-                        $.ajax({
-                            type: "POST",
-                            url: "${contextPath}/assetsLeaseOrder/submitPayment.action",
-                            data: {
-                                id: rows[0].id,
-                                waitAmount: rows[0].$_waitAmount,
-                                amount: Number($('#amount').val()).mul(100),
-                                amountFormatStr:$('#amount').val()
-                            },
-                            dataType: "json",
-                            success : function(data) {
-                                bui.loading.hide();
-                                queryDataHandler();
-                                if(!data.success){
-                                    bs4pop.alert(data.result, {type: 'error'});
-                                }
-                            },
-                            error : function() {
-                                bui.loading.hide();
-                                bs4pop.alert('远程访问失败', {type: 'error'});
-                            }
-                        });
-                    }
-                },
-                {label: '取消', className: 'btn-default', onClick(e) {}}
-            ]
+            width: '750px',
+            height : '550px',
+            btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
         });
     }
 

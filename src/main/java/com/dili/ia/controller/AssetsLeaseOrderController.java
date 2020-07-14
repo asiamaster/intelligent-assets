@@ -98,10 +98,11 @@ public class AssetsLeaseOrderController {
      * 跳转到LeaseOrder查看页面
      * @param modelMap
      * @param orderCode 缴费单CODE
+     * @param code
      * @return String
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
-    public String view(ModelMap modelMap,Long id,String orderCode) {
+    public String view(ModelMap modelMap,Long id,String code,String orderCode) {
         AssetsLeaseOrder leaseOrder = null;
         if(null != id) {
             leaseOrder = assetsLeaseOrderService.get(id);
@@ -110,6 +111,11 @@ public class AssetsLeaseOrderController {
             paymentOrder.setCode(orderCode);
             leaseOrder = assetsLeaseOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
             id = leaseOrder.getId();
+        }else if(StringUtils.isNotBlank(code)){
+            AssetsLeaseOrder condition = new AssetsLeaseOrder();
+            condition.setCode(code);
+            leaseOrder = assetsLeaseOrderService.list(condition).stream().findFirst().orElse(null);
+
         }
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -121,7 +127,7 @@ public class AssetsLeaseOrderController {
         condition.setLeaseOrderId(id);
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
         modelMap.put("leaseOrder",leaseOrder);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), YesOrNoEnum.YES.getCode());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
         try{
@@ -327,6 +333,29 @@ public class AssetsLeaseOrderController {
             LOG.error("资产租赁订单保存异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
+    }
+
+    /**
+     *
+     * @param modelMap
+     * @param id 对应租赁单ID 或 订单项ID
+     * @return
+     */
+    @RequestMapping(value = "/submitPayment.html", method = RequestMethod.GET)
+    public String submitPayment(ModelMap modelMap, Long id) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+        AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(id);
+        modelMap.put("leaseOrder", leaseOrder);
+        AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
+        condition.setLeaseOrderId(id);
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
+        List<BusinessChargeItemDto> chargeItemDtos =  businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()));
+        modelMap.put("chargeItems", chargeItemDtos);
+        modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
+        return "assetsLeaseOrder/submitPayment";
     }
 
 

@@ -54,6 +54,12 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
     @Transient
     private Map<String,String> businessChargeItem;
 
+    /**
+     * 保证金补交金额
+     */
+    @Transient
+    private Long depositMakeUpAmount;
+
     public LocalDateTime getCreatedStart() {
         return createdStart;
     }
@@ -124,5 +130,13 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
 
     public void setBusinessChargeItem(Map<String, String> businessChargeItem) {
         this.businessChargeItem = businessChargeItem;
+    }
+
+    public Long getDepositMakeUpAmount() {
+        return depositMakeUpAmount;
+    }
+
+    public void setDepositMakeUpAmount(Long depositMakeUpAmount) {
+        this.depositMakeUpAmount = depositMakeUpAmount;
     }
 }

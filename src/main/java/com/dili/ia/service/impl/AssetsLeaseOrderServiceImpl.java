@@ -30,7 +30,9 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
+import com.dili.uap.sdk.domain.DataDictionaryValue;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
@@ -92,6 +94,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private RefundFeeItemService refundFeeItemService;
     @Autowired
     private TransferDeductionItemService transferDeductionItemService;
+    @Autowired
+    DataDictionaryRpc dataDictionaryRpc;
+    @Autowired
+    DepositOrderService depositOrderService;
 
     @Autowired @Lazy
     private List<AssetsLeaseService> assetsLeaseServices;
@@ -139,6 +145,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             dto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
             dto.setState(LeaseOrderStateEnum.CREATED.getCode());
             dto.setPayState(PayStateEnum.NOT_PAID.getCode());
+            dto.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
             dto.setWaitAmount(dto.getPayAmount());
             insertSelective(dto);
             insertLeaseOrderItems(dto);
@@ -164,7 +171,41 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             deleteLeaseOrderItems(dto.getId());
             insertLeaseOrderItems(dto);
         }
+
+        //保证金保存
+        saveOrUpdateDepositOrders(dto);
         return BaseOutput.success().setData(dto);
+    }
+
+    /**
+     * 保证金单保存
+     * @param dto
+     */
+    private void saveOrUpdateDepositOrders(AssetsLeaseOrderListDto dto){
+//        List<DataDictionaryValue> list = dataDictionaryRpc.listDataDictionaryValueByDdCode(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getTypeCode()).getData();
+//        if (org.apache.commons.collections4.CollectionUtils.isEmpty(list)) {
+//            return null;
+//        }
+        List<DepositOrder> depositOrders = new ArrayList<>();
+        dto.getLeaseOrderItems().stream().forEach(l->{
+            DepositOrder depositOrder = new DepositOrder();
+            depositOrder.setCustomerId(dto.getCustomerId());
+            depositOrder.setCustomerName(dto.getCustomerName());
+            depositOrder.setCertificateNumber(dto.getCertificateNumber());
+            depositOrder.setCustomerCellphone(dto.getCustomerCellphone());
+            depositOrder.setDepartmentId(dto.getDepartmentId());
+            depositOrder.setTypeCode(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getTypeCode());
+            depositOrder.setTypeName("摊位租赁");
+            depositOrder.setAssetsType(dto.getAssetsType());
+            depositOrder.setAssetsId(l.getAssetsId());
+            depositOrder.setAssetsName(l.getAssetsName());
+            depositOrder.setAmount(l.getDepositMakeUpAmount());
+            depositOrder.setIsRelated(YesOrNoEnum.YES.getCode());
+            depositOrder.setBusinessId(dto.getId());
+            depositOrder.setBizType(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getBizType());
+            depositOrders.add(depositOrder);
+        });
+        depositOrderService.batchAddDepositOrder(depositOrders);
     }
 
     /**
@@ -206,6 +247,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             if(CollectionUtils.isNotEmpty(o.getBusinessChargeItems())){
                 o.getBusinessChargeItems().forEach(bci->{
                     bci.setBusinessId(o.getId());
+                    bci.setWaitAmount(bci.getAmount());
                     businessChargeItemService.insertSelective(bci);
                 });
             }

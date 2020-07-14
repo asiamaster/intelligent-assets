@@ -48,4 +48,9 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
         }
         return chargeItemsOutput.getData();
     }
+
+    @Override
+    public List<BusinessChargeItemDto> queryBusinessChargeItemMeta(List<Long> businessIds) {
+        return getActualDao().queryBusinessChargeItemMeta(businessIds);
+    }
 }
