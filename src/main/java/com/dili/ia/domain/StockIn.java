@@ -178,6 +178,14 @@ public class StockIn extends BaseDomain {
     @Column(name= "`canceler`")
     private String canceler;
 
+    @Column(name= "`tollman_id`")
+    private Long tollmanId;
+    
+    @Column(name= "`tollman`")
+    private String tollman;
+    
+    @Column(name= "`pay_date`")
+    private LocalDateTime payDate;
     
     /**
      * 空参构造
@@ -751,6 +759,28 @@ public class StockIn extends BaseDomain {
 	public void setPaymentOrderCode(String paymentOrderCode) {
 		this.paymentOrderCode = paymentOrderCode;
 	}
-	
-	
+
+	public Long getTollmanId() {
+		return tollmanId;
+	}
+
+	public void setTollmanId(Long tollmanId) {
+		this.tollmanId = tollmanId;
+	}
+
+	public String getTollman() {
+		return tollman;
+	}
+
+	public void setTollman(String tollman) {
+		this.tollman = tollman;
+	}
+
+	public LocalDateTime getPayDate() {
+		return payDate;
+	}
+
+	public void setPayDate(LocalDateTime payDate) {
+		this.payDate = payDate;
+	}
 }

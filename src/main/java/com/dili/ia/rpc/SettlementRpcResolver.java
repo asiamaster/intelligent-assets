@@ -1,5 +1,6 @@
 package com.dili.ia.rpc;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -40,6 +41,7 @@ public class SettlementRpcResolver {
      * @return
      */
     public SettleOrder submit(SettleOrderDto settleOrder){
+    	LOG.info("结算成功!业务号:" + JSON.toJSONString(settleOrder));
     	BaseOutput<SettleOrder> result = settlementRpc.submit(settleOrder);
         if(!result.isSuccess()){
         	LOG.info("结算调用失败!业务号:" + settleOrder.getBusinessCode()+",message"+result.getErrorData());

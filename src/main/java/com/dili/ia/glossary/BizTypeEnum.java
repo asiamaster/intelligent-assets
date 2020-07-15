@@ -12,9 +12,10 @@ public enum BizTypeEnum {
     BOOTH_LEASE("1", "摊位租赁"),
     EARNEST("2", "定金"),
     DEPOSIT_ORDER("3", "保证金"),
-    STOCKIN("4", "入库单"),
+    STOCKIN("8", "冷库入库"),
     UTTLITIES("5", "水电费"),
     BOUTIQUE_ENTRANCE("6", "精品停车费"),
+    STOCKOUT("9", "冷库出库")
     ;
 
     private String name;

@@ -94,7 +94,7 @@ var districtAutoCompleteOption = {
  * */
 function adddetailItem() {
 	let departmentId = $('#departmentId').val();
-	if(departmentId == null){
+	if(departmentId == null || departmentId == ""){
 		departmentId =0
 	}
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo'+type, {

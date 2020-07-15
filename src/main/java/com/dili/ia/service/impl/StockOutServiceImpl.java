@@ -3,6 +3,7 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.StockOut;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.StockOutMapper;
 import com.dili.ia.service.StockOutService;
@@ -12,6 +13,7 @@ import com.dili.ss.exception.BusinessException;
 
 import cn.hutool.core.bean.BeanUtil;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -30,11 +32,14 @@ public class StockOutServiceImpl extends BaseServiceImpl<StockOut, Long> impleme
     }
 
 	@Override
-	public PrintDataDto<StockOutPrintDto> receiptStockOutData(String orderCode, Integer reprint) {
+	public PrintDataDto<StockOutPrintDto> receiptStockOutData(String orderCode, String reprint) {
 		StockOut stockOut = getStockOut(orderCode);
 		StockOutPrintDto stockOutPrintDto = new StockOutPrintDto();
 		BeanUtil.copyProperties(stockOut, stockOutPrintDto);
 		stockOutPrintDto.setDistrictName(stockOut.getDistrictName()+"-"+stockOut.getAssetsName());
+		stockOutPrintDto.setReprint(reprint);
+		stockOutPrintDto.setPrintTime(LocalDateTime.now());
+		stockOutPrintDto.setBusinessType(BizTypeEnum.STOCKOUT.getCode());
 		PrintDataDto<StockOutPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setItem(stockOutPrintDto);
 		printDataDto.setName(PrintTemplateEnum.STOCK_OUT_ORDER.getCode());

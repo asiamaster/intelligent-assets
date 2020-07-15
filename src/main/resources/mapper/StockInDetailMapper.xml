@@ -1,39 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dili.ia.mapper.StockInDetailMapper">
-  <resultMap id="BaseResultMap" type="com.dili.ia.domain.StockInDetail">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
-    <result column="stock_in_code" jdbcType="VARCHAR" property="stockInCode" />
-    <result column="code" jdbcType="VARCHAR" property="code" />
-    <result column="state" jdbcType="TINYINT" property="state" />
-    <result column="unit_weight" jdbcType="BIGINT" property="unitWeight" />
-    <result column="check_operator_id" jdbcType="BIGINT" property="checkOperatorId" />
-    <result column="check_operator" jdbcType="VARCHAR" property="checkOperator" />
-    <result column="pickup_number" jdbcType="VARCHAR" property="pickupNumber" />
-    <result column="weightman_id" jdbcType="BIGINT" property="weightmanId" />
-    <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
-    <result column="assets_code" jdbcType="VARCHAR" property="assetsCode" />
-    <result column="notes" jdbcType="VARCHAR" property="notes" />
-    <result column="district_id" jdbcType="BIGINT" property="districtId" />
-    <result column="district_name" jdbcType="VARCHAR" property="districtName" />
-    <result column="receivable" jdbcType="BIGINT" property="receivable" />
-    <result column="cope" jdbcType="BIGINT" property="cope" />
-    <result column="category_id" jdbcType="BIGINT" property="categoryId" />
-    <result column="category_name" jdbcType="VARCHAR" property="categoryName" />
-    <result column="quantity" jdbcType="BIGINT" property="quantity" />
-    <result column="weight" jdbcType="BIGINT" property="weight" />
-    <result column="version" jdbcType="INTEGER" property="version" />
-    <result column="market_id" jdbcType="BIGINT" property="marketId" />
-    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
-    <result column="car_plate" jdbcType="VARCHAR" property="carPlate" />
-    <result column="car_type_public_code" jdbcType="VARCHAR" property="carTypePublicCode" />
-  </resultMap>
- 
+
  	<!-- 详情列表查询 -->
   <sql id="Base_Column_List">
     sid.id, sid.create_time createTime, sid.modify_time modifyTime, sid.stock_in_code stockInCode, sid.code, sid.unit_weight, sid.check_operator_id, 
@@ -83,93 +51,6 @@
     </where>
     order by ${sort} ${order}
   </select>
-  <update id="updateBy" parameterType="com.dili.ia.domain.StockInDetail">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    update stock_in_detail
-    <set>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="modifyTime != null">
-        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="stockInCode != null">
-        stock_in_code = #{stockInCode,jdbcType=VARCHAR},
-      </if>
-      <if test="code != null">
-        code = #{code,jdbcType=VARCHAR},
-      </if>
-      <if test="state != null">
-        state = #{state,jdbcType=TINYINT},
-      </if>
-      <if test="unitWeight != null">
-        unit_weight = #{unitWeight,jdbcType=BIGINT},
-      </if>
-      <if test="checkOperatorId != null">
-        check_operator_id = #{checkOperatorId,jdbcType=BIGINT},
-      </if>
-      <if test="checkOperator != null">
-        check_operator = #{checkOperator,jdbcType=VARCHAR},
-      </if>
-      <if test="pickupNumber != null">
-        pickup_number = #{pickupNumber,jdbcType=VARCHAR},
-      </if>
-      <if test="weightmanId != null">
-        weightman_id = #{weightmanId,jdbcType=BIGINT},
-      </if>
-      <if test="assetsId != null">
-        assets_id = #{assetsId,jdbcType=BIGINT},
-      </if>
-      <if test="assetsCode != null">
-        assets_code = #{assetsCode,jdbcType=VARCHAR},
-      </if>
-      <if test="notes != null">
-        notes = #{notes,jdbcType=VARCHAR},
-      </if>
-      <if test="districtId != null">
-        district_id = #{districtId,jdbcType=BIGINT},
-      </if>
-      <if test="districtName != null">
-        district_name = #{districtName,jdbcType=VARCHAR},
-      </if>
-      <if test="receivable != null">
-        receivable = #{receivable,jdbcType=BIGINT},
-      </if>
-      <if test="cope != null">
-        cope = #{cope,jdbcType=BIGINT},
-      </if>
-      <if test="categoryId != null">
-        category_id = #{categoryId,jdbcType=BIGINT},
-      </if>
-      <if test="categoryName != null">
-        category_name = #{categoryName,jdbcType=VARCHAR},
-      </if>
-      <if test="quantity != null">
-        quantity = #{quantity,jdbcType=BIGINT},
-      </if>
-      <if test="weight != null">
-        weight = #{weight,jdbcType=BIGINT},
-      </if>
-      <if test="version != null">
-        version = #{version,jdbcType=INTEGER},
-      </if>
-      <if test="marketId != null">
-        market_id = #{marketId,jdbcType=BIGINT},
-      </if>
-      <if test="marketCode != null">
-        market_code = #{marketCode,jdbcType=VARCHAR},
-      </if>
-      <if test="carPlate != null">
-        car_plate = #{carPlate,jdbcType=VARCHAR},
-      </if>
-      <if test="carTypePublicCode != null">
-        car_type_public_code = #{carTypePublicCode,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
-  
+ 
   
 </mapper>

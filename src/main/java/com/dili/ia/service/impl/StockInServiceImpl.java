@@ -73,6 +73,7 @@ import com.dili.uap.sdk.session.SessionContext;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import io.seata.spring.annotation.GlobalTransactional;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -108,7 +109,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
     
-    private String settlerHandlerUrl = "http://10.28.1.47:8381/api/stockIn/settlementDealHandler";
+    private String settlerHandlerUrl = "http://10.28.1.187:8381/api/stockIn/settlementDealHandler";
 	
     public StockInMapper getActualDao() {
         return (StockInMapper)getDao();
@@ -145,10 +146,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	private List<BusinessChargeItem> buildBusinessCharge(List<BusinessChargeItem> businessChargeItems,Long businessId,String businessCode){
 		businessChargeItems.stream().forEach(item -> {
+			item.setBizType(Integer.valueOf(BizTypeEnum.STOCKIN.getCode()));
 			item.setBusinessId(businessId);
 			item.setBusinessCode(businessCode);
 			item.setPaidAmount(0L);
 			item.setWaitAmount(item.getAmount());
+			item.setCreateTime(LocalDateTime.now());
 		});
 		return businessChargeItems;
 	}
@@ -278,14 +281,13 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		condition.setVersion(stockIn.getVersion());
 		updateStockIn(domain, stockIn.getCode(), stockIn.getVersion(), StockInStateEnum.CREATED);
 		//动态收费项
-		businessChargeItemService.batchUpdate(buildBusinessCharge(stockInDto.getBusinessChargeItems(), stockIn.getId(),stockIn.getCode()));
+		businessChargeItemService.batchUpdateSelective(stockInDto.getBusinessChargeItems());
 		//updateSelectiveByExample(domain, condition);
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 	
 	@Override
-	@Transactional
-	//@GlobalTransactional
+	@GlobalTransactional
 	public void submit(String code) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
@@ -293,7 +295,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		getStockInDetailsByStockCode(code);
-
 		// 创建收费单费用收取
 		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
 		paymentOrder.setBusinessCode(code);
@@ -305,7 +306,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		domain.setSubmitter(userTicket.getRealName());
 		domain.setPaymentOrderCode(paymentOrder.getCode());
 		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.SUBMITTED_PAY);
-		//
 		// 调用结算接口,缴费
 		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, paymentOrder.getCode(), paymentOrder.getAmount());
 		settlementRpcResolver.submit(settleOrderDto);
@@ -529,6 +529,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		paymentOrderService.updateSelective(paymentOrder);
 		// paymentOrder.setIsSettle();
 		StockIn domain = new StockIn();
+		domain.setTollman(settleOrder.getOperatorName());
+		domain.setTollmanId(settleOrder.getOperatorId());
+		domain.setPayDate(LocalDateTime.now());
 		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		// 入库 库存
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
@@ -537,7 +540,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	}
 
 	@Override
-	public PrintDataDto<StockInPrintDto> receiptPaymentData(String orderCode, Integer reprint) {
+	public PrintDataDto<StockInPrintDto> receiptPaymentData(String orderCode, String reprint) {
 		PaymentOrder paymentOrder = paymentOrderService.getByCode(orderCode);
 		if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
@@ -545,16 +548,16 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockIn stockIn = getStockInByCode(paymentOrder.getBusinessCode());
 		StockInPrintDto stockInPrintDto = new StockInPrintDto();
 		//stockInPrintDto.set
-		stockInPrintDto.setBusinessType("businessType");
+		stockInPrintDto.setBusinessType(BizTypeEnum.STOCKIN.getCode());
 		stockInPrintDto.setCardNo("");
 		stockInPrintDto.setCategoryName(stockIn.getCategoryName());
 		stockInPrintDto.setCustomerCellphone(stockIn.getCustomerCellphone());
 		stockInPrintDto.setCustomerName(stockIn.getCustomerName());
 		stockInPrintDto.setDepartmentName(stockIn.getDepartmentName());
 		stockInPrintDto.setPrintTime(LocalDateTime.now());
-		stockInPrintDto.setReprint("1");
+		stockInPrintDto.setReprint(reprint);
 		stockInPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-		stockInPrintDto.setSubmitter("");
+		stockInPrintDto.setSubmitter(stockIn.getSubmitter());
 		stockInPrintDto.setReviewer("");
 		stockInPrintDto.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
 		//详情
@@ -591,6 +594,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			queryFeeInput.setChargeItem(itme.getChargeItemId());
 			Map<String, Object> calcParams = new HashMap<String, Object>();
 			calcParams.put("quantity", stockInDetail.getQuantity());
+			calcParams.put("weight", stockInDetail.getWeight());
+			calcParams.put("assetsId", stockInDetail.getAssetsId());
+			calcParams.put("categoryId", stockInDetail.getCategoryId());
 			queryFeeInput.setCalcParams(calcParams);
 			queryFeeInputs.add(queryFeeInput);
 		});

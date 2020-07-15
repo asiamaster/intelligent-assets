@@ -20,7 +20,7 @@ public interface StockOutService extends BaseService<StockOut, Long> {
 	 * @return
 	 * @throws
 	 */
-	PrintDataDto<StockOutPrintDto> receiptStockOutData(String orderCode, Integer reprint);
+	PrintDataDto<StockOutPrintDto> receiptStockOutData(String orderCode, String reprint);
 	/**
 	 * 
 	 * @Title getStockOut

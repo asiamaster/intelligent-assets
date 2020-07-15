@@ -1,14 +1,20 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.Stock;
+import com.dili.ia.domain.dto.StockDto;
+import com.dili.ia.domain.dto.StockQueryDto;
 import com.dili.ia.service.StockService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.metadata.ValueProviderUtils;
+import com.github.pagehelper.Page;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,14 +88,28 @@ public class StockController {
     }
 
     /**
-     * 分页查询Stock，返回easyui分页信息
+     * 分页查询出库Stock，返回easyui分页信息
+     * @param stock
+     * @return String
+     * @throws Exception
+     */
+    @RequestMapping(value="/outListPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody String outListPage(@ModelAttribute Stock stock) throws Exception {
+    	return stockService.listEasyuiPageByExample(stock, true).toString();
+    }
+    
+    /**
+     * 分页查询客户Stock，返回easyui分页信息
      * @param stock
      * @return String
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute Stock stock) throws Exception {
-        return stockService.listEasyuiPageByExample(stock, true).toString();
+    public @ResponseBody String listPage(@ModelAttribute StockQueryDto stockQueryDto) throws Exception {
+    	Page<List<StockDto>> page = stockService.countCustomerStock(stockQueryDto);
+    	Map<String, String> map = stockQueryDto.getMetadata();
+    	List<Map> result = ValueProviderUtils.buildDataByProvider(map, page.getResult());
+    	return new EasyuiPageOutput(Integer.parseInt(String.valueOf(page.getTotal())), result ).toString();
     }
     
     /**

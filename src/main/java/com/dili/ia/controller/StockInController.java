@@ -63,20 +63,9 @@ public class StockInController {
     public String add(ModelMap modelMap,Integer type) {
     	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
     	modelMap.put("type", type == null ? 1:type);
-    	//TODO 动态收费项
+    	//动态收费项
 		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
 				queryBusinessChargeItemConfig(userTicket.getFirmId(), "STOCK_IN", YesOrNoEnum.YES.getCode());
-		/*List<BusinessChargeItemDto> chargeItemDtos = new ArrayList<>();
-		
-		BusinessChargeItemDto b = new BusinessChargeItemDto();
-		b.setChargeItem("物管费");
-		b.setId(20L);
-		BusinessChargeItemDto b1 = new BusinessChargeItemDto();
-		b1.setChargeItem("入库费");
-		b1.setId(20L);
-		chargeItemDtos.add(b);
-		chargeItemDtos.add(b1);*/
-    	
         modelMap.put("chargeItems", chargeItemDtos);
         return "stock/add";
     }

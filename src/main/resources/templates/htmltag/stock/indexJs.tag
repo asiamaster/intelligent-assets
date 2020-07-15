@@ -346,6 +346,8 @@ function openRefundHandler() {
 			}, {label: '确定',className: 'btn btn-primary',onClick(e){
 				bui.loading.show('努力提交中，请稍候。。。');
 				let formData = $('#refundForm').serializeObject();
+				bui.util.yuanToCentForMoneyEl(formData);
+
 				$.ajax({
 					type: "POST",
 					url: "${contextPath}/stock/stockIn/refund.action",

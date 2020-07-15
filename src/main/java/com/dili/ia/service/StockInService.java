@@ -122,7 +122,7 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @return
 	 * @throws
 	 */
-	PrintDataDto<StockInPrintDto> receiptPaymentData(String orderCode, Integer reprint);
+	PrintDataDto<StockInPrintDto> receiptPaymentData(String orderCode, String reprint);
 	
 	/**
 	 * 

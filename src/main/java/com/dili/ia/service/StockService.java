@@ -6,8 +6,11 @@ import com.dili.ia.domain.Stock;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.StockDto;
+import com.dili.ia.domain.dto.StockQueryDto;
 import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import com.dili.ss.base.BaseService;
+import com.github.pagehelper.Page;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -48,6 +51,13 @@ public interface StockService extends BaseService<Stock, Long> {
 	 */
 	void stockDeduction(StockInDetail detail,Long customerId,String businessCode);
 	
-	
-	
+	/**
+	 * 
+	 * @Title countCustomerStock
+	 * @Description 统计客户库存信息
+	 * @param stockQueryDto
+	 * @return
+	 * @throws
+	 */
+	Page<List<StockDto>> countCustomerStock(StockQueryDto stockQueryDto);
 }

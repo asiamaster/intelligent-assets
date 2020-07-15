@@ -64,7 +64,7 @@ public class StockInApi {
      */
     @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, Integer reprint){
+    public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(stockInService.receiptPaymentData(orderCode, reprint));
         }catch (BusinessException e){
@@ -83,7 +83,7 @@ public class StockInApi {
      */
     @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/queryPrintData/stock_out", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryStockOutPrintData(String orderCode, Integer reprint){
+    public @ResponseBody BaseOutput<Boolean> queryStockOutPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(stockOutService.receiptStockOutData(orderCode, reprint));
         }catch (BusinessException e){

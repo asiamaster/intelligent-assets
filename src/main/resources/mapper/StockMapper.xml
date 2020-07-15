@@ -1,87 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dili.ia.mapper.StockMapper">
-  <resultMap id="BaseResultMap" type="com.dili.ia.domain.Stock">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="district_id" jdbcType="BIGINT" property="districtId" />
-    <result column="district_name" jdbcType="VARCHAR" property="districtName" />
-    <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
-    <result column="assets_name" jdbcType="VARCHAR" property="assetsName" />
-    <result column="category_id" jdbcType="BIGINT" property="categoryId" />
-    <result column="category_name" jdbcType="VARCHAR" property="categoryName" />
-    <result column="customer_id" jdbcType="BIGINT" property="customerId" />
-    <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
-    <result column="quantity" jdbcType="BIGINT" property="quantity" />
-    <result column="weight" jdbcType="BIGINT" property="weight" />
-    <result column="version" jdbcType="INTEGER" property="version" />
-    <result column="market_id" jdbcType="BIGINT" property="marketId" />
-    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    id, district_id, district_name, assets_id, assets_name, category_id, category_name, 
-    customer_id, customer_name, quantity, weight, version, market_id, market_code
-  </sql>
-  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    select 
-    <include refid="Base_Column_List" />
-    from stock
-    where id = #{id,jdbcType=BIGINT}
-  </select>
-  <update id="updateBy" parameterType="com.dili.ia.domain.Stock">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    update stock
-    <set>
-      <if test="districtId != null">
-        district_id = #{districtId,jdbcType=BIGINT},
-      </if>
-      <if test="districtName != null">
-        district_name = #{districtName,jdbcType=VARCHAR},
-      </if>
-      <if test="assetsId != null">
-        assets_id = #{assetsId,jdbcType=BIGINT},
-      </if>
-      <if test="assetsName != null">
-        assets_name = #{assetsName,jdbcType=VARCHAR},
-      </if>
-      <if test="categoryId != null">
-        category_id = #{categoryId,jdbcType=BIGINT},
-      </if>
-      <if test="categoryName != null">
-        category_name = #{categoryName,jdbcType=VARCHAR},
-      </if>
-      <if test="customerId != null">
-        customer_id = #{customerId,jdbcType=BIGINT},
-      </if>
-      <if test="customerName != null">
-        customer_name = #{customerName,jdbcType=VARCHAR},
-      </if>
-      <if test="quantity != null">
-        quantity = #{quantity,jdbcType=BIGINT},
-      </if>
-      <if test="weight != null">
-        weight = #{weight,jdbcType=BIGINT},
-      </if>
-      <if test="version != null">
-        version = #{version,jdbcType=INTEGER},
-      </if>
-      <if test="marketId != null">
-        market_id = #{marketId,jdbcType=BIGINT},
-      </if>
-      <if test="marketCode != null">
-        market_code = #{marketCode,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
+
+	<sql id="Base_Column_List">
+		<!-- WARNING - @mbg.generated -->
+		s.id as id, s.district_id districtId, s.district_name districtName,
+		s.assets_id assetsId, s.assets_name assetsName, s.category_id
+		categoryId, s.category_name categoryName,
+		s.customer_id customerId, s.customer_name customerName,
+		s.customer_cellphone customerCellphone,
+		s.market_id marketId, s.market_code marketCode,
+		s.department_name departmentName,
+	</sql>
+	
+	<!-- 统计客户库存信息 -->
+	
+	<select id="countCustomerStock" parameterType="com.dili.ia.domain.dto.StockQueryDto"
+		resultType="com.dili.ia.domain.dto.StockDto">
+		SELECT *,(t.inQuantity-t.outQuantity-t.cancelQuantity) quantity FROM (
+		SELECT
+		<include refid="Base_Column_List" />
+		sum( IF ( sr.type = 1, sr.quantity, 0 ) ) AS inQuantity,
+		sum( IF ( sr.type = 1, sr.weight, 0 ) ) AS inWeight,
+		sum( IF ( sr.type = 2, sr.quantity, 0 ) ) AS outQuantity,
+		sum( IF ( sr.type = 2, sr.weight, 0 ) ) AS outWeight,
+		sum( IF ( sr.type = 3, sr.quantity, 0 ) ) AS cancelQuantity,
+		sum( IF ( sr.type = 3, sr.weight, 0 ) ) AS cancelWeight,
+		sr.create_time stockInDay
+		from stock as s
+		left join stock_record as sr on sr.stock_id = s.id
+		<where>
+			<if test="districtId != null">
+				and s.district_id = #{districtId}
+			</if>
+			<if test="assetsId != null">
+				and s.assets_id = #{assetsId}
+			</if>
+			<if test="categoryId != null">
+				and s.category_id = #{categoryId}
+			</if>
+			<if test="customerName != null">
+				and s.customer_name = #{customerName}
+			</if>
+			<if test="customerCellphone != null">
+				and s.customer_cellphone = #{customerCellphone}
+			</if>
+			<if test="startTime != null">
+				and sr.create_time >= #{startTime}
+			</if>
+			<if test="endTime != null">
+				and sr.create_time &lt; #{endTime}
+			</if>
+		</where>
+		group by s.assets_id,s.category_id,s.customer_id,sr.create_time
+		) as t  order by t.${sort} ${order}
+	</select>
+
 </mapper>

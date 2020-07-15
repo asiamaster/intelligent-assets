@@ -4,6 +4,9 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+
+import java.time.LocalDate;
+
 import javax.persistence.*;
 
 /**
@@ -56,6 +59,9 @@ public class StockRecord extends BaseDomain {
 
     @Column(name = "`market_code`")
     private String marketCode;
+    
+    @Column(name = "`create_time`")
+    private LocalDate createTime;
 
     /**
      * @return id
@@ -208,4 +214,14 @@ public class StockRecord extends BaseDomain {
     public void setMarketCode(String marketCode) {
         this.marketCode = marketCode;
     }
+
+	public LocalDate getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(LocalDate createTime) {
+		this.createTime = createTime;
+	}
+    
+    
 }

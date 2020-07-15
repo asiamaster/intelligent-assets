@@ -173,10 +173,10 @@
         <th data-field="state" data-sortable="true" data-align="center" data-sort-name="State" data-provider="stockInStateProvider">
             业务状态
         </th>
-        <th data-field="payState" data-sortable="true" data-align="center" data-sort-name="pay_state" >
+        <th data-field="tollman" data-sortable="true" data-align="center" data-sort-name="tollman" >
             收费员
         </th>
-        <th data-field="totalAmount" data-sortable="true" data-align="center" data-provider="dateProvider">
+        <th data-field="payDate" data-sortable="true" data-align="pay_date" data-provider="dateProvider">
             缴费日期
         </th>
     </tr>
@@ -226,7 +226,7 @@
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">可退金额：<i class="red">*</i></label>
-                <input id="amount" type="number" class="form-control" value="{{selectedRow.amount}}" name="amount" range="0 9999999" required />
+                <input id="amount" type="number" class="form-control money" value="{{selectedRow.amount}}" name="amount" range="0 9999999" required />
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">退款方式：<i class="red">*</i></label>

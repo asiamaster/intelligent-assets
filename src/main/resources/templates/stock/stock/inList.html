@@ -34,8 +34,16 @@ $(function() {
 /**
 * 查询处理
 */
+/**
+ * 查询处理
+ */
 function queryDataHandler() {
-	console.log(323232);
+	_grid.bootstrapTable('refreshOptions', {
+		pageNumber: 1,
+		url: '/stock/stockInDetail/listPage.action'
+	});
+}
+function queryDataHandler() {
 	//let queryParams = {};
 	//queryParams.categoryId = ${categoryId!}
 	_grid.bootstrapTable( {	
