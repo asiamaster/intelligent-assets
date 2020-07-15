@@ -52,4 +52,13 @@ public interface MeterService extends BaseService<Meter, Long> {
      * @date   2020/6/28
      */
     List<Meter> listMetersLikeNumber(Integer type, String likeName);
+
+    /**
+     * 根据 number 查询实体
+     * 
+     * @param  number
+     * @return Meter
+     * @date   2020/7/14
+     */
+    Meter getMeterByNumber(String number);
 }

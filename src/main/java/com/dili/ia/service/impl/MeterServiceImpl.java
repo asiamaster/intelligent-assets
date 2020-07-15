@@ -172,4 +172,16 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         return meterList;
     }
 
+    /**
+     * 根据 number 查询实体
+     *
+     * @param  number
+     * @return Meter
+     * @date   2020/7/14
+     */
+    @Override
+    public Meter getMeterByNumber(String number) {
+        return this.getActualDao().getMeterByNumber(number);
+    }
+
 }

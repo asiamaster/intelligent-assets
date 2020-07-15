@@ -4,6 +4,7 @@ import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
 import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -120,5 +121,5 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return
      * @date   2020/7/10
      */
-    PrintDataDto<MeterDetailDto> receiptPaymentData(String orderCode, Integer reprint);
+    PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint);
 }

@@ -1,11 +1,13 @@
 package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.CustomerMeter;
+import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.mapper.CustomerMeterMapper;
 import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.service.MeterDetailService;
+import com.dili.ia.service.MeterService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -40,6 +42,9 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
 
     @Autowired
     private MeterDetailService meterDetailService;
+
+    @Autowired
+    private MeterService meterService;
 
     /**
      * 根据主键 id 查询表用户关系
@@ -99,6 +104,13 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
             return BaseOutput.failure("未登录");
         }
 
+        // 根据 number 查询 meter，拿取 meterId
+        if (StringUtils.isNotEmpty(customerMeterDto.getNumber())) {
+            Meter meterInfo = meterService.getMeterByNumber(customerMeterDto.getNumber());
+            customerMeterDto.setMeterId(meterInfo.getId()
+            );
+        }
+
         // 并设置相关信息
         customerMeterDto.setCreatorId(userTicket.getId());
         customerMeterDto.setCreator(userTicket.getUserName());
@@ -107,6 +119,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         customerMeterDto.setMarketCode(userTicket.getFirmCode());
         customerMeterDto.setCreateTime(LocalDateTime.now());
         customerMeterDto.setModifyTime(LocalDateTime.now());
+        customerMeterDto.setState(CustomerMeterStateEnum.CREATED.getCode());
         customerMeterDto.setVersion(1);
 
         BeanUtils.copyProperties(customerMeterDto, customerMeter);

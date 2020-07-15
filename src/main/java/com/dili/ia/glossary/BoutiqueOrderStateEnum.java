@@ -7,12 +7,11 @@ package com.dili.ia.glossary;
  * @description: 精品停车状态枚举
  */
 public enum BoutiqueOrderStateEnum {
-    SAVE(1,"已保存"),
-    SUBMIT(2,"已提交"),
-    PAY(3,"已交费"),
-    CANCEL(4,"已撤销"),
-    INVALID(5,"已作废"),
-    REFUND(6,"已退款"),
+    SUBMIT(1,"已提交"),
+    PAY(2,"已交费"),
+    CANCEL(3,"已取消"),
+    INVALID(4,"已作废"),
+    REFUND(5,"已退款"),
     ;
 
     private String name;

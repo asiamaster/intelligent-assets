@@ -140,4 +140,13 @@
           and number like CONCAT('%',#{keyword,jdbcType=VARCHAR},'%' )
         </if>
     </select>
+
+  <select id="getMeterByNumber" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List" />
+    from
+        meter
+    where
+        number = #{number,jdbcType=VARCHAR}
+  </select>
 </mapper>

@@ -21,6 +21,8 @@
     <result column="cancel_reason" jdbcType="VARCHAR" property="cancelReason" />
     <result column="cancel_time" jdbcType="TIMESTAMP" property="cancelTime" />
     <result column="notes" jdbcType="VARCHAR" property="notes" />
+    <result column="market_id" jdbcType="BIGINT" property="marketId" />
+    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
     <result column="version" jdbcType="INTEGER" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -28,7 +30,7 @@
       WARNING - @mbg.generated
     -->
     id, create_time, modify_time, record_id, code, start_time, end_time, amount, state, 
-    operator_id, operator_name, canceler_id, canceler, cancel_reason, cancel_time, notes, 
+    operator_id, operator_name, canceler_id, canceler, cancel_reason, cancel_time, notes, market_id, market_code,
     version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">

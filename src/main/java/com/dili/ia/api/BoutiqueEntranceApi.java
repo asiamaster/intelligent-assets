@@ -1,6 +1,7 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -19,30 +20,30 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author:       xiaosa
- * @date:         2020/7/6
+ * @date:         2020/7/14
  * @version:      农批业务系统重构
- * @description:  水电费缴费后回调
+ * @description:  精品停车回调
  */
 @RestController
-@RequestMapping("/api/meterDetail")
-public class MeterDetailApi {
+@RequestMapping("/api/boutiqueEntrance")
+public class BoutiqueEntranceApi {
 
-    private final static Logger LOG = LoggerFactory.getLogger(MeterDetailApi.class);
+    private final static Logger LOG = LoggerFactory.getLogger(BoutiqueEntranceApi.class);
 
     @Autowired
-    private MeterDetailService meterDetailService;
+    private BoutiqueEntranceRecordService boutiqueEntranceService;
 
     /**
-     * 水电费缴费成功回调
+     * 精品停车缴费成功回调
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType="utilities", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="boutique_entrance", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
-            BaseOutput<EarnestOrder> output = meterDetailService.settlementDealHandler(settleOrder);
+            BaseOutput<EarnestOrder> output = boutiqueEntranceService.settlementDealHandler(settleOrder);
             if (output.isSuccess()){
                 //记录业务日志
                 LoggerUtil.buildLoggerContext(output.getData().getId(), output.getData().getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), output.getData().getMarketId(), null);
@@ -50,33 +51,33 @@ public class MeterDetailApi {
             }
             return BaseOutput.failure(output.getMessage());
         }catch (BusinessException e){
-            LOG.error("水电费缴费回调异常！", e);
+            LOG.error("精品停车缴费回调异常！", e);
             return BaseOutput.failure(e.getErrorMsg()).setData(false);
         }catch (Exception e){
-            LOG.error("水电费缴费回调异常！", e);
+            LOG.error("精品停车缴费回调异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
     }
 
     /**
-     * 水电费缴费票据打印
+     * 精品停车缴费票据打印
      * @param orderCode
      * @return
      */
-    @BusinessLogger(businessType="utilities", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/queryPrintData/meter_detail", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType="boutique_entrance", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/queryPrintData/boutique_entrance", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, Integer reprint){
         try{
             if(StringUtils.isBlank(orderCode) || null == reprint){
                 return BaseOutput.failure("参数错误");
             }
-            return BaseOutput.success().setData(meterDetailService.receiptPaymentData(orderCode, reprint));
+            return BaseOutput.success().setData(boutiqueEntranceService.receiptPaymentData(orderCode, reprint));
         }catch (BusinessException e){
-            LOG.error("水电费缴费票据打印异常！", e);
+            LOG.error("精品停车缴费票据打印异常！", e);
             return BaseOutput.failure(e.getErrorMsg()).setData(false);
         }catch (Exception e){
-            LOG.error("水电费缴费票据打印异常！", e);
-            return BaseOutput.failure("水电费缴费票据打印异常！").setData(false);
+            LOG.error("精品停车缴费票据打印异常！", e);
+            return BaseOutput.failure("精品停车缴费票据打印异常！").setData(false);
         }
     }
 
