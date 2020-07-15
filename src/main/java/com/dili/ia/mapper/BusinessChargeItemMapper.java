@@ -20,12 +20,10 @@ public interface BusinessChargeItemMapper extends MyMapper<BusinessChargeItem> {
     List<Map<String, String>> queryBusinessChargeItem(@Param("bizType") String bizType, @Param("businessIds") List<Long> businessIds, @Param("chargeItemDtos") List<BusinessChargeItemDto> chargeItemDtos);
 
     /**
-     * 查询业务收费项，报表（行转列）
-     *
-     * @param bizType
+     * 查询业务资产项的所产生的收费项元信息
      * @param businessIds
-     * @param chargeItemDtos
      * @return
      */
-    List<Map<String, String>> queryForReport(@Param("bizType") String bizType, @Param("businessIds") List<Long> businessIds, @Param("chargeItemDtos") List<BusinessChargeItemDto> chargeItemDtos);
+    List<BusinessChargeItemDto> queryBusinessChargeItemMeta(List<Long> businessIds);
+
 }

@@ -6,29 +6,54 @@
         cast(business_id as char) as businessId,
         <foreach collection="chargeItemDtos" item="chargeItem" separator=",">
             cast(
-            MAX(
-            CASE charge_item_id
-            WHEN #{chargeItem.id} THEN
-            amount
-            ELSE
-            0
-            END
-            )
-            as char
+                MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    amount
+                    ELSE
+                    0
+                    END
+                )
+                as char
             ) as chargeItem${chargeItem.id},
             cast(
-            truncate(
-            MAX(
-            CASE charge_item_id
-            WHEN #{chargeItem.id} THEN
-            amount
-            ELSE
-            0
-            END
-            )/100
-            ,2)
-            as char
-            ) as chargeItemYuan${chargeItem.id}
+                truncate(
+                    MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    amount
+                    ELSE
+                    0
+                    END
+                    )/100
+                ,2)
+                as char
+            ) as chargeItemYuan${chargeItem.id},
+            cast(
+                MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    wait_amount
+                    ELSE
+                    0
+                    END
+                )
+                as char
+            ) as chargeItemWaitAmount${chargeItem.id},
+            cast(
+                truncate(
+                    MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    wait_amount
+                    ELSE
+                    0
+                    END
+                    )/100
+                ,2)
+                as char
+            ) as chargeItemWaitAmountYuan${chargeItem.id}
+
         </foreach>
         FROM
         business_charge_item
@@ -40,46 +65,20 @@
         GROUP BY
         business_id;
     </select>
-    <select id="queryForReport" resultType="Map">
+
+    <select id="queryBusinessChargeItemMeta" parameterType="List" resultType="com.dili.assets.sdk.dto.BusinessChargeItemDto">
         SELECT
-        cast(business_id as char) as businessId,
-        <foreach collection="chargeItemDtos" item="chargeItem" separator=",">
-            cast(
-            truncate(
-            MAX(
-            CASE charge_item_id
-            WHEN #{chargeItem.id} THEN
-            amount
-            ELSE
-            0
-            END
-            )/100
-            ,2)
-            as char
-            ) as chargeItemAmount${chargeItem.id},
-            cast(
-            truncate(
-            MAX(
-            CASE charge_item_id
-            WHEN #{chargeItem.id} THEN
-            paid_amount
-            ELSE
-            0
-            END
-            )/100
-            ,2)
-            as char
-            ) as chargeItemPaid${chargeItem.id}
-        </foreach>
+            charge_item_id as id,
+            charge_item_name as chargeItem
         FROM
-        business_charge_item
-        WHERE business_id IN
-        <foreach collection="businessIds" item="businessId" open="(" close=")" separator=",">
-            #{businessId}
-        </foreach>
-        AND biz_type = #{bizType}
+            `business_charge_item`
+        WHERE
+            business_id IN
+            <foreach collection="list" item="businessId" open="(" close=")" separator=",">
+                #{businessId}
+            </foreach>
         GROUP BY
-        business_id;
+            charge_item_id
     </select>
 
 

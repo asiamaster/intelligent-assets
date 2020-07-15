@@ -30,4 +30,11 @@ public interface BusinessChargeItemService extends BaseService<BusinessChargeIte
      * @return
      */
     List<BusinessChargeItemDto> queryBusinessChargeItemConfig(Long marketId, String bizType, Integer isEnable);
+
+    /**
+     * 查询业务资产项的所产生的收费项元信息
+     * @param businessIds
+     * @return
+     */
+    List<BusinessChargeItemDto> queryBusinessChargeItemMeta(List<Long> businessIds);
 }

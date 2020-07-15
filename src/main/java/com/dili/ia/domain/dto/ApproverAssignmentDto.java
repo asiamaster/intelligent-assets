@@ -1,13 +1,7 @@
 package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.ApproverAssignment;
-import com.dili.ss.domain.BaseDomain;
-import com.dili.ss.metadata.FieldEditor;
-import com.dili.ss.metadata.annotation.EditMode;
-import com.dili.ss.metadata.annotation.FieldDef;
 
-import javax.persistence.*;
-import java.util.Date;
 import java.util.List;
 
 /**
