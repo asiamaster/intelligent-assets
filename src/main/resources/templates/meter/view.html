@@ -2,9 +2,7 @@
 
 <div class="container-fluid">
     <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.meter'/>">
-    <form id="updateForm" role="form" novalidate>
-        <input type="hidden" name="id" value="${meter.id!}">
-        <input type="hidden" name="version" value="${meter.version!}">
+    <form id="saveForm" role="form" novalidate>
         <div class="row row-cols-2">
 
             <div class="form-group col">
@@ -31,7 +29,7 @@
 
             <div class="form-group col">
                 <label for="assetsName">表地址<i class="red">*</i></label>
-                <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption" _required="true"/>
+                <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption" _required="true"  _value="${meter.assetsId!}" _text="${meter.assetsName!}"/>
             </div>
 
             <div class="form-group col">

@@ -127,7 +127,7 @@ public class MeterController {
         if (baseOutput.isSuccess()){
             Meter meter = baseOutput.getData();
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增水电表信息");
         }
 
         return baseOutput;
@@ -151,7 +151,7 @@ public class MeterController {
         if (baseOutput.isSuccess()){
             Meter meter = baseOutput.getData();
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "修改水电表信息");
         }
 
         return baseOutput;

@@ -42,16 +42,16 @@
         }
 
         bui.loading.show('努力提交中，请稍候。。。');
-        let _formData = bui.util.removeKeyStartWith(_form.serializeObject(), "_");
+        let _formData = $('#saveForm').serializeObject();
         let _url = null;
 
         //没有id就新增
         if (_formData.id == null || _formData.id == "") {
             debugger
-            _url = "${contextPath}/meterDetail/insert.action";
+            _url = "${contextPath}/meter/add.action";
         } else {//有id就修改
             debugger
-            _url = "${contextPath}/meterDetail/update.action";
+            _url = "${contextPath}/meter/update.action";
         }
         $.ajax({
             type: "POST",
