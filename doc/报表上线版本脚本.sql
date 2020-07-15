@@ -9,4 +9,9 @@ UPDATE
 	p.customer_name = alo.customer_name
 WHERE
 	p.biz_type = 1
+	
+UPDATE payment_order po
+LEFT JOIN earnest_order eo ON po.business_id=eo.id
+SET po.customer_id=eo.customer_id, po.customer_name=eo.customer_name
+WHERE po.biz_type=2
 ---end
