@@ -1,6 +1,7 @@
 package com.dili.ia.domain.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
@@ -14,6 +15,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author:      xiaosa
@@ -22,6 +24,11 @@ import java.util.Date;
  * @description: 水电费 - 缴水电费Dto
  */
 public class MeterDetailDto extends MeterDetail {
+
+    /**
+     * 动态收费项
+     */
+    private List<BusinessChargeItem> businessChargeItems;
 
     /**
      * 表类型
@@ -96,6 +103,16 @@ public class MeterDetailDto extends MeterDetail {
     /**
      * 收费员、缴费日期
      */
+
+
+
+    public List<BusinessChargeItem> getBusinessChargeItems() {
+        return businessChargeItems;
+    }
+
+    public void setBusinessChargeItems(List<BusinessChargeItem> businessChargeItems) {
+        this.businessChargeItems = businessChargeItems;
+    }
 
     public String getKeyword() {
         return keyword;

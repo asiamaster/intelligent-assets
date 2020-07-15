@@ -1,7 +1,10 @@
 package com.dili.ia.controller;
 
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -20,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 /**
  * @author:      xiaosa
  * @date:        2020/6/23
@@ -34,6 +39,9 @@ public class MeterDetailController {
 
     @Autowired
     MeterDetailService meterDetailService;
+
+    @Autowired
+    private BusinessChargeItemService businessChargeItemService;
 
     /**
      * 跳转到欢迎页面
@@ -56,6 +64,12 @@ public class MeterDetailController {
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        // 动态收费项，根据业务类型查询相关的动态收费项类型
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
+                queryBusinessChargeItemConfig(userTicket.getFirmId(), "UTTLITIES", YesOrNoEnum.YES.getCode());
+        modelMap.put("chargeItems", chargeItemDtos);
+
         return "meterDetail/add";
     }
 

@@ -46,7 +46,7 @@
                 data: {'meterId': suggestion.meterId},
                 success: function(res){
                     if(res.success === true) {
-                        $('[name="lastAmount"]').val();
+                        $('[name="lastAmount"]').val(res.data);
                     } else {
                         bs4pop.alert("上期指数获取失败!", {type: 'error'});
                     }
@@ -61,6 +61,7 @@
 
     // 提交保存
     function saveOrUpdateHandler(){
+        Logger
         let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');

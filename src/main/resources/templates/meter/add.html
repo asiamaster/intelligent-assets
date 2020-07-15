@@ -40,7 +40,7 @@
             </div>
             <div class="text-right btn-r-b">
                 <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
-                <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doAddEarnestHandler,1000,true)()" id="formSubmit">保存</button>
+                <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveOrUpdateHandler,1000,true)()" id="formSubmit">保存</button>
             </div>
         </div>
     </form>
@@ -52,3 +52,4 @@
 <#js_customerAutocompleteJs/>
 
 <#meter_preSaveJs />
+

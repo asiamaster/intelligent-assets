@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.Meter;
@@ -19,6 +20,7 @@ import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.MeterDetailMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.service.MeterService;
@@ -93,6 +95,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     @Autowired
     private SettlementRpcResolver settlementRpcResolver;
 
+    @Autowired
+    private BusinessChargeItemService businessChargeItemService;
+
     @Value("${settlement.app-id}")
     private Long settlementAppId;
 
@@ -110,6 +115,12 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     public MeterDetailDto getMeterDetailById(Long id) {
         // 根据主键 id 查询到水电费单详情以及联表查询表信息
         MeterDetailDto meterDetailDtoInfo = this.getActualDao().getMeterDetailById(id);
+
+        // 组装动态收费项
+        BusinessChargeItem condtion = new BusinessChargeItem();
+        condtion.setBusinessCode(meterDetailDtoInfo.getCode());
+        meterDetailDtoInfo.setBusinessChargeItems(businessChargeItemService.list(condtion));
+
         // TODO 动态收费项，操作日志的业务记录，计费规则
         return meterDetailDtoInfo;
     }
@@ -188,10 +199,13 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetail.setMarketId(userTicket.getFirmId());
         meterDetail.setMarketCode(userTicket.getFirmCode());
         meterDetail.setState(MeterDetailStateEnum.UNSUBMITED.getCode());
+        // 计算使用量
+        long usageAmount = meterDetail.getLastAmount() - meterDetail.getThisAmount();
+        meterDetail.setUsageAmount(usageAmount);
         this.getActualDao().insertSelective(meterDetail);
 
-        // TODO
-        // 动态收费项，公摊费添加到 business_charge_item 表中
+        //构建动态收费项
+        businessChargeItemService.batchInsert(buildBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetail.getId(), meterDetail.getCode()));
 
         CustomerMeter customerMeter = customerMeterService.getBindInfoByMeterId(meterDetail.getMeterId());
         if (null == customerMeter || !customerMeter.getCustomerId().equals(meterDetail.getCustomerId())) {
@@ -206,6 +220,19 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         return BaseOutput.success().setData(meterDetail);
     }
 
+    /**
+     * 构建动态收费项
+     */
+    private List<BusinessChargeItem> buildBusinessCharge(List<BusinessChargeItem> businessChargeItems, Long businessId, String businessCode){
+        businessChargeItems.stream().forEach(item -> {
+            item.setBusinessId(businessId);
+            item.setBusinessCode(businessCode);
+            item.setPaidAmount(0L);
+            item.setWaitAmount(item.getAmount());
+        });
+        return businessChargeItems;
+    }
+    
     /**
      * 提交水电费单(生成缴费单和结算单)
      *
