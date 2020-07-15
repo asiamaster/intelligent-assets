@@ -37,12 +37,8 @@ $(function() {
 /**
  * 查询处理
  */
-function queryDataHandler() {
-	_grid.bootstrapTable('refreshOptions', {
-		pageNumber: 1,
-		url: '/stock/stockInDetail/listPage.action'
-	});
-}
+
+
 function queryDataHandler() {
 	//let queryParams = {};
 	//queryParams.categoryId = ${categoryId!}
@@ -55,10 +51,15 @@ function queryDataHandler() {
 			params.categoryId = ${categoryId!};
 			params.assetsId = ${assetsId!};
 			params.customerId = ${customerId!};
+			params.metadata = {"type":'{"provider":"stockInTypeProvider","index":10,"field":"type"}',
+			"amount":'{"provider":"moneyProvider","index":20,"field":"amount"}',
+			"createTime":'{"provider":"dateProvider","index":30,"field":"createTime"}',
+			"expireDate":'{"provider":"dateProvider","index":40,"field":"expireDate"}',
+			"state":'{"provider":"stockInStateProvider","index":50,"field":"state"}'} ;
 			return params;
 		}
 	});
-}
+} 
 
 /**
 打开查看窗口
@@ -73,5 +74,8 @@ function openViewHandler() {
 	window.location.href = "${contextPath}/stock/stockInDetail/view.html?code=" + rows[0].code;
 }
 </script>
+
+
+
 </#bs4Body>
 

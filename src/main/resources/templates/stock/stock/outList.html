@@ -42,6 +42,9 @@ function queryDataHandler() {
 			params.categoryId = ${categoryId!};
 			params.assetsId = ${assetsId!};
 			params.customerId = ${customerId!};
+			params.metadata = {
+					"stockOutDate":'{"provider":"dateProvider","index":40,"field":"stockOutDate"}'
+					};
 			return params;
 		}
 	});
