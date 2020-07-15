@@ -808,6 +808,8 @@ public class LeaseOrderServiceImpl extends BaseServiceImpl<LeaseOrder, Long> imp
         paymentOrder.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
         paymentOrder.setIsSettle(YesOrNoEnum.NO.getCode());
         paymentOrder.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
+        paymentOrder.setCustomerId(leaseOrder.getCustomerId());
+        paymentOrder.setCustomerName(leaseOrder.getCustomerName());
         return paymentOrder;
     }
 

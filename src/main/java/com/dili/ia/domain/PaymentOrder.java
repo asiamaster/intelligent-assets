@@ -50,6 +50,20 @@ public interface PaymentOrder extends IBaseDomain {
 
     void setModifyTime(Date modifyTime);
 
+    @Column(name = "`customer_id`")
+    @FieldDef(label="客户ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    Long getCustomerId();
+
+    void setCustomerId(Long customerId);
+
+    @Column(name = "`customer_name`")
+    @FieldDef(label="客户名称")
+    @EditMode(editor = FieldEditor.Text, required = false)
+    String getCustomerName();
+
+    void setCustomerName(String customerName);
+
     @Column(name = "`business_id`")
     @FieldDef(label="业务单ID")
     @EditMode(editor = FieldEditor.Number, required = false)
