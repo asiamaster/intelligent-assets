@@ -642,18 +642,18 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     @Override
-    public BaseOutput batchAddOrUpdateDepositOrder(String bizType, Long businessId, List<DepositOrder> depositOrderList) {
+    public BaseOutput batchAddOrUpdateDepositOrder(List<DepositOrder> depositOrderList) {
         if (CollectionUtils.isEmpty(depositOrderList)){
             return BaseOutput.success();
         }
-        List<DepositOrder> oldList = this.queryDepositOrder(bizType, businessId, null);
+        List<DepositOrder> oldList = this.queryDepositOrder(depositOrderList.get(0).getBizType(), depositOrderList.get(0).getBusinessId(), null);
         Map<Long, Long> assetsIdsMap = new HashMap<>();
         oldList.stream().forEach(o ->{
             assetsIdsMap.put(o.getAssetsId(), o.getId());
         });
 
         depositOrderList.stream().forEach(o ->{
-            List<DepositOrder> deList = queryDepositOrder(bizType, businessId, o.getAssetsId());
+            List<DepositOrder> deList = queryDepositOrder(o.getBizType(), o.getBusinessId(), o.getAssetsId());
             if (CollectionUtils.isEmpty(deList)){ // 没有的话，就【新增】
                 o.setIsRelated(YesOrNoEnum.YES.getCode());
                 this.addDepositOrder(o);

@@ -72,8 +72,6 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
     BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint);
     /**
      * 批量【新增】保证金单 --- 【摊位租赁同步生成使用】
-     * @param bizType 业务类型
-     * @param businessId 关联订单ID
      * @param depositOrderList 保证金订单列表
      * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
      *                         departmentId 业务所属部门ID ; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
@@ -81,7 +79,7 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      *                         businessId 关联订单ID; bizType 关联订单业务类型;
      * @return BaseOutput
      */
-    BaseOutput batchAddOrUpdateDepositOrder(String bizType, Long businessId, List<DepositOrder> depositOrderList);
+    BaseOutput batchAddOrUpdateDepositOrder(List<DepositOrder> depositOrderList);
 
     /**
      * 批量【提交】保证金单 --- 【摊位租赁同步提交生成使用】
