@@ -97,9 +97,11 @@ function adddetailItem() {
 	if(departmentId == null || departmentId == ""){
 		departmentId =0
 	}
+	let stockDetail = {};
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo'+type, {
-		index: ++itemIndex,departmentId
+		index: ++itemIndex,departmentId,stockDetail
 	})))
+	changeDistrict(itemIndex,departmentId);
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 }
 
@@ -176,7 +178,9 @@ function buildFormData() {
 		let index = $(this).attr("id").split("_")[1];
 		let detail = $(this).serializeObject();
 		let districtName = $(this).find("[name=districtId]").find("option:selected").text();
+		let assetsName = $(this).find("[name=assetsId]").find("option:selected").text();
 		detail.districtName = districtName;
+		detail.assetsName = assetsName;
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
 		detail.stockWeighmanRecordDto = weightItems.get(index);

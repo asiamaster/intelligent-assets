@@ -45,43 +45,13 @@ var categoryAutoCompleteOption = {
 			$('#payeeCertificateNumber').val(suggestion.certificateNumber);
 		}}
 
-var districtAutoCompleteOption = {
-	width: '100%',
-	language: 'zh-CN',
-	maximumSelectionLength: 10,
-	ajax: {
-		type: 'post',
-		url: '/district/search.action',
-		data: function(params) {
-			return {
-				departmentId: 54,
-			}
-		},
-		processResults: function(result) {
-			if (result.success) {
-				let data = result.data;
-				return {
-					results: $.map(data, function(dataItem) {
-						dataItem.text = dataItem.name + (dataItem.cusName ? '(' + dataItem.cusName + ')' : '');
-						return dataItem;
-					})
-				};
-			} else {
-				bs4pop.alert(result.message, {
-					type: 'error'
-				});
-				return;
-			}
-		}
-	}
-}
 
 //初始化入库单信息
 $(function() {
 	let stockInDetails = JSON.parse('${stockIn.jsonStockInDetailDtos!}');
 	for (let stockDetail of stockInDetails) {
+		stockDetail.departmentId=${stockIn.departmentId!};
 		initDetailItem(stockDetail);
-		console.log(stockDetail);
 	}
 });
 
@@ -90,9 +60,11 @@ $(function() {
  * 添加子单
  * */
 function adddetailItem() {
+	let stockDetail = {};
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo' + type, {
-		index: ++itemIndex
+		index: ++itemIndex,stockDetail
 	})))
+	changeDistrict(itemIndex,departmentId);
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 }
 
@@ -101,22 +73,23 @@ function adddetailItem() {
  * */
 function initDetailItem(stockDetail) {
 	stockDetail.amount = (stockDetail.amount/100).toFixed(2) + '';
-	$('#details').append(bui.util.HTMLDecode(template('initDetailInfo' + type, {
-		stockDetail,index: itemIndex
+	$('#details').append(bui.util.HTMLDecode(template('detailInfo' + type, {
+		stockDetail,index: ++itemIndex
 	})))
-	for (let chargeItem of stockDetail.businessChargeItem) {
+	/*for (let chargeItem of stockDetail.businessChargeItem) {
 		chargeItem.amount = (chargeItem.amount/100).toFixed(2) + '';
 		$("#saveForm_"+itemIndex).find(".chargeItems").after(bui.util.HTMLDecode(template('businessChargeItem', {
 			chargeItem
 		})))
-	}
-	/*for (let chargeItem of stockDetail.businessChargeItem) {
+	}*/
+	for (let chargeItem of stockDetail.businessChargeItem) {
+		chargeItem.amount = (chargeItem.amount/100).toFixed(2) + '';
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).val(chargeItem.amount);
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).attr("item-id",chargeItem.id);
-	}*/
-	
+	}
+	changeDistrict(itemIndex,stockDetail.departmentId,stockDetail.districtId);
+	changeAssets(itemIndex,stockDetail.districtId,stockDetail.assetsId);
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
-	itemIndex++;
 }
 
 // 添加子单
@@ -138,6 +111,7 @@ $(document).on('click', '.item-del', function() {
 	if(detail.code != ""){
 		detail.categoryId = $('#categoryId').val();
 		detail.delete = true;
+		bui.util.yuanToCentForMoneyEl(detail);
 		removeDetails.push(detail);
 	}
 	$(this).closest('form').remove();
@@ -175,10 +149,10 @@ function countItemNumber(obj){
 function buildFormData() {
 	// let formData = new FormData($('#saveForm')[0]);
 	let departmentName = $('#departmentId').find("option:selected").text();
-	let categoryName = $('#categoryId').find("option:selected").text();
+	//let categoryName = $('#categoryId').find("option:selected").text();
 	let formData = $('#saveForm').serializeObject();
 	formData.departmentName = departmentName;
-	formData.categoryName = categoryName;
+	//formData.categoryName = categoryName;
 	let stockDetails = [];
 	// 动态收费项
 	let businessChargeDtos = []
@@ -269,19 +243,6 @@ function doAddStockInHandler() {
 		}
 	});
 }
-
-function form2JsonString(formId) {
-	var paramArray = $('#' + formId).serializeArray();
-	/*请求参数转json对象*/
-	var jsonObj = {};
-	$(paramArray).each(function() {
-		jsonObj[this.name] = this.value;
-
-	});
-	// json对象再转换成json字符串
-	return JSON.stringify(jsonObj);
-}
-
 
 
 </script>
