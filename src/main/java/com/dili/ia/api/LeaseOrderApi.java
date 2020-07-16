@@ -52,7 +52,7 @@ public class LeaseOrderApi {
     public @ResponseBody BaseOutput<String> test(){
         //新增品类
         CategoryDTO categoryDTO = new CategoryDTO();
-        categoryDTO.setName("测试品类");
+        categoryDTO.setName("测试品类0714");
         categoryDTO.setPingying("ceshi");
         categoryDTO.setPyInitials("cspl");
         categoryDTO.setIsDelete(0);
@@ -72,6 +72,7 @@ public class LeaseOrderApi {
         SettleOrderDto settleOrderDto = new SettleOrderDto();
         settleOrderDto.setMarketId(1L);
         settleOrderDto.setMarketCode("group");
+        settleOrderDto.setOrderCode("test0714");
         settleOrderDto.setAppId(101L);
         settleOrderDto.setBusinessCode("T0001");
         settleOrderDto.setBusinessType(1);
@@ -101,7 +102,8 @@ public class LeaseOrderApi {
         settleOrderDto.setBusinessName("test");
         settleOrderDto.setReturnUrl("http://www.baidu.com");
         try {
-            settlementRpc.submit(settleOrderDto);
+            BaseOutput<SettleOrder> submit = settlementRpc.submit(settleOrderDto);
+            System.out.println(submit);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -192,45 +194,4 @@ public class LeaseOrderApi {
         }
     }
 
-    /**
-     *
-     * 审批通过处理
-     * @return
-     */
-    @RequestMapping(value="/approvedHandler")
-    public @ResponseBody BaseOutput approvedHandler(String code){
-        try{
-            if(StringUtils.isBlank(code) || null == code){
-                return BaseOutput.failure("参数不能为空");
-            }
-            return assetsLeaseOrderService.approvedHandler(code);
-        }catch (BusinessException e){
-            LOG.info("审批通过处理异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
-        }catch (Exception e){
-            LOG.error("审批通过处理异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }
-    }
-
-    /**
-     *
-     * 审批拒绝处理
-     * @return
-     */
-    @RequestMapping(value="/approvedDeniedHandler")
-    public @ResponseBody BaseOutput approvedDeniedHandler(String code){
-        try{
-            if(StringUtils.isBlank(code) || null == code){
-                return BaseOutput.failure("参数不能为空");
-            }
-            return assetsLeaseOrderService.approvedDeniedHandler(code);
-        }catch (BusinessException e){
-            LOG.info("审批拒绝处理异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
-        }catch (Exception e){
-            LOG.error("审批拒绝处理异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }
-    }
 }

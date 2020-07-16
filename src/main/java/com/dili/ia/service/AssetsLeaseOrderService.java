@@ -3,6 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
+import com.dili.ia.domain.dto.LeaseOrderApprovalDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.LeaseRefundOrderDto;
 import com.dili.settlement.domain.SettleOrder;
@@ -113,15 +114,15 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
 
     /**
      * 审批通过处理
-     * @param code
+     * @param leaseOrderApprovalDto 审批参数
      * @return
      */
-    BaseOutput approvedHandler(String code);
+    BaseOutput approvedHandler(LeaseOrderApprovalDto leaseOrderApprovalDto);
 
     /**
      * 审批拒绝处理
-     * @param code
+     * @param leaseOrderApprovalDto 审批参数
      * @return
      */
-    BaseOutput approvedDeniedHandler(String code);
+    BaseOutput approvedDeniedHandler(LeaseOrderApprovalDto leaseOrderApprovalDto);
 }

@@ -82,6 +82,12 @@
                 <#resource code="cancelLeaseOrder">
                 <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                 </#resource>
+                <#resource code="submitForApproval">
+                <button id="btn_approval" type="button" class="btn btn-primary" onclick="submitForApproval()"><i class="fa fa-paper-plane"></i> 提交审批</button>
+                </#resource>
+
+                <button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
+
                 <#resource code="submitPaymentLeaseOrder">
                 <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交付款</button>
                 </#resource>
@@ -133,6 +139,9 @@
                     <th data-field="state" data-sortable="true" data-align="center" data-sort-name="State" data-provider="leaseOrderStateProvider">
                         业务状态
                     </th>
+                    <th data-field="approvalState" data-sortable="true" data-align="center" data-sort-name="approval_state" data-provider="approvalStateProvider">
+                        审批状态
+                    </th>
                     <th data-field="payState" data-sortable="true" data-align="center" data-sort-name="pay_state" data-provider="payStateProvider">
                         交费状态
                     </th>
@@ -176,6 +185,12 @@
 </div>
 </#bs4Body>
 <#assetsLeaseOrder_indexJs />
+
+<!-- 流程图模板 -->
+<script id="progressTpl" type="text/html">
+    <img id="processInstanceImg" src="{{processImgSrc}}"/>
+</script>
+
 <script id="subTable" type="text/html">
     <div class="px-3 pb-3">
         <div id="toolbar{{index}}" class="btn-group" role="group" aria-label="Toolbar with button groups">

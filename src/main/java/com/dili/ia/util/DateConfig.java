@@ -54,7 +54,7 @@ public class DateConfig {
 
     @Bean
     public Converter<String, LocalDate> localDateConverter() {
-        return new Converter<>() {
+        return new Converter<String, LocalDate>() {
             @Override
             public LocalDate convert(String source) {
                 return StrUtil.isBlank(source) ? null : LocalDate.parse(source, DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT));
@@ -64,7 +64,7 @@ public class DateConfig {
 
     @Bean
     public Converter<String, LocalDateTime> localDateTimeConverter() {
-        return new Converter<>() {
+        return new Converter<String, LocalDateTime>() {
             @Override
             public LocalDateTime convert(String source) {
                 return StrUtil.isBlank(source) ? null : LocalDateTime.parse(source, DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT));
