@@ -205,7 +205,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             depositOrder.setBizType(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getBizType());
             depositOrders.add(depositOrder);
         });
-        depositOrderService.batchAddDepositOrder(depositOrders);
+        depositOrderService.batchAddOrUpdateDepositOrder(depositOrders);
     }
 
     /**
