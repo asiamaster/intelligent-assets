@@ -113,9 +113,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setPayState(DepositPayStateEnum.UNPAID.getCode());
         depositOrder.setRefundState(DepositRefundStateEnum.NO_REFUNDED.getCode());
         depositOrder.setIsImport(YesOrNoEnum.NO.getCode());
-        if (depositOrder.getIsRelated() == null){
-            depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
-        }
         depositOrder.setWaitAmount(depositOrder.getAmount());
 
         this.insertSelective(depositOrder);
@@ -154,12 +151,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         if (depositOrder.getAmount() == null){
             return BaseOutput.failure(ResultCode.PARAMS_ERROR, "保证金金额不能为空");
-        }
-        if (depositOrder.getBusinessId() == null){
-            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "关联订单ID不能为空");
-        }
-        if (depositOrder.getBizType() == null){
-            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "关联订单业务类型不能为空");
         }
         return BaseOutput.success();
     }
@@ -223,38 +214,41 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (depositOrder.getId() == null){
             return BaseOutput.failure("Id不能为空！");
         }
+        DepositOrder oldDTO = this.get(depositOrder.getId());
+        if (null == oldDTO || !oldDTO.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
+            return BaseOutput.failure("修改失败，保证金单状态已变更！");
+        }
         //修改有清空修改，所以使用update
-        if (this.update(this.buildUpdateDto(depositOrder)) == 0){
+        if (this.update(this.buildUpdateDto(oldDTO, depositOrder)) == 0){
             LOG.info("修改保证金单失败,乐观锁生效【客户名称：{}】 【保证金单ID:{}】", depositOrder.getCustomerName(), depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         return BaseOutput.success("修改成功！").setData(depositOrder);
     }
 
-    private DepositOrder buildUpdateDto(DepositOrder dto){
-        DepositOrder depositOrder = this.get(dto.getId());
+    private DepositOrder buildUpdateDto(DepositOrder oldDto, DepositOrder dto){
         BaseOutput<Department> depOut = departmentRpc.get(dto.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
-        depositOrder.setDepartmentName(depOut.getData().getName());
-        depositOrder.setTypeCode(dto.getTypeCode());
-        depositOrder.setTypeName(dto.getTypeName());
-        depositOrder.setAssetsId(dto.getAssetsId());
-        depositOrder.setAssetsName(dto.getAssetsName());
-        depositOrder.setAssetsType(dto.getAssetsType());
-        depositOrder.setCustomerId(dto.getCustomerId());
-        depositOrder.setCustomerName(dto.getCustomerName());
-        depositOrder.setCertificateNumber(dto.getCertificateNumber());
-        depositOrder.setCustomerCellphone(dto.getCustomerCellphone());
-        depositOrder.setDepartmentId(dto.getDepartmentId());
-        depositOrder.setAmount(dto.getAmount());
-        depositOrder.setNotes(dto.getNotes());
-        depositOrder.setModifyTime(LocalDateTime.now());
-        depositOrder.setVersion(dto.getVersion());
+        oldDto.setDepartmentName(depOut.getData().getName());
+        oldDto.setTypeCode(dto.getTypeCode());
+        oldDto.setTypeName(dto.getTypeName());
+        oldDto.setAssetsId(dto.getAssetsId());
+        oldDto.setAssetsName(dto.getAssetsName());
+        oldDto.setAssetsType(dto.getAssetsType());
+        oldDto.setCustomerId(dto.getCustomerId());
+        oldDto.setCustomerName(dto.getCustomerName());
+        oldDto.setCertificateNumber(dto.getCertificateNumber());
+        oldDto.setCustomerCellphone(dto.getCustomerCellphone());
+        oldDto.setDepartmentId(dto.getDepartmentId());
+        oldDto.setAmount(dto.getAmount());
+        oldDto.setNotes(dto.getNotes());
+        oldDto.setModifyTime(LocalDateTime.now());
+        oldDto.setVersion(dto.getVersion());
 
-        return depositOrder;
+        return oldDto;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -463,8 +457,14 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("保证金退款申请，保证金单【ID:{}】不存在！", refundOrder.getBusinessId());
             return BaseOutput.failure("保证金业务单不存在！");
         }
-        if (DepositOrderStateEnum.REFUNDING.getCode().equals(refundOrder.getState())){
+        if (DepositPayStateEnum.UNPAID.getCode().equals(depositOrder.getPayState())){
+            return BaseOutput.failure("创建失败，未交费业务单不能退款！");
+        }
+        if (DepositOrderStateEnum.REFUNDING.getCode().equals(depositOrder.getState())){
             return BaseOutput.failure("创建失败，已存在退款中的业务单！");
+        }
+        if (DepositRefundStateEnum.REFUNDED.getCode().equals(depositOrder.getRefundState())){
+            return BaseOutput.failure("创建失败，业务单已全额退款！");
         }
         Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getPaidAmount() < totalRefundAmount){
@@ -535,7 +535,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setWaitAmount(waitAmount);
 
         if (this.updateSelective(depositOrder) == 0) {
-            LOG.info("缴费单成功回调 -- 更新【保证金单】状态,乐观锁生效！【保证金单EarnestOrderID:{}】", depositOrder.getId());
+            LOG.info("缴费单成功回调 -- 更新【保证金单】状态,乐观锁生效！【保证金单DepositOrderID:{}】", depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         //更新保证金余额 --- 缴费成功保证金余额增加
@@ -655,6 +655,12 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             List<DepositOrder> deList = queryDepositOrder(o.getBizType(), o.getBusinessId(), o.getAssetsId());
             if (CollectionUtils.isEmpty(deList)){ // 没有的话，就【新增】
                 o.setIsRelated(YesOrNoEnum.YES.getCode());
+                if (o.getBusinessId() == null){
+                    throw new BusinessException(ResultCode.PARAMS_ERROR, "关联订单ID不能为空");
+                }
+                if (o.getBizType() == null){
+                    throw new BusinessException(ResultCode.PARAMS_ERROR, "关联订单业务类型不能为空");
+                }
                 this.addDepositOrder(o);
             }else {// 有的话， 就【修改】
                 o.setId(deList.get(0).getId());
