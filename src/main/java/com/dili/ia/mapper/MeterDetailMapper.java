@@ -67,4 +67,13 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * @date   2020/7/10
      */
     MeterDetailDto getMeterDetailByCode(String code);
+
+    /**
+     * 根据 code 查询实体
+     *
+     * @param  meterDetailDto
+     * @return MeterDetailDto
+     * @date   2020/7/10
+     */
+    List<MeterDetailDto> listMeterDetailByUnPayBusiness(MeterDetailDto meterDetailDto);
 }

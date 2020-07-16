@@ -1,7 +1,6 @@
 package com.dili.ia.provider;
 
 import com.dili.ia.glossary.MeterDetailStateEnum;
-import com.dili.ia.glossary.MeterTypeEnum;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;

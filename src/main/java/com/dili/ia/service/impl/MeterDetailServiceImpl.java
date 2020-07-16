@@ -178,8 +178,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         MeterDetail meterDetail = new MeterDetail();
         BeanUtils.copyProperties(meterDetailDto, meterDetail);
 
-        // 根据 meterId 查询是否有未提交、已提交的缴费记录(某月份)
-        List<MeterDetailDto> meterDetailDtoList = this.listUnPayUnSubmitByMeter(meterDetailDto.getMeterId());
+        // 根据 meterId 查询是否有代缴费的业务单（已创建已提交）
+        List<MeterDetailDto> meterDetailDtoList = this.listMeterDetailByUnPayBusiness(meterDetailDto.getMeterId());
+//        List<MeterDetailDto> meterDetailDtoList = this.listUnPayUnSubmitByMeter(meterDetailDto.getMeterId());
         if (CollectionUtils.isNotEmpty(meterDetailDtoList)) {
             return BaseOutput.failure("该表存在未交费单据，无法保存！");
         }
@@ -226,6 +227,8 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
         return BaseOutput.success().setData(meterDetail);
     }
+
+
 
     /**
      * 构建动态收费项
@@ -495,7 +498,8 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
         meterDetailPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
-        // 打印详情TODO
+
+        // TODO 打印详情
 
         PrintDataDto<MeterDetailPrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getCode());
@@ -577,7 +581,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * 根据 meterId 查询是否有未缴费的缴费单记录(某月份)
      * 
      * @param  meterId
-     * @param 
+     * @param
      * @return 缴费集合
      * @date   2020/6/30
      */
@@ -593,6 +597,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         // 未缴费
         StringBuilder statusBuff = new StringBuilder("");
         statusBuff.append(PaymentOrderStateEnum.NOT_PAID.getCode()).append(",");
+
         // 业务类型(水表、电表)
         List<Integer> bizTypeList = Lists.newArrayList(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
         String bizTypes = bizTypeList.toString().replace("[", "").replace("]", "");
@@ -604,6 +609,26 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         List<MeterDetailDto> meterDetailDtoList = this.getActualDao().listUnPayUnSubmitByMeter(meterDetailDto);
 
         return meterDetailDtoList;
+    }
+
+    /**
+     * 根据 meterId 查询是否有待缴费的业务单
+     *
+     * @param  meterId
+     * @param
+     * @return 缴费集合
+     * @date   2020/6/30
+     */
+    private List<MeterDetailDto> listMeterDetailByUnPayBusiness(Long meterId) {
+        MeterDetailDto meterDetailDto = new MeterDetailDto();
+
+        StringBuilder statusBuff = new StringBuilder("");
+        statusBuff.append(MeterDetailStateEnum.UNSUBMITED.getCode()).append(",").append(MeterDetailStateEnum.SUBMITED.getCode()).append(",");
+        // 设置查询参数
+        meterDetailDto.setMeterId(meterId);
+        meterDetailDto.setStatus(statusBuff.toString());
+        List<MeterDetailDto> meterDetailDtoList = this.getActualDao().listMeterDetailByUnPayBusiness(meterDetailDto);
+        return  meterDetailDtoList;
     }
 
     /**
