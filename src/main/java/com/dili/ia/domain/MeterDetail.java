@@ -1,5 +1,6 @@
 package com.dili.ia.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
@@ -90,9 +91,9 @@ public class MeterDetail extends BaseDomain {
     @Column(name = "`department_name`")
     private String departmentName;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+
     @Column(name = "`record_time`")
+    @JSONField
     private LocalDateTime recordTime;
 
     /**

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -65,6 +66,7 @@ public class MeterDetailController {
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
         // 动态收费项，根据业务类型查询相关的动态收费项类型
         List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
                 queryBusinessChargeItemConfig(userTicket.getFirmId(), "UTTLITIES", YesOrNoEnum.YES.getCode());
@@ -102,11 +104,17 @@ public class MeterDetailController {
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
     public String update(ModelMap modelMap, Long id) {
         MeterDetail meterDetail = null;
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
         if (id != null) {
             meterDetail = meterDetailService.getMeterDetailById(id);
         }
-        logger.info(meterDetail.toString());
+        // 动态收费项，根据业务类型查询相关的动态收费项类型
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
+                queryBusinessChargeItemConfig(userTicket.getFirmId(), "UTTLITIES", YesOrNoEnum.YES.getCode());
+        modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("meterDetail", meterDetail);
+
         return "meterDetail/update";
     }
 
@@ -131,7 +139,7 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute MeterDetailDto meterDetailDto) {
+    public @ResponseBody BaseOutput insert(@RequestBody MeterDetailDto meterDetailDto) {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 

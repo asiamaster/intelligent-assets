@@ -447,7 +447,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @return
      */
     private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setBizType(BizTypeEnum.UTTLITIES.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);

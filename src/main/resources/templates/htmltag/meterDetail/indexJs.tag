@@ -49,7 +49,7 @@
 
 
         dia = bs4pop.dialog({
-            title: '表信息详情',
+            title: '水电费详情',
             content: '/meterDetail/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
@@ -91,17 +91,8 @@
             title: '费用新增',//对话框title
             content: '${contextPath}/meterDetail/add.html?type=1', //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
-            height: '700px',//高度
+            height: '95%',//高度
             isIframe: true,//默认是页面层，非iframe
-            //按钮放在父页面用此处的 btns 选项。也可以放在页面里直接在页面写div。
-            btns: [{label: '取消',className: 'btn-secondary',onClick(e, $iframe){
-                }
-            }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
-                    let diaWindow = $iframe[0].contentWindow;
-                    bui.util.debounce(diaWindow.saveOrUpdateHandler,1000,true)()
-                    return false;
-                }
-            }]
         });
     }
 

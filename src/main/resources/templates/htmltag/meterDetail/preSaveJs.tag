@@ -38,7 +38,9 @@
             $('[name="departmentId"]').val(suggestion.departmentId);
             $('[name="customerCellphone"]').val(suggestion.customerCellphone);
             $('[name="customerName"]').val(suggestion.customerName);
+            $('[name="customerId"]').val(suggestion.customerId);
             $('[name="price"]').val(suggestion.price);
+            $('[name="meterId"]').val(suggestion.meterId);
             $.ajax({
                 type: "post",
                 url: '/meterDetail/getLastAmount.action',
@@ -55,7 +57,6 @@
                     bs4pop.alert("上期指数获取失败!", {type: 'error'});
                 }
             })
-            $('#saveForm').validate().form();
         }
     };
 
@@ -70,20 +71,34 @@
         }
 
         bui.loading.show('努力提交中，请稍候。。。');
-        let _formData = bui.util.removeKeyStartWith(_form.serializeObject(), "_");
+        let _formData = $('#saveForm').serializeObject();
         let _url = null;
+
+        // 动态收费项
+        let businessChargeDtos = []
+        $('#saveForm').find('.chargeItem').each(function(){
+            let businessCharge = {};
+            businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
+            businessCharge.chargeItemName=$(this).attr("chargeItem");
+            businessCharge.amount=parseInt($(this).val())*100;
+            if (businessCharge != {}) {
+                businessChargeDtos.push(businessCharge);
+            }
+        })
+        _formData.businessChargeItems = businessChargeDtos;
 
         //没有id就新增
         if (_formData.id == null || _formData.id == "") {
-            _url = "${contextPath}/meterDetail/insert.action";
+            _url = "${contextPath}/meterDetail/add.action";
         } else {//有id就修改
             _url = "${contextPath}/meterDetail/update.action";
         }
         $.ajax({
             type: "POST",
             url: _url,
-            data: _formData,
+            data: JSON.stringify(_formData),
             dataType: "json",
+            contentType: "application/json",
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){

@@ -119,9 +119,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         // 组装动态收费项
         BusinessChargeItem condtion = new BusinessChargeItem();
         condtion.setBusinessCode(meterDetailDtoInfo.getCode());
+        condtion.setBizType(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
         meterDetailDtoInfo.setBusinessChargeItems(businessChargeItemService.list(condtion));
 
-        // TODO 动态收费项，操作日志的业务记录，计费规则
         return meterDetailDtoInfo;
     }
 
@@ -194,25 +194,33 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         String meterDetailCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.METER_DETAIL_CODE.getCode());
         meterDetail.setCode(meterDetailCode);
         meterDetail.setCreatorId(userTicket.getId());
-        meterDetail.setCreator(userTicket.getRealName());
-        meterDetail.setCreatorDepId(userTicket.getDepartmentId());
+        meterDetail.setCreateTime(LocalDateTime.now());
+        meterDetail.setModifyTime(LocalDateTime.now());
         meterDetail.setMarketId(userTicket.getFirmId());
+        meterDetail.setCreator(userTicket.getRealName());
         meterDetail.setMarketCode(userTicket.getFirmCode());
+        meterDetail.setCreatorDepId(userTicket.getDepartmentId());
         meterDetail.setState(MeterDetailStateEnum.UNSUBMITED.getCode());
         // 计算使用量
-        long usageAmount = meterDetail.getLastAmount() - meterDetail.getThisAmount();
-        meterDetail.setUsageAmount(usageAmount);
+        if (meterDetail.getLastAmount() == null) {
+            meterDetail.setUsageAmount(meterDetail.getThisAmount());
+        } else {
+            long usageAmount = meterDetail.getThisAmount() - meterDetail.getLastAmount();
+            meterDetail.setUsageAmount(usageAmount);
+        }
         this.getActualDao().insertSelective(meterDetail);
 
         //构建动态收费项
-        businessChargeItemService.batchInsert(buildBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetail.getId(), meterDetail.getCode()));
+        if (meterDetailDto.getBusinessChargeItems() != null) {
+            businessChargeItemService.batchInsert(buildBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetail.getId(), meterDetail.getCode()));
+        }
 
         CustomerMeter customerMeter = customerMeterService.getBindInfoByMeterId(meterDetail.getMeterId());
         if (null == customerMeter || !customerMeter.getCustomerId().equals(meterDetail.getCustomerId())) {
             //已被解绑或删除
             BaseOutput.failure("表已被解绑或删除，请刷新数据后重试!");
         }
-        Boolean isEquals = meterDetailDto.getLastAmount().equals(lastAmount);
+        Boolean isEquals = lastAmount.equals(meterDetailDto.getLastAmount());
         if (!isEquals){
             BaseOutput.failure("上期指数已发生变化，请修改后重新提交!");
         }
@@ -401,12 +409,16 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailInfo.setWithdrawOperator(userTicket.getRealName());
         meterDetailInfo.setModifyTime(LocalDateTime.now());
         meterDetailInfo.setState(MeterDetailStateEnum.UNSUBMITED.getCode());
+        if (this.updateSelective(meterDetailInfo) == 0) {
+            logger.info("撤回水电费【修改为已创建】失败.");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
 
         // 撤销缴费单
         PaymentOrder paymentOrder = this.findPaymentOrder(userTicket, meterDetailInfo.getId(), meterDetailInfo.getCode());
         paymentOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
         if (paymentOrderService.updateSelective(paymentOrder) == 0) {
-            logger.info("撤回定金【删除缴费单】失败.");
+            logger.info("撤回水电费【删除缴费单】失败.");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
@@ -497,7 +509,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @return
      */
     private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setBizType(BizTypeEnum.UTTLITIES.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);

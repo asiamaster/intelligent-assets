@@ -6,12 +6,12 @@
             <div class="row row-cols-4" >
                 <div class="form-group col">
                     <label for="usageTime">月份<i class="red">*</i></label>
-                    <input type="text" class="form-control laymonth" id="usageTime" name="usageTime" required />
+                    <input type="text" class="form-control laymonth " id="usageTime" name="usageTime"/>
                 </div>
 
                 <div class="form-group col">
-                    <label for="number">表编号<i class="red">*</i></label>
-                    <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="number" _displayDomainName="number" _placeholder="" _validatorMethod="isSelected" _optionVariable="numberAutoCompleteOption" _required="true"/>
+                    <label for="number">表编号</label>
+                    <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="number" _displayDomainName="number" _placeholder=""  _optionVariable="numberAutoCompleteOption"/>
                 </div>
                 <div class="form-group col">
                     <label for="assetsType">类别<i class="red">*</i></label>
@@ -23,6 +23,10 @@
                     <label for="assetsName">表地址</label>
                     <input type="text" class="form-control" id="assetsName" name="assetsName" disabled />
                 </div>
+
+                <input type="hidden" id="meterId" name="meterId">
+                <input type="hidden" id="customerId" name="customerId">
+
                 <div class="form-group col">
                     <label for="departmentId">业务所属部门<i class="red">*</i></label>
                     <select id="departmentId"  name="departmentId" class="form-control" required></select>
@@ -32,10 +36,12 @@
                     <label for="customerCellphone">手机号码</label>
                     <input type="text" class="form-control isMobile" id="customerCellphone" name="customerCellphone" required />
                 </div>
+
                 <div class="form-group col">
                     <label for="customerName">客户名称</label>
                     <input type="text" class="form-control" id="customerName" name="customerName" disabled />
                 </div>
+
                 <div class="form-group col">
                     <label for="lastAmount">上期指数</label>
                     <input type="text" class="form-control" id="lastAmount" name="lastAmount" disabled />
@@ -61,8 +67,8 @@
                 for(item in chargeItems){
                 %>
                 <div class="form-group col">
-                    <label for="sharedAmount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}" type="number" class="form-control chargeItem money"
-                                                                                                        name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required />
+                    <label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label>
+                    <input id="chargeItem_${item.id!}" type="number" class="form-control chargeItem money" name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required />
                 </div>
                 <% } }%>
 
@@ -72,16 +78,20 @@
                 </div>
                 <div class="form-group col">
                     <label for="recordTime">抄表日期</label>
-                    <input type="text" class="form-control" id="recordTime" name="recordTime" />
+                    <input type="text" class="form-control laydate" id="recordTime" name="recordTime" />
                 </div>
                 <div class="form-group col">
                     <label for="recorderName">抄表员</label>
                     <input type="text" class="form-control" id="recorderName" name="recorderName" />
                 </div>
-                <div class="form-group col-12">
+                <div class="form-group col">
                     <label for="notes">备注</label>
                     <textarea id="notes" class="form-control" name="notes" rows="2" maxlength="100"></textarea>
                 </div>
+            </div>
+            <div class="text-right btn-r-b">
+                <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
+                <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveOrUpdateHandler,1000,true)()" id="formSubmit">保存</button>
             </div>
         </form>
     </div>
