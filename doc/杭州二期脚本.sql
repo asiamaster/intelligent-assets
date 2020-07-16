@@ -21,28 +21,13 @@ MODIFY COLUMN `biz_type` varchar(120) NULL DEFAULT NULL COMMENT '业务类型' A
 ALTER TABLE `dili-assets`.`transaction_details`
 MODIFY COLUMN `biz_type` varchar(120) NULL DEFAULT NULL COMMENT '业务类型' ;
 
--- 字段删除脚本（数据迁移完后执行）
-ALTER TABLE `dili-assets`.`lease_order`
-DROP COLUMN `rent_amount`,
-DROP COLUMN `deposit_amount`,
-DROP COLUMN `manage_amount`,
-DROP COLUMN `deposit_deduction`;
-
--- 字段删除脚本（数据迁移完后执行）
-ALTER TABLE `dili-assets`.`lease_order_item`
-DROP COLUMN `deposit_amount_flag`,
-DROP COLUMN `deposit_amount_source_id`,
-DROP COLUMN `deposit_amount`,
-DROP COLUMN `manage_amount`,
-DROP COLUMN `rent_amount`,
-DROP COLUMN `refund_amount`,
-DROP COLUMN `deposit_refund_amount`,
-DROP COLUMN `manage_refund_amount`,
-DROP COLUMN `rent_refund_amount`;
-
 -- 改表名
 ALTER  TABLE lease_order RENAME TO assets_lease_order;
 ALTER  TABLE lease_order_item RENAME TO assets_lease_order_item;
+
+ALTER TABLE `dili-assets`.`assets_lease_order_item`
+ADD COLUMN `payment_amount` bigint(20) NOT NULL DEFAULT 0 COMMENT '正在支付中金额' AFTER `wait_amount`;
+update assets_lease_order_item set total_amount = rent_amount + manage_amount;
 
 --租赁单和退款单新增流程实例和定义id
 ALTER TABLE `assets_lease_order`
@@ -72,3 +57,22 @@ create table approval_process
    firm_id              bigint comment '商户id',
    primary key (id)
 );
+
+-- 字段删除脚本（数据迁移完后执行）
+ALTER TABLE `dili-assets`.`lease_order`
+DROP COLUMN `rent_amount`,
+DROP COLUMN `deposit_amount`,
+DROP COLUMN `manage_amount`,
+DROP COLUMN `deposit_deduction`;
+
+-- 字段删除脚本（数据迁移完后执行）
+ALTER TABLE `dili-assets`.`lease_order_item`
+DROP COLUMN `deposit_amount_flag`,
+DROP COLUMN `deposit_amount_source_id`,
+DROP COLUMN `deposit_amount`,
+DROP COLUMN `manage_amount`,
+DROP COLUMN `rent_amount`,
+DROP COLUMN `refund_amount`,
+DROP COLUMN `deposit_refund_amount`,
+DROP COLUMN `manage_refund_amount`,
+DROP COLUMN `rent_refund_amount`;

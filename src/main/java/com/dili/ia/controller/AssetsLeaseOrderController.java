@@ -358,15 +358,14 @@ public class AssetsLeaseOrderController {
 
     /**
      * 提交付款
-     * @param id
-     * @param amount
+     * @param assetsLeaseSubmitPaymentDto
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${amountFormatStr}",operationType="submitPayment",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id, @RequestParam Long amount,  @RequestParam String amountFormatStr){
+    public @ResponseBody BaseOutput submitPayment(@RequestBody AssetsLeaseSubmitPaymentDto assetsLeaseSubmitPaymentDto){
         try{
-            return assetsLeaseOrderService.submitPayment(id,amount);
+            return assetsLeaseOrderService.submitPayment(assetsLeaseSubmitPaymentDto);
         }catch (BusinessException e){
             LOG.info("资产租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getErrorMsg());

@@ -470,7 +470,6 @@
             //（未生效 || 已生效）&& 已交清方可停租
             if ((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
                 || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
-                && row.payState == ${@com.dili.ia.glossary.PayStateEnum.PAID.getCode()}
                 && row.refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}
             ) {
                 $('#btn_stop_rent'+index).attr('disabled', false);

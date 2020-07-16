@@ -3,6 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
+import com.dili.ia.domain.dto.AssetsLeaseSubmitPaymentDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.LeaseRefundOrderDto;
 import com.dili.settlement.domain.SettleOrder;
@@ -30,11 +31,10 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
 
     /**
      * 提交付款
-     * @param id 租赁单ID
-     * @param amount 交费金额
+     * @param assetsLeaseSubmitPaymentDto
      * @return
      */
-    BaseOutput submitPayment(Long id,Long amount);
+    BaseOutput submitPayment(AssetsLeaseSubmitPaymentDto assetsLeaseSubmitPaymentDto);
 
     /**
      * 提交审批

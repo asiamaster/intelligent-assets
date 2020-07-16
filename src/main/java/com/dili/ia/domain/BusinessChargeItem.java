@@ -69,6 +69,12 @@ public class BusinessChargeItem extends BaseDomain {
     @Column(name = "`wait_amount`")
     private Long waitAmount;
 
+    /**
+     * 支付中金额
+     */
+    @Column(name = "`payment_amount`")
+    private Long paymentAmount;
+
 
     //创建时间
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
@@ -152,6 +158,14 @@ public class BusinessChargeItem extends BaseDomain {
 
     public void setWaitAmount(Long waitAmount) {
         this.waitAmount = waitAmount;
+    }
+
+    public Long getPaymentAmount() {
+        return paymentAmount;
+    }
+
+    public void setPaymentAmount(Long paymentAmount) {
+        this.paymentAmount = paymentAmount;
     }
 
     public LocalDateTime getCreateTime() {
