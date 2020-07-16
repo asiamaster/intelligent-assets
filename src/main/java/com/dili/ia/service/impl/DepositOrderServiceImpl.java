@@ -41,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -85,13 +86,17 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if(null == userTicket){
             return BaseOutput.failure("未登录");
         }
+        //检查参数
+        BaseOutput checkOut = checkparams(depositOrder);
+        if (!checkOut.isSuccess()){
+            return checkOut;
+        }
         //检查客户状态
         checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
         //检查摊位状态 @TODO 检查公寓，冷库状态
         if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType())){
             checkBoothState(depositOrder.getAssetsId());
         }
-
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
@@ -115,6 +120,48 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
         this.insertSelective(depositOrder);
         return BaseOutput.success().setData(depositOrder);
+    }
+    private BaseOutput<Object> checkparams(DepositOrder depositOrder){
+        if (depositOrder.getCustomerId() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "客户Id不能为空");
+        }
+        if (depositOrder.getCustomerName() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "客户名称不能为空");
+        }
+        if (depositOrder.getCertificateNumber() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "客户证件号不能为空");
+        }
+        if (depositOrder.getCustomerCellphone() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "客户电话不能为空");
+        }
+        if (depositOrder.getDepartmentId() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "业务所属部门ID不能为空");
+        }
+        if (depositOrder.getTypeCode() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "保证金类型不能为空");
+        }
+        if (depositOrder.getTypeName() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "保证金类型名称不能为空");
+        }
+        if (depositOrder.getAssetsType() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产类型不能为空");
+        }
+        if (depositOrder.getAssetsId() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产ID不能为空");
+        }
+        if (depositOrder.getAssetsName() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产名称不能为空");
+        }
+        if (depositOrder.getAmount() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "保证金金额不能为空");
+        }
+        if (depositOrder.getBusinessId() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "关联订单ID不能为空");
+        }
+        if (depositOrder.getBizType() == null){
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "关联订单业务类型不能为空");
+        }
+        return BaseOutput.success();
     }
 
     private String getBizNumber(String type){
@@ -595,57 +642,90 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     @Override
-    public BaseOutput batchAddDepositOrder(List<DepositOrder> depositOrderList) {
+    public BaseOutput batchAddOrUpdateDepositOrder(String bizType, Long businessId, List<DepositOrder> depositOrderList) {
         if (CollectionUtils.isEmpty(depositOrderList)){
             return BaseOutput.success();
         }
-        depositOrderList.stream().forEach(o ->{
-            o.setIsRelated(YesOrNoEnum.YES.getCode());
-            this.addDepositOrder(o);
+        List<DepositOrder> oldList = this.queryDepositOrder(bizType, businessId, null);
+        Map<Long, Long> assetsIdsMap = new HashMap<>();
+        oldList.stream().forEach(o ->{
+            assetsIdsMap.put(o.getAssetsId(), o.getId());
+        });
 
+        depositOrderList.stream().forEach(o ->{
+            List<DepositOrder> deList = queryDepositOrder(bizType, businessId, o.getAssetsId());
+            if (CollectionUtils.isEmpty(deList)){ // 没有的话，就【新增】
+                o.setIsRelated(YesOrNoEnum.YES.getCode());
+                this.addDepositOrder(o);
+            }else {// 有的话， 就【修改】
+                o.setId(deList.get(0).getId());
+                this.updateDepositOrder(o);
+                if (assetsIdsMap.containsKey(o.getAssetsId())){
+                    assetsIdsMap.remove(o.getAssetsId());
+                }
+            }
+        });
+        assetsIdsMap.forEach((key, value) -> { //【取消】
+            DepositOrder depositOrder = this.get(value);
+            if (!depositOrder.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
+                throw new BusinessException(ResultCode.DATA_ERROR, "取消失败，保证金单状态已变更！");
+            }
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            if (userTicket == null){
+                throw new BusinessException(ResultCode.DATA_ERROR, "未登录！");
+            }
+            depositOrder.setCancelerId(userTicket.getId());
+            depositOrder.setCanceler(userTicket.getRealName());
+            depositOrder.setState(DepositOrderStateEnum.CANCELD.getCode());
+            if (this.updateSelective(depositOrder) == 0){
+                LOG.error("保证金取消失败，取消更新状态记录数为 0，取消保证金ID【{}】", value);
+                throw new BusinessException(ResultCode.DATA_ERROR, "取消失败！");
+            }
         });
         return BaseOutput.success();
     }
 
+    private List<DepositOrder> queryDepositOrder(String bizType, Long businessId, Long assetsId){
+        DepositOrder query = new DepositOrder();
+        query.setBizType(bizType);
+        query.setBusinessId(businessId);
+        query.setAssetsId(assetsId);
+        query.setIsRelated(YesOrNoEnum.YES.getCode()); //必须是关联订单
+        List<DepositOrder> list = this.listByExample(query);
+        return list;
+    }
+
     @Override
-    public BaseOutput batchSubmitDepositOrder(String bizType, Map<Long, Long> map) {
+    public BaseOutput batchSubmitDepositOrder(String bizType, Long businessId, Map<Long, Long> map) {
         if (map == null){
             return BaseOutput.success();
         }
         if (bizType == null){
             return BaseOutput.failure("参数bizType 不能为空！");
         }
+        if (businessId == null){
+            return BaseOutput.failure("参数businessId 不能为空！");
+        }
         map.forEach((key, value) -> {
-            DepositOrder depositOrder = this.queryDepositOrder(bizType, key);
-            if (depositOrder != null){
-                this.submitDepositOrder(depositOrder.getId(), value, depositOrder.getWaitAmount());
+            List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, key);
+            if (CollectionUtils.isNotEmpty(deList)){
+                this.submitDepositOrder(deList.get(0).getId(), value, deList.get(0).getWaitAmount());
             }
         });
         return BaseOutput.success();
     }
 
-    private DepositOrder queryDepositOrder(String bizType, Long businessId){
-        DepositOrder query = new DepositOrder();
-        query.setBizType(bizType);
-        query.setBusinessId(businessId);
-        query.setIsRelated(YesOrNoEnum.YES.getCode());
-        List<DepositOrder> list = this.listByExample(query);
-        return list.stream().findFirst().orElse(null);
-    }
-
     @Override
-    public BaseOutput batchWithdrawDepositOrder(String bizType, List<Long> businessIds) {
-        if (CollectionUtils.isEmpty(businessIds)){
-            return BaseOutput.success();
+    public BaseOutput batchWithdrawDepositOrder(String bizType, Long businessId) {
+        if (businessId == null){
+            return BaseOutput.failure("参数businessId 不能为空！");
         }
         if (bizType == null){
             return BaseOutput.failure("参数bizType 不能为空！");
         }
-        businessIds.stream().forEach(o -> {
-            DepositOrder depositOrder = this.queryDepositOrder(bizType, o);
-            if (depositOrder != null){
-                this.withdrawDepositOrder(depositOrder.getId());
-            }
+        List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        deList.stream().forEach(o -> {
+            this.withdrawDepositOrder(o.getId());
         });
         return BaseOutput.success();
     }
