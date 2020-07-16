@@ -9,12 +9,13 @@
                 <select id="state" name="state" class="form-control"></select>
                 <#bcomboProvider _id="state" _provider="refundOrderStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
-            <div class="form-group col">
-                <label for="bizType">业务类型:</label>
-                <select id="bizType" name="bizType" class="form-control"></select>
-                <#bcomboProvider _id="bizType" _provider="bizTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+<!--            <div class="form-group col">-->
+<!--                <label for="bizType">业务类型:</label>-->
+<!--                <select id="bizType" name="bizType" class="form-control"></select>-->
+<!--                <#bcomboProvider _id="bizType" _provider="bizTypeProvider" _queryParams='{emptyText:"&#45;&#45; 全部 &#45;&#45;"}'/>-->
 
-            </div>
+<!--            </div>-->
+            <input type="hidden" name="bizType" id="bizType" value="${bizType}"/>
             <div class="form-group col">
                 <label for="likeCustomerName">客户名称:</label>
                 <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>

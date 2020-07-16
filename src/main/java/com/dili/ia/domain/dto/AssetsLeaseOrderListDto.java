@@ -40,6 +40,12 @@ public class AssetsLeaseOrderListDto extends AssetsLeaseOrder {
     private List<Long> departmentIds;
 
     /**
+     * 一级区域查询
+     */
+    @Transient
+    private Long firstDistrictId;
+
+    /**
      * 昵称模糊查询
      * @return
      */
@@ -110,6 +116,14 @@ public class AssetsLeaseOrderListDto extends AssetsLeaseOrder {
 
     public void setDepartmentIds(List<Long> departmentIds) {
         this.departmentIds = departmentIds;
+    }
+
+    public Long getFirstDistrictId() {
+        return firstDistrictId;
+    }
+
+    public void setFirstDistrictId(Long firstDistrictId) {
+        this.firstDistrictId = firstDistrictId;
     }
 
     public String getLikeCustomerName() {

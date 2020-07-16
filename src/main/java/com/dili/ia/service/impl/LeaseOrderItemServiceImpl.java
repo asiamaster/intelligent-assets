@@ -1,11 +1,9 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.BoothRentDTO;
-import com.dili.ia.controller.LeaseOrderItemController;
 import com.dili.ia.domain.LeaseOrder;
 import com.dili.ia.domain.LeaseOrderItem;
 import com.dili.ia.domain.dto.LeaseOrderItemListDto;
-import com.dili.ia.domain.dto.LeaseOrderListDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.LeaseOrderItemMapper;
 import com.dili.ia.rpc.AssetsRpc;
@@ -17,11 +15,9 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,7 +122,7 @@ public class LeaseOrderItemServiceImpl extends BaseServiceImpl<LeaseOrderItem, L
     @Override
     public Map<Long,List<LeaseOrderItem>> queryDepositAmountAvailableItem(LeaseOrderItemListDto leaseOrderItem) {
         leaseOrderItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
-        leaseOrderItem.setRefundState(RefundStateEnum.WAIT_APPLY.getCode());
+        leaseOrderItem.setRefundState(LeaseRefundStateEnum.WAIT_APPLY.getCode());
         leaseOrderItem.setPayState(PayStateEnum.PAID.getCode());
         leaseOrderItem.setDepositAmountGt(0L);
         List<LeaseOrderItem> leaseOrderItems = listByExample(leaseOrderItem);

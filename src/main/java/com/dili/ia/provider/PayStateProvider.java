@@ -40,9 +40,9 @@ public class PayStateProvider implements ValueProvider {
 
     @Override
     public String getDisplayText(Object object, Map map, FieldMeta fieldMeta) {
-        if (null == object) {
-            return null;
-        }
+//        if (null == object) {
+//////            return null;
+//////        }
         ValuePair<?> valuePair = BUFFER.stream().filter(val -> object.toString().equals(val.getValue())).findFirst().orElseGet(null);
         if (null != valuePair) {
             return valuePair.getText();

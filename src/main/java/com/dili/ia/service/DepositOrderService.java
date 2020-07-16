@@ -71,45 +71,32 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      */
     BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint);
     /**
-     * 保证金余额列表，维度 【按照客户-保证金类型-编号统计】
-     * @param depositOrder 订单
-     * @return List<DepositOrder>
-     */
-    List<DepositOrder> selectBalanceList(DepositOrder depositOrder);
-    /**
-     * 保证金余额记录条数 ，维度 【按照客户-保证金类型-编号统计】
-     * @param depositOrder 订单
-     * @return Integer
-     */
-    Integer countBalanceList(DepositOrder depositOrder);
-    /**
-     * 余额合计
-     * @param depositOrder 订单
-     * @return Long
-     */
-    Long sumBalance(DepositOrder depositOrder);
-    /**
      * 批量【新增】保证金单 --- 【摊位租赁同步生成使用】
      * @param depositOrderList 保证金订单列表
+     * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
+     *                         departmentId 业务所属部门ID ; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
+     *                         assetsType 资产类型; assetsId 资产ID; assetsName 资产名称; amount 保证金金额; isRelated 是否关联订单1，是，0否;
+     *                         businessId 关联订单ID; bizType 关联订单业务类型;
      * @return BaseOutput
      */
-    BaseOutput batchAddDepositOrder(List<DepositOrder> depositOrderList);
+    BaseOutput batchAddOrUpdateDepositOrder(List<DepositOrder> depositOrderList);
 
     /**
      * 批量【提交】保证金单 --- 【摊位租赁同步提交生成使用】
      * @param bizType 业务类型
-     * @param map key： businessId  订单项ID ; value: amount 付款金额
+     * @param businessId 关联订单ID
+     * @param map key： assetsId  资产ID ; value: amount 付款金额
      * @return BaseOutput
      */
-    BaseOutput batchSubmitDepositOrder(String bizType, Map<Long, Long> map);
+    BaseOutput batchSubmitDepositOrder(String bizType, Long businessId, Map<Long, Long> map);
 
     /**
      * 批量【撤回】保证金单 --- 【摊位租赁同步撤回成使用】
      * @param bizType 业务类型
-     * @param businessIds 业务单ids
+     * @param businessId 关联订单ID
      * @return BaseOutput
      */
-    BaseOutput batchWithdrawDepositOrder(String bizType, List<Long> businessIds);
+    BaseOutput batchWithdrawDepositOrder(String bizType, Long businessId);
 
     /**
      * 【查询】客户摊位保证金余额 --- 【摊位租赁使用】

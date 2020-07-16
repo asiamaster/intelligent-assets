@@ -97,7 +97,7 @@ public class DepositOrder extends BaseDomain {
      * 资产类型
      */
     @Column(name = "`assets_type`")
-    private String assetsType;
+    private Integer assetsType;
 
     /**
      * 资产ID
@@ -509,8 +509,8 @@ public class DepositOrder extends BaseDomain {
      * @return assets_type - 资产类型
      */
     @FieldDef(label="资产类型", maxLength = 50)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getAssetsType() {
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getAssetsType() {
         return assetsType;
     }
 
@@ -519,7 +519,7 @@ public class DepositOrder extends BaseDomain {
      *
      * @param assetsType 资产类型
      */
-    public void setAssetsType(String assetsType) {
+    public void setAssetsType(Integer assetsType) {
         this.assetsType = assetsType;
     }
 

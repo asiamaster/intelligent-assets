@@ -7,9 +7,19 @@
             <form id="queryForm" role="form">
                 <div class="row row-cols-6">
                     <div class="form-group col">
-                        <label for="state">状态:</label>
+                        <label for="state">业务状态:</label>
                         <select id="state" name="state" class="form-control"></select>
                         <#bcomboProvider _id="state" _provider="depositOrderStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}' />
+                    </div>
+                    <div class="form-group col">
+                        <label for="payState">交费状态:</label>
+                        <select id="payState" name="payState" class="form-control"></select>
+                        <#bcomboProvider _id="payState" _provider="depositPayStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}' />
+                    </div>
+                    <div class="form-group col">
+                        <label for="refundState">退款状态:</label>
+                        <select id="refundState" name="refundState" class="form-control"></select>
+                        <#bcomboProvider _id="refundState" _provider="depositRefundStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}' />
                     </div>
                     <div class="form-group col">
                         <label for="departmentId">业务所属部门:</label>
@@ -32,17 +42,13 @@
                         <label for="createdStart">创建时间:</label>
                         <div class="form-inline">
                             <div class="input-group">
-                                <input type="text" name="createdStart" id="createdStart"
-                                    class="form-control date laydatetime laystart"
-                                    value="${createdStart!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
+                                <input type="text" name="createdStart" id="createdStart" class="form-control date laydatetime laystart" value="${createdStart!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
                                 <div class="input-group-append">
                                     <label for="createdStart" class="input-group-text fa fa-calendar"></label>
                                 </div>
                             </div>&nbsp;&nbsp;至&nbsp;&nbsp;
                             <div class="input-group" id="datetimepicker3">
-                                <input type="text" name="createdEnd" id="createdEnd"
-                                    class="form-control date laydatetime layend"
-                                    value="${createdEnd!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
+                                <input type="text" name="createdEnd" id="createdEnd" class="form-control date laydatetime layend" value="${createdEnd!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
                                 <div class="input-group-append">
                                     <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
                                 </div>
@@ -96,14 +102,20 @@
                     <thead>
                         <tr>
                             <th data-radio="true"></th>
+                            <th data-field="isRelated" class="d-none" >
+                                是否关联
+                            </th>
                             <th data-field="code" data-sortable="true" data-align="center" data-formatter="codeFormatter">
                                 业务单号
                             </th>
                             <th data-field="typeName" data-sortable="true" data-align="center" >
                                 保证金类型
                             </th>
+                            <th data-field="assetsType" data-sortable="true" data-align="center" data-provider="assetsTypeProvider">
+                                资产类型
+                            </th>
                             <th data-field="assetsName" data-sortable="true" data-align="center">
-                                对应编号
+                                资产编号
                             </th>
                             <th data-field="departmentName" data-sortable="true" data-align="center">
                                 业务所属部门

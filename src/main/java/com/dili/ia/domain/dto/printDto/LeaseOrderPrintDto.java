@@ -11,7 +11,6 @@ import java.util.List;
 
 public class LeaseOrderPrintDto {
     //打印时间
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDate printTime;
@@ -26,12 +25,10 @@ public class LeaseOrderPrintDto {
     //客户电话
     private String customerCellphone;
     //开始日期
-    @JSONField(format = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startTime;
     //结束日期
-    @JSONField(format = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endTime;

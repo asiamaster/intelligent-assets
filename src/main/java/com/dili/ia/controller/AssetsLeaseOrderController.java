@@ -1,14 +1,14 @@
 package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.AssetsLeaseOrder;
-import com.dili.ia.domain.AssetsLeaseOrderItem;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
-import com.dili.ia.domain.dto.LeaseRefundOrderDto;
+import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
+import com.dili.ia.glossary.DepositOrderStateEnum;
 import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
+import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -19,9 +19,11 @@ import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -54,6 +57,10 @@ public class AssetsLeaseOrderController {
     DataAuthService dataAuthService;
     @Autowired
     private BusinessChargeItemService businessChargeItemService;
+    @Autowired
+    private AssetsRpc assetsRpc;
+    @Autowired
+    private DepositOrderService depositOrderService;
 
 
     /**
@@ -62,8 +69,8 @@ public class AssetsLeaseOrderController {
      * @param assetsType
      * @return String
      */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
-    public String index(ModelMap modelMap,Integer assetsType) {
+    @RequestMapping(value="/{assetsType}/index.html", method = RequestMethod.GET)
+    public String index(ModelMap modelMap,@PathVariable Integer assetsType) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
         Calendar c = Calendar.getInstance();
         c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
@@ -90,10 +97,11 @@ public class AssetsLeaseOrderController {
      * 跳转到LeaseOrder查看页面
      * @param modelMap
      * @param orderCode 缴费单CODE
+     * @param code
      * @return String
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
-    public String view(ModelMap modelMap,Long id,String orderCode) {
+    public String view(ModelMap modelMap,Long id,String code,String orderCode) {
         AssetsLeaseOrder leaseOrder = null;
         if(null != id) {
             leaseOrder = assetsLeaseOrderService.get(id);
@@ -101,7 +109,10 @@ public class AssetsLeaseOrderController {
             PaymentOrder paymentOrder = new PaymentOrder();
             paymentOrder.setCode(orderCode);
             leaseOrder = assetsLeaseOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
-            id = leaseOrder.getId();
+        }else if(StringUtils.isNotBlank(code)){
+            AssetsLeaseOrder condition = new AssetsLeaseOrder();
+            condition.setCode(code);
+            leaseOrder = assetsLeaseOrderService.list(condition).stream().findFirst().orElse(null);
         }
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -110,10 +121,10 @@ public class AssetsLeaseOrderController {
         }
 
         AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
-        condition.setLeaseOrderId(id);
+        condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
         modelMap.put("leaseOrder",leaseOrder);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), YesOrNoEnum.YES.getCode());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
         try{
@@ -190,6 +201,24 @@ public class AssetsLeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
+
+        if(null != leaseOrder.getFirstDistrictId()){
+            //区域查询
+            DistrictDTO districtDTO = new DistrictDTO();
+            districtDTO.setParentId(leaseOrder.getFirstDistrictId());
+            districtDTO.setMarketId(userTicket.getFirmId());
+            List<Long> districtIds = assetsRpc.searchDistrict(districtDTO).getData().stream().map(o -> o.getId()).collect(Collectors.toList());
+            districtIds.add(leaseOrder.getFirstDistrictId());
+
+            AssetsLeaseOrderItemListDto assetsLeaseOrderItemListDto = new AssetsLeaseOrderItemListDto();
+            assetsLeaseOrderItemListDto.setDistrictIds(districtIds);
+            leaseOrder.setIds(new ArrayList<>(assetsLeaseOrderItemService.listByExample(assetsLeaseOrderItemListDto).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toSet())));
+            if(CollectionUtils.isEmpty(leaseOrder.getIds())){
+                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+            }
+        }
+
+
 //        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
 //        if (CollectionUtils.isEmpty(departmentIdList)){
 //            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
@@ -303,6 +332,29 @@ public class AssetsLeaseOrderController {
         }
     }
 
+    /**
+     *
+     * @param modelMap
+     * @param id 对应租赁单ID 或 订单项ID
+     * @return
+     */
+    @RequestMapping(value = "/submitPayment.html", method = RequestMethod.GET)
+    public String submitPayment(ModelMap modelMap, Long id) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+        AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(id);
+        modelMap.put("leaseOrder", leaseOrder);
+        AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
+        condition.setLeaseOrderId(id);
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
+        List<BusinessChargeItemDto> chargeItemDtos =  businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()));
+        modelMap.put("chargeItems", chargeItemDtos);
+        modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
+        return "assetsLeaseOrder/submitPayment";
+    }
+
 
     /**
      * 提交付款
@@ -312,23 +364,33 @@ public class AssetsLeaseOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${amountFormatStr}",operationType="submitPayment",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id, @RequestParam Long amount, @RequestParam Long waitAmount, @RequestParam String amountFormatStr){
+    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id, @RequestParam Long amount,  @RequestParam String amountFormatStr){
         try{
-            if(waitAmount > 0L){
-                if(amount <= 0L){
-                    return BaseOutput.failure("支付金额必须大于0");
-                }
-            }else if(waitAmount.equals(0L)){
-                if(!amount.equals(0L)){
-                    return BaseOutput.failure("支付金额必须等于0");
-                }
-            }
-            return assetsLeaseOrderService.submitPayment(id,amount,waitAmount);
+            return assetsLeaseOrderService.submitPayment(id,amount);
         }catch (BusinessException e){
             LOG.info("资产租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("资产租赁订单提交付款异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     * 提交审批
+     * @param id
+     * @return
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,operationType="submitForApproval",systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/submitForApproval.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput submitForApproval(@RequestParam Long id){
+        try{
+            return assetsLeaseOrderService.submitForApproval(id);
+        }catch (BusinessException e){
+            LOG.info("资产租赁订单提交审批异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("资产租赁订单提交审批异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -358,6 +420,37 @@ public class AssetsLeaseOrderController {
             LOG.error("资产租赁退款申请异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
+    }
+
+    /**
+     * 客户批量资产保证金余额查询
+     * @param batchDepositBalanceQueryDto
+     * @return String
+     */
+    @RequestMapping(value="/batchQueryDepositBalance.action", method = { RequestMethod.POST})
+    public @ResponseBody BaseOutput<List<DepositBalance>> batchQueryDepositBalance(@RequestBody BatchDepositBalanceQueryDto batchDepositBalanceQueryDto){
+        return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds());
+    }
+
+    /**
+     * 批量订单项保证金（补交）查询
+     * @param depositOrderQuery
+     * @return String
+     */
+    @RequestMapping(value="/batchQueryDepositOrder.action", method = { RequestMethod.POST})
+    public @ResponseBody BaseOutput<List<DepositOrder>> batchQueryDepositOrder(DepositOrderQuery depositOrderQuery){
+        try{
+            depositOrderQuery.setIsRelated(YesOrNoEnum.YES.getCode());
+            depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
+            return BaseOutput.success().setData(depositOrderService.listByExample(depositOrderQuery));
+        }catch (BusinessException e){
+            LOG.info("批量查询保证金单异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("批量查询保证金单异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+
     }
 
 }

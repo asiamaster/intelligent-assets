@@ -72,15 +72,10 @@
             });
         }
     }
-
-    // 末次退款
-    $('[data-item="last-refund-item"]').hide();
-    $(document).on('change', '[name="isLastRefund"]', function(){
-        if( $('[name="isLastRefund"]:checked').length) {
-            $('[data-item="last-refund-item"]').show();
-        } else {
-            $('[data-item="last-refund-item"]').hide();
-        }
+    // 费用联动
+    $(document).on('input', '[name="totalRefundAmount"]', function(){
+        let totalRefundAmount = $('[name="totalRefundAmount"]').val();
+        $('[name="payeeAmount"]').val(totalRefundAmount);
     })
 
 </script>

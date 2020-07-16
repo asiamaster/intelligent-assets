@@ -74,7 +74,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
         AssetsLeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
         AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(leaseOrderItemOld.getLeaseOrderId());
 
-        if(!RefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
+        if(!LeaseRefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
             throw new BusinessException(ResultCode.DATA_ERROR,"已发起过退款申请，不能发起停租");
         }
 

@@ -8,9 +8,9 @@ package com.dili.ia.glossary;
  * @author jiangchengyong
  * @createTime 2020/02/10 18:43
  */
-public enum RefundStateEnum {
+public enum LeaseRefundStateEnum {
 
-    WAIT_APPLY(1, "待申请"),
+    WAIT_APPLY(1, "未退款"),
     REFUNDING(2, "退款中"),
     REFUNDED(3, "已退款"),
     ;
@@ -18,13 +18,13 @@ public enum RefundStateEnum {
     private String name;
     private Integer code ;
 
-    RefundStateEnum(Integer code, String name){
+    LeaseRefundStateEnum(Integer code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static RefundStateEnum getRefundStateEnum(Integer code) {
-        for (RefundStateEnum anEnum : RefundStateEnum.values()) {
+    public static LeaseRefundStateEnum getRefundStateEnum(Integer code) {
+        for (LeaseRefundStateEnum anEnum : LeaseRefundStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }
