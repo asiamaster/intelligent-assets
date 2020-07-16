@@ -223,7 +223,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (depositOrder.getId() == null){
             return BaseOutput.failure("Id不能为空！");
         }
-
         //修改有清空修改，所以使用update
         if (this.update(this.buildUpdateDto(depositOrder)) == 0){
             LOG.info("修改保证金单失败,乐观锁生效【客户名称：{}】 【保证金单ID:{}】", depositOrder.getCustomerName(), depositOrder.getId());

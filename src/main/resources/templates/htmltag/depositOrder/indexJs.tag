@@ -289,6 +289,8 @@
         let refundState = row.$_refundState;
         let isRelated = row.isRelated;
         $('#toolbar button').attr('disabled', true);
+        $('#btn_add').attr('disabled', false);
+        $('#btn_view').attr('disabled', false);
         if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()} && isRelated == ${@com.dili.commons.glossary.YesOrNoEnum.NO.getCode()}) {
             $('#btn_update').attr('disabled', false);
             $('#btn_cancel').attr('disabled', false);
@@ -304,8 +306,6 @@
         } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.REFUND.getCode()} && refundState == ${@com.dili.ia.glossary.DepositRefundStateEnum.PART_REFUND.getCode()}) {
             $('#btn_refund_apply').attr('disabled', false);
         }
-        $('#btn_add').attr('disabled', false);
-        $('#btn_view').attr('disabled', false);
     });
 
 </script>

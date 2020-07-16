@@ -1,5 +1,6 @@
 package com.dili.ia.controller;
 
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -186,6 +187,10 @@ public class DepositOrderController {
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doUpdate(DepositOrder depositOrder) {
         try{
+            DepositOrder old = depositOrderService.get(depositOrder.getId());
+            if (null != old && old.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                return BaseOutput.failure("关联订单不能修改!");
+            }
             BaseOutput<DepositOrder> output = depositOrderService.updateDepositOrder(depositOrder);
             //写业务日志
             if (output.isSuccess()){
@@ -245,6 +250,10 @@ public class DepositOrderController {
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(@RequestParam Long id, @RequestParam Long amount, @RequestParam Long waitAmount) {
         try {
+            DepositOrder old = depositOrderService.get(id);
+            if (null != old && old.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                return BaseOutput.failure("关联订单不能提交!");
+            }
             BaseOutput<DepositOrder> output = depositOrderService.submitDepositOrder(id, amount, waitAmount);
             //写业务日志
             if (output.isSuccess()){
@@ -271,6 +280,10 @@ public class DepositOrderController {
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
+            DepositOrder old = depositOrderService.get(id);
+            if (null != old && old.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                return BaseOutput.failure("关联订单不能撤回!");
+            }
             BaseOutput<DepositOrder> output = depositOrderService.withdrawDepositOrder(id);
             if (output.isSuccess()){
                 DepositOrder order = output.getData();
@@ -296,6 +309,9 @@ public class DepositOrderController {
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         DepositOrder depositOrder = depositOrderService.get(id);
+        if (null != depositOrder && depositOrder.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+            return BaseOutput.failure("关联订单不能取消!");
+        }
         if (!depositOrder.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("取消失败，保证金单状态已变更！");
         }
