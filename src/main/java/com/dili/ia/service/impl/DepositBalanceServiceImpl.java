@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.DepositBalance;
+import com.dili.ia.domain.dto.DepositBalanceQuery;
 import com.dili.ia.mapper.DepositBalanceMapper;
 import com.dili.ia.service.DepositBalanceService;
 import com.dili.ss.base.BaseServiceImpl;
@@ -15,5 +16,10 @@ public class DepositBalanceServiceImpl extends BaseServiceImpl<DepositBalance, L
 
     public DepositBalanceMapper getActualDao() {
         return (DepositBalanceMapper)getDao();
+    }
+
+    @Override
+    public Long sumBalance(DepositBalanceQuery depositBalanceQuery) {
+        return this.getActualDao().sumBalance(depositBalanceQuery);
     }
 }

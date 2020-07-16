@@ -38,6 +38,10 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
     private List<Long> boothIds;
 
     @Operator(Operator.IN)
+    @Column(name = "district_id")
+    private List<Long> districtIds;
+
+    @Operator(Operator.IN)
     @Column(name = "state")
     private List<Long> states;
 
@@ -49,6 +53,12 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
      */
     @Transient
     private Map<String,String> businessChargeItem;
+
+    /**
+     * 保证金补交金额
+     */
+    @Transient
+    private Long depositMakeUpAmount;
 
     public LocalDateTime getCreatedStart() {
         return createdStart;
@@ -90,6 +100,14 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
         this.boothIds = boothIds;
     }
 
+    public List<Long> getDistrictIds() {
+        return districtIds;
+    }
+
+    public void setDistrictIds(List<Long> districtIds) {
+        this.districtIds = districtIds;
+    }
+
     public List<Long> getStates() {
         return states;
     }
@@ -112,5 +130,13 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
 
     public void setBusinessChargeItem(Map<String, String> businessChargeItem) {
         this.businessChargeItem = businessChargeItem;
+    }
+
+    public Long getDepositMakeUpAmount() {
+        return depositMakeUpAmount;
+    }
+
+    public void setDepositMakeUpAmount(Long depositMakeUpAmount) {
+        this.depositMakeUpAmount = depositMakeUpAmount;
     }
 }

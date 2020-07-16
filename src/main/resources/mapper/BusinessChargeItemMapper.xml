@@ -1,44 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dili.ia.mapper.BusinessChargeItemMapper">
-  <select id="queryBusinessChargeItem" resultType="Map" >
-    SELECT
-    cast(business_id as char) as businessId,
-    <foreach collection="chargeItemDtos" item="chargeItem" separator=",">
-     cast(
-        MAX(
-          CASE charge_item_id
-          WHEN #{chargeItem.id} THEN
-              amount
-          ELSE
-              0
-          END
-        )
-        as char
-      ) as chargeItem${chargeItem.id},
-      cast(
-          truncate(
-            MAX(
-              CASE charge_item_id
-              WHEN #{chargeItem.id} THEN
-                  amount
-              ELSE
-                  0
-              END
-            )/100
-          ,2)
-       as char
-      ) as chargeItemYuan${chargeItem.id}
-    </foreach>
-    FROM
-    business_charge_item
-    WHERE business_id IN
-    <foreach collection="businessIds" item="businessId" open="(" close=")" separator=",">
-      #{businessId}
-    </foreach>
-    AND biz_type = #{bizType}
-    GROUP BY
-    business_id;
-  </select>
+    <select id="queryBusinessChargeItem" resultType="Map">
+        SELECT
+        cast(business_id as char) as businessId,
+        <foreach collection="chargeItemDtos" item="chargeItem" separator=",">
+            cast(
+                MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    amount
+                    ELSE
+                    0
+                    END
+                )
+                as char
+            ) as chargeItem${chargeItem.id},
+            cast(
+                truncate(
+                    MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    amount
+                    ELSE
+                    0
+                    END
+                    )/100
+                ,2)
+                as char
+            ) as chargeItemYuan${chargeItem.id},
+            cast(
+                MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    wait_amount
+                    ELSE
+                    0
+                    END
+                )
+                as char
+            ) as chargeItemWaitAmount${chargeItem.id},
+            cast(
+                truncate(
+                    MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    wait_amount
+                    ELSE
+                    0
+                    END
+                    )/100
+                ,2)
+                as char
+            ) as chargeItemWaitAmountYuan${chargeItem.id}
+
+        </foreach>
+        FROM
+        business_charge_item
+        WHERE business_id IN
+        <foreach collection="businessIds" item="businessId" open="(" close=")" separator=",">
+            #{businessId}
+        </foreach>
+        AND biz_type = #{bizType}
+        GROUP BY
+        business_id;
+    </select>
+
+    <select id="queryBusinessChargeItemMeta" parameterType="List" resultType="com.dili.assets.sdk.dto.BusinessChargeItemDto">
+        SELECT
+            charge_item_id as id,
+            charge_item_name as chargeItem
+        FROM
+            `business_charge_item`
+        WHERE
+            business_id IN
+            <foreach collection="list" item="businessId" open="(" close=")" separator=",">
+                #{businessId}
+            </foreach>
+        GROUP BY
+            charge_item_id
+    </select>
+
 
 </mapper>

@@ -1,6 +1,6 @@
 <script>
 function isNull(value){
-	 if (value == null || value == undefined) {
+	 if (value == null || value == "" || value == undefined) {
         return true;
     }
     return false;
@@ -13,7 +13,7 @@ $(document).on('blur',".get-cost", function() {
 	let detail = $("#saveForm_"+index).serializeObject();
 	detail.categoryId=$('#categoryId').val();
 	detail.assetsId=$("#saveForm_"+index).find("[name=assetsId]").find("option:selected").val();
-	if(isNull(detail.categoryId)  || isNull(detail.quantity)){
+	if(isNull(detail.categoryId) || isNull(detail.assetsId) || isNull(detail.quantity)){
 		return;
 	}
 	// 动态收费项

@@ -24,7 +24,11 @@
                 <input type="text" class="form-control" value="${depositOrder.departmentName!}" disabled />
             </div>
             <div class="form-group col">
-                <label for="" class="">对应编号</label>
+                <label for="" class="">资产类型</label>
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(depositOrder.assetsType).getName()}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">资产编号</label>
                 <input type="text" class="form-control" value="${depositOrder.assetsName!}" disabled />
             </div>
             <div class="form-group col">
@@ -41,9 +45,21 @@
                 <label for="">联系电话</label>
                 <input type="text" class="form-control" value="${depositOrder.customerCellphone!}" disabled />
             </div>
-            <div class="form-group col-6">
+            <div class="form-group col">
+                <label for="">保证金金额</label>
+                <input type="text" class="form-control" value="<#centToYuan value='${depositOrder.amount!}'/>" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="">已交金额</label>
+                <input type="text" class="form-control" value="<#centToYuan value='${depositOrder.paidAmount!}'/>" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="">待交金额</label>
+                <input type="text" class="form-control" value="<#centToYuan value='${depositOrder.waitAmount!}'/>" disabled />
+            </div>
+            <div class="form-group col-12">
                 <label for="">备注</label>
-                <textarea class="form-control" name="notes" rows="1" disabled>${depositOrder.notes!}</textarea>
+                <textarea class="form-control" name="notes" rows="2" disabled>${depositOrder.notes!}</textarea>
             </div>
         </div>
 

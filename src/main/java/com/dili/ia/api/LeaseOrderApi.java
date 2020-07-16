@@ -4,9 +4,7 @@ import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.SettlementRpc;
-import com.dili.ia.service.LeaseOrderItemService;
-import com.dili.ia.service.LeaseOrderService;
-import com.dili.ia.service.LeaseOrderWorkerService;
+import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.ss.domain.BaseOutput;
@@ -31,9 +29,9 @@ public class LeaseOrderApi {
     private final static Logger LOG = LoggerFactory.getLogger(LeaseOrderApi.class);
 
     @Autowired
-    LeaseOrderService leaseOrderService;
+    AssetsLeaseOrderService assetsLeaseOrderService;
     @Autowired
-    LeaseOrderItemService leaseOrderItemService;
+    AssetsLeaseOrderItemService assetsLeaseOrderItemService;
     @Autowired
     LeaseOrderWorkerService leaseOrderWorkerService;
 
@@ -121,7 +119,7 @@ public class LeaseOrderApi {
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
-            return leaseOrderService.updateLeaseOrderBySettleInfo(settleOrder);
+            return assetsLeaseOrderService.updateLeaseOrderBySettleInfo(settleOrder);
         }catch (BusinessException e){
             LOG.info("摊位租赁结算成功回调异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
@@ -187,9 +185,51 @@ public class LeaseOrderApi {
             if(StringUtils.isBlank(orderCode) || null == reprint){
                 return BaseOutput.failure("参数错误");
             }
-            return leaseOrderService.queryPrintData(orderCode,reprint);
+            return assetsLeaseOrderService.queryPrintData(orderCode,reprint);
         }catch (Exception e){
-            LOG.error("扫描等待停租的摊位异常！", e);
+            LOG.error("租赁单缴费打印异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * 审批通过处理
+     * @return
+     */
+    @RequestMapping(value="/approvedHandler")
+    public @ResponseBody BaseOutput approvedHandler(String code){
+        try{
+            if(StringUtils.isBlank(code) || null == code){
+                return BaseOutput.failure("参数不能为空");
+            }
+            return assetsLeaseOrderService.approvedHandler(code);
+        }catch (BusinessException e){
+            LOG.info("审批通过处理异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("审批通过处理异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * 审批拒绝处理
+     * @return
+     */
+    @RequestMapping(value="/approvedDeniedHandler")
+    public @ResponseBody BaseOutput approvedDeniedHandler(String code){
+        try{
+            if(StringUtils.isBlank(code) || null == code){
+                return BaseOutput.failure("参数不能为空");
+            }
+            return assetsLeaseOrderService.approvedDeniedHandler(code);
+        }catch (BusinessException e){
+            LOG.info("审批拒绝处理异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("审批拒绝处理异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }

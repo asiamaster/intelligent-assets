@@ -1,6 +1,6 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.CustomerAccount;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -18,10 +18,7 @@ import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.metadata.ValueProviderUtils;
-import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.common.util.StringUtils;
@@ -37,7 +34,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -103,7 +101,9 @@ public class DepositOrderController {
     public String refundApply(ModelMap modelMap, Long id) {
         if(null != id){
             DepositOrder depositOrder = depositOrderService.get(id);
+            Long maxRefundAmount = depositOrder.getPaidAmount() - depositOrder.getRefundAmount();
             modelMap.put("depositOrder",depositOrder);
+            modelMap.put("maxRefundAmount", maxRefundAmount);
         }
         return "depositOrder/refundApply";
     }
@@ -187,6 +187,10 @@ public class DepositOrderController {
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doUpdate(DepositOrder depositOrder) {
         try{
+            DepositOrder old = depositOrderService.get(depositOrder.getId());
+            if (null != old && old.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                return BaseOutput.failure("关联订单不能修改!");
+            }
             BaseOutput<DepositOrder> output = depositOrderService.updateDepositOrder(depositOrder);
             //写业务日志
             if (output.isSuccess()){
@@ -246,6 +250,10 @@ public class DepositOrderController {
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(@RequestParam Long id, @RequestParam Long amount, @RequestParam Long waitAmount) {
         try {
+            DepositOrder old = depositOrderService.get(id);
+            if (null != old && old.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                return BaseOutput.failure("关联订单不能提交!");
+            }
             BaseOutput<DepositOrder> output = depositOrderService.submitDepositOrder(id, amount, waitAmount);
             //写业务日志
             if (output.isSuccess()){
@@ -272,6 +280,10 @@ public class DepositOrderController {
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
+            DepositOrder old = depositOrderService.get(id);
+            if (null != old && old.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                return BaseOutput.failure("关联订单不能撤回!");
+            }
             BaseOutput<DepositOrder> output = depositOrderService.withdrawDepositOrder(id);
             if (output.isSuccess()){
                 DepositOrder order = output.getData();
@@ -297,6 +309,9 @@ public class DepositOrderController {
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         DepositOrder depositOrder = depositOrderService.get(id);
+        if (null != depositOrder && depositOrder.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+            return BaseOutput.failure("关联订单不能取消!");
+        }
         if (!depositOrder.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("取消失败，保证金单状态已变更！");
         }

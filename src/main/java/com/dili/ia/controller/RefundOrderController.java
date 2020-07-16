@@ -14,7 +14,6 @@ import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -24,13 +23,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,8 +53,8 @@ public class RefundOrderController {
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
-    public String index(ModelMap modelMap) {
+    @RequestMapping(value="/{bizType}/index.html", method = RequestMethod.GET)
+    public String index(ModelMap modelMap, @PathVariable("bizType") String bizType) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
         LocalDateTime nowTime = LocalDateTime.now();
         LocalDateTime createdStart = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() -2 , 0, 0 ,0);
@@ -66,6 +64,7 @@ public class RefundOrderController {
 
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
+        modelMap.put("bizType", bizType);
         return "refundOrder/index";
     }
 

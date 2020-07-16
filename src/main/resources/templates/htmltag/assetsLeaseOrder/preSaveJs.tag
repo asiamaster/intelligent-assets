@@ -147,6 +147,16 @@
         //账户余额查询
         queryCustomerAccount();
         calcTotalAmount(true);
+
+        let assetsIds = $("table input[name^='assetsId']").filter(function () {
+            return this.value
+        }).map(function () {
+            return this.value
+        }).get();
+        if(assetsIds.length > 0){
+            batchQueryDepositBalance($('#assetsType').val(), $('#customerId').val(), assetsIds);
+            batchQueryDepositOrder({businessId:$('#id').val()});
+        }
     });
     /******************************驱动执行区 end****************************/
 
@@ -253,6 +263,69 @@
         $('#isCorner_'+index).val(suggestion.cornerName);
         $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
         $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
+        batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
+        $('#id').val() && batchQueryDepositOrder({businessId:$('#id').val(),assetsId:suggestion.id});
+    }
+
+    /**
+     * 保证金余额查询
+     * @param assetsType
+     * @param customerId
+     * @param assetsIds
+     */
+    function batchQueryDepositBalance(assetsType,customerId, assetsIds) {
+        $.ajax({
+            type: "post",
+            url: "/assetsLeaseOrder/batchQueryDepositBalance.action",
+            data: JSON.stringify({assetsType,customerId,assetsIds}),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (ret) {
+                if(ret.success){
+                    let depositBalances = ret.data;
+                    if(depositBalances.length > 0){
+                        for (let depositBalance of depositBalances){
+                            let index = getIndex($("table input.assets[value='"+depositBalance.assetsId+"']").attr('id'));
+                            $('#depositBalance_'+index).val(Number(depositBalance.balance).centToYuan());
+                        }
+                    }
+                }
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
+    /**
+     * 批量订单项保证金（补交）查询
+     * @param {businessId: leaseOrderId,assetsId:123}
+     */
+    function batchQueryDepositOrder(depositOrderQuery) {
+        $.ajax({
+            type: "post",
+            url: "/assetsLeaseOrder/batchQueryDepositOrder.action",
+            data: depositOrderQuery,
+            dataType: "json",
+            success: function (ret) {
+                if(ret.success){
+                    let depositOrders = ret.data;
+                    if(depositOrders.length > 0){
+                        for (let depositOrder of depositOrders){
+                            let index = getIndex($("table input.assets[value='"+depositOrder.assetsId+"']").attr('id'));
+                            if(depositOrder.state != ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()}){
+                                $('#depositMakeUpAmount_'+index).val(Number(depositOrder.amount).centToYuan()).attr('readonly',true);
+                            }else{
+                                $('#depositMakeUpAmount_'+index).val(Number(depositOrder.amount).centToYuan());
+                            }
+                        }
+                    }
+                }
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
     }
 
     /**
@@ -413,7 +486,7 @@
             return $('#assetsId_'+getIndex(this.id)).val();
         }).get();
 
-        if(!assetsIds || assetsIds.length == 0){
+        if(assetsIds.length == 0){
             bs4pop.alert('请添加资产！')
             return false;
         }

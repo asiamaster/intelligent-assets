@@ -9,6 +9,8 @@
         //行索引计数器
     let itemIndex = 0;
 
+
+
     //对应摊位
     $(function () {
         registerMsg();
@@ -18,11 +20,15 @@
     initSwipeCard({
         id:'getCustomer',
     });
-
+    let assetsType = $('[name="assetsType"]').val();
     var boothAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/booth/search.action',
+        onSearchStart: function (params) {
+            params['assetsType'] = $('[name="assetsType"]').val();
+            return params;
+        },
         transformResult: function (result) {
             debugger
             if(result.success){

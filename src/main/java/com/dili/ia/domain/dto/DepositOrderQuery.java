@@ -37,6 +37,10 @@ public class DepositOrderQuery extends DepositOrder {
     @Column(name = "department_id")
     private List<Long> departmentIds;
 
+    @Operator(Operator.NOT_EQUAL)
+    @Column(name = "state")
+    private Integer stateNotEquals;
+
     public LocalDateTime getCreatedStart() {
         return createdStart;
     }
@@ -67,5 +71,13 @@ public class DepositOrderQuery extends DepositOrder {
 
     public void setDepartmentIds(List<Long> departmentIds) {
         this.departmentIds = departmentIds;
+    }
+
+    public Integer getStateNotEquals() {
+        return stateNotEquals;
+    }
+
+    public void setStateNotEquals(Integer stateNotEquals) {
+        this.stateNotEquals = stateNotEquals;
     }
 }

@@ -287,42 +287,24 @@
         let state = row.$_state;
         let payState = row.$_payState;
         let refundState = row.$_refundState;
-        if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
+        let isRelated = row.isRelated;
+        $('#toolbar button').attr('disabled', true);
+        $('#btn_add').attr('disabled', false);
+        $('#btn_view').attr('disabled', false);
+        if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()} && isRelated == ${@com.dili.commons.glossary.YesOrNoEnum.NO.getCode()}) {
             $('#btn_update').attr('disabled', false);
             $('#btn_cancel').attr('disabled', false);
             $('#btn_submit').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.CANCELD.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.SUBMITTED.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
+        }  else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.SUBMITTED.getCode()} && isRelated == ${@com.dili.commons.glossary.YesOrNoEnum.NO.getCode()}) {
             $('#btn_withdraw').attr('disabled', false);
             $('#btn_submit').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.PAID.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
             $('#btn_refund_apply').attr('disabled', false);
-            if (payState == ${@com.dili.ia.glossary.DepositPayStateEnum.NOT_PAID.getCode()}){
+            if (payState == ${@com.dili.ia.glossary.DepositPayStateEnum.NOT_PAID.getCode()} && isRelated == ${@com.dili.commons.glossary.YesOrNoEnum.NO.getCode()}){
                 $('#btn_submit').attr('disabled', false);
             }
-        }  else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.REFUNDING.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-        }else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.REFUND.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-            if(refundState == ${@com.dili.ia.glossary.DepositRefundStateEnum.PART_REFUND.getCode()}){
-                $('#btn_refund_apply').attr('disabled', false);
-            }
+        } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.REFUND.getCode()} && refundState == ${@com.dili.ia.glossary.DepositRefundStateEnum.PART_REFUND.getCode()}) {
+            $('#btn_refund_apply').attr('disabled', false);
         }
     });
 
