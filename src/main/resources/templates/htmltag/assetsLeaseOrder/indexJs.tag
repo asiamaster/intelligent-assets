@@ -251,7 +251,7 @@
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
-            width: '750px',
+            width: '850px',
             height : '550px',
             btns: []
         });

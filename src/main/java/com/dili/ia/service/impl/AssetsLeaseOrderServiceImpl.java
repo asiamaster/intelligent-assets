@@ -245,7 +245,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
             //收费项新增
             if(CollectionUtils.isNotEmpty(o.getBusinessChargeItems())){
-                o.getBusinessChargeItems().forEach(bci->{
+                o.getBusinessChargeItems().stream().filter(bci -> bci.getAmount() > 0).forEach(bci -> {
                     bci.setBusinessId(o.getId());
                     bci.setWaitAmount(bci.getAmount());
                     businessChargeItemService.insertSelective(bci);
@@ -983,14 +983,14 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         settleWayDetails.append("】");
         leaseOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
 
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(leaseOrder.getMarketId(), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), null);
-        leaseOrderPrintDto.setChargeItems(chargeItemDtos);
-
         AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
-        List<AssetsLeaseOrderItemListDto> leaseOrderItems = assetsLeaseOrderItemService.leaseOrderItemListToDto(assetsLeaseOrderItemService.list(leaseOrderItemCondition), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos);
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(leaseOrderItemCondition);
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()));
+        leaseOrderPrintDto.setChargeItems(chargeItemDtos);
+        List<AssetsLeaseOrderItemListDto> leaseOrderItemListDtos = assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos);
         List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
-        leaseOrderItems.forEach(o -> {
+        leaseOrderItemListDtos.forEach(o -> {
             leaseOrderItemPrintDtos.add(leaseOrderItem2PrintDto(o));
         });
         leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemPrintDtos);
