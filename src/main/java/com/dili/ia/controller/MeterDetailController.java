@@ -236,7 +236,7 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute MeterDetailDto meterDetailDto) {
+    public @ResponseBody BaseOutput update(@RequestBody MeterDetailDto meterDetailDto) {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 

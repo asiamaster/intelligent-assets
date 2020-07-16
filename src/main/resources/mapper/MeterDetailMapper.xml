@@ -294,12 +294,12 @@
     <if test = "status != null" >
         AND po.state IN (#{status})
     </if>
-    <if test="startTime != null">
-        and md.usage_time  <![CDATA[ >= ]]> #{startTime}
-    </if>
-    <if test="endTime != null">
-        and md.usage_time  <![CDATA[ <= ]]> #{endTime}
-    </if>
+<!--    <if test="startTime != null">-->
+<!--        and md.usage_time  <![CDATA[ >= ]]> #{startTime}-->
+<!--    </if>-->
+<!--    <if test="endTime != null">-->
+<!--        and md.usage_time  <![CDATA[ <= ]]> #{endTime}-->
+<!--    </if>-->
   </select>
 
   <select id="getMeterDetailById" resultType="com.dili.ia.domain.dto.MeterDetailDto" parameterType="long">

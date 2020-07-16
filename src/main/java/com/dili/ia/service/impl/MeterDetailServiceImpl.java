@@ -56,6 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -178,7 +179,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         BeanUtils.copyProperties(meterDetailDto, meterDetail);
 
         // 根据 meterId 查询是否有未提交、已提交的缴费记录(某月份)
-        List<MeterDetailDto> meterDetailDtoList = this.listUnPayUnSubmitByMeter(meterDetailDto.getMeterId(), meterDetailDto.getUsageTime());
+        List<MeterDetailDto> meterDetailDtoList = this.listUnPayUnSubmitByMeter(meterDetailDto.getMeterId());
         if (CollectionUtils.isNotEmpty(meterDetailDtoList)) {
             return BaseOutput.failure("该表存在未交费单据，无法保存！");
         }
@@ -202,17 +203,15 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetail.setCreatorDepId(userTicket.getDepartmentId());
         meterDetail.setState(MeterDetailStateEnum.UNSUBMITED.getCode());
         // 计算使用量
-        if (meterDetail.getLastAmount() == null) {
-            meterDetail.setUsageAmount(meterDetail.getThisAmount());
-        } else {
-            long usageAmount = meterDetail.getThisAmount() - meterDetail.getLastAmount();
-            meterDetail.setUsageAmount(usageAmount);
-        }
+        meterDetail.setUsageAmount(meterDetail.getThisAmount() - lastAmount);
         this.getActualDao().insertSelective(meterDetail);
 
         //构建动态收费项
         if (meterDetailDto.getBusinessChargeItems() != null) {
-            businessChargeItemService.batchInsert(buildBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetail.getId(), meterDetail.getCode()));
+            List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetail.getId(), meterDetail.getCode());
+            if (businessChargeItems != null && businessChargeItems.size() > 0) {
+                businessChargeItemService.batchInsert(businessChargeItems);
+            }
         }
 
         CustomerMeter customerMeter = customerMeterService.getBindInfoByMeterId(meterDetail.getMeterId());
@@ -220,10 +219,10 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             //已被解绑或删除
             BaseOutput.failure("表已被解绑或删除，请刷新数据后重试!");
         }
-        Boolean isEquals = lastAmount.equals(meterDetailDto.getLastAmount());
-        if (!isEquals){
-            BaseOutput.failure("上期指数已发生变化，请修改后重新提交!");
-        }
+//        Boolean isEquals = lastAmount.equals(meterDetailDto.getLastAmount());
+//        if (!isEquals){
+//            BaseOutput.failure("上期指数已发生变化，请修改后重新提交!");
+//        }
 
         return BaseOutput.success().setData(meterDetail);
     }
@@ -232,13 +231,16 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * 构建动态收费项
      */
     private List<BusinessChargeItem> buildBusinessCharge(List<BusinessChargeItem> businessChargeItems, Long businessId, String businessCode){
-        businessChargeItems.stream().forEach(item -> {
+        List<BusinessChargeItem> businessChargeItemList = new ArrayList<>();
+        businessChargeItems.stream().filter(item -> item.getAmount() != null).forEach(item -> {
             item.setBusinessId(businessId);
             item.setBusinessCode(businessCode);
             item.setPaidAmount(0L);
             item.setWaitAmount(item.getAmount());
+            item.setBizType(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
+            businessChargeItemList.add(item);
         });
-        return businessChargeItems;
+        return businessChargeItemList;
     }
     
     /**
@@ -540,7 +542,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
 
         // 已创建状态才能修改
-        if (!MeterDetailStateEnum.UNSUBMITED.equals(meterDetailInfo.getState())) {
+        if (!MeterDetailStateEnum.UNSUBMITED.getCode().equals(meterDetailInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改");
         }
 
@@ -550,6 +552,17 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             return BaseOutput.failure("该表初始指数获取失败,保存失败!");
         }
         Long lastAmount = (Long) lastAmountReturn.getData();
+
+        // 先删除动态收费项，再增加动态收费项
+        businessChargeItemService.deleteByBusinessIdAndCodeAndBizType(meterDetailInfo.getId(), meterDetailInfo.getCode(), Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
+
+        //构建动态收费项
+        if (meterDetailDto.getBusinessChargeItems() != null) {
+            List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetailInfo.getId(), meterDetailInfo.getCode());
+            if (businessChargeItems != null && businessChargeItems.size() > 0) {
+                businessChargeItemService.batchInsert(businessChargeItems);
+            }
+        }
 
         BeanUtils.copyProperties(meterDetailDto, meterDetailInfo);
         meterDetailInfo.setModifyTime(LocalDateTime.now());
@@ -564,18 +577,18 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * 根据 meterId 查询是否有未缴费的缴费单记录(某月份)
      * 
      * @param  meterId
-     * @param usageTime
+     * @param 
      * @return 缴费集合
      * @date   2020/6/30
      */
-    private List<MeterDetailDto> listUnPayUnSubmitByMeter(Long meterId, LocalDateTime usageTime) {
+    private List<MeterDetailDto> listUnPayUnSubmitByMeter(Long meterId) {
         MeterDetailDto meterDetailDto = new MeterDetailDto();
         // 获取使用月份的第一天和最后一天时间,用于数据库查询
-        if (usageTime != null) {
-            Map dateTimeMap = this.getStartTimeAndEndTime(usageTime);
-            meterDetailDto.setStartTime((LocalDateTime) dateTimeMap.get("startTime"));
-            meterDetailDto.setEndTime((LocalDateTime) dateTimeMap.get("endTime"));
-        }
+//        if (usageTime != null) {
+//            Map dateTimeMap = this.getStartTimeAndEndTime(usageTime);
+//            meterDetailDto.setStartTime((LocalDateTime) dateTimeMap.get("startTime"));
+//            meterDetailDto.setEndTime((LocalDateTime) dateTimeMap.get("endTime"));
+//        }
 
         // 未缴费
         StringBuilder statusBuff = new StringBuilder("");
@@ -616,14 +629,14 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         c.set(Calendar.HOUR_OF_DAY, 0);
         c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND,0);
-        Date startTime = c.getTime();
+        LocalDateTime startTime = c.getTime().toInstant().atZone(zoneId).toLocalDateTime();
 
         // 将结束时间设置为最后一天的23时59分59秒
         c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));
         c.set(Calendar.HOUR_OF_DAY, 23);
         c.set(Calendar.MINUTE, 59);
         c.set(Calendar.SECOND, 59);
-        Date endTime = c.getTime();
+        LocalDateTime endTime = c.getTime().toInstant().atZone(zoneId).toLocalDateTime();
 
         dateTimeMap.put("startTime", startTime);
         dateTimeMap.put("endTime", endTime);
