@@ -40,14 +40,14 @@ public class RentalApprovalProcessTaskAssignmentApi {
     private String exceptionHandlerId;
 
     /**
-     * 市场负责人审批
+     * 摊位租赁审批, 摊位退款审批 -> 市场负责人审批
      * @param taskMapping 任务代理对象
      * @return
      */
     @PostMapping(value="/managerApprovalAssignment")
     public BaseOutput<Assignment> managerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
         try {
-            return BaseOutput.successData(buildApprovalAssignment(taskMapping, BpmBusinessType.RENTAL_APPROVAL.getCode(), BpmConstants.TK_MANAGER_APPROVAL));
+            return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return BaseOutput.successData(getExceptionHandlerAssignment());
@@ -55,14 +55,30 @@ public class RentalApprovalProcessTaskAssignmentApi {
     }
 
     /**
-     * 副总经理审批
+     * 摊位退款审批 -> 复核人审批
+     * @param taskMapping 任务代理对象
+     * @return
+     */
+    @PostMapping(value="/checkerApprovalAssignment")
+    public BaseOutput<Assignment> checkerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
+        try {
+            return BaseOutput.successData(buildApprovalAssignment(taskMapping));
+        } catch (Exception e) {
+            //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
+            return BaseOutput.successData(getExceptionHandlerAssignment());
+        }
+    }
+
+
+    /**
+     * 摊位租赁审批, 摊位退款审批 -> 副总经理审批
      * @param taskMapping 任务代理对象
      * @return
      */
     @PostMapping(value="/viceGeneralManagerApprovalAssignment")
     public BaseOutput<Assignment> viceGeneralManagerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
         try {
-            return BaseOutput.successData(buildApprovalAssignment(taskMapping, BpmBusinessType.RENTAL_APPROVAL.getCode(), BpmConstants.TK_VICE_GENERAL_MANAGER_APPROVAL));
+            return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return BaseOutput.successData(getExceptionHandlerAssignment());
@@ -70,14 +86,14 @@ public class RentalApprovalProcessTaskAssignmentApi {
     }
 
     /**
-     * 总经理审批
+     * 摊位租赁审批, 摊位退款审批 -> 总经理审批
      * @param taskMapping 任务代理对象
      * @return
      */
     @PostMapping(value="/generalManagerApprovalAssignment")
     public BaseOutput<Assignment> generalManagerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
         try {
-            return BaseOutput.successData(buildApprovalAssignment(taskMapping, BpmBusinessType.RENTAL_APPROVAL.getCode(), BpmConstants.TK_GENERAL_MANAGER_APPROVAL));
+            return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return BaseOutput.successData(getExceptionHandlerAssignment());
@@ -107,11 +123,9 @@ public class RentalApprovalProcessTaskAssignmentApi {
     /**
      * 构建审批分配
      * @param taskMapping
-     * @param businessType
-     * @param taskDefinitionKey
      * @return
      */
-    private Assignment buildApprovalAssignment(TaskMapping taskMapping, Integer businessType, String taskDefinitionKey){
+    private Assignment buildApprovalAssignment(TaskMapping taskMapping){
         Map<String, Object> processVariables = taskMapping.getProcessVariables();
         //获取流程参数中的区域id，以确认审批人
         Long districtId = (Long)processVariables.get("districtId");
@@ -124,8 +138,8 @@ public class RentalApprovalProcessTaskAssignmentApi {
         //区域id列表
         List<Long> districtIds = listBaseOutput.getData().stream().map(t -> t.getId()).collect(Collectors.toList());
         ApproverAssignmentDto approverAssignment = new ApproverAssignmentDto();
-        approverAssignment.setBusinessType(businessType);
-        approverAssignment.setTaskDefinitionKey(taskDefinitionKey);
+        approverAssignment.setProcessDefinitionKey(taskMapping.getProcessDefinitionKey());
+        approverAssignment.setTaskDefinitionKey(taskMapping.getTaskDefinitionKey());
         approverAssignment.setIds(districtIds);
         //查询审批人分配，只要业务类型(可理解为流程定义)，任务定义和区域id满足，则认为第一条数据的用户是任务执行人
         List<ApproverAssignment> approverAssignments = approverAssignmentService.listByExample(approverAssignment);
