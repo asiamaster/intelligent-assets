@@ -459,6 +459,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //解冻摊位
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
         assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
+        //保存流程审批记录
+        saveApprovalProcess(leaseOrderApprovalDto, userTicket);
         //提交审批任务
         completeTask(leaseOrderApprovalDto.getTaskId(), "false");
         return BaseOutput.success();
