@@ -288,7 +288,7 @@
         let payState = row.$_payState;
         let refundState = row.$_refundState;
         let isRelated = row.isRelated;
-        // $('#toolbar button').attr('disabled', true);
+        $('#toolbar button').attr('disabled', true);
         $('#btn_add').attr('disabled', false);
         $('#btn_view').attr('disabled', false);
         if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()} && isRelated == ${@com.dili.commons.glossary.YesOrNoEnum.NO.getCode()}) {

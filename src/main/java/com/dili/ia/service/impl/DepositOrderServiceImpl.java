@@ -143,10 +143,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (depositOrder.getAssetsType() == null){
             return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产类型不能为空");
         }
-        if (depositOrder.getAssetsId() == null){
+        if (!depositOrder.getAssetsType().equals(AssetsTypeEnum.OTHER.getCode()) && depositOrder.getAssetsId() == null){
             return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产ID不能为空");
         }
-        if (depositOrder.getAssetsName() == null){
+        if (!depositOrder.getAssetsType().equals(AssetsTypeEnum.OTHER.getCode()) && depositOrder.getAssetsName() == null){
             return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产名称不能为空");
         }
         if (depositOrder.getAmount() == null){
