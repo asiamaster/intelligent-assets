@@ -9,17 +9,16 @@
         </div>
         <div class="row">
             <div class="form-group col">
-                <label for="payAmount" _log>
-                    本次付款
-                    <sup class="${leaseOrder.paidAmount == 0?'': 'd-none'}" data-toggle="tooltip" data-placement="right" title="本次付款 = 分摊合计 - 抵扣">
-                        <i class="fa fa-question-circle-o" aria-hidden="true"></i>
-                    </sup>
-                    <i class="red">*</i>
-                </label>
+                <label for="payAmount" _log>本次付款<i class="red">*</i></label>
                 <input type="number" id="payAmount" name="payAmount" class="form-control money floatReserve" required/>
             </div>
             <div class="form-group col ${leaseOrder.paidAmount == 0?'': 'd-none'}">
-                <label for="deductionAmount" _log>抵扣</label>
+                <label for="deductionAmount" _log>
+                    抵扣
+                    <sup data-toggle="tooltip" data-placement="right" title="“抵扣”项金额只用于租赁使用，即在租赁上分摊的金额须大于等于抵扣金额；客户“本次付款金额”+“抵扣金额”=所有分摊之和；“已分摊金额”是指“本次付款金额+抵扣金额”的合计在下方业务上已经分摊出的金额之和，以便于业务员识别是否分摊完毕。">
+                        <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+                    </sup>
+                </label>
                 <input type="number" id="deductionAmount" name="deductionAmount" class="form-control money floatReserve" value="<#centToYuan value='${leaseOrder.paidAmount == 0?leaseOrder.earnestDeduction + leaseOrder.transferDeduction : 0}'/>" readonly/>
             </div>
             <div class="form-group col">

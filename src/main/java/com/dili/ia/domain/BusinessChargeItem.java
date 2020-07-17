@@ -38,7 +38,7 @@ public class BusinessChargeItem extends BaseDomain {
      * 业务类型
      */
     @Column(name = "`biz_type`")
-    private Integer bizType;
+    private String bizType;
 
     /**
      * 收费项ID
@@ -120,11 +120,11 @@ public class BusinessChargeItem extends BaseDomain {
         this.businessCode = businessCode;
     }
 
-    public Integer getBizType() {
+    public String getBizType() {
         return bizType;
     }
 
-    public void setBizType(Integer bizType) {
+    public void setBizType(String bizType) {
         this.bizType = bizType;
     }
 

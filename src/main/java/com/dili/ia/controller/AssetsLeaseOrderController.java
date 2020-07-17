@@ -8,10 +8,7 @@ import com.dili.bpmc.sdk.rpc.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
-import com.dili.ia.glossary.ApprovalStateEnum;
-import com.dili.ia.glossary.AssetsTypeEnum;
-import com.dili.ia.glossary.DepositOrderStateEnum;
-import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
@@ -52,7 +49,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/assetsLeaseOrder")
 public class AssetsLeaseOrderController {
-    private final static Logger LOG = LoggerFactory.getLogger(LeaseOrderController.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AssetsLeaseOrderController.class);
     @Autowired
     AssetsLeaseOrderService assetsLeaseOrderService;
     @Autowired
@@ -452,6 +449,8 @@ public class AssetsLeaseOrderController {
         modelMap.put("leaseOrder", leaseOrder);
         AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
         condition.setLeaseOrderId(id);
+        condition.setPayState(PayStateEnum.NOT_PAID.getCode());
+        condition.setRefundState(LeaseRefundStateEnum.WAIT_APPLY.getCode());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
         List<BusinessChargeItemDto> chargeItemDtos =  businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
