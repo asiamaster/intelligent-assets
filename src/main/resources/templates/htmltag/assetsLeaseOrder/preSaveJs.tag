@@ -264,7 +264,7 @@
         $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
         $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
         batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
-        batchQueryDepositOrder({businessId:$('#id').val(),assetsId:suggestion.id});
+        $('#id').val() && batchQueryDepositOrder({businessId:$('#id').val(),assetsId:suggestion.id});
     }
 
     /**

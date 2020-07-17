@@ -1,15 +1,3 @@
---begin 报表 上线版本
-ALTER TABLE `dili-assets`.`payment_order`
-ADD COLUMN `customer_id` bigint(20) NULL DEFAULT NULL COMMENT '客户ID' AFTER `modify_time`,
-ADD COLUMN `customer_name` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '客户名称' AFTER `customer_id`;
-UPDATE
-  payment_order p
-	LEFT JOIN assets_lease_order alo ON p.business_id = alo.id
-	SET p.customer_id = alo.customer_id,
-	p.customer_name = alo.customer_name
-WHERE
-	p.biz_type = 1
----end
 
 ALTER TABLE `dili-assets`.`lease_order`
 ADD COLUMN `assets_type` tinyint(1) NULL COMMENT '资产类型 1：摊位 2：冷库' AFTER `modify_time`;
@@ -33,28 +21,13 @@ MODIFY COLUMN `biz_type` varchar(120) NULL DEFAULT NULL COMMENT '业务类型' A
 ALTER TABLE `dili-assets`.`transaction_details`
 MODIFY COLUMN `biz_type` varchar(120) NULL DEFAULT NULL COMMENT '业务类型' ;
 
--- 字段删除脚本（数据迁移完后执行）
-ALTER TABLE `dili-assets`.`lease_order`
-DROP COLUMN `rent_amount`,
-DROP COLUMN `deposit_amount`,
-DROP COLUMN `manage_amount`,
-DROP COLUMN `deposit_deduction`;
-
--- 字段删除脚本（数据迁移完后执行）
-ALTER TABLE `dili-assets`.`lease_order_item`
-DROP COLUMN `deposit_amount_flag`,
-DROP COLUMN `deposit_amount_source_id`,
-DROP COLUMN `deposit_amount`,
-DROP COLUMN `manage_amount`,
-DROP COLUMN `rent_amount`,
-DROP COLUMN `refund_amount`,
-DROP COLUMN `deposit_refund_amount`,
-DROP COLUMN `manage_refund_amount`,
-DROP COLUMN `rent_refund_amount`;
-
 -- 改表名
 ALTER  TABLE lease_order RENAME TO assets_lease_order;
 ALTER  TABLE lease_order_item RENAME TO assets_lease_order_item;
+
+ALTER TABLE `dili-assets`.`assets_lease_order_item`
+ADD COLUMN `payment_amount` bigint(20) NOT NULL DEFAULT 0 COMMENT '正在支付中金额' AFTER `wait_amount`;
+update assets_lease_order_item set total_amount = rent_amount + manage_amount;
 
 --租赁单和退款单新增流程实例和定义id
 ALTER TABLE `assets_lease_order`
@@ -84,3 +57,22 @@ create table approval_process
    firm_id              bigint comment '商户id',
    primary key (id)
 );
+
+-- 字段删除脚本（数据迁移完后执行）
+ALTER TABLE `dili-assets`.`lease_order`
+DROP COLUMN `rent_amount`,
+DROP COLUMN `deposit_amount`,
+DROP COLUMN `manage_amount`,
+DROP COLUMN `deposit_deduction`;
+
+-- 字段删除脚本（数据迁移完后执行）
+ALTER TABLE `dili-assets`.`lease_order_item`
+DROP COLUMN `deposit_amount_flag`,
+DROP COLUMN `deposit_amount_source_id`,
+DROP COLUMN `deposit_amount`,
+DROP COLUMN `manage_amount`,
+DROP COLUMN `rent_amount`,
+DROP COLUMN `refund_amount`,
+DROP COLUMN `deposit_refund_amount`,
+DROP COLUMN `manage_refund_amount`,
+DROP COLUMN `rent_refund_amount`;

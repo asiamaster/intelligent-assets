@@ -246,14 +246,14 @@
             return;
         }
         dia = bs4pop.dialog({
-            title: '摊位租赁详情',
+            title: '提交付款',
             content: '/assetsLeaseOrder/submitPayment.html?id='+rows[0].id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
-            width: '750px',
+            width: '850px',
             height : '550px',
-            btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
+            btns: []
         });
     }
 
@@ -532,7 +532,6 @@
             //（未生效 || 已生效）&& 已交清方可停租
             if ((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
                 || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
-                && row.payState == ${@com.dili.ia.glossary.PayStateEnum.PAID.getCode()}
                 && row.refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}
             ) {
                 $('#btn_stop_rent'+index).attr('disabled', false);

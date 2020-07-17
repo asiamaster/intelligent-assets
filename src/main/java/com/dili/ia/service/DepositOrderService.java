@@ -79,23 +79,24 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      *                         businessId 关联订单ID; bizType 关联订单业务类型;
      * @return BaseOutput
      */
-    BaseOutput batchAddDepositOrder(List<DepositOrder> depositOrderList);
+    BaseOutput batchAddOrUpdateDepositOrder(List<DepositOrder> depositOrderList);
 
     /**
      * 批量【提交】保证金单 --- 【摊位租赁同步提交生成使用】
      * @param bizType 业务类型
-     * @param map key： businessId  订单项ID ; value: amount 付款金额
+     * @param businessId 关联订单ID
+     * @param map key： assetsId  资产ID ; value: amount 付款金额
      * @return BaseOutput
      */
-    BaseOutput batchSubmitDepositOrder(String bizType, Map<Long, Long> map);
+    BaseOutput batchSubmitDepositOrder(String bizType, Long businessId, Map<Long, Long> map);
 
     /**
      * 批量【撤回】保证金单 --- 【摊位租赁同步撤回成使用】
      * @param bizType 业务类型
-     * @param businessIds 业务单ids
+     * @param businessId 关联订单ID
      * @return BaseOutput
      */
-    BaseOutput batchWithdrawDepositOrder(String bizType, List<Long> businessIds);
+    BaseOutput batchWithdrawDepositOrder(String bizType, Long businessId);
 
     /**
      * 【查询】客户摊位保证金余额 --- 【摊位租赁使用】

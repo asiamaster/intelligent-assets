@@ -257,7 +257,7 @@ public class EarnestOrderController {
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
                 LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             }
-            return BaseOutput.success("修改成功");
+            return output;
         } catch (BusinessException e) {
             LOG.error("定金单撤回出错！", e);
             return BaseOutput.failure(e.getErrorMsg());

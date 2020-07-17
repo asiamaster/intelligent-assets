@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.domain.TaskMapping;
@@ -220,7 +221,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             depositOrder.setBizType(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getBizType());
             depositOrders.add(depositOrder);
         });
-        depositOrderService.batchAddDepositOrder(depositOrders);
+        depositOrderService.batchAddOrUpdateDepositOrder(depositOrders);
     }
 
     /**
@@ -256,11 +257,17 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             o.setState(LeaseOrderStateEnum.CREATED.getCode());
             o.setPayState(PayStateEnum.NOT_PAID.getCode());
             o.setStopRentState(StopRentStateEnum.NO_APPLY.getCode());
+            //收费项新增
+            if (CollectionUtils.isNotEmpty(o.getBusinessChargeItems())) {
+                Long totalAmount = o.getBusinessChargeItems().stream().filter(bci -> bci.getAmount() > 0).mapToLong(BusinessChargeItem::getAmount).sum();
+                o.setTotalAmount(totalAmount);
+                o.setWaitAmount(totalAmount);
+            }
             assetsLeaseOrderItemService.insertSelective(o);
 
             //收费项新增
             if(CollectionUtils.isNotEmpty(o.getBusinessChargeItems())){
-                o.getBusinessChargeItems().forEach(bci->{
+                o.getBusinessChargeItems().stream().filter(bci -> bci.getAmount() > 0).forEach(bci -> {
                     bci.setBusinessId(o.getId());
                     bci.setWaitAmount(bci.getAmount());
                     businessChargeItemService.insertSelective(bci);
@@ -423,6 +430,14 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             completeTask(leaseOrderApprovalDto.getTaskId(), "true");
         }else{
             throw new BusinessException(ResultCode.DATA_ERROR,"租赁单状态不正确");
+        if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
+            //提交付款
+            Long paymentId = submitPay(leaseOrder,leaseOrder.getPayAmount());
+            leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
+            leaseOrder.setPaymentId(paymentId);
+            leaseOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
+            //更新摊位租赁单状态
+            cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
         }
         return BaseOutput.success();
     }
@@ -466,23 +481,17 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         return BaseOutput.success();
     }
 
-    /**
-     * 提交付款
-     *
-     * @param id         租赁单ID
-     * @param amount     交费金额
-     * @return
-     */
+
     @Override
     @Transactional
     @GlobalTransactional
-    public BaseOutput submitPayment(Long id, Long amount) {
+    public BaseOutput submitPayment(AssetsLeaseSubmitPaymentDto assetsLeaseSubmitPaymentDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new BusinessException(ResultCode.DATA_ERROR,"未登录");
         }
 
-        AssetsLeaseOrder leaseOrder = get(id);
+        AssetsLeaseOrder leaseOrder = get(assetsLeaseSubmitPaymentDto.getLeaseOrderId());
         AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
@@ -498,8 +507,15 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             });
         }
         //检查是否可以进行提交付款
-        checkSubmitPayment(id, amount, leaseOrderItems, leaseOrder);
+        checkSubmitPayment(assetsLeaseSubmitPaymentDto.getLeaseOrderId(), assetsLeaseSubmitPaymentDto.getLeasePayAmount(), leaseOrder);
         /***************************检查是否可以提交付款 end*********************/
+
+        //保证金提交付款
+        BaseOutput depositOutput = depositOrderService.batchSubmitDepositOrder(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(),leaseOrder.getId(),assetsLeaseSubmitPaymentDto.getDepositAmountMap());
+        if (!depositOutput.isSuccess()){
+            LOG.info("保证金提交付款接口异常 【租赁单编号:{},数据:{}】",leaseOrder.getCode(), JSON.toJSONString(assetsLeaseSubmitPaymentDto.getDepositAmountMap()));
+            throw new BusinessException(ResultCode.DATA_ERROR,depositOutput.getMessage());
+        }
 
         //判断缴费单是否需要撤回 需要撤回则撤回
         if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
@@ -507,12 +523,17 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
 
         //提交付款
-        Long paymentId = submitPay(leaseOrder);
+        Long paymentId = submitPay(leaseOrder,assetsLeaseSubmitPaymentDto.getLeasePayAmount());
         leaseOrder.setPaymentId(paymentId);
         //更新摊位租赁单状态
         if (updateSelective(leaseOrder) == 0) {
-            LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", id);
+            LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", assetsLeaseSubmitPaymentDto.getLeaseOrderId());
             throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单提交状态更新失败");
+        }
+
+        if (businessChargeItemService.batchUpdateSelective(assetsLeaseSubmitPaymentDto.getBusinessChargeItems()) != assetsLeaseSubmitPaymentDto.getBusinessChargeItems().size()) {
+            LOG.info("批量更新收费项支付中金额 【订单CODE{}】", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
 
         //日志上下文构建
@@ -536,17 +557,18 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     /**
      * 提交到付款
      * @param leaseOrder
+     * @param amount
      * @return
      */
-    private Long submitPay(AssetsLeaseOrder leaseOrder){
+    private Long submitPay(AssetsLeaseOrder leaseOrder,Long amount){
         //新增缴费单
         PaymentOrder paymentOrder = buildPaymentOrder(leaseOrder);
-        paymentOrder.setAmount(leaseOrder.getPayAmount());
+        paymentOrder.setAmount(amount);
         paymentOrderService.insertSelective(paymentOrder);
 
         //新增结算单
         SettleOrderDto settleOrder = buildSettleOrderDto(leaseOrder);
-        settleOrder.setAmount(leaseOrder.getPayAmount());
+        settleOrder.setAmount(amount);
         settleOrder.setOrderCode(paymentOrder.getCode());//订单号
         settleOrder.setBusinessCode(paymentOrder.getBusinessCode());//业务单号
         BaseOutput<SettleOrder> settlementOutput = settlementRpc.submit(settleOrder);
@@ -592,14 +614,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      * 检查是否可以进行提交付款
      * @param id
      * @param amount
-     * @param leaseOrderItems
      * @param leaseOrder
      */
-    private void checkSubmitPayment(Long id, Long amount, List<AssetsLeaseOrderItem> leaseOrderItems, AssetsLeaseOrder leaseOrder) {
+    private void checkSubmitPayment(Long id, Long amount, AssetsLeaseOrder leaseOrder) {
         //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
         if (!ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
-            LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已交清，不可以进行提交付款操作");
+            LOG.info("租赁单编号【{}】 未审批，不可以进行提交付款操作", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 未审批，不可以进行提交付款操作");
         }
         if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
             LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
@@ -614,11 +635,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已取消，不可以进行提交付款操作");
         }
 
-        Long waitAmount = leaseOrderItems.stream().mapToLong(AssetsLeaseOrderItem::getWaitAmount).sum();
-        if (amount.equals(0L) && !waitAmount.equals(0L)) {
+        if (amount.equals(0L) && !leaseOrder.getWaitAmount().equals(0L)) {
             throw new BusinessException(ResultCode.DATA_ERROR,"摊位租赁单付款必须大于0");
         }
-        if (amount > waitAmount) {
+        if (amount > leaseOrder.getWaitAmount()) {
             LOG.info("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());
             throw new BusinessException(ResultCode.DATA_ERROR,"支付金额大于待付金额");
         }
@@ -1102,14 +1122,14 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         settleWayDetails.append("】");
         leaseOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
 
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(leaseOrder.getMarketId(), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), null);
-        leaseOrderPrintDto.setChargeItems(chargeItemDtos);
-
         AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
-        List<AssetsLeaseOrderItemListDto> leaseOrderItems = assetsLeaseOrderItemService.leaseOrderItemListToDto(assetsLeaseOrderItemService.list(leaseOrderItemCondition), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos);
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(leaseOrderItemCondition);
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()));
+        leaseOrderPrintDto.setChargeItems(chargeItemDtos);
+        List<AssetsLeaseOrderItemListDto> leaseOrderItemListDtos = assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos);
         List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
-        leaseOrderItems.forEach(o -> {
+        leaseOrderItemListDtos.forEach(o -> {
             leaseOrderItemPrintDtos.add(leaseOrderItem2PrintDto(o));
         });
         leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemPrintDtos);
