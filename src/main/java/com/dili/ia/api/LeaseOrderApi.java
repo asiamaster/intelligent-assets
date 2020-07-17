@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -49,21 +50,19 @@ public class LeaseOrderApi {
      */
     @RequestMapping(value="/testGlobalTransactional")
     @GlobalTransactional
+    @Transactional
     public @ResponseBody BaseOutput<String> test(){
         //新增品类
         CategoryDTO categoryDTO = new CategoryDTO();
         categoryDTO.setName("测试品类0714");
-        categoryDTO.setPingying("ceshi");
-        categoryDTO.setPyInitials("cspl");
-        categoryDTO.setIsDelete(0);
-        categoryDTO.setPath("test");
-        categoryDTO.setCode("test");
+        categoryDTO.setPingying("ceshi0714");
+        categoryDTO.setPyInitials("cspl0714");
+        categoryDTO.setCode("test0714");
         categoryDTO.setCreatorId(1L);
-        categoryDTO.setCreateTime(new Date());
-        categoryDTO.setModifyTime(new Date());
         categoryDTO.setState(1);
         try {
-            assetsRpc.save(categoryDTO);
+            BaseOutput output = assetsRpc.save(categoryDTO);
+            System.out.println(output);
         }catch (Exception e){
             e.printStackTrace();
         }
