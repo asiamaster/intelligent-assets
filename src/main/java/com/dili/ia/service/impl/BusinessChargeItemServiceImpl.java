@@ -6,7 +6,9 @@ import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.mapper.BusinessChargeItemMapper;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,5 +54,22 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
     @Override
     public List<BusinessChargeItemDto> queryBusinessChargeItemMeta(List<Long> businessIds) {
         return getActualDao().queryBusinessChargeItemMeta(businessIds);
+    }
+
+    @Override
+    public void unityUpdatePaymentAmountByBusinessId(Long businessId, String bizType, Long... paymentAmount) {
+        BusinessChargeItem chargeItemCondition = new BusinessChargeItem();
+        chargeItemCondition.setBusinessId(businessId);
+        List<BusinessChargeItem> businessChargeItems = list(chargeItemCondition);
+        businessChargeItems.forEach(bci->{
+            if(paymentAmount.length > 0){
+
+            }
+            bci.setPaymentAmount(paymentAmount.length > 0 ? paymentAmount[0] : bci.getAmount());
+        });
+        if (batchUpdateSelective(businessChargeItems) != businessChargeItems.size()) {
+            LOG.info("批量更新收费项支付中金额 【businessId:{},bizType:{}】", businessId, bizType);
+            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
+        }
     }
 }
