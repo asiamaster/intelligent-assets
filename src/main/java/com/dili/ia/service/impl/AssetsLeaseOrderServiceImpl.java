@@ -421,6 +421,23 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         Long paymentId = submitPay(leaseOrder, assetsLeaseSubmitPaymentDto.getLeasePayAmount());
         leaseOrder.setPaymentId(paymentId);
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
+            //冻结定金和转抵
+            BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
+                    leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
+                    leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(),
+                    leaseOrder.getMarketId(), userTicket.getId(), userTicket.getRealName());
+            if (!customerAccountOutput.isSuccess()) {
+                LOG.info("冻结定金和转抵异常【编号：{}】", leaseOrder.getCode());
+                if (ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())) {
+                    throw new BusinessException(ResultCode.DATA_ERROR, "客户定金可用金额不足，请核实修改后重新保存");
+                } else if (ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())) {
+                    throw new BusinessException(ResultCode.DATA_ERROR, "客户转抵可用金额不足，请核实修改后重新保存");
+                } else {
+                    throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
+                }
+            }
+            //冻结摊位
+            assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
             //提交付款
             leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
             //更新摊位租赁单状态
@@ -616,25 +633,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
         msgService.sendBusinessLog(recordPayLog(settleOrder, leaseOrder));
         return BaseOutput.success().setData(true);
-    }
-
-    /**
-     * 记录交费日志
-     * @param settleOrder
-     * @param leaseOrder
-     */
-    public BusinessLog recordPayLog (SettleOrder settleOrder, AssetsLeaseOrder leaseOrder){
-        BusinessLog businessLog = new BusinessLog();
-        businessLog.setBusinessId(leaseOrder.getId());
-        businessLog.setBusinessCode(leaseOrder.getCode());
-        businessLog.setContent(settleOrder.getCode());
-        businessLog.setOperationType("pay");
-        businessLog.setMarketId(settleOrder.getMarketId());
-        businessLog.setOperatorId(settleOrder.getOperatorId());
-        businessLog.setOperatorName(settleOrder.getOperatorName());
-        businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
-        return businessLog;
     }
 
     /**
@@ -949,25 +947,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         return BaseOutput.success();
     }
 
-    /**
-     * 记录退款日志
-     * @param refundOrder
-     * @param leaseOrder
-     */
-    public BusinessLog recordRefundLog (RefundOrder refundOrder, AssetsLeaseOrder leaseOrder){
-        BusinessLog businessLog = new BusinessLog();
-        businessLog.setBusinessId(leaseOrder.getId());
-        businessLog.setBusinessCode(leaseOrder.getCode());
-        businessLog.setContent(refundOrder.getSettlementCode());
-        businessLog.setOperationType("refund");
-        businessLog.setMarketId(refundOrder.getMarketId());
-        businessLog.setOperatorId(refundOrder.getRefundOperatorId());
-        businessLog.setOperatorName(refundOrder.getRefundOperator());
-        businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
-        return businessLog;
-    }
-
     @Override
     public BaseOutput supplement (AssetsLeaseOrder leaseOrder){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -1081,10 +1060,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      */
     private void checkSubmitPayment(Long id, Long amount, AssetsLeaseOrder leaseOrder) {
         //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
-        if (!ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
-            LOG.info("租赁单编号【{}】 未审批，不可以进行提交付款操作", leaseOrder.getCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 未审批，不可以进行提交付款操作");
-        }
+//        if (!ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
+//            LOG.info("租赁单编号【{}】 未审批，不可以进行提交付款操作", leaseOrder.getCode());
+//            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 未审批，不可以进行提交付款操作");
+//        }
         if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
             LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已交清，不可以进行提交付款操作");
@@ -1403,6 +1382,44 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
             }
         }
+    }
+
+    /**
+     * 记录交费日志
+     * @param settleOrder
+     * @param leaseOrder
+     */
+    private BusinessLog recordPayLog (SettleOrder settleOrder, AssetsLeaseOrder leaseOrder){
+        BusinessLog businessLog = new BusinessLog();
+        businessLog.setBusinessId(leaseOrder.getId());
+        businessLog.setBusinessCode(leaseOrder.getCode());
+        businessLog.setContent(settleOrder.getCode());
+        businessLog.setOperationType("pay");
+        businessLog.setMarketId(settleOrder.getMarketId());
+        businessLog.setOperatorId(settleOrder.getOperatorId());
+        businessLog.setOperatorName(settleOrder.getOperatorName());
+        businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
+        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        return businessLog;
+    }
+
+    /**
+     * 记录退款日志
+     * @param refundOrder
+     * @param leaseOrder
+     */
+    private BusinessLog recordRefundLog (RefundOrder refundOrder, AssetsLeaseOrder leaseOrder){
+        BusinessLog businessLog = new BusinessLog();
+        businessLog.setBusinessId(leaseOrder.getId());
+        businessLog.setBusinessCode(leaseOrder.getCode());
+        businessLog.setContent(refundOrder.getSettlementCode());
+        businessLog.setOperationType("refund");
+        businessLog.setMarketId(refundOrder.getMarketId());
+        businessLog.setOperatorId(refundOrder.getRefundOperatorId());
+        businessLog.setOperatorName(refundOrder.getRefundOperator());
+        businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
+        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        return businessLog;
     }
 
 }

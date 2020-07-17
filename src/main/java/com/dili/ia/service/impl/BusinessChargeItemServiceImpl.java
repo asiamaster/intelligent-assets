@@ -62,9 +62,6 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
         chargeItemCondition.setBusinessId(businessId);
         List<BusinessChargeItem> businessChargeItems = list(chargeItemCondition);
         businessChargeItems.forEach(bci->{
-            if(paymentAmount.length > 0){
-
-            }
             bci.setPaymentAmount(paymentAmount.length > 0 ? paymentAmount[0] : bci.getAmount());
         });
         if (batchUpdateSelective(businessChargeItems) != businessChargeItems.size()) {
