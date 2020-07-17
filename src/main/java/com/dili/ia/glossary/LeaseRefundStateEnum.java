@@ -13,6 +13,7 @@ public enum LeaseRefundStateEnum {
     WAIT_APPLY(1, "未退款"),
     REFUNDING(2, "退款中"),
     REFUNDED(3, "已退款"),
+    PARTIAL_REFUND(4, "部分退款"),
     ;
 
     private String name;
