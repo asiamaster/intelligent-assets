@@ -2,6 +2,7 @@ package com.dili.ia.domain;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.ss.domain.BaseDomain;
+import tk.mybatis.mapper.annotation.Version;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -85,6 +86,13 @@ public class BusinessChargeItem extends BaseDomain {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`modify_time`")
     private LocalDateTime modifyTime;
+
+    /**
+     * 乐观锁，版本号
+     */
+    @Version
+    @Column(name = "`version`")
+    private Integer version;
 
     @Override
     public Long getId() {
@@ -182,5 +190,13 @@ public class BusinessChargeItem extends BaseDomain {
 
     public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }
