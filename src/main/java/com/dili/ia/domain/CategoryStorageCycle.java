@@ -4,6 +4,8 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.dili.uap.sdk.domain.UserTicket;
+
 import javax.persistence.*;
 
 /**
@@ -18,7 +20,6 @@ public class CategoryStorageCycle extends BaseDomain {
      */
     @Id
     @Column(name = "`id`")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
@@ -49,14 +50,23 @@ public class CategoryStorageCycle extends BaseDomain {
      * 1:启用,2禁用
      */
     @Column(name = "`state`")
-    private Byte state;
+    private Integer state;
 
     @Column(name = "`market_id`")
     private Long marketId;
 
     @Column(name = "`market_code`")
     private String marketCode;
-
+    
+    public CategoryStorageCycle() {
+    	super();
+    }
+    public CategoryStorageCycle(UserTicket userTicket) {
+    	super();
+    	this.marketCode = userTicket.getFirmCode();
+    	this.marketId = userTicket.getFirmId();
+    }
+    
     /**
      * 获取品类id
      *
@@ -164,7 +174,7 @@ public class CategoryStorageCycle extends BaseDomain {
      */
     @FieldDef(label="1:启用,2禁用")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getState() {
+    public Integer getState() {
         return state;
     }
 
@@ -173,7 +183,7 @@ public class CategoryStorageCycle extends BaseDomain {
      *
      * @param state 1:启用,2禁用
      */
-    public void setState(Byte state) {
+    public void setState(Integer state) {
         this.state = state;
     }
 

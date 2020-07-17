@@ -1,78 +1,135 @@
 package com.dili.ia.controller;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.ia.domain.CategoryStorageCycle;
+import com.dili.ia.domain.dto.CategoryStorageCycleDto;
+import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.CategoryStorageCycleService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.metadata.ValueProviderUtils;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
+import com.github.pagehelper.Page;
+
+import cn.hutool.core.bean.BeanUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-07-16 15:35:44.
  */
 @Controller
-@RequestMapping("/categoryStorageCycle")
+@RequestMapping("/stock/categoryCycle")
 public class CategoryStorageCycleController {
-    @Autowired
-    CategoryStorageCycleService categoryStorageCycleService;
+	
+	private final static Logger LOG = LoggerFactory.getLogger(CategoryStorageCycleController.class);
 
-    /**
-     * 跳转到CategoryStorageCycle页面
-     * @param modelMap
-     * @return String
+	
+	@Autowired
+    private AssetsRpc assetsRpc;
+
+	@Autowired
+	private CategoryStorageCycleService categoryStorageCycleService;
+	
+	/**
+     * 跳转到品类列表页
      */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
-    public String index(ModelMap modelMap) {
-        return "categoryStorageCycle/index";
+    @RequestMapping("/list.html")
+    public String list() {
+        return "stock/categoryCycle/list";
+    }
+    
+    /**
+     * 获取品类树
+     */
+    @RequestMapping(value = "/getTree.action")
+    @ResponseBody
+    public BaseOutput<List<CategoryDTO>> getTree(CategoryDTO input) {
+        try {
+    		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+    		input.setMarketId(userTicket.getFirmId());
+            return assetsRpc.list(input);
+        } catch (Exception e) {
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+    
+    /**
+     * 品类列表页面
+     *
+     * @param input
+     * @return
+     */
+    @RequestMapping("/table.html")
+    public ModelAndView list(@ModelAttribute CategoryDTO input) {
+    	Map<String, Object> result = new HashMap<>();
+    	result.put("obj", categoryStorageCycleService.list(input));
+        return new ModelAndView("stock/categoryCycle/table", result);
+    }
+    
+    /**
+     * 品类列表页面
+     *
+     * @param input
+     * @return
+     */
+    @RequestMapping("/table.action")
+    public @ResponseBody String listPage(@ModelAttribute CategoryDTO input) {
+        Page<JSONObject> page = categoryStorageCycleService.list(input);
+    	Map<String, String> map = input.getMetadata();
+    	List<Map> result = null;
+		try {
+			result = ValueProviderUtils.buildDataByProvider(map, page.getResult());
+		} catch (Exception e) {
+        	LOG.error("品类加载失败",e.getMessage());
+			e.printStackTrace();
+		}
+    	return new EasyuiPageOutput(Integer.parseInt(String.valueOf(page.getTotal())), result).toString();
     }
 
     /**
-     * 分页查询CategoryStorageCycle，返回easyui分页信息
-     * @param categoryStorageCycle
-     * @return String
-     * @throws Exception
+     * 保存品类存储周期
      */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute CategoryStorageCycle categoryStorageCycle) throws Exception {
-        return categoryStorageCycleService.listEasyuiPageByExample(categoryStorageCycle, true).toString();
+    @RequestMapping(value = "/saveCycle.action")
+    public @ResponseBody BaseOutput<List<CategoryDTO>> saveCycle(@RequestBody CategoryStorageCycleDto dto) {
+        try {
+        	categoryStorageCycleService.saveCycle(dto);
+            return BaseOutput.success("保存成功!");
+        } catch (Exception e) {
+        	LOG.error("品类{}修改失败",dto.getCode(),e.getMessage());
+            return BaseOutput.failure(e.getMessage());
+        }
     }
-
+    
     /**
-     * 新增CategoryStorageCycle
-     * @param categoryStorageCycle
-     * @return BaseOutput
+     * 保存品类存储周期
      */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute CategoryStorageCycle categoryStorageCycle) {
-        categoryStorageCycleService.insertSelective(categoryStorageCycle);
-        return BaseOutput.success("新增成功");
+    @RequestMapping(value = "/getCycle.action")
+    public @ResponseBody BaseOutput<List<CategoryDTO>> getCycle(@RequestBody CategoryStorageCycleDto dto) {
+        try {
+        	categoryStorageCycleService.getCategoryStorageCycle(dto);
+            return BaseOutput.success("保存成功!");
+        } catch (Exception e) {
+        	LOG.error("获取品类周期失败",e.getMessage());
+            return BaseOutput.failure(e.getMessage());
+        }
     }
-
-    /**
-     * 修改CategoryStorageCycle
-     * @param categoryStorageCycle
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute CategoryStorageCycle categoryStorageCycle) {
-        categoryStorageCycleService.updateSelective(categoryStorageCycle);
-        return BaseOutput.success("修改成功");
-    }
-
-    /**
-     * 删除CategoryStorageCycle
-     * @param id
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        categoryStorageCycleService.delete(id);
-        return BaseOutput.success("删除成功");
-    }
+    
 }
