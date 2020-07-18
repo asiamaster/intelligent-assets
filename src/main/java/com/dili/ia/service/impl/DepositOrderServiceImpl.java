@@ -804,4 +804,87 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         });
         return BaseOutput.success();
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public BaseOutput oldDataHandler(List<DepositOrder> depositOrderList, UserTicket creatorTicket, UserTicket submiterTicket, UserTicket settlementTicket) {
+        if (CollectionUtils.isEmpty(depositOrderList)){
+            return BaseOutput.failure("数据为空！");
+        }
+        depositOrderList.stream().forEach(o ->{
+            List<DepositOrder> deList = queryDepositOrder(o.getBizType(), o.getBusinessId(), o.getAssetsId());
+            if (CollectionUtils.isEmpty(deList)){ // 没有的话，就【新增】
+                o.setIsRelated(YesOrNoEnum.YES.getCode());
+                if (o.getBusinessId() == null){
+                    throw new BusinessException(ResultCode.PARAMS_ERROR, "关联订单ID不能为空");
+                }
+                if (o.getBizType() == null){
+                    throw new BusinessException(ResultCode.PARAMS_ERROR, "关联订单业务类型不能为空");
+                }
+                //新增【已交费 -- 已交清 -- 未退款】的保证金单
+                BaseOutput<DepositOrder> output = this.addPaidDepositOrder(creatorTicket, o);
+                if (!output.isSuccess()){
+                    throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                }
+                //新增【已交费】的缴费单
+                PaymentOrder pb = this.buildPaymentOrder(submiterTicket, output.getData(), o.getAmount());
+                //【已交费】缴费单数据更新
+                pb.setState(PayStateEnum.PAID.getCode());
+                pb.setState(PaymentOrderStateEnum.PAID.getCode());
+//                pb.setPayedTime(settleOrder.getOperateTime());
+//                pb.setSettlementCode(settleOrder.getCode());
+//                pb.setSettlementOperator(settleOrder.getOperatorName());
+//                pb.setSettlementWay(settleOrder.getWay());
+                paymentOrderService.insertSelective(pb);
+
+                //新增【已结算】的结算单，提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
+                //@TODO需要结算单独提供接口
+//                SettleOrderDto settleOrder = buildSettleOrderDto(submiterTicket, o, pb, o.getAmount());
+//                BaseOutput<SettleOrder> out= settlementRpc.submit(settleOrder);
+//                if (!out.isSuccess()){
+//                    LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
+//                    throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
+//                }
+
+            }
+        });
+        return BaseOutput.success();
+    }
+
+
+    public BaseOutput<DepositOrder> addPaidDepositOrder(UserTicket userTicket, DepositOrder depositOrder) {
+        //检查参数
+        BaseOutput checkOut = checkparams(depositOrder);
+        if (!checkOut.isSuccess()){
+            return checkOut;
+        }
+        //检查客户状态
+        checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
+        //检查摊位状态 @TODO 检查公寓，冷库状态
+        if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType())){
+            checkBoothState(depositOrder.getAssetsId());
+        }
+        BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
+        if(!depOut.isSuccess()){
+            LOGGER.info("获取部门失败！" + depOut.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
+        }
+
+        depositOrder.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
+        depositOrder.setCreatorId(userTicket.getId());
+        depositOrder.setCreator(userTicket.getRealName());
+        depositOrder.setMarketId(userTicket.getFirmId());
+        depositOrder.setMarketCode(userTicket.getFirmCode());
+        depositOrder.setDepartmentName(depOut.getData().getName());
+        //创建已完结的保证金单
+        depositOrder.setState(DepositOrderStateEnum.PAID.getCode());
+        depositOrder.setPayState(DepositPayStateEnum.PAID.getCode());
+        depositOrder.setRefundState(DepositRefundStateEnum.NO_REFUNDED.getCode());
+        depositOrder.setIsImport(YesOrNoEnum.YES.getCode());
+        depositOrder.setWaitAmount(0L);
+        depositOrder.setPaidAmount(depositOrder.getAmount());
+
+        this.insertSelective(depositOrder);
+        return BaseOutput.success().setData(depositOrder);
+    }
 }
