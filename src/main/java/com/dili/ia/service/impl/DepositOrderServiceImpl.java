@@ -740,9 +740,18 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
         deList.stream().forEach(o -> {
-            BaseOutput output = this.withdrawDepositOrder(o.getId());
-            if (!output.isSuccess()){
-                throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+            // 如果状态是【已提交】状态，就同步撤回
+            if (o.getState().equals(DepositOrderStateEnum.SUBMITTED.getCode())){
+                BaseOutput output = this.withdrawDepositOrder(o.getId());
+                if (!output.isSuccess()){
+                    throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                }
+            }else {// 如果状态不是【已提交】状态，就解除关联订单操作关系
+                o.setIsRelated(YesOrNoEnum.NO.getCode());
+                if (this.updateSelective(o) == 0) {
+                    LOG.info("修改保证金【解除关联操作】失败 ,乐观锁生效！【保证金单ID:{}】", o.getId());
+                    throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+                }
             }
         });
         return BaseOutput.success();
@@ -775,5 +784,24 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositBalance.setCustomerId(customerId);
         depositBalance.setAssetsId(assetsId);
         return depositBalanceService.listByExample(depositBalance).stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public BaseOutput batchReleaseRelated(String bizType, Long businessId) {
+        if (businessId == null){
+            return BaseOutput.failure("参数businessId 不能为空！");
+        }
+        if (bizType == null){
+            return BaseOutput.failure("参数bizType 不能为空！");
+        }
+        List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        deList.stream().forEach(o -> {
+            o.setIsRelated(YesOrNoEnum.NO.getCode());
+            if (this.updateSelective(o) == 0) {
+                LOG.info("修改保证金【解除关联操作】失败 ,乐观锁生效！【保证金单ID:{}】", o.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
+        });
+        return BaseOutput.success();
     }
 }

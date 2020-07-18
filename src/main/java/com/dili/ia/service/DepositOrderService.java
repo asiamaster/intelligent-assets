@@ -92,6 +92,7 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
 
     /**
      * 批量【撤回】保证金单 --- 【摊位租赁同步撤回成使用】
+     * 关联保证金进行了一次单独缴费成功，撤回租赁单需要解除关联操作关系。
      * @param bizType 业务类型
      * @param businessId 关联订单ID
      * @return BaseOutput
@@ -106,4 +107,14 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput<List<DepositBalance>>
      */
     BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds);
+    /**
+     * 批量【取消关联操作】保证金单 --- 【摊位租赁同步撤回成使用】
+     * 解除关联操作关系的情况：
+     * 1、租赁缴费已交清；
+     * 2、关联保证金进行了一次缴费成功，撤回租赁单需要解除关联操作关系。
+     * @param bizType 业务类型
+     * @param businessId 关联订单ID
+     * @return BaseOutput
+     */
+    BaseOutput batchReleaseRelated(String bizType, Long businessId);
 }
