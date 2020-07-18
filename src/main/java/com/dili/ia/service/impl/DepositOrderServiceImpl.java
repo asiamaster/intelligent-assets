@@ -640,6 +640,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return BaseOutput.success();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchAddOrUpdateDepositOrder(List<DepositOrder> depositOrderList) {
         if (CollectionUtils.isEmpty(depositOrderList)){
@@ -661,10 +662,17 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 if (o.getBizType() == null){
                     throw new BusinessException(ResultCode.PARAMS_ERROR, "关联订单业务类型不能为空");
                 }
-                this.addDepositOrder(o);
+                BaseOutput output = this.addDepositOrder(o);
+                if (!output.isSuccess()){
+                    throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                }
             }else {// 有的话， 就【修改】
                 o.setId(deList.get(0).getId());
-                this.updateDepositOrder(o);
+                BaseOutput output = this.updateDepositOrder(o);
+                if (!output.isSuccess()){
+                    throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                }
+
                 if (assetsIdsMap.containsKey(o.getAssetsId())){
                     assetsIdsMap.remove(o.getAssetsId());
                 }
@@ -676,9 +684,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 throw new BusinessException(ResultCode.DATA_ERROR, "取消失败，保证金单状态已变更！");
             }
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            if (userTicket == null){
-                throw new BusinessException(ResultCode.DATA_ERROR, "未登录！");
-            }
             depositOrder.setCancelerId(userTicket.getId());
             depositOrder.setCanceler(userTicket.getRealName());
             depositOrder.setState(DepositOrderStateEnum.CANCELD.getCode());
@@ -700,6 +705,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return list;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchSubmitDepositOrder(String bizType, Long businessId, Map<Long, Long> map) {
         if (map == null){
@@ -714,12 +720,16 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         map.forEach((key, value) -> {
             List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, key);
             if (CollectionUtils.isNotEmpty(deList)){
-                this.submitDepositOrder(deList.get(0).getId(), value, deList.get(0).getWaitAmount());
+                BaseOutput output = this.submitDepositOrder(deList.get(0).getId(), value, deList.get(0).getWaitAmount());
+                if (!output.isSuccess()){
+                    throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                }
             }
         });
         return BaseOutput.success();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchWithdrawDepositOrder(String bizType, Long businessId) {
         if (businessId == null){
@@ -730,7 +740,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
         deList.stream().forEach(o -> {
-            this.withdrawDepositOrder(o.getId());
+            BaseOutput output = this.withdrawDepositOrder(o.getId());
+            if (!output.isSuccess()){
+                throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+            }
         });
         return BaseOutput.success();
     }

@@ -345,6 +345,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             return BaseOutput.success();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput withdrawLeaseOrderCustomerAmountUnFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName) {
             Integer sceneType = TransactionSceneTypeEnum.UNFROZEN.getCode();
