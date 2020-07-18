@@ -4,7 +4,7 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.service.LeaseOrderItemService;
+import com.dili.ia.service.AssetsLeaseOrderItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -42,7 +42,7 @@ public class RefundOrderController {
     @Autowired
     RefundOrderService refundOrderService;
     @Autowired
-    LeaseOrderItemService leaseOrderItemService;
+    AssetsLeaseOrderItemService assetsLeaseOrderItemService;
     @Autowired
     TransferDeductionItemService transferDeductionItemService;
     @Autowired
@@ -121,7 +121,7 @@ public class RefundOrderController {
                 transferDeductionItemCondition.setRefundOrderId(id);
                 modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
                 if(null != refundOrder.getBusinessItemId()){
-                    modelMap.put("leaseOrderItem",leaseOrderItemService.get(refundOrder.getBusinessItemId()));
+                    modelMap.put("leaseOrderItem",assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId()));
                 }
                 return "refundOrder/leaseRefundOrderView";
             }

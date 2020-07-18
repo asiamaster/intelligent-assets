@@ -426,8 +426,7 @@
                     let businessChargeItem = {};
                     businessChargeItem.chargeItemName = this.dataset.chargeItemName;
                     businessChargeItem.chargeItemId = this.dataset.chargeItemId;
-                    businessChargeItem.bizType = ${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType()};
-                    businessChargeItem.amount = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+                    businessChargeItem.amount = Number($(this).val()).mul(100);
                     leaseOrderItem.businessChargeItems.push(businessChargeItem);
                 }else{
                     leaseOrderItem[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();

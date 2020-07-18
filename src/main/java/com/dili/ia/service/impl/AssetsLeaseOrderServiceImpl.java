@@ -584,11 +584,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //第一次消费，需要抵扣保证金、定金、转抵金
         if (LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
             //消费定金、转抵
-            BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(
-                    leaseOrder.getId(), leaseOrder.getCode(),
-                    leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(),
-                    leaseOrder.getTransferDeduction(),
-                    leaseOrder.getMarketId(), settleOrder.getOperatorId(), settleOrder.getOperatorName());
+            BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getMarketId(), settleOrder.getOperatorId(), settleOrder.getOperatorName());
             if (!customerAccountOutput.isSuccess()) {
                 LOG.info("结算成功，消费定金、转抵接口异常 【租赁单编号:{},定金:{},转抵:{}】", leaseOrder.getCode(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction());
                 throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
@@ -622,9 +618,32 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(leaseOrderItemCondition);
+        String bizType = AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType();
         leaseOrderItems.stream().forEach(o -> {
+            BusinessChargeItem chargeItemCondition = new BusinessChargeItem();
+            chargeItemCondition.setBusinessId(o.getId());
+            chargeItemCondition.setBizType(bizType);
+            List<BusinessChargeItem> businessChargeItems = businessChargeItemService.list(chargeItemCondition);
+
+            Long itemPaymentAmount = businessChargeItems.stream().mapToLong(BusinessChargeItem::getPaymentAmount).sum();
+            o.setWaitAmount(o.getWaitAmount() - itemPaymentAmount);
+            o.setPaidAmount(o.getPaidAmount() + itemPaymentAmount);
             o.setState(leaseOrder.getState());
-            o.setPayState(leaseOrder.getPayState());
+            if ((o.getWaitAmount() - itemPaymentAmount) == 0L) {
+                o.setPayState(PayStateEnum.PAID.getCode());
+            }
+
+            //业务收费项完成分摊
+            businessChargeItems.forEach(bci->{
+                bci.setWaitAmount(bci.getWaitAmount() - bci.getPaymentAmount());
+                bci.setPaidAmount(bci.getPaidAmount() + bci.getPaymentAmount());
+                bci.setPaymentAmount(0L);
+            });
+            if (businessChargeItemService.batchUpdateSelective(businessChargeItems) != businessChargeItems.size()) {
+                LOG.info("结算成功完成分摊 【businessId:{},bizType:{}】", o.getId(), bizType);
+                throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
+            }
+
         });
         if (assetsLeaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -896,7 +915,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             return BaseOutput.success();
         }
         leaseOrderItem.setRefundState(LeaseRefundStateEnum.REFUNDED.getCode());
-        leaseOrderItem.setState(LeaseOrderItemStateEnum.REFUNDED.getCode());
         if (assetsLeaseOrderItemService.updateSelective(leaseOrderItem) == 0) {
             LOG.info("摊位租赁单订单项退款申请结算退款成功 更新租赁单订单项乐观锁生效 【租赁单订单项ID {}】", leaseOrderItem.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -908,24 +926,22 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
-        boolean isUpdateLeaseOrderState = true;
+        boolean isFullRefund = true;
         for (AssetsLeaseOrderItem orderItem : leaseOrderItems) {
             if (orderItem.getId().equals(refundOrder.getBusinessItemId())) {
                 continue;
-            } else if (!LeaseOrderItemStateEnum.REFUNDED.getCode().equals(orderItem.getState())) {
-                isUpdateLeaseOrderState = false;
+            } else if (!LeaseRefundStateEnum.REFUNDED.getCode().equals(orderItem.getRefundState())) {
+                isFullRefund = false;
                 break;
             }
         }
-        if (isUpdateLeaseOrderState) {
-            leaseOrder.setState(LeaseOrderStateEnum.REFUNDED.getCode());
-            leaseOrder.setRefundState(LeaseRefundStateEnum.REFUNDED.getCode());
-            if (updateSelective(leaseOrder) == 0) {
-                LOG.info("摊位租赁单订单项退款申请结算退款成功 级联更新租赁单乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-            }
-        }
 
+        leaseOrder.setRefundState(isFullRefund ? LeaseRefundStateEnum.REFUNDED.getCode() : LeaseRefundStateEnum.PARTIAL_REFUND.getCode());
+        leaseOrder.setWaitAmount(leaseOrder.getWaitAmount() - leaseOrderItem.getWaitAmount());
+        if (updateSelective(leaseOrder) == 0) {
+            LOG.info("摊位租赁单订单项退款申请结算退款成功 级联更新租赁单乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
 
         //转抵扣充值
         TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
@@ -1068,9 +1084,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已交清，不可以进行提交付款操作");
         }
-        if (!LeaseRefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())) {
-            LOG.info("租赁单编号【{}】已发起退款，不可以进行提交付款操作", leaseOrder.getCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已发起退款，不可以进行提交付款操作");
+        if (LeaseRefundStateEnum.REFUNDED.getCode().equals(leaseOrder.getRefundState()) || LeaseRefundStateEnum.REFUNDING.getCode().equals(leaseOrder.getRefundState())) {
+            LOG.info("租赁单编号【{}】退款中或已退款，不可以进行提交付款操作", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】退款中或已退款，不可以进行提交付款操作");
         }
         if (LeaseOrderStateEnum.CANCELD.getCode().equals(leaseOrder.getState())) {
             LOG.info("租赁单编号【{}】已取消，不可以进行提交付款操作", leaseOrder.getCode());
@@ -1271,7 +1287,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         assetsLeaseOrderItems.forEach(o -> {
             BusinessChargeItem bciCondition = new BusinessChargeItem();
             bciCondition.setBusinessId(o.getId());
-            bciCondition.setBizType(AssetsTypeEnum.getAssetsTypeEnum(o.getAssetsType()).getCode());
+            bciCondition.setBizType(AssetsTypeEnum.getAssetsTypeEnum(o.getAssetsType()).getBizType());
             businessChargeItemService.deleteByExample(bciCondition);
         });
 
@@ -1305,6 +1321,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 o.getBusinessChargeItems().stream().filter(bci -> bci.getAmount() > 0).forEach(bci -> {
                     bci.setBusinessId(o.getId());
                     bci.setWaitAmount(bci.getAmount());
+                    bci.setBizType(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getBizType());
                     businessChargeItemService.insertSelective(bci);
                 });
             }

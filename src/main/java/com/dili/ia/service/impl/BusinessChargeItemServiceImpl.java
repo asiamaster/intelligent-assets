@@ -60,6 +60,7 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
     public void unityUpdatePaymentAmountByBusinessId(Long businessId, String bizType, Long... paymentAmount) {
         BusinessChargeItem chargeItemCondition = new BusinessChargeItem();
         chargeItemCondition.setBusinessId(businessId);
+        chargeItemCondition.setBizType(bizType);
         List<BusinessChargeItem> businessChargeItems = list(chargeItemCondition);
         businessChargeItems.forEach(bci->{
             bci.setPaymentAmount(paymentAmount.length > 0 ? paymentAmount[0] : bci.getAmount());
