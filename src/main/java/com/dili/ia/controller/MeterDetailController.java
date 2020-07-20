@@ -4,13 +4,16 @@ import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
+import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
@@ -261,5 +264,30 @@ public class MeterDetailController {
     @RequestMapping(value = "/getLastAmount.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput getLastAmount(Long meterId){
         return meterDetailService.getLastAmount(meterId);
+    }
+
+    /**
+     * 通过计费规则算取费用
+     *
+     * @param meterDetailDto
+     * @return BaseOutput
+     * @date   2020/7/17
+     */
+    @RequestMapping(value="/getCost.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput getCost(@RequestBody MeterDetailDto meterDetailDto) {	        //throw new BusinessException("2000", "errorCode");
+        BaseOutput baseOutput = BaseOutput.success();
+
+        try {
+            baseOutput.setData(meterDetailService.getCost(meterDetailDto));
+        }catch (BusinessException e) {
+            logger.error("费用{}计算异常！",meterDetailDto.getCode(), e);
+            return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+        }catch (Exception e) {
+            logger.error("费用{}计算异常！",meterDetailDto.getCode(), e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+        }
+
+        return baseOutput;
     }
 }

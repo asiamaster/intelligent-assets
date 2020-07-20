@@ -6,11 +6,14 @@ import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
 import com.dili.ia.domain.dto.printDto.StockInPrintDto;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.uap.sdk.domain.UserTicket;
+
+import java.util.List;
 
 /**
  * @author:      xiaosa
@@ -122,4 +125,13 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @date   2020/7/10
      */
     PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint);
+
+    /**
+     * 计费规则
+     *
+     * @param   meterDetailDto
+     * @return  list
+     * @date   2020/7/17
+     */
+    List<QueryFeeOutput> getCost(MeterDetailDto meterDetailDto);
 }

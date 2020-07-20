@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.EarnestOrder;
@@ -9,9 +10,7 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
-import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
-import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.MeterDetailStateEnum;
@@ -25,6 +24,9 @@ import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.service.MeterService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
+import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -40,6 +42,7 @@ import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
+import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
@@ -85,6 +88,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     private MeterService meterService;
 
     @Autowired
+    private ChargeRuleRpc chargeRuleRpc;
+
+    @Autowired
     private UidRpcResolver uidRpcResolver;
 
     @Autowired
@@ -122,6 +128,8 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         condtion.setBusinessCode(meterDetailDtoInfo.getCode());
         condtion.setBizType(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
         meterDetailDtoInfo.setBusinessChargeItems(businessChargeItemService.list(condtion));
+
+        // TODO 查询操作日志
 
         return meterDetailDtoInfo;
     }
@@ -180,7 +188,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
         // 根据 meterId 查询是否有代缴费的业务单（已创建已提交）
         List<MeterDetailDto> meterDetailDtoList = this.listMeterDetailByUnPayBusiness(meterDetailDto.getMeterId());
-//        List<MeterDetailDto> meterDetailDtoList = this.listUnPayUnSubmitByMeter(meterDetailDto.getMeterId());
         if (CollectionUtils.isNotEmpty(meterDetailDtoList)) {
             return BaseOutput.failure("该表存在未交费单据，无法保存！");
         }
@@ -235,6 +242,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     private List<BusinessChargeItem> buildBusinessCharge(List<BusinessChargeItem> businessChargeItems, Long businessId, String businessCode){
         List<BusinessChargeItem> businessChargeItemList = new ArrayList<>();
+
         businessChargeItems.stream().filter(item -> item.getAmount() != null).forEach(item -> {
             item.setBusinessId(businessId);
             item.setBusinessCode(businessCode);
@@ -243,6 +251,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             item.setBizType(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
             businessChargeItemList.add(item);
         });
+
         return businessChargeItemList;
     }
     
@@ -256,6 +265,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     @Override
     @Transactional
     public BaseOutput<MeterDetail> submit(Long id, UserTicket userTicket) {
+
         // 先查询水电费单
         MeterDetail meterDetailInfo = this.get(id);
         if (meterDetailInfo == null) {
@@ -314,6 +324,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @return
      */
     private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, MeterDetail meterDetailInfo, String orderCode, Long amount) {
+
         SettleOrderInfoDto settleOrderInfoDto = new SettleOrderInfoDto(userTicket, BizTypeEnum.UTTLITIES, SettleTypeEnum.PAY, SettleStateEnum.WAIT_DEAL);
         settleOrderInfoDto.setMarketId(meterDetailInfo.getMarketId());
         settleOrderInfoDto.setMarketCode(userTicket.getFirmCode());
@@ -336,6 +347,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
             settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         }
+
         return settleOrderInfoDto;
     }
 
@@ -348,6 +360,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     @Override
     public BaseOutput<EarnestOrder> settlementDealHandler(SettleOrder settleOrder) {
+
         // 修改缴费单相关数据
         if (null == settleOrder){
             throw new BusinessException(ResultCode.PARAMS_ERROR, "回调参数为空！");
@@ -405,6 +418,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     @Override
     public BaseOutput<MeterDetail> withdraw(Long id, UserTicket userTicket) {
+
         // 查询数据,对比状态
         MeterDetail meterDetailInfo = this.get(id);
         if (meterDetailInfo != null && !MeterDetailStateEnum.SUBMITED.getCode().equals(meterDetailInfo.getState())) {
@@ -442,6 +456,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     @Override
     public BaseOutput<MeterDetail> cancel(Long id, UserTicket userTicket) {
+
         // 查询数据,对比状态
         MeterDetail meterDetailInfo = this.get(id);
         if (meterDetailInfo != null && !MeterDetailStateEnum.UNSUBMITED.getCode().equals(meterDetailInfo.getState())) {
@@ -469,6 +484,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     @Override
     public PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint) {
         PaymentOrder paymentOrderCondition = new PaymentOrder();
+
         paymentOrderCondition.setCode(orderCode);
         paymentOrderCondition.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
@@ -504,6 +520,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         PrintDataDto<MeterDetailPrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getCode());
         printDataDto.setItem(null);
+
         return printDataDto;
     }
 
@@ -516,6 +533,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
         PaymentOrder pb = new PaymentOrder();
+
         pb.setBizType(BizTypeEnum.UTTLITIES.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
@@ -539,6 +557,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     @Override
     public BaseOutput<MeterDetail> updateMeterDetail(MeterDetailDto meterDetailDto) {
+
         // 先查询
         MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
         if (meterDetailInfo == null) {
@@ -585,14 +604,15 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @return 缴费集合
      * @date   2020/6/30
      */
-    private List<MeterDetailDto> listUnPayUnSubmitByMeter(Long meterId) {
+    private List<MeterDetailDto> listUnPayUnSubmitByMeter(Long meterId, LocalDateTime usageTime) {
         MeterDetailDto meterDetailDto = new MeterDetailDto();
+
         // 获取使用月份的第一天和最后一天时间,用于数据库查询
-//        if (usageTime != null) {
-//            Map dateTimeMap = this.getStartTimeAndEndTime(usageTime);
-//            meterDetailDto.setStartTime((LocalDateTime) dateTimeMap.get("startTime"));
-//            meterDetailDto.setEndTime((LocalDateTime) dateTimeMap.get("endTime"));
-//        }
+        if (usageTime != null) {
+            Map dateTimeMap = this.getStartTimeAndEndTime(usageTime);
+            meterDetailDto.setStartTime((LocalDateTime) dateTimeMap.get("startTime"));
+            meterDetailDto.setEndTime((LocalDateTime) dateTimeMap.get("endTime"));
+        }
 
         // 未缴费
         StringBuilder statusBuff = new StringBuilder("");
@@ -622,13 +642,15 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     private List<MeterDetailDto> listMeterDetailByUnPayBusiness(Long meterId) {
         MeterDetailDto meterDetailDto = new MeterDetailDto();
 
+        // 已创建和已提交状态为未缴费
         StringBuilder statusBuff = new StringBuilder("");
         statusBuff.append(MeterDetailStateEnum.UNSUBMITED.getCode()).append(",").append(MeterDetailStateEnum.SUBMITED.getCode()).append(",");
+
         // 设置查询参数
         meterDetailDto.setMeterId(meterId);
         meterDetailDto.setStatus(statusBuff.toString());
-        List<MeterDetailDto> meterDetailDtoList = this.getActualDao().listMeterDetailByUnPayBusiness(meterDetailDto);
-        return  meterDetailDtoList;
+
+        return this.getActualDao().listMeterDetailByUnPayBusiness(meterDetailDto);
     }
 
     /**
@@ -640,6 +662,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     private Map getStartTimeAndEndTime(LocalDateTime usageTime) {
         Map dateTimeMap = new HashMap();
+
         if (StringUtils.isBlank(usageTime.toString())){
             return null;
         }
@@ -739,5 +762,33 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailDto.setBizTypes(bizTypes);
 
         return this.getActualDao().getLastAmountByMeterId(meterDetailDto);
+    }
+
+    /**
+     * 计费规则
+     *
+     * @param   meterDetailDto
+     * @return  list
+     * @date   2020/7/17
+     */
+    @Override
+    public List<QueryFeeOutput> getCost(MeterDetailDto meterDetailDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        List<QueryFeeInput> queryFeeInputs = new ArrayList<>();
+        meterDetailDto.getBusinessChargeItems().forEach(itme -> {
+            QueryFeeInput queryFeeInput =new QueryFeeInput();
+            queryFeeInput.setMarketId(userTicket.getFirmId());
+            queryFeeInput.setBusinessType("UTTLITIES");
+            queryFeeInput.setChargeItem(itme.getChargeItemId());
+            Map<String, Object> calcParams = new HashMap<String, Object>();
+            calcParams.put("lastAmount", meterDetailDto.getLastAmount());
+            calcParams.put("thisAmount", meterDetailDto.getThisAmount());
+            calcParams.put("price", meterDetailDto.getPrice());
+            queryFeeInput.setCalcParams(calcParams);
+            queryFeeInputs.add(queryFeeInput);
+        });
+        BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
+
+        return batchQueryFee.getData();
     }
 }
