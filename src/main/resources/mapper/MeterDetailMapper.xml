@@ -393,4 +393,16 @@
     WHERE
         md.code = #{code}
   </select>
+
+    <select id="listMeterDetailByUnPayBusiness" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">
+        SELECT DISTINCT
+            id
+        FROM
+            meter_detail
+        WHERE
+            meter_id = #{meterId}
+        AND
+            state IN (#{status})
+
+    </select>
 </mapper>

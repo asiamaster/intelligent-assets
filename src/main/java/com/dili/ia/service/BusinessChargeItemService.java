@@ -37,4 +37,15 @@ public interface BusinessChargeItemService extends BaseService<BusinessChargeIte
      * @return
      */
     List<BusinessChargeItemDto> queryBusinessChargeItemMeta(List<Long> businessIds);
+
+    /**
+     * 根据业务ID、Code、Type 删除旧有的动态收费项
+     *
+     * @param  businessId
+     * @param  businessCode
+     * @param  bizType
+     * @return int
+     * @date   2020/7/16
+     */
+    int deleteByBusinessIdAndCodeAndBizType(Long businessId, String businessCode, Integer bizType);
 }

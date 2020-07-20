@@ -53,4 +53,19 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
     public List<BusinessChargeItemDto> queryBusinessChargeItemMeta(List<Long> businessIds) {
         return getActualDao().queryBusinessChargeItemMeta(businessIds);
     }
+
+    /**
+     * 根据业务ID、Code、Type 删除旧有的动态收费项
+     *
+     * @param  businessId
+     * @param  businessCode
+     * @param  bizType
+     * @return int
+     * @date   2020/7/16
+     */
+    @Override
+    public int deleteByBusinessIdAndCodeAndBizType(Long businessId, String businessCode, Integer bizType) {
+//        int code = this.getActualDao().deleteByBusinessIdAndCodeAndBizType(businessId, businessCode, bizType);
+        return 0;
+    }
 }

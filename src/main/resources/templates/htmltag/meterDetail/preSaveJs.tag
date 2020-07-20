@@ -74,19 +74,6 @@
         let _formData = $('#saveForm').serializeObject();
         let _url = null;
 
-        // 动态收费项
-        let businessChargeDtos = []
-        $('#saveForm').find('.chargeItem').each(function(){
-            let businessCharge = {};
-            businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
-            businessCharge.chargeItemName=$(this).attr("chargeItem");
-            businessCharge.amount=parseInt($(this).val())*100;
-            if (businessCharge != {}) {
-                businessChargeDtos.push(businessCharge);
-            }
-        })
-        _formData.businessChargeItems = businessChargeDtos;
-
         //没有id就新增
         if (_formData.id == null || _formData.id == "") {
             _url = "${contextPath}/meterDetail/add.action";
@@ -96,7 +83,7 @@
         $.ajax({
             type: "POST",
             url: _url,
-            data: JSON.stringify(_formData),
+            data: buildFormData(),
             dataType: "json",
             contentType: "application/json",
             success: function (ret) {
@@ -114,4 +101,26 @@
         });
     }
 
+
+    //数据组装
+    function buildFormData() {
+        let _formData = $('#saveForm').serializeObject();
+        // 月份补全
+        _formData.usageTime = _formData.usageTime + "-01 00:00:00";
+
+        // 动态收费项
+        let businessChargeDtos = []
+        $('#saveForm').find('.chargeItem').each(function(){
+            let businessCharge = {};
+            businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
+            businessCharge.chargeItemName=$(this).attr("chargeItem");
+            businessCharge.amount=parseInt($(this).val())*100;
+            if (businessCharge != {}) {
+                businessChargeDtos.push(businessCharge);
+            }
+        })
+        _formData.businessChargeItems = businessChargeDtos;
+
+        return JSON.stringify(_formData)
+    }
 </script>
