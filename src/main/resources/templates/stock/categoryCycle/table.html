@@ -1,0 +1,239 @@
+<div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+
+    <button type="button" class="btn btn-primary btn-update" onclick="tableUpdateClickHandler()">
+        <i class="fa fa-pencil-square-o"></i> 修改
+    </button>
+    <button type="button" class="btn btn-primary btn-on" onclick="tableFreezeClickHandler(1)">
+        <i class="fa fa-play"></i> 启用
+    </button>
+    <button type="button" class="btn btn-primary btn-off" onclick="tableFreezeClickHandler(2)">
+        <i class="fa fa-stop"></i> 禁用
+    </button>
+</div>
+
+<table id="grid" data-toggle="table" data-title="入库单列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="5"
+       data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+       data-click-to-select="true"  data-checkbox-header="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
+       data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
+    <thead>
+    <tr>
+        <th data-radio="true"></th>
+        <th data-field="name" data-sortable="true" data-align="center" data-width-unit="%" >
+            品类名称
+        </th>
+        <th data-field="code" data-sortable="true" data-align="center" data-sort-name="type">
+            品类代码
+        </th>
+        <th data-field="pingying" data-sortable="true" data-align="center"  >
+            拼音全写
+        </th>
+        <th data-field="pyInitials" data-sortable="true" data-sort-name="customer_name" data-align="center">
+            拼音简写
+        </th>
+        <th data-field="moduleLabel" data-sortable="true" data-align="center" >
+           模块标签
+        </th>
+        <th data-field="cycle" data-sortable="true" data-sort-name="category_name" data-align="center">
+            存储周期
+        </th>
+        <th data-field="cycleState" data-sortable="true" data-sort-name="quantity" data-align="center">
+            状态
+        </th>
+    </tr>
+    </thead>
+</table>
+
+<table class="table table-bordered mt-3 text-center" >
+    <tr>
+        <th scope="col"></th>
+        <th scope="col">品类名称</th>
+        <th scope="col">品类代码</th>
+        <th scope="col">拼音全写</th>
+        <th scope="col">拼音简写</th>
+        <th scope="col">模块标签</th>
+        <th scope="col">存储周期</th>
+        <th scope="col">状态</th>
+    </tr>
+    <% for(o in obj) { %>
+    <tr data-name="${o.name!}">
+        <td style="text-align: center"><input class="ck" type="radio" value="${o.id}" state="${o.cycleState}" name="ck"/></td>
+        <td>${o.name!}</td>
+        <td>${o.code!}</td>
+        <td>${o.pingying!}</td>
+        <td>${o.pyInitials!}</td>
+        <td>${o.moduleLabel!}</td>
+        <td>${o.cycle!}</td>
+        <td>
+            <% if(o.cycleState==1){ %>
+            已启用
+            <% } %>
+            <% else if(o.cycleState==2){ %>
+            已禁用
+            <% }%>
+        </td>
+    </tr>
+    <% } %>
+</table>
+<script type="text/javascript">
+
+
+
+function tableUpdateClickHandler() {
+	let size = $("input[name='ck']:checked").length;
+	if (size === 0) {
+		tips("提示", "请选择一条数据!");
+		return;
+	}
+	let selectedRow = {};
+	let selected = $("input[name='ck']:checked");
+    let tds = selected.closest('tr').find('td');
+    selectedRow.id=selected.val();
+    selectedRow.name=tds.eq(1).text();
+    selectedRow.code=tds.eq(2).text();
+    selectedRow.label=tds.eq(5).text();
+    selectedRow.cycle=tds.eq(6).text();
+	dia = bs4pop.dialog({
+		title: '品类存储周期设置', //对话框title
+		content: bui.util.HTMLDecode(template("stockOut", {
+			selectedRow
+		})), //对话框内容，可以是 string、element，$object
+		width: '40%', //宽度
+		height: '90%', //高度
+		btns: [{
+			label: '取消',
+			className: 'btn btn-secondary',
+			onClick(e) {
+
+			}
+		}, {
+			label: '确定',
+			className: 'btn btn-primary',
+			onClick(e) {
+				let formData = $('#saveForm').serializeObject();
+				$.ajax({
+					type: "POST",
+					url: "${contextPath}/stock/categoryCycle/saveCycle.action",
+					data: JSON.stringify(formData),
+					dataType: "json",
+					contentType: "application/json",
+					success: function(ret) {
+						if (!ret.success) {
+							bs4pop.alert(ret.message, {
+								type: 'error'
+							});
+						} else {
+							bs4pop.alert(ret.message, {type: 'success'});
+						}
+					},
+					error: function(error) {
+						bs4pop.alert('远程访问失败', {
+							type: 'error'
+						});
+					}
+				});
+				
+			}
+		}]
+	});
+
+}
+
+
+
+function tableFreezeClickHandler(state) {
+	let size = $("input[name='ck']:checked").length;
+	if (size === 0) {
+		tips("提示", "请选择一条数据!");
+		return;
+	}
+	id = $("input[name='ck']:checked").val();
+	let formData = {};
+	formData.id=id;
+	formData.state=state;
+	formData.allChildren=true;
+	
+	var action = '';
+	if(state==2){
+		action = '禁用'
+	}else{
+		action = '启用'
+	}
+	var msg = '该操作将'+action+'所有子品类,请确定?';
+	bs4pop.confirm(msg, {
+		title: "确认提示"
+	}, function(sure) {
+		if (sure) {
+			$.ajax({
+				type: "POST",
+				url: '${contextPath}/stock/categoryCycle/saveCycle.action',
+				dataType: "json",
+				data: JSON.stringify(formData),
+				contentType: "application/json",
+				success: function(data) {
+					if (data.code != '200') {
+						tips("提示", data.message);
+						return;
+					}
+					loadTable();
+					tips("提示", action+"品类成功!");
+				},
+				error: function() {
+					tips("提示", action+"品类失败!");
+				}
+			});
+		}
+	});
+}
+
+
+$(document).on('click', '.table tr', function() {
+	$(this).find('input[type="radio"]').prop('checked', true);
+	//选中行事件 -- 可操作按钮控制state
+	let state = $(this).find('input[type="radio"]').attr("state");
+	console.log(state);
+	$('#toolbar button').attr('disabled', true);
+	if (state == 1) { 
+        $('.btn-off').attr('disabled', false);
+    }else if(state == 2){
+        $('.btn-on').attr('disabled', false);
+    }
+	$('.btn-update').attr('disabled', false);
+
+});
+
+
+</script>
+
+<script id="stockOut" type="text/html">
+	<form id="saveForm" role="form" novalidate>
+        <div class="row row-cols-1 detail" id="detailInfo">
+            <input type="hidden" class="form-control" name="id" value="{{selectedRow.id}}" required />
+            <div class="form-group col">
+                <label for="" class="">品类名称：<i class="red">*</i></label> <input  class="form-control"
+                  value="{{selectedRow.name}}" readonly required />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">品类代码：<i class="red">*</i></label> <input  class="form-control"
+                  name="" value="{{selectedRow.code}}"  readonly required />
+            </div>
+            <div class="form-group col">
+                <label for="">模块标签</label>
+                <input id="moduleLabel" class="form-control" name="moduleLabel" value="冷库管理" readonly/>
+            </div>
+			<div class="form-group col">
+                <label for="">存储天数</label>
+                <input id="cycle" type="number" class="form-control" name="cycle" value="{{selectedRow.cycle}}"  range="0 9999999" />
+            </div>
+			<div class="form-group col">
+                <label for="">存储天数同步该品类全部子类</label>
+                <input id="" type="checkbox" value="true" class="form-control" name="allChildren" />
+            </div>
+			<div class="form-group col">
+                <label for="">备注</label>
+                <input id="notes" class="form-control" name="notes" value="{{selectedRow.notes}}" />
+                <input id="state" type="hidden" class="form-control" name="state" value="1" />
+
+            </div>
+        </div>
+	</form>			
+</script>

@@ -1,0 +1,402 @@
+<#bs4Body>
+<link rel="stylesheet"
+	href="https://www.jq22.com/demo/bootstrap-ztree3201708300202/css/bootstrapStyle/bootstrapStyle.css"
+	type="text/css">
+<div class="main-container container-fluid">
+	<#bs4nav>
+	<form id="queryForm" role="form" >
+	<div class="row row-cols-4" >
+		<input type="hidden" name="parentId" value = 1/>
+		<div class="form-group col">
+			<label for="category_status">状态</label> <select id="category_status"
+				class="form-control input-sm" name="state">
+				<option value="">-- 全部 --</option>
+				<option value="1">已启用</option>
+				<option value="2">已禁用</option>
+			</select>
+		</div>
+		<div class="form-group col">
+			<label for="category_text">品类名称/品类代码</label> <input
+				id="keyword" name="keyword" type="text"
+				class="form-control input-sm input-control len224"
+				placeholder="品类名称/品类代码">
+		</div>
+		<div class="col align-self-center mt-3">
+			<button id="query" type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+			<button type="button" class="btn btn-outline-primary mr-2"
+				onclick="javascript:$('#queryForm .form-control').val('');">
+				<i class="fa fa-refresh"></i> 清空
+			</button>
+		</div>
+	</div>
+	</form>
+	</#bs4nav>
+
+	<div class="row">
+		<div class="col-2">
+			<!-- treeView1 start -->
+			<div id="treeView1" class="pull-left ztree"></div>
+			<!-- treeView1 end -->
+		</div>
+		<div class="col">
+			<!-- table-showlist start -->
+			<div id="tablelist" class="table-showlist">
+				<div id="toolbar" class="btn-group" role="group"
+					aria-label="Toolbar with button groups">
+
+					<button type="button" class="btn btn-primary btn-update"
+						onclick="tableUpdateClickHandler()">
+						<i class="fa fa-pencil-square-o"></i> 修改
+					</button>
+					<button type="button" class="btn btn-primary btn-on"
+						onclick="tableFreezeClickHandler(1)">
+						<i class="fa fa-play"></i> 启用
+					</button>
+					<button type="button" class="btn btn-primary btn-off"
+						onclick="tableFreezeClickHandler(2)">
+						<i class="fa fa-stop"></i> 禁用
+					</button>
+				</div>
+
+				<table id="grid" data-toggle="table" data-title="入库单列表"
+					class="table" data-toolbar="#toolbar" data-pagination="true"
+					data-page-number="1" data-page-size="20"
+					data-query-params="queryParams" data-side-pagination="server"
+					data-method="POST"
+					data-content-type="application/x-www-form-urlencoded"
+					data-single-select="true" data-click-to-select="true"
+					data-checkbox-header="true" data-unique-id="id" data-sort-name="id"
+					data-sort-order="desc" data-icons="bui.variable.icons"
+					data-buttons-class="primary" data-show-refresh="true"
+					data-show-fullscreen="true" data-show-columns="true">
+					<thead>
+						<tr>
+							<th data-radio="true"></th>
+							<th data-field="name" data-sortable="true" data-align="center"
+								data-width-unit="%">品类名称</th>
+							<th data-field="code" data-sortable="true" data-align="center"
+								data-sort-name="type">品类代码</th>
+							<th data-field="pingying" data-sortable="true"
+								data-align="center">拼音全写</th>
+							<th data-field="pyInitials" data-sortable="true"
+								data-sort-name="customer_name" data-align="center">拼音简写</th>
+							<th data-field="moduleLabel" data-sortable="true"
+								data-align="center">模块标签</th>
+							<th data-field="cycle" data-sortable="true"
+								data-sort-name="category_name" data-align="center">存储周期</th>
+							<th data-field="cycleState" data-sortable="true"
+								data-sort-name="quantity" data-formatter="cardNoFormatter" data-align="center">状态</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<input type="hidden" id="parentId" value="0" />
+			<!-- table-showlist end -->
+		</div>
+	</div>
+
+</div>
+
+
+
+<script type="text/javascript"
+	src="${contextPath}/resources/ztree/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript"
+	src="${contextPath}/resources/ztree/js/jquery.ztree.excheck-3.5.js"></script>
+<script type="text/javascript"
+	src="${contextPath}/resources/ztree/js/jquery.ztree.exedit-3.5.js"></script>
+<script type="text/javascript"
+	src="${contextPath}/resources/ztree/js/jquery.ztree.exhide-3.5.js"></script>
+
+</#bs4Body>
+
+<script type="text/javascript">
+
+let _grid = $('#grid');
+let _form = $('#queryForm');
+let _modal = $('#_modal');
+
+$(function () {
+	$(window).resize(function () {
+		_grid.bootstrapTable('resetView')
+	});
+	queryDataHandler(0);
+});
+
+function queryDataHandler(parent) {
+	//let formData = $('#queryForm').serializeObject();
+	_grid.bootstrapTable('refreshOptions',{	
+		pageNumber: 1,
+		url: '/stock/categoryCycle/table.action',
+		queryParams:function(params){
+			params.page = params.offset / params.limit + 1,
+			params.rows = params.limit,
+			params.parent = parent
+			return params;
+		}
+	});
+}
+
+function cardNoFormatter(value) {
+    return value==1?'启用':'禁用';
+}
+
+    jQuery(function ($) {
+        loadTree();
+    });
+    //加载树CATEGORY_TABLE
+    var settings = {
+        callback: {
+            onClick: treeClickHandler
+        },
+        data: {
+            simpleData: {
+                enable: true,
+                pIdKey: "parent",
+                rootPId: 0
+            }
+        },
+        view: {
+            showIcon: false,
+            txtSelectedEnable: true
+        }
+    };
+
+    function loadTree() {
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: '/stock/categoryCycle/getTree.action',
+            success: function (data) {
+                if (data.code != '200') {
+                    tips("提示", data.message);
+                    return;
+                }
+                if (data.data) {
+                    data.data.push({code: "", id: 0, name: "根目录", parent: -1, path: "0", pyInitials: ""});
+                }
+                $.fn.zTree.init($("#treeView1"), settings, data.data);
+            },
+            error: function () {
+                tips("提示", "加载品类树失败");
+            }
+        });
+    }
+
+    function addTreeNode(tid, node, isSilent) {
+        var treeObj = $.fn.zTree.getZTreeObj("treeView1");
+        if (treeObj) {
+            var parentNode = treeObj.getNodeByParam("id", tid);
+            treeObj.addNodes(parentNode, node, isSilent);
+        }
+    }
+
+    function updateTreeNode(data) {
+        var treeObj = $.fn.zTree.getZTreeObj("treeView1");
+        if (treeObj) {
+            var node = treeObj.getNodeByParam("id", data.id);
+            node.name = data.name;
+            treeObj.updateNode(node);
+        }
+    }
+
+    function removeTreeNode(tid) {
+        var treeObj = $.fn.zTree.getZTreeObj("treeView1");
+        if (treeObj) {
+            var parentNode = treeObj.getNodeByParam("id", tid);
+            treeObj.removeNode(parentNode, false);
+        }
+    }
+
+    var tableurl;
+    var status;
+    var text;
+    var isQuery = true;
+
+    function loadTable() {
+        if (isQuery) {
+            loadTree();
+            if (status) {
+                $("#category_status option[value=" + status + "]")[0].selected = "selected";
+            }
+            $("#category_text").val(text);
+        }
+        if (tableurl) {
+            $("#tablelist").load(tableurl);
+        }
+    }
+
+    //树单击事件 加载列表
+    function treeClickHandler(e, treeId, treeNode) {
+        var path = treeNode.path;
+        var pid = treeNode.id;
+        var arr = path.split(",");
+
+        $("#parentId").val(pid);
+
+        $("#category_status option[value='']")[0].selected = "selected";
+        $("#category_text").val("");
+
+        
+        queryDataHandler(pid);
+    }
+
+    function tips(title, msg) {
+        bs4pop.alert(msg, {type: 'success'});
+    }
+
+    function queryClickHandler() {
+        status = $("#category_status").val();
+        text = $("#category_text").val();
+        $("#parentId").attr("value", "");
+        tableurl = '/stock/categoryCycle/table.html' + '?state=' + status + '&keyword=' + text;
+        isQuery = true;
+        loadTable();
+        loadTree();
+    }
+
+    function tableUpdateClickHandler() {
+    	let selectedRow = _grid.bootstrapTable('getSelections')[0];
+    	if (null == selectedRow || selectedRow.length == 0) {
+    		bs4pop.alert('请选中一条数据');
+    		return false;
+    	}
+    	dia = bs4pop.dialog({
+    		title: '品类存储周期设置', //对话框title
+    		content: bui.util.HTMLDecode(template("stockOut", {
+    			selectedRow
+    		})), //对话框内容，可以是 string、element，$object
+    		width: '40%', //宽度
+    		height: '90%', //高度
+    		btns: [{
+    			label: '取消',
+    			className: 'btn btn-secondary',
+    			onClick(e) {
+
+    			}
+    		}, {
+    			label: '确定',
+    			className: 'btn btn-primary',
+    			onClick(e) {
+    				let formData = $('#saveForm').serializeObject();
+    				$.ajax({
+    					type: "POST",
+    					url: "${contextPath}/stock/categoryCycle/saveCycle.action",
+    					data: JSON.stringify(formData),
+    					dataType: "json",
+    					contentType: "application/json",
+    					success: function(ret) {
+    						if (!ret.success) {
+    							bs4pop.alert(ret.message, {
+    								type: 'error'
+    							});
+    						} else {
+    							bs4pop.alert(ret.message, {type: 'success'});
+    						}
+    					},
+    					error: function(error) {
+    						bs4pop.alert('远程访问失败', {
+    							type: 'error'
+    						});
+    					}
+    				});
+    				
+    			}
+    		}]
+    	});
+
+    }
+
+    function tableFreezeClickHandler(state) {
+    	let selectedRow = _grid.bootstrapTable('getSelections')[0];
+    	if (null == selectedRow || selectedRow.length == 0) {
+    		bs4pop.alert('请选中一条数据');
+    		return false;
+    	}
+    	let formData = {};
+    	formData.id=selectedRow.id;
+    	formData.state=state;
+    	formData.allChildren=true;
+    	
+    	var action = '';
+    	if(state==2){
+    		action = '禁用'
+    	}else{
+    		action = '启用'
+    	}
+    	var msg = '该操作将'+action+'所有子品类,请确定?';
+    	bs4pop.confirm(msg, {
+    		title: "确认提示"
+    	}, function(sure) {
+    		if (sure) {
+    			$.ajax({
+    				type: "POST",
+    				url: '${contextPath}/stock/categoryCycle/saveCycle.action',
+    				dataType: "json",
+    				data: JSON.stringify(formData),
+    				contentType: "application/json",
+    				success: function(data) {
+    					if (data.code != '200') {
+    						tips("提示", data.message);
+    						return;
+    					}
+    					loadTable();
+    					tips("提示", action+"品类成功!");
+    				},
+    				error: function() {
+    					tips("提示", action+"品类失败!");
+    				}
+    			});
+    		}
+    	});
+    }
+
+
+
+    
+    _grid.on('check.bs.table', function (e, row, $element) {
+        let state = row.cycleState	;
+        
+        $('#toolbar button').attr('disabled', true);
+    	if (state == 1) { 
+            $('.btn-off').attr('disabled', false);
+        }else if(state == 2){
+            $('.btn-on').attr('disabled', false);
+        }
+    	$('.btn-update').attr('disabled', false);
+    });
+
+</script>
+<script id="stockOut" type="text/html">
+	<form id="saveForm" role="form" novalidate>
+        <div class="row row-cols-1 detail" id="detailInfo">
+            <input type="hidden" class="form-control" name="id" value="{{selectedRow.id}}" required />
+            <div class="form-group col">
+                <label for="" class="">品类名称：<i class="red">*</i></label> <input  class="form-control"
+                  value="{{selectedRow.name}}" readonly required />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">品类代码：<i class="red">*</i></label> <input  class="form-control"
+                  name="" value="{{selectedRow.code}}"  readonly required />
+            </div>
+            <div class="form-group col">
+                <label for="">模块标签</label>
+                <input id="moduleLabel" class="form-control" name="moduleLabel" value="冷库管理" readonly/>
+            </div>
+			<div class="form-group col">
+                <label for="">存储天数</label>
+                <input id="cycle" type="number" class="form-control" name="cycle" value="{{selectedRow.cycle}}"  range="0 9999999" />
+            </div>
+			<div class="form-group col">
+                <label for="">存储天数同步该品类全部子类</label>
+                <input id="" type="checkbox" value="true" class="form-control" name="allChildren" />
+            </div>
+			<div class="form-group col">
+                <label for="">备注</label>
+                <input id="notes" class="form-control" name="notes" value="{{selectedRow.notes}}" />
+                <input id="state" type="hidden" class="form-control" name="state" value="1" />
+
+            </div>
+        </div>
+	</form>			
+</script>

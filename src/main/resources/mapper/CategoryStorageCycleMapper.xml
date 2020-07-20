@@ -1,62 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dili.ia.mapper.CategoryStorageCycleMapper">
-  <resultMap id="BaseResultMap" type="com.dili.ia.domain.CategoryStorageCycle">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="code" jdbcType="VARCHAR" property="code" />
-    <result column="module_label" jdbcType="VARCHAR" property="moduleLabel" />
-    <result column="cycle" jdbcType="INTEGER" property="cycle" />
-    <result column="notes" jdbcType="VARCHAR" property="notes" />
-    <result column="state" jdbcType="TINYINT" property="state" />
-    <result column="market_id" jdbcType="BIGINT" property="marketId" />
-    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
-  </resultMap>
+  
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbg.generated
     -->
-    id, code, module_label, cycle, notes, state, market_id, market_code
+    id, code, module_label moduleLabel, cycle, notes, state, market_id marketId, market_code marketCode
   </sql>
-  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    select 
-    <include refid="Base_Column_List" />
-    from category_storage_cycle
-    where id = #{id,jdbcType=BIGINT}
-  </select>
-  <update id="updateBy" parameterType="com.dili.ia.domain.CategoryStorageCycle">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    update category_storage_cycle
-    <set>
-      <if test="code != null">
-        code = #{code,jdbcType=VARCHAR},
-      </if>
-      <if test="moduleLabel != null">
-        module_label = #{moduleLabel,jdbcType=VARCHAR},
-      </if>
-      <if test="cycle != null">
-        cycle = #{cycle,jdbcType=INTEGER},
-      </if>
-      <if test="notes != null">
-        notes = #{notes,jdbcType=VARCHAR},
-      </if>
-      <if test="state != null">
-        state = #{state,jdbcType=TINYINT},
-      </if>
-      <if test="marketId != null">
-        market_id = #{marketId,jdbcType=BIGINT},
-      </if>
-      <if test="marketCode != null">
-        market_code = #{marketCode,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
+ 
+ 	<insert id="insertOrUpdate" parameterType="map">
+ 		INSERT INTO `category_storage_cycle` ( `id`, `code`, `module_label`, `cycle`, `notes`, `state`, `market_id`, `market_code` )
+		VALUES
+		<foreach collection="categoryStorageCycles" item="it"  separator=",">
+			(#{it.id},
+			#{it.code},
+			#{it.moduleLabel},
+			#{it.cycle},
+			#{it.notes},
+			#{it.state},
+			#{it.marketId},
+			#{it.marketCode})
+		</foreach>
+		ON DUPLICATE KEY UPDATE 
+		cycle = #{cycle},
+		notes = #{notes},
+		module_label = #{moduleLabel},
+		state = #{state};
+ 	</insert>
+ 	
+
+
+ 	<select id="selectCycleByIds" resultType="com.dili.ia.domain.CategoryStorageCycle" parameterType="list">
+ 		select 
+    	<include refid="Base_Column_List" />
+ 		 from `category_storage_cycle` where id in 
+ 		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+ 		
+ 	</select>
+ 	
 </mapper>
