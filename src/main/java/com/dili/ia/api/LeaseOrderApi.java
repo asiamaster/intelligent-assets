@@ -2,6 +2,7 @@ package com.dili.ia.api;
 
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
@@ -15,11 +16,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 摊位租赁api
@@ -41,6 +47,21 @@ public class LeaseOrderApi {
 
     @Autowired
     AssetsRpc assetsRpc;
+    @Autowired
+    @Lazy
+    private List<AssetsLeaseService> assetsLeaseServices;
+
+    private Map<Integer, AssetsLeaseService> assetsLeaseServiceMap = new HashMap<>();
+
+    /**
+     * 初始化注入
+     */
+    @PostConstruct
+    public void init() {
+        for (AssetsLeaseService service : assetsLeaseServices) {
+            this.assetsLeaseServiceMap.put(service.getAssetsType(), service);
+        }
+    }
 
     /**
      * 测试分布式事务回滚
@@ -112,13 +133,25 @@ public class LeaseOrderApi {
         }
         return BaseOutput.success();
     }
+
+    /**
+     * 解冻摊位
+     * @param leaseOrderId
+     * @return
+     */
+    @GetMapping("unFrozenAllBooth")
+    public BaseOutput unFrozenAllBooth(Long leaseOrderId){
+        AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(AssetsTypeEnum.BOOTH.getCode());
+        assetsLeaseService.unFrozenAllAsset(leaseOrderId);
+        return BaseOutput.success();
+    }
     /**
      * 摊位租赁结算成功回调
      * @param settleOrder
      * @return
      */
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
+    public BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
             return assetsLeaseOrderService.updateLeaseOrderBySettleInfo(settleOrder);
         }catch (BusinessException e){

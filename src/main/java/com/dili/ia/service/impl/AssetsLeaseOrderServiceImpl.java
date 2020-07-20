@@ -2,6 +2,7 @@ package com.dili.ia.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.domain.TaskMapping;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
@@ -13,6 +14,7 @@ import com.dili.ia.domain.dto.*;
 import com.dili.ia.domain.dto.printDto.LeaseOrderPrintDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderMapper;
+import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
@@ -105,6 +107,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     DataDictionaryRpc dataDictionaryRpc;
     @Autowired
     DepositOrderService depositOrderService;
+    @Autowired
+    AssetsRpc assetsRpc;
     @SuppressWarnings("all")
     @Autowired
     private RuntimeRpc runtimeRpc;
@@ -328,8 +332,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                     businessChargeItemService.unityUpdatePaymentAmountByBusinessId(l.getId(),AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType());
                 });
             }
+            //第一个摊位的区域id，用于获取一级区域名称，在流程中进行判断
+            Long districtId = leaseOrderItems.get(0).getDistrictId();
             //提交审批任务
-            completeTask(leaseOrderApprovalDto.getTaskId(), "true");
+            completeTask(leaseOrderApprovalDto.getTaskId(), "true", getLevel1DistrictName(districtId));
         } else {
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态不正确");
         }
@@ -370,8 +376,16 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
         //保存流程审批记录
         saveApprovalProcess(leaseOrderApprovalDto, userTicket);
+
+        //查第一个摊位，用于获取一级区域，进行流程判断
+        AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
+        itemCondition.setLeaseOrderId(leaseOrder.getId());
+        itemCondition.setPage(1);
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
+        //第一个摊位的区域id，用于获取一级区域名称，在流程中进行判断
+        Long districtId = leaseOrderItems.get(0).getDistrictId();
         //提交审批任务
-        completeTask(leaseOrderApprovalDto.getTaskId(), "false");
+        completeTask(leaseOrderApprovalDto.getTaskId(), "false", getLevel1DistrictName(districtId));
         return BaseOutput.success();
     }
 
@@ -979,19 +993,43 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         return BaseOutput.success();
     }
 
-
+    /**
+     * 获取一级区域名称,用于流程判断
+     * @return
+     */
+    public String getLevel1DistrictName(Long districtId){
+        BaseOutput<DistrictDTO> districtOutput = assetsRpc.getDistrictById(districtId);
+        if(!districtOutput.isSuccess()){
+            throw new AppException(ResultCode.DATA_ERROR, districtOutput.getMessage());
+        }
+        //构建一级区域名称，用于流程流转
+        String districtName = null;
+        if("0".equals(districtOutput.getData().getParentId())){
+            return districtOutput.getData().getName();
+        }else{
+            BaseOutput<DistrictDTO> parentDistrictOutput = assetsRpc.getDistrictById(districtOutput.getData().getParentId());
+            if(!parentDistrictOutput.isSuccess()){
+                throw new AppException(ResultCode.DATA_ERROR, parentDistrictOutput.getMessage());
+            }
+            return parentDistrictOutput.getData().getName();
+        }
+    }
 
     /**
      * 提交审批任务
      *
      * @param taskId
      * @param agree
+     * @param districtName 街区名称, 一区或二区。 用于流程判断
      */
-    private void completeTask(String taskId, String agree) {
+    private void completeTask(String taskId, String agree, String districtName) {
+        HashMap hashMap = new HashMap();
+        hashMap.put("agree", agree);
+        if(StringUtils.isNotEmpty(districtName)){
+            hashMap.put("districtName", districtName);
+        }
         //非最后一次审批，只更新流程状态
-        BaseOutput baseOutput = taskRpc.complete(taskId, new HashMap() {{
-            put("agree", agree);
-        }});
+        BaseOutput baseOutput = taskRpc.complete(taskId, hashMap);
         if (!baseOutput.isSuccess()) {
             throw new BusinessException(ResultCode.APP_ERROR, baseOutput.getMessage());
         }
