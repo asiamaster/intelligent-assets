@@ -121,7 +121,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
     }
 
     /**
-     * 构建审批分配
+     * 构建审批分配, 根据流程参数中的districtId， 流程定义Key和任务定义Key从ApproverAssignment中获取唯一的受托人
      * @param taskMapping
      * @return
      */

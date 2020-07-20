@@ -103,7 +103,7 @@ public class AssetsLeaseOrderController {
     }
 
     /**
-     * 跳转到资产审批页面
+     * 跳转到资产审批页面，任务中心调用
      * @param modelMap
      * @param assetsType 1：摊位， 2： 冷库， 3: 公寓, 4:其它
      * @return String
