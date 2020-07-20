@@ -25,8 +25,6 @@ MODIFY COLUMN `biz_type` varchar(120) NULL DEFAULT NULL COMMENT '业务类型' ;
 ALTER  TABLE lease_order RENAME TO assets_lease_order;
 ALTER  TABLE lease_order_item RENAME TO assets_lease_order_item;
 
-ALTER TABLE `dili-assets`.`assets_lease_order_item`
-ADD COLUMN `payment_amount` bigint(20) NOT NULL DEFAULT 0 COMMENT '正在支付中金额' AFTER `wait_amount`;
 update assets_lease_order_item set total_amount = rent_amount + manage_amount;
 
 --租赁单和退款单新增流程实例和定义id
