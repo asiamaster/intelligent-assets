@@ -29,6 +29,7 @@ import cn.hutool.core.bean.BeanUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -208,8 +209,8 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 	
 	
 	@Override
-	public Page<List<StockDto>> countCustomerStock(StockQueryDto stockQueryDto) {
-		Page<List<StockDto>> result = PageHelper.startPage(stockQueryDto.getPage(), stockQueryDto.getRows());
+	public Page<StockDto> countCustomerStock(StockQueryDto stockQueryDto) {
+		Page<StockDto> result = PageHelper.startPage(stockQueryDto.getPage(), stockQueryDto.getRows());
 		getActualDao().countCustomerStock(stockQueryDto);
 		return result;
 	}

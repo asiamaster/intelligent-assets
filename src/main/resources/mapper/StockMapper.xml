@@ -26,6 +26,7 @@
 		sum( IF ( sr.type = 2, sr.weight, 0 ) ) AS outWeight,
 		sum( IF ( sr.type = 3, sr.quantity, 0 ) ) AS cancelQuantity,
 		sum( IF ( sr.type = 3, sr.weight, 0 ) ) AS cancelWeight,
+		s.quantity AS quantity,
 		sr.create_time stockInDay
 		from stock as s
 		left join stock_record as sr on sr.stock_id = s.id
@@ -52,8 +53,8 @@
 				and sr.create_time &lt; #{endTime}
 			</if>
 		</where>
-		group by s.assets_id,s.category_id,s.customer_id,sr.create_time
-		) as t  order by t.${sort} ${order}
+		group by s.assets_id,s.category_id,s.customer_id,sr.create_time order by ${sort} ${order}
+		) as t  
 	</select>
 
 </mapper>

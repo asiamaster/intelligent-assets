@@ -26,10 +26,10 @@
                     <th data-field="departmentName" data-sortable="true" data-align="center">
                        部门
                     </th>
-                    <th data-field="districtId" data-sortable="true" data-align="center" data-sort-name="type" >
+                    <th data-field="districtName" data-sortable="true" data-align="center" data-sort-name="type" >
                         冷库区域
                     </th>
-                    <th data-field="assetsId" data-sortable="true" data-align="center">
+                    <th data-field="assets_id" data-sortable="true" data-align="center">
                        冷库编号
                     </th>
                      <th data-field="categoryName" data-sortable="true" data-sort-name="category_name" data-align="center">

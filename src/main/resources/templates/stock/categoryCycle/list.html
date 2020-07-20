@@ -6,7 +6,7 @@
 	<#bs4nav>
 	<form id="queryForm" role="form" >
 	<div class="row row-cols-4" >
-		<input type="hidden" name="parentId" value = 1/>
+		<input type="hidden" id="parent" name="parent" value = "1"/>
 		<div class="form-group col">
 			<label for="category_status">状态</label> <select id="category_status"
 				class="form-control input-sm" name="state">
@@ -127,14 +127,24 @@ function queryDataHandler(parent) {
 	//let formData = $('#queryForm').serializeObject();
 	_grid.bootstrapTable('refreshOptions',{	
 		pageNumber: 1,
-		url: '/stock/categoryCycle/table.action',
-		queryParams:function(params){
-			params.page = params.offset / params.limit + 1,
-			params.rows = params.limit,
-			params.parent = parent
-			return params;
-		}
+		url: '/stock/categoryCycle/table.action'
 	});
+}
+
+/**
+ * table参数组装
+ * 可修改queryParams向服务器发送其余的参数
+ * 前置 table初始化时 queryParams方法拿不到option对象，需要在页面加载时初始化option
+ * @param params
+ */
+function queryParams(params) {
+	let temp = {
+			rows: params.limit,   //页面大小
+			page: ((params.offset / params.limit) + 1) || 1, //页码
+			sort: params.sort,
+			order: params.order
+	}
+	return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
 }
 
 function cardNoFormatter(value) {
@@ -237,7 +247,7 @@ function cardNoFormatter(value) {
         $("#category_status option[value='']")[0].selected = "selected";
         $("#category_text").val("");
 
-        
+        $("#parent").val(pid);
         queryDataHandler(pid);
     }
 

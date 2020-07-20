@@ -106,7 +106,7 @@ public class StockController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute StockQueryDto stockQueryDto) throws Exception {
-    	Page<List<StockDto>> page = stockService.countCustomerStock(stockQueryDto);
+    	Page<StockDto> page = stockService.countCustomerStock(stockQueryDto);
     	Map<String, String> map = stockQueryDto.getMetadata();
     	List<Map> result = ValueProviderUtils.buildDataByProvider(map, page.getResult());
     	return new EasyuiPageOutput(Integer.parseInt(String.valueOf(page.getTotal())), result ).toString();

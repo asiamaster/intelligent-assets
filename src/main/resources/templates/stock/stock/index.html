@@ -6,6 +6,18 @@
             <div class="form-group col">
                 <label for="departmentId">部门</label>
                 <select id="departmentId" name="departmentId" class="form-control"></select>
+               <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" />
+            </div>
+             <div class="form-group col-4">
+                <label for="">区域</label>
+                <div class="input-group">
+                    <select class="form-control" id="district-one" name="area" required>
+
+                    </select>
+                    <select class="form-control" id="district-two" name="districtId">
+                        <option value="">-- 全部 --</option>
+                    </select>
+                </div>
             </div>
             <div class="form-group col">
                 <label for="assetsId">冷库编号</label>
@@ -14,9 +26,26 @@
             </div>
             <div class="form-group col">
                 <label for="categoryId">品类<i class="red">*</i></label>
-                <select id="categoryId" name="categoryId" class="form-control" multiple >
+                <select id="categoryId" name="categoryId" class="form-control" >
                 </select>
                 <#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption"  />
+            </div>
+             <div class="form-group col-auto">
+                <label for="createdStart">入库时间</label>
+                <div class="form-inline">
+                    <div class="input-group">
+                        <input type="text" name="startTime" id="createdStart" class="form-control laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <div class="input-group-append">
+                            <label for="createdStart"  class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                    <div class="input-group">
+                        <input type="text" name="endTime" id="createdEnd" class="form-control laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <div class="input-group-append">
+                            <label for="createdEnd"  class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="form-group col">
                 <label for="customerName">客户姓名</label>
@@ -53,7 +82,7 @@
             </div>
             <table id="grid" data-toggle="table" data-title="库存列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="5"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
-                   data-click-to-select="true"  data-checkbox-header="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-click-to-select="true"  data-checkbox-header="true" data-unique-id="id" data-sort-name="create_time" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
                 <thead>
                  <tr>
@@ -101,6 +130,7 @@
 </div>
 </#bs4Body>
 <#stock_stock_indexJs />
+<#stock_searchJs />
 
 
 <script id="stockOut" type="text/html">

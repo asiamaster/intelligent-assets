@@ -8,6 +8,17 @@
                 <select id="departmentId" name="departmentId" class="form-control"></select>
                <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" />
             </div>
+            <div class="form-group col-4">
+                <label for="">区域</label>
+                <div class="input-group">
+                    <select class="form-control" id="district-one" name="area" required>
+
+                    </select>
+                    <select class="form-control" id="district-two" name="districtId">
+                        <option value="">-- 全部 --</option>
+                    </select>
+                </div>
+            </div>
             <div class="form-group col">
                 <label for="assetsId">冷库编号</label>
                 <select id="assetsId" name="assetsId" class="form-control" required>
@@ -15,7 +26,7 @@
             </div>
             <div class="form-group col">
                 <label for="categoryId">品类<i class="red">*</i></label>
-                <select id="categoryId" name="categoryId" class="form-control" multiple >
+                <select id="categoryId" name="categoryId" class="form-control" >
                 </select>
                 <#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption"  />
             </div>
@@ -52,7 +63,7 @@
                     <th data-field="assetsId" data-sortable="true" data-align="center" data-width-unit="%" >
                         冷库编号
                     </th>
-                    <th data-field="districtId" data-sortable="true" data-align="center" data-sort-name="type" >
+                    <th data-field="districtName" data-sortable="true" data-align="center" data-sort-name="type" >
                         冷库区域
                     </th>
                     <th data-field="departmentName" data-sortable="true" data-align="center">
@@ -80,6 +91,7 @@
 </div>
 </#bs4Body>
 <#stock_stock_outJs />
+<#stock_searchJs />
 
 
 <script id="stockOut" type="text/html">

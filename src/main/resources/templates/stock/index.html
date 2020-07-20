@@ -21,7 +21,7 @@
             </div>
             <div class="form-group col">
                 <label for="categoryId">品类</label>
-                <select id="categoryId" name="categoryId" class="form-control" required multiple>
+                <select id="categoryId" name="categoryId" class="form-control" required >
                 </select>
                 <#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption" />
             </div>
@@ -187,6 +187,7 @@
 </div>
 </#bs4Body>
 <#stock_indexJs />
+<#stock_searchJs />
 
 <script id="pay" type="text/html">
     <form id="payForm" role="form" novalidate>

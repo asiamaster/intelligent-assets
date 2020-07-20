@@ -59,5 +59,5 @@ public interface StockService extends BaseService<Stock, Long> {
 	 * @return
 	 * @throws
 	 */
-	Page<List<StockDto>> countCustomerStock(StockQueryDto stockQueryDto);
+	Page<StockDto> countCustomerStock(StockQueryDto stockQueryDto);
 }

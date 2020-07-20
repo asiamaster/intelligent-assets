@@ -43,10 +43,16 @@
                 and si.expireDate = #{expireDate}
             </if>
             <if test="state != null">
-                and si.state = #{assetsId}
+                and si.state = #{state}
             </if>
             <if test="departmentId != null">
                 and si.department_id = #{departmentId}
+            </if>
+            <if test="startDate != null">
+                and si.stock_in_date >= #{startDate}
+            </if>
+            <if test="endDate != null">
+                and si.stock_in_date &lt; #{endDate}
             </if>
     </where>
     order by ${sort} ${order}

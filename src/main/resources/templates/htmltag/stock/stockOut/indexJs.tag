@@ -31,39 +31,6 @@ function queryDataHandler() {
 	});
 }
 
-//品类搜索
-//品类搜索自动完成
-var categoryAutoCompleteOption = {
-	width: '100%',
-	language: 'zh-CN',
-	maximumSelectionLength: 10,
-	ajax: {
-		type: 'post',
-		url: '/category/search.action',
-		data: function(params) {
-			return {
-				keyword: params.term,
-			}
-		},
-		processResults: function(result) {
-			if (result.success) {
-				let data = result.data;
-				return {
-					results: $.map(data, function(dataItem) {
-						dataItem.text = dataItem.name + (dataItem.cusName ? '(' + dataItem.cusName + ')' : '');
-						return dataItem;
-					})
-				};
-			} else {
-				bs4pop.alert(result.message, {
-					type: 'error'
-				});
-				return;
-			}
-		}
-	}
-}
-
 /**
  * table参数组装
  * 可修改queryParams向服务器发送其余的参数
