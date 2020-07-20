@@ -306,6 +306,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         refundOrder.setState(RefundOrderStateEnum.CREATED.getCode());
         refundOrder.setWithdrawOperator(userTicket.getRealName());
         refundOrder.setWithdrawOperatorId(userTicket.getId());
+        //摊位租赁业务撤回需要改审核状态为【待审核】
+        if(refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+            refundOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
+        }
         if (refundOrderService.updateSelective(refundOrder) == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
         }
