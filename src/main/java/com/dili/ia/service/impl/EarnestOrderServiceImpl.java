@@ -326,6 +326,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setMarketCode(userTicket.getFirmCode());
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setState(PayStateEnum.NOT_PAID.getCode());
+        pb.setCustomerId(earnestOrder.getCustomerId());
+        pb.setCustomerName(earnestOrder.getCustomerName());
         pb.setVersion(0);
         return pb;
     }
