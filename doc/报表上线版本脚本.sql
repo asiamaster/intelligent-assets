@@ -1,5 +1,3 @@
---begin 报表 上线版本
-
 ALTER TABLE `dili-assets`.`lease_order`
 ADD COLUMN `assets_type` tinyint(1) NULL COMMENT '资产类型 1：摊位 2：冷库' AFTER `modify_time`;
 ALTER TABLE `dili-assets`.`lease_order`
@@ -26,6 +24,8 @@ ALTER  TABLE lease_order_item RENAME TO assets_lease_order_item;
 ALTER TABLE `dili-assets`.`payment_order`
 ADD COLUMN `customer_id` bigint(20) NULL DEFAULT NULL COMMENT '客户ID' AFTER `modify_time`,
 ADD COLUMN `customer_name` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '客户名称' AFTER `customer_id`;
+
+--处理缴费单客户数据
 UPDATE
   payment_order p
 	LEFT JOIN assets_lease_order alo ON p.business_id = alo.id
@@ -38,7 +38,59 @@ UPDATE payment_order po
 LEFT JOIN earnest_order eo ON po.business_id=eo.id
 SET po.customer_id=eo.customer_id, po.customer_name=eo.customer_name
 WHERE po.biz_type=2
----end
+
+
+-- ----------------------------
+-- Table structure for apportion_record
+-- ----------------------------
+DROP TABLE IF EXISTS `apportion_record`;
+CREATE TABLE `apportion_record`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `lease_item_id` bigint(20) NULL DEFAULT NULL COMMENT '订单项ID',
+  `charge_item_id` bigint(20) NOT NULL COMMENT '收费项ID',
+  `charge_item_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收费项名称',
+  `amount` bigint(20) NOT NULL COMMENT '分摊金额',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for business_charge_item
+-- ----------------------------
+DROP TABLE IF EXISTS `business_charge_item`;
+CREATE TABLE `business_charge_item`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `business_id` bigint(20) NOT NULL COMMENT '业务ID',
+  `business_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '业务code',
+  `biz_type` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '业务类型',
+  `charge_item_id` bigint(20) NOT NULL COMMENT '收费项ID',
+  `charge_item_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '收费项名称',
+  `amount` bigint(20) NOT NULL COMMENT '金额',
+  `paid_amount` bigint(20) NOT NULL DEFAULT 0 COMMENT '已付金额',
+  `wait_amount` bigint(20) NOT NULL DEFAULT 0 COMMENT '待付金额',
+  `payment_amount` bigint(20) NOT NULL DEFAULT 0 COMMENT '正在支付中金额',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
+  `modify_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0),
+  `version` tinyint(4) NULL DEFAULT 0 COMMENT '乐观锁，版本号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '租赁收费项目' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for refund_fee_item
+-- ----------------------------
+DROP TABLE IF EXISTS `refund_fee_item`;
+CREATE TABLE `refund_fee_item`  (
+  `id` bigint(20) NOT NULL COMMENT 'id',
+  `refund_order_id` bigint(20) NOT NULL COMMENT '退款单ID',
+  `refund_order_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '退款单code',
+  `charge_item_id` bigint(20) NOT NULL COMMENT '收费项ID',
+  `charge_item_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收费项名称',
+  `amount` bigint(20) NOT NULL COMMENT '金额',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
+  `modify_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0),
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '退款项目' ROW_FORMAT = Dynamic;
+
 
 CREATE TABLE `deposit_balance`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
