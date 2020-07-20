@@ -43,13 +43,14 @@
      * @returns {number}
      */
     function calcApportionAmount() {
+        let deductionAmount = Number($('#deductionAmount').val());
+        let chargeAmount = calcChargeAmount();
         let totalAmount = 0;
-        $("table input.money").filter(function () {
-            return this.value;
-        }).each(function (i) {
+        $("table input.money").each(function (i) {
             totalAmount = Number(this.value).add(totalAmount);
         });
         $('#apportionAmountTotal').val(totalAmount.toFixed(2));
+        $('#leasePayAmount').val(chargeAmount.sub(deductionAmount));
         return totalAmount;
     }
 
@@ -59,9 +60,7 @@
      */
     function calcChargeAmount() {
         let totalAmount = 0;
-        $("table input[isCharge]").filter(function () {
-            return this.value;
-        }).each(function (i) {
+        $("table input[isCharge]").each(function (i) {
             totalAmount = Number(this.value).add(totalAmount);
         });
         return totalAmount;
@@ -72,8 +71,10 @@
      */
     function calcPayAmount() {
         let deductionAmount = Number($('#deductionAmount').val());
-        $('#payAmount').val((calcApportionAmount().mul(100)-Number($('#deductionAmount').val()).mul(100)).centToYuan());
-        $('#leasePayAmount').val((calcChargeAmount().mul(100) - deductionAmount.mul(100)).centToYuan());
+        let apportionAmount = calcApportionAmount();
+        let chargeAmount = calcChargeAmount();
+        $('#payAmount').val(apportionAmount.sub(deductionAmount));
+        $('#leasePayAmount').val(chargeAmount.sub(deductionAmount));
     }
 
     /**
@@ -81,20 +82,22 @@
      * @returns {boolean}
      */
     function checkSubmit() {
-        let deductionAmount = Number($('#deductionAmount').val()).mul(100);
-        let leasePayAmount = (calcChargeAmount().mul(100) - deductionAmount.mul(100)).centToYuan();
-        let payAmount = Number($('#payAmount').val()).mul(100);
-        let apportionAmount = calcApportionAmount().mul(100);
-        if (payAmount !== (apportionAmount - deductionAmount)) {
+        let deductionAmount = Number($('#deductionAmount').val());
+        let chargeAmount = calcChargeAmount();
+        let leasePayAmount = chargeAmount.sub(deductionAmount);
+        let payAmount = Number($('#payAmount').val());
+        let apportionAmount = calcApportionAmount();
+        if (payAmount != (apportionAmount.sub(deductionAmount))) {
             let errorMsg = deductionAmount > 0 ? '【本次付款金额】必须等于【分摊金额+抵扣】' : '【本次付款金额】必须等于【分摊金额】'
             bs4pop.notice(errorMsg, {position: 'bottomleft'});
             return false;
         }
 
         if (deductionAmount > 0 && leasePayAmount < 0) {
-            bs4pop.notice('第一次付款【收费项分摊总金额】必须大于【抵扣】', {position: 'bottomleft'});
+            bs4pop.notice('【抵扣】只能分摊到收费项，请确保收费项分摊金额不小于【抵扣】', {position: 'bottomleft'});
             return false;
         }
+        return true;
     }
 
     function saveFormHandler() {
@@ -140,7 +143,7 @@
         let depositAmountMap = {};
         //构建收费项分摊集合对象
         $("table input[isCharge]").filter(function () {
-            return this.value;
+            return this.value > 0;
         }).each(function (i) {
             let index = this.dataset.index;
             let chargeItemId = this.dataset.chargeItemId;
@@ -154,7 +157,7 @@
         });
         //构建保证金
         $("table input[isDeposit]").filter(function () {
-            return this.value;
+            return this.value > 0;
         }).each(function (i) {
             let index = getIndex($(this).attr("name"));
             let assetsId = $('#assetsId_'+index).val();

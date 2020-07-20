@@ -461,6 +461,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
         }
 
+        assetsLeaseSubmitPaymentDto.getBusinessChargeItems().forEach(bci->{
+            BusinessChargeItem businessChargeItem = businessChargeItemService.get(bci.getId());
+            bci.setVersion(businessChargeItem.getVersion());
+        });
         if (businessChargeItemService.batchUpdateSelective(assetsLeaseSubmitPaymentDto.getBusinessChargeItems()) != assetsLeaseSubmitPaymentDto.getBusinessChargeItems().size()) {
             LOG.info("批量更新收费项支付中金额 【订单CODE{}】", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
