@@ -74,7 +74,7 @@ public class BoutiqueEntranceRecordController {
      * @return 查看页面地址
      * @date   2020/7/13
      */
-    @RequestMapping(value="/confirm.action", method = RequestMethod.GET)
+    @RequestMapping(value="/confirm.html", method = RequestMethod.GET)
     public String confirm(ModelMap modelMap, Long id) {
         BoutiqueEntranceRecord boutiqueEntranceRecord = null;
         if (id != null) {
@@ -113,7 +113,7 @@ public class BoutiqueEntranceRecordController {
      * @return 查看页面地址
      * @date   2020/7/13
      */
-    @RequestMapping(value="/pay.action", method = RequestMethod.GET)
+    @RequestMapping(value="/pay.html", method = RequestMethod.GET)
     public String pay(ModelMap modelMap, Long id) {
         BoutiqueEntranceRecordDto boutiqueEntranceRecordDto = null;
         if (id != null) {
