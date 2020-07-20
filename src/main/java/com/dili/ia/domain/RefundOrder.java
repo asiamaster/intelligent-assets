@@ -266,6 +266,24 @@ public class RefundOrder extends BaseDomain {
     private Integer version;
 
     /**
+     * 流程实例ID
+     */
+    @Column(name = "`process_instance_id`")
+    private String processInstanceId;
+
+    /**
+     * 流程定义ID
+     */
+    @Column(name = "`process_definition_id`")
+    private String processDefinitionId;
+
+    /**
+     * 审批状态
+     */
+    @Column(name = "`approval_state`")
+    private Integer approvalState;
+
+    /**
      * @return id
      */
     @FieldDef(label="id")
@@ -1039,5 +1057,29 @@ public class RefundOrder extends BaseDomain {
      */
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public String getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    public void setProcessInstanceId(String processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
+    public String getProcessDefinitionId() {
+        return processDefinitionId;
+    }
+
+    public void setProcessDefinitionId(String processDefinitionId) {
+        this.processDefinitionId = processDefinitionId;
+    }
+
+    public Integer getApprovalState() {
+        return approvalState;
+    }
+
+    public void setApprovalState(Integer approvalState) {
+        this.approvalState = approvalState;
     }
 }

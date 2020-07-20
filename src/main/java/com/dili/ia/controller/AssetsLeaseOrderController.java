@@ -2,7 +2,6 @@ package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.DistrictDTO;
-import com.dili.bpmc.sdk.domain.HistoricTaskInstanceMapping;
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
 import com.dili.bpmc.sdk.rpc.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
@@ -22,7 +21,6 @@ import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.IDTO;
-import com.dili.ss.exception.AppException;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.exception.NotLoginException;
@@ -157,12 +155,13 @@ public class AssetsLeaseOrderController {
      * @return
      */
     @PostMapping(value="/approvedHandler.action")
-    public @ResponseBody BaseOutput approvedHandler(@Validated LeaseOrderApprovalDto leaseOrderApprovalDto){
+    public @ResponseBody BaseOutput approvedHandler(@Validated ApprovalParam approvalParam){
         try{
-            if(StringUtils.isNotEmpty(leaseOrderApprovalDto.aget(IDTO.ERROR_MSG_KEY).toString())){
-                return BaseOutput.failure(leaseOrderApprovalDto.aget(IDTO.ERROR_MSG_KEY).toString());
+            if(StringUtils.isNotEmpty(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString())){
+                return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
             }
-            return assetsLeaseOrderService.approvedHandler(leaseOrderApprovalDto);
+            assetsLeaseOrderService.approvedHandler(approvalParam);
+            return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("审批通过处理异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
@@ -178,13 +177,14 @@ public class AssetsLeaseOrderController {
      * @return
      */
     @PostMapping(value="/approvedDeniedHandler.action")
-    public @ResponseBody BaseOutput approvedDeniedHandler(@Validated LeaseOrderApprovalDto leaseOrderApprovalDto){
+    public @ResponseBody BaseOutput approvedDeniedHandler(@Validated ApprovalParam approvalParam){
         try{
-            if(StringUtils.isNotEmpty(leaseOrderApprovalDto.aget(IDTO.ERROR_MSG_KEY).toString())){
-                return BaseOutput.failure(leaseOrderApprovalDto.aget(IDTO.ERROR_MSG_KEY).toString());
+            if(StringUtils.isNotEmpty(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString())){
+                return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
             }
-            return assetsLeaseOrderService.
-                    approvedDeniedHandler(leaseOrderApprovalDto);
+            assetsLeaseOrderService.
+                    approvedDeniedHandler(approvalParam);
+            return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("审批拒绝处理异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
@@ -487,7 +487,8 @@ public class AssetsLeaseOrderController {
     @PostMapping(value="/submitForApproval.action")
     public @ResponseBody BaseOutput submitForApproval(@RequestParam Long id){
         try{
-            return assetsLeaseOrderService.submitForApproval(id);
+            assetsLeaseOrderService.submitForApproval(id);
+            return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("资产租赁订单提交审批异常！", e);
             return BaseOutput.failure(e.getErrorMsg());

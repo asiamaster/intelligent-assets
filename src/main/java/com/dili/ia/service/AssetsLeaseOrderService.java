@@ -4,7 +4,7 @@ import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
 import com.dili.ia.domain.dto.AssetsLeaseSubmitPaymentDto;
-import com.dili.ia.domain.dto.LeaseOrderApprovalDto;
+import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.LeaseRefundOrderDto;
 import com.dili.settlement.domain.SettleOrder;
@@ -41,7 +41,7 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
      * 提交审批
      * @param id 租赁单ID
      */
-    BaseOutput submitForApproval(Long id);
+    void submitForApproval(Long id);
 
     /**
      * 摊位租赁订单取消
@@ -114,15 +114,15 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
 
     /**
      * 审批通过处理
-     * @param leaseOrderApprovalDto 审批参数
+     * @param approvalParam 审批参数
      * @return
      */
-    BaseOutput approvedHandler(LeaseOrderApprovalDto leaseOrderApprovalDto);
+    void approvedHandler(ApprovalParam approvalParam);
 
     /**
      * 审批拒绝处理
-     * @param leaseOrderApprovalDto 审批参数
+     * @param approvalParam 审批参数
      * @return
      */
-    BaseOutput approvedDeniedHandler(LeaseOrderApprovalDto leaseOrderApprovalDto);
+    void approvedDeniedHandler(ApprovalParam approvalParam);
 }

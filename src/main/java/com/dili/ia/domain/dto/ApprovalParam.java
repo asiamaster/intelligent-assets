@@ -5,9 +5,9 @@ import com.dili.bpmc.sdk.domain.TaskCenterParam;
 import javax.validation.constraints.NotNull;
 
 /**
- * 租赁审批参数
+ * 租赁单和退款单的审批参数
  */
-public interface LeaseOrderApprovalDto extends TaskCenterParam {
+public interface ApprovalParam extends TaskCenterParam {
 
     /**
      * 租赁单号

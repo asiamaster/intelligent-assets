@@ -223,7 +223,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
     @Override
     @Transactional
-    public BaseOutput submitForApproval(Long id) {
+    public void submitForApproval(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new NotLoginException();
@@ -297,19 +297,18 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             runtimeRpc.stopProcessInstanceById(processInstanceMappingBaseOutput.getData().getProcessInstanceId(), e.getMessage());
             throw e;
         }
-        return BaseOutput.success();
     }
 
     @Override
     @Transactional
     @GlobalTransactional
-    public BaseOutput approvedHandler(LeaseOrderApprovalDto leaseOrderApprovalDto) {
+    public void approvedHandler(ApprovalParam approvalParam) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new NotLoginException();
         }
         AssetsLeaseOrder condition = new AssetsLeaseOrder();
-        condition.setCode(leaseOrderApprovalDto.getBusinessKey());
+        condition.setCode(approvalParam.getBusinessKey());
         AssetsLeaseOrder leaseOrder = getActualDao().selectOne(condition);
         AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
         itemCondition.setLeaseOrderId(leaseOrder.getId());
@@ -317,10 +316,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //只有创建状态的订单才能提交审批任务
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
             //保存流程审批记录
-            saveApprovalProcess(leaseOrderApprovalDto, userTicket);
+            saveApprovalProcess(approvalParam, userTicket);
             //最后一次审批，更新审批状态、租赁单状态，并且全量提交租赁单到结算
             //总经理审批通过需要更新审批状态
-            if ("generalManagerApproval".equals(leaseOrderApprovalDto.getTaskDefinitionKey())) {
+            if ("generalManagerApproval".equals(approvalParam.getTaskDefinitionKey())) {
                 //提交付款
                 Long paymentId = submitPay(leaseOrder,leaseOrder.getPayAmount());
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
@@ -335,23 +334,22 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             //第一个摊位的区域id，用于获取一级区域名称，在流程中进行判断
             Long districtId = leaseOrderItems.get(0).getDistrictId();
             //提交审批任务
-            completeTask(leaseOrderApprovalDto.getTaskId(), "true", getLevel1DistrictName(districtId));
+            completeTask(approvalParam.getTaskId(), "true", getLevel1DistrictName(districtId));
         } else {
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态不正确");
         }
-        return BaseOutput.success();
     }
 
     @Override
     @Transactional
     @GlobalTransactional
-    public BaseOutput approvedDeniedHandler (LeaseOrderApprovalDto leaseOrderApprovalDto){
+    public void approvedDeniedHandler (ApprovalParam approvalParam){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new NotLoginException();
         }
         AssetsLeaseOrder condition = new AssetsLeaseOrder();
-        condition.setCode(leaseOrderApprovalDto.getBusinessKey());
+        condition.setCode(approvalParam.getBusinessKey());
         AssetsLeaseOrder leaseOrder = getActualDao().selectOne(condition);
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
             leaseOrder.setApprovalState(ApprovalStateEnum.APPROVAL_DENIED.getCode());
@@ -375,7 +373,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
         assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
         //保存流程审批记录
-        saveApprovalProcess(leaseOrderApprovalDto, userTicket);
+        saveApprovalProcess(approvalParam, userTicket);
 
         //查第一个摊位，用于获取一级区域，进行流程判断
         AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
@@ -385,8 +383,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //第一个摊位的区域id，用于获取一级区域名称，在流程中进行判断
         Long districtId = leaseOrderItems.get(0).getDistrictId();
         //提交审批任务
-        completeTask(leaseOrderApprovalDto.getTaskId(), "false", getLevel1DistrictName(districtId));
-        return BaseOutput.success();
+        completeTask(approvalParam.getTaskId(), "false", getLevel1DistrictName(districtId));
     }
 
 
@@ -1082,25 +1079,25 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     /**
      * 保存流程审批记录
      *
-     * @param leaseOrderApprovalDto
+     * @param approvalParam
      */
-    private void saveApprovalProcess(LeaseOrderApprovalDto leaseOrderApprovalDto, UserTicket userTicket) {
+    private void saveApprovalProcess(ApprovalParam approvalParam, UserTicket userTicket) {
         //构建流程审批记录
         ApprovalProcess approvalProcess = new ApprovalProcess();
         approvalProcess.setAssignee(userTicket.getId());
         approvalProcess.setAssigneeName(userTicket.getRealName());
         approvalProcess.setFirmId(userTicket.getFirmId());
-        approvalProcess.setProcessInstanceId(leaseOrderApprovalDto.getProcessInstanceId());
-        approvalProcess.setBusinessKey(leaseOrderApprovalDto.getBusinessKey());
-        approvalProcess.setOpinion(leaseOrderApprovalDto.getOpinion());
-        approvalProcess.setTaskId(leaseOrderApprovalDto.getTaskId());
-        BaseOutput<TaskMapping> taskMappingBaseOutput = taskRpc.getById(leaseOrderApprovalDto.getTaskId());
+        approvalProcess.setProcessInstanceId(approvalParam.getProcessInstanceId());
+        approvalProcess.setBusinessKey(approvalParam.getBusinessKey());
+        approvalProcess.setOpinion(approvalParam.getOpinion());
+        approvalProcess.setTaskId(approvalParam.getTaskId());
+        BaseOutput<TaskMapping> taskMappingBaseOutput = taskRpc.getById(approvalParam.getTaskId());
         if (!taskMappingBaseOutput.isSuccess()) {
             throw new AppException("获取任务信息失败");
         }
         approvalProcess.setTaskName(taskMappingBaseOutput.getData().getName());
         approvalProcess.setTaskTime(taskMappingBaseOutput.getData().getCreateTime());
-        approvalProcess.setResult(leaseOrderApprovalDto.getResult());
+        approvalProcess.setResult(approvalParam.getResult());
         //每次审批通过，保存流程审批记录(目前考虑性能，没有保存流程名称)
         approvalProcessService.insertSelective(approvalProcess);
     }
