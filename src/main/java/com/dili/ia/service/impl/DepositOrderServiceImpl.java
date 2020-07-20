@@ -746,6 +746,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 if (!output.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
                 }
+            }else if (o.getState().equals(DepositOrderStateEnum.CREATED.getCode())){ //如果状态是【已创建】，就不做任何处理
+
             }else {// 如果状态不是【已提交】状态，就解除关联订单操作关系
                 o.setIsRelated(YesOrNoEnum.NO.getCode());
                 if (this.updateSelective(o) == 0) {
