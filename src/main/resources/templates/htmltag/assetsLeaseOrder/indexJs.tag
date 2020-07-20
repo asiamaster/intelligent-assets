@@ -572,7 +572,7 @@
                 return;
             }
             //待审批时可以 提交审批，修改和取消
-            if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}){
+            else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}){
                 $('#btn_approval').attr('disabled', false);
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
@@ -584,9 +584,11 @@
             else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
                 $('#btn_submit').attr('disabled', false);
             }
-            //审批拒绝后不能修改和取消，可以再次提交审批
+            //审批拒绝后 可以再次提交审批，修改和取消
             else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVAL_DENIED.getCode()}){
                 $('#btn_approval').attr('disabled', false);
+                $('#btn_edit').attr('disabled', false);
+                $('#btn_cancel').attr('disabled', false);
             }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()}) {
             $('#toolbar button').attr('disabled', true);
