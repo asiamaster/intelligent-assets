@@ -25,10 +25,6 @@ initSwipeCard({
 
 //品类搜索
 //品类搜索自动完成
-
-
-
-
 var categoryAutoCompleteOption = {
 		serviceUrl: '/category/search.action',
 		paramName : 'keyword',
@@ -54,6 +50,8 @@ var categoryAutoCompleteOption = {
 		},
 		selectFn: function (suggestion) {
 			$('#payeeCertificateNumber').val(suggestion.certificateNumber);
+		/*	let stockInDate = $('#stockInDate').val();
+			getCycle(stockInDate,data.id);*/
 		}}
 
 var districtAutoCompleteOption = {

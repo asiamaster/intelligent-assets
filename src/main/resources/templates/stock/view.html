@@ -179,6 +179,19 @@
                 </tbody>
             </table>
 			</div>
+			<div class="breadcrumb">
+			日志记录 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#details" aria-expanded="true"
+			 aria-controls="operational-log">收起
+				<i class="fa fa-angle-double-up" aria-hidden="true"></i>
+			</a>
+			</div>
+			<div class="collapse show" id="operational-log">
+			<%if(isNotEmpty(logs) && logs.~size>0){
+	           for(item in logs){%>
+	           ${item.content!},${item.operatorName!},${item.createTime!}
+	           <% } } %>
+			
+			</div>
 		</form>
 	</div>
 </#bs4Body>

@@ -222,7 +222,8 @@
         <div class="row row-cols-2">
             <div class="form-group col">
                 <label for="_info">客户信息：<i class="red">*</i></label>
-                <div id="_info" >{{selectedRow.customerName}}   {{selectedRow.customerCellPhone}}</div>
+                <input id="info" class="form-control" value="{{selectedRow.customerName}},{{selectedRow.customerCellphone}}" name=""  required />
+
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">可退金额：<i class="red">*</i></label>
@@ -234,7 +235,7 @@
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">收款人：<i class="red">*</i></label>
-                <input id="payUser" type="number" class="form-control " name="payUser" required readonly/>
+                <input id="payUser" class="form-control " value={{selectedRow.customerName}} name="payUser" required readonly/>
             </div>
             <div class="form-group col">
                 <label for="_certificateNumber">退款原因：<i class="red">*</i></label>
