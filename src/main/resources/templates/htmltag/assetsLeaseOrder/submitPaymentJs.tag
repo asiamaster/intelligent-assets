@@ -1,10 +1,10 @@
 <script >
-    
+
     $(function () {
         batchQueryDepositOrder({businessId:$('#leaseOrderId').val()});
         calcPayAmount();
     });
-    
+
     /**
      * 批量订单项保证金（补交）查询
      * @param {businessId: leaseOrderId,assetsId:123}
@@ -76,9 +76,30 @@
         $('#leasePayAmount').val((calcChargeAmount().mul(100) - deductionAmount.mul(100)).centToYuan());
     }
 
+    /**
+     * 提交前校验
+     * @returns {boolean}
+     */
+    function checkSubmit() {
+        let deductionAmount = Number($('#deductionAmount').val()).mul(100);
+        let leasePayAmount = (calcChargeAmount().mul(100) - deductionAmount.mul(100)).centToYuan();
+        let payAmount = Number($('#payAmount').val()).mul(100);
+        let apportionAmount = calcApportionAmount().mul(100);
+        if (payAmount !== (apportionAmount - deductionAmount)) {
+            let errorMsg = deductionAmount > 0 ? '【本次付款金额】必须等于【分摊金额+抵扣】' : '【本次付款金额】必须等于【分摊金额】'
+            bs4pop.notice(errorMsg, {position: 'bottomleft'});
+            return false;
+        }
+
+        if (deductionAmount > 0 && leasePayAmount < 0) {
+            bs4pop.notice('第一次付款【收费项分摊总金额】必须大于【抵扣】', {position: 'bottomleft'});
+            return false;
+        }
+    }
+
     function saveFormHandler() {
         let validator = $('#saveForm').validate({ignore: ''})
-        if (!validator.form()) {
+        if (!validator.form() || !checkSubmit()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
             $('.collapse:not(.show)').addClass('show');
             return false;
