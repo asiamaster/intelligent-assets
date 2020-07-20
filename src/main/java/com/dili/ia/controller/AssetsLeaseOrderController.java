@@ -484,7 +484,7 @@ public class AssetsLeaseOrderController {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,operationType="submitForApproval",systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/submitForApproval.action", method = {RequestMethod.POST})
+    @PostMapping(value="/submitForApproval.action")
     public @ResponseBody BaseOutput submitForApproval(@RequestParam Long id){
         try{
             return assetsLeaseOrderService.submitForApproval(id);
