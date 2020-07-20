@@ -96,6 +96,27 @@ public class RefundOrderController {
     }
 
     /**
+     * 跳转到退款单审批详情页面，用于查看归档记录
+     * @param modelMap
+     * @param assetsType 1：摊位， 2： 冷库， 3: 公寓, 4:其它
+     * @return String
+     */
+    @GetMapping(value="/{assetsType}/approvalDetail.html")
+    public String assetsApprovalDetail(@PathVariable Integer assetsType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
+        modelMap.put("taskDefinitionKey", taskCenterParam.getTaskDefinitionKey());
+        modelMap.put("processInstanceId", taskCenterParam.getProcessInstanceId());
+        modelMap.put("taskId", taskCenterParam.getTaskId());
+        modelMap.put("businessKey", taskCenterParam.getBusinessKey());
+        modelMap.put("formKey", taskCenterParam.getFormKey());
+
+        ApprovalProcess approvalProcess = new ApprovalProcess();
+        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
+        List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
+        modelMap.put("approvalProcesses", approvalProcesses);
+        return "assetsLeaseOrder/assetsApprovalDetail";
+    }
+
+    /**
      * 分页查询RefundOrder，返回easyui分页信息
      * @param refundOrder
      * @return String
