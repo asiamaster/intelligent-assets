@@ -16,12 +16,12 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库区域：<i class="red">*</i></label>
-						<select id="districtId_{{index}}" name="districtId" class="form-control districtId" required> 
+						<select id="districtId_{{index}}" name="districtId" class="form-control districtId"  required> 
 						</select>
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
-						<select id="assetsId_{{index}}" name="assetsId" class="form-control" required> 
+						<select id="assetsId_{{index}}" name="assetsId" class="form-control"  required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
 					</div>
@@ -102,6 +102,14 @@
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->
 					</chargeItems>
+					<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+				        for(item in chargeItems){
+				        %>
+				        <div class="form-group col-4">
+							<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
+							 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />
+						</div>
+				        <% } }%>
 					<div class="form-group col-8">
 					    <label for="">备注</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" value="{{stockDetail.notes}}" maxlength="100">{{stockDetail.notes}}</textarea>
@@ -109,7 +117,6 @@
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
 					</div>
-					<#bcomboProvider _id="districtId_{{index}}" _provider="districtProvider" _queryParams="{departmentId:54}" />					
 				</div>
 	</form>			
 </script>
@@ -144,6 +151,14 @@
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->
 					</chargeItems>
+					<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+				        for(item in chargeItems){
+				        %>
+				        <div class="form-group col-4">
+							<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
+							 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />
+						</div>
+				        <% } }%>
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100" >{{stockDetail.notes}}</textarea>
@@ -151,7 +166,6 @@
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
 					</div>
-					<#bcomboProvider _id="districtId_{{index}}" _provider="districtProvider" _queryParams="{departmentId:54}" />					
 
 				</div>
 	</form>			
@@ -249,6 +263,30 @@ function changeAssets(index,districtId,value){
     }else{
     	$('#assetsId_'+index).html('<option value="" selected="">-- 请选择区域 --</option>');
     }
+
+}
+
+// 获取到期时间
+$(document).on('change', '#stockInDate', function() {
+	let stockInDate = $('#stockInDate').val();
+	let categoryId = $('#categoryId').val();
+});
+
+function getCycle(stockInDate,categoryId){
+
+	if(stockInDate!=null && categoryId!=null){
+		$.ajax({
+			type: "POST",
+			url: "/stock/categoryCycle/getCycle.action?categoryId="+categoryId,
+			data: {parentId: 0},
+			success: function (data) {
+				if (data.code == "200") {
+					console.log(data)
+					$("#expireDate").val("2020-07-23");
+				}
+			}
+		});
+	}
 
 }
 

@@ -134,6 +134,8 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
 		if(CollectionUtil.isNotEmpty(li)) {
 			return li.get(0);
 		}
-		throw new BusinessException(ResultCode.DATA_ERROR, "获取品类周期失败");
+		//TODO 未获取到商品周期,是否采用默认周期??
+		ca.setCycle(7);
+		return ca;
 	}
 }

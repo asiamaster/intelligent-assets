@@ -119,17 +119,17 @@ public class CategoryStorageCycleController {
     }
     
     /**
-     * 保存品类存储周期
+     * 获取品类存储周期
      */
     @RequestMapping(value = "/getCycle.action")
-    public @ResponseBody BaseOutput<List<CategoryDTO>> getCycle(@RequestBody CategoryStorageCycleDto dto) {
+    public @ResponseBody BaseOutput<CategoryDTO> getCycle(@RequestBody CategoryStorageCycleDto dto) {
         try {
-        	categoryStorageCycleService.getCategoryStorageCycle(dto);
-            return BaseOutput.success("保存成功!");
+        	
+            return BaseOutput.success().setData(categoryStorageCycleService.getCategoryStorageCycle(dto));
         } catch (Exception e) {
         	LOG.error("获取品类周期失败",e.getMessage());
             return BaseOutput.failure(e.getMessage());
         }
     }
-    
+     
 }

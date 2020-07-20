@@ -197,8 +197,10 @@ function openWeightHandler(index) {
 
 //修改子单打开司磅界面 回填数据
 function openWeightUpdateHandler(index,weightDetail) {
+	if(weightDetail == null || weightDetail == ""){
+		weightDetail = {};
+	}
 	let weightItem = $("#saveForm_"+index)
-	console.log(weightItem.attr("id"));
     dia = bs4pop.dialog({
         title: '获取地磅读数',//对话框title
         content: bui.util.HTMLDecode(template("weighmanUpdate", {weightDetail})), //对话框内容，可以是 string、element，$object
