@@ -37,4 +37,23 @@ public interface BusinessChargeItemService extends BaseService<BusinessChargeIte
      * @return
      */
     List<BusinessChargeItemDto> queryBusinessChargeItemMeta(List<Long> businessIds);
+
+    /**
+     * 根据业务ID、Code、Type 删除旧有的动态收费项
+     *
+     * @param  businessId
+     * @param  businessCode
+     * @param  bizType
+     * @return int
+     * @date   2020/7/16
+     */
+    int deleteByBusinessIdAndCodeAndBizType(Long businessId, String businessCode, Integer bizType);
+
+    /**
+     * 通过业务ID修改支付中金额
+     * @param businessId
+     * @param bizType
+     * @param paymentAmount (不传则按收费项全额分摊)
+     */
+    void unityUpdatePaymentAmountByBusinessId(Long businessId, String bizType , Long... paymentAmount);
 }

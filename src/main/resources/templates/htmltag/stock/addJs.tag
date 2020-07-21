@@ -118,7 +118,7 @@ $('#adddetailItem').on('click', function() {
 
 //删除行事件 （删除子单）
 $(document).on('click', '.item-del', function() {
-	$(this).closest('.detail').remove();
+	$(this).closest('.detailInfo').remove();
 	countNumber("quantity");
 	countNumber("weight");
 	countNumber("amount");
@@ -214,7 +214,7 @@ function doAddStockInHandler() {
 		return;
 	}
 	for(let i=1;i<=itemIndex;i++){
-		if(document.getElementById("#saveForm_"+i)){
+		if($("#saveForm_"+i).length > 0){
 			if(!$("#saveForm_"+i).validate().form()){
 				return;
 			}  

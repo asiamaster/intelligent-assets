@@ -57,6 +57,10 @@
                 <#resource code="submitRefundOrder">
                     <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
                 </#resource>
+                <#resource code="submitRefundOrderApplication">
+                    <button id="btn_approval" type="button" class="btn btn-primary" onclick="submitRefundOrderApplication()"><i class="fa fa-paper-plane"></i> 提交审批</button>
+                </#resource>
+                <button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
                 <#resource code="withdrawRefundOrder">
                     <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
                 </#resource>
@@ -82,6 +86,9 @@
         </th>
         <th data-field="bizType" data-sortable="true" data-sort-name="biz_type" data-align="center" data-provider="bizTypeProvider">
             业务类型
+        </th>
+        <th data-field="approvalState" data-sortable="true" data-align="center" data-sort-name="approval_state" data-provider="approvalStateProvider">
+            审批状态
         </th>
         <th data-field="customerName" data-sortable="true" data-align="center">
             客户名称

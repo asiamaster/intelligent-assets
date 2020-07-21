@@ -1,88 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dili.ia.mapper.StockWeighmanRecordMapper">
-  <resultMap id="BaseResultMap" type="com.dili.ia.domain.StockWeighmanRecord">
-    <!--
-      WARNING - @mbg.generated
+
+  <!--
+      判断是否司磅
     -->
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
-    <result column="gross_weight" jdbcType="BIGINT" property="grossWeight" />
-    <result column="gross_weight_date" jdbcType="TIMESTAMP" property="grossWeightDate" />
-    <result column="tare_weight" jdbcType="BIGINT" property="tareWeight" />
-    <result column="tare_weight_date" jdbcType="TIMESTAMP" property="tareWeightDate" />
-    <result column="new_weight" jdbcType="BIGINT" property="newWeight" />
-    <result column="operator_id" jdbcType="BIGINT" property="operatorId" />
-    <result column="operator_name" jdbcType="VARCHAR" property="operatorName" />
-    <result column="tare_operator_id" jdbcType="BIGINT" property="tareOperatorId" />
-    <result column="tare_operator_name" jdbcType="VARCHAR" property="tareOperatorName" />
-    <result column="market_id" jdbcType="BIGINT" property="marketId" />
-    <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    id, create_time, modify_time, gross_weight, gross_weight_date, tare_weight, tare_weight_date, 
-    new_weight, operator_id, operator_name, tare_operator_id, tare_operator_name, market_id, 
-    market_code
-  </sql>
-  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    <!--
-      WARNING - @mbg.generated
-    -->
+  <select id="getNeedWeigh" parameterType="list" resultType="string">
     select 
-    <include refid="Base_Column_List" />
-    from stock_weighman_record
-    where id = #{id,jdbcType=BIGINT}
+    sid.code as code
+    from stock_weighman_record as swr left join stock_in_detail as sid on swr.id = sid.weightman_id
+    where swr.id in 
+    <foreach collection="list" item="id" open="(" close=")" separator=",">
+    	#{id}
+    </foreach>
+    and (gross_weight is null or tare_weight is null);
   </select>
-  <update id="updateBy" parameterType="com.dili.ia.domain.StockWeighmanRecord">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    update stock_weighman_record
-    <set>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="modifyTime != null">
-        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="grossWeight != null">
-        gross_weight = #{grossWeight,jdbcType=BIGINT},
-      </if>
-      <if test="grossWeightDate != null">
-        gross_weight_date = #{grossWeightDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="tareWeight != null">
-        tare_weight = #{tareWeight,jdbcType=BIGINT},
-      </if>
-      <if test="tareWeightDate != null">
-        tare_weight_date = #{tareWeightDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="newWeight != null">
-        new_weight = #{newWeight,jdbcType=BIGINT},
-      </if>
-      <if test="operatorId != null">
-        operator_id = #{operatorId,jdbcType=BIGINT},
-      </if>
-      <if test="operatorName != null">
-        operator_name = #{operatorName,jdbcType=VARCHAR},
-      </if>
-      <if test="tareOperatorId != null">
-        tare_operator_id = #{tareOperatorId,jdbcType=BIGINT},
-      </if>
-      <if test="tareOperatorName != null">
-        tare_operator_name = #{tareOperatorName,jdbcType=VARCHAR},
-      </if>
-      <if test="marketId != null">
-        market_id = #{marketId,jdbcType=BIGINT},
-      </if>
-      <if test="marketCode != null">
-        market_code = #{marketCode,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
+  
+ 
 </mapper>

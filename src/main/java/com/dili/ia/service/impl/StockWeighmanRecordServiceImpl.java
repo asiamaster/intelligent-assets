@@ -4,6 +4,9 @@ import com.dili.ia.domain.StockWeighmanRecord;
 import com.dili.ia.mapper.StockWeighmanRecordMapper;
 import com.dili.ia.service.StockWeighmanRecordService;
 import com.dili.ss.base.BaseServiceImpl;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,4 +19,9 @@ public class StockWeighmanRecordServiceImpl extends BaseServiceImpl<StockWeighma
     public StockWeighmanRecordMapper getActualDao() {
         return (StockWeighmanRecordMapper)getDao();
     }
+   
+	@Override
+	public List<String> getNeedWeigh(List<Long> ids) {
+		return getActualDao().getNeedWeigh(ids);
+	}
 }

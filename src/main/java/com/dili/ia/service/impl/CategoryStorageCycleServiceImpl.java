@@ -10,6 +10,7 @@ import com.dili.ia.mapper.CategoryStorageCycleMapper;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.CategoryStorageCycleService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.beetl.format.LocalDateFormat;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -20,6 +21,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,15 +130,16 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
     }
 
 	@Override
-	public CategoryStorageCycle getCategoryStorageCycle(CategoryStorageCycleDto dto) {
+	public LocalDate getCategoryStorageCycle(LocalDate stockInDate,Long categoryId) {
 		CategoryStorageCycle ca = new CategoryStorageCycle();
-		ca.setId(dto.getId());
+		ca.setId(categoryId);
 		List<CategoryStorageCycle> li = this.listByExample(ca);
+		LocalDate date = LocalDate.now();
 		if(CollectionUtil.isNotEmpty(li)) {
-			return li.get(0);
+			 date = stockInDate.plusDays(li.get(0).getCycle());
 		}
 		//TODO 未获取到商品周期,是否采用默认周期??
-		ca.setCycle(7);
-		return ca;
+		date = stockInDate.plusDays(7);
+		return date;
 	}
 }

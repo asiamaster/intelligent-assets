@@ -54,4 +54,33 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
         return getActualDao().queryBusinessChargeItemMeta(businessIds);
     }
 
+    /**
+     * 根据业务ID、Code、Type 删除旧有的动态收费项
+     *
+     * @param  businessId
+     * @param  businessCode
+     * @param  bizType
+     * @return int
+     * @date   2020/7/16
+     */
+    @Override
+    public int deleteByBusinessIdAndCodeAndBizType(Long businessId, String businessCode, Integer bizType) {
+//        int code = this.getActualDao().deleteByBusinessIdAndCodeAndBizType(businessId, businessCode, bizType);
+        return 0;
+    }
+
+    @Override
+    public void unityUpdatePaymentAmountByBusinessId(Long businessId, String bizType, Long... paymentAmount) {
+        BusinessChargeItem chargeItemCondition = new BusinessChargeItem();
+        chargeItemCondition.setBusinessId(businessId);
+        chargeItemCondition.setBizType(bizType);
+        List<BusinessChargeItem> businessChargeItems = list(chargeItemCondition);
+        businessChargeItems.forEach(bci->{
+            bci.setPaymentAmount(paymentAmount.length > 0 ? paymentAmount[0] : bci.getAmount());
+        });
+        if (batchUpdateSelective(businessChargeItems) != businessChargeItems.size()) {
+            LOG.info("批量更新收费项支付中金额 【businessId:{},bizType:{}】", businessId, bizType);
+            throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
+        }
+    }
 }

@@ -39,7 +39,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -191,9 +190,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (earnestOrder.getId() == null){
             return BaseOutput.failure("Id不能为空！");
         }
-
+        EarnestOrder oldDTO = this.get(earnestOrder.getId());
+        if (null == oldDTO || !oldDTO.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){
+            return BaseOutput.failure("修改失败，定金单状态已变更！");
+        }
         //修改有清空修改，所以使用update
-        if (this.update(this.buildUpdateDto(earnestOrder)) == 0){
+        if (this.update(this.buildUpdateDto(oldDTO, earnestOrder)) == 0){
             LOG.info("修改定金单失败,乐观锁生效【客户名称：{}】 【定金单ID:{}】", earnestOrder.getCustomerName(), earnestOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
@@ -215,27 +217,26 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return;
     }
 
-    private EarnestOrder buildUpdateDto(EarnestOrder dto){
-        EarnestOrder earnestOrder = this.get(dto.getId());
+    private EarnestOrder buildUpdateDto(EarnestOrder oldDTO, EarnestOrder dto){
         BaseOutput<Department> depOut = departmentRpc.get(dto.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
-        earnestOrder.setDepartmentName(depOut.getData().getName());
-        earnestOrder.setCustomerId(dto.getCustomerId());
-        earnestOrder.setCustomerName(dto.getCustomerName());
-        earnestOrder.setCertificateNumber(dto.getCertificateNumber());
-        earnestOrder.setCustomerCellphone(dto.getCustomerCellphone());
-        earnestOrder.setStartTime(dto.getStartTime());
-        earnestOrder.setEndTime(dto.getEndTime());
-        earnestOrder.setDepartmentId(dto.getDepartmentId());
-        earnestOrder.setAmount(dto.getAmount());
-        earnestOrder.setNotes(dto.getNotes());
-        earnestOrder.setModifyTime(LocalDateTime.now());
-        earnestOrder.setVersion(dto.getVersion());
+        oldDTO.setDepartmentName(depOut.getData().getName());
+        oldDTO.setCustomerId(dto.getCustomerId());
+        oldDTO.setCustomerName(dto.getCustomerName());
+        oldDTO.setCertificateNumber(dto.getCertificateNumber());
+        oldDTO.setCustomerCellphone(dto.getCustomerCellphone());
+        oldDTO.setStartTime(dto.getStartTime());
+        oldDTO.setEndTime(dto.getEndTime());
+        oldDTO.setDepartmentId(dto.getDepartmentId());
+        oldDTO.setAmount(dto.getAmount());
+        oldDTO.setNotes(dto.getNotes());
+        oldDTO.setModifyTime(LocalDateTime.now());
+        oldDTO.setVersion(dto.getVersion());
 
-        return earnestOrder;
+        return oldDTO;
     }
 
     @Transactional(rollbackFor = Exception.class)

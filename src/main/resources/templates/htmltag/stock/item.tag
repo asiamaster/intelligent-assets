@@ -1,7 +1,14 @@
 
+<style>
+.detailInfo {
+    border-bottom-style: groove;
+	margin-bottom: 15px;
+}
+</style>
+
 <!-- 整车入库 -->
 <script id="detailInfo1" type="text/html">
-	<form id="saveForm_{{index}}" role="form" novalidate>
+	<form id="saveForm_{{index}}" role="form" class="detailInfo" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
 						<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
@@ -28,7 +35,7 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
-						<select id="assetsId_{{index}}" name="assetsId" class="form-control"  required> 
+						<select id="assetsId_{{index}}" name="assetsId" class="form-control get-cost"  required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
 						
@@ -70,7 +77,7 @@
 </script>
 <!-- 司磅入库 -->
 <script id="detailInfo3" type="text/html">
-	<form id="saveForm_{{index}}" role="form" novalidate>
+	<form id="saveForm_{{index}}" role="form" class="detailInfo" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
 					<input type="hidden" class="form-control" id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
@@ -137,7 +144,7 @@
 </script>
 <!-- 零散入库 -->
 <script id="detailInfo2" type="text/html">
-	<form id="saveForm_{{index}}" role="form" novalidate>
+	<form id="saveForm_{{index}}" role="form" class="detailInfo" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
 					<label for="">区域</label>
@@ -280,30 +287,39 @@ function changeAssets(index,districtId,value){
 
 //获取到期时间
 //日期范围
-/*laydate.render({
+laydate.render({
 	elem: '#stockInDate',
-	done: function(value, date){ //监听日期被切换
-     	  console.log(value)
-     	    //执行函数
+	theme: '#007bff',
+	trigger: 'click',
+	done: function(value, date){
+		 //监听日期被切换
+		console.log(value);
+		getCycle()
 	}
-});*/
+});
 
-function getCycle(stockInDate,categoryId){
-	 //监听日期被切换
-	if(date!=null && $('#categoryId').val()!=null){
+//冷库区域变更  对应子单的冷库更新
+$(document).on('change', '.categoryId', function() {
+	getCycle()
+});
+
+function getCycle(){
+	//监听日期被切换
+	let stockInDate = $("#stockInDate").val();
+	let categoryId = $('#categoryId').val();
+	if(stockInDate!=null && categoryId!=null){
 		$.ajax({
 			type: "POST",
-			url: "/stock/categoryCycle/getCycle.action?categoryId="+categoryId,
+			url: "/stock/categoryCycle/getCycle.action?categoryId="+categoryId+"&stockInDate="+stockInDate,
 			data: {parentId: 0},
 			success: function (data) {
 				if (data.code == "200") {
 					console.log(data)
-					$("#expireDate").val("2020-07-23");
+					$("#expireDate").val(data.data);
 				}
 			}
 		});
 	}
-
 
 }
 
