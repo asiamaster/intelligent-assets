@@ -108,12 +108,11 @@ public class RefundOrderController {
         modelMap.put("taskId", taskCenterParam.getTaskId());
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
-
         ApprovalProcess approvalProcess = new ApprovalProcess();
         approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
         List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
         modelMap.put("approvalProcesses", approvalProcesses);
-        return "assetsLeaseOrder/approvalDetail";
+        return "refundOrder/approvalDetail";
     }
 
     /**
