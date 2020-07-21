@@ -118,7 +118,7 @@ $('#adddetailItem').on('click', function() {
 
 //删除行事件 （删除子单）
 $(document).on('click', '.item-del', function() {
-	$(this).closest('.detail').remove();
+	$(this).closest('.detailInfo').remove();
 	countNumber("quantity");
 	countNumber("weight");
 	countNumber("amount");

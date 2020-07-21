@@ -606,7 +606,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			queryFeeInputs.add(queryFeeInput);
 		});
 		BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
-		System.err.println(JSON.toJSONString(batchQueryFee));
 		return batchQueryFee.getData();
 	}
 	

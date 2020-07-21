@@ -1,5 +1,6 @@
 package com.dili.ia.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -46,5 +47,5 @@ public interface CategoryStorageCycleService extends BaseService<CategoryStorage
 	 * @return
 	 * @throws
 	 */
-	CategoryStorageCycle getCategoryStorageCycle(CategoryStorageCycleDto dto);
+	LocalDate getCategoryStorageCycle(LocalDate stockInDate,Long categoryId);
 }

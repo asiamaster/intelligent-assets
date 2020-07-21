@@ -16,6 +16,7 @@ import com.github.pagehelper.Page;
 
 import cn.hutool.core.bean.BeanUtil;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,10 +123,10 @@ public class CategoryStorageCycleController {
      * 获取品类存储周期
      */
     @RequestMapping(value = "/getCycle.action")
-    public @ResponseBody BaseOutput<CategoryDTO> getCycle(@RequestBody CategoryStorageCycleDto dto) {
+    public @ResponseBody BaseOutput<CategoryDTO> getCycle(LocalDate stockInDate,Long categoryId) {
         try {
         	
-            return BaseOutput.success().setData(categoryStorageCycleService.getCategoryStorageCycle(dto));
+            return BaseOutput.success().setData(categoryStorageCycleService.getCategoryStorageCycle( stockInDate,categoryId));
         } catch (Exception e) {
         	LOG.error("获取品类周期失败",e.getMessage());
             return BaseOutput.failure(e.getMessage());
