@@ -67,7 +67,7 @@
                 for(item in chargeItems){
                 %>
                 <div class="form-group col">
-                    <label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label>
+                    <label for="amount" class="">${item.chargeItem!}</label>
                     <input id="chargeItem_${item.id!}" type="number" class="form-control chargeItem money" name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" />
                 </div>
                 <% } }%>

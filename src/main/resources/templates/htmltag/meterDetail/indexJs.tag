@@ -96,9 +96,6 @@
         });
     }
 
-    function tt(){
-        alert('dd')
-    }
 
     /**
      打开更新窗口

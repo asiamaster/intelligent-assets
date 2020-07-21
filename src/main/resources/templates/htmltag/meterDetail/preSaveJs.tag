@@ -49,6 +49,8 @@
                 success: function(res){
                     if(res.success === true) {
                         $('[name="lastAmount"]').val(res.data);
+                        calcReceivable();
+                        calcCope();
                     } else {
                         bs4pop.alert("上期指数获取失败!", {type: 'error'});
                     }
@@ -59,6 +61,40 @@
             })
         }
     };
+
+    $('#thisAmount, #lastAmount').on('change', function () {
+        calcReceivable();
+        calcCope();
+    })
+    $('.chargeItem').on('change', function () {
+        calcCope();
+    })
+    // 计算费用
+    function calcReceivable() {
+        let lastAmount = $('#lastAmount').val();
+        let thisAmount = $('#thisAmount').val();
+        let price = $('#price').val();
+        if (lastAmount == '' || thisAmount == '' || price == '') {
+            return false;
+        }
+        if (parseFloat(lastAmount) > parseFloat(thisAmount)) {
+            $('#thisAmount, #usageAmount').val('');
+            return false;
+        }
+        let usageAmount = parseFloat(thisAmount) - parseFloat(lastAmount);
+        let receivable = usageAmount * price;
+        $('#usageAmount').val(usageAmount);
+        $('#receivable').val(receivable);
+    }
+    // 计算实收金额
+    function calcCope() {
+        let chargeItem = $('.chargeItem').val() || 0;
+        let receivable = $('#receivable').val();
+        if (receivable == '') {
+            return false;
+        }
+        $('#cope').val(parseFloat(chargeItem) + parseFloat(receivable));
+    }
 
     // 提交保存
     function saveOrUpdateHandler(){
