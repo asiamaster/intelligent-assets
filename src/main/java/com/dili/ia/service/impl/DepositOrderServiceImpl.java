@@ -680,17 +680,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         });
         assetsIdsMap.forEach((key, value) -> { //【取消】
             DepositOrder depositOrder = this.get(value);
-            if (!depositOrder.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
-                throw new BusinessException(ResultCode.DATA_ERROR, "取消失败，保证金单状态已变更！");
-            }
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            depositOrder.setCancelerId(userTicket.getId());
-            depositOrder.setCanceler(userTicket.getRealName());
-            depositOrder.setState(DepositOrderStateEnum.CANCELD.getCode());
-            if (this.updateSelective(depositOrder) == 0){
-                LOG.error("保证金取消失败，取消更新状态记录数为 0，取消保证金ID【{}】", value);
-                throw new BusinessException(ResultCode.DATA_ERROR, "取消失败！");
-            }
+            this.cancelDepositOrder(depositOrder);
         });
         return BaseOutput.success();
     }
@@ -746,8 +736,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 if (!output.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
                 }
-            }else if (o.getState().equals(DepositOrderStateEnum.CREATED.getCode())){ //如果状态是【已创建】，就不做任何处理
-
+            }else if (o.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
+                //如果状态是【已创建】，就不做任何处理
             }else {// 如果状态不是【已提交】状态，就解除关联订单操作关系
                 o.setIsRelated(YesOrNoEnum.NO.getCode());
                 if (this.updateSelective(o) == 0) {
@@ -757,6 +747,59 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
         });
         return BaseOutput.success();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public BaseOutput batchSubmitDepositOrderFull(String bizType, Long businessId) {
+        if (bizType == null){
+            return BaseOutput.failure("参数bizType 不能为空！");
+        }
+        if (businessId == null){
+            return BaseOutput.failure("参数businessId 不能为空！");
+        }
+        List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        if (CollectionUtils.isNotEmpty(deList)){
+            deList.stream().forEach(o -> {
+                BaseOutput output = this.submitDepositOrder(o.getId(), o.getAmount(), o.getWaitAmount());
+                if (!output.isSuccess()){
+                    throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                }
+            });
+        }
+        return BaseOutput.success();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public BaseOutput batchCancelDepositOrder(String bizType, Long businessId) {
+        if (bizType == null){
+            return BaseOutput.failure("参数bizType 不能为空！");
+        }
+        if (businessId == null){
+            return BaseOutput.failure("参数businessId 不能为空！");
+        }
+        List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        if (CollectionUtils.isNotEmpty(deList)){
+            deList.stream().forEach(o -> {
+                this.cancelDepositOrder(o);
+            });
+        }
+        return BaseOutput.success();
+    }
+
+    public void cancelDepositOrder(DepositOrder depositOrder) {
+        if (!depositOrder.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "取消失败，保证金单状态已变更！");
+        }
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        depositOrder.setCancelerId(userTicket.getId());
+        depositOrder.setCanceler(userTicket.getRealName());
+        depositOrder.setState(DepositOrderStateEnum.CANCELD.getCode());
+        if (this.updateSelective(depositOrder) == 0){
+            LOG.error("保证金取消失败，取消更新状态记录数为 0，取消保证金ID【{}】", depositOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "取消失败！");
+        }
     }
 
     @Override
