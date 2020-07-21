@@ -89,7 +89,7 @@
 
                 <div class="form-group col">
                     <label for="">实收金额</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.cope}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.amount}" disabled />
                 </div>
                 <div class="form-group col">
                     <label for="">抄表日期</label>
@@ -103,6 +103,17 @@
                     <label for="notes">备注</label>
                     <textarea id="notes" class="form-control" name="" rows="2" maxlength="100" value="${meterDetail.notes}" disabled></textarea>
                 </div>
+            </div>
+
+            <div class="breadcrumb">
+            业务记录 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#details" aria-expanded="true"
+             aria-controls="details">收起
+                <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+            </a>
+            </div>
+            <div class="collapse show" id="details">
+
+
             </div>
         </form>
     </div>

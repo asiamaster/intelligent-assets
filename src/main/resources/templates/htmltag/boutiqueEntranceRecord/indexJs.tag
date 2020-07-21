@@ -1,12 +1,13 @@
 <script>
 
     /*********************变量定义区 begin*************/
-//行索引计数器
-//如 let itemIndex = 0;
+        //行索引计数器
+        //如 let itemIndex = 0;
     let _grid = $('#grid');
     let _form = $('#_form');
-    let _modal = $('#_modal');
+    let currentSelectRowIndex;
     var dia;
+
     /*********************变量定义区 end***************/
 
 
@@ -15,64 +16,17 @@
         $(window).resize(function () {
             _grid.bootstrapTable('resetView')
         });
-        queryDataHandler();
-
-        lay('.laymonth').each(function () {
-            laydate.render({
-                elem: this,
-                trigger: 'click',
-                type: 'month',
-                theme: '#007bff',
-                done: function () {
-                }
-            });
-        });
+        let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
+        size = size > 10 ? size : 10;
+        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/boutiqueEntranceRecord/listPage.action', pageSize: parseInt(size)});
     });
+
+
     /******************************驱动执行区 end****************************/
-
-    /*****************************************函数区 begin************************************/
-
-    /**
-     * 打开查看
-     * @param id
-     */
-    function openViewHandler(id) {
-        let _formData = $('#queryForm').serializeObject();
-        var meterType = _formData.metertype;
-        if(!id){
-            //获取选中行的数据
-            let rows = _grid.bootstrapTable('getSelections');
-            if (null == rows || rows.length == 0) {
-                bs4pop.alert('请选中一条数据');
-                return;
-            }
-            id = rows[0].id;
-        }
-
-
-        dia = bs4pop.dialog({
-            title: '水电费详情',
-            content: '/meterDetail/view.action?id='+id + '&meterType=' + meterType,
-            isIframe : true,
-            closeBtn: true,
-            backdrop : 'static',
-            width: '80%',
-            height : '95%',
-            btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
-        });
-    }
-
-    /**
-     * 查询处理
-     */
-    function queryDataHandler() {
-        _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '/meterDetail/listPage.action'});
-    }
 
     /**
      * table参数组装
      * 可修改queryParams向服务器发送其余的参数
-     * 前置 table初始化时 queryParams方法拿不到option对象，需要在页面加载时初始化option
      * @param params
      */
     function queryParams(params) {
@@ -86,23 +40,55 @@
     }
 
     /**
-     打开新增窗口
+     * 查询处理
      */
-    function openInsertHandler() {
+    function queryDataHandler() {
+        currentSelectRowIndex = undefined;
+        $('#toolbar button').attr('disabled', false);
+        _grid.bootstrapTable('refresh');
+    }
+
+    /**
+     * 关闭弹窗
+     */
+    function closeDialog(dialog){
+        dialog.hide();
+        queryDataHandler();
+    }
+
+    /**
+     * 打开查看
+     * @param id
+     */
+    function openViewHandler(id) {
+        if(!id){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            id = rows[0].id;
+        }
+
+
         dia = bs4pop.dialog({
-            title: '费用新增',//对话框title
-            content: '${contextPath}/meterDetail/add.html?meterType=1', //对话框内容，可以是 string、element，$object
-            width: '80%',//宽度
-            height: '95%',//高度
-            isIframe: true,//默认是页面层，非iframe
+            title: '查看详情',
+            content: '/boutiqueEntranceRecord/view.action?id='+id,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '80%',
+            height : '95%',
+            btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
         });
     }
 
-
     /**
-     打开更新窗口
+     * 打开查看
+     * @param id
      */
-    function openUpdateHandler() {
+    function openConfirmHandler() {
         //获取选中行的数据
         let rows = _grid.bootstrapTable('getSelections');
         if (null == rows || rows.length == 0) {
@@ -110,24 +96,27 @@
             return false;
         }
         dia = bs4pop.dialog({
-            title: '修改水费',//对话框title
-            content: '${contextPath}/meterDetail/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
-            width: '80%',//宽度
-            height: '500px',//高度
-            isIframe: true,//默认是页面层，非iframe
-            //按钮放在父页面用此处的 btns 选项。也可以放在页面里直接在页面写div。
-            btns: [{label: '取消',className: 'btn-secondary',onClick(e, $iframe){
-                }
-            }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
-                    let diaWindow = $iframe[0].contentWindow;
-                    bui.util.debounce(diaWindow.saveOrUpdateHandler,1000,true)()
-                    return false;
-                }
-            }]
+            title: '确认计费',//对话框title
+            content: '${contextPath}/boutiqueEntranceRecord/confirm.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '80%',
+            height : '95%',
+            btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
         });
     }
 
-
+    /**
+     * 业务编号formatter
+     * @param value
+     * @param row
+     * @param index
+     * @returns {string}
+     */
+    function codeFormatter(value,row,index) {
+        return '<a href="javascript:openViewHandler('+row.id+')">'+value+'</a>';
+    }
 
     /**
      提交处理
@@ -144,7 +133,7 @@
 
                         $.ajax({
                             type: "POST",
-                            url: "${contextPath}/meterDetail/submit.action",
+                            url: "${contextPath}/boutiqueEntranceRecord/submit.action",
                             data: {id: selectedRow.id},
                             processData:true,
                             dataType: "json",
@@ -181,7 +170,7 @@
 
                     $.ajax({
                         type: "POST",
-                        url: "${contextPath}/meterDetail/withdraw.action",
+                        url: "${contextPath}/boutiqueEntranceRecord/withdraw.action",
                         data: {id: selectedRow.id},
                         processData:true,
                         dataType: "json",
@@ -202,7 +191,6 @@
             })
         }
     }
-
     /**
      取消
      */
@@ -217,7 +205,7 @@
 
                     $.ajax({
                         type: "POST",
-                        url: "${contextPath}/meterDetail/cancel.action",
+                        url: "${contextPath}/boutiqueEntranceRecord/cancel.action",
                         data: {id: selectedRow.id},
                         processData:true,
                         dataType: "json",
@@ -239,42 +227,37 @@
         }
     }
 
+    //选中行事件
+    _grid.on('uncheck.bs.table', function (e, row, $element) {
+        currentSelectRowIndex = undefined;
+    });
 
     //选中行事件 -- 可操作按钮控制
     _grid.on('check.bs.table', function (e, row, $element) {
         let state = row.$_state;
-        if (state == ${@com.dili.ia.glossary.MeterDetailStateEnum.CREATED.getCode()}) {
+        if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.NOCONFIRM.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-            $('#btn_update').attr('disabled', false);
+            $('#btn_confirm').attr('disabled', false);
             $('#btn_submit').attr('disabled', false);
-            $('#btn_cancel').attr('disabled', false);
-            $('#export').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.MeterDetailStateEnum.SUBMITED.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.COUNTING.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-            $('#btn_withdraw').attr('disabled', false);
-            $('#export').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.MeterDetailStateEnum.CANCELLED.getCode()}) {
+            $('#btn_leave').attr('disabled', false);
+            $('#btn_forceLeave').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.LEAVE.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-            $('#export').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.MeterDetailStateEnum.PAID.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.CANCEL.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
-            $('#export').attr('disabled', false);
         }
     });
-    /*****************************************函数区 end**************************************/
 
-    /*****************************************自定义事件区 begin************************************/
-
-
-
-
-    /*****************************************自定义事件区 end**************************************/
 </script>
+
+<!--
+http://ia.diligrp.com:8381/earnestOrder/view.html 查看
+http://ia.diligrp.com:8381/earnestOrder/add.html 新增
+http://ia.diligrp.com:8381/earnestOrder/update.html 修改
+-->

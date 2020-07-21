@@ -123,11 +123,19 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         // 根据主键 id 查询到水电费单详情以及联表查询表信息
         MeterDetailDto meterDetailDtoInfo = this.getActualDao().getMeterDetailById(id);
 
+        // 计算费用
+        long receivable = 0L;
+        if (meterDetailDtoInfo.getUsageAmount() != null && meterDetailDtoInfo.getPrice() != null) {
+            receivable = meterDetailDtoInfo.getUsageAmount() * meterDetailDtoInfo.getPrice();
+        }
+        meterDetailDtoInfo.setReceivable(receivable);
+
         // 组装动态收费项
         BusinessChargeItem condtion = new BusinessChargeItem();
         condtion.setBusinessCode(meterDetailDtoInfo.getCode());
         condtion.setBizType(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
-        meterDetailDtoInfo.setBusinessChargeItems(businessChargeItemService.list(condtion));
+        List<BusinessChargeItem> list = businessChargeItemService.list(condtion);
+        meterDetailDtoInfo.setBusinessChargeItems(list);
 
         // TODO 查询操作日志
 
@@ -209,9 +217,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetail.setCreator(userTicket.getRealName());
         meterDetail.setMarketCode(userTicket.getFirmCode());
         meterDetail.setCreatorDepId(userTicket.getDepartmentId());
-        meterDetail.setState(MeterDetailStateEnum.UNSUBMITED.getCode());
+        meterDetail.setState(MeterDetailStateEnum.CREATED.getCode());
         // 计算使用量
-        meterDetail.setUsageAmount(meterDetail.getThisAmount() - lastAmount);
+//        meterDetail.setUsageAmount(meterDetail.getThisAmount() - lastAmount);
         this.getActualDao().insertSelective(meterDetail);
 
         //构建动态收费项
@@ -392,7 +400,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
         // 修改水电费单
         meterDetailInfo.setModifyTime(LocalDateTime.now());
-        meterDetailInfo.setState(MeterDetailStateEnum.ABOLISHED.getCode());
+        meterDetailInfo.setState(MeterDetailStateEnum.PAID.getCode());
         if (this.updateSelective(meterDetailInfo) == 0) {
             logger.info("缴费单成功回调 -- 更新【水电费单】状态,乐观锁生效！【水电费单Id:{}】", meterDetailInfo.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -427,7 +435,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailInfo.setWithdrawOperatorId(userTicket.getId());
         meterDetailInfo.setWithdrawOperator(userTicket.getRealName());
         meterDetailInfo.setModifyTime(LocalDateTime.now());
-        meterDetailInfo.setState(MeterDetailStateEnum.UNSUBMITED.getCode());
+        meterDetailInfo.setState(MeterDetailStateEnum.CREATED.getCode());
         if (this.updateSelective(meterDetailInfo) == 0) {
             logger.info("撤回水电费【修改为已创建】失败.");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -459,13 +467,13 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
         // 查询数据,对比状态
         MeterDetail meterDetailInfo = this.get(id);
-        if (meterDetailInfo != null && !MeterDetailStateEnum.UNSUBMITED.getCode().equals(meterDetailInfo.getState())) {
+        if (meterDetailInfo != null && !MeterDetailStateEnum.CREATED.getCode().equals(meterDetailInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
         meterDetailInfo.setCancelerId(userTicket.getId());
         meterDetailInfo.setCanceler(userTicket.getRealName());
         meterDetailInfo.setModifyTime(LocalDateTime.now());
-        meterDetailInfo.setState(MeterDetailStateEnum.PAID.getCode());
+        meterDetailInfo.setState(MeterDetailStateEnum.CANCELLED.getCode());
         if (this.updateSelective(meterDetailInfo) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
@@ -565,30 +573,31 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
 
         // 已创建状态才能修改
-        if (!MeterDetailStateEnum.UNSUBMITED.getCode().equals(meterDetailInfo.getState())) {
+        if (!MeterDetailStateEnum.CREATED.getCode().equals(meterDetailInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改");
         }
 
         //在更新状态之前查询指数信息，不然可能会查询出当前数据(脏读)
-        BaseOutput lastAmountReturn = this.getLastAmount(meterDetailDto.getMeterId());
+        BaseOutput lastAmountReturn = this.getLastAmount(meterDetailInfo.getMeterId());
         if (!lastAmountReturn.isSuccess()){
             return BaseOutput.failure("该表初始指数获取失败,保存失败!");
         }
         Long lastAmount = (Long) lastAmountReturn.getData();
 
-        // 先删除动态收费项，再增加动态收费项
-        businessChargeItemService.deleteByBusinessIdAndCodeAndBizType(meterDetailInfo.getId(), meterDetailInfo.getCode(), Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
-
         //构建动态收费项
         if (meterDetailDto.getBusinessChargeItems() != null) {
             List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetailInfo.getId(), meterDetailInfo.getCode());
             if (businessChargeItems != null && businessChargeItems.size() > 0) {
-                businessChargeItemService.batchInsert(businessChargeItems);
+                for (BusinessChargeItem businessChargeItem : businessChargeItems) {
+                    businessChargeItemService.updateSelective(businessChargeItem);
+                }
+//                businessChargeItemService.batchInsert(businessChargeItems);
             }
         }
 
         BeanUtils.copyProperties(meterDetailDto, meterDetailInfo);
         meterDetailInfo.setModifyTime(LocalDateTime.now());
+        meterDetailInfo.setVersion(meterDetailInfo.getVersion() + 1);
         if (this.updateSelective(meterDetailInfo) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
@@ -644,7 +653,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
         // 已创建和已提交状态为未缴费
         StringBuilder statusBuff = new StringBuilder("");
-        statusBuff.append(MeterDetailStateEnum.UNSUBMITED.getCode()).append(",").append(MeterDetailStateEnum.SUBMITED.getCode()).append(",");
+        statusBuff.append(MeterDetailStateEnum.CREATED.getCode()).append(",").append(MeterDetailStateEnum.SUBMITED.getCode()).append(",");
 
         // 设置查询参数
         meterDetailDto.setMeterId(meterId);

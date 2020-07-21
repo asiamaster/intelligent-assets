@@ -1,0 +1,107 @@
+<#bs4Body>
+
+<div class="container-fluid">
+    <#bs4nav>
+    <form id="queryForm" role="form" >
+        <div class="row row-cols-6">
+
+            <div class="form-group col">
+                <label for="plate">挂号:</label>
+                <input type="number" class="form-control" name="plate" id="plate" maxlength="50"/>
+            </div>
+
+            <div class="form-group col">
+                <label for="customerName">客户名称:</label>
+                <input type="customerName" class="form-control" name="customerName" id="customerName" maxlength="50"/>
+            </div>
+
+            <div>
+                <label for="state">状态:</label>
+                <select id="state" name="state" class="form-control"></select>
+                <#bcomboProvider _id="state" _provider="boutiqueStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
+            </div>
+
+            <div class="form-group col">
+                <label for="carTypeId">车型:</label>
+                <select id="carTypeId" name="carTypeId" class="form-control"></select>
+                <#bcomboProvider _id="carTypeId" _provider="carTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+            </div>
+
+            <div class="form-group col">
+                <label for="departmentId">接车部门:</label>
+                <select id="departmentId" name="departmentId" class="form-control"></select>
+                <#bcomboProvider _id="departmentId" _provider="carDepartmentProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+            </div>
+
+            <div class="col align-self-center mt-3">
+                <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+            </div>
+        </div>
+    </form>
+</#bs4nav>
+
+<div class="row">
+    <div class="col-12">
+        <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+
+        <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
+        <button id="btn_confirm" type="button" class="btn btn-primary" onclick="openConfirmHandler()"><i class="fa fa-undo"></i> 确认计费</button>
+        <button id="btn_submit" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 交费</button>
+        <button id="btn_leave" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 离场</button>
+        <button id="btn_forceLeave" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 强制离场</button>
+
+</div>
+<table id="grid" data-toggle="table" data-title="精品停车收费" class="table" data-toolbar="#toolbar"
+       data-pagination="true" data-page-number="1" data-page-size="10"
+       data-query-params="queryParams" data-side-pagination="server" data-method="POST"
+       data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+       data-click-to-select="true" data-unique-id="id" data-sort-name="id"
+       data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
+       data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
+    <thead>
+    <tr>
+        <th data-radio="true"></th>
+        <th data-field="enterTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
+            进场时间
+        </th>
+        <th data-field="customerName" data-sortable="true" data-align="center">
+            客户姓名
+        </th>
+        <th data-field="plate" data-sortable="true" data-align="center">
+            挂号
+        </th>
+        <th data-field="carTypeId" data-sortable="true" data-align="center" data-provider="datetimeProvider">
+            车型
+        </th>
+        <th data-field="departmentName" data-sortable="true" data-align="center">
+            接车部门
+        </th>
+        <th data-field="confirmTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
+            确认时间
+        </th>
+        <th data-field="createTime" data-sortable="true" data-align="center">
+            停车时长
+        </th>
+        <th data-field="totalAmount" data-sortable="true" data-align="center">
+            已缴费
+        </th>
+        <th data-field="leaveTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
+            离场时间
+        </th>
+        <th data-field="state" data-sortable="true" data-align="center" data-provider="boutiqueStateProvider">
+            状态
+        </th>
+    </tr>
+    </thead>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</#bs4Body>
+
+<#boutiqueEntranceRecord_indexJs />
+

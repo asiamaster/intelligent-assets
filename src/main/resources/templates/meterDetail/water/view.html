@@ -1,0 +1,121 @@
+<#bs4Body>
+    <div class="container-fluid">
+    <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.meterDetail'/>">
+        <form id="saveForm" method="post" action="" class="pb-5">
+            <div class="row row-cols-4" >
+                <div class="form-group col">
+                    <label for="code">单号<i class="red">*</i></label>
+                    <input type="text" class="form-control" name="code" value="${meterDetail.code}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="state">状态</label>
+                    <select id="state"  name="state" class="form-control" disabled></select>
+                    <#bcomboProvider _log="状态" _id="state" _provider="meterDetailStateProvider" _value="${meterDetail.state!}"/>
+                </div>
+                <div class="form-group col">
+                    <label for="">操作员<i class="red">*</i></label>
+                    <input type="text" class="form-control" name="creator" value="${meterDetail.creator}" disabled />
+                </div>
+                <div class="form-group col col">
+                    <label for="">创建日期</label>
+                    <input type="text" class="form-control" value="${meterDetail.createTime!,localDateTimeFormat='yyyy-MM-dd'}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">收费员<i class="red">*</i></label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.code}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">交费日期<i class="red">*</i></label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.code}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">月份<i class="red">*</i></label>
+                    <input type="text" class="form-control laymonth" value="${meterDetail.usageTime!,localDateTimeFormat='yyyy-MM'}" name="" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">表编号<i class="red">*</i></label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.number}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="assetsType">类别</label>
+                    <select id="assetsType"  name="assetsType" class="form-control" disabled></select>
+                    <#bcomboProvider _log="状态" _id="assetsType" _provider="assetsTypeProvider" _value="${meterDetail.assetsType!}"/>
+                </div>
+                <div class="form-group col">
+                    <label for="">表地址</label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.assetsName}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">部门</label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.departmentName}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">手机号码</label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.customerCellphone}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">客户名称</label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.customerName}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">上期指数</label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.lastAmount}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">本期指数<i class="red">*</i></label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.thisAmount}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">实用量</label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.usageAmount}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">单价<i class="red">*</i></label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.price}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">费用/元</label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.receivable}" disabled />
+                </div>
+
+				<%
+                if(meterDetail.businessChargeItems.~size>0){
+                for(item in meterDetail.businessChargeItems){%>
+              	 <div class="form-group col">
+					<label for="amount" class="">${item.chargeItemName!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}" type="number" class="form-control chargeItem"
+					 name="chargeItem_${item.id!}"  value="<#centToYuan value='${item.amount!}'/>" range="0 9999999.99" required readonly />
+		        </div>
+                <% } } %>
+
+                <div class="form-group col">
+                    <label for="">实收金额</label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.amount}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">抄表日期</label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.recordTime,localDateTimeFormat='yyyy-MM-dd'}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">抄表员</label>
+                    <input type="text" class="form-control" name="" value="${meterDetail.recorderName}" disabled />
+                </div>
+                <div class="form-group col-12">
+                    <label for="notes">备注</label>
+                    <textarea id="notes" class="form-control" name="" rows="2" maxlength="100" value="${meterDetail.notes}" disabled></textarea>
+                </div>
+            </div>
+
+            <div class="breadcrumb">
+            业务记录 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#details" aria-expanded="true"
+             aria-controls="details">收起
+                <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+            </a>
+            </div>
+            <div class="collapse show" id="details">
+
+
+            </div>
+        </form>
+    </div>
+
+</#bs4Body>

@@ -15,23 +15,24 @@
                 </div>
                 <div class="form-group col">
                     <label for="assetsType">类别<i class="red">*</i></label>
-                    <input type="text" class="form-control" id="assetsType" name="assetsType" disabled />
+                    <input type="text" class="form-control" id="assetsType" name="assetsType" readonly />
                     <!--  <select id="assetsType"  name="assetsType" class="form-control" required></select>
                         <#bcomboProvider _id="assetsType" _provider="assetsTypeProvider"/>-->
                 </div>
                 <div class="form-group col">
                     <label for="assetsName">表地址</label>
-                    <input type="text" class="form-control" id="assetsName" name="assetsName" disabled />
+                    <input type="text" class="form-control" id="assetsName" name="assetsName" readonly />
                 </div>
-
-                <input type="hidden" id="meterId" name="meterId">
-                <input type="hidden" id="customerId" name="customerId">
 
                 <div class="form-group col">
                     <label for="departmentId">业务所属部门<i class="red">*</i></label>
                     <select id="departmentId"  name="departmentId" class="form-control" required></select>
                     <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider"/>
                 </div>
+
+                <input type="hidden" id="meterId" name="meterId">
+                <input type="hidden" id="customerId" name="customerId">
+
                 <div class="form-group col">
                     <label for="customerCellphone">手机号码</label>
                     <input type="text" class="form-control isMobile" id="customerCellphone" name="customerCellphone" required />
@@ -39,12 +40,12 @@
 
                 <div class="form-group col">
                     <label for="customerName">客户名称</label>
-                    <input type="text" class="form-control" id="customerName" name="customerName" disabled />
+                    <input type="text" class="form-control" id="customerName" name="customerName" readonly />
                 </div>
 
                 <div class="form-group col">
                     <label for="lastAmount">上期指数</label>
-                    <input type="text" class="form-control" id="lastAmount" name="lastAmount" disabled />
+                    <input type="text" class="form-control" id="lastAmount" name="lastAmount" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="thisAmount">本期指数<i class="red">*</i></label>
@@ -52,15 +53,15 @@
                 </div>
                 <div class="form-group col">
                     <label for="usageAmount">实用量</label>
-                    <input type="text" class="form-control" id="usageAmount" name="usageAmount" disabled />
+                    <input type="text" class="form-control" id="usageAmount" name="usageAmount" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="price">单价<i class="red">*</i></label>
-                    <input type="text" class="form-control" id="price" name="price" disabled />
+                    <input type="text" class="form-control" id="price" name="price" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="receivable">费用/元</label>
-                    <input type="text" class="form-control" id="receivable" name="receivable" disabled />
+                    <input type="text" class="form-control" id="receivable" name="receivable" readonly />
                 </div>
 
                 <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
@@ -73,8 +74,8 @@
                 <% } }%>
 
                 <div class="form-group col">
-                    <label for="cope">实收金额</label>
-                    <input type="text" class="form-control" id="cope" name="cope" disabled />
+                    <label for="amount">实收金额</label>
+                    <input type="text" class="form-control" id="amount" name="amount" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="recordTime">抄表日期</label>

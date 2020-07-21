@@ -1,0 +1,68 @@
+<#bs4Body>
+
+<div class="container-fluid">
+    <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.boutiqueEntranceRecord'/>">
+    <form id="saveForm" role="form" novalidate>
+        <div class="row row-cols-2">
+
+            <div class="form-group col">
+                <label _log for="plate">挂号<i class="red">*</i></label>
+                <input type="text" class="form-control" id="plate" name="plate" value="${boutiqueEntranceRecord.plate!}" disabled />
+            </div>
+
+            <div class="form-group col">
+                <label for="carTypeId">车型</label>
+                <select id="carTypeId"  name="carTypeId" class="form-control" disabled ></select>
+                <#bcomboProvider _log="车型" _id="carTypeId" _provider="carTypeProvider" _value="${boutiqueEntranceRecord.carTypeId!}"  />
+            </div>
+
+            <div class="form-group col">
+                <label _log for="customerName">客户姓名<i class="red">*</i></label>
+                <input type="text" class="form-control" id="customerName" name="customerName" value="${boutiqueEntranceRecord.customerName!}"  disabled  />
+            </div>
+
+            <div class="form-group col">
+                <label _log  for="customerCellphone">联系电话<i class="red">*</i></label>
+                <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${boutiqueEntranceRecord.customerCellphone!}"  disabled  />
+            </div>
+
+            <div class="form-group col">
+                <label for="enterTime">进场时间<i class="red">*</i></label>
+                <input type="text" class="form-control" value="${boutiqueEntranceRecord.enterTime!,localDateTimeFormat='yyyy-MM-dd HH:MM:SS'}" disabled />
+            </div>
+
+            <div class="form-group col">
+                <label _log for="confirmTime">确认时间<i class="red">*</i></label>
+                <input type="text" class="form-control" value="${boutiqueEntranceRecord.confirmTime!,localDateTimeFormat='yyyy-MM-dd HH:MM:SS'}" disabled />
+            </div>
+
+            <div class="form-group col">
+                <label _log for="price">开始计费<i class="red">*</i></label>
+                <input type="text" class="form-control" value="${boutiqueEntranceRecord.countTime!,localDateTimeFormat='yyyy-MM-dd HH:MM:SS'}" disabled />
+            </div>
+
+            <div class="form-group col">
+                <label _log for="price">下次计费<i class="red">*</i></label>
+                <input type="text" class="form-control" value="${boutiqueEntranceRecord.countTime!,localDateTimeFormat='yyyy-MM-dd HH:MM:SS'}" disabled />
+            </div>
+
+            <div class="form-group col">
+                <label for="departmentId">接车部门</label>
+                <select id="departmentId"  name="departmentId" class="form-control" disabled ></select>
+                <#bcomboProvider _log="接车部门" _id="departmentId" _provider="carDepartmentProvider" _value="${boutiqueEntranceRecord.departmentId!}" />
+            </div>
+
+            <div class="form-group col">
+                <label _log for="totalAmount">已交费<i class="red">*</i></label>
+                <input type="text" class="form-control" id="totalAmount" name="totalAmount" value="${boutiqueEntranceRecord.totalAmount!}" disabled  />
+            </div>
+        </div>
+
+    </form>
+</div>
+
+</#bs4Body>
+
+<#js_customerAutocompleteJs/>
+
+

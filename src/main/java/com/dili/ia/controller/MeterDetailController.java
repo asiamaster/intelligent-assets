@@ -55,8 +55,36 @@ public class MeterDetailController {
      * @date   2020/6/29
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
-    public String index(ModelMap modelMap) {
-        return "meterDetail/index";
+    public String index(ModelMap modelMap, int metertype) {
+        String meterUrl = "/water";
+        if (2 == metertype) {
+            meterUrl = "/electricity";
+        }
+        return "meterDetail" + meterUrl +  "/index";
+    }
+
+    /**
+     * 跳转到欢迎页面
+     *
+     * @param  modelMap
+     * @return 欢迎页面地址
+     * @date   2020/6/29
+     */
+    @RequestMapping(value="/electricity/index.html", method = RequestMethod.GET)
+    public String electricityIndex(ModelMap modelMap) {
+        return "meterDetail/electricity/index";
+    }
+
+    /**
+     * 跳转到欢迎页面
+     *
+     * @param  modelMap
+     * @return 欢迎页面地址
+     * @date   2020/6/29
+     */
+    @RequestMapping(value="/water/index.html", method = RequestMethod.GET)
+    public String waterIndex(ModelMap modelMap) {
+        return "meterDetail/water/index";
     }
 
     /**
@@ -67,7 +95,7 @@ public class MeterDetailController {
      * @date   2020/6/29
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap) {
+    public String add(ModelMap modelMap, int metertype) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 动态收费项，根据业务类型查询相关的动态收费项类型
@@ -75,7 +103,11 @@ public class MeterDetailController {
                 queryBusinessChargeItemConfig(userTicket.getFirmId(), "UTTLITIES", YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
 
-        return "meterDetail/add";
+        String meterUrl = "/water";
+        if (2 == metertype) {
+            meterUrl = "/electricity";
+        }
+        return "meterDetail" + meterUrl +  "/add";
     }
 
     /**
@@ -86,7 +118,7 @@ public class MeterDetailController {
      * @date   2020/6/29
      */
     @RequestMapping(value="/view.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public String view(ModelMap modelMap, Long id) {
+    public String view(ModelMap modelMap, Long id, int metertype) {
         MeterDetailDto meterDetailDto = null;
 
         if (id != null) {
@@ -94,7 +126,11 @@ public class MeterDetailController {
         }
         modelMap.put("meterDetail", meterDetailDto);
 
-        return "meterDetail/view";
+        String meterUrl = "/water";
+        if (2 == metertype) {
+            meterUrl = "/electricity";
+        }
+        return "meterDetail" + meterUrl +  "/view";
     }
 
     /**
@@ -105,20 +141,19 @@ public class MeterDetailController {
      * @date   2020/6/29
      */
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
-    public String update(ModelMap modelMap, Long id) {
+    public String update(ModelMap modelMap, Long id, int metertype) {
         MeterDetail meterDetail = null;
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         if (id != null) {
             meterDetail = meterDetailService.getMeterDetailById(id);
         }
-        // 动态收费项，根据业务类型查询相关的动态收费项类型
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
-                queryBusinessChargeItemConfig(userTicket.getFirmId(), "UTTLITIES", YesOrNoEnum.YES.getCode());
-        modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("meterDetail", meterDetail);
 
-        return "meterDetail/update";
+        String meterUrl = "/water";
+        if (2 == metertype) {
+            meterUrl = "/electricity";
+        }
+        return "meterDetail" + meterUrl +  "/update";
     }
 
     /**

@@ -2,27 +2,25 @@ package com.dili.ia.glossary;
 
 /**
  * @author:      xiaosa
- * @date:        2020/6/16
+ * @date:        2020/7/13
  * @version:     农批业务系统重构
- * @description: 表类别枚举
+ * @description: 精品停车 接车部门 枚举
  */
-public enum MeterDetailStateEnum {
-    CREATED(1, "已创建"),
-    SUBMITED(2, "已提交"),
-    CANCELLED(3, "已取消"),
-    PAID(4, "已缴费"),
+public enum CarDepartmentEnum {
+    HOUSE(1,"精品黄楼"),
+    HOUSE_NO_STALL(2,"精品黄楼无档口"),
     ;
 
     private String name;
     private Integer code ;
 
-    MeterDetailStateEnum(Integer code, String name){
+    CarDepartmentEnum(Integer code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static MeterDetailStateEnum getMeterDetailStateEnum(Integer code) {
-        for (MeterDetailStateEnum anEnum : MeterDetailStateEnum.values()) {
+    public static CarDepartmentEnum getCarTypeEnum(Integer code) {
+        for (CarDepartmentEnum anEnum : CarDepartmentEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }
@@ -30,8 +28,8 @@ public enum MeterDetailStateEnum {
         return null;
     }
 
-    public static String getMeterDetailStateEnumName(Integer code) {
-        for (MeterDetailStateEnum r : MeterDetailStateEnum.values()) {
+    public static String getCarTypeEnumName(Integer code) {
+        for (CarDepartmentEnum r : CarDepartmentEnum.values()) {
             if (r.getCode().equals(code)) {
                 return r.getName();
             }

@@ -2,27 +2,25 @@ package com.dili.ia.glossary;
 
 /**
  * @author:      xiaosa
- * @date:        2020/6/16
+ * @date:        2020/7/13
  * @version:     农批业务系统重构
- * @description: 表类别枚举
+ * @description: 精品停车 车型 枚举
  */
-public enum MeterDetailStateEnum {
-    CREATED(1, "已创建"),
-    SUBMITED(2, "已提交"),
-    CANCELLED(3, "已取消"),
-    PAID(4, "已缴费"),
+public enum CarTypeEnum {
+    TRAILER(1,"挂车"),
+    CONTAINER_TRUCK(2,"柜车"),
     ;
 
     private String name;
     private Integer code ;
 
-    MeterDetailStateEnum(Integer code, String name){
+    CarTypeEnum(Integer code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static MeterDetailStateEnum getMeterDetailStateEnum(Integer code) {
-        for (MeterDetailStateEnum anEnum : MeterDetailStateEnum.values()) {
+    public static CarTypeEnum getCarTypeEnum(Integer code) {
+        for (CarTypeEnum anEnum : CarTypeEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }
@@ -30,8 +28,8 @@ public enum MeterDetailStateEnum {
         return null;
     }
 
-    public static String getMeterDetailStateEnumName(Integer code) {
-        for (MeterDetailStateEnum r : MeterDetailStateEnum.values()) {
+    public static String getCarTypeEnumName(Integer code) {
+        for (CarTypeEnum r : CarTypeEnum.values()) {
             if (r.getCode().equals(code)) {
                 return r.getName();
             }

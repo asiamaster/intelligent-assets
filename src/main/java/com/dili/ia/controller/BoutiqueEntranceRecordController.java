@@ -81,7 +81,7 @@ public class BoutiqueEntranceRecordController {
             boutiqueEntranceRecord = boutiqueEntranceRecordService.get(id);
         }
         modelMap.put("boutiqueEntranceRecord", boutiqueEntranceRecord);
-        return "boutiqueEntranceRecord/view";
+        return "boutiqueEntranceRecord/confirm";
     }
 
     /**

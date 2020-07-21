@@ -126,7 +126,7 @@ public class MeterDetail extends BaseDomain {
     private Long usageAmount;
 
     /**
-     * 使用量
+     * 总金额
      */
     @Column(name = "`amount`")
     private Long amount;

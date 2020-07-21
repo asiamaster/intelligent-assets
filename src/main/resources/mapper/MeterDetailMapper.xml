@@ -197,7 +197,7 @@
           and m.assets_type = #{assetsType,jdbcType=INTEGER}
       </if>
       <if test="departmentId != null">
-          and me.department_id = #{departmentId,jdbcType=INTEGER}
+          and md.department_id = #{departmentId,jdbcType=INTEGER}
       </if>
      <if test="startTime != null">
           and md.usage_time  <![CDATA[ >= ]]> #{startTime}

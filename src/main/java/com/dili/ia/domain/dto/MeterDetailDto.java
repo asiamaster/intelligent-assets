@@ -95,11 +95,6 @@ public class MeterDetailDto extends MeterDetail {
     private Long receivable;
 
     /**
-     * 实收金额(合计金额,水电费 + 公摊费等其他费用)
-     */
-    private Long cope;
-
-    /**
      * 收费员、缴费日期
      */
 
@@ -207,14 +202,6 @@ public class MeterDetailDto extends MeterDetail {
 
     public void setReceivable(Long receivable) {
         this.receivable = receivable;
-    }
-
-    public Long getCope() {
-        return cope;
-    }
-
-    public void setCope(Long cope) {
-        this.cope = cope;
     }
 
     public Long getPrice() {

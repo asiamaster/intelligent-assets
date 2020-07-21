@@ -1,0 +1,110 @@
+<#bs4Body>
+
+<div class="container-fluid">
+    <#bs4nav>
+    <form id="queryForm" role="form" >
+        <input type="hidden" id="metertype" value="1">
+            <div class="row row-cols-6">
+                <div class="form-group col">
+                    <label for="departmentId">部门</label>
+                    <select id="departmentId" name="departmentId" class="form-control"></select>
+                    <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+                </div>
+                <div class="form-group col">
+                    <label for="assetsId">类别</label>
+                    <select id="assetsId" name="assetsId" class="form-control"></select>
+                    <#bcomboProvider _id="assetsId" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+                </div>
+                <div class="form-group col">
+                    <label for="createdStart">月份</label>
+                        <div class="input-group">
+                            <input type="text" name="createdStart" id="createdStart" class="form-control laymonth" value="${createdStart!,dateFormat='yyyy-MM'}"/>
+                            <div class="input-group-append">
+                                <label for="createdStart" class="input-group-text fa fa-calendar"></label>
+                            </div>
+                        </div>
+                </div>
+                <div class="form-group col">
+                    <label for="state">状态</label>
+                    <select id="state" name="state" class="form-control"></select>
+                    <#bcomboProvider _id="state" _provider="meterDetailStateProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+                </div>
+                <div class="form-group col">
+                    <label for="keyword">单号/表编号/客户名称</label>
+                    <input type="keyword" class="form-control" name="keyword" id="keyword" maxlength="50"/>
+                </div>
+                <div class="col-auto align-self-center mt-3">
+                    <button id="clear" type="button" class="btn btn-outline-primary mr-2" onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                    <button id="query" type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+                </div>
+            </div>
+        </form>
+    </#bs4nav>
+<hr>
+    <div class="row">
+        <div class="col-12">
+            <div id="toolbar" class="btn-group" role="group" aria-label="工具栏">
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
+                <#resource code="addMeterDetail">
+                    <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
+                </#resource>
+                <#resource code="updateMeterDetail">
+                    <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
+                </#resource>
+                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 批量提交</button>
+                <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
+                <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
+                <button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
+            </div>
+            <table id="grid" data-toggle="table" data-title="费用列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="10"
+                   data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                   data-click-to-select="true"  data-checkbox-header="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true" data-detail-view="true">
+                <thead>
+                <tr>
+                    <th data-checkbox="true"></th>
+                    <th data-field="code" data-sortable="true" data-align="center">
+                        单号
+                    </th>
+                    <th data-field="usageTime" data-sortable="true" data-align="center">
+                        月份
+                    </th>
+                    <th data-field="number" data-sortable="true" data-align="center">
+                        表编号
+                    </th>
+                    <th data-field="assetsName" data-sortable="true" data-align="center">
+                        表地址
+                    </th>
+                    <th data-field="departmentName" data-sortable="true" data-align="center">
+                        部门
+                    </th>
+                    <th data-field="customerName" data-sortable="true" data-align="center">
+                        客户名称
+                    </th>
+                    <th data-field="assetsType" data-sortable="true" data-align="center" data-provider="assetsTypeProvider">
+                        类别
+                    </th>
+                    <th data-field="usageAmount" data-sortable="true" data-align="center">
+                        实用量
+                    </th>
+                    <th data-field="price" data-sortable="true" data-align="center">
+                        单价
+                    </th>
+                    <th data-field="amount" data-sortable="true" data-align="center">
+                        实收金额
+                    </th>
+                    <th data-field="balance" data-sortable="true" data-align="center">
+                        预存金额
+                    </th>
+                    <th data-field="state" data-sortable="true" data-align="center" data-provider="meterDetailStateProvider">
+                        状态
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+</#bs4Body>
+<#meterDetail_indexJs />
