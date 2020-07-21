@@ -256,7 +256,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             item.setBusinessCode(businessCode);
             item.setPaidAmount(0L);
             item.setWaitAmount(item.getAmount());
-            item.setBizType(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
+            item.setBizType(BizTypeEnum.UTTLITIES.getCode());
             businessChargeItemList.add(item);
         });
 
