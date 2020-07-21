@@ -115,7 +115,7 @@ $(document).on('click', '.item-del', function() {
 		bui.util.yuanToCentForMoneyEl(detail);
 		removeDetails.push(detail);
 	}
-	$(this).closest('form').remove();
+	$(this).closest('.detailInfo').remove();
 	countNumber("quantity");
 	countNumber("weight");
 	countNumber("amount");
@@ -214,7 +214,7 @@ function doAddStockInHandler() {
 		return;
 	}
 	for(let i=1;i<=itemIndex;i++){
-		if($("#saveForm_"+i)){
+		if($("#saveForm_"+i).length > 0){
 			if(!$("#saveForm_"+i).validate().form()){
 				return;
 			}  

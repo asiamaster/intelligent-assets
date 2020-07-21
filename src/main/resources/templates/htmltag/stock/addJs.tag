@@ -214,7 +214,7 @@ function doAddStockInHandler() {
 		return;
 	}
 	for(let i=1;i<=itemIndex;i++){
-		if(document.getElementById("#saveForm_"+i)){
+		if($("#saveForm_"+i).length > 0){
 			if(!$("#saveForm_"+i).validate().form()){
 				return;
 			}  

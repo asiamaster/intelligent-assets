@@ -1,7 +1,7 @@
 
 <style>
 .detailInfo {
-    border-bottom-style: double;
+    border-bottom-style: groove;
 	margin-bottom: 15px;
 }
 </style>
