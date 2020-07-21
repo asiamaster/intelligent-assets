@@ -22,24 +22,38 @@
                 <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${leaseOrder.customerCellphone!}" readonly/>
             </div>
         </div>
+        <div class="row row-cols-4">
+            <div class="form-group col">
+                <label for="customerName">退场时间</label>
+                <input type="text" class="form-control laydate" id="exitTime" name="exitTime"/>
+            </div>
+        </div>
+        <script>
+            $(function () {
+                $('#refundApplyForm').validate({
+                    rules: {
+                        exitTime: {
+                            minDate: "${leaseOrder.startTime!,localDateTimeFormat='yyyy-MM-dd'}",
+                            maxDate: "${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}"
+                        }
+                    }
+                });
+            });
+        </script>
         <% if(isNotEmpty(leaseOrderItem)){ %>
         <div class="row row-cols-4">
             <div class="form-group col">
-                <label for="boothName" class="">摊位编号<i class="red">*</i></label>
-                <input type="text" class="form-control" id="boothName" name="boothName" value="${leaseOrderItem.boothName}" required readonly/>
+                <label for="assetsName" class="">摊位编号<i class="red">*</i></label>
+                <input type="text" class="form-control" id="assetsName" name="assetsName" value="${leaseOrderItem.assetsName}" required readonly/>
             </div>
+            <%if(isNotEmpty(businessChargeItems) && businessChargeItems.~size>0){
+            for(item in businessChargeItems){
+            %>
             <div class="form-group col">
-                <label for="rentRefundAmount" class="">租金<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="rentRefundAmount" name="rentRefundAmount" oninput="calcTotalRefundAmount()" step="0.01" placeholder="可退<#centToYuan value='${leaseOrderItem.rentAmount!}'/>" min="0" max="<#centToYuan value='${leaseOrderItem.rentAmount!}'/>" required/>
+                <label for="chargeItem_${item.chargeItemId!}" class="">${item.chargeItemName!}<i class="red">*</i></label>
+                <input type="number" data-charge-item-id="${item.chargeItemId!}" data-charge-item-name="${item.chargeItemName!}" isRefundFeeItem class="form-control floatReserve money" id="chargeItem_${item.chargeItemId!}" name="chargeItem_${item.chargeItemId!}" oninput="calcTotalRefundAmount()" step="0.01" placeholder="可退<#centToYuan value='${item.paidAmount!}'/>" min="0" max="<#centToYuan value='${item.paidAmount!}'/>" required/>
             </div>
-            <div class="form-group col">
-                <label for="manageRefundAmount" class="">物管费<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="manageRefundAmount"  name="manageRefundAmount" oninput="calcTotalRefundAmount()" placeholder="可退<#centToYuan value='${leaseOrderItem.manageAmount!}'/>" min="0" max="<#centToYuan value='${leaseOrderItem.manageAmount!}'/>" required/>
-            </div>
-            <div class="form-group col align-items-end">
-                <label for="depositRefundAmount" class="">保证金<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="depositRefundAmount"  name="depositRefundAmount" oninput="calcTotalRefundAmount()" placeholder="可退<#centToYuan value='${leaseOrderItem.depositAmount!}'/>" min="0" max="<#centToYuan value='${leaseOrderItem.depositAmount!}'/>" required/>
-            </div>
+            <% } }%>
         </div>
         <% } %>
         <div class="row row-cols-4">
@@ -111,14 +125,14 @@
             </div>
         </div>
         <div class="text-right">
-            <button type="button" class="btn btn-secondary px-5" id="cancel" onclick="javascript:parent.closeDialog(parent.dia)">取消</button>
+            <button type="button" class="btn btn-secondary px-5" id="cancel" onclick="javascript:parent.dia.hide()">取消</button>
             <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveFormHandler,1000,true)()">保存</button>
         </div>
     </form>
 </div>
 
 </#bs4Body>
-<#leaseOrder_refundApplyJs />
+<#assetsLeaseOrder_refundApplyJs />
 <script id="transferItemTpl" type="text/html">
     <tr data-index="{{index}}">
         <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>

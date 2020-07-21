@@ -193,7 +193,7 @@
     <div class="px-3 pb-3">
         <div id="toolbar{{index}}" class="btn-group" role="group" aria-label="Toolbar with button groups">
             <#resource code="refundApplyLeaseOrder">
-            <button id="btn_refund_apply{{index}}" type="button" class="btn btn-primary" onclick="openRefundApplyHandler(2,'{{index}}')"><i
+            <button id="btn_refund_apply{{index}}" type="button" class="btn btn-primary" onclick="openRefundApplyHandler('{{index}}')"><i
                     class="fa fa-reply"></i> 退款申请
             </button>
             </#resource>
@@ -229,7 +229,7 @@
                 <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                     for(item in chargeItems){
                 %>
-                <th data-field="businessChargeItem.chargeItemYuan${item.id!}" data-sortable="true" data-align="center">
+                <th data-field="businessChargeItem.chargeItemYuan${item.id!}" data-sortable="true" data-align="center" data-charge-item-id="${item.id!}" data-formatter="chargeItemFormatter">
                     ${item.chargeItem!}
                 </th>
                 <% } }%>

@@ -63,7 +63,20 @@
                     )/100
                 ,2)
                 as char
-            ) as chargeItemWaitAmountYuan${chargeItem.id}
+            ) as chargeItemWaitAmountYuan${chargeItem.id},
+             cast(
+                truncate(
+                    MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    paid_amount
+                    ELSE
+                    0
+                    END
+                    )/100
+                ,2)
+                as char
+            ) as chargeItemPaidAmountYuan${chargeItem.id}
         </foreach>
         FROM
         business_charge_item

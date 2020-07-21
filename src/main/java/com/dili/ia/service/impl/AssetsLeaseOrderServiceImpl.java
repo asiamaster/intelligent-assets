@@ -882,7 +882,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
     @Override
     @Transactional
-    @GlobalTransactional
     public BaseOutput createRefundOrder(LeaseRefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
@@ -893,9 +892,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //摊位订单项退款申请条件检查
         checkRufundApplyWithLeaseOrderItem(refundOrderDto, leaseOrderItem, userTicket);
 
-        if (null == leaseOrderItem.getStopTime()) {
-            leaseOrderItem.setStopTime(refundOrderDto.getStopTime());
-        }
+        leaseOrderItem.setExitTime(refundOrderDto.getExitTime());
         leaseOrderItem.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
         if (assetsLeaseOrderItemService.updateSelective(leaseOrderItem) == 0) {
             LOG.info("摊位租赁订单项退款申请异常 更新乐观锁生效 【租赁单项ID {}】", leaseOrderItem.getId());

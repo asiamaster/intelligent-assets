@@ -43,7 +43,7 @@ public class LeaseRefundOrderDto extends RefundOrder {
     private List<RefundFeeItem> refundFeeItems;
 
     @Transient
-    private LocalDateTime stopTime;
+    private LocalDateTime exitTime;
 
     public LocalDateTime getCreatedStart() {
         return createdStart;
@@ -101,11 +101,11 @@ public class LeaseRefundOrderDto extends RefundOrder {
         this.refundFeeItems = refundFeeItems;
     }
 
-    public LocalDateTime getStopTime() {
-        return stopTime;
+    public LocalDateTime getExitTime() {
+        return exitTime;
     }
 
-    public void setStopTime(LocalDateTime stopTime) {
-        this.stopTime = stopTime;
+    public void setExitTime(LocalDateTime exitTime) {
+        this.exitTime = exitTime;
     }
 }

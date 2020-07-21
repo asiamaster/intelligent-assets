@@ -11,7 +11,6 @@
         //如 let itemIndex = 0;
     let _grid = $('#grid');
     let _form = $('#_form');
-    let _modal = $('#_modal');
     let currentSelectRowIndex;
     var dia;
 
@@ -424,22 +423,16 @@
 
     /**
      * 打开退款申请Handler
-     * @param type 1：租赁单退款 2： 子单退款
      * @param subTableIndex
      */
-    function openRefundApplyHandler(type,subTableIndex) {
+    function openRefundApplyHandler(subTableIndex) {
         //获取选中行的数据
-        let rows;
-        if(type == 1){
-            rows = _grid.bootstrapTable('getSelections');
-        }else if(type == 2){
-            rows = $('#subGrid' + subTableIndex).bootstrapTable('getSelections');
-        }
+        let rows = $('#subGrid' + subTableIndex).bootstrapTable('getSelections');
         if (null == rows || rows.length == 0) {
             bs4pop.alert('请选中一条数据');
             return;
         }
-        let url = '/assetsLeaseOrder/refundApply.html?id=' + rows[0].id + '&type=' + type;
+        let url = '/assetsLeaseOrder/refundApply.html?id=' + rows[0].id;
         dia = bs4pop.dialog({
             title: '退款申请',
             content: url,
@@ -499,18 +492,20 @@
         queryDataHandler();
     }
 
+    /**
+     * 收费项Formatter
+     * @param value
+     * @param row
+     * @param index
+     * @returns {string}
+     */
+    function chargeItemFormatter(value,row,index){
+        return value + '(已交' + row.businessChargeItem['chargeItemPaidAmountYuan' + this.chargeItemId] + ')';
+    }
+
     /*****************************************函数区 end**************************************/
 
     /*****************************************自定义事件区 begin************************************/
-    //表单弹框关闭事件
-    // _modal.on('hidden.bs.modal', function () {
-    //     _form[0].reset();
-    //     //重置表单验证到初始状态
-    //     $(this).find('input,select,textarea').removeClass('is-invalid is-valid');
-    //     $(this).find('input,select,textarea').removeAttr('disabled readonly');
-    //     $(this).find('.invalid-feedback').css('display','none');
-    // });
-
     //展开事件
     _grid.on('expand-row.bs.table', function (e,index, row, $detail){
         //展开选中行

@@ -187,6 +187,12 @@ public class AssetsLeaseOrderItem extends BaseDomain {
     @Column(name = "`refund_state`")
     private Integer refundState;
 
+    //创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "`exit_time`")
+    private LocalDateTime exitTime;
+
     /**
      * 乐观锁，版本号
      */
@@ -458,6 +464,14 @@ public class AssetsLeaseOrderItem extends BaseDomain {
 
     public void setRefundState(Integer refundState) {
         this.refundState = refundState;
+    }
+
+    public LocalDateTime getExitTime() {
+        return exitTime;
+    }
+
+    public void setExitTime(LocalDateTime exitTime) {
+        this.exitTime = exitTime;
     }
 
     public Integer getVersion() {

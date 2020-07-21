@@ -275,18 +275,16 @@ public class AssetsLeaseOrderController {
      *
      * @param modelMap
      * @param id 对应租赁单ID 或 订单项ID
-     * @param type 1：租赁单退款 2： 子单退款
      * @return
      */
     @GetMapping(value="/refundApply.html")
-    public String refundApply(ModelMap modelMap,Long id,Integer type) {
-        if(LeaseOrderRefundTypeEnum.LEASE_ORDER_REFUND.getCode().equals(type)){
-            modelMap.put("leaseOrder",assetsLeaseOrderService.get(id));
-        }else if(LeaseOrderRefundTypeEnum.LEASE_ORDER_ITEM_REFUND.getCode().equals(type)){
-            AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(id);
-            modelMap.put("leaseOrderItem",leaseOrderItem);
-            modelMap.put("leaseOrder",assetsLeaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
-        }
+    public String refundApply(ModelMap modelMap,Long id) {
+        AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(id);
+        modelMap.put("leaseOrderItem",leaseOrderItem);
+        BusinessChargeItem condition = new BusinessChargeItem();
+        condition.setBusinessId(leaseOrderItem.getId());
+        modelMap.put("businessChargeItems",businessChargeItemService.list(condition));
+        modelMap.put("leaseOrder",assetsLeaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
         return "assetsLeaseOrder/refundApply";
     }
 

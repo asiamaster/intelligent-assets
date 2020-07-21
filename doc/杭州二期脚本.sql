@@ -1,7 +1,8 @@
 ALTER TABLE `dili-assets`.`assets_lease_order_item`
 CHANGE COLUMN `booth_id` `assets_id` bigint(20) NULL DEFAULT NULL COMMENT '资产ID' AFTER `lease_order_code`,
 CHANGE COLUMN `booth_name` `assets_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '资产名称' AFTER `asset_id`;
-
+ALTER TABLE `dili-assets`.`assets_lease_order_item`
+ADD COLUMN `exit_time` datetime(0) NULL COMMENT '退场时间' AFTER `refund_state`;
 update assets_lease_order_item set total_amount = rent_amount + manage_amount;
 
 --租赁单和退款单新增流程实例和定义id
