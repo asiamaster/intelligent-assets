@@ -80,7 +80,7 @@ public class RefundOrderController {
      * @param bizType 参考BizTypeEnum, 1：摊位租赁， 2:定金， 3:摊位保证金
      * @return String
      */
-    @GetMapping(value="/{bizType}/refundOrderApproval.html")
+    @GetMapping(value="/{bizType}/approval.html")
     public String assetsApproval(@PathVariable Integer bizType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
         modelMap.put("taskDefinitionKey", taskCenterParam.getTaskDefinitionKey());
         modelMap.put("processInstanceId", taskCenterParam.getProcessInstanceId());
@@ -92,7 +92,7 @@ public class RefundOrderController {
         //查询审批记录
         List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
         modelMap.put("approvalProcesses", approvalProcesses);
-        return "refundOrder/refundOrderApproval";
+        return "refundOrder/approval";
     }
 
     /**
@@ -113,7 +113,7 @@ public class RefundOrderController {
         approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
         List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
         modelMap.put("approvalProcesses", approvalProcesses);
-        return "assetsLeaseOrder/assetsApprovalDetail";
+        return "assetsLeaseOrder/approvalDetail";
     }
 
     /**
