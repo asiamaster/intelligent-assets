@@ -832,14 +832,14 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     @Override
-    public BaseOutput batchReleaseRelated(String bizType, Long businessId) {
+    public BaseOutput batchReleaseRelated(String bizType, Long businessId, Long assetsId) {
         if (businessId == null){
             return BaseOutput.failure("参数businessId 不能为空！");
         }
         if (bizType == null){
             return BaseOutput.failure("参数bizType 不能为空！");
         }
-        List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, assetsId);
         deList.stream().forEach(o -> {
             o.setIsRelated(YesOrNoEnum.NO.getCode());
             if (this.updateSelective(o) == 0) {
