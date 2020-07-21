@@ -92,6 +92,14 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
     BaseOutput batchSubmitDepositOrder(String bizType, Long businessId, Map<Long, Long> map);
 
     /**
+     * 批量【全额提交】保证金单 --- 【摊位租赁审批通过后，默认全额提交关联保证金单和租赁单】
+     * @param bizType 业务类型
+     * @param businessId 关联订单ID
+     * @return BaseOutput
+     */
+    BaseOutput batchSubmitDepositOrderFull(String bizType, Long businessId);
+
+    /**
      * 批量【撤回】保证金单 --- 【摊位租赁同步撤回成使用】
      * 关联保证金进行了一次单独缴费成功，撤回租赁单需要解除关联操作关系。
      * @param bizType 业务类型
@@ -99,6 +107,15 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput
      */
     BaseOutput batchWithdrawDepositOrder(String bizType, Long businessId);
+
+    /**
+     * 批量【取消】保证金单 --- 【摊位租赁同步取消时使用】
+     *
+     * @param bizType 业务类型
+     * @param businessId 关联订单ID
+     * @return BaseOutput
+     */
+    BaseOutput batchCancelDepositOrder(String bizType, Long businessId);
 
     /**
      * 【查询】客户摊位保证金余额 --- 【摊位租赁使用】
