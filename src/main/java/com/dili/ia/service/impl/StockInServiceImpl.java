@@ -148,7 +148,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	private List<BusinessChargeItem> buildBusinessCharge(List<BusinessChargeItem> businessChargeItems,Long businessId,String businessCode){
 		businessChargeItems.stream().forEach(item -> {
-			item.setBizType(Integer.valueOf(BizTypeEnum.STOCKIN.getCode()));
+			item.setBizType(BizTypeEnum.STOCKIN.getCode());
 			item.setBusinessId(businessId);
 			item.setBusinessCode(businessCode);
 			item.setPaidAmount(0L);
