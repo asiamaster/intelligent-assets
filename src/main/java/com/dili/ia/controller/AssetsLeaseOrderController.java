@@ -2,12 +2,12 @@ package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.DistrictDTO;
+import com.dili.bpmc.sdk.domain.TaskCenterParam;
+import com.dili.bpmc.sdk.rpc.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
-import com.dili.ia.glossary.AssetsTypeEnum;
-import com.dili.ia.glossary.DepositOrderStateEnum;
-import com.dili.ia.glossary.LeaseOrderRefundTypeEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
@@ -20,8 +20,10 @@ import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.dto.IDTO;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.exception.NotLoginException;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -44,7 +47,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/assetsLeaseOrder")
 public class AssetsLeaseOrderController {
-    private final static Logger LOG = LoggerFactory.getLogger(LeaseOrderController.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AssetsLeaseOrderController.class);
     @Autowired
     AssetsLeaseOrderService assetsLeaseOrderService;
     @Autowired
@@ -61,7 +64,11 @@ public class AssetsLeaseOrderController {
     private AssetsRpc assetsRpc;
     @Autowired
     private DepositOrderService depositOrderService;
-
+    @SuppressWarnings("all")
+    @Autowired
+    private HistoryRpc historyRpc;
+    @Autowired
+    private ApprovalProcessService approvalProcessService;
 
     /**
      * 跳转到LeaseOrder页面
@@ -69,7 +76,7 @@ public class AssetsLeaseOrderController {
      * @param assetsType
      * @return String
      */
-    @RequestMapping(value="/{assetsType}/index.html", method = RequestMethod.GET)
+    @GetMapping(value="/{assetsType}/index.html")
     public String index(ModelMap modelMap,@PathVariable Integer assetsType) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
         Calendar c = Calendar.getInstance();
@@ -83,7 +90,7 @@ public class AssetsLeaseOrderController {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw new RuntimeException("未登录");
+            throw new NotLoginException();
         }
 
         modelMap.put("chargeItems", businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), null));
@@ -94,13 +101,107 @@ public class AssetsLeaseOrderController {
     }
 
     /**
+     * 跳转到资产审批页面，任务中心调用
+     * @param modelMap
+     * @param assetsType 1：摊位， 2： 冷库， 3: 公寓, 4:其它
+     * @return String
+     */
+    @GetMapping(value="/{assetsType}/approval.html")
+    public String assetsApproval(@PathVariable Integer assetsType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
+        //查询当前流程的历史任务实例，用于展示审批流程详情
+//        BaseOutput<List<HistoricTaskInstanceMapping>> listBaseOutput = historyRpc.listHistoricTaskInstance(taskCenterParam.getProcessInstanceId(), true);
+//        if(!listBaseOutput.isSuccess()){
+//            throw new AppException("查询流程历史任务失败");
+//        }
+//        List<HistoricTaskInstanceMapping> historicTaskInstanceMappings = listBaseOutput.getData();
+//        modelMap.put("historicTaskInstances", historicTaskInstanceMappings);
+        modelMap.put("taskDefinitionKey", taskCenterParam.getTaskDefinitionKey());
+        modelMap.put("processInstanceId", taskCenterParam.getProcessInstanceId());
+        modelMap.put("taskId", taskCenterParam.getTaskId());
+        modelMap.put("businessKey", taskCenterParam.getBusinessKey());
+        modelMap.put("formKey", taskCenterParam.getFormKey());
+
+        ApprovalProcess approvalProcess = new ApprovalProcess();
+        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
+        List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
+        modelMap.put("approvalProcesses", approvalProcesses);
+        return "assetsLeaseOrder/assetsApproval";
+    }
+
+    /**
+     * 跳转到资产审批详情页面，用于查看归档记录
+     * @param modelMap
+     * @param assetsType 1：摊位， 2： 冷库， 3: 公寓, 4:其它
+     * @return String
+     */
+    @GetMapping(value="/{assetsType}/approvalDetail.html")
+    public String assetsApprovalDetail(@PathVariable Integer assetsType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
+        modelMap.put("taskDefinitionKey", taskCenterParam.getTaskDefinitionKey());
+        modelMap.put("processInstanceId", taskCenterParam.getProcessInstanceId());
+        modelMap.put("taskId", taskCenterParam.getTaskId());
+        modelMap.put("businessKey", taskCenterParam.getBusinessKey());
+        modelMap.put("formKey", taskCenterParam.getFormKey());
+
+        ApprovalProcess approvalProcess = new ApprovalProcess();
+        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
+        List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
+        modelMap.put("approvalProcesses", approvalProcesses);
+        return "assetsLeaseOrder/assetsApprovalDetail";
+    }
+
+    /**
+     *
+     * 审批通过处理
+     * @return
+     */
+    @PostMapping(value="/approvedHandler.action")
+    public @ResponseBody BaseOutput approvedHandler(@Validated ApprovalParam approvalParam){
+        try{
+            if(StringUtils.isNotEmpty(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString())){
+                return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
+            }
+            assetsLeaseOrderService.approvedHandler(approvalParam);
+            return BaseOutput.success();
+        }catch (BusinessException e){
+            LOG.info("审批通过处理异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("审批通过处理异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * 审批拒绝处理
+     * @return
+     */
+    @PostMapping(value="/approvedDeniedHandler.action")
+    public @ResponseBody BaseOutput approvedDeniedHandler(@Validated ApprovalParam approvalParam){
+        try{
+            if(StringUtils.isNotEmpty(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString())){
+                return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
+            }
+            assetsLeaseOrderService.
+                    approvedDeniedHandler(approvalParam);
+            return BaseOutput.success();
+        }catch (BusinessException e){
+            LOG.info("审批拒绝处理异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("审批拒绝处理异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
      * 跳转到LeaseOrder查看页面
      * @param modelMap
      * @param orderCode 缴费单CODE
      * @param code
      * @return String
      */
-    @RequestMapping(value="/view.action", method = RequestMethod.GET)
+    @GetMapping(value="/view.action")
     public String view(ModelMap modelMap,Long id,String code,String orderCode) {
         AssetsLeaseOrder leaseOrder = null;
         if(null != id) {
@@ -147,7 +248,7 @@ public class AssetsLeaseOrderController {
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/preSave.html", method = RequestMethod.GET)
+    @GetMapping(value="/preSave.html")
     public String add(ModelMap modelMap,Long id,Integer assetsType,Integer isRenew) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
@@ -177,7 +278,7 @@ public class AssetsLeaseOrderController {
      * @param type 1：租赁单退款 2： 子单退款
      * @return
      */
-    @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
+    @GetMapping(value="/refundApply.html")
     public String refundApply(ModelMap modelMap,Long id,Integer type) {
         if(LeaseOrderRefundTypeEnum.LEASE_ORDER_REFUND.getCode().equals(type)){
             modelMap.put("leaseOrder",assetsLeaseOrderService.get(id));
@@ -243,7 +344,7 @@ public class AssetsLeaseOrderController {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${contractNo}",operationType="reNumber",systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/supplement.action", method = {RequestMethod.POST})
+    @PostMapping(value="/supplement.action")
     public @ResponseBody BaseOutput supplement(AssetsLeaseOrder leaseOrder){
         try {
             return assetsLeaseOrderService.supplement(leaseOrder);
@@ -348,6 +449,8 @@ public class AssetsLeaseOrderController {
         modelMap.put("leaseOrder", leaseOrder);
         AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
         condition.setLeaseOrderId(id);
+        condition.setPayState(PayStateEnum.NOT_PAID.getCode());
+        condition.setRefundState(LeaseRefundStateEnum.WAIT_APPLY.getCode());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
         List<BusinessChargeItemDto> chargeItemDtos =  businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
@@ -358,15 +461,14 @@ public class AssetsLeaseOrderController {
 
     /**
      * 提交付款
-     * @param id
-     * @param amount
+     * @param assetsLeaseSubmitPaymentDto
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${amountFormatStr}",operationType="submitPayment",systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submitPayment.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput submitPayment(@RequestParam Long id, @RequestParam Long amount,  @RequestParam String amountFormatStr){
+    public @ResponseBody BaseOutput submitPayment(@RequestBody AssetsLeaseSubmitPaymentDto assetsLeaseSubmitPaymentDto){
         try{
-            return assetsLeaseOrderService.submitPayment(id,amount);
+            return assetsLeaseOrderService.submitPayment(assetsLeaseSubmitPaymentDto);
         }catch (BusinessException e){
             LOG.info("资产租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getErrorMsg());
@@ -382,10 +484,11 @@ public class AssetsLeaseOrderController {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,operationType="submitForApproval",systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/submitForApproval.action", method = {RequestMethod.POST})
+    @PostMapping(value="/submitForApproval.action")
     public @ResponseBody BaseOutput submitForApproval(@RequestParam Long id){
         try{
-            return assetsLeaseOrderService.submitForApproval(id);
+            assetsLeaseOrderService.submitForApproval(id);
+            return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("资产租赁订单提交审批异常！", e);
             return BaseOutput.failure(e.getErrorMsg());

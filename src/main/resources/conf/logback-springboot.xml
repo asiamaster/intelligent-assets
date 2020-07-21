@@ -30,7 +30,7 @@
         <logger name="io.seata.core.rpc.netty" level="info"/>
         <!-- 不显示Flushing UNDO LOG  -->
         <logger name="io.seata.rm.datasource.undo" level="info"/>
-        <!--        <logger name="com.dili.${LOG_NAME}" level="DEBUG"/>-->
+        <logger name="com.dili.${LOG_NAME}" level="DEBUG"/>
         <jmxConfigurator/>
     </springProfile>
     <!-- 测试环境 -->

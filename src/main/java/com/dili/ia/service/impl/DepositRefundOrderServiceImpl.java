@@ -3,13 +3,17 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.DepositOrderStateEnum;
+import com.dili.ia.glossary.DepositRefundStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +68,18 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 
     @Override
     public BaseOutput cancelHandler(RefundOrder refundOrder) {
-       return BaseOutput.success();
+        DepositOrder depositOrder = depositOrderService.get(refundOrder.getBusinessId());
+        //保证金退款单取消，如果保证金业务单的【退款状态】是【未退款】，那么取消保证金退款单，保证金业务状态回退到【已交费】，否则的话回退到【已退款】
+        if (depositOrder.getRefundState().equals(DepositRefundStateEnum.NO_REFUNDED.getCode())){
+            depositOrder.setState(DepositOrderStateEnum.PAID.getCode());
+        }else{
+            depositOrder.setState(DepositOrderStateEnum.REFUND.getCode());
+        }
+        if (depositOrderService.updateSelective(depositOrder) == 0) {
+            LOG.info("取消保证金退款单【修改保证金状态失败】 ,乐观锁生效！【保证金单ID:{}】", depositOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+        return BaseOutput.success();
     }
 
     @Override

@@ -290,7 +290,7 @@ public class DepositOrderController {
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
                 LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             }
-            return BaseOutput.success("撤回成功");
+            return output;
         } catch (BusinessException e) {
             LOG.error("保证金单撤回出错！", e);
             return BaseOutput.failure(e.getErrorMsg());
