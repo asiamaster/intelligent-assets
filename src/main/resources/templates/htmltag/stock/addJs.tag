@@ -99,7 +99,7 @@ function adddetailItem() {
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo'+type, {
 		index: ++itemIndex,departmentId,stockDetail
 	})))
-	changeDistrict(itemIndex,departmentId);
+	changeDistrict(itemIndex,0,null,'one');
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 }
 

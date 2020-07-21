@@ -64,7 +64,7 @@ function adddetailItem() {
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo' + type, {
 		index: ++itemIndex,stockDetail
 	})))
-	changeDistrict(itemIndex,departmentId);
+	changeDistrict(itemIndex,0,null,'one');
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 }
 
@@ -87,7 +87,8 @@ function initDetailItem(stockDetail) {
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).val(chargeItem.amount);
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).attr("item-id",chargeItem.id);
 	}
-	changeDistrict(itemIndex,stockDetail.departmentId,stockDetail.districtId);
+	changeDistrict(itemIndex,0,stockDetail.parentDistrictId,'one');
+	changeDistrict(itemIndex,stockDetail.parentDistrictId,stockDetail.districtId,'two');
 	changeAssets(itemIndex,stockDetail.districtId,stockDetail.assetsId);
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 }

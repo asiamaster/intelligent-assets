@@ -15,15 +15,23 @@
 						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" value="{{stockDetail.carPlate}}" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="">冷库区域：<i class="red">*</i></label>
-						<select id="districtId_{{index}}" name="districtId" class="form-control districtId"  required> 
-						</select>
+						
+						<label for="">区域</label>
+		                <div class="input-group">
+		                    <select class="form-control districtId" id="districtId_one_{{index}}" name="districtId_one" required>
+
+		                    </select>
+		                    <select class="form-control districtId" id="districtId_two_{{index}}" name="districtId_two">
+		                        <option value="">-- 全部 --</option>
+		                    </select>
+		                </div>
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
 						<select id="assetsId_{{index}}" name="assetsId" class="form-control"  required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
+						
 					</div>
 					<div class="form-group col-4">
 						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" value="{{stockDetail.quantity}}" class="form-control number_change get-cost"
@@ -43,6 +51,7 @@
 					<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
 				        for(item in chargeItems){
 				        %>
+				        
 				        <div class="form-group col-4">
 							<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
 							 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />
@@ -76,9 +85,15 @@
 					</div>
 					
 					<div class="form-group col-4">
-						<label for="">冷库区域：<i class="red">*</i></label>
-						<select id="districtId_{{index}}" name="districtId" class="form-control districtId" required> 
-						</select>
+					<label for="">区域</label>
+	                <div class="input-group">
+	                    <select class="form-control districtId" id="districtId_one_{{index}}" name="districtId_one" required>
+
+	                    </select>
+	                    <select class="form-control districtId" id="districtId_two_{{index}}" name="districtId_two">
+	                        <option value="">-- 全部 --</option>
+	                    </select>
+	                </div>
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
@@ -125,10 +140,15 @@
 	<form id="saveForm_{{index}}" role="form" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
-					<div class="form-group col-4">
-						<label for="">冷库区域：<i class="red">*</i></label>
-						<select id="districtId_{{index}}" name="districtId" class="form-control districtId" required> 
-						</select>
+					<label for="">区域</label>
+	                <div class="input-group">
+	                    <select class="form-control districtId" id="districtId_one_{{index}}" name="districtId_one" required>
+
+	                    </select>
+	                    <select class="form-control districtId" id="districtId_two_{{index}}" name="districtId_two">
+	                        <option value="">-- 全部 --</option>
+	                    </select>
+	                </div>
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
@@ -174,63 +194,55 @@
 
 <script>
 
-$("#departmentId").change(function(){
-		changeDistrict(0,$(this).val(),null)
-	}
-);
-
 //部门变动 冷库区变更
-function changeDistrict(index,departmentId,value){
-    if(departmentId && departmentId!==''){
-        $.ajax({
-            type: "POST",
-            url: "/district/search.action",
-            data: {parentId: 0},
-            success: function (data) {
-                if (data.code == "200") {
-                    var array = $.map(data.data, function (obj) {
-                        obj.text = obj.text || obj.name;
-                        return obj;
-                    });
-                    if (array.length == 0) {
-                        $('.districtId').html('<option value="" selected="">-- 请选择部门 --</option>');
-                        $('.assetsId').html('<option value="" selected="">-- 请选择区域--</option>');
-                    } else {
-                    	if(index>0){
-                    		//当index大于0 标记为新增详情,只触发当前index的更新
-                    		$('#assetsId_'+index).html('<option value="" selected="">-- 请选择区域--</option>');
-                    		let htmlConent = '<option value="" selected="">-- 请选择 --</option>';
-                    		for (let item of array) {
-                    			htmlConent+='<option value="'+item.id+'" >'+item.text+'</option>'
-                    		}
-                        	$('#districtId_'+index).html(htmlConent);
-                        	if(value != null){
-                        		$('#districtId_'+index).val(value);
-                        	}
-                    	}else{
-                    		//部门变动 触发全部index更新
-                    		$('.assetsId').html('<option value="" selected="">-- 请选择区域--</option>');
-                    		var htmlConent = '<option value="" selected>-- 请选择 --</option>';
-                    		for (let item of array) {
-                    			htmlConent = htmlConent+'<option value="'+item.id+'" >'+item.text+'</option>';
-                    		}
-                        	$('.districtId').html(htmlConent);
-                    	}
-                    }
-                }
-            }
-        });
-    }else{
-    	$('.districtId').html('<option value="" selected="">-- 请选择部门 --</option>');
-    	$('.assetsId').html('<option value="" selected="">-- 请选择区域 --</option>');
-    }
+//index 第几个子单  parent 父级区域   value 默认值    level  区域等级(one/two)
+function changeDistrict(index,parent,value,level){
+	$.ajax({
+		type: "POST",
+		url: "/district/search.action",
+		data: {parentId: parent},
+		success: function (data) {
+			if (data.code == "200") {
+				var array = $.map(data.data, function (obj) {
+					obj.text = obj.text || obj.name;
+					return obj;
+				});
+				if (array.length == 0) {
+					$('#districtId_one_'+index).attr('name','districtId');
+					$('#districtId_two_'+index).attr('name','districtId_two');
+
+				} else {
+					//当index大于0 标记为新增详情,只触发当前index的更新
+					let htmlConent = '<option value="" selected="">-- 请选择--</option>';
+					for (let item of array) {
+						htmlConent+='<option value="'+item.id+'" >'+item.text+'</option>'
+					}
+					$('#districtId_'+level+'_'+index).html(htmlConent);
+					if(value != null){
+						$('#districtId_'+level+'_'+index).val(value);
+					}
+					$('#districtId_two_'+index).attr('name','districtId');
+					$('#districtId_one_'+index).attr('name','parentDistrictId');
+
+				}
+			}
+		}
+	});
 }
 
 
 //冷库区域变更  对应子单的冷库更新
 $(document).on('change', '.districtId', function() {
-	changeAssets($(this).attr('id').split("_")[1],$(this).val(),null);
+	let id = $(this).attr('id');
+	let index = id.split("_")[2];
+	//判断是一级区域or二级区域
+	if(id.split("_")[1] == "one"){
+		//加载二级区域
+		changeDistrict(index,$(this).val(),null,'two');
+	}
+	changeAssets(index,$(this).val(),null);
 });
+
 function changeAssets(index,districtId,value){
     if(districtId && districtId!==''){
         $.ajax({
@@ -268,12 +280,10 @@ function changeAssets(index,districtId,value){
 
 // 获取到期时间
 $(document).on('change', '#stockInDate', function() {
-	let stockInDate = $('#stockInDate').val();
-	let categoryId = $('#categoryId').val();
+	getCycle($('#stockInDate').val(),$('#categoryId').val());
 });
 
 function getCycle(stockInDate,categoryId){
-
 	if(stockInDate!=null && categoryId!=null){
 		$.ajax({
 			type: "POST",

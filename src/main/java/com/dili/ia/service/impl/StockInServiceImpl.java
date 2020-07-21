@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -355,6 +357,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		BeanUtils.copyProperties(stockIn, stockInDto);
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
 		JSONArray details = new JSONArray();
+		List<Long> categoryIds = stockInDetails.stream().map(StockInDetail::getCategoryId).collect(Collectors.toList());
+		// 获取父级品类信息
 		stockInDetails.forEach(item -> {
 			JSONObject jsonObject = (JSONObject) JSONObject.toJSON(item);
 			// 组装司磅入库信息
@@ -366,6 +370,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			condtion.setBusinessCode(item.getCode());
 			//jsonObject.put("amount",MoneyUtils.centToYuan(item.getAmount()));
 			jsonObject.put("businessChargeItem", businessChargeItemService.list(condtion));
+			//
 			details.add(jsonObject);
 		});
 		

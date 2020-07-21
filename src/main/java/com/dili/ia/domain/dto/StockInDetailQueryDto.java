@@ -33,6 +33,8 @@ public class StockInDetailQueryDto extends BaseDomain{
 	 * 区域id
 	 */
 	private Long districtId;
+	
+	private Long parentDistrictId;
 	/**
 	 * 品类
 	 */
@@ -161,6 +163,14 @@ public class StockInDetailQueryDto extends BaseDomain{
 
 	public void setDepartmentId(Long departmentId) {
 		this.departmentId = departmentId;
+	}
+
+	public Long getParentDistrictId() {
+		return parentDistrictId;
+	}
+
+	public void setParentDistrictId(Long parentDistrictId) {
+		this.parentDistrictId = parentDistrictId;
 	}
 
 	/*public String getOrderByColumn() {

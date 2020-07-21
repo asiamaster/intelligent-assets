@@ -92,6 +92,10 @@ public class StockInDetail extends BaseDomain {
      */
     @Column(name = "`district_id`")
     private Long districtId;
+    
+    @Column(name = "`parent_district_id`")
+	private Long parentDistrictId;
+
 
     @Column(name = "`district_name`")
     private String districtName;
@@ -665,6 +669,14 @@ public class StockInDetail extends BaseDomain {
 
 	public void setAmount(Long amount) {
 		this.amount = amount;
+	}
+
+	public Long getParentDistrictId() {
+		return parentDistrictId;
+	}
+
+	public void setParentDistrictId(Long parentDistrictId) {
+		this.parentDistrictId = parentDistrictId;
 	}
     
     

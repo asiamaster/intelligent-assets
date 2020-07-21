@@ -69,6 +69,8 @@ public class StockInDetailDto {
 	 */
 	@NotNull
 	private Long districtId;
+	
+	private Long parentDistrictId;
 
 	private String districtName;
 	
@@ -346,6 +348,14 @@ public class StockInDetailDto {
 
 	public void setBusinessChargeItems(List<BusinessChargeItem> businessChargeItems) {
 		this.businessChargeItems = businessChargeItems;
+	}
+
+	public Long getParentDistrictId() {
+		return parentDistrictId;
+	}
+
+	public void setParentDistrictId(Long parentDistrictId) {
+		this.parentDistrictId = parentDistrictId;
 	}
 
 	

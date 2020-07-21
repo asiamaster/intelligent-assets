@@ -40,7 +40,7 @@ $(function () {
 
 //一级区域变动事件
 $(document).on('change', '#district-one', function() {
-	changeDistrict($("#district-two"),$("#district-one").val());
+	getDistrict($("#district-two"),$("#district-one").val());
 });
 
 //区域搜索
