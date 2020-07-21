@@ -32,10 +32,10 @@ public class ApproverAssignment extends BaseDomain {
     private Long userId;
 
     /**
-     * 业务类型, 1:租赁审批  2:租赁审批
+     * 流程定义Key
      */
-    @Column(name = "`business_type`")
-    private Integer businessType;
+    @Column(name = "`process_definition_key`")
+    private String processDefinitionKey;
 
     /**
      * 修改时间
@@ -112,23 +112,23 @@ public class ApproverAssignment extends BaseDomain {
     }
 
     /**
-     * 获取业务类型, 1:租赁审批  2:租赁审批
+     * 获取流程定义Key
      *
-     * @return business_type - 业务类型, 1:租赁审批  2:租赁审批
+     * @return process_definition_key - 流程定义Key
      */
-    @FieldDef(label="业务类型, 1:租赁审批  2:租赁审批")
+    @FieldDef(label="流程定义Key")
     @EditMode(editor = FieldEditor.Text, required = true)
-    public Integer getBusinessType() {
-        return businessType;
+    public String getProcessDefinitionKey() {
+        return processDefinitionKey;
     }
 
     /**
-     * 设置业务类型, 1:租赁审批  2:租赁审批
+     * 设置流程定义Key
      *
-     * @param businessType 业务类型, 1:租赁审批  2:租赁审批
+     * @param processDefinitionKey 流程定义Key
      */
-    public void setBusinessType(Integer businessType) {
-        this.businessType = businessType;
+    public void setProcessDefinitionKey(String processDefinitionKey) {
+        this.processDefinitionKey = processDefinitionKey;
     }
 
     /**

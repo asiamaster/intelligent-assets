@@ -194,7 +194,68 @@
         }
     }
 
+    /**
+     *  显示流程图
+     */
+    function showProgress() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        let selected = rows[0];
+        //var href = '<#config name="bpmc.server.address"/>/api/runtime/progress?processInstanceId='+selected.processInstanceId+'&processDefinitionId='+selected.processDefinitionId+"&"+Math.random();
+        //$("#processInstanceImg").attr("src", href);
+        let url = '<#config name="bpmc.server.address"/>/api/runtime/progress?processInstanceId='+selected.processInstanceId+'&processDefinitionId='+selected.processDefinitionId+"&"+Math.random();
+        dia = bs4pop.dialog({
+            title: '流程图',
+            content: url,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '95%',
+            height : '95%',
+            btns: []
+        });
+    }
 
+    /**
+     *  提交审批
+     */
+    function submitRefundOrderApplication(){
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        let selectedRow = rows[0];
+        bs4pop.confirm('确定提交审批？', undefined, function (sure) {
+            if(sure){
+                bui.loading.show('努力提交中，请稍候。。。');
+                $.ajax({
+                    type: "POST",
+                    url: "${contextPath}/refundOrder/submitForApproval.action",
+                    data: {id: selectedRow.id},
+                    dataType: "json",
+                    success : function(ret) {
+                        bui.loading.hide();
+                        if(ret.success){
+                            queryDataHandler();
+                        }else{
+                            bs4pop.alert(ret.message, {type: 'error'});
+                        }
+                    },
+                    error : function() {
+                        bui.loading.hide();
+                        bs4pop.alert('远程访问失败', {type: 'error'});
+                    }
+                });
+            }
+
+        })
+    }
 
     //选中行事件
     _grid.on('uncheck.bs.table', function (e, row, $element) {
@@ -204,13 +265,34 @@
     //选中行事件 -- 可操作按钮控制
     _grid.on('check.bs.table', function (e, row, $element) {
         let state = row.$_state;
+        //审批状态
+        let approvalState = row.$_approvalState;
         if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CREATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
-            $('#btn_update').attr('disabled', false);
-            $('#btn_cancel').attr('disabled', false);
-            $('#btn_submit').attr('disabled', false);
+
+            //没有审批状态可以 提交审批，修改和取消
+            if(!approvalState){
+                $('#btn_approval').attr('disabled', false);
+                $('#btn_update').attr('disabled', false);
+                $('#btn_cancel').attr('disabled', false);
+                return;
+            }
+            //待审批时可以 提交审批，修改和取消
+            if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}){
+                $('#btn_approval').attr('disabled', false);
+                $('#btn_edit').attr('disabled', false);
+                $('#btn_cancel').attr('disabled', false);
+            }
+            //审批中不允许修改、取消和提交付款
+            //审批通过后直接提交退款
+            //审批拒绝后，可以再次提交审批，修改和取消
+            else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVAL_DENIED.getCode()}){
+                $('#btn_approval').attr('disabled', false);
+                $('#btn_edit').attr('disabled', false);
+                $('#btn_cancel').attr('disabled', false);
+            }
         } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CANCELD.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);

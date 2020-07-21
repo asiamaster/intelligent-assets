@@ -9,6 +9,17 @@
                 MAX(
                     CASE charge_item_id
                     WHEN #{chargeItem.id} THEN
+                    id
+                    ELSE
+                    0
+                    END
+                )
+                as char
+            ) as businessChargeItemId${chargeItem.id},
+            cast(
+                MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
                     amount
                     ELSE
                     0
@@ -53,7 +64,6 @@
                 ,2)
                 as char
             ) as chargeItemWaitAmountYuan${chargeItem.id}
-
         </foreach>
         FROM
         business_charge_item

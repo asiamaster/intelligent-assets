@@ -2,6 +2,7 @@ package com.dili.ia.api;
 
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
@@ -15,10 +16,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 摊位租赁api
@@ -40,6 +47,21 @@ public class LeaseOrderApi {
 
     @Autowired
     AssetsRpc assetsRpc;
+    @Autowired
+    @Lazy
+    private List<AssetsLeaseService> assetsLeaseServices;
+
+    private Map<Integer, AssetsLeaseService> assetsLeaseServiceMap = new HashMap<>();
+
+    /**
+     * 初始化注入
+     */
+    @PostConstruct
+    public void init() {
+        for (AssetsLeaseService service : assetsLeaseServices) {
+            this.assetsLeaseServiceMap.put(service.getAssetsType(), service);
+        }
+    }
 
     /**
      * 测试分布式事务回滚
@@ -49,21 +71,19 @@ public class LeaseOrderApi {
      */
     @RequestMapping(value="/testGlobalTransactional")
     @GlobalTransactional
+    @Transactional
     public @ResponseBody BaseOutput<String> test(){
         //新增品类
         CategoryDTO categoryDTO = new CategoryDTO();
-        categoryDTO.setName("测试品类");
-        categoryDTO.setPingying("ceshi");
-        categoryDTO.setPyInitials("cspl");
-        categoryDTO.setIsDelete(0);
-        categoryDTO.setPath("test");
-        categoryDTO.setCode("test");
+        categoryDTO.setName("测试品类0714");
+        categoryDTO.setPingying("ceshi0714");
+        categoryDTO.setPyInitials("cspl0714");
+        categoryDTO.setCode("test0714");
         categoryDTO.setCreatorId(1L);
-        categoryDTO.setCreateTime(new Date());
-        categoryDTO.setModifyTime(new Date());
         categoryDTO.setState(1);
         try {
-            assetsRpc.save(categoryDTO);
+            BaseOutput output = assetsRpc.save(categoryDTO);
+            System.out.println(output);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -72,6 +92,7 @@ public class LeaseOrderApi {
         SettleOrderDto settleOrderDto = new SettleOrderDto();
         settleOrderDto.setMarketId(1L);
         settleOrderDto.setMarketCode("group");
+        settleOrderDto.setOrderCode("test0714");
         settleOrderDto.setAppId(101L);
         settleOrderDto.setBusinessCode("T0001");
         settleOrderDto.setBusinessType(1);
@@ -101,7 +122,8 @@ public class LeaseOrderApi {
         settleOrderDto.setBusinessName("test");
         settleOrderDto.setReturnUrl("http://www.baidu.com");
         try {
-            settlementRpc.submit(settleOrderDto);
+            BaseOutput<SettleOrder> submit = settlementRpc.submit(settleOrderDto);
+            System.out.println(submit);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -111,13 +133,25 @@ public class LeaseOrderApi {
         }
         return BaseOutput.success();
     }
+
+    /**
+     * 解冻摊位
+     * @param leaseOrderId
+     * @return
+     */
+    @GetMapping("unFrozenAllBooth")
+    public BaseOutput unFrozenAllBooth(Long leaseOrderId){
+        AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(AssetsTypeEnum.BOOTH.getCode());
+        assetsLeaseService.unFrozenAllAsset(leaseOrderId);
+        return BaseOutput.success();
+    }
     /**
      * 摊位租赁结算成功回调
      * @param settleOrder
      * @return
      */
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
+    public BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
             return assetsLeaseOrderService.updateLeaseOrderBySettleInfo(settleOrder);
         }catch (BusinessException e){
@@ -192,45 +226,4 @@ public class LeaseOrderApi {
         }
     }
 
-    /**
-     *
-     * 审批通过处理
-     * @return
-     */
-    @RequestMapping(value="/approvedHandler")
-    public @ResponseBody BaseOutput approvedHandler(String code){
-        try{
-            if(StringUtils.isBlank(code) || null == code){
-                return BaseOutput.failure("参数不能为空");
-            }
-            return assetsLeaseOrderService.approvedHandler(code);
-        }catch (BusinessException e){
-            LOG.info("审批通过处理异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
-        }catch (Exception e){
-            LOG.error("审批通过处理异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }
-    }
-
-    /**
-     *
-     * 审批拒绝处理
-     * @return
-     */
-    @RequestMapping(value="/approvedDeniedHandler")
-    public @ResponseBody BaseOutput approvedDeniedHandler(String code){
-        try{
-            if(StringUtils.isBlank(code) || null == code){
-                return BaseOutput.failure("参数不能为空");
-            }
-            return assetsLeaseOrderService.approvedDeniedHandler(code);
-        }catch (BusinessException e){
-            LOG.info("审批拒绝处理异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
-        }catch (Exception e){
-            LOG.error("审批拒绝处理异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }
-    }
 }
