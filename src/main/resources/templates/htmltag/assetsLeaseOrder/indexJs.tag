@@ -532,12 +532,12 @@
             //（未生效 || 已生效）&& 已交清方可停租
             if ((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
                 || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
-                && row.refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}
+                && row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}
             ) {
                 $('#btn_stop_rent'+index).attr('disabled', false);
             }
 
-            if(row.refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}){
+            if(row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}){
                 $('#btn_refund_apply'+index).attr('disabled', false);
             }
         });
@@ -610,8 +610,8 @@
             $('#btn_supplement').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
-                && row.refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
-                && row.refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
+                && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
+                && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
                 $('#btn_submit').attr('disabled', false);
             }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
@@ -620,8 +620,8 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
-                && row.refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
-                && row.refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
+                && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
+                && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
                 $('#btn_submit').attr('disabled', false);
             }
         }else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()}) {
@@ -631,8 +631,8 @@
             $('#btn_renew').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
-                && row.refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
-                && row.refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
+                && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
+                && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
                 $('#btn_submit').attr('disabled', false);
             }
         }

@@ -902,6 +902,14 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
+        //同步更新主单退款状态为【退款中】
+        AssetsLeaseOrder leaseOrder = get(leaseOrderItem.getLeaseOrderId());
+        leaseOrder.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
+        if (updateSelective(leaseOrder) == 0) {
+            LOG.info("摊位租赁单退款状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
+        }
+
         refundOrderDto.setBizType(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItem.getAssetsType()).getBizType());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode());
         if (!bizNumberOutput.isSuccess()) {
@@ -968,17 +976,16 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
-        boolean isFullRefund = true;
-        for (AssetsLeaseOrderItem orderItem : leaseOrderItems) {
-            if (orderItem.getId().equals(refundOrder.getBusinessItemId())) {
-                continue;
-            } else if (!LeaseRefundStateEnum.REFUNDED.getCode().equals(orderItem.getRefundState())) {
-                isFullRefund = false;
-                break;
+        Set<Integer> refundStates = leaseOrderItems.stream().filter(o -> !o.getId().equals(leaseOrderItem.getId())).map(o -> o.getRefundState()).collect(Collectors.toSet());
+        if (refundStates.contains(LeaseRefundStateEnum.REFUNDING.getCode())) {
+            leaseOrder.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
+        } else {
+            if (refundStates.size() == 1 && refundStates.contains(LeaseRefundStateEnum.REFUNDED.getCode())) {
+                leaseOrder.setRefundState(LeaseRefundStateEnum.REFUNDED.getCode());
+            } else {
+                leaseOrder.setRefundState(LeaseRefundStateEnum.PARTIAL_REFUND.getCode());
             }
         }
-
-        leaseOrder.setRefundState(isFullRefund ? LeaseRefundStateEnum.REFUNDED.getCode() : LeaseRefundStateEnum.PARTIAL_REFUND.getCode());
         leaseOrder.setWaitAmount(leaseOrder.getWaitAmount() - leaseOrderItem.getWaitAmount());
         if (updateSelective(leaseOrder) == 0) {
             LOG.info("摊位租赁单订单项退款申请结算退款成功 级联更新租赁单乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
