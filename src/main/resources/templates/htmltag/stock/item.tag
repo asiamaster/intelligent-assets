@@ -278,13 +278,19 @@ function changeAssets(index,districtId,value){
 
 }
 
-// 获取到期时间
-$(document).on('change', '#stockInDate', function() {
-	getCycle($('#stockInDate').val(),$('#categoryId').val());
-});
+//获取到期时间
+//日期范围
+/*laydate.render({
+	elem: '#stockInDate',
+	done: function(value, date){ //监听日期被切换
+     	  console.log(value)
+     	    //执行函数
+	}
+});*/
 
 function getCycle(stockInDate,categoryId){
-	if(stockInDate!=null && categoryId!=null){
+	 //监听日期被切换
+	if(date!=null && $('#categoryId').val()!=null){
 		$.ajax({
 			type: "POST",
 			url: "/stock/categoryCycle/getCycle.action?categoryId="+categoryId,
@@ -297,6 +303,7 @@ function getCycle(stockInDate,categoryId){
 			}
 		});
 	}
+
 
 }
 

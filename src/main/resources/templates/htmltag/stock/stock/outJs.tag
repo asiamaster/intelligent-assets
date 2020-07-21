@@ -66,7 +66,7 @@ function openStockOutHandler() {
 				selectedRow
 			})), //对话框内容，可以是 string、element，$object
 			width: '30%', //宽度
-			height: '50%', //高度
+			height: '70%', //高度
 			btns: [{
 				label: '取消',
 				className: 'btn btn-secondary',
