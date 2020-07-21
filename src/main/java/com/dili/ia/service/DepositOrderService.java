@@ -130,11 +130,13 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * 解除关联操作关系的情况：
      * 1、租赁缴费已交清；
      * 2、关联保证金进行了一次缴费成功，撤回租赁单需要解除关联操作关系。
+     * 3、租赁业务单的项交完，或者是未交完退款了，保证金都单飞操作；
      * @param bizType 业务类型
      * @param businessId 关联订单ID
+     * @param assetsId 资产Id  此参数可以为空，为空代表解除关联businessId下的所有关联保证金单，assetsId有值，代表解除单个关联的assetsId保证金单
      * @return BaseOutput
      */
-    BaseOutput batchReleaseRelated(String bizType, Long businessId);
+    BaseOutput batchReleaseRelated(String bizType, Long businessId, Long assetsId);
 
     /**
      * 批量【新增】,【已交费】的保证金单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
