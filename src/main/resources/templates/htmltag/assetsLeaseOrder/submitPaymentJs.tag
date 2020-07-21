@@ -97,6 +97,14 @@
             bs4pop.notice('【抵扣】只能分摊到收费项，请确保收费项分摊金额不小于【抵扣】', {position: 'bottomleft'});
             return false;
         }
+
+        <% if(leaseOrder.paidAmount == 0 && leaseOrder.waitAmount > 0){ %>
+            if (leasePayAmount == 0) {
+                bs4pop.notice('收费项支付金额必须大于0', {position: 'bottomleft'});
+                return false;
+            }
+        <% } %>
+
         return true;
     }
 
