@@ -11,7 +11,7 @@ public interface BpmConstants {
     /**
      * 退款审批流程KEY
      */
-    String PK_REFUND_APPROVAL_PROCESS = "refundApprovalProcess";
+    String PK_REFUND_APPROVAL_PROCESS = "rentalRefundApprovalProcess";
 
     /**
      * 市场负责人审批，任务定义key
