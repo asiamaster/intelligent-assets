@@ -133,7 +133,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         // 组装动态收费项
         BusinessChargeItem condtion = new BusinessChargeItem();
         condtion.setBusinessCode(meterDetailDtoInfo.getCode());
-        condtion.setBizType(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
+        condtion.setBizType(BizTypeEnum.UTTLITIES.getCode());
         List<BusinessChargeItem> list = businessChargeItemService.list(condtion);
         meterDetailDtoInfo.setBusinessChargeItems(list);
 
