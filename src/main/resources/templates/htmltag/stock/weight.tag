@@ -10,6 +10,7 @@
 						 name="weight" range="0 9999999" required readonly/>
 						<button type="button" class="btn btn-secondary px-5 readWeight" >写入重量</button>
 					</div>
+					<input type="radio" name="weighman" value="1">
 					<div class="form-group col-6">
 						<label for="_certificateNumber">毛重(公斤)：<i class="red">*</i></label>
 						<input id="grossWeight" type="number" class="form-control " 
@@ -22,6 +23,8 @@
 						 name="grossWeightDate" required readonly/>
 						
 					</div>
+					
+					
 					<div class="form-group col-6">
 						<label for="tareWeight" class="">皮重(公斤)：<i class="red">*</i></label> <input id="tareWeight" type="number" class="form-control "
 						 name="tareWeight" range="0 9999999" required readonly />
@@ -95,23 +98,27 @@
 					 name="weight" range="0 9999999" required readonly/>
 					<button type="button" class="btn btn-secondary px-5 readWeight" >写入重量</button>
 				</div>
-				<div class="form-group col-6">
+				<div class="form-group col-2">
+				 	<input type="radio" name="weighman" class="form-control " value="1">
+				</div>
+				<div class="form-group col-5">
 					<label for="_certificateNumber">毛重(公斤)：<i class="red">*</i></label>
 					<input id="grossWeight" type="number" class="form-control " value="{{weightDetail.grossWeight}}"
 					 name="grossWeight" range="0 9999999" required readonly/>
-					
 				</div>	
-				<div class="form-group col-6">
+				<div class="form-group col-5">
 					<label for="_certificateNumber">毛重时间：<i class="red">*</i></label>
 					<input id="grossWeightDate"  class="form-control "
 					 name="grossWeightDate" required readonly/>
-					
 				</div>
-				<div class="form-group col-6">
+				<div class="form-group col-2">
+				 	<input type="radio" name="weighman" class="form-control " value="2">
+				</div>
+				<div class="form-group col-5">
 					<label for="tareWeight" class="">皮重(公斤)：<i class="red">*</i></label> <input id="tareWeight" type="number" class="form-control "
 					 name="tareWeight" range="0 9999999" required readonly />
 				</div>
-				<div class="form-group col-6">
+				<div class="form-group col-5">
 					<label for="tareWeightDate" class="">皮重时间：<i class="red">*</i></label> <input id="tareWeightDate"  class="form-control "
 					 name="tareWeightDate" required readonly />
 				</div>
@@ -125,7 +132,6 @@
 </form>	
 <script>
 $('.readWeight').on('click', function() {
-	console.log(3123123);
 	/*if(typeof callbackObj == 'undefined'){
         return;
     }*/
@@ -138,10 +144,16 @@ $('.readWeight').on('click', function() {
         return;
     }*/
     //数据模拟
-    $("#grossWeight").val("1000");
-    $("#tareWeight").val("100");
-	$("#grossWeightDate").val("2020-07-06 12:34:44");
-	$("#tareWeightDate").val("2020-07-06 12:34:44");
+	let weighman = $("input[name='weighman']:checked").val();
+	if(weighman == 1){
+		$("#grossWeight").val("1000");
+		$("#grossWeightDate").val("2020-07-06 12:34:44");
+	}else{
+		$("#tareWeight").val("100");
+		$("#tareWeightDate").val("2020-07-06 12:34:44");
+	}
+    
+    
 
     //获取司磅读数
     window.weightCallback=function(data){

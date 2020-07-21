@@ -206,7 +206,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	private StockWeighmanRecord bulidWeighmanRecord (StockWeighmanRecordDto stockWeighmanRecordDto,StockInDetail detail) {
 		StockWeighmanRecord stockWeighmanRecord = new StockWeighmanRecord();
 		BeanUtils.copyProperties(stockWeighmanRecordDto, stockWeighmanRecord);
-		stockWeighmanRecord.setNewWeight(stockWeighmanRecordDto.getGrossWeight()-stockWeighmanRecordDto.getTareWeight());
+		if(stockWeighmanRecordDto.getGrossWeight() !=null && stockWeighmanRecordDto.getTareWeight() != null) {
+			stockWeighmanRecord.setNewWeight(stockWeighmanRecordDto.getGrossWeight()-stockWeighmanRecordDto.getTareWeight());
+		}
 		stockWeighmanRecord.setMarketId(detail.getMarketId());
 		stockWeighmanRecord.setMarketCode(detail.getMarketCode());
 		return stockWeighmanRecord;
@@ -296,7 +298,14 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		getStockInDetailsByStockCode(code);
+		List<StockInDetail> details = getStockInDetailsByStockCode(code);
+		//TODO 司磅入库判断是否已回皮
+		if(stockIn.getType() == StockInTypeEnum.WEIGHT.getCode()) {
+			List<String> codeList = stockWeighmanRecordService.getNeedWeigh(details.stream().map(StockInDetail::getWeightmanId).collect(Collectors.toList()));
+			if(CollectionUtils.isNotEmpty(codeList)) {
+				throw new BusinessException(ResultCode.DATA_ERROR, String.format("子单%s待司磅", codeList.toString()));
+			}
+		}
 		// 创建收费单费用收取
 		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
 		paymentOrder.setBusinessCode(code);
@@ -357,7 +366,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		BeanUtils.copyProperties(stockIn, stockInDto);
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
 		JSONArray details = new JSONArray();
-		List<Long> categoryIds = stockInDetails.stream().map(StockInDetail::getCategoryId).collect(Collectors.toList());
 		// 获取父级品类信息
 		stockInDetails.forEach(item -> {
 			JSONObject jsonObject = (JSONObject) JSONObject.toJSON(item);
