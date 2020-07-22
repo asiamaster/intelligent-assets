@@ -55,6 +55,19 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         return BaseOutput.success();
     }
 
+    @Override
+    public BaseOutput updateHandler(RefundOrder refundOrder) {
+        if (refundOrder.getBusinessId() == null){
+            return BaseOutput.failure("参数BusinessId 不能为空！");
+        }
+        DepositOrder depositOrder = depositOrderService.get(refundOrder.getBusinessId());
+        Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
+        if (depositOrder.getPaidAmount() < totalRefundAmount){
+            return BaseOutput.failure("退款金额不能大于订单已交费金额！");
+        }
+        return BaseOutput.success();
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
