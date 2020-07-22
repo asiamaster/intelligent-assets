@@ -611,6 +611,9 @@
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()} && row.refundState == ${@com.dili.ia.glossary.RefundStateEnum.WAIT_APPLY.getCode()}) {
                 $('#btn_refund_apply').attr('disabled', false);
             }
+            if(row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){
+                $('#btn_submit').attr('disabled', false);
+            }
         }
     });
     /*****************************************自定义事件区 end**************************************/
