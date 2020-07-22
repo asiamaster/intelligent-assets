@@ -127,9 +127,7 @@
     */
     function calcTotalRefundAmount(){
         let totalAmount = 0;
-        $("input[isRefundFeeItem]").filter(function () {
-            return this.value > 0;
-        }).each(function (i) {
+        $("input[isRefundFeeItem]").each(function (i) {
             totalAmount = Number(this.value).add(totalAmount);
         });
         $('#totalRefundAmount').val(totalAmount);

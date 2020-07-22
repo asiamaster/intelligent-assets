@@ -93,7 +93,6 @@ public class AssetsLeaseOrderController {
             throw new NotLoginException();
         }
 
-        modelMap.put("chargeItems", businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), null));
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
         modelMap.put("assetsType", assetsType);
@@ -190,6 +189,27 @@ public class AssetsLeaseOrderController {
             return BaseOutput.failure(e.getErrorMsg());
         }catch (Exception e){
             LOG.error("审批拒绝处理异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * 收费项meta信息
+     * @return
+     */
+    @GetMapping(value="/queryBusinessChargeItemMeta.action")
+    public @ResponseBody BaseOutput<List<BusinessChargeItemDto>> queryBusinessChargeItemMeta(Long leaseOrderId){
+        try{
+            AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
+            condition.setLeaseOrderId(leaseOrderId);
+            List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
+            return BaseOutput.success().setData(businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o->o.getId()).collect(Collectors.toList())));
+        }catch (BusinessException e){
+            LOG.info("收费项meta信息查询异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("收费项meta信息查询异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }

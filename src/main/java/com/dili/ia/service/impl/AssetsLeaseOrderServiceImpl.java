@@ -1389,7 +1389,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             o.setStopRentState(StopRentStateEnum.NO_APPLY.getCode());
             //收费项新增
             if (CollectionUtils.isNotEmpty(o.getBusinessChargeItems())) {
-                Long totalAmount = o.getBusinessChargeItems().stream().filter(bci -> bci.getAmount() > 0).mapToLong(BusinessChargeItem::getAmount).sum();
+                Long totalAmount = o.getBusinessChargeItems().stream().mapToLong(BusinessChargeItem::getAmount).sum();
                 o.setTotalAmount(totalAmount);
                 o.setWaitAmount(totalAmount);
             }
@@ -1397,7 +1397,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
             //收费项新增
             if (CollectionUtils.isNotEmpty(o.getBusinessChargeItems())) {
-                o.getBusinessChargeItems().stream().filter(bci -> bci.getAmount() > 0).forEach(bci -> {
+                o.getBusinessChargeItems().stream().forEach(bci -> {
                     bci.setBusinessId(o.getId());
                     bci.setWaitAmount(bci.getAmount());
                     bci.setBizType(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getBizType());

@@ -226,13 +226,11 @@
                 <th data-field="unitName" data-sortable="true" data-align="center">
                     单位
                 </th>
-                <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
-                    for(item in chargeItems){
-                %>
-                <th data-field="businessChargeItem.chargeItemYuan${item.id!}" data-sortable="true" data-align="center" data-charge-item-id="${item.id!}" data-formatter="chargeItemFormatter">
-                    ${item.chargeItem!}
+                {{each businessChargeItems}}
+                <th data-field="businessChargeItem.chargeItemYuan{{$value.id}}" data-sortable="true" data-align="center" data-charge-item-id="{{$value.id}}" data-formatter="chargeItemFormatter">
+                    {{$value.chargeItem}}
                 </th>
-                <% } }%>
+                {{/each}}
                 <th data-field="state" data-sortable="true" data-align="center" data-provider="leaseOrderStateProvider">
                     状态
                 </th>

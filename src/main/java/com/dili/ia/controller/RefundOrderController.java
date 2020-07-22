@@ -1,9 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
-import com.dili.ia.domain.ApprovalProcess;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
@@ -167,9 +165,12 @@ public class RefundOrderController {
                 TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
                 transferDeductionItemCondition.setRefundOrderId(id);
                 modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
+
                 if(null != refundOrder.getBusinessItemId()){
-                    modelMap.put("leaseOrderItem",assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId()));
+                    AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId());
+                    modelMap.put("leaseOrderItem",leaseOrderItem);
                 }
+
                 return "refundOrder/leaseRefundOrderView";
             }
         }

@@ -503,6 +503,33 @@
         return value + '(已交' + row.businessChargeItem['chargeItemPaidAmountYuan' + this.chargeItemId] + ')';
     }
 
+
+    /**
+     * 收费项元信息查询
+     * @param leaseOrderId
+     * @returns {*}
+     */
+    function queryBusinessChargeItemMeta(leaseOrderId){
+        let businessChareItems;
+        $.ajax({
+            url: "${contextPath}/assetsLeaseOrder/queryBusinessChargeItemMeta.action?leaseOrderId="+leaseOrderId,
+            dataType: "json",
+            async : false,
+            success : function(result) {
+                if(!result.success){
+                    bs4pop.alert(result.message, {type: 'error'});
+                }else{
+                    businessChareItems = result.data;
+                }
+            },
+            error : function() {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+        return businessChareItems;
+    }
+
     /*****************************************函数区 end**************************************/
 
     /*****************************************自定义事件区 begin************************************/
@@ -516,9 +543,12 @@
         // }
 
 
-        var cur_table = $detail.html(template('subTable',{index})).find('table');
+        var cur_table = $detail.html(template('subTable', {
+            index,
+            businessChargeItems: queryBusinessChargeItemMeta(row.id)
+        })).find('table');
         $(cur_table).bootstrapTable();
-        $(cur_table).bootstrapTable('refreshOptions', {url: '/assetsLeaseOrderItem/listPage.action?leaseOrderId='+row.id});
+        $(cur_table).bootstrapTable('refreshOptions', {url: '/assetsLeaseOrderItem/listPage.action?leaseOrderId=' + row.id});
         //选中行事件
         $(cur_table).on('check.bs.table', function (e,row, $element){
             e.stopPropagation();
@@ -527,7 +557,7 @@
             //（未生效 || 已生效）&& 已交清方可停租
             if ((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
                 || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
-                && row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}
+                && row.stopRentState == ${@com.dili.ia.glossary.StopRentStateEnum.NO_APPLY.getCode()}
             ) {
                 $('#btn_stop_rent'+index).attr('disabled', false);
             }
