@@ -30,7 +30,7 @@
                     <#bcomboProvider _id="state" _provider="meterDetailStateProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
                 </div>
                 <div class="form-group col">
-                    <label for="keyword">单号/表编号/客户名称</label>
+                    <label for="keyword">单号/电表编号/客户名称</label>
                     <input type="keyword" class="form-control" name="keyword" id="keyword" maxlength="50"/>
                 </div>
                 <div class="col-auto align-self-center mt-3">
@@ -70,10 +70,10 @@
                         月份
                     </th>
                     <th data-field="number" data-sortable="true" data-align="center">
-                        表编号
+                        电表编号
                     </th>
                     <th data-field="assetsName" data-sortable="true" data-align="center">
-                        表地址
+                        电表地址
                     </th>
                     <th data-field="departmentName" data-sortable="true" data-align="center">
                         部门
@@ -85,16 +85,16 @@
                         类别
                     </th>
                     <th data-field="usageAmount" data-sortable="true" data-align="center">
-                        实用量
+                        用电量
                     </th>
-                    <th data-field="price" data-sortable="true" data-align="center">
-                        单价
+                    <th data-field="receivable" data-sortable="true" data-align="center">
+                        电费
+                    </th>
+                    <th data-field="" data-sortable="true" data-align="center">
+                        公摊费
                     </th>
                     <th data-field="amount" data-sortable="true" data-align="center">
-                        实收金额
-                    </th>
-                    <th data-field="balance" data-sortable="true" data-align="center">
-                        预存金额
+                        合计金额
                     </th>
                     <th data-field="state" data-sortable="true" data-align="center" data-provider="meterDetailStateProvider">
                         状态

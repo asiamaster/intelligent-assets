@@ -89,10 +89,6 @@ public class MeterDetailDto extends MeterDetail {
      */
     private Long sharedAmount;
 
-    /**
-     * 应收金额(水费或电费)
-     */
-    private Long receivable;
 
     /**
      * 收费员、缴费日期
@@ -194,14 +190,6 @@ public class MeterDetailDto extends MeterDetail {
 
     public void setSharedAmount(Long sharedAmount) {
         this.sharedAmount = sharedAmount;
-    }
-
-    public Long getReceivable() {
-        return receivable;
-    }
-
-    public void setReceivable(Long receivable) {
-        this.receivable = receivable;
     }
 
     public Long getPrice() {

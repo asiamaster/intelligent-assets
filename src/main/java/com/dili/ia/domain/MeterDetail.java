@@ -126,6 +126,12 @@ public class MeterDetail extends BaseDomain {
     private Long usageAmount;
 
     /**
+     * 水电费
+     */
+    @Column(name = "`receivable`")
+    private Long receivable;
+
+    /**
      * 总金额
      */
     @Column(name = "`amount`")
@@ -397,7 +403,18 @@ public class MeterDetail extends BaseDomain {
         this.usageAmount = usageAmount;
     }
 
-    @FieldDef(label="使用量")
+    @FieldDef(label="总计金额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getReceivable() {
+        return receivable;
+    }
+
+    public void setReceivable(Long receivable) {
+        this.receivable = receivable;
+    }
+
+
+    @FieldDef(label="总计金额")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Long getAmount() {
         return amount;

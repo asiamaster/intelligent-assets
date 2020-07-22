@@ -22,6 +22,7 @@
     <result column="last_amount" jdbcType="BIGINT" property="lastAmount" />
     <result column="this_amount" jdbcType="BIGINT" property="thisAmount" />
     <result column="usage_amount" jdbcType="BIGINT" property="usageAmount" />
+    <result column="receivable" jdbcType="BIGINT" property="receivable" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
     <result column="creator_dep_id" jdbcType="BIGINT" property="creatorDepId" />
     <result column="notes" jdbcType="VARCHAR" property="notes" />
@@ -43,7 +44,7 @@
       WARNING - @mbg.generated
     -->
     id, create_time, modify_time, code, meter_id, usage_time, customer_id, customer_name, customer_cellphone, department_id, department_name,
-    record_time, recorder_name, state, last_amount, this_amount, usage_amount, amount, creator_dep_id,
+    record_time, recorder_name, state, last_amount, this_amount, usage_amount, receivable, amount, creator_dep_id,
     notes, submitter_id, submitter, submit_time, withdraw_operator_id, withdraw_operator, 
     canceler_id, canceler, creator_id, creator, market_id, market_code, version
   </sql>
@@ -166,6 +167,7 @@
         md.last_amount,
         md.this_amount,
         md.usage_amount,
+        md.receivable,
         md.amount,
         md.creator_dep_id,
         md.notes,
@@ -190,6 +192,9 @@
         meter_detail md
     LEFT JOIN meter m on md.meter_id = m.id
    <where>
+       <if test="type != null">
+           and m.type = #{type,jdbcType=INTEGER}
+       </if>
       <if test="state != null">
           and md.state = #{state,jdbcType=INTEGER}
       </if>
@@ -270,6 +275,7 @@
         md.last_amount,
         md.this_amount,
         md.usage_amount,
+        md.receivable,
         md.amount,
         md.creator_dep_id,
         md.notes,
@@ -321,6 +327,7 @@
         md.last_amount,
         md.this_amount,
         md.usage_amount,
+        md.receivable,
         md.amount,
         md.creator_dep_id,
         md.notes,
@@ -367,6 +374,7 @@
         md.last_amount,
         md.this_amount,
         md.usage_amount,
+        md.receivable,
         md.amount,
         md.creator_dep_id,
         md.notes,
@@ -403,6 +411,5 @@
             meter_id = #{meterId}
         AND
             state IN (#{status})
-
     </select>
 </mapper>
