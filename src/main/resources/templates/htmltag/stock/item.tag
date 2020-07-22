@@ -254,8 +254,10 @@ function changeAssets(index,districtId,value){
     if(districtId && districtId!==''){
         $.ajax({
             type: "POST",
-            url: "/district/search.action",
-            data: {parentId: 0},
+            url: "/stock/stockIn/getColdStorage.action",
+            data: {secondArea: districtId,
+            	businessType:2
+            },
             success: function (data) {
                 if (data.code == "200") {
                     var array = $.map(data.data, function (obj) {

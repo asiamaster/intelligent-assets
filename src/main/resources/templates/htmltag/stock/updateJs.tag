@@ -86,6 +86,7 @@ function initDetailItem(stockDetail) {
 		chargeItem.amount = (chargeItem.amount/100).toFixed(2) + '';
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).val(chargeItem.amount);
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).attr("item-id",chargeItem.id);
+		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).attr("chargeItem-version",chargeItem.version);
 	}
 	changeDistrict(itemIndex,0,stockDetail.parentDistrictId,'one');
 	changeDistrict(itemIndex,stockDetail.parentDistrictId,stockDetail.districtId,'two');
@@ -164,6 +165,7 @@ function buildFormData() {
 		businessCharge.amount=parseInt($(this).val())*100;
 		if($(this).attr("item-id") != ""){
 			businessCharge.id=$(this).attr("item-id");
+			businessCharge.version=$(this).attr("chargeItem-version");
 		}
 		if (businessCharge != {}) {
 			businessChargeDtos.push(businessCharge);
@@ -191,6 +193,7 @@ function buildFormData() {
 			itemBusinessCharge.amount=parseInt($(this).val())*100;
 			if($(this).attr("item-id") != ""){
 				itemBusinessCharge.id=$(this).attr("item-id");
+				itemBusinessCharge.version=$(this).attr("chargeItem-version");
 			}
 			if (itemBusinessCharge != {}) {
 				itemBusinessChargeDtos.push(itemBusinessCharge);

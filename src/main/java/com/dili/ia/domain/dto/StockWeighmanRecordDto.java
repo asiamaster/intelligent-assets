@@ -25,7 +25,7 @@ public class StockWeighmanRecordDto {
     /**
      * 毛重时间
      */
-    private Date grossWeightDate;
+    private LocalDateTime grossWeightDate;
 
     /**
      * 皮重
@@ -75,11 +75,11 @@ public class StockWeighmanRecordDto {
 		this.grossWeight = grossWeight;
 	}
 
-	public Date getGrossWeightDate() {
+	public LocalDateTime getGrossWeightDate() {
 		return grossWeightDate;
 	}
 
-	public void setGrossWeightDate(Date grossWeightDate) {
+	public void setGrossWeightDate(LocalDateTime grossWeightDate) {
 		this.grossWeightDate = grossWeightDate;
 	}
 
