@@ -384,7 +384,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             LOG.info("修改失败，退款单状态已变更！状态为：" + RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.getState()).getName() );
             return BaseOutput.failure("退款单状态已变更！");
         }
-
+        //检查客户状态
+        checkCustomerState(refundOrder.getPayeeId(), refundOrder.getMarketId());
        //获取业务service,调用业务实现
         RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
         if(service!=null){
