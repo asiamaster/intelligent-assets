@@ -396,7 +396,7 @@
                         bui.loading.show('努力提交中，请稍候。。。');
                         $.ajax({
                             type: "POST",
-                            url: "${contextPath}/leaseOrderItem/stopRent.action",
+                            url: "${contextPath}/assetsLeaseOrderItem/stopRent.action",
                             data: $('#stopRentForm').serializeObject(),
                             dataType: "json",
                             success : function(data) {

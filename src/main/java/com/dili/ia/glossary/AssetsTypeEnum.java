@@ -10,8 +10,8 @@ package com.dili.ia.glossary;
  */
 public enum AssetsTypeEnum {
     BOOTH(1, "摊位", "booth","1"),
-//    LOCATION(2, "冷库", "location","4"),
-//    LODGING(3, "公寓", "lodging","5"),
+    LOCATION(2, "冷库", "location","4"),
+    LODGING(3, "公寓", "lodging","5"),
     OTHER(100, "其它", "other",null)
     ;
 

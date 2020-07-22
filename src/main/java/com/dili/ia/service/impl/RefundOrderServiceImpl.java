@@ -133,6 +133,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         order.setMarketId(userTicket.getFirmId());
         order.setMarketCode(userTicket.getFirmCode());
         order.setState(RefundOrderStateEnum.CREATED.getCode());
+        order.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
         order.setVersion(0);
         refundOrderService.insertSelective(order);
         LoggerUtil.buildLoggerContext(order.getId(),order.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);

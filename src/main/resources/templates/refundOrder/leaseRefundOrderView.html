@@ -35,6 +35,10 @@
                     <label for="" class="">联系电话</label>
                     <input type="text" class="form-control" value="${refundOrder.customerCellphone!}" disabled />
                 </div>
+                <div class="form-group col">
+                    <label for="" class="">退场时间</label>
+                    <input type="text" class="form-control" value="${leaseOrderItem.exitTime!,localDateTimeFormat='yyyy-MM-dd'}" disabled />
+                </div>
             </div>
 
             <div class="breadcrumb">
@@ -45,23 +49,20 @@
                 <%if(isNotEmpty(refundOrder.businessItemId)){ %>
                 <div class="row row-cols-4">
                     <div class="form-group col">
-                        <label for="boothName" class="">摊位编号</label>
-                        <input type="text" class="form-control" id="boothName" name="boothName" value="${leaseOrderItem.boothName}" disabled/>
+                        <label for="assetsName" class="">摊位编号</label>
+                        <input type="text" class="form-control" id="assetsName" name="assetsName" value="${leaseOrderItem.assetsName}" disabled/>
                     </div>
+                    <%if(isNotEmpty(refundFeeItems) && refundFeeItems.~size>0){
+                    for(item in refundFeeItems){
+                    %>
                     <div class="form-group col">
-                        <label for="" class="">租金</label>
-                        <input type="text" class="form-control" value="<#centToYuan value='${leaseOrderItem.rentRefundAmount!0}'/>" disabled />
+                        <label for="" class="">${item.chargeItemName!}</label>
+                        <input type="text" class="form-control" value="<#centToYuan value='${item.amount!0}'/>" disabled />
                     </div>
-                    <div class="form-group col">
-                        <label for="" class="">物业管理费</label>
-                        <input type="text" class="form-control" value="<#centToYuan value='${leaseOrderItem.manageRefundAmount!0}'/>" disabled />
-                    </div>
-                    <div class="form-group col">
-                        <label for="" class="">保证金</label>
-                        <input type="text" class="form-control" value="<#centToYuan value='${leaseOrderItem.depositRefundAmount!0}'/>" disabled />
-                    </div>
+                    <% } }%>
                 </div>
                 <% }%>
+                <hr>
                 <div class="row row-cols-4">
                     <div class="form-group col">
                         <label for="" class="">收款人</label>

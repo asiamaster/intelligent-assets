@@ -5,10 +5,7 @@ import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.service.ApprovalProcessService;
-import com.dili.ia.service.AssetsLeaseOrderItemService;
-import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -51,6 +48,8 @@ public class RefundOrderController {
     BusinessLogRpc businessLogRpc;
     @Autowired
     private ApprovalProcessService approvalProcessService;
+    @Autowired
+    private RefundFeeItemService refundFeeItemService;
 
     /**
      * 跳转到RefundOrder页面
@@ -168,7 +167,10 @@ public class RefundOrderController {
 
                 if(null != refundOrder.getBusinessItemId()){
                     AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId());
-                    modelMap.put("leaseOrderItem",leaseOrderItem);
+                    modelMap.put("leaseOrderItem", leaseOrderItem);
+                    RefundFeeItem condition = new RefundFeeItem();
+                    condition.setRefundOrderId(refundOrder.getId());
+                    modelMap.put("refundFeeItems", refundFeeItemService.list(condition));
                 }
 
                 return "refundOrder/leaseRefundOrderView";
