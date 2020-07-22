@@ -80,7 +80,7 @@ CREATE TABLE `business_charge_item`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `refund_fee_item`;
 CREATE TABLE `refund_fee_item`  (
-  `id` bigint(20) NOT NULL COMMENT 'id',
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `refund_order_id` bigint(20) NOT NULL COMMENT '退款单ID',
   `refund_order_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '退款单code',
   `charge_item_id` bigint(20) NOT NULL COMMENT '收费项ID',
