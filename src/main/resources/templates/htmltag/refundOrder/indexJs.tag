@@ -74,6 +74,29 @@
     }
 
     /**
+     * 打开查看
+     * @param id
+     */
+    function openUpdateHandler(id) {
+        if(!id){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            id = rows[0].id;
+        }
+        dia = bs4pop.dialog({
+            title: '修改退款单',//对话框title
+            content: '${contextPath}/refundOrder/update.html?id='+id, //对话框内容，可以是 string、element，$object
+            width: '80%',//宽度
+            height: '95%',//高度
+            isIframe: true,//默认是页面层，非iframe
+        });
+    }
+
+    /**
      * 业务编号formatter
      * @param value
      * @param row
@@ -271,11 +294,12 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_edit').attr('disabled', false);
 
             //没有审批状态可以 提交审批，修改和取消
             if(!approvalState){
                 $('#btn_approval').attr('disabled', false);
-                $('#btn_update').attr('disabled', false);
+                $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
                 return;
             }

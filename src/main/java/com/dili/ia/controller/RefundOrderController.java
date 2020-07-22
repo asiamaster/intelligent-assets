@@ -2,10 +2,19 @@ package com.dili.ia.controller;
 
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
 import com.dili.ia.domain.*;
+import com.dili.ia.domain.ApprovalProcess;
+import com.dili.ia.domain.Customer;
+import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.service.*;
+import com.dili.ia.rpc.CustomerRpc;
+import com.dili.ia.service.ApprovalProcessService;
+import com.dili.ia.service.AssetsLeaseOrderItemService;
+import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -50,6 +59,8 @@ public class RefundOrderController {
     private ApprovalProcessService approvalProcessService;
     @Autowired
     private RefundFeeItemService refundFeeItemService;
+    @Autowired
+    CustomerRpc customerRpc;
 
     /**
      * 跳转到RefundOrder页面
@@ -328,5 +339,27 @@ public class RefundOrderController {
             LOG.error("退款单取消出错！", e);
             return BaseOutput.failure("取消出错！");
         }
+    }
+
+    /**
+     * 跳转到退款单-查看页面
+     * @param modelMap
+     * @return String
+     */
+    @GetMapping(value="/update.html")
+    public String update(ModelMap modelMap, Long id) {
+        RefundOrder refundOrder = refundOrderService.get(id);
+        if (refundOrder != null){
+            BaseOutput<Customer> payee = customerRpc.get(refundOrder.getPayeeId(), refundOrder.getMarketId());
+            modelMap.put("refundOrder",refundOrder);
+            modelMap.put("payee", payee.getData());
+            if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
+                return "refundOrder/updateView/refundApply";
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
+                return "refundOrder/updateView/refundApply";
+            }
+
+        }
+        return "refundOrder/updateView/refundApply";
     }
 }
