@@ -54,7 +54,7 @@
             // let _formData = new FormData($('#saveForm')[0]);
             $.ajax({
                 type: "POST",
-                url: "${contextPath}/refundOrder/update.action",
+                url: "${contextPath}/refundOrder/doUpdate.action",
                 data: buildFormData(),
                 dataType: "json",
                 success: function (ret) {
