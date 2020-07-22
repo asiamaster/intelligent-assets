@@ -60,4 +60,16 @@ public interface StockService extends BaseService<Stock, Long> {
 	 * @throws
 	 */
 	Page<StockDto> countCustomerStock(StockQueryDto stockQueryDto);
+	
+	/**
+	 * 
+	 * @Title getStock
+	 * @Description 获取库存
+	 * @param categoryId
+	 * @param assetsId
+	 * @param customerId
+	 * @return
+	 * @throws
+	 */
+	Stock getStock(Long categoryId,Long assetsId,Long customerId);
 }
