@@ -296,24 +296,26 @@ laydate.render({
 	done: function(value, date){
 		 //监听日期被切换
 		console.log(value);
-		getCycle()
+		getCycle(value)
 	}
 });
 
 //冷库区域变更  对应子单的冷库更新
 $(document).on('change', '.categoryId', function() {
-	getCycle()
+	let stockInDate = $("#stockInDate").val();
+	getCycle(stockInDate)
 });
 
-function getCycle(){
+function getCycle(stockInDate){
 	//监听日期被切换
-	let stockInDate = $("#stockInDate").val();
 	let categoryId = $('#categoryId').val();
 	if(stockInDate!=null && categoryId!=null){
 		$.ajax({
 			type: "POST",
 			url: "/stock/categoryCycle/getCycle.action?categoryId="+categoryId+"&stockInDate="+stockInDate,
-			data: {parentId: 0},
+			data: {categoryId: categoryId,
+				stockInDate:stockInDate
+			},
 			success: function (data) {
 				if (data.code == "200") {
 					console.log(data)
