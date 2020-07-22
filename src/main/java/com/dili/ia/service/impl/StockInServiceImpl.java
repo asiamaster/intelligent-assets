@@ -28,6 +28,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.Stock;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockWeighmanRecord;
@@ -445,6 +446,15 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
+		//TODO 判断库存
+		List<StockInDetail> details = getStockInDetailsByStockCode(code);
+		for (StockInDetail stockInDetail : details) {
+			Stock stock = stockService.getStock(stockInDetail.getCategoryId(), stockInDetail.getAssetsId(), stockIn.getCustomerId());
+			if(stock.getQuantity() - stockInDetail.getQuantity() < 0) {
+				throw new BusinessException(ResultCode.DATA_ERROR, "库存件数小于作废件数,退款失败");
+			}
+		}
+
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, stockInRefundDto, stockIn);
 		//BaseOutput out = refundOrderService.doSubmitDispatcher(refundOrder);
 		//SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, refundOrder.getCode(), refundOrder.getPayeeAmount());
@@ -455,7 +465,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	}
 	
 	@Override
-	@Transactional
+	@GlobalTransactional
 	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 		String code = refundOrder.getBusinessCode();
 		StockIn stockIn = getStockInByCode(code);
@@ -526,7 +536,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	}
 
 	@Override
-	@Transactional
+	@GlobalTransactional
 	public void settlementDealHandler(SettleOrder settleOrder) {
 		String code = settleOrder.getBusinessCode();
 		StockIn stockIn = getStockInByCode(code);

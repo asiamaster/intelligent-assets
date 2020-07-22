@@ -101,7 +101,8 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		
 	}
 	
-	private Stock getStock(Long categoryId,Long assetsId,Long customerId) {
+	@Override
+	public Stock getStock(Long categoryId,Long assetsId,Long customerId) {
 		Stock example = new Stock();
 		example.setCategoryId(categoryId);
 		example.setAssetsId(assetsId);
@@ -168,6 +169,9 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 	private void stockDeduction(Stock stock,Long weight, Long quantity){
 		Stock domain = new Stock();
 		domain.setVersion(stock.getVersion()+1);
+		if((stock.getQuantity()-quantity) < 0 || (stock.getWeight() - weight) < 0) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "库存不足!");
+		}
 		if(quantity != null && quantity > 0) {
 			domain.setQuantity(stock.getQuantity()-quantity);
 		}
@@ -179,7 +183,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		condition.setVersion(stock.getVersion());
 		int row = updateSelectiveByExample(domain, condition);
 		if(row != 1) {
-			throw new BusinessException("", "");
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 	}
 	
