@@ -388,8 +388,9 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //检查客户状态
         checkCustomerState(refundOrder.getPayeeId(), oldOrder.getMarketId());
        //获取业务service,调用业务实现
-        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
+        RefundOrderDispatcherService service = refundBiz.get(oldOrder.getBizType());
         if(service!=null){
+            refundOrder.setBusinessId(oldOrder.getBusinessId());
             BaseOutput refundResult = service.updateHandler(refundOrder);
             if (!refundResult.isSuccess()){
                 LOG.info("退款单修改--回调业务返回失败！" + refundResult.getMessage());
