@@ -380,15 +380,17 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if (null == refundOrder || null == refundOrder.getId()){
             return BaseOutput.failure("退款单修改，必要参数（ID）不能为空");
         }
-        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
+        RefundOrder oldOrder = this.get(refundOrder.getId());
+        if (!oldOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
             LOG.info("修改失败，退款单状态已变更！状态为：" + RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.getState()).getName() );
             return BaseOutput.failure("退款单状态已变更！");
         }
         //检查客户状态
-        checkCustomerState(refundOrder.getPayeeId(), refundOrder.getMarketId());
+        checkCustomerState(refundOrder.getPayeeId(), oldOrder.getMarketId());
        //获取业务service,调用业务实现
-        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
+        RefundOrderDispatcherService service = refundBiz.get(oldOrder.getBizType());
         if(service!=null){
+            refundOrder.setBusinessId(oldOrder.getBusinessId());
             BaseOutput refundResult = service.updateHandler(refundOrder);
             if (!refundResult.isSuccess()){
                 LOG.info("退款单修改--回调业务返回失败！" + refundResult.getMessage());
