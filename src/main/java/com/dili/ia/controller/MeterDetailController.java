@@ -27,7 +27,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author:      xiaosa
@@ -48,23 +51,19 @@ public class MeterDetailController {
     private BusinessChargeItemService businessChargeItemService;
 
     /**
-     * 跳转到欢迎页面
+     * 跳转到水费列表页面
      * 
      * @param  modelMap
      * @return 欢迎页面地址
      * @date   2020/6/29
      */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
-    public String index(ModelMap modelMap, int metertype) {
-        String meterUrl = "/water";
-        if (2 == metertype) {
-            meterUrl = "/electricity";
-        }
-        return "meterDetail" + meterUrl +  "/index";
+    @RequestMapping(value="/water/index.html", method = RequestMethod.GET)
+    public String waterIndex(ModelMap modelMap) {
+        return "meterDetail/water/index";
     }
 
     /**
-     * 跳转到欢迎页面
+     * 跳转到电费列表页面
      *
      * @param  modelMap
      * @return 欢迎页面地址
@@ -76,18 +75,6 @@ public class MeterDetailController {
     }
 
     /**
-     * 跳转到欢迎页面
-     *
-     * @param  modelMap
-     * @return 欢迎页面地址
-     * @date   2020/6/29
-     */
-    @RequestMapping(value="/water/index.html", method = RequestMethod.GET)
-    public String waterIndex(ModelMap modelMap) {
-        return "meterDetail/water/index";
-    }
-
-    /**
      * 跳转到新增页面
      *
      * @param  modelMap
@@ -95,7 +82,7 @@ public class MeterDetailController {
      * @date   2020/6/29
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap, int metertype) {
+    public String add(ModelMap modelMap, String meterType) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 动态收费项，根据业务类型查询相关的动态收费项类型
@@ -104,7 +91,7 @@ public class MeterDetailController {
         modelMap.put("chargeItems", chargeItemDtos);
 
         String meterUrl = "/water";
-        if (2 == metertype) {
+        if (meterType.equals("2")) {
             meterUrl = "/electricity";
         }
         return "meterDetail" + meterUrl +  "/add";
@@ -118,7 +105,7 @@ public class MeterDetailController {
      * @date   2020/6/29
      */
     @RequestMapping(value="/view.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public String view(ModelMap modelMap, Long id, int metertype) {
+    public String view(ModelMap modelMap, Long id) {
         MeterDetailDto meterDetailDto = null;
 
         if (id != null) {
@@ -127,7 +114,7 @@ public class MeterDetailController {
         modelMap.put("meterDetail", meterDetailDto);
 
         String meterUrl = "/water";
-        if (2 == metertype) {
+        if (2 == meterDetailDto.getType()) {
             meterUrl = "/electricity";
         }
         return "meterDetail" + meterUrl +  "/view";
@@ -141,8 +128,8 @@ public class MeterDetailController {
      * @date   2020/6/29
      */
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
-    public String update(ModelMap modelMap, Long id, int metertype) {
-        MeterDetail meterDetail = null;
+    public String update(ModelMap modelMap, Long id) {
+        MeterDetailDto meterDetail = null;
 
         if (id != null) {
             meterDetail = meterDetailService.getMeterDetailById(id);
@@ -150,7 +137,7 @@ public class MeterDetailController {
         modelMap.put("meterDetail", meterDetail);
 
         String meterUrl = "/water";
-        if (2 == metertype) {
+        if (2 == meterDetail.getType()) {
             meterUrl = "/electricity";
         }
         return "meterDetail" + meterUrl +  "/update";
@@ -164,7 +151,8 @@ public class MeterDetailController {
      * @date   2020/6/28
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute MeterDetailDto meterDetailDto) throws Exception {
+    public @ResponseBody String listPage(@ModelAttribute MeterDetailDto meterDetailDto, String meterType) throws Exception {
+        meterDetailDto.setType(Integer.valueOf(meterType));
         return meterDetailService.listMeterDetails(meterDetailDto, true).toString();
     }
 
@@ -196,22 +184,23 @@ public class MeterDetailController {
     /**
      * 提交水电费单(生缴费单和结算单)
      *
-     * @param  id
+     * @param  ids
      * @return 是否成功
      * @date   2020/7/6
      */
     @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput submit(Long id) {
-
+    public @ResponseBody BaseOutput submit(String ids) {
+        List<Long> list = Arrays.stream(ids.split(",")).map(Long::valueOf)
+                .collect(Collectors.toList());
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        BaseOutput<MeterDetail> baseOutput = meterDetailService.submit(id, userTicket);
+        BaseOutput<List<MeterDetail>> baseOutput = meterDetailService.submit(list, userTicket);
 
         // 写业务日志
         if (baseOutput.isSuccess()){
-            MeterDetail meterDetail = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            List<MeterDetail> meterDetailList = baseOutput.getData();
+            meterDetailList.forEach(meterDetail -> LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null));
         }
 
         return baseOutput;

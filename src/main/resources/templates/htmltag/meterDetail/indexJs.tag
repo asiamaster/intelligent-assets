@@ -38,7 +38,6 @@
      */
     function openViewHandler(id) {
         let _formData = $('#queryForm').serializeObject();
-        var meterType = _formData.metertype;
         if(!id){
             //获取选中行的数据
             let rows = _grid.bootstrapTable('getSelections');
@@ -51,8 +50,8 @@
 
 
         dia = bs4pop.dialog({
-            title: '水电费详情',
-            content: '/meterDetail/view.action?id='+id + '&meterType=' + meterType,
+            title: '费用详情',
+            content: '/meterDetail/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -66,7 +65,8 @@
      * 查询处理
      */
     function queryDataHandler() {
-        _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '/meterDetail/listPage.action'});
+        let meterType = $('#metertype').val();
+        _grid.bootstrapTable('refreshOptions', {singleSelect:false, pageNumber: 1, url: '/meterDetail/listPage.action?meterType=' + meterType});
     }
 
     /**
@@ -89,9 +89,11 @@
      打开新增窗口
      */
     function openInsertHandler() {
+        let _formData = $('#saveForm').serializeObject();
+        let meterType = $('#metertype').val();
         dia = bs4pop.dialog({
             title: '费用新增',//对话框title
-            content: '${contextPath}/meterDetail/add.html?meterType=1', //对话框内容，可以是 string、element，$object
+            content: '${contextPath}/meterDetail/add.html?meterType=' + meterType, //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
             height: '95%',//高度
             isIframe: true,//默认是页面层，非iframe
@@ -140,12 +142,15 @@
                         bui.loading.show('努力提交中，请稍候。。。');
                         //获取选中行的数据
                         let rows = _grid.bootstrapTable('getSelections');
-                        let selectedRow = rows[0];
+                        let ids =[];
+                        rows.forEach(item =>{
+                            ids.push(item.id)
+                        })
 
                         $.ajax({
                             type: "POST",
                             url: "${contextPath}/meterDetail/submit.action",
-                            data: {id: selectedRow.id},
+                            data: {ids:ids.join()},
                             processData:true,
                             dataType: "json",
                             success : function(ret) {

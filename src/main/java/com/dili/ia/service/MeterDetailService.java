@@ -5,7 +5,6 @@ import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
-import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -87,7 +86,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/7/6
      */
-    BaseOutput<MeterDetail> submit(Long id, UserTicket userTicket);
+    BaseOutput<List<MeterDetail>> submit(List<Long> id, UserTicket userTicket);
 
     /**
      * 缴费回调
