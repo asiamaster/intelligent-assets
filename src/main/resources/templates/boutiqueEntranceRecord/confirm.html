@@ -7,39 +7,46 @@
 
             <div class="form-group col">
                 <label _log for="plate">挂号<i class="red">*</i></label>
-                <input type="text" class="form-control" id="plate" name="plate" value="${boutiqueEntranceRecord.plate!}" disabled />
+                <input type="text" class="form-control" id="plate" name="plate" value="${boutiqueEntranceRecord.plate!}" readonly />
             </div>
 
             <div class="form-group col">
                 <label for="carTypeId">车型</label>
-                <select id="carTypeId"  name="carTypeId" class="form-control" disabled ></select>
+                <select id="carTypeId"  name="carTypeId" class="form-control" readonly ></select>
                 <#bcomboProvider _log="车型" _id="carTypeId" _provider="carTypeProvider" _value="${boutiqueEntranceRecord.carTypeId!}"  />
             </div>
 
             <div class="form-group col">
                 <label _log for="customerName">客户姓名<i class="red">*</i></label>
-                <input type="text" class="form-control" id="customerName" name="customerName" value="${boutiqueEntranceRecord.customerName!}"  disabled  />
+                <input type="text" class="form-control" id="customerName" name="customerName" value="${boutiqueEntranceRecord.customerName!}"  readonly  />
             </div>
 
             <div class="form-group col">
                 <label _log  for="customerCellphone">联系电话<i class="red">*</i></label>
-                <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${boutiqueEntranceRecord.customerCellphone!}"  disabled  />
+                <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${boutiqueEntranceRecord.customerCellphone!}"  readonly  />
             </div>
 
             <div class="form-group col">
                 <label for="enterTime">进场时间<i class="red">*</i></label>
-                <input type="text" class="form-control" id="enterTime" name="enterTime"  value="${boutiqueEntranceRecord.enterTime!,localDateTimeFormat='yyyy-MM-dd HH:MM:SS'}" disabled />
+                <input type="text" class="form-control" id="enterTime" name="enterTime"  value="${boutiqueEntranceRecord.enterTime!,localDateTimeFormat='yyyy-MM-dd HH:MM:SS'}" readonly />
             </div>
 
             <div class="form-group col">
                 <label for="departmentId">接车部门</label>
-                <select id="departmentId"  name="departmentId" class="form-control" disabled ></select>
+                <select id="departmentId"  name="departmentId" class="form-control" readonly ></select>
                 <#bcomboProvider _log="接车部门" _id="departmentId" _provider="carDepartmentProvider" _value="${boutiqueEntranceRecord.departmentId!}" />
             </div>
 
             <div class="form-group col">
                 <label for="confirmTime">确认时间</label>
-                <input type="text" class="form-control" id="confirmTime" name="confirmTime" />
+                <input type="text" class="form-control laydatetime" id="confirmTime" name="confirmTime" value="${confirmTime!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
+            </div>
+
+            <input type="hidden" id="id" name="id" value="${boutiqueEntranceRecord.id!}">
+
+            <div class="text-right btn-r-b">
+                <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
+                <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doConfirmHandler,1000,true)()" id="formSubmit">保存</button>
             </div>
 
     </form>
@@ -48,5 +55,7 @@
 </#bs4Body>
 
 <#js_customerAutocompleteJs/>
+
+<#boutiqueEntranceRecord_preSaveJs />
 
 

@@ -73,4 +73,64 @@
         });
     }
 
+    function doConfirmHandler() {
+        let validator = $('#saveForm').validate({ignore:''})
+        if (!validator.form()) {
+            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+            $('.collapse:not(.show)').addClass('show');
+            return false;
+        }
+
+        bui.loading.show('努力提交中，请稍候。。。');
+        let _formData = $('#saveForm').serializeObject();
+        $.ajax({
+            type: "POST",
+            url: "${contextPath}/boutiqueEntranceRecord/confirm.action",
+            data: _formData,
+            dataType: "json",
+            success: function (ret) {
+                bui.loading.hide();
+                if(!ret.success){
+                    bs4pop.alert(ret.message, {type: 'error'});
+                }else{
+                    parent.dia.hide()
+                }
+            },
+            error: function (error) {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
+    function doSubmitHandler() {
+        let validator = $('#saveForm').validate({ignore:''})
+        if (!validator.form()) {
+            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+            $('.collapse:not(.show)').addClass('show');
+            return false;
+        }
+
+        bui.loading.show('努力提交中，请稍候。。。');
+        let _formData = $('#saveForm').serializeObject();
+        $.ajax({
+            type: "POST",
+            url: "${contextPath}/boutiqueEntranceRecord/submit.action",
+            data: _formData,
+            dataType: "json",
+            success: function (ret) {
+                bui.loading.hide();
+                if(!ret.success){
+                    bs4pop.alert(ret.message, {type: 'error'});
+                }else{
+                    parent.dia.hide()
+                }
+            },
+            error: function (error) {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
 </script>

@@ -143,12 +143,15 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         }
         recordInfo.setConfirmTime(boutiqueEntranceRecord.getConfirmTime());
         recordInfo.setState(BoutiqueStateEnum.COUNTING.getCode());
+        recordInfo.setModifyTime(LocalDateTime.now());
         if(userTicket != null){
             recordInfo.setOperatorId(userTicket.getId());
             recordInfo.setOperatorName(userTicket.getRealName());
         }
-        this.updateSelective(recordInfo);
-
+        if ( this.updateSelective(recordInfo) == 0) {
+            logger.info("精品停车确认计费失败，id:{}", recordInfo.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
         return BaseOutput.success().setData(recordInfo);
     }
 
@@ -176,7 +179,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             });
         }
 
-        String code = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.WATER_ELECTRICITY_CODE.getCode());
+        String code = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode());
 
         // 新增精品停车交费单
         feeOrder.setCode(code);
@@ -187,6 +190,8 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         feeOrder.setMarketCode(userTicket.getFirmCode());
         feeOrder.setOperatorName(userTicket.getRealName());
         feeOrder.setState(BoutiqueOrderStateEnum.SUBMIT.getCode());
+        // TODO 费用时间范围存为开始时间和结束时间
+
         boutiqueFeeOrderService.insertSelective(feeOrder);
 
         // 创建缴费单
@@ -272,6 +277,10 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         }
         recordInfo.setLeaveTime(LocalDateTime.now());
         recordInfo.setModifyTime(LocalDateTime.now());
+        if ( this.updateSelective(recordInfo) == 0) {
+            logger.info("精品停车离场失败，id:{}", recordInfo.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
 
         return BaseOutput.success().setData(recordInfo);
     }
@@ -299,7 +308,10 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         recordInfo.setOperatorName(userTicket.getRealName());
         recordInfo.setLeaveTime(LocalDateTime.now());
         recordInfo.setModifyTime(LocalDateTime.now());
-        this.updateSelective(recordInfo);
+        if ( this.updateSelective(recordInfo) == 0) {
+            logger.info("精品停车强制离场失败，id:{}", recordInfo.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
 
         // 修改交费单的状态
         this.invalidOrders(recordInfo, userTicket);
@@ -349,7 +361,17 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         feeOrderInfo.setState(BoutiqueOrderStateEnum.PAY.getCode());
         feeOrderInfo.setModifyTime(LocalDateTime.now());
         if (boutiqueFeeOrderService.updateSelective(feeOrderInfo) == 0) {
-            logger.info("缴费单成功回调 -- 更新【水电费单】状态,乐观锁生效！【水电费单Id:{}】", feeOrderInfo.getId());
+            logger.info("缴费单成功回调 -- 更新【精品停车交费单】状态,乐观锁生效！【交费单Id:{}】", feeOrderInfo.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
+        // 修改下次计费时间，叠加总计费
+        BoutiqueEntranceRecord recordInfo = this.get(feeOrderInfo.getRecordId());
+        recordInfo.setModifyTime(LocalDateTime.now());
+        recordInfo.setCountTime(feeOrderInfo.getEndTime());
+        recordInfo.setTotalAmount(recordInfo.getTotalAmount() + feeOrderInfo.getAmount());
+        if ( this.updateSelective(recordInfo) == 0) {
+            logger.info("缴费单成功回调 -- 更新【精品停车下次计费时间】状态,乐观锁生效！【精品停车Id:{}】", recordInfo.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 

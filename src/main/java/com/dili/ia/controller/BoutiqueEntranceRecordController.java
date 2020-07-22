@@ -113,14 +113,14 @@ public class BoutiqueEntranceRecordController {
      * @return 查看页面地址
      * @date   2020/7/13
      */
-    @RequestMapping(value="/pay.html", method = RequestMethod.GET)
+    @RequestMapping(value="/submit.html", method = RequestMethod.GET)
     public String pay(ModelMap modelMap, Long id) {
         BoutiqueEntranceRecordDto boutiqueEntranceRecordDto = null;
         if (id != null) {
             boutiqueEntranceRecordDto = boutiqueEntranceRecordService.getBoutiqueEntranceDtoById(id);
         }
         modelMap.put("boutiqueEntranceRecord", boutiqueEntranceRecordDto);
-        return "boutiqueEntranceRecord/pay";
+        return "boutiqueEntranceRecord/submit";
     }
 
     /**
