@@ -2,19 +2,11 @@ package com.dili.ia.controller;
 
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
 import com.dili.ia.domain.*;
-import com.dili.ia.domain.ApprovalProcess;
-import com.dili.ia.domain.Customer;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.service.*;
 import com.dili.ia.rpc.CustomerRpc;
-import com.dili.ia.service.ApprovalProcessService;
-import com.dili.ia.service.AssetsLeaseOrderItemService;
-import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -361,5 +353,31 @@ public class RefundOrderController {
 
         }
         return "refundOrder/updateView/refundApply";
+    }
+
+    /**
+     * 修改DepositOrder
+     * @param refundOrder
+     * @return BaseOutput
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput doUpdate(RefundOrder refundOrder) {
+        try{
+            BaseOutput<RefundOrder> output = refundOrderService.doUpdateDispatcher(refundOrder);
+            //写业务日志
+            if (output.isSuccess()){
+                RefundOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
+            }
+            return output;
+        }catch (BusinessException e){
+            LOG.error("退款单修改异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("退款单修改异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 }

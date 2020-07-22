@@ -374,6 +374,46 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         return BaseOutput.success("退款成功！").setData(refundOrder);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public BaseOutput<RefundOrder> doUpdateDispatcher(RefundOrder refundOrder) {
+        if (null == refundOrder || null == refundOrder.getId()){
+            return BaseOutput.failure("退款单修改，必要参数（ID）不能为空");
+        }
+//        //结算单code唯一
+//        condition.setCode(settleOrder.getOrderCode());
+//        RefundOrder refundOrder = this.listByExample(condition).stream().findFirst().orElse(null);
+//        if (RefundOrderStateEnum.REFUNDED.getCode().equals(refundOrder.getState())) { //如果已退款，直接返回
+//            return BaseOutput.success().setData(refundOrder);
+//        }
+//        if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
+//            LOG.info("退款单状态已变更！状态为：" + RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.getState()).getName() );
+//            return BaseOutput.failure("退款单状态已变更！");
+//        }
+//        refundOrder.setState(RefundOrderStateEnum.REFUNDED.getCode());
+//        refundOrder.setRefundTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
+//        refundOrder.setSettlementCode(settleOrder.getCode());
+//        refundOrder.setRefundOperatorId(settleOrder.getOperatorId());
+//        refundOrder.setRefundOperator(settleOrder.getOperatorName());
+//        refundOrder.setRefundType(settleOrder.getWay());
+        if (refundOrderService.updateSelective(refundOrder) == 0) {
+            LOG.info("退款成功后--回调更新退款单状态记录数为0，多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款单多人操作，请重试！");
+        }
+
+//        //获取业务service,调用业务实现
+//        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
+//        if(service!=null){
+//            BaseOutput refundResult = service.refundSuccessHandler(settleOrder, refundOrder);
+//            if (!refundResult.isSuccess()){
+//                LOG.info("退款成功后--回调业务返回失败！" + refundResult.getMessage());
+//                throw new BusinessException(ResultCode.DATA_ERROR, "退款成功回调业务返回失败！" + refundResult.getMessage());
+//            }
+//        }
+
+        return BaseOutput.success("退款成功！").setData(refundOrder);
+    }
+
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
         try {

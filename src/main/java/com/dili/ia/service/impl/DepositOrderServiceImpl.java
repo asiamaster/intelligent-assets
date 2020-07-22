@@ -211,9 +211,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput<DepositOrder> updateDepositOrder(DepositOrder depositOrder) {
-        if (depositOrder.getId() == null){
-            return BaseOutput.failure("Id不能为空！");
-        }
         DepositOrder oldDTO = this.get(depositOrder.getId());
         if (null == oldDTO || !oldDTO.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("修改失败，保证金单状态已变更！");
