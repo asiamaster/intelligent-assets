@@ -10,7 +10,7 @@ package com.dili.ia.provider;
  */
 
 import com.alibaba.fastjson.JSON;
-import com.dili.assets.sdk.dto.BoothDTO;
+import com.dili.assets.sdk.dto.AssetsDTO;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
@@ -35,9 +35,9 @@ public class BoothProvider implements ValueProvider {
 
     @Override
     public List<ValuePair<?>> getLookupList(Object val, Map metaMap, FieldMeta fieldMeta) {
-//        BoothDTO query = new BoothDTO();
+//        AssetsDTO query = new AssetsDTO();
 //        query.setName(val.toString());
-//        List<BoothDTO> boothList = assetsRpc.listPage(query).getData();
+//        List<AssetsDTO> boothList = assetsRpc.listPage(query).getData();
 //
 //        List<ValuePair<?>> buffer = new ArrayList<ValuePair<?>>();
 //        boothList.forEach(o->{

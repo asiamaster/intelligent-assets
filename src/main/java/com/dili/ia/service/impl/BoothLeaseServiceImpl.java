@@ -1,6 +1,6 @@
 package com.dili.ia.service.impl;
 
-import com.dili.assets.sdk.dto.BoothDTO;
+import com.dili.assets.sdk.dto.AssetsDTO;
 import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
@@ -33,11 +33,11 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
 
     @Override
     public void checkAssetState(Long assetsId) {
-        BaseOutput<BoothDTO> output = assetsRpc.getBoothById(assetsId);
+        BaseOutput<AssetsDTO> output = assetsRpc.getBoothById(assetsId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR,"摊位接口调用异常 "+output.getMessage());
         }
-        BoothDTO booth = output.getData();
+        AssetsDTO booth = output.getData();
         if(null == booth){
             throw new BusinessException(ResultCode.DATA_ERROR,"摊位不存在，请重新修改后保存");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){

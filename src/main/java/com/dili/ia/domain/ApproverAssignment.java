@@ -10,7 +10,7 @@ import javax.persistence.*;
 /**
  * 由MyBatis Generator工具自动生成
  * 任务人分配
- * This file was generated on 2020-07-13 14:42:58.
+ * This file was generated on 2020-07-22 11:16:04.
  */
 @Table(name = "`approver_assignment`")
 public class ApproverAssignment extends BaseDomain {
@@ -26,13 +26,19 @@ public class ApproverAssignment extends BaseDomain {
     private Long districtId;
 
     /**
-     * 审批用户id
+     * 办理用户id
      */
-    @Column(name = "`user_id`")
-    private Long userId;
+    @Column(name = "`assignee`")
+    private Long assignee;
 
     /**
-     * 流程定义Key
+     * 任务定义key
+     */
+    @Column(name = "`task_definition_key`")
+    private String taskDefinitionKey;
+
+    /**
+     * 流程定义key
      */
     @Column(name = "`process_definition_key`")
     private String processDefinitionKey;
@@ -48,12 +54,6 @@ public class ApproverAssignment extends BaseDomain {
      */
     @Column(name = "`create_time`")
     private Date createTime;
-
-    /**
-     * 任务定义key
-     */
-    @Column(name = "`task_definition_key`")
-    private String taskDefinitionKey;
 
     /**
      * @return id
@@ -92,40 +92,60 @@ public class ApproverAssignment extends BaseDomain {
     }
 
     /**
-     * 获取审批用户id
+     * 获取办理用户id
      *
-     * @return user_id - 审批用户id
+     * @return assignee - 办理用户id
      */
-    @FieldDef(label="审批用户id")
+    @FieldDef(label="办理用户id")
     @EditMode(editor = FieldEditor.Number, required = true)
-    public Long getUserId() {
-        return userId;
+    public Long getAssignee() {
+        return assignee;
     }
 
     /**
-     * 设置审批用户id
+     * 设置办理用户id
      *
-     * @param userId 审批用户id
+     * @param assignee 办理用户id
      */
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setAssignee(Long assignee) {
+        this.assignee = assignee;
     }
 
     /**
-     * 获取流程定义Key
+     * 获取任务定义key
      *
-     * @return process_definition_key - 流程定义Key
+     * @return task_definition_key - 任务定义key
      */
-    @FieldDef(label="流程定义Key")
+    @FieldDef(label="任务定义key", maxLength = 50)
+    @EditMode(editor = FieldEditor.Text, required = true)
+    public String getTaskDefinitionKey() {
+        return taskDefinitionKey;
+    }
+
+    /**
+     * 设置任务定义key
+     *
+     * @param taskDefinitionKey 任务定义key
+     */
+    public void setTaskDefinitionKey(String taskDefinitionKey) {
+        this.taskDefinitionKey = taskDefinitionKey;
+    }
+
+    /**
+     * 获取流程定义key
+     *
+     * @return process_definition_key - 流程定义key
+     */
+    @FieldDef(label="流程定义key", maxLength = 64)
     @EditMode(editor = FieldEditor.Text, required = true)
     public String getProcessDefinitionKey() {
         return processDefinitionKey;
     }
 
     /**
-     * 设置流程定义Key
+     * 设置流程定义key
      *
-     * @param processDefinitionKey 流程定义Key
+     * @param processDefinitionKey 流程定义key
      */
     public void setProcessDefinitionKey(String processDefinitionKey) {
         this.processDefinitionKey = processDefinitionKey;
@@ -169,19 +189,5 @@ public class ApproverAssignment extends BaseDomain {
      */
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
-    }
-
-    /**
-     * 任务定义key
-     * @return
-     */
-    @FieldDef(label="任务定义key")
-    @EditMode(editor = FieldEditor.Text, required = true)
-    public String getTaskDefinitionKey() {
-        return taskDefinitionKey;
-    }
-
-    public void setTaskDefinitionKey(String taskDefinitionKey) {
-        this.taskDefinitionKey = taskDefinitionKey;
     }
 }
