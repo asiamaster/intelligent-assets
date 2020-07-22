@@ -1,0 +1,132 @@
+<#bs4Body>
+<style>
+    .w-200px{width: 200px!important;}
+    .w-100px{width: 100px!important;}
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+                <div id="nav" style="padding-left:15px;padding-top:10px;padding-bottom: 10px;" align="left">
+                    <#nav/>
+                </div>
+            <form id="queryForm" role="form" class="form-inline" novalidate>
+                <div class="form-group mb-2 mr-5">
+                    <label for="taskDefinitionKey" class="justify-content-end mr-2 w-100px">任务定义key:</label>
+                    <input type="text" class="form-control" name="taskDefinitionKey" id="taskDefinitionKey"/>
+                </div>
+                <div class="form-group mb-2 mr-5">
+                    <label for="processDefinitionKey" class="justify-content-end mr-2 w-100px">流程定义key:</label>
+                    <input type="text" class="form-control" name="processDefinitionKey" id="processDefinitionKey"/>
+                </div>
+
+                <div class="btn-group mb-2">
+                    <button id="query" type="button" class="btn btn-success mr-1" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+                    <button id="clear" type="button" class="btn btn-danger" onclick="javascript:$('#queryForm')[0].reset();"><i class="fa fa-trash-o"></i> 清除</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+                <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
+                <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
+                <button id="btn_delete" type="button" class="btn btn-primary" onclick="doDeleteHandler()"><i class="fa fa-stop"></i> 删除</button>
+                <button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
+            </div>
+<!--            <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">-->
+<!--                <button id="btn_add" type="button" class="btn btn-outline-primary mr-1" onclick="openInsertHandler()" data-title="新增客户"><i class="fa fa-plus"></i> 新增</button>-->
+<!--                <button id="btn_edit" type="button" class="btn btn-outline-primary mr-1" onclick="openUpdate()"><i class="fa fa-pencil-square-o"></i> 修改</button>-->
+<!--                <button id="btn_user" type="button" class="btn btn-outline-primary mr-1"><i class="fa fa-user"></i> 客户</button>-->
+<!--                <button id="btn_enable" type="button" class="btn btn-outline-primary mr-1"><i class="fa fa-play"></i> 启用</button>-->
+<!--                <button id="btn_disabled" type="button" class="btn btn-outline-primary mr-1"><i class="fa fa-stop"></i> 禁用</button>-->
+<!--                <button id="export" type="button" class="btn btn-outline-primary mr-1" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>-->
+<!--            </div>-->
+            <table id="grid" data-toggle="table" data-title="任务办理人分配" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="10"
+                   data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                   data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true" data-detail-view="false">
+                <thead>
+                <tr>
+                    <th data-width-unit="%" data-width="2" data-radio="true"></th>
+                    <th data-width-unit="%" data-width="10" data-field="districtId" data-sortable="true" data-align="center">
+                        区域
+                    </th>
+                    <th data-width-unit="%" data-width="10" data-field="assignee" data-sortable="true" data-align="center">
+                        办理人
+                    </th>
+                    <th data-width-unit="%" data-width="10" data-field="taskDefinitionKey" data-sortable="true" data-align="center">
+                        任务定义key
+                    </th>
+                    <th data-width-unit="%" data-width="10" data-field="processDefinitionKey" data-sortable="true" data-align="center" >
+                        流程定义key
+                    </th>
+                    <th data-width-unit="%" data-width="15" data-field="createTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
+                        创建时间
+                    </th>
+                    <th data-width-unit="%" data-width="15" data-field="modifyTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
+                        修改时间
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="_modal" data-backdrop="static" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!--modal-lg modal-sm(默认) 通过设置mw大小调整宽度（如mw-100） modal-dialog-centered垂直居中-->
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="_form" method="post" class="form-horizontal" action="">
+                    <input name="_id" id="_id" type="hidden">
+                    <div class="form-group row">
+                        <label class="col-2 col-form-label text-right" for="_processDefinitionKey">流程定义key<i class="red">*</i></label>
+                        <div class="col-10">
+                            <input type="text" class="form-control" id="_processDefinitionKey" name="_processDefinitionKey" minlength="1" maxlength="64" placeholder="" required/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-2 col-form-label text-right" for="_taskDefinitionKey">任务定义key<i class="red">*</i></label>
+                        <div class="col-10">
+                            <input type="text" class="form-control" id="_taskDefinitionKey" name="_taskDefinitionKey" placeholder="" minlength="1" maxlength="64" required/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-2 col-form-label text-right" for="_districtId">区域*</label>
+                        <div class="col-10">
+                            <select id="_districtId" name="_districtId" class="form-control" required>
+                            </select>
+                            <#bselect2 _id="_districtId" _provider="districtProvider" _mode="remote"  />
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-2 col-form-label text-right" for="_assignee">办理人*</label>
+                        <div class="col-10">
+                            <select id="_assignee" name="_assignee" class="form-control" required>
+                            </select>
+                            <#bselect2 _id="_assignee" _provider="userProvider" _mode="remote"  />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="saveOrUpdateHandler()">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+</#bs4Body>
+<#approverAssignment_js />

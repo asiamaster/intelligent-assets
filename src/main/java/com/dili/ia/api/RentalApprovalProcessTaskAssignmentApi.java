@@ -147,7 +147,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return getExceptionHandlerAssignment();
         }
-        return getHandlerAssignment(approverAssignments.get(0).getUserId().toString());
+        return getHandlerAssignment(approverAssignments.get(0).getAssignee().toString());
     }
 
 }

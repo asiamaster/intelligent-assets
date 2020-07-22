@@ -1,6 +1,6 @@
 package com.dili.ia.service.impl;
 
-import com.dili.assets.sdk.dto.BoothDTO;
+import com.dili.assets.sdk.dto.AssetsDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
@@ -156,11 +156,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
      * @param boothId
      */
     private void checkBoothState(Long boothId){
-        BaseOutput<BoothDTO> output = assetsRpc.getBoothById(boothId);
+        BaseOutput<AssetsDTO> output = assetsRpc.getBoothById(boothId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位接口调用异常 "+output.getMessage());
         }
-        BoothDTO booth = output.getData();
+        AssetsDTO booth = output.getData();
         if(null == booth){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位不存在，请核实和修改后再保存");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
