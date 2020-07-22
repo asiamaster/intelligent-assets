@@ -5,10 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.StockIn;
+import com.dili.ia.domain.dto.AssetsDto;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
+import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.StockInService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -57,6 +59,9 @@ public class StockInController {
     
     @Autowired
     private BusinessLogRpc businessLogRpc;
+    
+    @Autowired
+    private AssetsRpc assetsRpc;
     
     /**
      * 跳转到StockIn页面
@@ -276,7 +281,6 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/getCost.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput getCost(@RequestBody StockInDetailDto stockInDetailDto) {	        //throw new BusinessException("2000", "errorCode");
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
@@ -286,6 +290,23 @@ public class StockInController {
 			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
 		}catch (Exception e) {
 			LOG.error("费用{}计算异常！",stockInDetailDto.getCode(), e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+    	return baseOutput;
+    }
+    
+    /**
+     * 获取冷库
+     * @param stockIn
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/getColdStorage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput getColdStorage(AssetsDto assetsDto) {	        
+    	BaseOutput baseOutput = BaseOutput.success();
+    	try {
+    		baseOutput.setData(assetsRpc.searchAssets(assetsDto).getData());
+    	}catch (Exception e) {
+			LOG.error("获取异常！", e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
 		}
     	return baseOutput;

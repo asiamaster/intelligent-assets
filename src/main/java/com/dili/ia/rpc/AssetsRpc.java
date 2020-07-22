@@ -5,6 +5,7 @@ import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.assets.sdk.dto.DistrictDTO;
+import com.dili.ia.domain.dto.AssetsDto;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -160,4 +161,9 @@ public interface AssetsRpc {
     @RequestMapping(value = "/api/boothRent/updateEnd", method = RequestMethod.POST)
     BaseOutput updateEndBoothRent(BoothRentDTO input);
 
+    /**
+     * 资产搜索
+     */
+    @RequestMapping(value = "/api/assets/search", method = RequestMethod.POST)
+    BaseOutput<List<AssetsDto>> searchAssets(AssetsDto input);
 }

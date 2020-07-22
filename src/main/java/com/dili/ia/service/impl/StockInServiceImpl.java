@@ -153,7 +153,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			item.setBusinessCode(businessCode);
 			item.setPaidAmount(0L);
 			item.setWaitAmount(item.getAmount());
+			item.setPaymentAmount(item.getAmount());
 			item.setCreateTime(LocalDateTime.now());
+			item.setVersion(0);
 		});
 		return businessChargeItems;
 	}

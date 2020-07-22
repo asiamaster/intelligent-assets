@@ -90,6 +90,7 @@
 <script id="weighmanUpdate" type="text/html">
 <form id="weighmanForm" role="form" novalidate>
 <input type="hidden" value = "{{weightDetail.id}}" name="id" />
+<input type="hidden" value = "{{weightDetail.version}}" name="version" />
 <div class="row">
 			<div class="form-group row col-8">
 				<div class="form-group col-12">
@@ -109,18 +110,18 @@
 				<div class="form-group col-5">
 					<label for="_certificateNumber">毛重时间：<i class="red">*</i></label>
 					<input id="grossWeightDate"  class="form-control "
-					 name="grossWeightDate" required readonly/>
+					 name="grossWeightDate" value="{{weightDetail.grossWeightDate}}" required readonly/>
 				</div>
 				<div class="form-group col-2">
 				 	<input type="radio" name="weighman" class="form-control " value="2">
 				</div>
 				<div class="form-group col-5">
 					<label for="tareWeight" class="">皮重(公斤)：<i class="red">*</i></label> <input id="tareWeight" type="number" class="form-control "
-					 name="tareWeight" range="0 9999999" required readonly />
+					 name="tareWeight" value="{{weightDetail.tareWeight}}" range="0 9999999" required readonly />
 				</div>
 				<div class="form-group col-5">
 					<label for="tareWeightDate" class="">皮重时间：<i class="red">*</i></label> <input id="tareWeightDate"  class="form-control "
-					 name="tareWeightDate" required readonly />
+					 name="tareWeightDate" value="{{weightDetail.tareWeightDate}}" required readonly />
 				</div>
 			</div>
 			<div class="form-group col-4" id = "weightPic">
@@ -225,7 +226,10 @@ function openWeightUpdateHandler(index,weightDetail) {
         	//通过map保存司磅记录,key为index,value为表单信息,方便前端页面组装数据
         	let ob = $("#weighmanForm").serializeObject();
         	weightItems.set(index+"",ob);
-        	weightItem.find("[name=weight]").val($("#grossWeight").val());
+        	if(ob.grossWeight != null && ob.tareWeight != null){
+        		weightItem.find("[name=weight]").val(ob.grossWeight-ob.tareWeight);
+        	}
+        	//weightItem.find("[name=weight]").val($("#grossWeight").val());
         	countNumber("weight");
             }
         }]
