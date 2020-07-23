@@ -42,17 +42,17 @@
 <!--                <button id="btn_disabled" type="button" class="btn btn-outline-primary mr-1"><i class="fa fa-stop"></i> 禁用</button>-->
 <!--                <button id="export" type="button" class="btn btn-outline-primary mr-1" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>-->
 <!--            </div>-->
-            <table id="grid" data-toggle="table" data-title="任务办理人分配" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="10"
+            <table id="grid" data-toggle="table" data-title="审批人分配" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="10"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
-                   data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="createTime" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true" data-detail-view="false">
                 <thead>
                 <tr>
                     <th data-width-unit="%" data-width="2" data-radio="true"></th>
-                    <th data-width-unit="%" data-width="10" data-field="districtId" data-sortable="true" data-align="center">
+                    <th data-width-unit="%" data-width="10" data-field="districtId" data-provider="districtProvider" data-sortable="true" data-align="center">
                         区域
                     </th>
-                    <th data-width-unit="%" data-width="10" data-field="assignee" data-sortable="true" data-align="center">
+                    <th data-width-unit="%" data-width="10" data-field="assignee" data-provider="userProvider" data-fk-field="assignee" data-sortable="true" data-align="center">
                         办理人
                     </th>
                     <th data-width-unit="%" data-width="10" data-field="taskDefinitionKey" data-sortable="true" data-align="center">
@@ -74,59 +74,47 @@
     </div>
 </div>
 
-<div class="modal fade" id="_modal" data-backdrop="static" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <!--modal-lg modal-sm(默认) 通过设置mw大小调整宽度（如mw-100） modal-dialog-centered垂直居中-->
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="_form" method="post" class="form-horizontal" action="">
-                    <input name="_id" id="_id" type="hidden">
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right" for="_processDefinitionKey">流程定义key<i class="red">*</i></label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" id="_processDefinitionKey" name="_processDefinitionKey" minlength="1" maxlength="64" placeholder="" required/>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right" for="_taskDefinitionKey">任务定义key<i class="red">*</i></label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" id="_taskDefinitionKey" name="_taskDefinitionKey" placeholder="" minlength="1" maxlength="64" required/>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right" for="_districtId">区域*</label>
-                        <div class="col-10">
-                            <select id="_districtId" name="_districtId" class="form-control" required>
-                            </select>
-                            <#bselect2 _id="_districtId" _provider="districtProvider" _mode="remote"  />
-
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label text-right" for="_assignee">办理人*</label>
-                        <div class="col-10">
-                            <select id="_assignee" name="_assignee" class="form-control" required>
-                            </select>
-                            <#bselect2 _id="_assignee" _provider="userProvider" _mode="remote"  />
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary" onclick="saveOrUpdateHandler()">提交</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-</div>
 
 </#bs4Body>
 <#approverAssignment_js />
+
+<!-- 编辑模板 -->
+<script id="editTpl" type="text/html">
+    <form id="_form" method="post" >
+        <input name="_id" id="_id" value="{{id}}" type="hidden">
+        <div class="form-group row">
+            <label class="col-2 col-form-label text-right" for="_processDefinitionKey">流程定义key<i class="red">*</i></label>
+            <div class="col-10">
+                <input type="text" class="form-control" id="_processDefinitionKey" value="{{processDefinitionKey}}" name="_processDefinitionKey" minlength="1" maxlength="64" placeholder="" required/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-2 col-form-label text-right" for="_taskDefinitionKey">任务定义key<i class="red">*</i></label>
+            <div class="col-10">
+                <input type="text" class="form-control" id="_taskDefinitionKey" name="_taskDefinitionKey" value="{{taskDefinitionKey}}"  placeholder="" minlength="1" maxlength="64" required/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-2 col-form-label text-right" for="_districtId">区域*</label>
+            <div class="col-10">
+                <select id="_districtId" name="_districtId" class="form-control" required>
+                    {{if districtId}}
+                    <option value="{{$_districtId}}" selected>{{districtId}}</option>
+                    {{/if}}
+                </select>
+                <#bselect2 _escape="true" _id="_districtId" _provider="districtProvider" _mode="remote"  />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-2 col-form-label text-right" for="_assignee">办理人*</label>
+            <div class="col-10">
+                <select id="_assignee" name="_assignee" class="form-control" required>
+                    {{if assignee}}
+                    <option value="{{$_assignee}}" selected>{{assignee}}</option>
+                    {{/if}}
+                </select>
+                <#bselect2 _escape="true" _id="_assignee" _provider="userProvider" _mode="remote"  />
+            </div>
+        </div>
+    </form>
+</script>

@@ -10,10 +10,6 @@
         //行索引计数器
         //如 let itemIndex = 0;
     let _grid = $('#grid');
-    let _form = $('#_form');
-    let _modal = $('#_modal');
-
-
 
     /*********************变量定义区 end***************/
 
@@ -32,11 +28,21 @@
      * 打开新增窗口
      */
     function openInsertHandler() {
-        _form[0].reset();
-        $("#_id").val("");
-
-        _modal.modal('show');
-        _modal.find('.modal-title').text('任务人分配');
+        bs4pop.dialog({
+            title: '审批人分配',
+            content: bui.util.HTMLDecode(template('editTpl',{})),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick(e) {
+                        saveOrUpdateHandler();
+                    }
+                },
+                {label: '取消', className: 'btn-default', onClick(e) {}}
+            ]
+        });
     }
 
     /**
@@ -52,22 +58,33 @@
             }
             row = rows[0];
         }
-        _modal.modal('show');
-        _modal.find('.modal-title').text('任务人分配');
-        let formData = $.extend({}, row);
-        formData = bui.util.addKeyStartWith(bui.util.getOriginalData(formData), "_");
-        bui.util.loadFormData(formData);
+        bs4pop.dialog({
+            title: '审批人分配',
+            content: bui.util.HTMLDecode(template('editTpl',row)),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick(e) {
+                        saveOrUpdateHandler();
+                    }
+                },
+                {label: '取消', className: 'btn-default', onClick(e) {}}
+            ]
+        });
+        bui.util.loadFormData();
     }
 
     /**
      *  保存及更新表单数据
      */
     function saveOrUpdateHandler() {
-        if (_form.validate().form() != true) {
+        if ($('#_form').validate().form() != true) {
             return;
         }
         bui.loading.show('努力提交中，请稍候。。。');
-        let _formData = bui.util.removeKeyStartWith(_form.serializeObject(true), "_");
+        let _formData = bui.util.removeKeyStartWith($('#_form').serializeObject(true), "_");
         let _url = null;
         //没有id就新增
         if (_formData.id == null || _formData.id == "") {
@@ -86,7 +103,6 @@
                 bui.loading.hide();
                 if (data.success) {
                     _grid.bootstrapTable('refresh');
-                    _modal.modal('hide');
                 } else {
                     bs4pop.alert(data.result, {type: 'error'});
                 }
@@ -127,7 +143,6 @@
                         bui.loading.hide();
                         if(data.success){
                             _grid.bootstrapTable('refresh');
-                            _modal.modal('hide');
                         }else{
                             bs4pop.alert(data.result, {type: 'error'});
                         }
@@ -166,14 +181,6 @@
     /*****************************************函数区 end**************************************/
 
     /*****************************************自定义事件区 begin************************************/
-    //表单弹框关闭事件
-    _modal.on('hidden.bs.modal', function () {
-        _form[0].reset();
-        //重置表单验证到初始状态
-        $(this).find('input,select,textarea').removeClass('is-invalid is-valid');
-        $(this).find('input,select,textarea').removeAttr('disabled readonly');
-        $(this).find('.invalid-feedback').css('display','none');
-    });
 
     _grid.on('dbl-click-cell.bs.table', function ($element, field, value, row) {
         openUpdateHandler(row);
