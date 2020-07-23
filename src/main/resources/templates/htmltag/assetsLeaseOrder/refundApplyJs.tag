@@ -210,7 +210,7 @@
     /*****************************************自定义事件区 begin************************************/
     //摊位新增事件
     $('#addTransfer').on('click', function(){
-        addTransferItem({index: ++itemIndex});
+        addTransferItem();
     });
 
     //摊位删除事件

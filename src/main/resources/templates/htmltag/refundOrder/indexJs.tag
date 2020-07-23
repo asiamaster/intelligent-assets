@@ -331,6 +331,7 @@
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
         }
+        $('#btn_submit').attr('disabled', false);
     });
 </script>
 
