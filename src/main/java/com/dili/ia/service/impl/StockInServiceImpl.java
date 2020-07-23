@@ -388,7 +388,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		// 结算单信息
 		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()
 				&& stockIn.getState() != StockInStateEnum.CANCELLED.getCode()) {
-			stockInDto.setSettleOrder(settlementRpcResolver.get(settlementAppId, stockIn.getPaymentOrderCode()));
+			stockInDto.setSettleOrder(settlementRpcResolver.get(settlementAppId, stockIn.getCode()));
 		}
 		BusinessChargeItem condtion = new BusinessChargeItem();
 		condtion.setBusinessCode(stockInDto.getCode());
@@ -454,11 +454,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				throw new BusinessException(ResultCode.DATA_ERROR, "库存件数小于作废件数,退款失败");
 			}
 		}
-
-		RefundOrder refundOrder = buildRefundOrderDto(userTicket, stockInRefundDto, stockIn);
-		//BaseOutput out = refundOrderService.doSubmitDispatcher(refundOrder);
-		//SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, stockIn, refundOrder.getCode(), refundOrder.getPayeeAmount());
-		//settlementRpcResolver.submit(settleOrderDto);
+		// 获取结算单
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, stockIn.getCode());
+		RefundOrder refundOrder = buildRefundOrderDto(userTicket, stockInRefundDto, stockIn,order);
 		refundOrderService.doSubmitDispatcher(refundOrder);
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
@@ -469,16 +467,14 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 		String code = refundOrder.getBusinessCode();
 		StockIn stockIn = getStockInByCode(code);
-		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
+		if(stockIn.getState() != StockInStateEnum.SUBMITTED_REFUND.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		StockIn domain = new StockIn(settleOrder.getOperatorId(), settleOrder.getOperatorName());
-		//domain.setWithdrawOperator(userTicket.getRealName());
-		//domain.setWithdrawOperatorId(userTicket.getId());
-		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.CANCELLED);
+		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.REFUNDED);
 		List<StockInDetail> details = getStockInDetailsByStockCode(code);
 		details.forEach(detail -> {
-			stockService.stockDeduction(detail, stockIn.getCustomerId(), "退款businessCode");
+			stockService.stockDeduction(detail, stockIn.getCustomerId(), refundOrder.getCode());
 		});
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
 
@@ -514,7 +510,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		return settleOrderInfoDto;
 	}
 	
-	private RefundOrder buildRefundOrderDto(UserTicket userTicket, StockInRefundDto stockInRefundDto, StockIn stockIn) {
+	private RefundOrder buildRefundOrderDto(UserTicket userTicket, StockInRefundDto stockInRefundDto, StockIn stockIn,SettleOrder order) {
 		//退款单
 		RefundOrder refundOrder = new RefundOrder();
 		refundOrder.setBusinessCode(stockIn.getCode());
@@ -527,6 +523,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		refundOrder.setPayeeAmount(stockInRefundDto.getAmount());
 		refundOrder.setRefundReason(stockInRefundDto.getNotes());
 		refundOrder.setBizType(BizTypeEnum.STOCKIN.getCode());
+		refundOrder.setPayeeId(order.getCustomerId());
+		refundOrder.setRefundType(order.getWay());
 		refundOrder.setCode(UidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
 			LOG.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());

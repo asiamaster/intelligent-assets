@@ -4,31 +4,34 @@
 	type="text/css">
 <div class="main-container container-fluid">
 	<#bs4nav>
-	<form id="queryForm" role="form" >
-	<div class="row row-cols-4" >
-		<input type="hidden" id="parent" name="parent" value = "1"/>
-		<div class="form-group col">
-			<label for="category_status">状态</label> <select id="category_status"
-				class="form-control input-sm" name="state">
-				<option value="">-- 全部 --</option>
-				<option value="1">已启用</option>
-				<option value="2">已禁用</option>
-			</select>
+	<form id="queryForm" role="form">
+		<div class="row row-cols-4">
+			<input type="hidden" id="parent" name="parent" value="0" />
+			<div class="form-group col">
+				<label for="category_status">状态</label> <select id="category_status"
+					class="form-control input-sm" name="state">
+					<option value="">-- 全部 --</option>
+					<option value="1">已启用</option>
+					<option value="2">已禁用</option>
+				</select>
+			</div>
+			<div class="form-group col">
+				<label for="category_text">品类名称/品类代码</label> <input id="keyword"
+					name="keyword" type="text"
+					class="form-control input-sm input-control len224"
+					placeholder="品类名称/品类代码">
+			</div>
+			<div class="col align-self-center mt-3">
+				<button id="query" type="button" class="btn btn-outline-primary"
+					onclick="queryDataHandler()">
+					<i class="fa fa-search"></i> 查询
+				</button>
+				<button type="button" class="btn btn-outline-primary mr-2"
+					onclick="javascript:$('#queryForm .form-control').val('');">
+					<i class="fa fa-refresh"></i> 清空
+				</button>
+			</div>
 		</div>
-		<div class="form-group col">
-			<label for="category_text">品类名称/品类代码</label> <input
-				id="keyword" name="keyword" type="text"
-				class="form-control input-sm input-control len224"
-				placeholder="品类名称/品类代码">
-		</div>
-		<div class="col align-self-center mt-3">
-			<button id="query" type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
-			<button type="button" class="btn btn-outline-primary mr-2"
-				onclick="javascript:$('#queryForm .form-control').val('');">
-				<i class="fa fa-refresh"></i> 清空
-			</button>
-		</div>
-	</div>
 	</form>
 	</#bs4nav>
 
@@ -46,7 +49,7 @@
 
 					<button type="button" class="btn btn-primary btn-update"
 						onclick="tableUpdateClickHandler()">
-						<i class="fa fa-pencil-square-o"></i> 修改
+						<i class="fa fa-pencil-square-o"></i> 设置
 					</button>
 					<button type="button" class="btn btn-primary btn-on"
 						onclick="tableFreezeClickHandler(1)">
@@ -85,7 +88,8 @@
 							<th data-field="cycle" data-sortable="true"
 								data-sort-name="category_name" data-align="center">存储周期</th>
 							<th data-field="cycleState" data-sortable="true"
-								data-sort-name="quantity" data-formatter="cardNoFormatter" data-align="center">状态</th>
+								data-sort-name="cycleState" data-formatter="stateFormatter"
+								data-align="center">状态</th>
 						</tr>
 					</thead>
 				</table>
@@ -123,6 +127,10 @@ $(function () {
 	queryDataHandler(0);
 });
 
+function stateFormatter(value, row, index){
+	return value == 1?'启用':'禁用';
+}
+
 function queryDataHandler(parent) {
 	//let formData = $('#queryForm').serializeObject();
 	_grid.bootstrapTable('refreshOptions',{	
@@ -147,9 +155,7 @@ function queryParams(params) {
 	return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
 }
 
-function cardNoFormatter(value) {
-    return value==1?'启用':'禁用';
-}
+
 
     jQuery(function ($) {
         loadTree();
@@ -193,60 +199,14 @@ function cardNoFormatter(value) {
         });
     }
 
-    function addTreeNode(tid, node, isSilent) {
-        var treeObj = $.fn.zTree.getZTreeObj("treeView1");
-        if (treeObj) {
-            var parentNode = treeObj.getNodeByParam("id", tid);
-            treeObj.addNodes(parentNode, node, isSilent);
-        }
-    }
-
-    function updateTreeNode(data) {
-        var treeObj = $.fn.zTree.getZTreeObj("treeView1");
-        if (treeObj) {
-            var node = treeObj.getNodeByParam("id", data.id);
-            node.name = data.name;
-            treeObj.updateNode(node);
-        }
-    }
-
-    function removeTreeNode(tid) {
-        var treeObj = $.fn.zTree.getZTreeObj("treeView1");
-        if (treeObj) {
-            var parentNode = treeObj.getNodeByParam("id", tid);
-            treeObj.removeNode(parentNode, false);
-        }
-    }
-
-    var tableurl;
-    var status;
-    var text;
-    var isQuery = true;
-
-    function loadTable() {
-        if (isQuery) {
-            loadTree();
-            if (status) {
-                $("#category_status option[value=" + status + "]")[0].selected = "selected";
-            }
-            $("#category_text").val(text);
-        }
-        if (tableurl) {
-            $("#tablelist").load(tableurl);
-        }
-    }
-
     //树单击事件 加载列表
     function treeClickHandler(e, treeId, treeNode) {
         var path = treeNode.path;
         var pid = treeNode.id;
         var arr = path.split(",");
-
         $("#parentId").val(pid);
-
         $("#category_status option[value='']")[0].selected = "selected";
         $("#category_text").val("");
-
         $("#parent").val(pid);
         queryDataHandler(pid);
     }
@@ -255,16 +215,7 @@ function cardNoFormatter(value) {
         bs4pop.alert(msg, {type: 'success'});
     }
 
-    function queryClickHandler() {
-        status = $("#category_status").val();
-        text = $("#category_text").val();
-        $("#parentId").attr("value", "");
-        tableurl = '/stock/categoryCycle/table.html' + '?state=' + status + '&keyword=' + text;
-        isQuery = true;
-        loadTable();
-        loadTree();
-    }
-
+ 
     function tableUpdateClickHandler() {
     	let selectedRow = _grid.bootstrapTable('getSelections')[0];
     	if (null == selectedRow || selectedRow.length == 0) {
@@ -302,6 +253,7 @@ function cardNoFormatter(value) {
     							});
     						} else {
     							bs4pop.alert(ret.message, {type: 'success'});
+    	    			        queryDataHandler($("#parentId").val());
     						}
     					},
     					error: function(error) {
@@ -350,8 +302,9 @@ function cardNoFormatter(value) {
     						tips("提示", data.message);
     						return;
     					}
-    					loadTable();
+    					//loadTable();
     					tips("提示", action+"品类成功!");
+    			        queryDataHandler($("#parentId").val());
     				},
     				error: function() {
     					tips("提示", action+"品类失败!");

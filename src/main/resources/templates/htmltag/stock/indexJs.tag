@@ -370,7 +370,6 @@ _grid.on('check.bs.table', function (e, row, $element) {
         $('.btn_refund').attr('disabled', false);
     }  else if (state == ${@com.dili.ia.glossary.StockInStateEnum.SUBMITTED_REFUND.getCode()}) {
         $('#toolbar button').attr('disabled', true);
-        $('.btn_withdraw').attr('disabled', false);
     }else if (state == ${@com.dili.ia.glossary.StockInStateEnum.REFUNDED.getCode()}) {
         $('#toolbar button').attr('disabled', true);
     }

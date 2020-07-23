@@ -27,6 +27,11 @@ public class StockInRefundDto {
 	 * 退款金额
 	 */
 	private Long amount;
+	
+	/**
+	 * 收款人id
+	 */
+	private Long payeeId;
 
 	public String getCode() {
 		return code;
@@ -50,6 +55,14 @@ public class StockInRefundDto {
 
 	public void setAmount(Long amount) {
 		this.amount = amount;
+	}
+
+	public Long getPayeeId() {
+		return payeeId;
+	}
+
+	public void setPayeeId(Long payeeId) {
+		this.payeeId = payeeId;
 	}
 	
 	

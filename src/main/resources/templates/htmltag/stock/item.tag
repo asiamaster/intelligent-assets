@@ -115,7 +115,7 @@
 					<div class="form-group col-4">
 						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
 						 name="weight" value="{{stockDetail.weight}}" range="0 9999999" required readonly/>
-						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}},{{stockDetail.stockWeighmanRecord}})">连接地磅</button>
+						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
@@ -294,38 +294,20 @@ laydate.render({
 	theme: '#007bff',
 	trigger: 'click',
 	done: function(value, date){
-		 //监听日期被切换
-		console.log(value);
-		getCycle(value)
+		//监听日期被切换
+		let days = $("#cycle").val();
+		getCycle(value,days)
 	}
 });
 
-//冷库区域变更  对应子单的冷库更新
-$(document).on('change', '.categoryId', function() {
-	let stockInDate = $("#stockInDate").val();
-	getCycle(stockInDate)
-});
-
-function getCycle(stockInDate){
-	//监听日期被切换
-	let categoryId = $('#categoryId').val();
-	if(stockInDate!=null && categoryId!=null){
-		$.ajax({
-			type: "POST",
-			url: "/stock/categoryCycle/getCycle.action?categoryId="+categoryId+"&stockInDate="+stockInDate,
-			data: {categoryId: categoryId,
-				stockInDate:stockInDate
-			},
-			success: function (data) {
-				if (data.code == "200") {
-					console.log(data)
-					$("#expireDate").val(data.data);
-				}
-			}
-		});
+function getCycle(stockInDate,days){
+	if(!strIsNotEmpty(stockInDate)|| !strIsNotEmpty(days)){
+		return;
 	}
-
+	$("#expireDate").val(moment(stockInDate).add(days-1,"days").format("YYYY-MM-DD"))
 }
-
+function strIsNotEmpty(str){
+	return str!=null&&str!=""&&str!=undefined
+}
 </script>
 

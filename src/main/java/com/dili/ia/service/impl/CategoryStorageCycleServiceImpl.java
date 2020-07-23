@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.ia.domain.CategoryStorageCycle;
 import com.dili.ia.domain.dto.CategoryStorageCycleDto;
 import com.dili.ia.mapper.CategoryStorageCycleMapper;
@@ -12,6 +13,7 @@ import com.dili.ia.service.CategoryStorageCycleService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.beetl.format.LocalDateFormat;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -60,6 +62,8 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
     		CategoryDTO input = new CategoryDTO();
         	input.setMarketId(userTicket.getFirmId());
         	input.setParent(dto.getId());
+        	//input.setPath(dto.getPath());
+        	//input.setState(1);
         	List<CategoryDTO> list = assetsRpc.list(input).getData();
         	list.forEach(item -> {
         		CategoryStorageCycle child = new CategoryStorageCycle(userTicket);
@@ -81,7 +85,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
     		getActualDao().insertOrUpdate(map);
     	}
 	}
-
+	
 	@Override
 	public Page<JSONObject> list(CategoryDTO input) {
         List<CategoryDTO> results = new ArrayList<>();
@@ -98,11 +102,16 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
         results.addAll(list);
         //获取品类id
         List<Long> ids = new ArrayList<>();
+        Map<Long, CategoryDTO> mapCategory = new HashMap<>();
         results.stream().forEach(item -> {
         	ids.add(item.getId());
+        	mapCategory.put(item.getId(), item);
         });
         //根据品类id获取存储周期
-        List<CategoryStorageCycle> categoryStorageCycles = getActualDao().selectCycleByIds(ids);
+        Map<String, Object> queryMap = new HashMap();
+        queryMap.put("ids", ids);
+        queryMap.put("state", input.getState());
+        List<CategoryStorageCycle> categoryStorageCycles = getActualDao().selectCycleByIds(queryMap);
         Map<Long, CategoryStorageCycle> map = new HashMap<>();
         categoryStorageCycles.forEach(item ->{
         	map.put(item.getId(), item);
@@ -111,20 +120,36 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
         //组装基础信息和存储周期
         Page<JSONObject> resultPage = new Page<>();
         resultPage.setTotal(list.size());
-        Integer page = input.getPage();;
-        Integer row = input.getRows();;
+        Integer page = input.getPage();
+        Integer row = input.getRows();
         List<JSONObject> array = new ArrayList<>();
-        CollectionUtil.sub(results, (page-1)*row, page*row).stream().forEach(item -> {
-        	JSONObject obj = (JSONObject) JSON.toJSON(item);
-        	CategoryStorageCycle category = map.get(item.getId());
-        	if(category != null) {
-        		obj.put("cycle", category.getCycle());
-            	obj.put("notes", category.getNotes());
-            	obj.put("moduleLabel", category.getModuleLabel());
-            	obj.put("cycleState", category.getState());
-        	}
-        	array.add(obj);
-        });
+        if(input.getState() != null) {
+        	CollectionUtil.sub(categoryStorageCycles, (page-1)*row, page*row).stream().forEach(item -> {
+            	JSONObject obj = (JSONObject) JSON.toJSON(item);
+            	CategoryDTO category = mapCategory.get(item.getId());
+            	if(category != null) {
+            		obj.put("name", category.getName());
+                	obj.put("pingying", category.getPingying());
+                	obj.put("pyInitials", category.getPyInitials());
+                	obj.put("parent", category.getParent());
+                	obj.put("cycleState", item.getState());
+            	}
+            	array.add(obj);
+            });
+        }else {
+        	CollectionUtil.sub(results, (page-1)*row, page*row).stream().forEach(item -> {
+            	JSONObject obj = (JSONObject) JSON.toJSON(item);
+            	CategoryStorageCycle category = map.get(item.getId());
+            	if(category != null) {
+            		obj.put("cycle", category.getCycle());
+                	obj.put("notes", category.getNotes());
+                	obj.put("moduleLabel", category.getModuleLabel());
+                	obj.put("cycleState", category.getState());
+            	}
+            	array.add(obj);
+            });
+        }
+        
         resultPage.addAll(array);
 		return resultPage;
     }
@@ -141,5 +166,42 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
 		//TODO 未获取到商品周期,是否采用默认周期??
 		date = stockInDate.plusDays(7);
 		return date;
+	}
+
+	@Override
+	public List<JSONObject> searchCategory(String keyword) {
+		CategoryDTO categoryDTO = new CategoryDTO();
+        categoryDTO.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
+        categoryDTO.setState(EnabledStateEnum.ENABLED.getCode());
+        if (null == keyword) {
+            categoryDTO.setParent(0L);
+        } else {
+            categoryDTO.setKeyword(keyword);
+        }
+        //根据关键词查询品类
+        List<CategoryDTO> list = assetsRpc.list(categoryDTO).getData();
+        List<Long> ids = new ArrayList<>();
+        Map<Long, CategoryDTO> mapCategory = new HashMap<>();
+        list.stream().forEach(item -> {
+        	ids.add(item.getId());
+        	mapCategory.put(item.getId(), item);
+        });
+        //根据品类id获取存储周期
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("ids", ids);
+        queryMap.put("state", 1);
+        List<CategoryStorageCycle> categoryStorageCycles = getActualDao().selectCycleByIds(queryMap);
+        List<JSONObject> result = new ArrayList<JSONObject>();
+        if(CollectionUtil.isNotEmpty(categoryStorageCycles)) {
+        	categoryStorageCycles.stream().forEach(item -> {
+        		JSONObject obj = (JSONObject) JSON.toJSON(item);
+            	CategoryDTO category = mapCategory.get(item.getId());
+            	if(category != null) {
+            		obj.put("name", category.getName());
+            		result.add(obj);
+            	}
+        	});
+        }
+		return result;
 	}
 }
