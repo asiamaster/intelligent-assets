@@ -15,7 +15,8 @@ public enum BizTypeEnum {
     STOCKIN("8", "冷库入库"),
     UTTLITIES("5", "水电费"),
     BOUTIQUE_ENTRANCE("6", "精品停车费"),
-    STOCKOUT("9", "冷库出库")
+    STOCKOUT("9", "冷库出库"),
+    OTHER_FEE("10", "其它收费"),
     ;
 
     private String name;
