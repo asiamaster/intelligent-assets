@@ -1,9 +1,9 @@
 package com.dili.ia.api;
 
 import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.glossary.AssetsTypeEnum;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleOrder;

@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.AssetsDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
@@ -9,7 +10,6 @@ import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;

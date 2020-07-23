@@ -1,7 +1,7 @@
 package com.dili.ia.provider;
 
 import com.dili.assets.sdk.dto.DistrictDTO;
-import com.dili.ia.rpc.AssetsRpc;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;

@@ -2,12 +2,12 @@ package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.AssetsDTO;
 import com.dili.assets.sdk.dto.BoothRentDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.glossary.AssetsTypeEnum;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.AssetsLeaseService;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
