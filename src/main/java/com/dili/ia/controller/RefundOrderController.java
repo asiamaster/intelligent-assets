@@ -349,8 +349,9 @@ public class RefundOrderController {
                 return "refundOrder/updateView/refundApply";
             } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
                 return "refundOrder/updateView/refundApply";
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+                return "forward:/assetsLeaseOrder/refundApply.html?refundOrderId=" + id + "&leaseOrderItemId=" + refundOrder.getBusinessItemId();
             }
-
         }
         return "refundOrder/updateView/refundApply";
     }

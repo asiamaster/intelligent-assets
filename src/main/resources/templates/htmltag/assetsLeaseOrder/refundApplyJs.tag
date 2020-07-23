@@ -39,7 +39,7 @@
         var customerNameTableAutoCompleteOption = $.extend({},customerNameAutoCompleteOption,{
             selectFn: function (suggestion,element) {
                 let index = getIndex($(element).attr('id'));
-                $('#certificateNumber_'+index).val(suggestion.certificateNumber);
+                $('#payeeCertificateNumber_'+index).val(suggestion.certificateNumber);
             }
         });
 
@@ -48,9 +48,14 @@
 
     /******************************驱动执行区 begin***************************/
     $(function () {
-        while ( itemIndex < 1){
-            addTransferItem();
-        }
+        <% if(isNotEmpty(transferDeductionItems)){ %>
+            itemIndex += ${transferDeductionItems.~size};
+        <% }else{%>
+            while ( itemIndex < 1){
+                addTransferItem();
+            }
+        <% }%>
+
     });
     /******************************驱动执行区 end****************************/
 
@@ -101,7 +106,7 @@
                     return false;
                 }
                 let fieldName = $(this).attr("name").split('_')[0];
-                transferDeductionItem[fieldName] = Number($(this).val()).mul(100);
+                transferDeductionItem[fieldName] =  $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
             });
             if (Object.keys(transferDeductionItem).length > 0) {
                 transferDeductionItems.push(transferDeductionItem);
@@ -180,7 +185,7 @@
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
-            url: "/assetsLeaseOrder/createRefundOrder.action",
+            url: "/assetsLeaseOrder/createOrUpdateRefundOrder.action",
             data: JSON.stringify(buildFormData()),
             dataType: "json",
             contentType: "application/json; charset=utf-8",

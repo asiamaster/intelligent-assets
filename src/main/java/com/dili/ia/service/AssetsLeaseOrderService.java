@@ -89,7 +89,7 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
      * @param refundOrderDto
      * @return
      */
-    BaseOutput createRefundOrder(LeaseRefundOrderDto refundOrderDto);
+    BaseOutput createOrUpdateRefundOrder(LeaseRefundOrderDto refundOrderDto);
 
     /**
      * 取消退款单回调处理

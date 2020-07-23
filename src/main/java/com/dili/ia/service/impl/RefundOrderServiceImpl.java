@@ -397,6 +397,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款单修改回调业务返回失败！" + refundResult.getMessage());
             }
         }
+        refundOrder.setVersion(oldOrder.getVersion());
         if (refundOrderService.updateSelective(refundOrder) == 0) {
             LOG.info("退款单修改--更新退款单状态记录数为0，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "退款单多人操作，请重试！");

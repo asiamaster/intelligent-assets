@@ -882,7 +882,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
     @Override
     @Transactional
-    public BaseOutput createRefundOrder(LeaseRefundOrderDto refundOrderDto) {
+    public BaseOutput createOrUpdateRefundOrder(LeaseRefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
@@ -899,24 +899,42 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        //同步更新主单退款状态为【退款中】
-        AssetsLeaseOrder leaseOrder = get(leaseOrderItem.getLeaseOrderId());
-        leaseOrder.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
-        if (updateSelective(leaseOrder) == 0) {
-            LOG.info("摊位租赁单退款状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
-        }
+        //新增
+        if(null == refundOrderDto.getId()){
+            //同步更新主单退款状态为【退款中】
+            AssetsLeaseOrder leaseOrder = get(leaseOrderItem.getLeaseOrderId());
+            leaseOrder.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
+            if (updateSelective(leaseOrder) == 0) {
+                LOG.info("摊位租赁单退款状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
+            }
 
-        refundOrderDto.setBizType(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItem.getAssetsType()).getBizType());
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode());
-        if (!bizNumberOutput.isSuccess()) {
-            LOG.info("租赁单【编号：{}】退款单编号生成异常", refundOrderDto.getBusinessCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
-        }
-        refundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
-        if (!refundOrderService.doAddHandler(refundOrderDto).isSuccess()) {
-            LOG.info("租赁单【编号：{}】退款申请接口异常", refundOrderDto.getBusinessCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+            refundOrderDto.setBizType(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItem.getAssetsType()).getBizType());
+            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode());
+            if (!bizNumberOutput.isSuccess()) {
+                LOG.info("租赁单【编号：{}】退款单编号生成异常", refundOrderDto.getBusinessCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+            }
+            refundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+            if (!refundOrderService.doAddHandler(refundOrderDto).isSuccess()) {
+                LOG.info("租赁单【编号：{}】退款申请接口异常", refundOrderDto.getBusinessCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+            }
+
+        }else{ //修改
+            if (!refundOrderService.doUpdateDispatcher(refundOrderDto).isSuccess()) {
+                LOG.info("租赁单【编号：{}】退款修改接口异常", refundOrderDto.getBusinessCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
+            }
+            //删除退款费用项的数据
+            RefundFeeItem refundFeeItemCondtion = new RefundFeeItem();
+            refundFeeItemCondtion.setRefundOrderId(refundOrderDto.getId());
+            refundFeeItemService.deleteByExample(refundFeeItemCondtion);
+
+            //删除转抵扣项的数据
+            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+            transferDeductionItemCondition.setRefundOrderId(refundOrderDto.getId());
+            transferDeductionItemService.deleteByExample(transferDeductionItemCondition);
         }
 
         //退款费用项设置
@@ -1249,7 +1267,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
         }
 
-        if (!LeaseRefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrderItem.getRefundState())) {
+        if (LeaseRefundStateEnum.REFUNDED.getCode().equals(leaseOrderItem.getRefundState())
+                || (null == refundOrderDto.getId() && LeaseRefundStateEnum.REFUNDING.getCode().equals(leaseOrderItem.getRefundState()))) {
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位项状态已发生变更，不能发起退款申请");
         }
 

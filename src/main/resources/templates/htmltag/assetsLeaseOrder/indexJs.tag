@@ -432,7 +432,7 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-        let url = '/assetsLeaseOrder/refundApply.html?id=' + rows[0].id;
+        let url = '/assetsLeaseOrder/refundApply.html?leaseOrderItemId=' + rows[0].id;
         dia = bs4pop.dialog({
             title: '退款申请',
             content: url,
@@ -665,6 +665,7 @@
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
         }
+        $('#btn_submit').attr('disabled', false);
     });
     /*****************************************自定义事件区 end**************************************/
 </script>

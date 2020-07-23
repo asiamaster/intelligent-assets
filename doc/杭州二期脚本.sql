@@ -5,6 +5,11 @@ ALTER TABLE `dili-assets`.`assets_lease_order_item`
 ADD COLUMN `exit_time` datetime(0) NULL COMMENT '退场时间' AFTER `refund_state`;
 update assets_lease_order_item set total_amount = rent_amount + manage_amount;
 
+ALTER TABLE `dili-assets`.`refund_order`
+ADD COLUMN `payee_certificate_number` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收款人证件号' AFTER `payee`;
+ALTER TABLE `dili-assets`.`transfer_deduction_item`
+ADD COLUMN `payee_certificate_number` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收款人证件号' AFTER `payee`;
+
 --租赁单和退款单新增流程实例和定义id
 ALTER TABLE `assets_lease_order`
 	ADD COLUMN `process_instance_id` VARCHAR(64) NULL DEFAULT NULL COMMENT '流程实例id' AFTER `version`,
