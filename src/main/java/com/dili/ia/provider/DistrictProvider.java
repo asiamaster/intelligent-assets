@@ -32,7 +32,7 @@ public class DistrictProvider implements ValueProvider {
             return buffer;
         }
         DistrictDTO districtDTO= new DistrictDTO();
-        districtDTO.setName(val.toString());
+        districtDTO.setNameLike(val.toString());
         BaseOutput<List<DistrictDTO>> listBaseOutput = assetsRpc.searchDistrict(districtDTO);
         if(!listBaseOutput.isSuccess()){
             return buffer;
