@@ -48,4 +48,14 @@ public interface CategoryStorageCycleService extends BaseService<CategoryStorage
 	 * @throws
 	 */
 	LocalDate getCategoryStorageCycle(LocalDate stockInDate,Long categoryId);
+	
+	/**
+	 * 
+	 * @Title searchCategory
+	 * @Description 关键字获取存储品类
+	 * @param keyword
+	 * @return
+	 * @throws
+	 */
+	List<JSONObject> searchCategory(String keyword);
 }

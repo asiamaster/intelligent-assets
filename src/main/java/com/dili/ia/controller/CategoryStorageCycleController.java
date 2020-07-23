@@ -120,13 +120,12 @@ public class CategoryStorageCycleController {
     }
     
     /**
-     * 获取品类存储周期
+     * 品类搜索
      */
-    @RequestMapping(value = "/getCycle.action")
-    public @ResponseBody BaseOutput<CategoryDTO> getCycle(LocalDate stockInDate,Long categoryId) {
+    @RequestMapping(value = "/search.action")
+    public @ResponseBody BaseOutput<JSONObject> searchCategory(String keyword) {
         try {
-        	
-            return BaseOutput.success().setData(categoryStorageCycleService.getCategoryStorageCycle( stockInDate,categoryId));
+            return BaseOutput.success().setData(categoryStorageCycleService.searchCategory(keyword));
         } catch (Exception e) {
         	LOG.error("获取品类周期失败",e.getMessage());
             return BaseOutput.failure(e.getMessage());

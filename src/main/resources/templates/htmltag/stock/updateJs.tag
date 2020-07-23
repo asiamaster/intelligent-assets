@@ -20,7 +20,7 @@ initSwipeCard({
 //品类搜索
 //品类搜索自动完成
 var categoryAutoCompleteOption = {
-		serviceUrl: '/category/search.action',
+		serviceUrl: '/stock/categoryCycle/search.action',
 		paramName : 'keyword',
 		displayFieldName : 'name',
 		showNoSuggestionNotice: true,
@@ -42,7 +42,8 @@ var categoryAutoCompleteOption = {
 			}
 		},
 		selectFn: function (suggestion) {
-			$('#payeeCertificateNumber').val(suggestion.certificateNumber);
+			$("#cycle").val(suggestion.cycle);
+			getCycle($("#stockInDate").val(),suggestion.cycle)
 		}}
 
 
@@ -88,6 +89,7 @@ function initDetailItem(stockDetail) {
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).attr("item-id",chargeItem.id);
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).attr("chargeItem-version",chargeItem.version);
 	}
+	weightItems.set(itemIndex+"",stockDetail.stockWeighmanRecord);
 	changeDistrict(itemIndex,0,stockDetail.parentDistrictId,'one');
 	changeDistrict(itemIndex,stockDetail.parentDistrictId,stockDetail.districtId,'two');
 	changeAssets(itemIndex,stockDetail.districtId,stockDetail.assetsId);

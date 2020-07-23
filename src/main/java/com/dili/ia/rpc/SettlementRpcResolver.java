@@ -73,14 +73,12 @@ public class SettlementRpcResolver {
      * @param orderCode
      * @return
      */
-    @RequestMapping(value = "/api/settleOrder/get", method = RequestMethod.POST)
-    public SettleOrder get(@RequestParam("appId") Long appId, @RequestParam("orderCode") String orderCode){
-    	BaseOutput<SettleOrder> result = settlementRpc.get(appId,orderCode);
+    public SettleOrder get(Long appId, String businessCode){
+    	BaseOutput<SettleOrder> result = settlementRpc.get(appId,businessCode);
         if(!result.isSuccess()){
-        	LOG.info("获取结算单失败!业务号:" + orderCode);
+        	LOG.info("获取结算单失败!业务号:" + businessCode);
             throw new BusinessException(ResultCode.APP_ERROR, "获取结算单失败!");
         }
-        LOG.info("结算撤回成功!业务号:" + orderCode);
 		return result.getData();
     };
 }

@@ -22,6 +22,8 @@ public class CategoryStorageCycleDto {
 	private Integer state;
 	
 	private String moduleLabel;
+	
+	private String path;
 	/**
 	 * 是否应用于子品类
 	 */
@@ -67,6 +69,12 @@ public class CategoryStorageCycleDto {
 	}
 	public void setModuleLabel(String moduleLabel) {
 		this.moduleLabel = moduleLabel;
+	}
+	public String getPath() {
+		return path;
+	}
+	public void setPath(String path) {
+		this.path = path;
 	}
 	
 }

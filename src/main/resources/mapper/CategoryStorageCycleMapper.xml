@@ -22,22 +22,36 @@
 			#{it.marketId},
 			#{it.marketCode})
 		</foreach>
-		ON DUPLICATE KEY UPDATE 
+		ON DUPLICATE KEY UPDATE
+		<if test= "cycle !=null">
 		cycle = #{cycle},
+		</if> 
+		<if test="notes!=null">
 		notes = #{notes},
+		</if> 
+		<if test="moduleLabel!=null">
 		module_label = #{moduleLabel},
+		</if> 
 		state = #{state};
  	</insert>
  	
 
 
- 	<select id="selectCycleByIds" resultType="com.dili.ia.domain.CategoryStorageCycle" parameterType="list">
+ 	<select id="selectCycleByIds" resultType="com.dili.ia.domain.CategoryStorageCycle" parameterType="map">
  		select 
     	<include refid="Base_Column_List" />
- 		 from `category_storage_cycle` where id in 
- 		<foreach collection="list" item="id" open="(" close=")" separator=",">
-			#{id}
-		</foreach>
+ 		 from `category_storage_cycle`
+ 		 <where>
+	 		 <if test = "state!=null">
+	 		 and state = ${state} 
+	 		 </if>
+ 		 <if test="ids != null and ids.size>0">
+	 		 and id in 
+	 		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+				#{id}
+			</foreach>
+		</if>
+ 		</where>
  		
  	</select>
  	

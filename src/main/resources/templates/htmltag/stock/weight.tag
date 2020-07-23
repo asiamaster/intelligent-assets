@@ -209,7 +209,8 @@ function openWeightHandler(index) {
 }
 
 //修改子单打开司磅界面 回填数据
-function openWeightUpdateHandler(index,weightDetail) {
+function openWeightUpdateHandler(index) {
+	let weightDetail = weightItems.get(index+"")
 	if(weightDetail == null || weightDetail == ""){
 		weightDetail = {};
 	}
@@ -226,8 +227,10 @@ function openWeightUpdateHandler(index,weightDetail) {
         	//通过map保存司磅记录,key为index,value为表单信息,方便前端页面组装数据
         	let ob = $("#weighmanForm").serializeObject();
         	weightItems.set(index+"",ob);
-        	if(ob.grossWeight != null && ob.tareWeight != null){
+        	if(strIsNotEmpty(ob.grossWeight) && strIsNotEmpty(ob.tareWeight)){
         		weightItem.find("[name=weight]").val(ob.grossWeight-ob.tareWeight);
+        	}else{
+        		weightItem.find("[name=weight]").val($("#grossWeight").val());
         	}
         	//weightItem.find("[name=weight]").val($("#grossWeight").val());
         	countNumber("weight");

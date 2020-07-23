@@ -28,6 +28,6 @@ public interface CategoryStorageCycleMapper extends MyMapper<CategoryStorageCycl
 	 * @return
 	 * @throws
 	 */
-	List<CategoryStorageCycle> selectCycleByIds(List<Long> ids);
+	List<CategoryStorageCycle> selectCycleByIds(Map<String, Object> map);
 	
 }

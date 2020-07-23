@@ -26,7 +26,7 @@ initSwipeCard({
 //品类搜索
 //品类搜索自动完成
 var categoryAutoCompleteOption = {
-		serviceUrl: '/category/search.action',
+		serviceUrl: '/stock/categoryCycle/search.action',
 		paramName : 'keyword',
 		displayFieldName : 'name',
 		showNoSuggestionNotice: true,
@@ -36,7 +36,6 @@ var categoryAutoCompleteOption = {
 				let data = result.data;
 				return {
 					suggestions: $.map(data, function (dataItem) {
-						//
 						return $.extend(dataItem, {
 							value: dataItem.name + '（' + dataItem.code + '）'
 						}
@@ -49,42 +48,9 @@ var categoryAutoCompleteOption = {
 			}
 		},
 		selectFn: function (suggestion) {
-			$('#payeeCertificateNumber').val(suggestion.certificateNumber);
-		/*	let stockInDate = $('#stockInDate').val();
-			getCycle(stockInDate,data.id);*/
+			$("#cycle").val(suggestion.cycle);
+			getCycle($("#stockInDate").val(),suggestion.cycle)
 		}}
-
-var districtAutoCompleteOption = {
-	width: '100%',
-	language: 'zh-CN',
-	maximumSelectionLength: 10,
-	ajax: {
-		type: 'post',
-		url: '/district/search.action',
-		data: function(params) {
-			return {
-				departmentId: 54,
-			}
-		},
-		processResults: function(result) {
-			if (result.success) {
-				let data = result.data;
-				return {
-					results: $.map(data, function(dataItem) {
-						dataItem.text = dataItem.name + (dataItem.cusName ? '(' + dataItem.cusName + ')' : '');
-						return dataItem;
-					})
-				};
-			} else {
-				bs4pop.alert(result.message, {
-					type: 'error'
-				});
-				return;
-			}
-		}
-	}
-}
-
 
 
 /**
@@ -233,7 +199,9 @@ function doAddStockInHandler() {
 					type: 'error'
 				});
 			} else {
+				parent.dia.hide();
 				bs4pop.alert(ret.message, {type: 'success'});
+
 			}
 		},
 		error: function(error) {
@@ -244,37 +212,5 @@ function doAddStockInHandler() {
 		}
 	});
 }
-
-
-
-
-
-/**
- * 打开新增窗口:页面层
- */
-/*
-function openWeightHandler(index) {
-	let weightItem = $("#saveForm_"+index)
-	console.log(weightItem.attr("id"));
-    dia = bs4pop.dialog({
-        title: '获取地磅读数',//对话框title
-        content: bui.util.HTMLDecode(template("weighman", {})), //对话框内容，可以是 string、element，$object
-        width: '80%',//宽度
-        height: '95%',//高度
-        btns: [{label: '取消',className: 'btn-secondary',onClick(e){
-
-            }
-        }, {label: '确定',className: 'btn-primary',onClick(e){
-        	let ob = $("#weighmanForm").serializeObject();
-        	weightItems.set(index,ob);
-        	weightItem.find("[name=weight]").val($("#grossWeight").val());
-            }
-        }]
-    });
-}*/
-
-
-
-
 
 </script>
