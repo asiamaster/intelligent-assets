@@ -1,6 +1,5 @@
 package com.dili.ia.domain.dto.printDto;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -33,23 +32,31 @@ public class DepositOrderPrintDto {
     //订单编号
     private String code;
     //业务类型
-    private String businessType;
+    private String bizType;
     //客户名称
     private String customerName;
     //客户电话
     private String customerCellphone;
     //备注
     private String notes;
-    //总金额
+    //合计总金额
+    private String totalAmount;
+    //付款金额
     private String amount;
+    //待付金额
+    private String waitAmount;
     //结算方式
     private String settlementWay;
     //结算员
     private String settlementOperator;
     //提交人
     private String submitter;
-    //摊位编号
-    private String assetsItems;
+    //保证金业务类型
+    private String typeName;
+    //资产类型
+    private String assetsType;
+    //资产编号
+    private String assetsName;
 
     public String getReprint() {
         return reprint;
@@ -67,12 +74,36 @@ public class DepositOrderPrintDto {
         this.code = code;
     }
 
-    public String getBusinessType() {
-        return businessType;
+    public String getBizType() {
+        return bizType;
     }
 
-    public void setBusinessType(String businessType) {
-        this.businessType = businessType;
+    public void setBizType(String bizType) {
+        this.bizType = bizType;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public String getAssetsType() {
+        return assetsType;
+    }
+
+    public void setAssetsType(String assetsType) {
+        this.assetsType = assetsType;
+    }
+
+    public String getAssetsName() {
+        return assetsName;
+    }
+
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
     }
 
     public String getCustomerName() {
@@ -155,11 +186,19 @@ public class DepositOrderPrintDto {
         this.submitter = submitter;
     }
 
-    public String getAssetsItems() {
-        return assetsItems;
+    public String getTotalAmount() {
+        return totalAmount;
     }
 
-    public void setAssetsItems(String assetsItems) {
-        this.assetsItems = assetsItems;
+    public void setTotalAmount(String totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public String getWaitAmount() {
+        return waitAmount;
+    }
+
+    public void setWaitAmount(String waitAmount) {
+        this.waitAmount = waitAmount;
     }
 }

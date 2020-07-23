@@ -583,22 +583,27 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
         DepositOrder depositOrder = get(paymentOrder.getBusinessId());
 
-        DepositOrderPrintDto depositOrderPrintDto = new DepositOrderPrintDto();
-        depositOrderPrintDto.setPrintTime(LocalDateTime.now());
-        depositOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
-        depositOrderPrintDto.setCode(depositOrder.getCode());
-        depositOrderPrintDto.setCustomerName(depositOrder.getCustomerName());
-        depositOrderPrintDto.setCustomerCellphone(depositOrder.getCustomerCellphone());
-        depositOrderPrintDto.setNotes(depositOrder.getNotes());
-        depositOrderPrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount())); // 付款金额
-        depositOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
-        depositOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-        depositOrderPrintDto.setSubmitter(paymentOrder.getCreator());
-        depositOrderPrintDto.setBusinessType(BizTypeEnum.DEPOSIT_ORDER.getName());
+        DepositOrderPrintDto dePrintDto = new DepositOrderPrintDto();
+        dePrintDto.setPrintTime(LocalDateTime.now());
+        dePrintDto.setReprint(reprint == 2 ? "(补打)" : "");
+        dePrintDto.setCode(depositOrder.getCode());
+        dePrintDto.setCustomerName(depositOrder.getCustomerName());
+        dePrintDto.setCustomerCellphone(depositOrder.getCustomerCellphone());
+        dePrintDto.setNotes(depositOrder.getNotes());
+        dePrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount())); // 付款金额
+        dePrintDto.setTotalAmount(MoneyUtils.centToYuan(depositOrder.getAmount())); // 业务单合计总金额
+        dePrintDto.setWaitAmount(MoneyUtils.centToYuan(depositOrder.getWaitAmount())); //待付款金额
+        dePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
+        dePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        dePrintDto.setSubmitter(paymentOrder.getCreator());
+        dePrintDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getName());
+        dePrintDto.setTypeName(depositOrder.getTypeName());
+        dePrintDto.setAssetsType(AssetsTypeEnum.getAssetsTypeEnum(depositOrder.getAssetsType()).getName());
+        dePrintDto.setAssetsName(depositOrder.getAssetsName());
 
         PrintDataDto printDataDto = new PrintDataDto();
         printDataDto.setName(PrintTemplateEnum.DEPOSIT_ORDER.getCode());
-        printDataDto.setItem(BeanMapUtil.beanToMap(depositOrderPrintDto));
+        printDataDto.setItem(BeanMapUtil.beanToMap(dePrintDto));
         return BaseOutput.success().setData(printDataDto);
     }
 

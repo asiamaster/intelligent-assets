@@ -2,10 +2,7 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.DepositOrderStateEnum;
-import com.dili.ia.glossary.DepositRefundStateEnum;
-import com.dili.ia.glossary.PrintTemplateEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.RefundOrderDispatcherService;
@@ -101,7 +98,12 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         Map<String,Object> resultMap = new HashMap<>();
         resultMap.put("printTemplateCode", PrintTemplateEnum.DEPOSIT_REFUND_ORDER.getCode());
         DepositOrder depositOrder = depositOrderService.get(refundOrder.getBusinessId());
-        resultMap.put("depositTypeName", depositOrder.getTypeName());
+        //保证金类型
+        resultMap.put("typeName", depositOrder.getTypeName());
+        //资产类型
+        resultMap.put("assetsType", AssetsTypeEnum.getAssetsTypeEnum(depositOrder.getAssetsType()).getName());
+        //资产名称
+        resultMap.put("assetsName", depositOrder.getAssetsName());
         return BaseOutput.success().setData(resultMap);
     }
 }
