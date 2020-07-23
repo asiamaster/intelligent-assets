@@ -146,7 +146,7 @@ public class LeaseOrderController {
      * @return String
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
-    public String view(ModelMap modelMap,Long id,String orderCode) {
+    public String view(ModelMap modelMap,Long id,String orderCode,String code) {
         LeaseOrder leaseOrder = null;
         if(null != id) {
             leaseOrder = leaseOrderService.get(id);
@@ -154,6 +154,11 @@ public class LeaseOrderController {
             PaymentOrder paymentOrder = DTOUtils.newInstance(PaymentOrder.class);
             paymentOrder.setCode(orderCode);
             leaseOrder = leaseOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
+            id = leaseOrder.getId();
+        }else if(StringUtils.isNotBlank(code)){
+            LeaseOrder condition = DTOUtils.newInstance(LeaseOrder.class);
+            condition.setCode(code);
+            leaseOrder = leaseOrderService.list(condition).stream().findFirst().orElse(null );
             id = leaseOrder.getId();
         }
 
