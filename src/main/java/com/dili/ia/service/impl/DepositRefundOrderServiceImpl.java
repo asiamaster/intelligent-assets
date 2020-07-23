@@ -14,6 +14,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         DepositOrder depositOrder = depositOrderService.get(refundOrder.getBusinessId());
         Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getPaidAmount() < totalRefundAmount){
-            return BaseOutput.failure("【退款总金额】不能大于订单已交费总金额: " + depositOrder.getPaidAmount());
+            return BaseOutput.failure("【退款总金额】不能大于订单已交费总金额: " + MoneyUtils.centToYuan(depositOrder.getPaidAmount()));
         }
         return BaseOutput.success();
     }

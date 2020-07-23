@@ -367,7 +367,7 @@ public class RefundOrderController {
             BaseOutput<RefundOrder> output = refundOrderService.doUpdateDispatcher(refundOrder);
             //写业务日志
             if (output.isSuccess()){
-                RefundOrder order = output.getData();
+                RefundOrder order = refundOrderService.get(refundOrder.getId());
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
                 LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
             }
