@@ -128,7 +128,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
     private Assignment buildApprovalAssignment(TaskMapping taskMapping){
         Map<String, Object> processVariables = taskMapping.getProcessVariables();
         //获取流程参数中的区域id，以确认审批人
-        Long districtId = (Long)processVariables.get("districtId");
+        Long districtId = Long.parseLong((String)processVariables.get("districtId"));
         //根据区域ID查询本身和子节点
         BaseOutput<List<DistrictDTO>> listBaseOutput = assetsRpc.listDistrictChild(districtId);
         if(!listBaseOutput.isSuccess()){
@@ -140,9 +140,22 @@ public class RentalApprovalProcessTaskAssignmentApi {
         ApproverAssignmentDto approverAssignment = new ApproverAssignmentDto();
         approverAssignment.setProcessDefinitionKey(taskMapping.getProcessDefinitionKey());
         approverAssignment.setTaskDefinitionKey(taskMapping.getTaskDefinitionKey());
-        approverAssignment.setIds(districtIds);
+        approverAssignment.setDistrictIds(districtIds);
         //查询审批人分配，只要业务类型(可理解为流程定义)，任务定义和区域id满足，则认为第一条数据的用户是任务执行人
         List<ApproverAssignment> approverAssignments = approverAssignmentService.listByExample(approverAssignment);
+        //如果未找到审批人，则从父节点找
+        if(CollectionUtils.isEmpty(approverAssignments)){
+            BaseOutput<DistrictDTO> districtById = assetsRpc.getDistrictById(districtId);
+            //查询失败，或者没有父区域，则返回默认处理人
+            if(!districtById.isSuccess() || districtById.getData().getParentId() == 0){
+                //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
+                return getExceptionHandlerAssignment();
+            }
+            approverAssignment.setDistrictIds(null);
+            approverAssignment.setDistrictId(districtById.getData().getParentId());
+            approverAssignments = approverAssignmentService.listByExample(approverAssignment);
+        }
+        //如果从父节点也未找到审批人
         if(CollectionUtils.isEmpty(approverAssignments)){
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return getExceptionHandlerAssignment();

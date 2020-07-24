@@ -46,6 +46,37 @@
     }
 
     /**
+     * 打开复制窗口
+     */
+    function openCopyHandler(row) {
+        if(!row){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            row = rows[0];
+        }
+        row.id=null;
+        bs4pop.dialog({
+            title: '审批人分配',
+            content: bui.util.HTMLDecode(template('editTpl',row)),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick(e) {
+                        saveOrUpdateHandler();
+                    }
+                },
+                {label: '取消', className: 'btn-default', onClick(e) {}}
+            ]
+        });
+    }
+
+    /**
      * 打开修改窗口
      */
     function openUpdateHandler(row) {
@@ -73,7 +104,6 @@
                 {label: '取消', className: 'btn-default', onClick(e) {}}
             ]
         });
-        bui.util.loadFormData();
     }
 
     /**

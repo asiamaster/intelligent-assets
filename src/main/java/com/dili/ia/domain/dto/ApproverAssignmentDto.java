@@ -1,7 +1,9 @@
 package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.ApproverAssignment;
+import com.dili.ss.domain.annotation.Operator;
 
+import javax.persistence.Column;
 import java.util.List;
 
 /**
@@ -11,8 +13,13 @@ import java.util.List;
  */
 public class ApproverAssignmentDto extends ApproverAssignment {
 
+    @Column(name = "`id`")
+    @Operator(Operator.IN)
     private List<Long> ids;
 
+    @Operator(Operator.IN)
+    @Column(name = "`district_id`")
+    private List<Long> districtIds;
 
     public List<Long> getIds() {
         return ids;
@@ -20,5 +27,13 @@ public class ApproverAssignmentDto extends ApproverAssignment {
 
     public void setIds(List<Long> ids) {
         this.ids = ids;
+    }
+
+    public List<Long> getDistrictIds() {
+        return districtIds;
+    }
+
+    public void setDistrictIds(List<Long> districtIds) {
+        this.districtIds = districtIds;
     }
 }
