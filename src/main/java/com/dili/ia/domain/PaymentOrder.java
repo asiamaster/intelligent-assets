@@ -6,10 +6,10 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
+import tk.mybatis.mapper.annotation.Version;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * 由MyBatis Generator工具自动生成

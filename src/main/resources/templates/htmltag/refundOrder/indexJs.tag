@@ -296,6 +296,8 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_edit').attr('disabled', false);
 
+            <%//摊位租赁退款单需要提交审批
+            if(bizType=="1"){%>
             //没有审批状态可以 提交审批，修改和取消
             if(!approvalState){
                 $('#btn_approval').attr('disabled', false);
@@ -317,6 +319,10 @@
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
             }
+            <%}else{%>
+                $('#btn_edit').attr('disabled', false);
+                $('#btn_cancel').attr('disabled', false);
+            <%}%>
         } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CANCELD.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
@@ -331,7 +337,10 @@
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
         }
-        $('#btn_submit').attr('disabled', false);
+        //只能有流程实例id就可以查看流程图
+        if(row.processInstanceId) {
+            $("#btn_showProgress").attr('disabled', false);
+        }
     });
 </script>
 

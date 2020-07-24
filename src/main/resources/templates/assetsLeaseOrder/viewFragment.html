@@ -1,0 +1,202 @@
+    <div class="container-fluid">
+        <form id="saveForm" role="form" novalidate>
+            <input type="hidden" name="id" value="${leaseOrder.id!}">
+            <div class="breadcrumb" >
+                订单信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#orderInfo" aria-expanded="true"
+                   aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-4 collapse show" id="orderInfo">
+                <div class="form-group col">
+                    <label>业务单号</label>
+                    <input type="text" class="form-control" value="${leaseOrder.code!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label>业务状态</label>
+                    <input type="text" class="form-control" value="${@com.dili.ia.glossary.LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.state).getName()}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label>交费状态</label>
+                    <input type="text" class="form-control" value="${@com.dili.ia.glossary.PayStateEnum.getPayStateEnum(leaseOrder.payState).getName()}" readonly/>
+                </div>
+            </div>
+            <div class="breadcrumb" >
+                客户信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
+                   aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-4 collapse show" id="customerInfo">
+                <div class="form-group col">
+                    <label for="customerName">客户名称</label>
+                    <input type="text" class="form-control" id="customerName" name="customerName" value="${leaseOrder.customerName!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="certificateNumber">证件号码</label>
+                    <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${leaseOrder.certificateNumber!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="customerCellphone">联系电话</label>
+                    <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${leaseOrder.customerCellphone!}" readonly/>
+                </div>
+            </div>
+            <div class="breadcrumb">
+                出租信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#leaseInfo" aria-expanded="true" aria-controls="leaseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-4 collapse show" id="leaseInfo">
+                <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
+                <div class="form-group col">
+                    <label for="engageName">经营范围</label>
+                    <input type="text" class="form-control" id="engageName" name="engageName" value="${leaseOrder.engageName!}" readonly/>
+                </div>
+                <% } %>
+                <% if(leaseOrder.assetsType != @com.dili.ia.glossary.AssetsTypeEnum.LODGING.getCode()){%>
+                <div class="form-group col">
+                    <label for="categoryName">经营品类</label>
+                    <input type="text" class="form-control" id="categoryName" name="categoryName" value="${leaseOrder.categoryName!}" readonly/>
+                </div>
+                <% } %>
+                <div class="form-group col">
+                    <label for="leaseTermName">租赁期限</label>
+                    <input type="text" class="form-control" id="leaseTermName" name="leaseTermName" value="${leaseOrder.leaseTermName!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="days">租赁天数</label>
+                    <input type="number" class="form-control" id="days" name="days" value="${leaseOrder.days!}" readonly/>
+                </div>
+                <div class="form-group col col">
+                    <label for="startTime">开始日期</label>
+                    <input type="text" id="startTime" name="startTime" class="form-control" value="${leaseOrder.startTime!,localDateTimeFormat='yyyy-MM-dd'}" readonly>
+                </div>
+                <div class="form-group col col">
+                    <label for="endTime">结束日期</label>
+                    <input type="text" id="endTime" name="endTime" class="form-control" value="${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}" readonly>
+                </div>
+                <div class="form-group col">
+                    <label for="contractNo">合同编号</label>
+                    <input type="text" class="form-control" id="contractNo" name="contractNo" value="${leaseOrder.contractNo!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="departmentName">业务所属部门</label>
+                    <input type="text" class="form-control" id="departmentName" name="departmentName" value="${leaseOrder.departmentName!}" readonly/>
+                </div>
+            </div>
+
+            <div class="breadcrumb">
+                对应资产
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#assetInfo" aria-expanded="true" aria-controls="assetInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div id="assetInfo" class="collapse show">
+                <table class="table table-bordered table-hover table-striped" id="assetTable">
+                    <thead>
+                    <tr>
+                        <th class="text-center align-middle" style="font-weight:normal;">资产编号</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">规格</th>
+                        <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+                        <th class="text-center align-middle" style="font-weight:normal;">租赁数量</th>
+                        <% } %>
+                        <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+                        for(item in chargeItems){
+                        %>
+                        <th style="font-weight:normal; ">${item.chargeItem!}</th>
+                        <% } }%>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <%
+                    if(leaseOrderItems.~size>0){
+                    for(item in leaseOrderItems){%>
+                    <tr>
+                        <td class="text-center align-middle" title="${item.assetsName!}">${item.assetsName!}</td>
+                        <td class="text-center align-middle" >${item.number!}${item.unitName!}</td>
+                        <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+                        <td style="padding: .25rem!important;"><input type="number" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" readonly></td>
+                        <% } %>
+                        <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+                        for(chargeItem in chargeItems){
+                        %>
+                        <td style="padding: .25rem!important;"><input data-charge-item-name="${chargeItem.chargeItem!}" type="number" id="chargeItem_${chargeItem.id!}_${itemLP.index}" name="chargeItem_${chargeItem.id!}_${itemLP.index}" value="${item.businessChargeItem['chargeItemYuan'+chargeItem.id]!}" data-charge-item-id="${chargeItem.id!}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" readonly></td>
+                        <% } }%>
+                    </tr>
+                    <% } } %>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="breadcrumb">
+                金额信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="collapse show" id="moneyInfo">
+                <div class="row row-cols-4">
+                    <div class="form-group col">
+                        <label for="totalAmount" _log>合计金额<i class="red">*</i></label>
+                        <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>" readonly/>
+                    </div>
+                </div>
+                <div class="row row-cols-4">
+                    <div class="form-group col">
+                        <label for="earnestDeduction" _log>定金抵扣</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.earnestDeduction!}'/>" readonly/>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="earnestAmount">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col">
+                        <label for="transferDeduction" _log>转抵扣</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.transferDeduction!}'/>" readonly/>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="transferAmount">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col">
+                        <label for="payAmount" _log>实付金额<i class="red">*</i></label>
+                        <input type="number" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" min="0" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-8">
+                    <label for="notes">备注</label>
+                    <textarea class="form-control" id="notes" name="notes"  rows="1" maxlength="100" readonly>${leaseOrder.notes!}</textarea>
+                </div>
+            </div>
+
+            <%if(isNotEmpty(logs) && logs.~size>0){ %>
+            <div class="breadcrumb">
+                业务记录
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#recordInfo" aria-expanded="true" aria-controls="recordInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+            </div>
+            <div class="collapse" id="recordInfo">
+                <table data-toggle="table">
+                    <thead>
+                    <tr>
+                        <th data-align="center">时间</th>
+                        <th data-align="center">操作</th>
+                        <th data-align="center">详情</th>
+                        <th data-align="center">补充信息</th>
+                        <th data-align="center">工作员</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <%
+                    for(log in logs){%>
+                    <tr>
+                        <td class="text-center align-middle" >${log.createTime}</td>
+                        <td class="text-center align-middle" >${log.operationTypeText}</td>
+                        <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.content!}">${log.content}</td>
+                        <td class="text-center align-middle" >${log.notes}</td>
+                        <td class="text-center align-middle" >${log.operatorName}</td>
+                    </tr>
+                    <% }%>
+                    </tbody>
+                </table>
+            </div>
+            <% }%>
+        </form>
+    </div>
