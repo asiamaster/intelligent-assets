@@ -65,7 +65,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
         	//input.setParent(dto.getId());
         	input.setQueryPath(dto.getPath());
         	//input.setState(1);
-        	List<CategoryDTO> list = assetsRpc.listv2(input).getData();
+        	List<CategoryDTO> list = assetsRpc.list(input).getData();
         	list.forEach(item -> {
         		CategoryStorageCycle child = new CategoryStorageCycle(userTicket);
             	BeanUtil.copyProperties(item, child);    	

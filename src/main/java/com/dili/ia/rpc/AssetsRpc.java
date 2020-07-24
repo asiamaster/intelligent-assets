@@ -23,12 +23,6 @@ public interface AssetsRpc {
      */
     @RequestMapping(value = "/api/customCategory/getTree", method = RequestMethod.POST)
     BaseOutput<List<CategoryDTO>> list(CategoryDTO categoryDTO);
-    
-    /**
-     * 获取品类信息增加path路径匹配查询
-     */
-    @RequestMapping(value = "/api/customCategory/getTree", method = RequestMethod.POST)
-    BaseOutput<List<CategoryDTO>> listv2(CategoryQuery categoryDTO);
 
     /**
      * 新增品类

@@ -12,14 +12,14 @@
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
 						<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
-						<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}" required />
+						<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}" />
 					</div>
 					<div class="form-group col-4">
 						<label for="">车型</label> <input type="text" class="form-control" id="carTypePublicCode_{{index}}" name="carTypePublicCode" value="{{stockDetail.carTypePublicCode}}"
-						 required />
+						  />
 					</div>
 					<div class="form-group col-4">
-						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" value="{{stockDetail.carPlate}}" required />
+						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" value="{{stockDetail.carPlate}}"  />
 					</div>
 					<div class="form-group col-4">
 						
@@ -81,14 +81,14 @@
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
 					<input type="hidden" class="form-control" id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
-					<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}" required />
+					<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}"  />
 					</div>
 					<div class="form-group col-4">
 						<label for="">车型</label> <input type="text" class="form-control" id="carTypePublicCode_{{index}}" name="carTypePublicCode" value="{{stockDetail.carTypePublicCode}}"
-						 required />
+						  />
 					</div>
 					<div class="form-group col-4">
-						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" value="{{stockDetail.carPlate}}" required />
+						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" value="{{stockDetail.carPlate}}"  />
 					</div>
 					
 					<div class="form-group col-4">
@@ -152,7 +152,7 @@
 	                    <select class="form-control districtId" id="districtId_one_{{index}}" name="districtId_one" required>
 
 	                    </select>
-	                    <select class="form-control districtId" id="districtId_two_{{index}}" name="districtId_two">
+	                    <select class="form-control districtId" id="districtId_two_{{index}}" name="districtId_two" >
 	                        <option value="">-- 全部 --</option>
 	                    </select>
 	                </div>

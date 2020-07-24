@@ -215,15 +215,8 @@ function buildFormData() {
 
 // 提交保存
 function doAddStockInHandler() {
-	if(!$("#saveForm").validate().form()){
+	if(!validateForm()){
 		return;
-	}
-	for(let i=1;i<=itemIndex;i++){
-		if($("#saveForm_"+i).length > 0){
-			if(!$("#saveForm_"+i).validate().form()){
-				return;
-			}  
-		}
 	}
 	$.ajax({
 		type: "POST",
