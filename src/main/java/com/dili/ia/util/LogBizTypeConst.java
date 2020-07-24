@@ -29,5 +29,8 @@ public class LogBizTypeConst {
     // 精品停车
     public static final String BOUTIQUE_ENTRANCE="boutique_ntrance";
 
+    // 其它收费
+    public static final String OTHER_FEE="other_fee";
+
 
 }

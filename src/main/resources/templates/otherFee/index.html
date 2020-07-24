@@ -6,7 +6,7 @@
                     <div class="form-group col">
                         <label for="state">状态:</label>
                         <select id="state" name="state" class="form-control"></select>
-                        <#bcomboProvider _id="state" _provider="earnestOrderStateProvider" _value=""
+                        <#bcomboProvider _id="state" _provider="otherFeeStateProvider" _value=""
                             _queryParams='{emptyText:"-- 全部 --"}' />
                     </div>
                     <div class="form-group col">
@@ -68,26 +68,26 @@
             <div class="col-12">
                 <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
                     <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
-                    <#resource code="addDepositOrder">
+                    <#resource code="addOtherFee">
                         <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
                     </#resource>
-                    <#resource code="updateDepositOrder">
+                    <#resource code="updateOtherFee">
                         <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                     </#resource>
-                    <#resource code="submitDepositOrder">
+                    <#resource code="submitOtherFee">
                         <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
                     </#resource>
-                    <#resource code="withdrawDepositOrder">
+                    <#resource code="withdrawOtherFee">
                         <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
                     </#resource>
-                    <#resource code="cancelDepositOrder">
+                    <#resource code="cancelOtherFee">
                         <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                     </#resource>
-                    <#resource code="refundApplyDepositOrder">
+                    <#resource code="refundApplyOtherFee">
                         <button id="btn_refund_apply" type="button" class="btn btn-primary" onclick="openRefundApplyHandler(1)"><i class="fa fa-reply"></i> 退款申请</button>
                     </#resource>
                 </div>
-                <table id="grid" data-toggle="table" data-title="定金列表" class="table" data-toolbar="#toolbar"
+                <table id="grid" data-toggle="table" data-title="其它收费列表" class="table" data-toolbar="#toolbar"
                     data-pagination="true" data-page-number="1" data-page-size="10" data-query-params="queryParams"
                     data-side-pagination="server" data-method="POST"
                     data-content-type="application/x-www-form-urlencoded" data-single-select="true"
@@ -100,7 +100,7 @@
                             <th data-field="code" data-sortable="true" data-align="center" data-formatter="codeFormatter">
                                 业务单号
                             </th>
-                            <th data-field="" data-sortable="true" data-align="center" >
+                            <th data-field="chargeItemName" data-sortable="true" data-align="center" >
                                 收费项目
                             </th>
                             <th data-field="departmentName" data-sortable="true" data-align="center">
@@ -112,7 +112,7 @@
                             <th data-field="customerCellphone" data-sortable="true" data-align="center">
                                 联系电话
                             </th>
-                            <th data-field="state" data-sortable="true" data-provider="depositOrderStateProvider" data-align="center">
+                            <th data-field="state" data-sortable="true" data-provider="otherFeeStateProvider" data-align="center">
                                 状态
                             </th>
                             <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
@@ -135,4 +135,4 @@
 
 </#bs4Body>
 
-<#depositOrder_indexJs />
+<#otherFee_indexJs />

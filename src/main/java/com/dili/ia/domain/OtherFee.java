@@ -4,8 +4,10 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
-import java.util.Date;
+import tk.mybatis.mapper.annotation.Version;
+
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -202,6 +204,7 @@ public class OtherFee extends BaseDomain {
     /**
      * 版本控制,乐观锁
      */
+    @Version
     @Column(name = "`version`")
     private Integer version;
 

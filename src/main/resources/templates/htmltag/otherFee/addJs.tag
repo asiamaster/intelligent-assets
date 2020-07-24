@@ -1,11 +1,4 @@
 <script>
-    /**
-     *
-     * @Date 2019-11-06 17:30:00
-     * @author jiangchengyong
-     *
-     ***/
-
         //行索引计数器
     let itemIndex = 0;
 
@@ -16,6 +9,65 @@
     initSwipeCard({
         id:'getCustomer',
     });
+
+    // //品类搜索自动完成
+    // var categoryAutoCompleteOption = {
+    //     width: '100%',
+    //     language: 'zh-CN',
+    //     maximumSelectionLength: 10,
+    //     ajax: {
+    //         type:'post',
+    //         url: '/category/search.action',
+    //         data: function (params) {
+    //             return {
+    //                 keyword: params.term,
+    //             }
+    //         },
+    //         processResults: function (result) {
+    //             if(result.success){
+    //                 let data = result.data;
+    //                 return {
+    //                     results: $.map(data, function (dataItem) {
+    //                         dataItem.text = dataItem.name + (dataItem.cusName ? '(' + dataItem.cusName + ')' : '');
+    //                         return dataItem;
+    //                     })
+    //                 };
+    //             }else{
+    //                 bs4pop.alert(result.message, {type: 'error'});
+    //                 return;
+    //             }
+    //         }
+    //     }
+    // }
+
+        //品类搜索
+        //品类搜索自动完成
+        var categoryAutoCompleteOption = {
+            serviceUrl: '/stock/categoryCycle/search.action',
+            paramName : 'keyword',
+            displayFieldName : 'name',
+            showNoSuggestionNotice: true,
+            noSuggestionNotice: '无匹配结果',
+            transformResult: function (result) {
+                if(result.success){
+                    let data = result.data;
+                    return {
+                        suggestions: $.map(data, function (dataItem) {
+                            return $.extend(dataItem, {
+                                    value: dataItem.name + '（' + dataItem.code + '）'
+                                }
+                            );
+                        })
+                    }
+                }else{
+                    bs4pop.alert(result.message, {type: 'error'});
+                    return false;
+                }
+            },
+            selectFn: function (suggestion) {
+                $("#cycle").val(suggestion.cycle);
+                getCycle($("#stockInDate").val(),suggestion.cycle)
+            }}
 
     var boothAutoCompleteOption = {
         paramName: 'keyword',
@@ -54,7 +106,7 @@
     }
 
     // 提交保存
-    function doAddDepositHandler(){
+    function doAddOtherFeeHandler(){
         let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
             /*$(this).find('.collapse').each(function (index, element) {
@@ -68,7 +120,7 @@
         // let _formData = new FormData($('#saveForm')[0]);
         $.ajax({
             type: "POST",
-            url: "${contextPath}/depositOrder/doAdd.action",
+            url: "${contextPath}/otherFee/doAdd.action",
             data: buildFormData(),
             dataType: "json",
             success: function (ret) {

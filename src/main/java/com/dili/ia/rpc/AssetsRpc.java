@@ -141,7 +141,7 @@ public interface AssetsRpc {
     /**
      * 搜索摊位
      */
-    @RequestMapping(value = "/api/booth/search", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/assets/search", method = RequestMethod.POST)
     BaseOutput<List<BoothDTO>> searchBooth(JSONObject query);
 
     /**
