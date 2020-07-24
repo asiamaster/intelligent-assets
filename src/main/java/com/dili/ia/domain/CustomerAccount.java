@@ -8,9 +8,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import tk.mybatis.mapper.annotation.Version;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -110,6 +109,7 @@ public class CustomerAccount extends BaseDomain {
     /**
      * 版本控制,乐观锁
      */
+    @Version
     @Column(name = "`version`")
     private Long version;
 
@@ -394,7 +394,6 @@ public class CustomerAccount extends BaseDomain {
      *
      * @return version - 版本控制,乐观锁
      */
-    @Version
     @FieldDef(label="版本控制,乐观锁")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Long getVersion() {
