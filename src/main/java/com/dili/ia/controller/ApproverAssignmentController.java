@@ -3,11 +3,9 @@ package com.dili.ia.controller;
 import com.dili.ia.domain.ApproverAssignment;
 import com.dili.ia.service.ApproverAssignmentService;
 import com.dili.ss.domain.BaseOutput;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -40,7 +38,16 @@ public class ApproverAssignmentController {
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute ApproverAssignment approverAssignment) throws Exception {
+    public @ResponseBody String listPage(ApproverAssignment approverAssignment) throws Exception {
+//        approverAssignment.setWhereSuffixSql("group by process_definition_key, task_definition_key, assignee");
+//        HashSet<String> columns = Sets.newHashSet();
+//        columns.add("group_concat(district_id) district");
+//        columns.add("assignee");
+//        columns.add("task_definition_key");
+//        columns.add("process_definition_key");
+//        columns.add("max(modify_time) modify_time");
+//        columns.add("max(create_time) create_time");
+//        approverAssignment.setSelectColumns(columns);
         return approverAssignmentService.listEasyuiPageByExample(approverAssignment, true).toString();
     }
 
@@ -50,7 +57,7 @@ public class ApproverAssignmentController {
      * @return BaseOutput
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute ApproverAssignment approverAssignment) {
+    public @ResponseBody BaseOutput insert(ApproverAssignment approverAssignment) {
         approverAssignmentService.insertSelective(approverAssignment);
         return BaseOutput.success("新增成功");
     }
@@ -61,7 +68,7 @@ public class ApproverAssignmentController {
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute ApproverAssignment approverAssignment) {
+    public @ResponseBody BaseOutput update(ApproverAssignment approverAssignment) {
         approverAssignmentService.updateSelective(approverAssignment);
         return BaseOutput.success("修改成功");
     }
