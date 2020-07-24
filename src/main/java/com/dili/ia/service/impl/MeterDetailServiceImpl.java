@@ -207,6 +207,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
         // 生成水电费单号的 code
         String meterDetailCode = uidRpcResolver.bizNumber(BizNumberTypeEnum.WATER_ELECTRICITY_CODE.getCode());
+        meterDetail.setVersion(0);
         meterDetail.setCode(meterDetailCode);
         meterDetail.setCreatorId(userTicket.getId());
         meterDetail.setCreateTime(LocalDateTime.now());
@@ -220,7 +221,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
         //构建动态收费项
         if (meterDetailDto.getBusinessChargeItems() != null) {
-            List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetail.getId(), meterDetail.getCode());
+            List<BusinessChargeItem> businessChargeItems = buildAddBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetail.getId(), meterDetail.getCode());
             if (businessChargeItems != null && businessChargeItems.size() > 0) {
                 businessChargeItemService.batchInsert(businessChargeItems);
             }
@@ -238,18 +239,45 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
 
     /**
-     * 构建动态收费项
+     * 构建新增时动态收费项
      */
-    private List<BusinessChargeItem> buildBusinessCharge(List<BusinessChargeItem> businessChargeItems, Long businessId, String businessCode){
+    private List<BusinessChargeItem> buildAddBusinessCharge(List<BusinessChargeItem> businessChargeItems, Long businessId, String businessCode){
         List<BusinessChargeItem> businessChargeItemList = new ArrayList<>();
 
         businessChargeItems.stream().filter(item -> item.getAmount() != null).forEach(item -> {
+            item.setPaidAmount(0L);
             item.setBusinessId(businessId);
             item.setBusinessCode(businessCode);
-            item.setPaidAmount(0L);
             item.setWaitAmount(item.getAmount());
+            item.setCreateTime(LocalDateTime.now());
+            item.setModifyTime(LocalDateTime.now());
             item.setPaymentAmount(item.getAmount());
             item.setBizType(BizTypeEnum.UTTLITIES.getCode());
+            item.setVersion(0);
+            businessChargeItemList.add(item);
+        });
+
+        return businessChargeItemList;
+    }
+
+    /**
+     * 构建修改时动态收费项
+     */
+    private List<BusinessChargeItem> buildUpdateBusinessCharge(List<BusinessChargeItem> businessChargeItems, Long businessId, String businessCode){
+        List<BusinessChargeItem> businessChargeItemList = new ArrayList<>();
+
+        businessChargeItems.stream().filter(item -> item.getAmount() != null).forEach(item -> {
+            BusinessChargeItem itemInfo = businessChargeItemService.get(item.getId());
+
+            item.setPaidAmount(0L);
+            item.setBusinessId(businessId);
+            item.setBusinessCode(businessCode);
+            item.setAmount(item.getAmount());
+            item.setWaitAmount(item.getAmount());
+            item.setModifyTime(LocalDateTime.now());
+            item.setPaymentAmount(item.getAmount());
+            item.setBizType(BizTypeEnum.UTTLITIES.getCode());
+            item.setVersion(itemInfo.getVersion());
             businessChargeItemList.add(item);
         });
 
@@ -566,7 +594,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
         //构建动态收费项
         if (meterDetailDto.getBusinessChargeItems() != null) {
-            List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetailInfo.getId(), meterDetailInfo.getCode());
+            List<BusinessChargeItem> businessChargeItems = buildUpdateBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetailInfo.getId(), meterDetailInfo.getCode());
             if (businessChargeItems != null && businessChargeItems.size() > 0) {
                 for (BusinessChargeItem businessChargeItem : businessChargeItems) {
                     businessChargeItemService.updateSelective(businessChargeItem);

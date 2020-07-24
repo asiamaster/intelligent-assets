@@ -118,4 +118,21 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="getBoutiqueAndOrderByCode" parameterType="java.lang.String" resultType="com.dili.ia.domain.dto.BoutiqueFeeOrderDto">
+    select
+        bfo.id as id,
+        bfo.code as code,
+        bfo.state as state,
+        ber.customer_id as customerId,
+        ber.customer_name as customerName,
+        ber.customer_cellphone as customerCellphone
+    from
+        boutique_fee_order as bfo
+    left join boutique_entrance_record ber on ber.id = bfo.record_id
+    where
+    <if test="code != null">
+      code = #{code,jdbcType=VARCHAR}
+    </if>
+  </select>
 </mapper>

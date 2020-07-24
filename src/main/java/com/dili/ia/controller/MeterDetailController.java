@@ -81,8 +81,8 @@ public class MeterDetailController {
      * @return 新增页面地址
      * @date   2020/6/29
      */
-    @RequestMapping(value="/add.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap, String meterType) {
+    @RequestMapping(value="/water/add.html", method = RequestMethod.GET)
+    public String addWater(ModelMap modelMap) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 动态收费项，根据业务类型查询相关的动态收费项类型
@@ -90,11 +90,26 @@ public class MeterDetailController {
                 queryBusinessChargeItemConfig(userTicket.getFirmId(), "UTTLITIES", YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
 
-        String meterUrl = "/water";
-        if (meterType.equals("2")) {
-            meterUrl = "/electricity";
-        }
-        return "meterDetail" + meterUrl +  "/add";
+        return "meterDetail/water/add";
+    }
+
+    /**
+     * 跳转到新增页面
+     *
+     * @param  modelMap
+     * @return 新增页面地址
+     * @date   2020/6/29
+     */
+    @RequestMapping(value="/electricity/add.html", method = RequestMethod.GET)
+    public String add(ModelMap modelMap) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
+        // 动态收费项，根据业务类型查询相关的动态收费项类型
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
+                queryBusinessChargeItemConfig(userTicket.getFirmId(), "UTTLITIES", YesOrNoEnum.YES.getCode());
+        modelMap.put("chargeItems", chargeItemDtos);
+
+        return "meterDetail/water/add";
     }
 
     /**
@@ -127,7 +142,26 @@ public class MeterDetailController {
      * @return 修改页面地址
      * @date   2020/6/29
      */
-    @RequestMapping(value="/update.html", method = RequestMethod.GET)
+    @RequestMapping(value="/water/update.html", method = RequestMethod.GET)
+    public String updateWater(ModelMap modelMap, Long id) {
+        MeterDetailDto meterDetail = null;
+
+        if (id != null) {
+            meterDetail = meterDetailService.getMeterDetailById(id);
+        }
+        modelMap.put("meterDetail", meterDetail);
+
+        return "meterDetail/water/update";
+    }
+
+    /**
+     * 跳转到修改页面
+     *
+     * @param  id 水电费单主键
+     * @return 修改页面地址
+     * @date   2020/6/29
+     */
+    @RequestMapping(value="/electricity/update.html", method = RequestMethod.GET)
     public String update(ModelMap modelMap, Long id) {
         MeterDetailDto meterDetail = null;
 
@@ -136,11 +170,7 @@ public class MeterDetailController {
         }
         modelMap.put("meterDetail", meterDetail);
 
-        String meterUrl = "/water";
-        if (2 == meterDetail.getType()) {
-            meterUrl = "/electricity";
-        }
-        return "meterDetail" + meterUrl +  "/update";
+        return "meterDetail/electricity/update";
     }
 
     /**
