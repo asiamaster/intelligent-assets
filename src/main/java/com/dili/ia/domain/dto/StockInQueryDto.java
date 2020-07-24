@@ -8,6 +8,7 @@ import javax.persistence.Column;
 
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
+import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
 
 /**
@@ -36,6 +37,9 @@ public class StockInQueryDto extends StockIn {
 	@Column(name = "`expire_date`")
 	@Operator(Operator.LITTLE_EQUAL_THAN)
 	private LocalDateTime expireEnd;
+	@Column(name = "`customer_name`")
+	@Like
+	private String likeCustomerName;
 
 	public LocalDateTime getCreatedStart() {
 		return createdStart;
@@ -67,6 +71,14 @@ public class StockInQueryDto extends StockIn {
 
 	public void setExpireEnd(LocalDateTime expireEnd) {
 		this.expireEnd = expireEnd;
+	}
+
+	public String getLikeCustomerName() {
+		return likeCustomerName;
+	}
+
+	public void setLikeCustomerName(String likeCustomerName) {
+		this.likeCustomerName = likeCustomerName;
 	}
 	
 	

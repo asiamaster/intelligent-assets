@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.ia.domain.CategoryStorageCycle;
+import com.dili.ia.domain.dto.CategoryQuery;
 import com.dili.ia.domain.dto.CategoryStorageCycleDto;
 import com.dili.ia.mapper.CategoryStorageCycleMapper;
 import com.dili.ia.rpc.AssetsRpc;
@@ -59,12 +60,12 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
     	BeanUtil.copyProperties(dto, categoryStorageCycle);    	
     	insert.add(categoryStorageCycle);
     	if(dto.getAllChildren() != null && dto.getAllChildren()) {
-    		CategoryDTO input = new CategoryDTO();
+    		CategoryQuery input = new CategoryQuery();
         	input.setMarketId(userTicket.getFirmId());
-        	input.setParent(dto.getId());
-        	//input.setPath(dto.getPath());
+        	//input.setParent(dto.getId());
+        	input.setQueryPath(dto.getPath());
         	//input.setState(1);
-        	List<CategoryDTO> list = assetsRpc.list(input).getData();
+        	List<CategoryDTO> list = assetsRpc.listv2(input).getData();
         	list.forEach(item -> {
         		CategoryStorageCycle child = new CategoryStorageCycle(userTicket);
             	BeanUtil.copyProperties(item, child);    	

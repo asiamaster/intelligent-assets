@@ -41,7 +41,7 @@
 				and s.category_id = #{categoryId}
 			</if>
 			<if test="customerName != null">
-				and s.customer_name = #{customerName}
+				and s.customer_name = concat('%',#{customerName},'%') 
 			</if>
 			<if test="customerCellphone != null">
 				and s.customer_cellphone = #{customerCellphone}

@@ -483,6 +483,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Override
 	public String listPageAction(StockInQueryDto stockIn) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		List<Map> name = SessionContext.getSessionContext().dataAuth("department");
+		System.err.println(JSON.toJSON(name));
+        List<Map> name2 = SessionContext.getSessionContext().dataAuth("market");
+        System.err.println(JSON.toJSON(name2));
 		//TODO 数据隔离
 		stockIn.setMarketId(userTicket.getFirmId());
 		try {

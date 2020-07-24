@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.StockOut;
+import com.dili.ia.domain.dto.StockOutQuery;
 import com.dili.ia.service.StockOutService;
 import com.dili.ss.domain.BaseOutput;
 import java.util.List;
@@ -50,7 +51,7 @@ public class StockOutController {
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute StockOut stockOut) throws Exception {
+    public @ResponseBody String listPage(@ModelAttribute StockOutQuery stockOut) throws Exception {
         return stockOutService.listEasyuiPageByExample(stockOut, true).toString();
     }
 

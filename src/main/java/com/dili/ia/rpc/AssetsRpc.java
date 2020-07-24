@@ -6,6 +6,7 @@ import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.ia.domain.dto.AssetsDto;
+import com.dili.ia.domain.dto.CategoryQuery;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,12 @@ public interface AssetsRpc {
      */
     @RequestMapping(value = "/api/customCategory/getTree", method = RequestMethod.POST)
     BaseOutput<List<CategoryDTO>> list(CategoryDTO categoryDTO);
+    
+    /**
+     * 获取品类信息增加path路径匹配查询
+     */
+    @RequestMapping(value = "/api/customCategory/getTree", method = RequestMethod.POST)
+    BaseOutput<List<CategoryDTO>> listv2(CategoryQuery categoryDTO);
 
     /**
      * 新增品类

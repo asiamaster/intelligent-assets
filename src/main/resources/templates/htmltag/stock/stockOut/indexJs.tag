@@ -48,28 +48,23 @@ function queryParams(params) {
 }
 
 
-/**
- 打开查看窗口
- */
-/*function openViewHandler() {
-	//获取选中行的数据
-	let rows = _grid.bootstrapTable('getSelections');
-	if (null == rows || rows.length == 0) {
-		bs4pop.alert('请选中一条数据');
-		return false;
-	}
-	window.location.href = "${contextPath}/stock/stockOut/view.html?code=" + rows[0].code;
+function codeFormatter(value,row,index) {
+    return '<a href="javascript:openViewHandler(\''+row.code+'\')">'+value+'</a>';
+}
 
-}*/
-function openViewHandler() {
-	let rows = _grid.bootstrapTable('getSelections');
-	if (null == rows || rows.length == 0) {
-		bs4pop.alert('请选中一条数据');
-		return false;
-	}
+function openViewHandler(code) {
+	if(!code){
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        code = rows[0].code;
+    }
 	  dia = bs4pop.dialog({
 	       title: "查看",
-	       content: "${contextPath}/stock/stockOut/view.html?code=" + rows[0].code,
+	       content: "${contextPath}/stock/stockOut/view.html?code=" + code,
 	       isIframe : true,
 	       closeBtn: true,
 	       backdrop : 'static',

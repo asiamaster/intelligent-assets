@@ -37,6 +37,9 @@ function queryDataHandler() {
  * 前置 table初始化时 queryParams方法拿不到option对象，需要在页面加载时初始化option
  * @param params
  */
+function strIsNotEmpty(str){
+	return str!=null&&str!=""&&str!=undefined
+}
 function queryParams(params) {
 	let temp = {
 		rows: params.limit, //页面大小
@@ -44,35 +47,36 @@ function queryParams(params) {
 		sort: params.sort,
 		order: params.order
 	}
+	/*if(strIsNotEmpty($("#expireDate").val())){
+		  let day1 = new Date();
+		  day1.setDate(day1.getDate() + $("#expireDate").val());
+		  console.log(day1.getFullYear()+'-'+(day1.getMonth()+1)+'-'+day1.getDate());
+		temp = $.extend(temp,{expireDate:'2020-07-12'});
+	}*/
 	return $.extend(temp, bui.util.bindGridMeta2Form('grid', 'queryForm'));
 }
 
 
-/**
- 打开查看窗口
- */
-/*function openViewHandler() {
-	//获取选中行的数据
-	let rows = _grid.bootstrapTable('getSelections');
-	if (null == rows || rows.length == 0) {
-		bs4pop.alert('请选中一条数据');
-		return false;
-	}
-	window.location.href = "${contextPath}/stock/stockInDetail/view.html?code=" + rows[0].code;
-}*/
+function codeFormatter(value,row,index) {
+    return '<a href="javascript:openViewHandler(\''+row.code+'\')">'+value+'</a>';
+}
 
 /**
 打开查看窗口
 */
-function openViewHandler() {
-let rows = _grid.bootstrapTable('getSelections');
-if (null == rows || rows.length == 0) {
-	bs4pop.alert('请选中一条数据');
-	return false;
-}
+function openViewHandler(code) {
+	if(!code){
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        code = rows[0].code;
+    }
   dia = bs4pop.dialog({
        title: "查看",
-       content: "${contextPath}/stock/stockInDetail/view.html?code=" + rows[0].code,
+       content: "${contextPath}/stock/stockInDetail/view.html?code=" + code,
        isIframe : true,
        closeBtn: true,
        backdrop : 'static',

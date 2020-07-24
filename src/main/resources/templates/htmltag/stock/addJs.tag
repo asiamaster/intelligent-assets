@@ -144,7 +144,7 @@ function buildFormData() {
 		let districtName = $(this).find("[name=districtId]").find("option:selected").text();
 		let assetsName = $(this).find("[name=assetsId]").find("option:selected").text();
 		detail.districtName = districtName;
-		detail.assetsName = assetsName;
+		detail.assetsCode = assetsName;
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
 		detail.stockWeighmanRecordDto = weightItems.get(index);
@@ -168,7 +168,6 @@ function buildFormData() {
 		}
 	});
 	formData.stockInDetailDtos = stockDetails;
-	
 	return JSON.stringify(formData);
 }
 

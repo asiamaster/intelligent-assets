@@ -33,8 +33,8 @@
                 <#bcomboProvider _id="state" _provider="stockInStateProvider" />
             </div>
             <div class="form-group col">
-                <label for="customerName">客户姓名</label>
-                <input type="text" class="form-control" name="customerName" id="customerName" maxlength="50"/>
+                <label for="likeCustomerName">客户姓名</label>
+                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
             </div>
             <div class="form-group col">
                 <label for="customerCellPhone">手机号</label>
@@ -128,7 +128,7 @@
     <thead>
     <tr>
         <th data-radio="true"></th>
-        <th data-field="code" data-sortable="true" data-align="center" data-width-unit="%" >
+        <th data-field="code" data-sortable="true" data-align="center" data-width-unit="%" data-formatter="codeFormatter">
             入库单号
         </th>
         <th data-field="type" data-sortable="true" data-align="center" data-sort-name="type" data-provider="stockInTypeProvider">

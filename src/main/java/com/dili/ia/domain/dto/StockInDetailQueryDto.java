@@ -1,5 +1,6 @@
 package com.dili.ia.domain.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -52,7 +53,9 @@ public class StockInDetailQueryDto extends BaseDomain{
 	
 	private LocalDateTime endDate;
 	
-	private LocalDateTime expireDate;
+	private LocalDate expireDate;
+	
+	private Integer expireDay;
 	
 	private Long departmentId;
 
@@ -149,11 +152,11 @@ public class StockInDetailQueryDto extends BaseDomain{
 		this.endDate = endDate;
 	}
 
-	public LocalDateTime getExpireDate() {
+	public LocalDate getExpireDate() {
 		return expireDate;
 	}
 
-	public void setExpireDate(LocalDateTime expireDate) {
+	public void setExpireDate(LocalDate expireDate) {
 		this.expireDate = expireDate;
 	}
 
@@ -173,6 +176,16 @@ public class StockInDetailQueryDto extends BaseDomain{
 		this.parentDistrictId = parentDistrictId;
 	}
 
+	public Integer getExpireDay() {
+		return expireDay;
+	}
+
+	public void setExpireDay(Integer expireDay) {
+		this.expireDay = expireDay;
+	}
+
+	
+	
 	/*public String getOrderByColumn() {
 		return orderByColumn;
 	}
