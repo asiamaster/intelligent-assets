@@ -1,3 +1,11 @@
+ALTER TABLE `dili-assets`.`apportion_record`
+MODIFY COLUMN `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间' AFTER `id`,
+ADD COLUMN `lease_order_id` bigint(20) NOT NULL COMMENT '订单ID' AFTER `create_time`,
+MODIFY COLUMN `lease_item_id` bigint(20) NOT NULL COMMENT '订单项ID' AFTER `create_time`,
+MODIFY COLUMN `charge_item_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '收费项名称' AFTER `charge_item_id`;
+ALTER TABLE `dili-assets`.`apportion_record`
+CHANGE COLUMN `lease_item_id` `lease_order_item_id` bigint(20) NOT NULL COMMENT '订单项ID' AFTER `create_time`;
+
 ALTER TABLE `dili-assets`.`assets_lease_order_item`
 CHANGE COLUMN `booth_id` `assets_id` bigint(20) NULL DEFAULT NULL COMMENT '资产ID' AFTER `lease_order_code`,
 CHANGE COLUMN `booth_name` `assets_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '资产名称' AFTER `asset_id`;

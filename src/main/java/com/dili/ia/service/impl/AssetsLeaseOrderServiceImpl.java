@@ -117,6 +117,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private TaskRpc taskRpc;
     @Autowired
     private ApprovalProcessService approvalProcessService;
+    @Autowired
+    private ApportionRecordService apportionRecordService;
 
     @Autowired
     @Lazy
@@ -664,6 +666,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(leaseOrderItemCondition);
         String bizType = AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType();
+        List<ApportionRecord> apportionRecords = new ArrayList<>();
         leaseOrderItems.stream().forEach(o -> {
             BusinessChargeItem chargeItemCondition = new BusinessChargeItem();
             chargeItemCondition.setBusinessId(o.getId());
@@ -679,7 +682,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
 
             //业务收费项完成分摊
-            businessChargeItems.forEach(bci -> {
+            businessChargeItems.stream().filter(bci -> bci.getPaymentAmount() > 0L).forEach(bci -> {
+                ApportionRecord apportionRecord = buildApportionRecord(leaseOrder, o, bci);
+                apportionRecords.add(apportionRecord);
+
                 bci.setWaitAmount(bci.getWaitAmount() - bci.getPaymentAmount());
                 bci.setPaidAmount(bci.getPaidAmount() + bci.getPaymentAmount());
                 bci.setPaymentAmount(0L);
@@ -692,6 +698,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         });
         if (assetsLeaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+        if (apportionRecordService.batchInsert(apportionRecords) != apportionRecords.size()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "分摊明细写入失败！");
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
 
@@ -1537,6 +1546,24 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
         businessLog.setSystemCode("INTELLIGENT_ASSETS");
         return businessLog;
+    }
+
+    /**
+     * 构建分摊明细
+     * @param leaseOrder
+     * @param o
+     * @param bci
+     * @return
+     */
+    private ApportionRecord buildApportionRecord(AssetsLeaseOrder leaseOrder, AssetsLeaseOrderItem o, BusinessChargeItem bci) {
+        ApportionRecord apportionRecord = new ApportionRecord();
+        apportionRecord.setLeaseOrderId(leaseOrder.getId());
+        apportionRecord.setLeaseOrderItemId(o.getId());
+        apportionRecord.setAmount(bci.getPaymentAmount());
+        apportionRecord.setChargeItemId(bci.getChargeItemId());
+        apportionRecord.setChargeItemName(bci.getChargeItemName());
+        apportionRecord.setCreateTime(LocalDateTime.now());
+        return apportionRecord;
     }
 
 }
