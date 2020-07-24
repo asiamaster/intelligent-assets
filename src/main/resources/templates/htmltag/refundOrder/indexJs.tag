@@ -337,7 +337,10 @@
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
         }
-        $('#btn_submit').attr('disabled', false);
+        //只能有流程实例id就可以查看流程图
+        if(row.processInstanceId) {
+            $("#btn_showProgress").attr('disabled', false);
+        }
     });
 </script>
 

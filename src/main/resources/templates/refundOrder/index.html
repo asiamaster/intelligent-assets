@@ -63,7 +63,10 @@
                 <#resource code="submitRefundOrderApplication">
                     <button id="btn_approval" type="button" class="btn btn-primary" onclick="submitRefundOrderApplication()"><i class="fa fa-paper-plane"></i> 提交审批</button>
                 </#resource>
+<%//只有摊位租赁退款单可以查看流程
+if(bizType=="1"){%>
                 <button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
+<%}%>
                 <#resource code="withdrawRefundOrder">
                     <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
                 </#resource>
