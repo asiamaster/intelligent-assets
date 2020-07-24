@@ -1,7 +1,7 @@
 <#bs4Body>
 <div class="container-fluid">
-    <div>
-        <iframe height="835" frameborder="0" width="100%" src="${contextPath}/assetsLeaseOrder/view.action?code=${businessKey}" ></iframe>
+    <!-- 租赁单详情 -->
+    <div id="assetsLeaseOrderDetail">
     </div>
     <div align="center" id="approvalInfo" >
         <%
@@ -122,7 +122,7 @@
     }
 
     $(function () {
-
+        $("#assetsLeaseOrderDetail").load("${contextPath}/assetsLeaseOrder/viewFragment.action?code=${businessKey} body");
     });
 </script>
 

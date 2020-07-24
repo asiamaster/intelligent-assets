@@ -129,6 +129,16 @@ public class RefundOrderController {
     }
 
     /**
+     * 跳转到退款单-查看页面版本，用于流程审批
+     * @param modelMap
+     * @return String
+     */
+    @GetMapping(value="/viewFragment.action")
+    public String fragmentView(ModelMap modelMap, Long id, String orderCode){
+        view(modelMap, id, orderCode);
+        return "refundOrder/leaseRefundOrderViewFragment";
+    }
+    /**
      * 跳转到退款单-查看页面
      * @param modelMap
      * @return String

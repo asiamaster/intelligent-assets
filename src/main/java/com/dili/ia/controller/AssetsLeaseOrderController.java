@@ -228,6 +228,19 @@ public class AssetsLeaseOrderController {
     }
 
     /**
+     * 跳转到LeaseOrder查看页面片段， 用于审批查看
+     *
+     * @param modelMap
+     * @param orderCode 缴费单CODE
+     * @param code
+     * @return String
+     */
+    @GetMapping(value = "/viewFragment.action")
+    public String viewFragment(ModelMap modelMap, Long id, String code, String orderCode){
+        view(modelMap, id, code, orderCode);
+        return "assetsLeaseOrder/viewFragment";
+    }
+    /**
      * 跳转到LeaseOrder查看页面
      *
      * @param modelMap
