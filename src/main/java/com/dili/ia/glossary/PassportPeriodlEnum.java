@@ -6,23 +6,25 @@ package com.dili.ia.glossary;
  * @version:     农批业务系统重构
  * @description: 精品停车状态枚举
  */
-public enum BoutiqueStateEnum {
-    NOCONFIRM(1,"待确认"),
-    COUNTING(2,"计费中"),
-    LEAVE(3,"已离场"),
-    CANCEL(4,"已取消")
+public enum PassportPeriodlEnum {
+    ONE_MONTH(1,"一月"),
+    TWO_MONTH(2,"两月"),
+    QUARTERLY(3,"一季度"),
+    HALF_YEAR(4,"半年"),
+    ONE_YEAR(5,"一年"),
+    OHTER(6,"其他")
     ;
 
     private String name;
     private Integer code ;
 
-    BoutiqueStateEnum(Integer code, String name){
+    PassportPeriodlEnum(Integer code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static BoutiqueStateEnum getBoutiqueStateEnum(Integer code) {
-        for (BoutiqueStateEnum anEnum : BoutiqueStateEnum.values()) {
+    public static PassportPeriodlEnum getPassportPeriodlEnum(Integer code) {
+        for (PassportPeriodlEnum anEnum : PassportPeriodlEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }
@@ -30,8 +32,8 @@ public enum BoutiqueStateEnum {
         return null;
     }
 
-    public static String getBoutiqueStateEnumName(Integer code) {
-        for (BoutiqueStateEnum r : BoutiqueStateEnum.values()) {
+    public static String getPassportPeriodlEnumName(Integer code) {
+        for (PassportPeriodlEnum r : PassportPeriodlEnum.values()) {
             if (r.getCode().equals(code)) {
                 return r.getName();
             }

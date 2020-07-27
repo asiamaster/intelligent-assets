@@ -135,8 +135,6 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         BoutiqueFeeOrder domain = new BoutiqueFeeOrder();
         domain.setVersion(version + 1);
         domain.setState(state.getCode());
-        domain.setOperatorId(userTicket.getId());
-        domain.setOperatorName(userTicket.getRealName());
 
         BoutiqueFeeOrder condition = new BoutiqueFeeOrder();
         condition.setCode(code);

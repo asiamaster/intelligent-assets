@@ -75,14 +75,14 @@ public class BoutiqueFeeOrder extends BaseDomain {
     /**
      * 操作员ID
      */
-    @Column(name = "`operator_id`")
-    private Long operatorId;
+    @Column(name = "`submitter_id`")
+    private Long submitterId;
 
     /**
      * 操作员名称
      */
-    @Column(name = "`operator_name`")
-    private String operatorName;
+    @Column(name = "`submitter`")
+    private String submitter;
 
     /**
      * 取消人ID
@@ -295,41 +295,41 @@ public class BoutiqueFeeOrder extends BaseDomain {
     /**
      * 获取操作员ID
      *
-     * @return operator_id - 操作员ID
+     * @return submitter_Id - 操作员ID
      */
     @FieldDef(label="操作员ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getOperatorId() {
-        return operatorId;
+    public Long getSubmitterId() {
+        return submitterId;
     }
 
     /**
      * 设置操作员ID
      *
-     * @param operatorId 操作员ID
+     * @param submitterId 操作员ID
      */
-    public void setOperatorId(Long operatorId) {
-        this.operatorId = operatorId;
+    public void setSubmitterId(Long submitterId) {
+        this.submitterId = submitterId;
     }
 
     /**
      * 获取操作员名称
      *
-     * @return operator_name - 操作员名称
+     * @return submitter - 操作员名称
      */
     @FieldDef(label="操作员名称", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
-    public String getOperatorName() {
-        return operatorName;
+    public String getSubmitter() {
+        return submitter;
     }
 
     /**
      * 设置操作员名称
      *
-     * @param operatorName 操作员名称
+     * @param submitter 操作员名称
      */
-    public void setOperatorName(String operatorName) {
-        this.operatorName = operatorName;
+    public void setSubmitter(String submitter) {
+        this.submitter = submitter;
     }
 
     /**

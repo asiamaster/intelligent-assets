@@ -195,10 +195,10 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         feeOrder.setCode(code);
         feeOrder.setCreateTime(LocalDateTime.now());
         feeOrder.setModifyTime(LocalDateTime.now());
-        feeOrder.setOperatorId(userTicket.getId());
+        feeOrder.setSubmitterId(userTicket.getId());
         feeOrder.setMarketId(userTicket.getFirmId());
         feeOrder.setMarketCode(userTicket.getFirmCode());
-        feeOrder.setOperatorName(userTicket.getRealName());
+        feeOrder.setSubmitter(userTicket.getRealName());
         feeOrder.setState(BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode());
         // TODO 费用时间范围存为开始时间和结束时间
 
@@ -478,10 +478,6 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
     /**
      * 构建退款
-     *
-     * @param
-     * @return
-     * @date   2020/7/23
      */
     private RefundOrder buildRefundOrderDto(UserTicket userTicket, BoutiqueRefundDto boutiqueRefundDto, BoutiqueFeeOrderDto orderDto) {
 
@@ -516,8 +512,8 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
                 BoutiqueFeeOrder feeOrder = new BoutiqueFeeOrder();
                 BeanUtils.copyProperties(feeOrderDto, feeOrder);
                 feeOrder.setState(BoutiqueOrderStateEnum.CANCELLED.getCode());
-                feeOrder.setOperatorId(record.getOperatorId());
-                feeOrder.setOperatorName(record.getOperatorName());
+                feeOrder.setCancelerId(record.getOperatorId());
+                feeOrder.setCanceler(record.getOperatorName());
                 feeOrder.setModifyTime(LocalDateTime.now());
                 boutiqueFeeOrderService.updateSelective(feeOrder);
 

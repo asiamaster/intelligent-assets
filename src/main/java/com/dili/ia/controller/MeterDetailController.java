@@ -10,6 +10,9 @@ import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 
@@ -46,6 +49,9 @@ public class MeterDetailController {
 
     @Autowired
     MeterDetailService meterDetailService;
+
+    @Autowired
+    BusinessLogRpc businessLogRpc;
 
     @Autowired
     private BusinessChargeItemService businessChargeItemService;
@@ -127,6 +133,20 @@ public class MeterDetailController {
             meterDetailDto = meterDetailService.getMeterDetailById(id);
         }
         modelMap.put("meterDetail", meterDetailDto);
+
+        // TODO 还未完成
+        try{
+            //日志查询
+            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+            businessLogQueryInput.setBusinessId(id);
+            businessLogQueryInput.setBusinessType(LogBizTypeConst.UTILITIES);
+            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            if(businessLogOutput.isSuccess()){
+                modelMap.put("logs",businessLogOutput.getData());
+            }
+        }catch (Exception e){
+            logger.error("日志服务查询异常",e);
+        }
 
         String meterUrl = "/water";
         if (2 == meterDetailDto.getType()) {

@@ -136,8 +136,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         List<BusinessChargeItem> list = businessChargeItemService.list(condtion);
         meterDetailDtoInfo.setBusinessChargeItems(list);
 
-        // TODO 查询操作日志
-
         return meterDetailDtoInfo;
     }
 
@@ -320,8 +318,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             paymentOrder.setAmount(meterDetailInfo.getAmount());
             paymentOrder.setBizType(BizTypeEnum.UTTLITIES.getCode());
             paymentOrderService.insertSelective(paymentOrder);
-
-            // TODO 有公摊费, 公摊费是否单独为缴费单
 
             // 调用结算接口,缴费
             SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, meterDetailInfo, paymentOrder.getCode(), paymentOrder.getAmount());
