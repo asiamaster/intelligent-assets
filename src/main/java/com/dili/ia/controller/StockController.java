@@ -94,7 +94,7 @@ public class StockController {
      * @throws Exception
      */
     @RequestMapping(value="/outListPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String outListPage(@ModelAttribute Stock stock) throws Exception {
+    public @ResponseBody String outListPage(@ModelAttribute StockQueryDto stock) throws Exception {
     	return stockService.listEasyuiPageByExample(stock, true).toString();
     }
     

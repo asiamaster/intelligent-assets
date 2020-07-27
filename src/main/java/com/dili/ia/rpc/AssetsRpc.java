@@ -6,6 +6,7 @@ import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.ia.domain.dto.AssetsDto;
+import com.dili.ia.domain.dto.CategoryQuery;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;

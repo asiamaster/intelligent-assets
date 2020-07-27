@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.ia.domain.CategoryStorageCycle;
+import com.dili.ia.domain.dto.CategoryQuery;
 import com.dili.ia.domain.dto.CategoryStorageCycleDto;
 import com.dili.ia.mapper.CategoryStorageCycleMapper;
 import com.dili.ia.rpc.AssetsRpc;
@@ -20,6 +21,7 @@ import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 
@@ -56,18 +58,18 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         List<CategoryStorageCycle> insert = new ArrayList<>();
 		CategoryStorageCycle categoryStorageCycle = new CategoryStorageCycle(userTicket);
-    	BeanUtil.copyProperties(dto, categoryStorageCycle);    	
+    	BeanUtil.copyProperties(dto, categoryStorageCycle);    
     	insert.add(categoryStorageCycle);
     	if(dto.getAllChildren() != null && dto.getAllChildren()) {
-    		CategoryDTO input = new CategoryDTO();
+    		CategoryQuery input = new CategoryQuery();
         	input.setMarketId(userTicket.getFirmId());
-        	input.setParent(dto.getId());
-        	//input.setPath(dto.getPath());
+        	//input.setParent(dto.getId());
+        	input.setQueryPath(dto.getPath());
         	//input.setState(1);
         	List<CategoryDTO> list = assetsRpc.list(input).getData();
         	list.forEach(item -> {
         		CategoryStorageCycle child = new CategoryStorageCycle(userTicket);
-            	BeanUtil.copyProperties(item, child);    	
+            	BeanUtil.copyProperties(item, child, CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));    	
             	child.setNotes(dto.getNotes());
             	child.setCycle(dto.getCycle());
             	child.setModuleLabel(dto.getModuleLabel());

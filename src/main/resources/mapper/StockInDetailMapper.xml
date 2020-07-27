@@ -28,7 +28,7 @@
                 and sid.category_id = #{categoryId}
             </if>
             <if test="customerName != null">
-                and si.customer_name = #{customerName}
+                and si.customer_name like concat('%',#{customerName},'%') 
             </if>
             <if test="customerCellphone != null">
                 and si.customer_cellphone = #{customerCellphone}
@@ -43,7 +43,7 @@
                 and si.type = #{type}
             </if>
             <if test="expireDate != null">
-                and si.expireDate = #{expireDate}
+                and si.expire_date = #{expireDate}
             </if>
             <if test="state != null">
                 and si.state = #{state}

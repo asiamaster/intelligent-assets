@@ -117,4 +117,19 @@ let saveFormDetail = {
 	    focusCleanup: true
 	}
 
+function validateForm(){
+	let count = 0;
+	if(!$("#saveForm").validate().form()){
+		count++
+	}
+	for(let i=1;i<=itemIndex;i++){
+		if($("#saveForm_"+i).length > 0){
+			if(!$("#saveForm_"+i).validate().form()){
+				count++
+			}  
+		}
+	}
+	return count==0?true:false;
+}
+
 </script>

@@ -18,6 +18,7 @@ import com.dili.ss.metadata.ValueProviderUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,9 @@ public class StockInDetailServiceImpl extends BaseServiceImpl<StockInDetail, Lon
 	@Override
 	public Page<Map<String, String>> selectByContion(StockInDetailQueryDto stockInDetailQueryDto) {
 		Page<Map<String, String>> result = PageHelper.startPage(stockInDetailQueryDto.getPage(), stockInDetailQueryDto.getRows());
+		if(stockInDetailQueryDto.getExpireDay() != null) {
+			stockInDetailQueryDto.setExpireDate(LocalDate.now().plusDays(stockInDetailQueryDto.getExpireDay()));
+		}
 		getActualDao().selectByContion(stockInDetailQueryDto);;
 		return result;
 	}

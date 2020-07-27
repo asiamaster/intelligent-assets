@@ -35,13 +35,19 @@ var categoryAutoCompleteOption = {
 
 $(function () {
 	getDistrict($("#district-one"),0);
-	getAssets($("#assetsId"),0);
+	//getAssets($("#assetsId"),0);
 });
 
 //一级区域变动事件
 $(document).on('change', '#district-one', function() {
 	getDistrict($("#district-two"),$("#district-one").val());
 });
+$(document).on('change', '#district-two', function() {
+	getAssets($("#assetsId"),$(this).val());
+});
+
+//冷库区域变更  对应子单的冷库更新
+
 
 //区域搜索
 function getDistrict(obj,parent){
@@ -72,11 +78,13 @@ function getDistrict(obj,parent){
 }
 
 //区域搜索
-function getAssets(obj,parent){
+function getAssets(obj,districtId){
 	$.ajax({
 		type: "POST",
-		url: "/district/search.action",
-		data: {parentId: parent},
+		url: "/stock/stockIn/getColdStorage.action",
+		data:{secondArea: districtId,
+        	businessType:2
+        },
 		success: function (data) {
 			if (data.code == "200") {
 				var array = $.map(data.data, function (obj) {
