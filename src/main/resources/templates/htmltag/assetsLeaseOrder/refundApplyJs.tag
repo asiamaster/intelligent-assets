@@ -185,7 +185,7 @@
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
-            url: "/assetsLeaseOrder/createOrUpdateRefundOrder.action",
+            url: "/leaseOrder/createOrUpdateRefundOrder.action",
             data: JSON.stringify(buildFormData()),
             dataType: "json",
             contentType: "application/json; charset=utf-8",

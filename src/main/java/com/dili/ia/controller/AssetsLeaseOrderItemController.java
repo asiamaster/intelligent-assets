@@ -32,7 +32,7 @@ import java.util.List;
  * This file was generated on 2020-05-29 14:40:05.
  */
 @Controller
-@RequestMapping("/assetsLeaseOrderItem")
+@RequestMapping("/leaseOrderItem")
 public class AssetsLeaseOrderItemController {
     private final static Logger LOG = LoggerFactory.getLogger(AssetsLeaseOrderItemController.class);
     @Autowired

@@ -12,7 +12,7 @@
     function batchQueryDepositOrder(depositOrderQuery) {
         $.ajax({
             type: "post",
-            url: "/assetsLeaseOrder/batchQueryDepositOrder.action",
+            url: "/leaseOrder/batchQueryDepositOrder.action",
             data: depositOrderQuery,
             dataType: "json",
             async : false,
@@ -120,7 +120,7 @@
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
-            url: "/assetsLeaseOrder/submitPayment.action",
+            url: "/leaseOrder/submitPayment.action",
             data: JSON.stringify(buildFormData()),
             dataType: "json",
             contentType: "application/json; charset=utf-8",

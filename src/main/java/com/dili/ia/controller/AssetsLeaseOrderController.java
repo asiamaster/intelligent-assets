@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * This file was generated on 2020-05-29 14:40:05.
  */
 @Controller
-@RequestMapping("/assetsLeaseOrder")
+@RequestMapping("/leaseOrder")
 public class AssetsLeaseOrderController {
     private final static Logger LOG = LoggerFactory.getLogger(AssetsLeaseOrderController.class);
     @Autowired
