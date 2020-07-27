@@ -12,7 +12,6 @@ public enum BoutiqueStateEnum {
     LEAVE(3,"已离场"),
     CANCEL(4,"已取消")
     ;
-    ;
 
     private String name;
     private Integer code ;

@@ -45,11 +45,11 @@
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="工具栏">
                 <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
-                <#resource code="addMeterDetail">
-                    <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
+                <#resource code="addMeterDetailWater">
+                    <button id="btn_add" type="button" class="btn btn-primary" onclick="openWaterInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
                 </#resource>
-                <#resource code="updateMeterDetail">
-                    <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
+                <#resource code="updateMeterDetailWater">
+                    <button id="btn_update" type="button" class="btn btn-primary" onclick="openWaterUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 </#resource>
                 <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 批量提交</button>
                 <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>

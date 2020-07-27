@@ -14,8 +14,8 @@
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
     <result column="state" jdbcType="INTEGER" property="state" />
-    <result column="operator_id" jdbcType="BIGINT" property="operatorId" />
-    <result column="operator_name" jdbcType="VARCHAR" property="operatorName" />
+    <result column="submitter_id" jdbcType="BIGINT" property="submitterId" />
+    <result column="submitter" jdbcType="VARCHAR" property="submitter" />
     <result column="canceler_id" jdbcType="BIGINT" property="cancelerId" />
     <result column="canceler" jdbcType="VARCHAR" property="canceler" />
     <result column="cancel_reason" jdbcType="VARCHAR" property="cancelReason" />
@@ -29,8 +29,8 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, create_time, modify_time, record_id, code, start_time, end_time, amount, state, 
-    operator_id, operator_name, canceler_id, canceler, cancel_reason, cancel_time, notes, market_id, market_code,
+    id, create_time, modify_time, record_id, code, start_time, end_time, amount, state,
+    submitter_id, submitter, canceler_id, canceler, cancel_reason, cancel_time, notes, market_id, market_code,
     version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -72,11 +72,11 @@
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
       </if>
-      <if test="operatorId != null">
-        operator_id = #{operatorId,jdbcType=BIGINT},
+      <if test="submitterId != null">
+        submitter_id = #{submitterId,jdbcType=BIGINT},
       </if>
-      <if test="operatorName != null">
-        operator_name = #{operatorName,jdbcType=VARCHAR},
+      <if test="submitter != null">
+        submitter = #{submitter,jdbcType=VARCHAR},
       </if>
       <if test="cancelerId != null">
         canceler_id = #{cancelerId,jdbcType=BIGINT},

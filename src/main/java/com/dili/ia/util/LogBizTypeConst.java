@@ -19,18 +19,18 @@ public class LogBizTypeConst {
 
     // 表管理
     public static final String METER="meter";
-
     // 表用户关系
     public static final String CUSTOMER_METER="customer_meter";
-
     // 水电费
     public static final String UTILITIES="utilities";
-
     // 精品停车
-    public static final String BOUTIQUE_ENTRANCE="boutique_ntrance";
+    public static final String BOUTIQUE_ENTRANCE="boutique_entrance";
+    // 通行证
+    public static final String PASSPORT = "passport";
 
     // 其它收费
     public static final String OTHER_FEE="other_fee";
+
 
 
 }

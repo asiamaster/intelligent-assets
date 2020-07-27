@@ -4,6 +4,8 @@ import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
+import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
+import com.dili.ia.domain.dto.BoutiqueRefundDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.settlement.domain.SettleOrder;
@@ -85,4 +87,15 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @date   2020/7/14
      */
     PrintDataDto<BoutiqueEntrancePrintDto> receiptPaymentData(String orderCode, Integer reprint);
+
+    /**
+     * 退款申请
+     *
+     * @param boutiqueInRefundDto
+     * @return BaseOutput
+     * @date   2020/7/23
+     */
+    void refund(BoutiqueRefundDto boutiqueInRefundDto);
+
+    BoutiqueFeeOrderDto getBoutiqueAndOrderByCode(String code);
 }

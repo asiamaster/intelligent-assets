@@ -5,8 +5,10 @@ import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.BoutiqueFreeSets;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
+import com.dili.ia.domain.dto.BoutiqueRefundDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
@@ -23,6 +25,8 @@ import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.BoutiqueFeeOrderService;
 import com.dili.ia.service.BoutiqueFreeSetsService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -36,6 +40,7 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
+import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -51,8 +56,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-07-13 10:49:05.
+ * @author:       xiaosa
+ * @date:         2020/7/23
+ * @version:      农批业务系统重构
+ * @description:  精品停车
  */
 @Service
 public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueEntranceRecord, Long> implements BoutiqueEntranceRecordService {
@@ -80,6 +87,9 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
     @Autowired
     private SettlementRpcResolver settlementRpcResolver;
+
+    @Autowired
+    private RefundOrderService refundOrderService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -174,7 +184,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         // 先根据 recordId 查询是否已存在已提交状态的交费单
         List<BoutiqueFeeOrderDto> orderDtoList = boutiqueFeeOrderService.listByRecordId(feeOrder.getRecordId());
         if (orderDtoList != null && orderDtoList.size() > 0) {
-            orderDtoList.stream().filter(feeOrderDto -> BoutiqueOrderStateEnum.SUBMIT.getCode().equals(feeOrderDto.getState())).forEach(feeOrderDto -> {
+            orderDtoList.stream().filter(feeOrderDto -> BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode().equals(feeOrderDto.getState())).forEach(feeOrderDto -> {
                 throw new BusinessException(ResultCode.DATA_ERROR, "已存在已提交的交费单，请先处理。");
             });
         }
@@ -185,11 +195,11 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         feeOrder.setCode(code);
         feeOrder.setCreateTime(LocalDateTime.now());
         feeOrder.setModifyTime(LocalDateTime.now());
-        feeOrder.setOperatorId(userTicket.getId());
+        feeOrder.setSubmitterId(userTicket.getId());
         feeOrder.setMarketId(userTicket.getFirmId());
         feeOrder.setMarketCode(userTicket.getFirmCode());
-        feeOrder.setOperatorName(userTicket.getRealName());
-        feeOrder.setState(BoutiqueOrderStateEnum.SUBMIT.getCode());
+        feeOrder.setSubmitter(userTicket.getRealName());
+        feeOrder.setState(BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode());
         // TODO 费用时间范围存为开始时间和结束时间
 
         boutiqueFeeOrderService.insertSelective(feeOrder);
@@ -266,7 +276,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         }
         List<BoutiqueFeeOrderDto> orderDtoList = boutiqueFeeOrderService.listByRecordId(recordInfo.getId());
         if(orderDtoList != null && orderDtoList.size()>0){
-            orderDtoList.stream().filter(order -> order.getState().equals(BoutiqueOrderStateEnum.SUBMIT.getCode())).forEach(order -> {
+            orderDtoList.stream().filter(order -> order.getState().equals(BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode())).forEach(order -> {
                 throw new BusinessException("", recordInfo.getPlate() + " 有停车费未结清，请结清后再离场");
             });
         }
@@ -358,7 +368,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         }
 
         // 修改精品停车交费单的状态
-        feeOrderInfo.setState(BoutiqueOrderStateEnum.PAY.getCode());
+        feeOrderInfo.setState(BoutiqueOrderStateEnum.PAID.getCode());
         feeOrderInfo.setModifyTime(LocalDateTime.now());
         if (boutiqueFeeOrderService.updateSelective(feeOrderInfo) == 0) {
             logger.info("缴费单成功回调 -- 更新【精品停车交费单】状态,乐观锁生效！【交费单Id:{}】", feeOrderInfo.getId());
@@ -430,6 +440,66 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         return printDataDto;
     }
 
+    /**
+     * 退款申请
+     *
+     * @param refundDto
+     * @return BaseOutput
+     * @date   2020/7/23
+     */
+    @Override
+    public void refund(BoutiqueRefundDto refundDto) {
+
+        // 查询相关数据
+        String code = refundDto.getCode();
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        BoutiqueFeeOrderDto orderDto = this.getBoutiqueAndOrderByCode(code);
+        if (!BoutiqueOrderStateEnum.PAID.getCode().equals(orderDto.getState())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+        }
+        // 构建退款单
+        RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundDto, orderDto);
+        refundOrderService.doSubmitDispatcher(refundOrder);
+
+        LoggerUtil.buildLoggerContext(orderDto.getId(), orderDto.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+    }
+
+    /**
+     * 根据 code 获取退款单相关信息
+     * 
+     * @param
+     * @return 
+     * @date   2020/7/23
+     */
+    @Override
+    public BoutiqueFeeOrderDto getBoutiqueAndOrderByCode(String code) {
+        return this.getActualDao().getBoutiqueAndOrderByCode(code);
+    }
+
+    /**
+     * 构建退款
+     */
+    private RefundOrder buildRefundOrderDto(UserTicket userTicket, BoutiqueRefundDto boutiqueRefundDto, BoutiqueFeeOrderDto orderDto) {
+
+        //退款单
+        RefundOrder refundOrder = new RefundOrder();
+        refundOrder.setBusinessCode(orderDto.getCode());
+        refundOrder.setBusinessId(orderDto.getId());
+        refundOrder.setCustomerId(orderDto.getCustomerId());
+        refundOrder.setCustomerName(orderDto.getCustomerName());
+        refundOrder.setCustomerCellphone(orderDto.getCustomerCellphone());
+        refundOrder.setCertificateNumber("0000");
+        refundOrder.setTotalRefundAmount(boutiqueRefundDto.getAmount());
+        refundOrder.setPayeeAmount(boutiqueRefundDto.getAmount());
+        refundOrder.setRefundReason(boutiqueRefundDto.getNotes());
+        refundOrder.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
+        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode()));
+        if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
+            logger.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+        }
+        return refundOrder;
+    }
 
     /**
      * 修改交费单的状态（作废交费单）
@@ -437,13 +507,13 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     private void invalidOrders(BoutiqueEntranceRecord record, UserTicket userTicket){
         List<BoutiqueFeeOrderDto> orderDtoList=boutiqueFeeOrderService.listByRecordId(record.getId());
         if(orderDtoList != null && orderDtoList.size()>0){
-            orderDtoList.stream().filter(feeOrderDto -> feeOrderDto.getState().equals(BoutiqueOrderStateEnum.SUBMIT.getCode())).forEach(feeOrderDto -> {
+            orderDtoList.stream().filter(feeOrderDto -> feeOrderDto.getState().equals(BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode())).forEach(feeOrderDto -> {
                 // 修改精品停车交费单的状态
                 BoutiqueFeeOrder feeOrder = new BoutiqueFeeOrder();
                 BeanUtils.copyProperties(feeOrderDto, feeOrder);
-                feeOrder.setState(BoutiqueOrderStateEnum.CANCEL.getCode());
-                feeOrder.setOperatorId(record.getOperatorId());
-                feeOrder.setOperatorName(record.getOperatorName());
+                feeOrder.setState(BoutiqueOrderStateEnum.CANCELLED.getCode());
+                feeOrder.setCancelerId(record.getOperatorId());
+                feeOrder.setCanceler(record.getOperatorName());
                 feeOrder.setModifyTime(LocalDateTime.now());
                 boutiqueFeeOrderService.updateSelective(feeOrder);
 
