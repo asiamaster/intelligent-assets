@@ -13,6 +13,7 @@ import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.MeterDetailStateEnum;
+import com.dili.ia.glossary.MeterTypeEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.MeterDetailMapper;
@@ -132,7 +133,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         // 组装动态收费项
         BusinessChargeItem condtion = new BusinessChargeItem();
         condtion.setBusinessCode(meterDetailDtoInfo.getCode());
-        condtion.setBizType(BizTypeEnum.UTTLITIES.getCode());
+        condtion.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
         List<BusinessChargeItem> list = businessChargeItemService.list(condtion);
         meterDetailDtoInfo.setBusinessChargeItems(list);
 
@@ -234,54 +235,54 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         return BaseOutput.success().setData(meterDetail);
     }
 
-
-
     /**
-     * 构建新增时动态收费项
+     * 修改水电费单
+     *
+     * @param  meterDetailDto
+     * @return 是否成功
+     * @date   2020/7/1
      */
-    private List<BusinessChargeItem> buildAddBusinessCharge(List<BusinessChargeItem> businessChargeItems, Long businessId, String businessCode){
-        List<BusinessChargeItem> businessChargeItemList = new ArrayList<>();
+    @Override
+    public BaseOutput<MeterDetail> updateMeterDetail(MeterDetailDto meterDetailDto) {
 
-        businessChargeItems.stream().filter(item -> item.getAmount() != null).forEach(item -> {
-            item.setPaidAmount(0L);
-            item.setBusinessId(businessId);
-            item.setBusinessCode(businessCode);
-            item.setWaitAmount(item.getAmount());
-            item.setCreateTime(LocalDateTime.now());
-            item.setModifyTime(LocalDateTime.now());
-            item.setPaymentAmount(item.getAmount());
-            item.setBizType(BizTypeEnum.UTTLITIES.getCode());
-            item.setVersion(0);
-            businessChargeItemList.add(item);
-        });
+        // 先查询
+        MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
+        if (meterDetailInfo == null) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，修改失败。");
+        }
 
-        return businessChargeItemList;
+        // 已创建状态才能修改
+        if (!MeterDetailStateEnum.CREATED.getCode().equals(meterDetailInfo.getState())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改");
+        }
+
+        //在更新状态之前查询指数信息，不然可能会查询出当前数据(脏读)
+        BaseOutput lastAmountReturn = this.getLastAmount(meterDetailInfo.getMeterId());
+        if (!lastAmountReturn.isSuccess()){
+            return BaseOutput.failure("该表初始指数获取失败,保存失败!");
+        }
+        Long lastAmount = (Long) lastAmountReturn.getData();
+
+        //构建动态收费项
+        if (meterDetailDto.getBusinessChargeItems() != null) {
+            List<BusinessChargeItem> businessChargeItems = buildUpdateBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetailInfo.getId(), meterDetailInfo.getCode());
+            if (businessChargeItems != null && businessChargeItems.size() > 0) {
+                for (BusinessChargeItem businessChargeItem : businessChargeItems) {
+                    businessChargeItemService.updateSelective(businessChargeItem);
+                }
+            }
+        }
+
+        BeanUtils.copyProperties(meterDetailDto, meterDetailInfo);
+        meterDetailInfo.setModifyTime(LocalDateTime.now());
+        meterDetailInfo.setVersion(meterDetailInfo.getVersion() + 1);
+        if (this.updateSelective(meterDetailInfo) == 0) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
+        }
+
+        return BaseOutput.success().setData(meterDetailInfo);
     }
 
-    /**
-     * 构建修改时动态收费项
-     */
-    private List<BusinessChargeItem> buildUpdateBusinessCharge(List<BusinessChargeItem> businessChargeItems, Long businessId, String businessCode){
-        List<BusinessChargeItem> businessChargeItemList = new ArrayList<>();
-
-        businessChargeItems.stream().filter(item -> item.getAmount() != null).forEach(item -> {
-            BusinessChargeItem itemInfo = businessChargeItemService.get(item.getId());
-
-            item.setPaidAmount(0L);
-            item.setBusinessId(businessId);
-            item.setBusinessCode(businessCode);
-            item.setAmount(item.getAmount());
-            item.setWaitAmount(item.getAmount());
-            item.setModifyTime(LocalDateTime.now());
-            item.setPaymentAmount(item.getAmount());
-            item.setBizType(BizTypeEnum.UTTLITIES.getCode());
-            item.setVersion(itemInfo.getVersion());
-            businessChargeItemList.add(item);
-        });
-
-        return businessChargeItemList;
-    }
-    
     /**
      * 提交水电费单(生成缴费单和结算单)
      *
@@ -316,7 +317,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             paymentOrder.setBusinessId(meterDetailInfo.getId());
             paymentOrder.setBusinessCode(meterDetailInfo.getCode());
             paymentOrder.setAmount(meterDetailInfo.getAmount());
-            paymentOrder.setBizType(BizTypeEnum.UTTLITIES.getCode());
+            paymentOrder.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
             paymentOrderService.insertSelective(paymentOrder);
 
             // 调用结算接口,缴费
@@ -325,100 +326,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             meterDetailList.add(meterDetailInfo);
         }
         return BaseOutput.success().setData(meterDetailList);
-    }
-
-    /**
-     * 构建结算实体类
-     * @param userTicket
-     * @param meterDetailInfo
-     * @param orderCode
-     * @param amount
-     * @return
-     */
-    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, MeterDetail meterDetailInfo, String orderCode, Long amount) {
-
-        SettleOrderInfoDto settleOrderInfoDto = new SettleOrderInfoDto(userTicket, BizTypeEnum.UTTLITIES, SettleTypeEnum.PAY, SettleStateEnum.WAIT_DEAL);
-        settleOrderInfoDto.setMarketId(meterDetailInfo.getMarketId());
-        settleOrderInfoDto.setMarketCode(userTicket.getFirmCode());
-        settleOrderInfoDto.setBusinessCode(meterDetailInfo.getCode());
-        settleOrderInfoDto.setOrderCode(orderCode);
-        settleOrderInfoDto.setAmount(amount);
-        settleOrderInfoDto.setAppId(settlementAppId);
-        settleOrderInfoDto.setBusinessDepId(meterDetailInfo.getDepartmentId());
-        settleOrderInfoDto.setBusinessDepName(meterDetailInfo.getDepartmentName());
-        settleOrderInfoDto.setCustomerId(meterDetailInfo.getCustomerId());
-        settleOrderInfoDto.setCustomerName(meterDetailInfo.getCustomerName());
-        settleOrderInfoDto.setCustomerPhone(meterDetailInfo.getCustomerCellphone());
-        settleOrderInfoDto.setSubmitterId(userTicket.getId());
-        settleOrderInfoDto.setSubmitterName(userTicket.getRealName());
-        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
-        settleOrderInfoDto.setType(SettleTypeEnum.PAY.getCode());
-        settleOrderInfoDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
-        if (userTicket.getDepartmentId() != null){
-            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
-            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
-        }
-
-        return settleOrderInfoDto;
-    }
-
-    /**
-     * 缴费回调
-     *
-     * @param  settleOrder
-     * @return
-     * @date   2020/7/6
-     */
-    @Override
-    public BaseOutput<EarnestOrder> settlementDealHandler(SettleOrder settleOrder) {
-
-        // 修改缴费单相关数据
-        if (null == settleOrder){
-            throw new BusinessException(ResultCode.PARAMS_ERROR, "回调参数为空！");
-        }
-        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
-        //结算单code唯一
-        condition.setCode(settleOrder.getOrderCode());
-        condition.setBizType(BizTypeEnum.EARNEST.getCode());
-        PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
-        MeterDetail meterDetailInfo = this.get(paymentOrderPO.getBusinessId());
-        if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
-            return BaseOutput.success().setData(meterDetailInfo);
-        }
-        if (!paymentOrderPO.getState().equals(PaymentOrderStateEnum.NOT_PAID.getCode())){
-            logger.info("缴费单状态已变更！状态为：" + PaymentOrderStateEnum.getPaymentOrderStateEnum(paymentOrderPO.getState()).getName() );
-            return BaseOutput.failure("缴费单状态已变更！");
-        }
-
-        //缴费单数据更新
-        paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
-        paymentOrderPO.setPayedTime(settleOrder.getOperateTime());
-        paymentOrderPO.setSettlementCode(settleOrder.getCode());
-        paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
-        paymentOrderPO.setSettlementWay(settleOrder.getWay());
-        if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
-            logger.info("缴费单成功回调 -- 更新【缴费单】,乐观锁生效！【付款单paymentOrderID:{}】", paymentOrderPO.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-
-        // 修改水电费单
-        meterDetailInfo.setModifyTime(LocalDateTime.now());
-        meterDetailInfo.setState(MeterDetailStateEnum.PAID.getCode());
-        if (this.updateSelective(meterDetailInfo) == 0) {
-            logger.info("缴费单成功回调 -- 更新【水电费单】状态,乐观锁生效！【水电费单Id:{}】", meterDetailInfo.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-
-        // 更新表信息中的当前指数
-        Meter meterInfo = meterService.get(meterDetailInfo.getMeterId());
-        meterInfo.setThisAmount(meterDetailInfo.getThisAmount());
-        if (meterService.updateSelective(meterInfo) == 0) {
-            logger.info("缴费单成功回调 -- 更新【表信息】当前指数失败,乐观锁生效！");
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-
-        return BaseOutput.success().setData(meterDetailInfo);
     }
 
     /**
@@ -486,6 +393,64 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     }
 
     /**
+     * 缴费回调
+     *
+     * @param  settleOrder
+     * @return
+     * @date   2020/7/6
+     */
+    @Override
+    public BaseOutput<MeterDetail> settlementDealHandler(SettleOrder settleOrder) {
+
+        // 修改缴费单相关数据
+        if (null == settleOrder){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "回调参数为空！");
+        }
+        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        //结算单code唯一
+        condition.setCode(settleOrder.getOrderCode());
+        condition.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
+        PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
+        MeterDetail meterDetailInfo = this.get(paymentOrderPO.getBusinessId());
+        if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
+            return BaseOutput.success().setData(meterDetailInfo);
+        }
+        if (!paymentOrderPO.getState().equals(PaymentOrderStateEnum.NOT_PAID.getCode())){
+            logger.info("缴费单状态已变更！状态为：" + PaymentOrderStateEnum.getPaymentOrderStateEnum(paymentOrderPO.getState()).getName() );
+            return BaseOutput.failure("缴费单状态已变更！");
+        }
+
+        //缴费单数据更新
+        paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
+        paymentOrderPO.setPayedTime(settleOrder.getOperateTime());
+        paymentOrderPO.setSettlementCode(settleOrder.getCode());
+        paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
+        paymentOrderPO.setSettlementWay(settleOrder.getWay());
+        if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
+            logger.info("缴费单成功回调 -- 更新【缴费单】,乐观锁生效！【付款单paymentOrderID:{}】", paymentOrderPO.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
+        // 修改水电费单
+        meterDetailInfo.setModifyTime(LocalDateTime.now());
+        meterDetailInfo.setState(MeterDetailStateEnum.PAID.getCode());
+        if (this.updateSelective(meterDetailInfo) == 0) {
+            logger.info("缴费单成功回调 -- 更新【水电费单】状态,乐观锁生效！【水电费单Id:{}】", meterDetailInfo.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
+        // 更新表信息中的当前指数
+        Meter meterInfo = meterService.get(meterDetailInfo.getMeterId());
+        meterInfo.setThisAmount(meterDetailInfo.getThisAmount());
+        if (meterService.updateSelective(meterInfo) == 0) {
+            logger.info("缴费单成功回调 -- 更新【表信息】当前指数失败,乐观锁生效！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
+        return BaseOutput.success().setData(meterDetailInfo);
+    }
+
+    /**
      * 票据打印
      *
      * @param  orderCode
@@ -498,7 +463,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         PaymentOrder paymentOrderCondition = new PaymentOrder();
 
         paymentOrderCondition.setCode(orderCode);
-        paymentOrderCondition.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
+        paymentOrderCondition.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
         if (null == paymentOrder) {
             throw new RuntimeException("businessCode无效");
@@ -508,7 +473,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
 
         // 组装数据
-        MeterDetailDto meterDetailInfo = this.getActualDao().getMeterDetailByCode(paymentOrder.getBusinessCode());
+        MeterDetailDto meterDetailInfo = this.getActualDao().getMeterDetailByCode(paymentOrder.getBusinessId());
         if (meterDetailInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "水电费单不存在!");
         }
@@ -525,15 +490,178 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
         meterDetailPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
-        meterDetailPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
-
-        // TODO 打印详情
+        meterDetailPrintDto.setBusinessType(BizTypeEnum.WATER_ELECTRICITY.getName());
 
         PrintDataDto<MeterDetailPrintDto> printDataDto = new PrintDataDto<>();
-        printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getCode());
-        printDataDto.setItem(null);
+        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_FEE.getCode());
+        if (MeterTypeEnum.WATER_METER.equals(meterDetailInfo.getState())) {
+            printDataDto.setName(PrintTemplateEnum.WATER_FEE.getCode());
+        }
+        printDataDto.setItem(meterDetailPrintDto);
 
         return printDataDto;
+    }
+
+    /**
+     * 根据表 meterId、用户 customerId 查询未缴费的记录数量
+     *
+     *
+     * @param  meterId
+     * @param  customerId
+     * @return 未缴费记录的数量
+     * @date   2020/6/29
+     */
+    @Override
+    public Integer countUnPayByMeterAndCustomer(Long meterId, Long customerId) {
+        MeterDetailDto meterDetailDto = new MeterDetailDto();
+
+        // 业务类型(水表、电表)
+        List<Integer> bizTypeList = Lists.newArrayList(Integer.valueOf(BizTypeEnum.WATER_ELECTRICITY.getCode()));
+        String bizTypes = bizTypeList.toString().replace("[", "").replace("]", "");
+        meterDetailDto.setBizTypes(bizTypes);
+        meterDetailDto.setMeterId(meterId);
+        meterDetailDto.setCustomerId(customerId);
+        meterDetailDto.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
+        List<Long> list = this.getActualDao().countUnPayByMeterAndCustomer(meterDetailDto);
+        if (CollectionUtils.isEmpty(list)){
+            return 0;
+        }
+
+        return list.size();
+    }
+
+    /**
+     * 根据 meterId 获取初始值
+     *
+     * @param  meterId
+     * @return 初始值(上期指数)
+     * @date   2020/6/29
+     */
+    @Override
+    public BaseOutput getLastAmount(Long meterId) {
+        // 先查询表信息是否存在
+        Meter meterInfo = meterService.get(meterId);
+        if (meterInfo == null) {
+            BaseOutput.failure("表信息不存在。");
+        }
+
+        // 查询缴费历史中,已缴费的最新数据
+        Long lastAmount = this.getLastAmountByMeterId(meterId);
+        if (lastAmount == null) {
+            lastAmount = meterInfo.getThisAmount();
+        }
+
+        return BaseOutput.success().setData(lastAmount);
+    }
+
+    /**
+     * 计费规则
+     *
+     * @param   meterDetailDto
+     * @return  list
+     * @date   2020/7/17
+     */
+    @Override
+    public List<QueryFeeOutput> getCost(MeterDetailDto meterDetailDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        List<QueryFeeInput> queryFeeInputs = new ArrayList<>();
+        meterDetailDto.getBusinessChargeItems().forEach(itme -> {
+            QueryFeeInput queryFeeInput =new QueryFeeInput();
+            queryFeeInput.setMarketId(userTicket.getFirmId());
+            queryFeeInput.setBusinessType("WATER_ELECTRICITY");
+            queryFeeInput.setChargeItem(itme.getChargeItemId());
+            Map<String, Object> calcParams = new HashMap<String, Object>();
+            calcParams.put("lastAmount", meterDetailDto.getLastAmount());
+            calcParams.put("thisAmount", meterDetailDto.getThisAmount());
+            calcParams.put("price", meterDetailDto.getPrice());
+            queryFeeInput.setCalcParams(calcParams);
+            queryFeeInputs.add(queryFeeInput);
+        });
+        BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
+
+        return batchQueryFee.getData();
+    }
+
+    /**
+     * 构建新增时动态收费项
+     */
+    private List<BusinessChargeItem> buildAddBusinessCharge(List<BusinessChargeItem> businessChargeItems, Long businessId, String businessCode){
+        List<BusinessChargeItem> businessChargeItemList = new ArrayList<>();
+
+        businessChargeItems.stream().filter(item -> item.getAmount() != null).forEach(item -> {
+            item.setPaidAmount(0L);
+            item.setBusinessId(businessId);
+            item.setBusinessCode(businessCode);
+            item.setWaitAmount(item.getAmount());
+            item.setCreateTime(LocalDateTime.now());
+            item.setModifyTime(LocalDateTime.now());
+            item.setPaymentAmount(item.getAmount());
+            item.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
+            item.setVersion(0);
+            businessChargeItemList.add(item);
+        });
+
+        return businessChargeItemList;
+    }
+
+    /**
+     * 构建修改时动态收费项
+     */
+    private List<BusinessChargeItem> buildUpdateBusinessCharge(List<BusinessChargeItem> businessChargeItems, Long businessId, String businessCode){
+        List<BusinessChargeItem> businessChargeItemList = new ArrayList<>();
+
+        businessChargeItems.stream().filter(item -> item.getAmount() != null).forEach(item -> {
+            BusinessChargeItem itemInfo = businessChargeItemService.get(item.getId());
+
+            item.setPaidAmount(0L);
+            item.setBusinessId(businessId);
+            item.setBusinessCode(businessCode);
+            item.setAmount(item.getAmount());
+            item.setWaitAmount(item.getAmount());
+            item.setModifyTime(LocalDateTime.now());
+            item.setPaymentAmount(item.getAmount());
+            item.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
+            item.setVersion(itemInfo.getVersion());
+            businessChargeItemList.add(item);
+        });
+
+        return businessChargeItemList;
+    }
+
+    /**
+     * 构建结算实体类
+     * @param userTicket
+     * @param meterDetailInfo
+     * @param orderCode
+     * @param amount
+     * @return
+     */
+    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, MeterDetail meterDetailInfo, String orderCode, Long amount) {
+
+        SettleOrderInfoDto settleOrderInfoDto = new SettleOrderInfoDto(userTicket, BizTypeEnum.WATER_ELECTRICITY, SettleTypeEnum.PAY, SettleStateEnum.WAIT_DEAL);
+        settleOrderInfoDto.setMarketId(meterDetailInfo.getMarketId());
+        settleOrderInfoDto.setMarketCode(userTicket.getFirmCode());
+        settleOrderInfoDto.setBusinessCode(meterDetailInfo.getCode());
+        settleOrderInfoDto.setOrderCode(orderCode);
+        settleOrderInfoDto.setAmount(amount);
+        settleOrderInfoDto.setAppId(settlementAppId);
+        settleOrderInfoDto.setBusinessDepId(meterDetailInfo.getDepartmentId());
+        settleOrderInfoDto.setBusinessDepName(meterDetailInfo.getDepartmentName());
+        settleOrderInfoDto.setCustomerId(meterDetailInfo.getCustomerId());
+        settleOrderInfoDto.setCustomerName(meterDetailInfo.getCustomerName());
+        settleOrderInfoDto.setCustomerPhone(meterDetailInfo.getCustomerCellphone());
+        settleOrderInfoDto.setSubmitterId(userTicket.getId());
+        settleOrderInfoDto.setSubmitterName(userTicket.getRealName());
+        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.WATER_ELECTRICITY.getCode()));
+        settleOrderInfoDto.setType(SettleTypeEnum.PAY.getCode());
+        settleOrderInfoDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
+        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+        if (userTicket.getDepartmentId() != null){
+            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
+            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+        }
+
+        return settleOrderInfoDto;
     }
 
     /**
@@ -546,7 +674,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
         PaymentOrder pb = new PaymentOrder();
 
-        pb.setBizType(BizTypeEnum.UTTLITIES.getCode());
+        pb.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
         pb.setMarketId(userTicket.getFirmId());
@@ -558,54 +686,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
 
         return order;
-    }
-
-    /**
-     * 修改水电费单
-     *
-     * @param  meterDetailDto
-     * @return 是否成功
-     * @date   2020/7/1
-     */
-    @Override
-    public BaseOutput<MeterDetail> updateMeterDetail(MeterDetailDto meterDetailDto) {
-
-        // 先查询
-        MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
-        if (meterDetailInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，修改失败。");
-        }
-
-        // 已创建状态才能修改
-        if (!MeterDetailStateEnum.CREATED.getCode().equals(meterDetailInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改");
-        }
-
-        //在更新状态之前查询指数信息，不然可能会查询出当前数据(脏读)
-        BaseOutput lastAmountReturn = this.getLastAmount(meterDetailInfo.getMeterId());
-        if (!lastAmountReturn.isSuccess()){
-            return BaseOutput.failure("该表初始指数获取失败,保存失败!");
-        }
-        Long lastAmount = (Long) lastAmountReturn.getData();
-
-        //构建动态收费项
-        if (meterDetailDto.getBusinessChargeItems() != null) {
-            List<BusinessChargeItem> businessChargeItems = buildUpdateBusinessCharge(meterDetailDto.getBusinessChargeItems(), meterDetailInfo.getId(), meterDetailInfo.getCode());
-            if (businessChargeItems != null && businessChargeItems.size() > 0) {
-                for (BusinessChargeItem businessChargeItem : businessChargeItems) {
-                    businessChargeItemService.updateSelective(businessChargeItem);
-                }
-            }
-        }
-
-        BeanUtils.copyProperties(meterDetailDto, meterDetailInfo);
-        meterDetailInfo.setModifyTime(LocalDateTime.now());
-        meterDetailInfo.setVersion(meterDetailInfo.getVersion() + 1);
-        if (this.updateSelective(meterDetailInfo) == 0) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
-        }
-
-        return BaseOutput.success().setData(meterDetailInfo);
     }
 
     /**
@@ -631,7 +711,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         statusBuff.append(PaymentOrderStateEnum.NOT_PAID.getCode()).append(",");
 
         // 业务类型(水表、电表)
-        List<Integer> bizTypeList = Lists.newArrayList(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
+        List<Integer> bizTypeList = Lists.newArrayList(Integer.valueOf(BizTypeEnum.WATER_ELECTRICITY.getCode()));
         String bizTypes = bizTypeList.toString().replace("[", "").replace("]", "");
 
         // 设置查询参数
@@ -672,7 +752,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @return map
      * @date   2020/6/30
      */
-    private Map getStartTimeAndEndTime(LocalDateTime usageTime) {
+    private Map getStartTimeAndEndTime(@org.jetbrains.annotations.NotNull LocalDateTime usageTime) {
         Map dateTimeMap = new HashMap();
 
         if (StringUtils.isBlank(usageTime.toString())){
@@ -705,58 +785,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     }
 
     /**
-     * 根据表 meterId、用户 customerId 查询未缴费的记录数量
-     *
-     *
-     * @param  meterId
-     * @param  customerId
-     * @return 未缴费记录的数量
-     * @date   2020/6/29
-     */
-    @Override
-    public Integer countUnPayByMeterAndCustomer(Long meterId, Long customerId) {
-        MeterDetailDto meterDetailDto = new MeterDetailDto();
-
-        // 业务类型(水表、电表)
-        List<Integer> bizTypeList = Lists.newArrayList(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
-        String bizTypes = bizTypeList.toString().replace("[", "").replace("]", "");
-        meterDetailDto.setBizTypes(bizTypes);
-        meterDetailDto.setMeterId(meterId);
-        meterDetailDto.setCustomerId(customerId);
-        meterDetailDto.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
-        List<Long> list = this.getActualDao().countUnPayByMeterAndCustomer(meterDetailDto);
-        if (CollectionUtils.isEmpty(list)){
-            return 0;
-        }
-
-        return list.size();
-    }
-
-    /**
-     * 根据 meterId 获取初始值
-     *
-     * @param  meterId
-     * @return 初始值(上期指数)
-     * @date   2020/6/29
-     */
-    @Override
-    public BaseOutput getLastAmount(Long meterId) {
-        // 先查询表信息是否存在
-        Meter meterInfo = meterService.get(meterId);
-        if (meterInfo == null) {
-            BaseOutput.failure("表信息不存在。");
-        }
-
-        // 查询缴费历史中,已缴费的最新数据
-        Long lastAmount = this.getLastAmountByMeterId(meterId);
-        if (lastAmount == null) {
-            lastAmount = meterInfo.getThisAmount();
-        }
-
-        return BaseOutput.success().setData(lastAmount);
-    }
-
-    /**
      * 根据表 meterId 查询最近的一次已交费的记录的实际值/本期指数值
      *
      * @param  meterId
@@ -767,40 +795,12 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         MeterDetailDto meterDetailDto = new MeterDetailDto();
 
         // 业务类型(水表、电表)
-        List<Integer> bizTypeList = Lists.newArrayList(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
+        List<Integer> bizTypeList = Lists.newArrayList(Integer.valueOf(BizTypeEnum.WATER_ELECTRICITY.getCode()));
         String bizTypes = bizTypeList.toString().replace("[", "").replace("]", "");
         meterDetailDto.setMeterId(meterId);
         meterDetailDto.setState(PaymentOrderStateEnum.PAID.getCode());
         meterDetailDto.setBizTypes(bizTypes);
 
         return this.getActualDao().getLastAmountByMeterId(meterDetailDto);
-    }
-
-    /**
-     * 计费规则
-     *
-     * @param   meterDetailDto
-     * @return  list
-     * @date   2020/7/17
-     */
-    @Override
-    public List<QueryFeeOutput> getCost(MeterDetailDto meterDetailDto) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        List<QueryFeeInput> queryFeeInputs = new ArrayList<>();
-        meterDetailDto.getBusinessChargeItems().forEach(itme -> {
-            QueryFeeInput queryFeeInput =new QueryFeeInput();
-            queryFeeInput.setMarketId(userTicket.getFirmId());
-            queryFeeInput.setBusinessType("UTTLITIES");
-            queryFeeInput.setChargeItem(itme.getChargeItemId());
-            Map<String, Object> calcParams = new HashMap<String, Object>();
-            calcParams.put("lastAmount", meterDetailDto.getLastAmount());
-            calcParams.put("thisAmount", meterDetailDto.getThisAmount());
-            calcParams.put("price", meterDetailDto.getPrice());
-            queryFeeInput.setCalcParams(calcParams);
-            queryFeeInputs.add(queryFeeInput);
-        });
-        BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
-
-        return batchQueryFee.getData();
     }
 }

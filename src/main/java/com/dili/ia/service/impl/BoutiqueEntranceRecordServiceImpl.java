@@ -3,7 +3,6 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.BoutiqueFreeSets;
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
@@ -220,41 +219,6 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     }
 
     /**
-     * 构建结算实体类
-     * @param userTicket
-     * @param feeOrder
-     * @param
-     * @param orderCode
-     * @param amount
-     * @return
-     */
-    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, BoutiqueFeeOrder feeOrder, BoutiqueEntranceRecord recordInfo, String orderCode, Long amount) {
-        SettleOrderInfoDto settleOrderInfoDto = new SettleOrderInfoDto(userTicket, BizTypeEnum.BOUTIQUE_ENTRANCE, SettleTypeEnum.PAY, SettleStateEnum.WAIT_DEAL);
-        settleOrderInfoDto.setMarketId(feeOrder.getMarketId());
-        settleOrderInfoDto.setMarketCode(userTicket.getFirmCode());
-        settleOrderInfoDto.setBusinessCode(feeOrder.getCode());
-        settleOrderInfoDto.setOrderCode(orderCode);
-        settleOrderInfoDto.setAmount(amount);
-        settleOrderInfoDto.setAppId(settlementAppId);
-        settleOrderInfoDto.setBusinessDepId(recordInfo.getDepartmentId());
-        settleOrderInfoDto.setBusinessDepName(recordInfo.getDepartmentName());
-        settleOrderInfoDto.setCustomerId(recordInfo.getCustomerId());
-        settleOrderInfoDto.setCustomerName(recordInfo.getCustomerName());
-        settleOrderInfoDto.setCustomerPhone(recordInfo.getCustomerCellphone());
-        settleOrderInfoDto.setSubmitterId(userTicket.getId());
-        settleOrderInfoDto.setSubmitterName(userTicket.getRealName());
-        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.UTTLITIES.getCode()));
-        settleOrderInfoDto.setType(SettleTypeEnum.PAY.getCode());
-        settleOrderInfoDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
-        if (userTicket.getDepartmentId() != null){
-            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
-            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
-        }
-        return settleOrderInfoDto;
-    }
-
-    /**
      * 离场
      *
      * @param id 主键
@@ -337,7 +301,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/7/14
      */
     @Override
-    public BaseOutput<EarnestOrder> settlementDealHandler(SettleOrder settleOrder) {
+    public BaseOutput<BoutiqueFeeOrder> settlementDealHandler(SettleOrder settleOrder) {
         // 修改缴费单相关数据
         if (null == settleOrder){
             throw new BusinessException(ResultCode.PARAMS_ERROR, "回调参数为空！");
@@ -345,7 +309,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
-        condition.setBizType(BizTypeEnum.EARNEST.getCode());
+        condition.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
         BoutiqueFeeOrder feeOrderInfo = boutiqueFeeOrderService.get(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
@@ -449,10 +413,10 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      */
     @Override
     public void refund(BoutiqueRefundDto refundDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 查询相关数据
         String code = refundDto.getCode();
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         BoutiqueFeeOrderDto orderDto = this.getBoutiqueAndOrderByCode(code);
         if (!BoutiqueOrderStateEnum.PAID.getCode().equals(orderDto.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
@@ -477,28 +441,38 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     }
 
     /**
-     * 构建退款
+     * 构建结算实体类
+     * @param userTicket
+     * @param feeOrder
+     * @param
+     * @param orderCode
+     * @param amount
+     * @return
      */
-    private RefundOrder buildRefundOrderDto(UserTicket userTicket, BoutiqueRefundDto boutiqueRefundDto, BoutiqueFeeOrderDto orderDto) {
-
-        //退款单
-        RefundOrder refundOrder = new RefundOrder();
-        refundOrder.setBusinessCode(orderDto.getCode());
-        refundOrder.setBusinessId(orderDto.getId());
-        refundOrder.setCustomerId(orderDto.getCustomerId());
-        refundOrder.setCustomerName(orderDto.getCustomerName());
-        refundOrder.setCustomerCellphone(orderDto.getCustomerCellphone());
-        refundOrder.setCertificateNumber("0000");
-        refundOrder.setTotalRefundAmount(boutiqueRefundDto.getAmount());
-        refundOrder.setPayeeAmount(boutiqueRefundDto.getAmount());
-        refundOrder.setRefundReason(boutiqueRefundDto.getNotes());
-        refundOrder.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
-        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode()));
-        if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
-            logger.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, BoutiqueFeeOrder feeOrder, BoutiqueEntranceRecord recordInfo, String orderCode, Long amount) {
+        SettleOrderInfoDto settleOrderInfoDto = new SettleOrderInfoDto(userTicket, BizTypeEnum.BOUTIQUE_ENTRANCE, SettleTypeEnum.PAY, SettleStateEnum.WAIT_DEAL);
+        settleOrderInfoDto.setMarketId(feeOrder.getMarketId());
+        settleOrderInfoDto.setMarketCode(userTicket.getFirmCode());
+        settleOrderInfoDto.setBusinessCode(feeOrder.getCode());
+        settleOrderInfoDto.setOrderCode(orderCode);
+        settleOrderInfoDto.setAmount(amount);
+        settleOrderInfoDto.setAppId(settlementAppId);
+        settleOrderInfoDto.setBusinessDepId(recordInfo.getDepartmentId());
+        settleOrderInfoDto.setBusinessDepName(recordInfo.getDepartmentName());
+        settleOrderInfoDto.setCustomerId(recordInfo.getCustomerId());
+        settleOrderInfoDto.setCustomerName(recordInfo.getCustomerName());
+        settleOrderInfoDto.setCustomerPhone(recordInfo.getCustomerCellphone());
+        settleOrderInfoDto.setSubmitterId(userTicket.getId());
+        settleOrderInfoDto.setSubmitterName(userTicket.getRealName());
+        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode()));
+        settleOrderInfoDto.setType(SettleTypeEnum.PAY.getCode());
+        settleOrderInfoDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
+        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+        if (userTicket.getDepartmentId() != null){
+            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
+            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         }
-        return refundOrder;
+        return settleOrderInfoDto;
     }
 
     /**
@@ -514,7 +488,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
                 feeOrder.setState(BoutiqueOrderStateEnum.CANCELLED.getCode());
                 feeOrder.setCancelerId(record.getOperatorId());
                 feeOrder.setCanceler(record.getOperatorName());
-                feeOrder.setModifyTime(LocalDateTime.now());
+                feeOrder.setCancelTime(LocalDateTime.now());
                 boutiqueFeeOrderService.updateSelective(feeOrder);
 
                 // 撤销缴费单
@@ -540,7 +514,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      */
     private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
         PaymentOrder pb = new PaymentOrder();
-        pb.setBizType(BizTypeEnum.UTTLITIES.getCode());
+        pb.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
         pb.setMarketId(userTicket.getFirmId());
@@ -554,4 +528,28 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         return order;
     }
 
+    /**
+     * 构建退款
+     */
+    private RefundOrder buildRefundOrderDto(UserTicket userTicket, BoutiqueRefundDto boutiqueRefundDto, BoutiqueFeeOrderDto orderDto) {
+
+        //退款单
+        RefundOrder refundOrder = new RefundOrder();
+        refundOrder.setBusinessCode(orderDto.getCode());
+        refundOrder.setBusinessId(orderDto.getId());
+        refundOrder.setCustomerId(orderDto.getCustomerId());
+        refundOrder.setCustomerName(orderDto.getCustomerName());
+        refundOrder.setCustomerCellphone(orderDto.getCustomerCellphone());
+        refundOrder.setCertificateNumber("0000");
+        refundOrder.setTotalRefundAmount(boutiqueRefundDto.getAmount());
+        refundOrder.setPayeeAmount(boutiqueRefundDto.getAmount());
+        refundOrder.setRefundReason(boutiqueRefundDto.getNotes());
+        refundOrder.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
+        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode()));
+        if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
+            logger.info("精品停车【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+        }
+        return refundOrder;
+    }
 }

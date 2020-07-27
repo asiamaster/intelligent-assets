@@ -76,7 +76,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return BaseOutput
      * @date   2020/7/14
      */
-    BaseOutput<EarnestOrder> settlementDealHandler(SettleOrder settleOrder);
+    BaseOutput<BoutiqueFeeOrder> settlementDealHandler(SettleOrder settleOrder);
 
     /**
      * 打印票据

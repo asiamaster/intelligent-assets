@@ -95,7 +95,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return
      * @date   2020/7/6
      */
-    BaseOutput<EarnestOrder> settlementDealHandler(SettleOrder settleOrder);
+    BaseOutput<MeterDetail> settlementDealHandler(SettleOrder settleOrder);
 
     /**
      * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)

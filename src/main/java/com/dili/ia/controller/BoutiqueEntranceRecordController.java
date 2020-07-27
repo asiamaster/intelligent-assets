@@ -257,7 +257,7 @@ public class BoutiqueEntranceRecordController {
      * @date   2020/7/23
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput refund(@Validated BoutiqueRefundDto boutiqueInRefundDto) {	        //throw new BusinessException("2000", "errorCode");
         try {
             boutiqueEntranceRecordService.refund(boutiqueInRefundDto);

@@ -161,4 +161,13 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="getPassportByCode" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List" />
+    from
+        passport
+    where
+        code = #{code}
+  </select>
 </mapper>

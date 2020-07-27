@@ -22,7 +22,7 @@ public class LogBizTypeConst {
     // 表用户关系
     public static final String CUSTOMER_METER="customer_meter";
     // 水电费
-    public static final String UTILITIES="utilities";
+    public static final String WATER_ELECTRICITY_CODE="waterElectricity";
     // 精品停车
     public static final String BOUTIQUE_ENTRANCE="boutique_entrance";
     // 通行证

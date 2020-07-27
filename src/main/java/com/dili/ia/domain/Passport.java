@@ -4,6 +4,8 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -26,13 +28,13 @@ public class Passport extends BaseDomain {
      * 创建时间
      */
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 业务编号
@@ -110,13 +112,13 @@ public class Passport extends BaseDomain {
      * 开始时间
      */
     @Column(name = "`start_time`")
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 截止时间
      */
     @Column(name = "`end_time`")
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /**
      * 金额
@@ -158,7 +160,7 @@ public class Passport extends BaseDomain {
      * 提交时间
      */
     @Column(name = "`submit_time`")
-    private Date submitTime;
+    private LocalDateTime submitTime;
 
     /**
      * 撤回人ID
@@ -176,7 +178,7 @@ public class Passport extends BaseDomain {
      * 撤回时间
      */
     @Column(name = "`withdraw_time`")
-    private Date withdrawTime;
+    private LocalDateTime withdrawTime;
 
     /**
      * 取消人ID
@@ -194,7 +196,7 @@ public class Passport extends BaseDomain {
      * 取消时间
      */
     @Column(name = "`cancel_time`")
-    private Date cancelTime;
+    private LocalDateTime cancelTime;
 
     /**
      * 备注
@@ -227,7 +229,7 @@ public class Passport extends BaseDomain {
      */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -236,7 +238,7 @@ public class Passport extends BaseDomain {
      *
      * @param createTime 创建时间
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -247,7 +249,7 @@ public class Passport extends BaseDomain {
      */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -256,7 +258,7 @@ public class Passport extends BaseDomain {
      *
      * @param modifyTime 修改时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -507,7 +509,7 @@ public class Passport extends BaseDomain {
      */
     @FieldDef(label="开始时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
@@ -516,7 +518,7 @@ public class Passport extends BaseDomain {
      *
      * @param startTime 开始时间
      */
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
@@ -527,7 +529,7 @@ public class Passport extends BaseDomain {
      */
     @FieldDef(label="截止时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
@@ -536,7 +538,7 @@ public class Passport extends BaseDomain {
      *
      * @param endTime 截止时间
      */
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
@@ -667,7 +669,7 @@ public class Passport extends BaseDomain {
      */
     @FieldDef(label="提交时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getSubmitTime() {
+    public LocalDateTime getSubmitTime() {
         return submitTime;
     }
 
@@ -676,7 +678,7 @@ public class Passport extends BaseDomain {
      *
      * @param submitTime 提交时间
      */
-    public void setSubmitTime(Date submitTime) {
+    public void setSubmitTime(LocalDateTime submitTime) {
         this.submitTime = submitTime;
     }
 
@@ -727,7 +729,7 @@ public class Passport extends BaseDomain {
      */
     @FieldDef(label="撤回时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getWithdrawTime() {
+    public LocalDateTime getWithdrawTime() {
         return withdrawTime;
     }
 
@@ -736,7 +738,7 @@ public class Passport extends BaseDomain {
      *
      * @param withdrawTime 撤回时间
      */
-    public void setWithdrawTime(Date withdrawTime) {
+    public void setWithdrawTime(LocalDateTime withdrawTime) {
         this.withdrawTime = withdrawTime;
     }
 
@@ -787,7 +789,7 @@ public class Passport extends BaseDomain {
      */
     @FieldDef(label="取消时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCancelTime() {
+    public LocalDateTime getCancelTime() {
         return cancelTime;
     }
 
@@ -796,7 +798,7 @@ public class Passport extends BaseDomain {
      *
      * @param cancelTime 取消时间
      */
-    public void setCancelTime(Date cancelTime) {
+    public void setCancelTime(LocalDateTime cancelTime) {
         this.cancelTime = cancelTime;
     }
 

@@ -12,9 +12,10 @@ public enum BizTypeEnum {
     BOOTH_LEASE("1", "摊位租赁"),
     EARNEST("2", "定金"),
     DEPOSIT_ORDER("3", "保证金"),
-    STOCKIN("8", "冷库入库"),
-    UTTLITIES("5", "水电费"),
+    WATER_ELECTRICITY("5", "水电费"),
     BOUTIQUE_ENTRANCE("6", "精品停车费"),
+    PASSPORT("7", "通行证"),
+    STOCKIN("8", "冷库入库"),
     STOCKOUT("9", "冷库出库"),
     OTHER_FEE("10", "其它收费"),
     ;

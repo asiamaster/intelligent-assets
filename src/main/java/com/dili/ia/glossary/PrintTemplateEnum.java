@@ -22,6 +22,7 @@ public enum PrintTemplateEnum {
     WATER_FEE("waterFee", "水费"),
     ELECTRICITY_FEE("electricityFee", "电费"),
     BOUTIQUE_ENTRANCE("boutique_entrance", "精品停车费"),
+    PASSPORT("passport", "通行证"),
     ;
 
     private String name;

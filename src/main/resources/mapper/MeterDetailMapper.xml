@@ -399,7 +399,7 @@
         meter_detail md
     LEFT JOIN meter m on md.meter_id = m.id
     WHERE
-        md.code = #{code}
+        md.id = #{id}
   </select>
 
     <select id="listMeterDetailByUnPayBusiness" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">

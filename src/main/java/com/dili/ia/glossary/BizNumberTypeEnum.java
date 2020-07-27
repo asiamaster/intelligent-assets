@@ -23,6 +23,7 @@ public enum BizNumberTypeEnum {
     DEPOSIT_ORDER("depositOrder", "保证金业务单"),
     DEPOSIT_REFUND_ORDER("depositRefund", "保证金退款单"),
     BOUTIQUE_ENTRANCE("boutiqueEntrance", "精品停车单"),
+    PASSPORT("passport", "通行证"),
     ;
 
     private String name;
