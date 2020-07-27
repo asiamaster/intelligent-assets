@@ -282,7 +282,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		domain.setWeight(stockIn.getWeight() + totalWeight);
 		domain.setQuantity(stockIn.getQuantity() + totalQuantity);
 		domain.setAmount(stockIn.getAmount() + totalMoney);
-		domain.setVersion(stockIn.getVersion()+1);
+		domain.setVersion(stockIn.getVersion());
 		StockIn condition = new StockIn();
 		condition.setCode(stockIn.getCode());
 		condition.setVersion(stockIn.getVersion());
@@ -313,6 +313,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
 		paymentOrder.setBusinessCode(code);
 		paymentOrder.setAmount(stockIn.getAmount());
+		paymentOrder.setBizType(BizTypeEnum.STOCKIN.getCode());
+		paymentOrder.setBusinessId(stockIn.getId());
 		paymentOrderService.insertSelective(paymentOrder);
 		// 提交入库单
 		StockIn domain = new StockIn(userTicket);
