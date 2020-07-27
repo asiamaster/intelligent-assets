@@ -24,7 +24,7 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {url: '/assetsLeaseOrder/listPage.action',pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {url: '/leaseOrder/listPage.action',pageSize: parseInt(size)});
     });
 
 
@@ -37,7 +37,7 @@
     function openInsertHandler() {
        dia = bs4pop.dialog({
             title: '新增租赁',
-           content: '/assetsLeaseOrder/preSave.html?assetsType=' + $('#assetsType').val(),
+           content: '/leaseOrder/preSave.html?assetsType=' + $('#assetsType').val(),
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -60,7 +60,7 @@
 
         dia = bs4pop.dialog({
             title: '修改租赁',
-            content: '/assetsLeaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
+            content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -88,7 +88,7 @@
 
         dia = bs4pop.dialog({
             title: '摊位租赁详情',
-            content: '/assetsLeaseOrder/view.action?id='+id,
+            content: '/leaseOrder/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -135,7 +135,7 @@
                         bui.loading.show('努力提交中，请稍候。。。');
                         $.ajax({
                             type: "POST",
-                            url: "${contextPath}/assetsLeaseOrder/supplement.action",
+                            url: "${contextPath}/leaseOrder/supplement.action",
                             data: {id: rows[0].id,contractNo : $('#contractNo').val()},
                             processData:true,
                             dataType: "json",
@@ -174,7 +174,7 @@
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/assetsLeaseOrder/cancelOrder.action",
+                    url: "${contextPath}/leaseOrder/cancelOrder.action",
                     data: {id: selectedRow.id},
                     dataType: "json",
                     success : function(ret) {
@@ -213,7 +213,7 @@
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/assetsLeaseOrder/withdrawOrder.action",
+                    url: "${contextPath}/leaseOrder/withdrawOrder.action",
                     data: {id: selectedRow.id},
                     dataType: "json",
                     success : function(ret) {
@@ -246,7 +246,7 @@
         }
         dia = bs4pop.dialog({
             title: '提交付款',
-            content: '/assetsLeaseOrder/submitPayment.html?id='+rows[0].id,
+            content: '/leaseOrder/submitPayment.html?id='+rows[0].id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -269,7 +269,7 @@
 
         dia = bs4pop.dialog({
             title: '摊位续租',
-            content: '/assetsLeaseOrder/preSave.html?isRenew=1&id=' + rows[0].id + '&assetsType=' + rows[0].assetsType,
+            content: '/leaseOrder/preSave.html?isRenew=1&id=' + rows[0].id + '&assetsType=' + rows[0].assetsType,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -320,7 +320,7 @@
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/assetsLeaseOrder/submitForApproval.action",
+                    url: "${contextPath}/leaseOrder/submitForApproval.action",
                     data: {id: selectedRow.id},
                     dataType: "json",
                     success : function(ret) {
@@ -396,7 +396,7 @@
                         bui.loading.show('努力提交中，请稍候。。。');
                         $.ajax({
                             type: "POST",
-                            url: "${contextPath}/assetsLeaseOrderItem/stopRent.action",
+                            url: "${contextPath}/leaseOrderItem/stopRent.action",
                             data: $('#stopRentForm').serializeObject(),
                             dataType: "json",
                             success : function(data) {
@@ -432,7 +432,7 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-        let url = '/assetsLeaseOrder/refundApply.html?leaseOrderItemId=' + rows[0].id;
+        let url = '/leaseOrder/refundApply.html?leaseOrderItemId=' + rows[0].id;
         dia = bs4pop.dialog({
             title: '退款申请',
             content: url,
@@ -512,7 +512,7 @@
     function queryBusinessChargeItemMeta(leaseOrderId){
         let businessChareItems;
         $.ajax({
-            url: "${contextPath}/assetsLeaseOrder/queryBusinessChargeItemMeta.action?leaseOrderId="+leaseOrderId,
+            url: "${contextPath}/leaseOrder/queryBusinessChargeItemMeta.action?leaseOrderId="+leaseOrderId,
             dataType: "json",
             async : false,
             success : function(result) {
@@ -548,7 +548,7 @@
             businessChargeItems: queryBusinessChargeItemMeta(row.id)
         })).find('table');
         $(cur_table).bootstrapTable();
-        $(cur_table).bootstrapTable('refreshOptions', {url: '/assetsLeaseOrderItem/listPage.action?leaseOrderId=' + row.id});
+        $(cur_table).bootstrapTable('refreshOptions', {url: '/leaseOrderItem/listPage.action?leaseOrderId=' + row.id});
         //选中行事件
         $(cur_table).on('check.bs.table', function (e,row, $element){
             e.stopPropagation();
