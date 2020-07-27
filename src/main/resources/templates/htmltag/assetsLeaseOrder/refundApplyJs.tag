@@ -123,7 +123,7 @@
         return $.extend(formData, {
             refundFeeItems,
             transferDeductionItems,
-            totalRefundAmountFormatStr: $('#totalRefundAmount').val()
+            logContent: $('#id').val() ? Log.buildUpdateContent() : ''
         });
     }
 

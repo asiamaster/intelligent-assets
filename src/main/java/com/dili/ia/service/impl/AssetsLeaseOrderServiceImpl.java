@@ -23,6 +23,7 @@ import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.ResultCodeConst;
 import com.dili.ia.util.SpringUtil;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.settlement.domain.SettleOrder;
@@ -484,6 +485,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
 
         //日志上下文构建
+        LoggerContext.put("leasePayAmountStr",MoneyUtils.centToYuan(assetsLeaseSubmitPaymentDto.getLeasePayAmount()));
         LoggerUtil.buildLoggerContext(leaseOrder.getId(), leaseOrder.getCode(), userTicket.getId(), userTicket.getRealName(), leaseOrder.getMarketId(), null);
         return BaseOutput.success();
     }

@@ -44,6 +44,8 @@ public class LeaseRefundOrderDto extends RefundOrder {
 
     @Transient
     private LocalDateTime exitTime;
+    @Transient
+    private String logContent;
 
     public LocalDateTime getCreatedStart() {
         return createdStart;
@@ -107,5 +109,13 @@ public class LeaseRefundOrderDto extends RefundOrder {
 
     public void setExitTime(LocalDateTime exitTime) {
         this.exitTime = exitTime;
+    }
+
+    public String getLogContent() {
+        return logContent;
+    }
+
+    public void setLogContent(String logContent) {
+        this.logContent = logContent;
     }
 }

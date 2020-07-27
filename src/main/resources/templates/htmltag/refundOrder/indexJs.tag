@@ -280,6 +280,14 @@
         })
     }
 
+    /**
+     * 关闭弹窗
+     */
+    function closeDialog(dialog){
+        dialog.hide();
+        queryDataHandler();
+    }
+
     //选中行事件
     _grid.on('uncheck.bs.table', function (e, row, $element) {
         currentSelectRowIndex = undefined;

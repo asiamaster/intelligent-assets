@@ -126,7 +126,9 @@
             contentType: "application/json; charset=utf-8",
             success: function (ret) {
                 if(!ret.success){
-                    bs4pop.alert(ret.message, {type: 'error'});
+                    bs4pop.alert(ret.message, {type: 'error'},function () {
+                        parent.closeDialog(parent.dia);
+                    });
                 }else{
                     parent.closeDialog(parent.dia);
                 }

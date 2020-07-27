@@ -70,6 +70,9 @@ public class AssetsLeaseOrderListDto extends AssetsLeaseOrder {
     @Transient
     private List<IdTextPair> categorys;
 
+    @Transient
+    private String logContent;
+
     public LocalDateTime getCreatedStart() {
         return createdStart;
     }
@@ -172,5 +175,13 @@ public class AssetsLeaseOrderListDto extends AssetsLeaseOrder {
 
     public void setCategorys(List<IdTextPair> categorys) {
         this.categorys = categorys;
+    }
+
+    public String getLogContent() {
+        return logContent;
+    }
+
+    public void setLogContent(String logContent) {
+        this.logContent = logContent;
     }
 }

@@ -24,6 +24,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.IDTO;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.exception.NotLoginException;
 import com.dili.uap.sdk.session.SessionContext;
@@ -490,7 +491,7 @@ public class AssetsLeaseOrderController {
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
                 LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, null == leaseOrder.getId() ? "add" : "edit");
+                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, StringUtils.isBlank(leaseOrder.getLogContent()) ? "add" : "edit");
                 LoggerContext.put("notes", leaseOrder.getNotes());
             }
             return output;
@@ -533,7 +534,7 @@ public class AssetsLeaseOrderController {
      * @param assetsLeaseSubmitPaymentDto
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${amountFormatStr}", operationType = "submitPayment", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${leasePayAmountStr}", operationType = "submitPayment", systemCode = "INTELLIGENT_ASSETS")
     @PostMapping(value = "/submitPayment.action")
     public @ResponseBody
     BaseOutput submitPayment(@RequestBody AssetsLeaseSubmitPaymentDto assetsLeaseSubmitPaymentDto) {
@@ -576,7 +577,7 @@ public class AssetsLeaseOrderController {
      * @param refundOrderDto
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${totalRefundAmountFormatStr}", operationType = "refundApply", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${content}", systemCode = "INTELLIGENT_ASSETS")
     @PostMapping(value = "/createOrUpdateRefundOrder.action")
     public @ResponseBody
     BaseOutput createRefundOrder(@RequestBody LeaseRefundOrderDto refundOrderDto) {
@@ -587,6 +588,13 @@ public class AssetsLeaseOrderController {
         try {
             BaseOutput output = assetsLeaseOrderService.createOrUpdateRefundOrder(refundOrderDto);
             if (output.isSuccess()) {
+                if(StringUtils.isNotBlank(refundOrderDto.getLogContent())){
+                    LoggerContext.put("content", refundOrderDto.getLogContent());
+                    LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+                }else{
+                    LoggerContext.put("content", MoneyUtils.centToYuan(refundOrderDto.getTotalRefundAmount()));
+                    LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
+                }
                 LoggerUtil.buildLoggerContext(refundOrderDto.getBusinessId(), refundOrderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
             }
             return output;

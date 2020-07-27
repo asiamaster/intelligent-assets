@@ -562,7 +562,7 @@
                 $('#btn_stop_rent'+index).attr('disabled', false);
             }
 
-            if(row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}){
+            if(row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()} && row.paidAmount > 0 ){
                 $('#btn_refund_apply'+index).attr('disabled', false);
             }
         });
