@@ -4,12 +4,12 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.DepositOrderQuery;
+import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.DepositOrderStateEnum;
-import com.dili.ia.service.DataAuthService;
-import com.dili.ia.service.DepositOrderService;
-import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -28,10 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -54,6 +51,10 @@ public class DepositOrderController {
     BusinessLogRpc businessLogRpc;
     @Autowired
     DataAuthService dataAuthService;
+    @Autowired
+    RefundOrderService refundOrderService;
+    @Autowired
+    TransferDeductionItemService transferDeductionItemService;
 
     /**
      * 跳转到DepositOrder页面
@@ -97,23 +98,40 @@ public class DepositOrderController {
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
-    public String refundApply(ModelMap modelMap, Long id) {
-        if(null != id){
-            DepositOrder depositOrder = depositOrderService.get(id);
-            Long maxRefundAmount = depositOrder.getPaidAmount() - depositOrder.getRefundAmount();
-            modelMap.put("depositOrder",depositOrder);
-            modelMap.put("maxRefundAmount", maxRefundAmount);
+//    @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
+//    public String refundApply(ModelMap modelMap, Long id) {
+//        if(null != id){
+//            DepositOrder depositOrder = depositOrderService.get(id);
+//            Long maxRefundAmount = depositOrder.getPaidAmount() - depositOrder.getRefundAmount();
+//            modelMap.put("depositOrder",depositOrder);
+//            modelMap.put("maxRefundAmount", maxRefundAmount);
+//        }
+//        return "depositOrder/refundApply";
+//    }
+
+    @GetMapping(value = "/refundApply.html")
+    public String refundApply(ModelMap modelMap, Long id, Long refundOrderId) {
+        DepositOrder depositOrder = depositOrderService.get(id);
+        modelMap.put("depositOrder", depositOrder);
+        Long maxRefundAmount = depositOrder.getPaidAmount() - depositOrder.getRefundAmount();
+        modelMap.put("maxRefundAmount", maxRefundAmount);
+        if (null != refundOrderId) {
+            modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
+            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+            transferDeductionItemCondition.setRefundOrderId(refundOrderId);
+            modelMap.put("transferDeductionItems", transferDeductionItemService.list(transferDeductionItemCondition));
         }
+
         return "depositOrder/refundApply";
     }
+
     /**
      * CustomerAccount--- 保证金退款
      * @param order
      * @return BaseOutput
      */
     @RequestMapping(value="/addRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
+    public @ResponseBody BaseOutput doEarnestRefund(DepositRefundOrderDto order) {
         try {
             BaseOutput<RefundOrder> out = depositOrderService.addRefundOrder(order);
             return out;
