@@ -22,8 +22,8 @@ import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
@@ -235,7 +235,7 @@ public class BoothController {
     /**
      * 新增BoothOrderR
      */
-    @RequestMapping(value = "/search.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @GetMapping(value = "/search.action")
     public @ResponseBody
     BaseOutput<List<AssetsDTO>> search(String keyword) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

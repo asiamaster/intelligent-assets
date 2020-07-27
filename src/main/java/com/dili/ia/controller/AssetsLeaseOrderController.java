@@ -8,7 +8,9 @@ import com.dili.bpmc.sdk.rpc.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
-import com.dili.ia.glossary.*;
+import com.dili.ia.glossary.AssetsTypeEnum;
+import com.dili.ia.glossary.DepositOrderStateEnum;
+import com.dili.ia.glossary.LeaseRefundStateEnum;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -236,10 +238,11 @@ public class AssetsLeaseOrderController {
      * @return String
      */
     @GetMapping(value = "/viewFragment.action")
-    public String viewFragment(ModelMap modelMap, Long id, String code, String orderCode){
+    public String viewFragment(ModelMap modelMap, Long id, String code, String orderCode) {
         view(modelMap, id, code, orderCode);
         return "assetsLeaseOrder/viewFragment";
     }
+
     /**
      * 跳转到LeaseOrder查看页面
      *
@@ -354,7 +357,7 @@ public class AssetsLeaseOrderController {
      * @return String
      * @throws Exception
      */
-    @RequestMapping(value = "/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping(value = "/listPage.action")
     public @ResponseBody
     String listPage(AssetsLeaseOrderListDto leaseOrder) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -427,7 +430,7 @@ public class AssetsLeaseOrderController {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value = "/cancelOrder.action", method = {RequestMethod.POST})
+    @PostMapping(value = "/cancelOrder.action")
     public @ResponseBody
     BaseOutput cancelOrder(Long id) {
         try {
@@ -450,7 +453,7 @@ public class AssetsLeaseOrderController {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value = "/withdrawOrder.action", method = {RequestMethod.POST})
+    @PostMapping(value = "/withdrawOrder.action")
     public @ResponseBody
     BaseOutput withdrawOrder(Long id) {
         try {
@@ -471,7 +474,7 @@ public class AssetsLeaseOrderController {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value = "/saveLeaseOrder.action", method = {RequestMethod.POST})
+    @PostMapping(value = "/saveLeaseOrder.action")
     public @ResponseBody
     BaseOutput saveLeaseOrder(@RequestBody AssetsLeaseOrderListDto leaseOrder) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 23:59:59");
@@ -505,7 +508,7 @@ public class AssetsLeaseOrderController {
      * @param id       对应租赁单ID 或 订单项ID
      * @return
      */
-    @RequestMapping(value = "/submitPayment.html", method = RequestMethod.GET)
+    @GetMapping(value = "/submitPayment.html")
     public String submitPayment(ModelMap modelMap, Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
@@ -531,7 +534,7 @@ public class AssetsLeaseOrderController {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${amountFormatStr}", operationType = "submitPayment", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value = "/submitPayment.action", method = {RequestMethod.POST})
+    @PostMapping(value = "/submitPayment.action")
     public @ResponseBody
     BaseOutput submitPayment(@RequestBody AssetsLeaseSubmitPaymentDto assetsLeaseSubmitPaymentDto) {
         try {
@@ -574,7 +577,7 @@ public class AssetsLeaseOrderController {
      * @return BaseOutput
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${totalRefundAmountFormatStr}", operationType = "refundApply", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value = "/createOrUpdateRefundOrder.action", method = {RequestMethod.POST})
+    @PostMapping(value = "/createOrUpdateRefundOrder.action")
     public @ResponseBody
     BaseOutput createRefundOrder(@RequestBody LeaseRefundOrderDto refundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -602,7 +605,7 @@ public class AssetsLeaseOrderController {
      * @param batchDepositBalanceQueryDto
      * @return String
      */
-    @RequestMapping(value = "/batchQueryDepositBalance.action", method = {RequestMethod.POST})
+    @PostMapping(value = "/batchQueryDepositBalance.action")
     public @ResponseBody
     BaseOutput<List<DepositBalance>> batchQueryDepositBalance(@RequestBody BatchDepositBalanceQueryDto batchDepositBalanceQueryDto) {
         return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds());
@@ -614,7 +617,7 @@ public class AssetsLeaseOrderController {
      * @param depositOrderQuery
      * @return String
      */
-    @RequestMapping(value = "/batchQueryDepositOrder.action", method = {RequestMethod.POST})
+    @PostMapping(value = "/batchQueryDepositOrder.action")
     public @ResponseBody
     BaseOutput<List<DepositOrder>> batchQueryDepositOrder(DepositOrderQuery depositOrderQuery) {
         try {
