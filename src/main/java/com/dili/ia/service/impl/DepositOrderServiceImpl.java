@@ -18,6 +18,7 @@ import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
@@ -32,6 +33,7 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -582,6 +584,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
 
         DepositOrder depositOrder = get(paymentOrder.getBusinessId());
+        Integer settlementWay = paymentOrder.getSettlementWay();
 
         DepositOrderPrintDto dePrintDto = new DepositOrderPrintDto();
         dePrintDto.setPrintTime(LocalDateTime.now());
@@ -593,13 +596,50 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         dePrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount())); // 付款金额
         dePrintDto.setTotalAmount(MoneyUtils.centToYuan(depositOrder.getAmount())); // 业务单合计总金额
         dePrintDto.setWaitAmount(MoneyUtils.centToYuan(depositOrder.getWaitAmount())); //待付款金额
-        dePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
-        dePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         dePrintDto.setSubmitter(paymentOrder.getCreator());
         dePrintDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getName());
         dePrintDto.setTypeName(depositOrder.getTypeName());
         dePrintDto.setAssetsType(AssetsTypeEnum.getAssetsTypeEnum(depositOrder.getAssetsType()).getName());
         dePrintDto.setAssetsName(depositOrder.getAssetsName());
+        dePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(settlementWay));
+        dePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+
+        //组合支付需要显示结算详情.票据的资产类型和编号，如果有填写，就显示，没填写就不显示,银行卡、POS、微信、支付宝等支付方式均如此显示，现金则不显示流水号,如果是园区卡付款，则显示对应卡号和开卡人姓名
+        StringBuffer settleWayDetails = new StringBuffer();
+        if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
+            settleWayDetails.append("【");
+            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
+            if (output.isSuccess() && CollectionUtils.isNotEmpty(output.getData())){
+                output.getData().forEach(o -> {
+                    //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
+                    settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
+                    if (StringUtils.isNotEmpty(o.getSerialNumber())){
+                        settleWayDetails.append(",").append(o.getSerialNumber());
+                    }
+                    if (StringUtils.isNotEmpty(o.getNotes())){
+                        settleWayDetails.append(",").append("备注：").append(o.getNotes());
+                    }
+                    settleWayDetails.append("\r\n");
+                });
+            }else {
+                LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
+            settleWayDetails.append("】");
+        }else if ( !settlementWay.equals(SettleWayEnum.CASH.getCode())){
+            BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
+            if(output.isSuccess()){
+                SettleOrder settleOrder = output.getData();
+                if(StringUtils.isNotBlank(settleOrder.getSerialNumber())){
+                    settleWayDetails.append("流水号：");
+                    settleWayDetails.append(settleOrder.getSerialNumber());
+                }
+            }else {
+                LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
+        }
+        if (StringUtils.isNotBlank(settleWayDetails)){
+            dePrintDto.setSettleWayDetails(settleWayDetails.toString());
+        }
 
         PrintDataDto printDataDto = new PrintDataDto();
         printDataDto.setName(PrintTemplateEnum.DEPOSIT_ORDER.getCode());

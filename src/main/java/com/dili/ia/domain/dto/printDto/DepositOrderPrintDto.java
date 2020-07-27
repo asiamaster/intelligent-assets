@@ -49,6 +49,8 @@ public class DepositOrderPrintDto {
     private String settlementWay;
     //结算员
     private String settlementOperator;
+    //结算详情
+    private String settleWayDetails;
     //提交人
     private String submitter;
     //保证金业务类型
@@ -176,6 +178,14 @@ public class DepositOrderPrintDto {
 
     public void setSettlementOperator(String settlementOperator) {
         this.settlementOperator = settlementOperator;
+    }
+
+    public String getSettleWayDetails() {
+        return settleWayDetails;
+    }
+
+    public void setSettleWayDetails(String settleWayDetails) {
+        this.settleWayDetails = settleWayDetails;
     }
 
     public String getSubmitter() {
