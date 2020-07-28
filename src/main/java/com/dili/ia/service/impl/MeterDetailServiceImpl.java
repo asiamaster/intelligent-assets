@@ -56,6 +56,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -108,7 +110,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     @Value("${settlement.app-id}")
     private Long settlementAppId;
 
-    private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/meterDetail/settlementDealHandler";
+    private String settlerHandlerUrl = "http://10.28.1.59:8381/api/meterDetail/settlementDealHandler";
 
 
     /**
@@ -162,9 +164,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             PageHelper.startPage(meterDetailDto.getPage(), meterDetailDto.getRows());
         }
         // 截止月份不为空
-        if (meterDetailDto.getUsageTime() != null) {
+        if (meterDetailDto.getUsageMonth() != null) {
             // 获取使用月份的第一天和最后一天时间,用于数据库查询
-            Map dateTimeMap = this.getStartTimeAndEndTime(meterDetailDto.getUsageTime());
+            Map dateTimeMap = this.getStartTimeAndEndTime(meterDetailDto.getUsageMonth());
             meterDetailDto.setStartTime((LocalDateTime) dateTimeMap.get("startTime"));
             meterDetailDto.setEndTime((LocalDateTime) dateTimeMap.get("endTime"));
         }
@@ -406,7 +408,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         if (null == settleOrder){
             throw new BusinessException(ResultCode.PARAMS_ERROR, "回调参数为空！");
         }
-        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder condition = new PaymentOrder();
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
         condition.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
@@ -696,12 +698,12 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @return 缴费集合
      * @date   2020/6/30
      */
-    private List<MeterDetailDto> listUnPayUnSubmitByMeter(Long meterId, LocalDateTime usageTime) {
+    private List<MeterDetailDto> listUnPayUnSubmitByMeter(Long meterId, String usageMonth) throws ParseException {
         MeterDetailDto meterDetailDto = new MeterDetailDto();
 
         // 获取使用月份的第一天和最后一天时间,用于数据库查询
-        if (usageTime != null) {
-            Map dateTimeMap = this.getStartTimeAndEndTime(usageTime);
+        if (usageMonth != null) {
+            Map dateTimeMap = this.getStartTimeAndEndTime(usageMonth);
             meterDetailDto.setStartTime((LocalDateTime) dateTimeMap.get("startTime"));
             meterDetailDto.setEndTime((LocalDateTime) dateTimeMap.get("endTime"));
         }
@@ -748,19 +750,23 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     /**
      * 根据传入月份,获取到该月份的第一天0时0分0秒和最后一天的23时59分59秒,用于数据库查询
      *
-     * @param  usageTime
+     * @param  UsageMonth
      * @return map
      * @date   2020/6/30
      */
-    private Map getStartTimeAndEndTime(@org.jetbrains.annotations.NotNull LocalDateTime usageTime) {
+    private Map getStartTimeAndEndTime(String UsageMonth) throws ParseException {
         Map dateTimeMap = new HashMap();
 
-        if (StringUtils.isBlank(usageTime.toString())){
+        if (StringUtils.isBlank(UsageMonth.toString())){
             return null;
         }
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM");//注意月份是MM
+        Date date = simpleDateFormat.parse(UsageMonth);
+
         ZoneId zoneId = ZoneId.systemDefault();
-        ZonedDateTime zdt = usageTime.atZone(zoneId);
-        Date date = Date.from(zdt.toInstant());
+//        ZonedDateTime zdt = UsageMonth.atZone(zoneId);
+//        Date date = Date.from(zdt.toInstant());
 
         Calendar c = Calendar.getInstance();
         c.setTime(date);

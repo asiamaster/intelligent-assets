@@ -20,14 +20,7 @@
                     <label for="">创建日期</label>
                     <input type="text" class="form-control" value="${meterDetail.createTime!,localDateTimeFormat='yyyy-MM-dd'}" disabled />
                 </div>
-                <div class="form-group col">
-                    <label for="">收费员<i class="red">*</i></label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.code}" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="">交费日期<i class="red">*</i></label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.code}" disabled />
-                </div>
+
                 <div class="form-group col">
                     <label for="">月份<i class="red">*</i></label>
                     <input type="text" class="form-control laymonth" value="${meterDetail.usageTime!,localDateTimeFormat='yyyy-MM'}" name="" disabled />
@@ -71,11 +64,11 @@
                 </div>
                 <div class="form-group col">
                     <label for="">单价<i class="red">*</i></label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.price}" disabled />
+                    <input type="text" class="form-control" name=""value="<#centToYuan value='${meterDetail.price}'/>" disabled />
                 </div>
                 <div class="form-group col">
                     <label for="">电费</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.receivable}" disabled />
+                    <input type="text" class="form-control" name=""value="<#centToYuan value='${meterDetail.receivable}'/>"  disabled />
                 </div>
 
 				<%
@@ -88,8 +81,8 @@
                 <% } } %>
 
                 <div class="form-group col">
-                    <label for="">实收金额</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.amount}" disabled />
+                    <label for="">合计金额</label>
+                    <input type="text" class="form-control" name=""  value="<#centToYuan value='${meterDetail.amount}'/>"  disabled />
                 </div>
                 <div class="form-group col">
                     <label for="">抄表日期</label>

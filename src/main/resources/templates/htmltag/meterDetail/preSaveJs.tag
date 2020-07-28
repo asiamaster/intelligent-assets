@@ -108,6 +108,10 @@
         let _formData = $('#saveForm').serializeObject();
         let _url = null;
 
+        // 金钱乘以100
+        bui.util.yuanToCentForMoneyEl(_formData);
+        // 总金额与
+
         //没有id就新增
         if (_formData.id == null || _formData.id == "") {
             _url = "${contextPath}/meterDetail/add.action";

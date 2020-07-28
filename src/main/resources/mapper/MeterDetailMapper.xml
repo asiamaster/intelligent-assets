@@ -169,6 +169,7 @@
         md.usage_amount,
         md.receivable,
         md.amount,
+        md.amount - md.receivable as sharedAmount,
         md.creator_dep_id,
         md.notes,
         md.submitter_id,

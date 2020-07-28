@@ -16,11 +16,11 @@
                     <#bcomboProvider _id="assetsId" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
                 </div>
                 <div class="form-group col">
-                    <label for="createdStart">月份</label>
+                    <label for="UsageMonth">月份</label>
                         <div class="input-group">
-                            <input type="text" name="createdStart" id="createdStart" class="form-control laymonth" value="${createdStart!,dateFormat='yyyy-MM'}"/>
+                            <input type="text" name="UsageMonth" id="UsageMonth" class="form-control laymonth" value="${UsageMonth!,dateFormat='yyyy-MM'}"/>
                             <div class="input-group-append">
-                                <label for="createdStart" class="input-group-text fa fa-calendar"></label>
+                                <label for="UsageMonth" class="input-group-text fa fa-calendar"></label>
                             </div>
                         </div>
                 </div>
@@ -66,7 +66,7 @@
                     <th data-field="code" data-sortable="true" data-align="center">
                         单号
                     </th>
-                    <th data-field="usageTime" data-sortable="true" data-align="center">
+                    <th data-field="usageTime" data-sortable="true" data-align="center" data-formatter="dateFormatter">
                         月份
                     </th>
                     <th data-field="number" data-sortable="true" data-align="center">
@@ -87,13 +87,13 @@
                     <th data-field="usageAmount" data-sortable="true" data-align="center">
                         用电量
                     </th>
-                    <th data-field="receivable" data-sortable="true" data-align="center">
+                    <th data-field="receivable" data-sortable="true" data-align="center" data-provider="moneyProvider">
                         电费
                     </th>
-                    <th data-field="" data-sortable="true" data-align="center">
+                    <th data-field="sharedAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
                         公摊费
                     </th>
-                    <th data-field="amount" data-sortable="true" data-align="center">
+                    <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
                         合计金额
                     </th>
                     <th data-field="state" data-sortable="true" data-align="center" data-provider="meterDetailStateProvider">
@@ -107,4 +107,10 @@
 </div>
 
 </#bs4Body>
+<script>
+    function dateFormatter(value) {
+        var usageTime = value.substring(0,7);
+        return usageTime;
+    }
+</script>
 <#meterDetail_indexJs />

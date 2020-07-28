@@ -140,9 +140,9 @@ public class MeterDetailController {
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(id);
             businessLogQueryInput.setBusinessType(LogBizTypeConst.WATER_ELECTRICITY_CODE);
-            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-            if(businessLogOutput.isSuccess()){
-                modelMap.put("logs",businessLogOutput.getData());
+            BaseOutput list = businessLogRpc.list(businessLogQueryInput);
+            if(list.isSuccess()){
+                modelMap.put("logs",list.getData());
             }
         }catch (Exception e){
             logger.error("日志服务查询异常",e);

@@ -59,11 +59,11 @@
             </div>
             <div class="form-group col">
                 <label for="price">单价<i class="red">*</i></label>
-                <input type="text" class="form-control" id="price" name="price" value="${meterDetail.price}" readonly />
+                <input type="text" class="form-control" id="price" name="price" value="<#centToYuan value='${meterDetail.price}'/>" readonly />
             </div>
             <div class="form-group col">
                 <label for="receivable">水费</label>
-                <input type="text" class="form-control" id="receivable" name="receivable" value="${meterDetail.receivable}" readonly />
+                <input type="text" class="form-control" id="receivable" name="receivable" value="<#centToYuan value='${meterDetail.receivable}'/>" readonly />
             </div>
 
             <%
@@ -76,7 +76,7 @@
 
             <div class="form-group col">
                 <label for="amount">合计金额</label>
-                <input type="text" class="form-control" id="amount" name="amount" value="${meterDetail.amount}" readonly />
+                <input type="text" class="form-control" id="amount" name="amount" value="<#centToYuan value='${meterDetail.amount}'/>" readonly />
             </div>
             <div class="form-group col">
                 <label for="recordTime">抄表日期</label>
