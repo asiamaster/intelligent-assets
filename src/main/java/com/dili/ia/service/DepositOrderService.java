@@ -3,6 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.DepositBalance;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -53,10 +54,10 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
 
     /**
      * 保证金 --创建退款单
-     * @param refundOrder 退款单
+     * @param depositRefundOrderDto 退款单
      * @return BaseOutput
      * */
-    BaseOutput<RefundOrder> addRefundOrder(RefundOrder refundOrder);
+    BaseOutput<RefundOrder> addRefundOrder(DepositRefundOrderDto depositRefundOrderDto);
     /**
      * 保证金 --结算退款成功回调
      * @param refundOrder 退款单

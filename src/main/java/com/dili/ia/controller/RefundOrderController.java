@@ -358,7 +358,7 @@ public class RefundOrderController {
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
                 return "refundOrder/updateView/refundApply";
             } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
-                return "refundOrder/updateView/refundApply";
+                return "forward:/depositOrder/refundApply.html?refundOrderId=" + id + "&depositOrderId=" + refundOrder.getBusinessId();
             } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
                 return "forward:/leaseOrder/refundApply.html?refundOrderId=" + id + "&leaseOrderItemId=" + refundOrder.getBusinessItemId();
             }

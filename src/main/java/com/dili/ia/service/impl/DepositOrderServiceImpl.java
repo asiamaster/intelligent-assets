@@ -5,6 +5,7 @@ import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.glossary.*;
@@ -12,10 +13,7 @@ import com.dili.ia.mapper.DepositOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
-import com.dili.ia.service.DepositBalanceService;
-import com.dili.ia.service.DepositOrderService;
-import com.dili.ia.service.PaymentOrderService;
-import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
@@ -71,6 +69,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     RefundOrderService refundOrderService;
     @Autowired
     DepositBalanceService depositBalanceService;
+    @Autowired
+    TransferDeductionItemService transferDeductionItemService;
 
     public DepositOrderMapper getActualDao() {
         return (DepositOrderMapper)getDao();
@@ -439,21 +439,22 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return order;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<RefundOrder> addRefundOrder(RefundOrder refundOrder) {
+    public BaseOutput<RefundOrder> addRefundOrder(DepositRefundOrderDto depositRefundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
         }
-        PaymentOrder paymentOrder = this.findPaymentOrder(userTicket.getFirmId(), PaymentOrderStateEnum.NOT_PAID.getCode(), refundOrder.getBusinessId(), refundOrder.getBusinessCode());
+        PaymentOrder paymentOrder = this.findPaymentOrder(userTicket.getFirmId(), PaymentOrderStateEnum.NOT_PAID.getCode(), depositRefundOrderDto.getBusinessId(), depositRefundOrderDto.getBusinessCode());
         if (paymentOrder != null){
             withdrawPaymentOrder(paymentOrder);
         }
         //检查客户状态
-        checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
-        DepositOrder depositOrder = this.get(refundOrder.getBusinessId());
+        checkCustomerState(depositRefundOrderDto.getPayeeId(), userTicket.getFirmId());
+        DepositOrder depositOrder = this.get(depositRefundOrderDto.getBusinessId());
         if (null == depositOrder){
-            LOG.info("保证金退款申请，保证金单【ID:{}】不存在！", refundOrder.getBusinessId());
+            LOG.info("保证金退款申请，保证金单【ID:{}】不存在！", depositRefundOrderDto.getBusinessId());
             return BaseOutput.failure("保证金业务单不存在！");
         }
         if (DepositPayStateEnum.UNPAID.getCode().equals(depositOrder.getPayState())){
@@ -465,7 +466,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (DepositRefundStateEnum.REFUNDED.getCode().equals(depositOrder.getRefundState())){
             return BaseOutput.failure("创建失败，业务单已全额退款！");
         }
-        Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
+        Long totalRefundAmount = depositRefundOrderDto.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getPaidAmount() < totalRefundAmount){
             return BaseOutput.failure("退款金额不能大于订单已交费金额！");
         }
@@ -475,10 +476,22 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        refundOrder.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
-        refundOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
-        refundOrder.setTotalRefundAmount(refundOrder.getPayeeAmount());
-        return refundOrderService.doAddHandler(refundOrder);
+        depositRefundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
+        depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+        depositRefundOrderDto.setTotalRefundAmount(depositRefundOrderDto.getPayeeAmount());
+        BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
+        if (!output.isSuccess()) {
+            LOG.info("租赁单【编号：{}】退款申请接口异常", depositRefundOrderDto.getBusinessCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+        }
+
+        if (CollectionUtils.isNotEmpty(depositRefundOrderDto.getTransferDeductionItems())) {
+            depositRefundOrderDto.getTransferDeductionItems().forEach(o -> {
+                o.setRefundOrderId(depositRefundOrderDto.getId());
+                transferDeductionItemService.insertSelective(o);
+            });
+        }
+        return BaseOutput.success().setData(depositRefundOrderDto);
     }
 
     @Transactional(rollbackFor = Exception.class)

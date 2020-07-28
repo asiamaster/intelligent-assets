@@ -110,8 +110,8 @@ public class DepositOrderController {
 //    }
 
     @GetMapping(value = "/refundApply.html")
-    public String refundApply(ModelMap modelMap, Long id, Long refundOrderId) {
-        DepositOrder depositOrder = depositOrderService.get(id);
+    public String refundApply(ModelMap modelMap, Long depositOrderId, Long refundOrderId) {
+        DepositOrder depositOrder = depositOrderService.get(depositOrderId);
         modelMap.put("depositOrder", depositOrder);
         Long maxRefundAmount = depositOrder.getPaidAmount() - depositOrder.getRefundAmount();
         modelMap.put("maxRefundAmount", maxRefundAmount);
@@ -131,7 +131,7 @@ public class DepositOrderController {
      * @return BaseOutput
      */
     @RequestMapping(value="/addRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doEarnestRefund(DepositRefundOrderDto order) {
+    public @ResponseBody BaseOutput addRefundOrder(@RequestBody DepositRefundOrderDto order) {
         try {
             BaseOutput<RefundOrder> out = depositOrderService.addRefundOrder(order);
             return out;
