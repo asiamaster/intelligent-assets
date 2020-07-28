@@ -49,6 +49,7 @@ public class MeterDetailDto extends MeterDetail {
      */
     private String assetsType;
 
+
     /**
      * 对应编号,名称(表地址)
      */

@@ -38,7 +38,7 @@
             $('[name="customerCellphone"]').val(suggestion.customerCellphone);
             $('[name="customerName"]').val(suggestion.customerName);
             $('[name="customerId"]').val(suggestion.customerId);
-            $('[name="price"]').val(suggestion.price);
+            $('[name="price"]').val(suggestion.price/100);
             $('[name="meterId"]').val(suggestion.meterId);
             $.ajax({
                 type: "post",
@@ -108,10 +108,6 @@
         let _formData = $('#saveForm').serializeObject();
         let _url = null;
 
-        // 金钱乘以100
-        bui.util.yuanToCentForMoneyEl(_formData);
-        // 总金额与
-
         //没有id就新增
         if (_formData.id == null || _formData.id == "") {
             _url = "${contextPath}/meterDetail/add.action";
@@ -161,6 +157,9 @@
             }
         })
         _formData.businessChargeItems = businessChargeDtos;
+
+        // 金钱乘以100
+        bui.util.yuanToCentForMoneyEl(_formData);
 
         return JSON.stringify(_formData)
     }

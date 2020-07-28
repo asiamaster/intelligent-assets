@@ -11,9 +11,9 @@
                     <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
                 </div>
                 <div class="form-group col">
-                    <label for="assetsId">类别</label>
-                    <select id="assetsId" name="assetsId" class="form-control"></select>
-                    <#bcomboProvider _id="assetsId" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+                    <label for="assetsType">类别</label>
+                    <select id="assetsType" name="assetsType" class="form-control"></select>
+                    <#bcomboProvider _id="assetsType" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
                 </div>
                 <div class="form-group col">
                     <label for="UsageMonth">月份</label>
@@ -81,7 +81,7 @@
                     <th data-field="customerName" data-sortable="true" data-align="center">
                         客户名称
                     </th>
-                    <th data-field="assetsType" data-sortable="true" data-align="center" data-provider="assetsTypeProvider">
+                    <th data-field="assetsType" data-sortable="true" data-align="center" data-provider="assetsTypeProvider" data-formatter="assetsTypeFormatter">
                         类别
                     </th>
                     <th data-field="usageAmount" data-sortable="true" data-align="center">
@@ -112,6 +112,10 @@
     function dateFormatter(value) {
         var usageTime = value.substring(0,7);
         return usageTime;
+    }
+    function assetsTypeFormatter(value) {
+        var assetsName = value + "用水";
+        return assetsName;
     }
 </script>
 

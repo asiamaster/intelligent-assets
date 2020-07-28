@@ -66,7 +66,7 @@
      */
     function queryDataHandler() {
         let meterType = $('#metertype').val();
-        _grid.bootstrapTable('refreshOptions', {singleSelect:false, pageNumber: 1, url: '/meterDetail/listPage.action?meterType=' + meterType});
+        _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '/meterDetail/listPage.action?meterType=' + meterType});
     }
 
     /**
@@ -122,7 +122,7 @@
     function openWaterUpdateHandler() {
         //获取选中行的数据
         let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        if (null == rows || rows.length == 0 || rows.length != 1) {
             bs4pop.alert('请选中一条数据');
             return false;
         }
@@ -151,7 +151,7 @@
     function openElectricityUpdateHandler() {
         //获取选中行的数据
         let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
+        if (null == rows || rows.length == 0 || rows.length != 1) {
             bs4pop.alert('请选中一条数据');
             return false;
         }
@@ -225,6 +225,12 @@
                     bui.loading.show('努力提交中，请稍候。。。');
                     //获取选中行的数据
                     let rows = _grid.bootstrapTable('getSelections');
+
+                    if (null == rows || rows.length == 0 || rows.length != 1) {
+                        bs4pop.alert('请选中一条数据');
+                        return false;
+                    }
+
                     let selectedRow = rows[0];
 
                     $.ajax({
@@ -261,6 +267,12 @@
                     bui.loading.show('努力提交中，请稍候。。。');
                     //获取选中行的数据
                     let rows = _grid.bootstrapTable('getSelections');
+
+                    if (null == rows || rows.length == 0 || rows.length != 1) {
+                        bs4pop.alert('请选中一条数据');
+                        return false;
+                    }
+
                     let selectedRow = rows[0];
 
                     $.ajax({
