@@ -112,31 +112,11 @@
                 transferDeductionItems.push(transferDeductionItem);
             }
         });
-        // let refundFeeItems = [];
-        // $("input[isRefundFeeItem]").each(function (i) {
-        //     let refundFeeItem = {};
-        //     refundFeeItem.chargeItemId = this.dataset.chargeItemId;
-        //     refundFeeItem.chargeItemName = this.dataset.chargeItemName;
-        //     refundFeeItem.amount = Number($(this).val()).mul(100);
-        //     refundFeeItems.push(refundFeeItem);
-        // });
         return $.extend(formData, {
             transferDeductionItems,
-            totalRefundAmountFormatStr: $('#totalRefundAmount').val()
+            logContent: $('#id').val() ? Log.buildUpdateContent() : ''
         });
     }
-
-    /**
-    * 计算退款总金额
-    */
-    // function calcTotalRefundAmount(){
-    //     let totalAmount = 0;
-    //     $("input[isRefundFeeItem]").each(function (i) {
-    //         totalAmount = Number(this.value).add(totalAmount);
-    //     });
-    //     $('#totalRefundAmount').val(totalAmount);
-    // }
-
     /**
      * 验证实际退款金额是否小于
      * @returns {boolean}
@@ -184,7 +164,7 @@
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
-            url: "${contextPath}/depositOrder/addRefundOrder.action",
+            url: "${contextPath}/depositOrder/saveOrUpdateRefundOrder.action",
             data: JSON.stringify(buildFormData()),
             dataType: "json",
             contentType: "application/json; charset=utf-8",
