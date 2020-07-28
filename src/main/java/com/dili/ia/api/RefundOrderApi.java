@@ -34,7 +34,7 @@ public class RefundOrderApi {
     RefundOrderService refundOrderService;
 
     /**
-     * 定金票据打印数据加载
+     * 退款单票据打印数据加载
      * @param orderCode 退款单订单号CODE
      * @param reprint 是否补打标记
      * @return BaseOutput<PrintDataDto>
@@ -54,7 +54,7 @@ public class RefundOrderApi {
     }
 
     /**
-     * 摊位租赁结算成功回调
+     * 退款单结算成功回调
      * @param settleOrder 结算单
      * @return BaseOutput<Boolean>
      */
