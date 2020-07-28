@@ -13,12 +13,15 @@ import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.common.util.StringUtils;
@@ -127,19 +130,34 @@ public class DepositOrderController {
 
     /**
      * CustomerAccount--- 保证金退款
-     * @param order
+     * @param orderDto
      * @return BaseOutput
      */
-    @RequestMapping(value="/addRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput addRefundOrder(@RequestBody DepositRefundOrderDto order) {
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content = "${content}", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput addRefundOrder(@RequestBody DepositRefundOrderDto orderDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (null == userTicket){
+            return BaseOutput.failure("未登录！");
+        }
         try {
-            BaseOutput<RefundOrder> out = depositOrderService.addRefundOrder(order);
+            BaseOutput<RefundOrder> out = depositOrderService.saveOrUpdateRefundOrder(orderDto);
+            if (out.isSuccess()) {
+                if(StringUtils.isNotBlank(orderDto.getLogContent())){
+                    LoggerContext.put("content", orderDto.getLogContent());
+                    LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+                }else{
+                    LoggerContext.put("content", MoneyUtils.centToYuan(orderDto.getTotalRefundAmount()));
+                    LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
+                }
+                LoggerUtil.buildLoggerContext(orderDto.getBusinessId(), orderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), orderDto.getRefundReason());
+            }
             return out;
         } catch (BusinessException e) {
-            LOG.error("定金创建退款失败！", e);
+            LOG.error("保证金创建退款失败！", e);
             return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
-            LOG.error("定金创建退款出错！", e);
+            LOG.error("保证金创建退款出错！", e);
             return BaseOutput.failure("创建退款出错！");
         }
     }

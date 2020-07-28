@@ -441,7 +441,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<RefundOrder> addRefundOrder(DepositRefundOrderDto depositRefundOrderDto) {
+    public BaseOutput<RefundOrder> saveOrUpdateRefundOrder(DepositRefundOrderDto depositRefundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
@@ -460,29 +460,41 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (DepositPayStateEnum.UNPAID.getCode().equals(depositOrder.getPayState())){
             return BaseOutput.failure("创建失败，未交费业务单不能退款！");
         }
-        if (DepositOrderStateEnum.REFUNDING.getCode().equals(depositOrder.getState())){
-            return BaseOutput.failure("创建失败，已存在退款中的业务单！");
-        }
-        if (DepositRefundStateEnum.REFUNDED.getCode().equals(depositOrder.getRefundState())){
-            return BaseOutput.failure("创建失败，业务单已全额退款！");
-        }
         Long totalRefundAmount = depositRefundOrderDto.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getPaidAmount() < totalRefundAmount){
             return BaseOutput.failure("退款金额不能大于订单已交费金额！");
         }
-        depositOrder.setState(DepositOrderStateEnum.REFUNDING.getCode());
-        if (this.updateSelective(depositOrder) == 0) {
-            LOG.info("撤回保证金【修改保证金单状态】失败,乐观锁生效。【保证金单ID：】" + depositOrder.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
 
-        depositRefundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
-        depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
-        depositRefundOrderDto.setTotalRefundAmount(depositRefundOrderDto.getPayeeAmount());
-        BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
-        if (!output.isSuccess()) {
-            LOG.info("租赁单【编号：{}】退款申请接口异常", depositRefundOrderDto.getBusinessCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+        //新增
+        if(null == depositRefundOrderDto.getId()){
+            if (DepositOrderStateEnum.REFUNDING.getCode().equals(depositOrder.getState())){
+                return BaseOutput.failure("创建失败，已存在退款中的业务单！");
+            }
+            if (DepositRefundStateEnum.REFUNDED.getCode().equals(depositOrder.getRefundState())){
+                return BaseOutput.failure("创建失败，业务单已全额退款！");
+            }
+            depositOrder.setState(DepositOrderStateEnum.REFUNDING.getCode());
+            if (this.updateSelective(depositOrder) == 0) {
+                LOG.info("撤回保证金【修改保证金单状态】失败,乐观锁生效。【保证金单ID：】" + depositOrder.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
+            depositRefundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
+            depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+            depositRefundOrderDto.setTotalRefundAmount(depositRefundOrderDto.getPayeeAmount());
+            BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
+            if (!output.isSuccess()) {
+                LOG.info("租赁单【编号：{}】退款申请接口异常", depositRefundOrderDto.getBusinessCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+            }
+        }else { // 修改
+            if (!refundOrderService.doUpdateDispatcher(depositRefundOrderDto).isSuccess()) {
+                LOG.info("租赁单【编号：{}】退款修改接口异常", depositRefundOrderDto.getBusinessCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
+            }
+            //删除转抵扣项的数据
+            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+            transferDeductionItemCondition.setRefundOrderId(depositRefundOrderDto.getId());
+            transferDeductionItemService.deleteByExample(transferDeductionItemCondition);
         }
 
         if (CollectionUtils.isNotEmpty(depositRefundOrderDto.getTransferDeductionItems())) {
