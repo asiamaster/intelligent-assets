@@ -209,7 +209,7 @@ public class LeaseOrderApi {
     }
 
     /**
-     * 扫描等待停租的摊位
+     * 租赁单缴费打印数据查询
      * cron 0 0 0 * * ?
      * @return
      */
