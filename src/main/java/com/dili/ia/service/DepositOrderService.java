@@ -140,6 +140,13 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
     BaseOutput batchReleaseRelated(String bizType, Long businessId, Long assetsId);
 
     /**
+     * 检查当前市场客户状态
+     * @param customerId 客户ID
+     * @param marketId 当前市场ID
+     */
+    void checkCustomerState(Long customerId,Long marketId);
+
+    /**
      * 批量【新增】,【已交费】的保证金单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
      * @param depositOrderList 保证金订单列表
      * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
