@@ -257,6 +257,31 @@ public class MeterDetailController {
     }
 
     /**
+     * 全部提交水电费单(生缴费单和结算单)
+     *
+     * @param
+     * @return 是否成功
+     * @date   2020/7/29
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/submitAll.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput submitAll(Integer metertype) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
+        BaseOutput<List<MeterDetailDto>> baseOutput = meterDetailService.submitAll(userTicket, metertype);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()){
+            List<MeterDetailDto> meterDetailList = baseOutput.getData();
+            if (meterDetailList != null && meterDetailList.size() > 0) {
+                meterDetailList.forEach(meterDetail -> LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null));
+            }
+        }
+
+        return baseOutput;
+    }
+
+    /**
      * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)
      *
      * @param  id

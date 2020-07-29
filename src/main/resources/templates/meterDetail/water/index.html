@@ -51,7 +51,8 @@
                 <#resource code="updateMeterDetailWater">
                     <button id="btn_update" type="button" class="btn btn-primary" onclick="openWaterUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 </#resource>
-                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 批量提交</button>
+        <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
+        <button id="btn_submitAll" type="button" class="btn btn-primary" onclick="openSubmitAllWaterHandler()"><i class="fa fa-paper-plane"></i> 批量提交</button>
                 <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
                 <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                 <button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>

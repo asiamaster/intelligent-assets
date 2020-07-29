@@ -413,4 +413,16 @@
         AND
             state IN (#{status})
     </select>
+
+    <select id="listByStateCreatedAndType" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">
+        SELECT DISTINCT
+            md.id
+        FROM
+            meter_detail as md
+        left join meter as m on md.meter_id = m.id
+        WHERE
+            md.state = #{state}
+        and
+            m.type = #{type}
+    </select>
 </mapper>

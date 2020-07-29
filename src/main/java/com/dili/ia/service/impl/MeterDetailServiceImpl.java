@@ -2,7 +2,6 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.CustomerMeter;
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.PaymentOrder;
@@ -34,9 +33,9 @@ import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.ss.util.MoneyUtils;
@@ -60,7 +59,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -110,7 +108,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     @Value("${settlement.app-id}")
     private Long settlementAppId;
 
-    private String settlerHandlerUrl = "http://10.28.1.59:8381/api/meterDetail/settlementDealHandler";
+    private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/meterDetail/settlementDealHandler";
 
 
     /**
@@ -328,6 +326,30 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             meterDetailList.add(meterDetailInfo);
         }
         return BaseOutput.success().setData(meterDetailList);
+    }
+
+    /**
+     * 全部提交水电费单(生缴费单和结算单)
+     *
+     * @param
+     * @param metertype
+     * @return 是否成功
+     * @date   2020/7/29
+     */
+    @Override
+    public BaseOutput<List<MeterDetailDto>> submitAll(UserTicket userTicket, Integer metertype) {
+        // 查询所有未提交的水电费单
+        MeterDetailDto meterDetailQuery = new MeterDetailDto();
+        meterDetailQuery.setType(metertype);
+        meterDetailQuery.setState(MeterDetailStateEnum.CREATED.getCode());
+        List<MeterDetailDto> meterDetailInfoList = this.getActualDao().listByStateCreatedAndType(meterDetailQuery);
+        List<Long> idList = new ArrayList<>();
+        if (meterDetailInfoList != null && meterDetailInfoList.size() > 0) {
+            meterDetailInfoList.stream().map(BaseDomain::getId).forEach(idList::add);
+            this.submit(idList, userTicket);
+        }
+
+        return BaseOutput.success().setData(meterDetailInfoList);
     }
 
     /**
