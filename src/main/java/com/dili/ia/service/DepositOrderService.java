@@ -3,6 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.DepositBalance;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -53,10 +54,10 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
 
     /**
      * 保证金 --创建退款单
-     * @param refundOrder 退款单
+     * @param depositRefundOrderDto 退款单
      * @return BaseOutput
      * */
-    BaseOutput<RefundOrder> addRefundOrder(RefundOrder refundOrder);
+    BaseOutput<RefundOrder> saveOrUpdateRefundOrder(DepositRefundOrderDto depositRefundOrderDto);
     /**
      * 保证金 --结算退款成功回调
      * @param refundOrder 退款单
@@ -137,6 +138,13 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput
      */
     BaseOutput batchReleaseRelated(String bizType, Long businessId, Long assetsId);
+
+    /**
+     * 检查当前市场客户状态
+     * @param customerId 客户ID
+     * @param marketId 当前市场ID
+     */
+    void checkCustomerState(Long customerId,Long marketId);
 
     /**
      * 批量【新增】,【已交费】的保证金单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
