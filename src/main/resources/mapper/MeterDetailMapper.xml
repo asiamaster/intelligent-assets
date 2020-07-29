@@ -213,7 +213,7 @@
      </if>
      <if test="keyword != null and keyword != ''">
           and (
-          m.number =  #{keyword}
+          m.number like concat('', #{keyword}, '%')
           or md.code like concat('', #{keyword}, '%')
           or md.customer_name like concat('', #{keyword}, '%')
           )

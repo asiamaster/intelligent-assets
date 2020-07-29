@@ -123,6 +123,12 @@ public class Passport extends BaseDomain {
     /**
      * 金额
      */
+    @Column(name = "`toll_amount`")
+    private Long tollAmount;
+
+    /**
+     * 金额
+     */
     @Column(name = "`amount`")
     private Long amount;
 
@@ -540,6 +546,26 @@ public class Passport extends BaseDomain {
      */
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
+    }
+
+    /**
+     * 获取通行费金额
+     *
+     * @return tollAmount - 金额
+     */
+    @FieldDef(label="金额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getTollAmount() {
+        return tollAmount;
+    }
+
+    /**
+     * 设置通行费金额
+     *
+     * @param tollAmount 金额
+     */
+    public void setTollAmount(Long tollAmount) {
+        this.tollAmount = tollAmount;
     }
 
     /**

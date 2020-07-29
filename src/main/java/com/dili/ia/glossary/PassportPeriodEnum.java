@@ -6,7 +6,7 @@ package com.dili.ia.glossary;
  * @version:     农批业务系统重构
  * @description: 精品停车状态枚举
  */
-public enum PassportPeriodlEnum {
+public enum PassportPeriodEnum {
     ONE_MONTH(1,"一月"),
     TWO_MONTH(2,"两月"),
     QUARTERLY(3,"一季度"),
@@ -18,13 +18,13 @@ public enum PassportPeriodlEnum {
     private String name;
     private Integer code ;
 
-    PassportPeriodlEnum(Integer code, String name){
+    PassportPeriodEnum(Integer code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static PassportPeriodlEnum getPassportPeriodlEnum(Integer code) {
-        for (PassportPeriodlEnum anEnum : PassportPeriodlEnum.values()) {
+    public static PassportPeriodEnum getPassportPeriodlEnum(Integer code) {
+        for (PassportPeriodEnum anEnum : PassportPeriodEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }
@@ -33,7 +33,7 @@ public enum PassportPeriodlEnum {
     }
 
     public static String getPassportPeriodlEnumName(Integer code) {
-        for (PassportPeriodlEnum r : PassportPeriodlEnum.values()) {
+        for (PassportPeriodEnum r : PassportPeriodEnum.values()) {
             if (r.getCode().equals(code)) {
                 return r.getName();
             }

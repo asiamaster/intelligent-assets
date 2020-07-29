@@ -4,6 +4,8 @@ import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ss.base.MyMapper;
 
+import java.util.List;
+
 /**
  * @author:      xiaosa
  * @date:        2020/7/27
@@ -20,4 +22,13 @@ public interface PassportMapper extends MyMapper<Passport> {
      * @date   2020/7/27
      */
     PassportDto getPassportByCode(String code);
+
+    /**
+     * 查询列表
+     *
+     * @param  passportDto
+     * @return EasyuiPageOutput
+     * @date   2020/7/29
+     */
+    List<Passport> listPassports(PassportDto passportDto);
 }

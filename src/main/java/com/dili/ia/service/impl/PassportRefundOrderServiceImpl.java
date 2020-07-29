@@ -64,7 +64,7 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
 
-        this.updateState(refundOrder.getCode(), passportDto.getVersion(), BoutiqueOrderStateEnum.PAID);
+        this.updateState(refundOrder.getCode(), passportDto.getVersion(), BoutiqueOrderStateEnum.SUBMITTED_PAY);
         return BaseOutput.success();
     }
 
@@ -123,7 +123,7 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
      */
     @Override
     public Set<String> getBizType() {
-        return Sets.newHashSet(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
+        return Sets.newHashSet(BizTypeEnum.PASSPORT.getCode());
     }
 
     private void updateState(String code, Integer version, BoutiqueOrderStateEnum state) {

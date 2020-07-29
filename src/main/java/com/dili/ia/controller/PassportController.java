@@ -65,7 +65,7 @@ public class PassportController {
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap, long id) {
 
         Passport passport = passportService.get(id);
@@ -115,13 +115,13 @@ public class PassportController {
     /**
      * 分页查询
      *
-     * @param  passport
+     * @param  passportDto
      * @return String
      * @date   2020/7/27
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute Passport passport) throws Exception {
-        return passportService.listPage(passport).toString();
+    public @ResponseBody String listPage(@ModelAttribute PassportDto passportDto) throws Exception {
+        return passportService.listPassports(passportDto, true).toString();
     }
 
     /**
@@ -204,8 +204,8 @@ public class PassportController {
      * @date   2020/7/27
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="cancle", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/cancle.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput cancle(Long id) throws Exception {
+    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput cancel(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 

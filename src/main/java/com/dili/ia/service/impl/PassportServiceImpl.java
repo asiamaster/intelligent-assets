@@ -3,6 +3,7 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
@@ -28,12 +29,16 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -42,6 +47,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author:      xiaosa
@@ -78,6 +85,30 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     private Long settlementAppId;
 
     private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/passport/settlementDealHandler";
+
+    /**
+     * 查询列表
+     *
+     * @param  passport
+     * @param  useProvider
+     * @return EasyuiPageOutput
+     * @date   2020/7/29
+     */
+    @Override
+    public EasyuiPageOutput listPassports(PassportDto passportDto, boolean useProvider) throws Exception {
+        // 分页
+        if (passportDto.getRows() != null && passportDto.getRows() >= 1) {
+            PageHelper.startPage(passportDto.getPage(), passportDto.getRows());
+        }
+
+        List<Passport> passportInfoList= this.getActualDao().listPassports(passportDto);
+
+        // 基础代码
+        long total = passportInfoList instanceof Page ? ((Page)passportInfoList).getTotal() : (long)passportInfoList.size();
+        List results = useProvider ? ValueProviderUtils.buildDataByProvider(passportDto, passportInfoList) : passportInfoList;
+
+        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results);
+    }
 
     /**
      * 新增通行证
@@ -155,7 +186,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         // 先查询通行证
         Passport passportInfo = this.get(id);
         if (passportInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该通行证信息已不存在!");
         }
 
         // 已创建状态才能提交
@@ -305,7 +336,16 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
         // 修改通行证
         passportInfo.setModifyTime(LocalDateTime.now());
-        passportInfo.setState(MeterDetailStateEnum.PAID.getCode());
+        // 判断交费后状态
+        if(passportInfo.getStartTime() != null && LocalDateTime.now().isBefore(passportInfo.getStartTime())){
+            passportInfo.setState(PassportStateEnum.NOT_START.getCode());
+        } else if (passportInfo.getStartTime() != null && passportInfo.getEndTime() != null && passportInfo.getStartTime().isBefore(LocalDateTime.now())
+            && LocalDateTime.now().isBefore(passportInfo.getEndTime())){
+            passportInfo.setState(PassportStateEnum.IN_FORCE.getCode());
+        } else if (passportInfo.getEndTime() != null && passportInfo.getEndTime().isBefore(LocalDateTime.now())) {
+            passportInfo.setState(PassportStateEnum.EXPIRED.getCode());
+        }
+
         if (this.updateSelective(passportInfo) == 0) {
             logger.info("缴费单成功回调 -- 更新【通行证】状态,乐观锁生效！【通行证Id:{}】", passportInfo.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");

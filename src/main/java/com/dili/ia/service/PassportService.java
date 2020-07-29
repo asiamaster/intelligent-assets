@@ -9,6 +9,7 @@ import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 
 /**
@@ -18,6 +19,16 @@ import com.dili.uap.sdk.domain.UserTicket;
  * @description: 通行证
  */
 public interface PassportService extends BaseService<Passport, Long> {
+
+    /**
+     * 查询列表
+     *
+     * @param  passport
+     * @param  useProvider
+     * @return EasyuiPageOutput
+     * @date   2020/7/29
+     */
+    EasyuiPageOutput listPassports(PassportDto passportDto, boolean useProvider) throws Exception;
     
     /**
      * 新增通行证
@@ -102,4 +113,5 @@ public interface PassportService extends BaseService<Passport, Long> {
      * @date   2020/7/27
      */
     void refund(PassportDto passportDto);
+
 }

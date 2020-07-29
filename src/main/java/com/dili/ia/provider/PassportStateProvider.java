@@ -15,12 +15,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * <B>Description</B>
- * 本软件源代码版权归农丰时代及其团队所有,未经许可不得任意复制与传播
- * <B>农丰时代科技有限公司</B>
- *
- * @author qinkelan
- * @createTime 2020-03-11 18:13
+ * @author:       xiaosa
+ * @date:         2020/7/29
+ * @version:      农批业务系统重构
+ * @description:  通行证状态
  */
 @Component
 public class PassportStateProvider implements ValueProvider {
