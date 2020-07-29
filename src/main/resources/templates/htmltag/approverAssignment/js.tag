@@ -106,12 +106,65 @@
         });
     }
 
+    function openBatchUpdateHandler(row) {
+        if(!row){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            row = rows[0];
+        }
+        //根据row构建查询区域的条件：办理人，流程定义，任务定义
+        var data = $.extend({}, row);
+        delete(data["districtId"]);
+        delete(data["$_districtId"]);
+        delete(data["createTime"]);
+        delete(data["modifyTime"]);
+        delete(data["id"]);
+        data["assignee"] = data["$_assignee"];
+        data = $.extend(data, bui.util.bindMetadata("grid"));
+        $.ajax({
+            type: "POST",
+            url: "${contextPath}/approverAssignment/listDistricts.action",
+            data: data,
+            processData: true,
+            dataType: "json",
+            async: true,
+            success: function (data) {
+                var editInfo = $.extend({"districtIds":data}, row);
+                delete(editInfo["districtId"]);
+                bs4pop.dialog({
+                    title: '批量分配区域',
+                    content: bui.util.HTMLDecode(template('editTpl', editInfo)),
+                    closeBtn: true,
+                    backdrop : 'static',
+                    width: '40%',
+                    btns: [
+                        {
+                            label: '确定', className: 'btn-primary', onClick(e) {
+                                return saveOrUpdateHandler();
+                            }
+                        },
+                        {label: '取消', className: 'btn-default', onClick(e) {}}
+                    ]
+                });
+            },
+            error: function (a, b, c) {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+
+    }
+
     /**
      *  保存及更新表单数据
      */
     function saveOrUpdateHandler() {
         if ($('#_form').validate().form() != true) {
-            return;
+            return false;
         }
         bui.loading.show('努力提交中，请稍候。。。');
         let _formData = bui.util.removeKeyStartWith($('#_form').serializeObject(true), "_");

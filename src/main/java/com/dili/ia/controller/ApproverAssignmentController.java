@@ -1,14 +1,23 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.ApproverAssignment;
+import com.dili.ia.domain.dto.ApproverAssignmentDto;
 import com.dili.ia.service.ApproverAssignmentService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 审批人任务分配控制器
@@ -31,13 +40,14 @@ public class ApproverAssignmentController {
         return "approverAssignment/index";
     }
 
+
     /**
      * 分页查询ApproverAssignment，返回easyui分页信息
      * @param approverAssignment
      * @return String
      * @throws Exception
      */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping(value="/listPage.action")
     public @ResponseBody String listPage(ApproverAssignment approverAssignment) throws Exception {
 //        approverAssignment.setWhereSuffixSql("group by process_definition_key, task_definition_key, assignee");
 //        HashSet<String> columns = Sets.newHashSet();
@@ -52,25 +62,54 @@ public class ApproverAssignmentController {
     }
 
     /**
-     * 新增ApproverAssignment
+     * 根据流程定义， 任务定义和办理人查询区域列表
      * @param approverAssignment
+     * @return
+     * @throws Exception
+     */
+    @PostMapping(value="/listDistricts.action")
+    public @ResponseBody List<Map> listDistricts(ApproverAssignment approverAssignment) throws Exception {
+        approverAssignment.setSelectColumns(Sets.newHashSet("district_id"));
+        EasyuiPageOutput easyuiPageOutput = approverAssignmentService.listEasyuiPageByExample(approverAssignment, true);
+        return easyuiPageOutput.getRows();
+
+    }
+
+    /**
+     * 新增ApproverAssignment
+     * @param approverAssignmentDto
      * @return BaseOutput
      */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(ApproverAssignment approverAssignment) {
-        approverAssignmentService.insertSelective(approverAssignment);
+    @PostMapping(value="/insert.action")
+    public @ResponseBody BaseOutput insert(ApproverAssignmentDto approverAssignmentDto) {
+        ApproverAssignment approverAssignment = DTOUtils.newInstance(ApproverAssignment.class);
+        approverAssignment.setProcessDefinitionKey(approverAssignmentDto.getProcessDefinitionKey());
+        approverAssignment.setTaskDefinitionKey(approverAssignmentDto.getTaskDefinitionKey());
+        approverAssignment.setAssignee(approverAssignmentDto.getAssignee());
+        approverAssignment.setDistrictId(approverAssignmentDto.getDistrictId());
+        approverAssignment.setRows(1);
+        if(!approverAssignmentService.list(approverAssignment).isEmpty()){
+            return BaseOutput.failure("当前数据已存在");
+        }
+        approverAssignmentService.insertSelective(approverAssignmentDto);
         return BaseOutput.success("新增成功");
     }
 
     /**
      * 修改ApproverAssignment
-     * @param approverAssignment
+     * @param approverAssignmentDto
      * @return BaseOutput
      */
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(ApproverAssignment approverAssignment) {
-        approverAssignmentService.updateSelective(approverAssignment);
-        return BaseOutput.success("修改成功");
+    @PostMapping(value="/update.action")
+    public @ResponseBody BaseOutput update(ApproverAssignmentDto approverAssignmentDto) {
+        try {
+            approverAssignmentService.updateEx(approverAssignmentDto);
+            return BaseOutput.success("修改成功");
+        }catch (BusinessException e) {
+            return BaseOutput.failure(e.getErrorMsg());
+        } catch (Exception e) {
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
     /**
@@ -78,9 +117,11 @@ public class ApproverAssignmentController {
      * @param id
      * @return BaseOutput
      */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping(value="/delete.action")
     public @ResponseBody BaseOutput delete(Long id) {
         approverAssignmentService.delete(id);
         return BaseOutput.success("删除成功");
     }
+
+
 }
