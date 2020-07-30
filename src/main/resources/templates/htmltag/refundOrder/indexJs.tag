@@ -330,6 +330,7 @@
             <%}else{%>
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
+                $('#btn_submit').attr('disabled', false);
             <%}%>
         } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CANCELD.getCode()}) {
             $('#toolbar button').attr('disabled', true);
