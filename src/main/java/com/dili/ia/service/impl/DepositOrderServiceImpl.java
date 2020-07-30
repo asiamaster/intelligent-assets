@@ -15,6 +15,9 @@ import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.logger.sdk.component.MsgService;
+import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -56,6 +59,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Autowired
     DepartmentRpc departmentRpc;
     @Autowired
+    MsgService msgService;
+    @Autowired
     CustomerRpc customerRpc;
     @Autowired
     AssetsRpc assetsRpc;
@@ -71,6 +76,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     DepositBalanceService depositBalanceService;
     @Autowired
     TransferDeductionItemService transferDeductionItemService;
+    @Autowired
+    CustomerAccountService customerAccountService;
 
     public DepositOrderMapper getActualDao() {
         return (DepositOrderMapper)getDao();
@@ -195,7 +202,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * @param customerId
      * @param marketId
      */
-    private void checkCustomerState(Long customerId,Long marketId){
+    @Override
+    public void checkCustomerState(Long customerId,Long marketId){
         BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 "+output.getMessage());
@@ -480,7 +488,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
             depositRefundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
             depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
-            depositRefundOrderDto.setTotalRefundAmount(depositRefundOrderDto.getPayeeAmount());
             BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
             if (!output.isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款申请接口异常", depositRefundOrderDto.getBusinessCode());
@@ -564,8 +571,30 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //更新保证金余额 --- 缴费成功保证金余额增加
         this.updateDepositBalance(depositOrder, paymentOrderPO.getAmount());
+        //记录日志
+        msgService.sendBusinessLog(recordPayLog(settleOrder, depositOrder));
 
         return BaseOutput.success().setData(depositOrder);
+    }
+
+    /**
+     * 记录交费日志
+     *
+     * @param settleOrder 结算单
+     * @param depositOrder 保证金业务单
+     */
+    private BusinessLog recordPayLog(SettleOrder settleOrder, DepositOrder depositOrder) {
+        BusinessLog businessLog = new BusinessLog();
+        businessLog.setBusinessId(depositOrder.getId());
+        businessLog.setBusinessCode(depositOrder.getCode());
+        businessLog.setContent(settleOrder.getCode());
+        businessLog.setOperationType("pay");
+        businessLog.setMarketId(settleOrder.getMarketId());
+        businessLog.setOperatorId(settleOrder.getOperatorId());
+        businessLog.setOperatorName(settleOrder.getOperatorName());
+        businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
+        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        return businessLog;
     }
 
     private BaseOutput<String> updateDepositBalance(DepositOrder depositOrder, Long payAmount){
@@ -590,6 +619,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             DepositBalance upDep = new DepositBalance();
             upDep.setId(depositBalance.getId());
             upDep.setBalance(depositBalance.getBalance() + payAmount);
+            upDep.setVersion(depositBalance.getVersion());
             depositBalanceService.updateSelective(upDep);
         }
         return BaseOutput.success();
@@ -684,7 +714,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("此退款单【refundOrderId={}】关联的业务单状态已变更【状态：{}】，退款失败！", refundOrder.getId(), DepositOrderStateEnum.getDepositOrderStateEnumName(depositOrder.getState()));
             return BaseOutput.failure("此退款单关联的业务单状态已变更，退款失败！");
         }
-        Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
+        Long totalRefundAmount = refundOrder.getTotalRefundAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getPaidAmount() < totalRefundAmount){
             LOG.error("异常订单！！！---- 保证金单退款申请结算退款成功 但是退款单退款总金额大于订单可退金额【保证金单ID {}，退款单ID{}】", depositOrder.getId(), refundOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "异常订单！！！-- 退款金额不能大于保证金单可退金额！");
@@ -704,7 +734,46 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         //更新保证金余额 ---- 退款扣减保证金余额
         this.updateDepositBalance(depositOrder, 0 - refundOrder.getTotalRefundAmount());
 
+        //转抵扣充值
+        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
+        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
+        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
+            transferDeductionItems.forEach(o -> {
+                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
+                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
+                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
+                if (!accountOutput.isSuccess()) {
+                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
+                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
+                }
+            });
+        }
+
+        //记录退款日志
+        msgService.sendBusinessLog(recordRefundLog(refundOrder));
+
         return BaseOutput.success();
+    }
+
+
+    /**
+     * 记录退款日志
+     *
+     * @param refundOrder 退款单
+     */
+    private BusinessLog recordRefundLog(RefundOrder refundOrder) {
+        BusinessLog businessLog = new BusinessLog();
+        businessLog.setBusinessId(refundOrder.getBusinessId());
+        businessLog.setBusinessCode(refundOrder.getBusinessCode());
+        businessLog.setContent(refundOrder.getSettlementCode());
+        businessLog.setOperationType("refund");
+        businessLog.setMarketId(refundOrder.getMarketId());
+        businessLog.setOperatorId(refundOrder.getRefundOperatorId());
+        businessLog.setOperatorName(refundOrder.getRefundOperator());
+        businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
+        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        return businessLog;
     }
 
     @Transactional(rollbackFor = Exception.class)

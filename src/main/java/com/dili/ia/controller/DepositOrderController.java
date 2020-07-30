@@ -97,21 +97,12 @@ public class DepositOrderController {
     }
 
     /**
-     * 跳转到保证金管理-新增页面
+     * 跳转到保证金管理-退款申请页面
      * @param modelMap
+     * @param depositOrderId 保证金单ID
+     * @param refundOrderId 退款单ID
      * @return String
      */
-//    @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
-//    public String refundApply(ModelMap modelMap, Long id) {
-//        if(null != id){
-//            DepositOrder depositOrder = depositOrderService.get(id);
-//            Long maxRefundAmount = depositOrder.getPaidAmount() - depositOrder.getRefundAmount();
-//            modelMap.put("depositOrder",depositOrder);
-//            modelMap.put("maxRefundAmount", maxRefundAmount);
-//        }
-//        return "depositOrder/refundApply";
-//    }
-
     @GetMapping(value = "/refundApply.html")
     public String refundApply(ModelMap modelMap, Long depositOrderId, Long refundOrderId) {
         DepositOrder depositOrder = depositOrderService.get(depositOrderId);
