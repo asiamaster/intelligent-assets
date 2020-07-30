@@ -42,6 +42,19 @@ public class PaymentOrder extends BaseDomain {
     private LocalDateTime modifyTime;
 
     /**
+     * 客户ID
+     */
+    @Column(name = "`customer_id`")
+    private Long customerId;
+
+    /**
+     * 客户名称
+     */
+    @Column(name = "`customer_name`")
+    private String customerName;
+
+
+    /**
      * 业务单ID
      */
     @Column(name = "`business_id`")
@@ -181,6 +194,22 @@ public class PaymentOrder extends BaseDomain {
 
     public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     /**

@@ -411,8 +411,11 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
 
+        Long leaseApportionAmount = CollectionUtils.isNotEmpty(assetsLeaseSubmitPaymentDto.getBusinessChargeItems()) ? assetsLeaseSubmitPaymentDto.getBusinessChargeItems().stream().mapToLong(o -> o.getPaymentAmount()).sum() : 0L;
+        Long deductionAmount = leaseOrder.getEarnestDeduction() + leaseOrder.getTransferDeduction();
+        //租赁付款金额提交前提条件：1.大于0 2.等于0时，要么实付金额为0，要么有抵扣时摊位项分摊总金额等于抵扣额
         if (assetsLeaseSubmitPaymentDto.getLeasePayAmount() > 0L
-                || (assetsLeaseSubmitPaymentDto.getLeasePayAmount().equals(0L) && leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode()) && leaseOrder.getWaitAmount().equals(0L))) {
+                || (assetsLeaseSubmitPaymentDto.getLeasePayAmount() == 0L &&  (leaseOrder.getPayAmount() == 0L || (deductionAmount > 0L && leaseApportionAmount - deductionAmount == 0L)))) {
             AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
             /***************************检查是否可以提交付款 begin*********************/
             if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
@@ -1237,6 +1240,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         paymentOrder.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
         paymentOrder.setIsSettle(YesOrNoEnum.NO.getCode());
         paymentOrder.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
+        paymentOrder.setCustomerId(leaseOrder.getCustomerId());
+        paymentOrder.setCustomerName(leaseOrder.getCustomerName());
         return paymentOrder;
     }
 

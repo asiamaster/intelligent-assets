@@ -10,6 +10,7 @@ import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.DepositOrderStateEnum;
+import com.dili.ia.glossary.LeaseOrderStateEnum;
 import com.dili.ia.glossary.LeaseRefundStateEnum;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
@@ -524,6 +525,8 @@ public class AssetsLeaseOrderController {
         List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
+        //【已创建】状态或【已提交】状态是没有进行抵扣的，当从【已提交】状态流转到【未生效】或【已生效】时则完成了抵扣分摊
+        modelMap.put("isNotDeducted", leaseOrder.getEarnestDeduction() + leaseOrder.getTransferDeduction() > 0 && (LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState()) || LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())));
         return "assetsLeaseOrder/submitPayment";
     }
 
