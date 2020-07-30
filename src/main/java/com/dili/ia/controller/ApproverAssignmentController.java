@@ -11,10 +11,7 @@ import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -123,5 +120,15 @@ public class ApproverAssignmentController {
         return BaseOutput.success("删除成功");
     }
 
+    /**
+     * 删除ApproverAssignment
+     * @param ids
+     * @return BaseOutput
+     */
+    @PostMapping(value="/batchDelete.action")
+    public @ResponseBody BaseOutput batchDelete(@RequestBody List<Long> ids) {
+        approverAssignmentService.delete(ids);
+        return BaseOutput.success("删除成功");
+    }
 
 }

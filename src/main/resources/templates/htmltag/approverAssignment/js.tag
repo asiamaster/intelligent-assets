@@ -25,141 +25,6 @@
 
     /*****************************************函数区 begin************************************/
     /**
-     * 打开新增窗口
-     */
-    function openInsertHandler() {
-        bs4pop.dialog({
-            title: '审批人分配',
-            content: bui.util.HTMLDecode(template('editTpl',{})),
-            closeBtn: true,
-            backdrop : 'static',
-            width: '40%',
-            btns: [
-                {
-                    label: '确定', className: 'btn-primary', onClick(e) {
-                        saveOrUpdateHandler();
-                    }
-                },
-                {label: '取消', className: 'btn-default', onClick(e) {}}
-            ]
-        });
-    }
-
-    /**
-     * 打开复制窗口
-     */
-    function openCopyHandler(row) {
-        if(!row){
-            //获取选中行的数据
-            let rows = _grid.bootstrapTable('getSelections');
-            if (null == rows || rows.length == 0) {
-                bs4pop.alert('请选中一条数据');
-                return;
-            }
-            row = rows[0];
-        }
-        row.id=null;
-        bs4pop.dialog({
-            title: '审批人分配',
-            content: bui.util.HTMLDecode(template('editTpl',row)),
-            closeBtn: true,
-            backdrop : 'static',
-            width: '40%',
-            btns: [
-                {
-                    label: '确定', className: 'btn-primary', onClick(e) {
-                        saveOrUpdateHandler();
-                    }
-                },
-                {label: '取消', className: 'btn-default', onClick(e) {}}
-            ]
-        });
-    }
-
-    /**
-     * 打开修改窗口
-     */
-    function openUpdateHandler(row) {
-        if(!row){
-            //获取选中行的数据
-            let rows = _grid.bootstrapTable('getSelections');
-            if (null == rows || rows.length == 0) {
-                bs4pop.alert('请选中一条数据');
-                return;
-            }
-            row = rows[0];
-        }
-        bs4pop.dialog({
-            title: '审批人分配',
-            content: bui.util.HTMLDecode(template('editTpl',row)),
-            closeBtn: true,
-            backdrop : 'static',
-            width: '40%',
-            btns: [
-                {
-                    label: '确定', className: 'btn-primary', onClick(e) {
-                        saveOrUpdateHandler();
-                    }
-                },
-                {label: '取消', className: 'btn-default', onClick(e) {}}
-            ]
-        });
-    }
-
-    function openBatchUpdateHandler(row) {
-        if(!row){
-            //获取选中行的数据
-            let rows = _grid.bootstrapTable('getSelections');
-            if (null == rows || rows.length == 0) {
-                bs4pop.alert('请选中一条数据');
-                return;
-            }
-            row = rows[0];
-        }
-        //根据row构建查询区域的条件：办理人，流程定义，任务定义
-        var data = $.extend({}, row);
-        delete(data["districtId"]);
-        delete(data["$_districtId"]);
-        delete(data["createTime"]);
-        delete(data["modifyTime"]);
-        delete(data["id"]);
-        data["assignee"] = data["$_assignee"];
-        data = $.extend(data, bui.util.bindMetadata("grid"));
-        $.ajax({
-            type: "POST",
-            url: "${contextPath}/approverAssignment/listDistricts.action",
-            data: data,
-            processData: true,
-            dataType: "json",
-            async: true,
-            success: function (data) {
-                var editInfo = $.extend({"districtIds":data}, row);
-                delete(editInfo["districtId"]);
-                bs4pop.dialog({
-                    title: '批量分配区域',
-                    content: bui.util.HTMLDecode(template('editTpl', editInfo)),
-                    closeBtn: true,
-                    backdrop : 'static',
-                    width: '40%',
-                    btns: [
-                        {
-                            label: '确定', className: 'btn-primary', onClick(e) {
-                                return saveOrUpdateHandler();
-                            }
-                        },
-                        {label: '取消', className: 'btn-default', onClick(e) {}}
-                    ]
-                });
-            },
-            error: function (a, b, c) {
-                bui.loading.hide();
-                bs4pop.alert('远程访问失败', {type: 'error'});
-            }
-        });
-
-    }
-
-    /**
      *  保存及更新表单数据
      */
     function saveOrUpdateHandler() {
@@ -198,6 +63,105 @@
     }
 
     /**
+     * 打开编辑窗口
+     */
+    function bs4popDialog(title, param, handler){
+        bs4pop.dialog({
+            title: title,
+            content: bui.util.HTMLDecode(template('editTpl',param)),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick(e) {
+                        return handler();
+                    }
+                },
+                {label: '取消', className: 'btn-default', onClick(e) {}}
+            ]
+        });
+    }
+
+    /**
+     * 打开新增窗口
+     */
+    function openInsertHandler() {
+        bs4popDialog('新增审批人分配', {}, saveOrUpdateHandler);
+    }
+
+    /**
+     * 打开复制窗口
+     */
+    function openCopyHandler(row) {
+        if(!row){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length != 1) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            row = rows[0];
+        }
+        row.id=null;
+        bs4popDialog('复制审批人分配', row, saveOrUpdateHandler);
+    }
+
+    /**
+     * 打开修改窗口
+     */
+    function openUpdateHandler(row) {
+        if(!row){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length != 1) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            row = rows[0];
+        }
+        bs4popDialog('修改审批人分配', row, saveOrUpdateHandler);
+    }
+
+    function openBatchUpdateHandler(row) {
+        if(!row){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length != 1) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            row = rows[0];
+        }
+        //根据row构建查询区域的条件：办理人，流程定义，任务定义
+        var data = $.extend({}, row);
+        delete(data["districtId"]);
+        delete(data["$_districtId"]);
+        delete(data["createTime"]);
+        delete(data["modifyTime"]);
+        delete(data["id"]);
+        data["assignee"] = data["$_assignee"];
+        data = $.extend(data, bui.util.bindMetadata("grid"));
+        $.ajax({
+            type: "POST",
+            url: "${contextPath}/approverAssignment/listDistricts.action",
+            data: data,
+            processData: true,
+            dataType: "json",
+            async: true,
+            success: function (data) {
+                var editInfo = $.extend({"districtIds":data}, row);
+                delete(editInfo["districtId"]);
+                bs4popDialog('批量修改审批人分配区域', editInfo, saveOrUpdateHandler)
+            },
+            error: function (a, b, c) {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
+    /**
      * 删除操作
      */
     function doDeleteHandler() {
@@ -207,19 +171,19 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-
         //table选择模式是单选时可用
         let selectedRow = rows[0];
+        var ids = rows.map(t => t.id);
         let msg = '将同步删除任务人分配中对应的数据，确定要删除吗？';
-
         bs4pop.confirm(msg, undefined, function (sure) {
             if(sure){
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/approverAssignment/delete.action",
-                    data: {id: selectedRow.id},
+                    url: "${contextPath}/approverAssignment/batchDelete.action",
+                    data: "["+ids+"]",
                     processData:true,
+                    contentType : "application/json",
                     dataType: "json",
                     async : true,
                     success : function(data) {

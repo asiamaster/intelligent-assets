@@ -45,12 +45,12 @@
 <!--                <button id="export" type="button" class="btn btn-outline-primary mr-1" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>-->
 <!--            </div>-->
             <table id="grid" data-toggle="table" data-title="审批人分配" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="10"
-                   data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                   data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="false"
                    data-click-to-select="true" data-checkbox-header="true" data-unique-id="id" data-sort-name="createTime" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true" data-detail-view="false">
                 <thead>
                 <tr>
-                    <th data-width-unit="%" data-width="2" data-radio="true"></th>
+                    <th data-width-unit="%" data-width="2" data-checkbox="true"></th>
                     <th data-width-unit="%" data-width="10" data-field="districtId" data-provider="districtProvider" data-sortable="true" data-align="center">
                         区域
                     </th>
@@ -97,20 +97,9 @@
                 <input type="text" class="form-control" id="_taskDefinitionKey" name="_taskDefinitionKey" value="{{taskDefinitionKey}}"  placeholder="" minlength="1" maxlength="64" required/>
             </div>
         </div>
-        {{if districtId}}
-        <div class="form-group row">
-            <label class="col-2 col-form-label text-right" for="_districtId">区域*</label>
-            <div class="col-10">
-                <select id="_districtId" name="_districtId" class="form-control" required>
-                    <option value="{{$_districtId}}" selected>{{districtId}}</option>
-                </select>
-                <#bselect2 _escape="true" _id="_districtId" _provider="districtProvider" _mode="remote"  />
-            </div>
-        </div>
-        {{/if}}
         {{if districtIds}}
         <div class="form-group row">
-            <label class="col-2 col-form-label text-right" for="_districtId">区域集合*</label>
+            <label class="col-2 col-form-label text-right" for="_districtId">区域*</label>
             <div class="col-10">
                 <select id="_districtIds" name="_districtIds" class="form-control" required multiple>
                     {{each districtIds}}
@@ -118,6 +107,16 @@
                     {{/each}}
                 </select>
                 <#bselect2 _escape="true" _id="_districtIds" _provider="districtProvider" _mode="remote"  />
+            </div>
+        </div>
+        {{else}}
+        <div class="form-group row">
+            <label class="col-2 col-form-label text-right" for="_districtId">区域*</label>
+            <div class="col-10">
+                <select id="_districtId" name="_districtId" class="form-control" required>
+                    <option value="{{$_districtId}}" selected>{{districtId}}</option>
+                </select>
+                <#bselect2 _escape="true" _id="_districtId" _provider="districtProvider" _mode="remote"  />
             </div>
         </div>
         {{/if}}
