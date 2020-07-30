@@ -488,7 +488,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
             depositRefundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
             depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
-            depositRefundOrderDto.setTotalRefundAmount(depositRefundOrderDto.getPayeeAmount());
             BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
             if (!output.isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款申请接口异常", depositRefundOrderDto.getBusinessCode());
