@@ -21,7 +21,7 @@ public interface PassportMapper extends MyMapper<Passport> {
      * @return PassportDto
      * @date   2020/7/27
      */
-    PassportDto getPassportByCode(String code);
+    Passport getPassportByCode(String code);
 
     /**
      * 查询列表

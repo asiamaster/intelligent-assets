@@ -192,7 +192,7 @@
 
   </select>
 
-  <select id="getPassportByCode" parameterType="java.lang.Long" resultMap="BaseResultMap">
+  <select id="getPassportByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
         <include refid="Base_Column_List" />
     from

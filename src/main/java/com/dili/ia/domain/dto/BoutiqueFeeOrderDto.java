@@ -25,6 +25,19 @@ public class BoutiqueFeeOrderDto extends BoutiqueFeeOrder {
      */
     private String customerCellphone;
 
+    /**
+     * 身份证号
+     */
+    private String certificateNumber;
+
+    public String getCertificateNumber() {
+        return certificateNumber;
+    }
+
+    public void setCertificateNumber(String certificateNumber) {
+        this.certificateNumber = certificateNumber;
+    }
+
     public Long getCustomerId() {
         return customerId;
     }

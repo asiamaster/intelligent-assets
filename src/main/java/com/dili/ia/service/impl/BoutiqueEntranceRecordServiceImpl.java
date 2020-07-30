@@ -15,6 +15,7 @@ import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.BoutiqueOrderStateEnum;
 import com.dili.ia.glossary.BoutiqueStateEnum;
+import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.BoutiqueEntranceRecordMapper;
@@ -416,16 +417,20 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 查询相关数据
-        String code = refundDto.getCode();
+        String code = refundDto.getBusinessCode();
         BoutiqueFeeOrderDto orderDto = this.getBoutiqueAndOrderByCode(code);
         if (!BoutiqueOrderStateEnum.PAID.getCode().equals(orderDto.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
-        // 构建退款单
+        // 构建退款单,并且新增
         RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundDto, orderDto);
-        refundOrderService.doSubmitDispatcher(refundOrder);
 
         LoggerUtil.buildLoggerContext(orderDto.getId(), orderDto.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+
+        // 修改状态
+        orderDto.setModifyTime(LocalDateTime.now());
+        orderDto.setState(PassportStateEnum.SUBMITTED_REFUND.getCode());
+        boutiqueFeeOrderService.updateSelective(orderDto);
     }
 
     /**
@@ -532,22 +537,30 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * 构建退款
      */
     private RefundOrder buildRefundOrderDto(UserTicket userTicket, BoutiqueRefundDto boutiqueRefundDto, BoutiqueFeeOrderDto orderDto) {
-
         //退款单
         RefundOrder refundOrder = new RefundOrder();
-        refundOrder.setBusinessCode(orderDto.getCode());
+
+        refundOrder.setMarketId(userTicket.getFirmId());
+        refundOrder.setMarketCode(userTicket.getFirmCode());
+
         refundOrder.setBusinessId(orderDto.getId());
+        refundOrder.setBusinessCode(orderDto.getCode());
         refundOrder.setCustomerId(orderDto.getCustomerId());
         refundOrder.setCustomerName(orderDto.getCustomerName());
+        refundOrder.setCertificateNumber(orderDto.getCertificateNumber());
         refundOrder.setCustomerCellphone(orderDto.getCustomerCellphone());
-        refundOrder.setCertificateNumber("0000");
-        refundOrder.setTotalRefundAmount(boutiqueRefundDto.getAmount());
-        refundOrder.setPayeeAmount(boutiqueRefundDto.getAmount());
-        refundOrder.setRefundReason(boutiqueRefundDto.getNotes());
+
+        refundOrder.setPayee(boutiqueRefundDto.getPayee());
+        refundOrder.setPayeeId(boutiqueRefundDto.getPayeeId());
+        refundOrder.setPayeeAmount(boutiqueRefundDto.getPayeeAmount());
+        refundOrder.setRefundReason(boutiqueRefundDto.getRefundReason());
+        refundOrder.setTotalRefundAmount(boutiqueRefundDto.getTotalRefundAmount());
+
         refundOrder.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
-        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode()));
+        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.PASSPORT_REFUND.getCode()));
+
         if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
-            logger.info("精品停车【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
+            logger.info("通行证【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
         }
         return refundOrder;

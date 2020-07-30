@@ -40,12 +40,12 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
 
-        PassportDto passportDto = passportService.getPassportByCode(refundOrder.getCode());
-        if (!BoutiqueOrderStateEnum.PAID.getCode().equals(passportDto.getState())) {
+        Passport passportInfo = passportService.getPassportByCode(refundOrder.getCode());
+        if (!BoutiqueOrderStateEnum.PAID.getCode().equals(passportInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
 
-        this.updateState(refundOrder.getCode(), passportDto.getVersion(), BoutiqueOrderStateEnum.SUBMITTED_REFUND);
+        this.updateState(refundOrder.getCode(), passportInfo.getVersion(), BoutiqueOrderStateEnum.SUBMITTED_REFUND);
         return BaseOutput.success();
     }
 
@@ -59,12 +59,13 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
 
-        PassportDto passportDto = passportService.getPassportByCode(refundOrder.getCode());
-        if (!BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode().equals(passportDto.getState())) {
+        Passport passportInfo = passportService.getPassportByCode(refundOrder.getCode());
+
+        if (!BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
 
-        this.updateState(refundOrder.getCode(), passportDto.getVersion(), BoutiqueOrderStateEnum.SUBMITTED_PAY);
+        this.updateState(refundOrder.getCode(), passportInfo.getVersion(), BoutiqueOrderStateEnum.SUBMITTED_PAY);
         return BaseOutput.success();
     }
 
@@ -78,12 +79,13 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     @Override
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 
-        PassportDto passportDto = passportService.getPassportByCode(refundOrder.getCode());
-        if (!BoutiqueOrderStateEnum.PAID.getCode().equals(passportDto.getState())) {
+        Passport passportInfo = passportService.getPassportByCode(refundOrder.getCode());
+
+        if (!BoutiqueOrderStateEnum.PAID.getCode().equals(passportInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
 
-        this.updateState(refundOrder.getCode(), passportDto.getVersion(), BoutiqueOrderStateEnum.REFUNDED);
+        this.updateState(refundOrder.getCode(), passportInfo.getVersion(), BoutiqueOrderStateEnum.REFUNDED);
 
         return BaseOutput.success();
     }

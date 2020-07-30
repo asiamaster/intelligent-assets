@@ -4,6 +4,7 @@ import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.domain.dto.PassportDto;
+import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.settlement.domain.SettleOrder;
@@ -103,15 +104,15 @@ public interface PassportService extends BaseService<Passport, Long> {
      * @return PassportDto
      * @date   2020/7/27
      */
-    PassportDto getPassportByCode(String code);
+    Passport getPassportByCode(String code);
 
     /**
      * 退款申请
      *
-     * @param passportDto
+     * @param passportRefundOrderDto
      * @return BaseOutput
      * @date   2020/7/27
      */
-    void refund(PassportDto passportDto);
+    BaseOutput<Passport> refund(PassportRefundOrderDto passportRefundOrderDto);
 
 }

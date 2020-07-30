@@ -1,17 +1,17 @@
 package com.dili.ia.domain.dto;
 
+import com.dili.ia.domain.RefundFeeItem;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ss.domain.annotation.Like;
+import com.dili.ss.domain.annotation.Operator;
 
-import javax.validation.constraints.NotNull;
+import javax.persistence.Column;
+import javax.persistence.Transient;
+import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * @author:       xiaosa
- * @date:         2020/7/23
- * @version:      农批业务系统重构
- * @description:  精品停车退款
- */
-public class BoutiqueRefundDto {
+public class PassportRefundOrderDto {
 
     /**
      * 数据的code

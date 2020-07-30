@@ -5,6 +5,7 @@ import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.PassportDto;
+import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -110,6 +111,20 @@ public class PassportController {
         modelMap.put("passport",passport);
 
         return "passport/update";
+    }
+
+    /**
+     * 跳转到 申请退款 页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
+    public String refund(ModelMap modelMap, long id) {
+
+        Passport passport = passportService.get(id);
+        modelMap.put("passport",passport);
+
+        return "passport/refundApply";
     }
 
     /**
@@ -247,20 +262,21 @@ public class PassportController {
     /**
      * 退款申请
      *
-     * @param passportDto
+     * @param passportRefundOrderDto
      * @return BaseOutput
      * @date   2020/7/27
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput refund(@Validated PassportDto passportDto) {
+    public @ResponseBody BaseOutput refund(@RequestBody PassportRefundOrderDto passportRefundOrderDto) {
+
         try {
-            passportService.refund(passportDto);
+            passportService.refund(passportRefundOrderDto);
+
         }catch (BusinessException e) {
-            logger.error("通行证{}退款申请异常！",passportDto.getCode(), e);
+            logger.error("通行证{}退款申请异常！",passportRefundOrderDto.getBusinessCode(), e);
             return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
         }catch (Exception e) {
-            logger.error("通行证{}退款申请异常！",passportDto.getCode(), e);
+            logger.error("通行证{}退款申请异常！",passportRefundOrderDto.getBusinessCode(), e);
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
         return BaseOutput.success("退款成功");

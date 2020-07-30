@@ -5,6 +5,7 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.PassportDto;
+import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.PassportPrintDto;
@@ -405,25 +406,31 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     /**
      * 退款申请
      *
-     * @param passportDto
+     * @param passportRefundOrderDto
      * @return BaseOutput
      * @date   2020/7/27
      */
     @Override
-    public void refund(PassportDto passportDto) {
+    public BaseOutput<Passport> refund(PassportRefundOrderDto passportRefundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 查询相关数据
-        String code = passportDto.getCode();
-        PassportDto passportDtoInfo = this.getPassportByCode(code);
-        if (!PassportStateEnum.REFUNDED.getCode().equals(passportDtoInfo.getState())) {
+        String code = passportRefundOrderDto.getBusinessCode();
+        Passport passportInfo = this.getPassportByCode(code);
+        if (PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
-        // 构建退款单
-        RefundOrder refundOrder = buildRefundOrderDto(userTicket, passportDtoInfo);
-        refundOrderService.doSubmitDispatcher(refundOrder);
+        // 构建退款单以及新增
+        RefundOrder refundOrder = buildRefundOrderDto(userTicket, passportInfo, passportRefundOrderDto);
 
-        LoggerUtil.buildLoggerContext(passportDtoInfo.getId(), passportDtoInfo.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        LoggerUtil.buildLoggerContext(passportInfo.getId(), passportInfo.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+
+        // 修改状态
+        passportInfo.setModifyTime(LocalDateTime.now());
+        passportInfo.setState(PassportStateEnum.SUBMITTED_REFUND.getCode());
+        this.updateSelective(passportInfo);
+
+        return BaseOutput.success().setData(passportInfo);
     }
 
     /**
@@ -434,7 +441,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
      * @date   2020/7/27
      */
     @Override
-    public PassportDto getPassportByCode(String code) {
+    public Passport getPassportByCode(String code) {
         return this.getActualDao().getPassportByCode(code);
     }
 
@@ -501,21 +508,29 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     /**
      * 构建退款
      */
-    private RefundOrder buildRefundOrderDto(UserTicket userTicket, PassportDto passportDtoInfo) {
-
+    private RefundOrder buildRefundOrderDto(UserTicket userTicket, Passport passportInfo, PassportRefundOrderDto passportRefundOrderDto) {
         //退款单
         RefundOrder refundOrder = new RefundOrder();
-        refundOrder.setBusinessCode(passportDtoInfo.getCode());
-        refundOrder.setBusinessId(passportDtoInfo.getId());
-        refundOrder.setCustomerId(passportDtoInfo.getCustomerId());
-        refundOrder.setCustomerName(passportDtoInfo.getCustomerName());
-        refundOrder.setCustomerCellphone(passportDtoInfo.getCustomerCellphone());
-        refundOrder.setCertificateNumber("0000");
-        refundOrder.setTotalRefundAmount(passportDtoInfo.getAmount());
-        refundOrder.setPayeeAmount(passportDtoInfo.getAmount());
-        refundOrder.setRefundReason(passportDtoInfo.getNotes());
+
+        refundOrder.setMarketId(userTicket.getFirmId());
+        refundOrder.setMarketCode(userTicket.getFirmCode());
+
+        refundOrder.setBusinessId(passportInfo.getId());
+        refundOrder.setBusinessCode(passportInfo.getCode());
+        refundOrder.setCustomerId(passportInfo.getCustomerId());
+        refundOrder.setCustomerName(passportInfo.getCustomerName());
+        refundOrder.setCustomerCellphone(passportInfo.getCustomerCellphone());
+        refundOrder.setCertificateNumber(passportInfo.getCertificateNumber());
+
+        refundOrder.setPayee(passportRefundOrderDto.getPayee());
+        refundOrder.setPayeeId(passportRefundOrderDto.getPayeeId());
+        refundOrder.setPayeeAmount(passportRefundOrderDto.getPayeeAmount());
+        refundOrder.setRefundReason(passportRefundOrderDto.getRefundReason());
+        refundOrder.setTotalRefundAmount(passportRefundOrderDto.getTotalRefundAmount());
+
         refundOrder.setBizType(BizTypeEnum.PASSPORT.getCode());
-        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.PASSPORT.getCode()));
+        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.PASSPORT_REFUND.getCode()));
+
         if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
             logger.info("通行证【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");

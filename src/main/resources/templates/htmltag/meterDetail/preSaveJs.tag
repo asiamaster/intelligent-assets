@@ -161,6 +161,6 @@
         // 金钱乘以100
         bui.util.yuanToCentForMoneyEl(_formData);
 
-        return JSON.stringify(_formData)
+        return JSON.stringify(_formData);
     }
 </script>

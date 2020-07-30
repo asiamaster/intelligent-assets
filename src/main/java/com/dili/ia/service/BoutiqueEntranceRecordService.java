@@ -97,5 +97,12 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      */
     void refund(BoutiqueRefundDto boutiqueInRefundDto);
 
+    /**
+     * 根据code获取相关数据
+     *
+     * @param  code
+     * @return
+     * @date   2020/7/30
+     */
     BoutiqueFeeOrderDto getBoutiqueAndOrderByCode(String code);
 }

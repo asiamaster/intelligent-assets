@@ -262,10 +262,10 @@ public class BoutiqueEntranceRecordController {
         try {
             boutiqueEntranceRecordService.refund(boutiqueInRefundDto);
         }catch (BusinessException e) {
-            logger.error("精品停车{}退款申请异常！",boutiqueInRefundDto.getCode(), e);
+            logger.error("精品停车{}退款申请异常！",boutiqueInRefundDto.getBusinessCode(), e);
             return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
         }catch (Exception e) {
-            logger.error("精品停车{}退款申请异常！",boutiqueInRefundDto.getCode(), e);
+            logger.error("精品停车{}退款申请异常！",boutiqueInRefundDto.getBusinessCode(), e);
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
         return BaseOutput.success("退款成功");

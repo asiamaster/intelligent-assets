@@ -99,10 +99,33 @@
         });
     }
 
+
     /**
      打开退款窗口
      */
     function openRefundHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        let url = '/passport/refundApply.html?id=' + rows[0].id;
+        dia = bs4pop.dialog({
+            title: '退款申请',
+            content: url,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '95%',
+            height : '95%',
+            btns: []
+        });
+
+    }
+
+
+
+    /**
+     打开打印证件窗口
+     */
+    function openPrintHandler() {
         //获取选中行的数据
         let rows = _grid.bootstrapTable('getSelections');
         if (null == rows || rows.length == 0 || rows.length != 1) {
@@ -111,7 +134,7 @@
         }
         dia = bs4pop.dialog({
             title: '退款页面',//对话框title
-            content: '${contextPath}/passport/refund.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
+            content: '${contextPath}/passport/view.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
             height: '500px',//高度
             isIframe: true,//默认是页面层，非iframe
@@ -291,28 +314,45 @@
         let state = row.$_state;
         if (state == ${@com.dili.ia.glossary.PassportStateEnum.CREATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_view').attr('disabled', false);
             $('#btn_update').attr('disabled', false);
             $('#btn_submit').attr('disabled', false);
             $('#btn_cancel').attr('disabled', false);
-            $('#export').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.PassportStateEnum.SUBMITTED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_view').attr('disabled', false);
             $('#btn_withdraw').attr('disabled', false);
-            $('#export').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.PassportStateEnum.CANCELLED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
-            $('#export').attr('disabled', false);
+            $('#btn_view').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.PassportStateEnum.NOT_START.getCode()}) {
             $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
-            $('#export').attr('disabled', false);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_print').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.PassportStateEnum.IN_FORCE.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_add').attr('disabled', false);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_print').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.PassportStateEnum.SUBMITTED_REFUND.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_add').attr('disabled', false);
+            $('#btn_view').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.PassportStateEnum.REFUNDED.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_add').attr('disabled', false);
+            $('#btn_view').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.PassportStateEnum.EXPIRED.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_add').attr('disabled', false);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
         }
     });
     /*****************************************函数区 end**************************************/
