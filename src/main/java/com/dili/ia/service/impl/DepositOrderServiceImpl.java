@@ -619,6 +619,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             DepositBalance upDep = new DepositBalance();
             upDep.setId(depositBalance.getId());
             upDep.setBalance(depositBalance.getBalance() + payAmount);
+            upDep.setVersion(depositBalance.getVersion());
             depositBalanceService.updateSelective(upDep);
         }
         return BaseOutput.success();
