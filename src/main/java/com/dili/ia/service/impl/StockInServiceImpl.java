@@ -86,7 +86,7 @@ import io.seata.spring.annotation.GlobalTransactional;
 public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implements StockInService {
 	private final static Logger LOG = LoggerFactory.getLogger(StockInServiceImpl.class);
 	@Autowired
-	private UidRpcResolver UidRpcResolver;
+	private UidRpcResolver uidRpcResolver;
 	
 	@Autowired
 	private SettlementRpcResolver settlementRpcResolver;
@@ -136,7 +136,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	private StockIn buildStockIn(StockInDto stockInDto,UserTicket userTicket) {
 		StockIn stockIn = new StockIn(userTicket);
 		BeanUtils.copyProperties(stockInDto, stockIn, "operatorId", "operatorName");
-		stockIn.setCode(UidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
+		stockIn.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
 		stockIn.setCreateTime(LocalDateTime.now());
 		stockIn.setState(StockInStateEnum.CREATED.getCode());
 		stockIn.setCreator(userTicket.getRealName());
@@ -170,7 +170,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		for (StockInDetailDto stockInDetailDto : detailDtos) {
 			StockInDetail detail = new StockInDetail();
 			BeanUtils.copyProperties(stockInDetailDto, detail);
-			detail.setCode(UidRpcResolver.bizNumber(stockIn.getMarketCode()+"_"+BizNumberTypeEnum.STOCK_IN_DETAIL_CODE.getCode()));
+			detail.setCode(uidRpcResolver.bizNumber(stockIn.getMarketCode()+"_"+BizNumberTypeEnum.STOCK_IN_DETAIL_CODE.getCode()));
 			detail.setStockInCode(stockIn.getCode());
 			detail.setCreateTime(LocalDateTime.now());
 			detail.setMarketId(stockIn.getMarketId());
@@ -282,7 +282,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		domain.setWeight(stockIn.getWeight() + totalWeight);
 		domain.setQuantity(stockIn.getQuantity() + totalQuantity);
 		domain.setAmount(stockIn.getAmount() + totalMoney);
-		domain.setVersion(stockIn.getVersion()+1);
+		domain.setVersion(stockIn.getVersion());
 		StockIn condition = new StockIn();
 		condition.setCode(stockIn.getCode());
 		condition.setVersion(stockIn.getVersion());
@@ -313,6 +313,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
 		paymentOrder.setBusinessCode(code);
 		paymentOrder.setAmount(stockIn.getAmount());
+		paymentOrder.setBizType(BizTypeEnum.STOCKIN.getCode());
+		paymentOrder.setBusinessId(stockIn.getId());
 		paymentOrderService.insertSelective(paymentOrder);
 		// 提交入库单
 		StockIn domain = new StockIn(userTicket);
@@ -529,7 +531,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		refundOrder.setBizType(BizTypeEnum.STOCKIN.getCode());
 		refundOrder.setPayeeId(order.getCustomerId());
 		refundOrder.setRefundType(order.getWay());
-		refundOrder.setCode(UidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
+		refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
 			LOG.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
 			throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
@@ -556,8 +558,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		paymentOrderService.updateSelective(paymentOrder);
 		// paymentOrder.setIsSettle();
 		StockIn domain = new StockIn();
-		domain.setTollman(settleOrder.getOperatorName());
-		domain.setTollmanId(settleOrder.getOperatorId());
 		domain.setPayDate(LocalDateTime.now());
 		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		// 入库 库存

@@ -1,16 +1,23 @@
 package com.dili.ia.rpc;
 
 import com.alibaba.fastjson.JSON;
+import com.dili.ia.domain.Labor;
+import com.dili.ia.domain.dto.SettleOrderInfoDto;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.SettleStateEnum;
+import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,12 +42,19 @@ public class SettlementRpcResolver {
 	@Autowired
 	private SettlementRpc settlementRpc;
 	
+	@Value("${settlement.app-id}")
+    private Long settlementAppId;
+    
+    //private String settlerHandlerUrl = "http://10.28.1.187:8381/api/labor/vest/settlementDealHandler";
+	
     /**
      * 【提交】结算单 --- 到结算中心
      * @param settleOrder
      * @return
      */
     public SettleOrder submit(SettleOrderDto settleOrder){
+    	settleOrder.setAppId(settlementAppId);
+    	//settleOrder.setReturnUrl(settlerHandlerUrl);
     	LOG.info("结算成功!业务号:" + JSON.toJSONString(settleOrder));
     	BaseOutput<SettleOrder> result = settlementRpc.submit(settleOrder);
         if(!result.isSuccess()){
@@ -58,7 +72,22 @@ public class SettlementRpcResolver {
      * @return
      */
     public String cancel(Long appId, String orderCode){
-    	BaseOutput<String> result = settlementRpc.cancel(appId,orderCode);
+    	BaseOutput<String> result = settlementRpc.cancel(settlementAppId,orderCode);
+        if(!result.isSuccess()){
+        	LOG.info("结算撤回失败!业务号:" + orderCode);
+            throw new BusinessException(ResultCode.APP_ERROR, "结算调用失败!");
+        }
+        LOG.info("结算撤回成功!业务号:" + orderCode);
+		return result.getData();
+    };
+    
+    /**
+     * 【撤回】结算单 ---根据业务缴费单code取消
+     * @param orderCode 业务缴费单code
+     * @return
+     */
+    public String cancel(String orderCode){
+    	BaseOutput<String> result = settlementRpc.cancel(settlementAppId,orderCode);
         if(!result.isSuccess()){
         	LOG.info("结算撤回失败!业务号:" + orderCode);
             throw new BusinessException(ResultCode.APP_ERROR, "结算调用失败!");
@@ -81,4 +110,20 @@ public class SettlementRpcResolver {
         }
 		return result.getData();
     };
+    
+    public SettleOrderDto buildSettleOrderDto(UserTicket userTicket, Labor labor,String orderCode,Long amount,BizTypeEnum bizTypeEnum) {
+		SettleOrderInfoDto settleOrderInfoDto = 
+				new SettleOrderInfoDto(userTicket, bizTypeEnum,SettleTypeEnum.PAY,SettleStateEnum.WAIT_DEAL);
+		settleOrderInfoDto.setBusinessCode(labor.getCode());
+		settleOrderInfoDto.setOrderCode(orderCode);
+		settleOrderInfoDto.setAmount(amount);
+		//settleOrderInfoDto.setAppId(settlementAppId);
+		settleOrderInfoDto.setBusinessDepId(labor.getDepartmentId());
+		settleOrderInfoDto.setBusinessDepName(labor.getDepartmentName());
+		settleOrderInfoDto.setCustomerId(labor.getCustomerId());
+		settleOrderInfoDto.setCustomerName(labor.getCustomerName());
+		settleOrderInfoDto.setCustomerPhone(labor.getCustomerCellphone());
+		//settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+		return settleOrderInfoDto;
+	}
 }

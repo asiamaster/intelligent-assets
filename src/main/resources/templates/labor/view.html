@@ -1,0 +1,147 @@
+<#bs4Body>
+    <div class="container-fluid">
+        <form role="form" novalidate>
+            <div class="breadcrumb" >
+                订单信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#orderInfo" aria-expanded="true"
+                   aria-controls="orderInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-4 collapse show" id="orderInfo">
+	
+                <div class="form-group col">
+                    <label for="">业务单号</label>
+                    <input type="text" class="form-control" value="${labor.code!}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">业务状态</label>
+                    <input type="text" class="form-control" value="${@com.dili.ia.glossary.LaborStateEnum.getLaborStateEnum(labor.state).getName()}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">业务所属部门</label>
+                    <input type="text" class="form-control" value="${labor.code!}" disabled />
+                </div>
+            </div>
+            <div class="breadcrumb" >
+                客户信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
+                   aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-4 collapse show" id="customerInfo">
+                <div class="form-group col">
+                    <label for="">客户名称</label>
+                    <input type="text" class="form-control" value="${labor.customerName!}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">证件号码</label>
+                    <input type="text" class="form-control" value={!} disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">联系电话</label>
+                    <input type="text" class="form-control" value="${labor.customerCellphone!}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">性别</label>
+                    <input type="text" class="form-control" value={!} disabled />
+                </div>
+            </div>
+            <div class="breadcrumb">
+                业务信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#otherInfo" aria-expanded="true" aria-controls="otherInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-4 collapse show" id="otherInfo">
+                <div class="form-group col">
+                    <label for="">马甲类型</label>
+                    <select id="laborType" name="laborType" class="form-control" required disabled></select>
+					<#bcomboProvider _id="laborType" _value="${labor.laborType!}"
+					_provider="dataDictionaryValueProvider"
+					_queryParams='{dd_code:"labor_vest_type", required:true}' />
+                </div>
+                <div class="form-group col">
+                    <label for="">运营车型</label>
+                    <select id="models" name="models" class="form-control" required disabled></select>
+				<#bcomboProvider _id="models" _value="${labor.models!}"
+					_provider="dataDictionaryValueProvider"
+					_queryParams='{dd_code:"labor_car_type", required:true}' />
+                </div>
+                <div class="form-group col">
+                    <label for="">马甲号</label>
+                    <input type="text" class="form-control" value={!} disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">车牌号</label>
+                    <input type="text" class="form-control" value={!} disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">办理周期</label>
+                    <select id="interval" name="interval" class="form-control" required disabled>
+					<option value="0">--请选择--</option>
+					</select>
+					<#bcomboProvider _id="interval" _value="${labor.interval!}"
+					_provider="dataDictionaryValueProvider"
+					_queryParams='{dd_code:"labor_interval", required:true}' />
+                </div>
+                <div class="form-group col">
+                    <label for="">开始日期</label>
+                    <input type="text" class="form-control" value=${labor.startDate!} disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">结束日期</label>
+                    <input type="text" class="form-control" value="${labor.endDate}" disabled />
+                </div>
+                <div class="form-group col">
+                    <label for="">管理费</label>
+                    <input type="text" class="form-control" value={!} disabled />
+                </div>
+
+            </div>
+            <div class="breadcrumb">
+                金额信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row  row-cols-4 collapse show" id="moneyInfo">
+                <div class="form-group col">
+                    <label for="">合计金额</label>
+                    <input type="text" class="form-control" value="<#centToYuan value='${labor.amount!}'/>" disabled />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-8">
+                    <label for="notes">备注</label>
+                    <textarea class="form-control" rows="1" disabled >${labor.notes!}</textarea>
+                </div>
+            </div>
+            <%if(isNotEmpty(logs) && logs.~size>0){ %>
+            <div class="breadcrumb">
+                业务记录
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#recordInfo" aria-expanded="true" aria-controls="recordInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+            </div>
+            <div class="collapse" id="recordInfo">
+                <table data-toggle="table">
+                    <thead>
+                    <tr>
+                        <th data-align="center">时间</th>
+                        <th data-align="center">操作</th>
+                        <th data-align="center">详情</th>
+                        <th data-align="center">补充信息</th>
+                        <th data-align="center">工作员</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <%
+                    for(log in logs){%>
+                    <tr>
+                        <td class="text-center align-middle" >${log.createTime!}</td>
+                        <td class="text-center align-middle" >${log.operationTypeText!}</td>
+                        <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.content!}" >${log.content!}</td>
+                        <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.notes!}" >${log.notes!}</td>
+                        <td class="text-center align-middle" >${log.operatorName!}</td>
+                    </tr>
+                    <% }%>
+                    </tbody>
+                </table>
+            </div>
+            <% }%>
+        </form>
+    </div>
+</#bs4Body>
+

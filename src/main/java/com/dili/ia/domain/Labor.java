@@ -4,7 +4,10 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
-import java.util.Date;
+import com.dili.uap.sdk.domain.UserTicket;
+
+import java.time.LocalDateTime;
+
 import javax.persistence.*;
 
 /**
@@ -26,7 +29,7 @@ public class Labor extends BaseDomain {
      * 运营车型
      */
     @Column(name = "`models`")
-    private Long models;
+    private String models;
 
     /**
      * 发票编号
@@ -56,19 +59,19 @@ public class Labor extends BaseDomain {
      * 开始日期
      */
     @Column(name = "`start_date`")
-    private Date startDate;
+    private LocalDateTime startDate;
 
     /**
      * 结束日期
      */
     @Column(name = "`end_date`")
-    private Date endDate;
+    private LocalDateTime endDate;
 
     /**
      * 状态
      */
     @Column(name = "`state`")
-    private Byte state;
+    private Integer state;
 
     /**
      * 备注
@@ -80,13 +83,13 @@ public class Labor extends BaseDomain {
      * 创建日期
      */
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 操作员
@@ -164,13 +167,13 @@ public class Labor extends BaseDomain {
      * 劳务类型(1:马甲证,2:自用证)
      */
     @Column(name = "`labor_type`")
-    private Integer laborType;
+    private String laborType;
 
     /**
      * 取消时间
      */
     @Column(name = "`cancel_time`")
-    private Date cancelTime;
+    private LocalDateTime cancelTime;
 
     /**
      * 取消人
@@ -193,8 +196,8 @@ public class Labor extends BaseDomain {
     /**
      * 更名主单id
      */
-    @Column(name = "`rename_id`")
-    private Long renameId;
+    @Column(name = "`rename_code`")
+    private String renameCode;
 
     /**
      * 更型费用
@@ -205,14 +208,14 @@ public class Labor extends BaseDomain {
     /**
      * 更型主单id
      */
-    @Column(name = "`remodel_id`")
-    private Long remodelId;
+    @Column(name = "`remodel_code`")
+    private String remodelCode;
 
     /**
      * 续费父单ID
      */
-    @Column(name = "`renew_id`")
-    private Long renewId;
+    @Column(name = "`renew_code`")
+    private String renewCode;
 
     @Column(name = "`market_id`")
     private Long marketId;
@@ -235,6 +238,16 @@ public class Labor extends BaseDomain {
     @Column(name = "`creator_id`")
     private Long creatorId;
 
+    public Labor() {
+    	super();
+    }
+    
+    public Labor(UserTicket userTicket) {
+    	super();
+    	this.operator = userTicket.getId();
+    	this.operatorName = userTicket.getRealName();	
+    }
+    
     /**
      * @return id
      */
@@ -274,7 +287,7 @@ public class Labor extends BaseDomain {
      */
     @FieldDef(label="运营车型")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getModels() {
+    public String getModels() {
         return models;
     }
 
@@ -283,7 +296,7 @@ public class Labor extends BaseDomain {
      *
      * @param models 运营车型
      */
-    public void setModels(Long models) {
+    public void setModels(String models) {
         this.models = models;
     }
 
@@ -367,54 +380,32 @@ public class Labor extends BaseDomain {
         this.interval = interval;
     }
 
-    /**
-     * 获取开始日期
-     *
-     * @return start_date - 开始日期
-     */
-    @FieldDef(label="开始日期")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getStartDate() {
-        return startDate;
-    }
+    
 
-    /**
-     * 设置开始日期
-     *
-     * @param startDate 开始日期
-     */
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
+    public LocalDateTime getStartDate() {
+		return startDate;
+	}
 
-    /**
-     * 获取结束日期
-     *
-     * @return end_date - 结束日期
-     */
-    @FieldDef(label="结束日期")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getEndDate() {
-        return endDate;
-    }
+	public void setStartDate(LocalDateTime startDate) {
+		this.startDate = startDate;
+	}
 
-    /**
-     * 设置结束日期
-     *
-     * @param endDate 结束日期
-     */
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
+	public LocalDateTime getEndDate() {
+		return endDate;
+	}
 
-    /**
+	public void setEndDate(LocalDateTime endDate) {
+		this.endDate = endDate;
+	}
+
+	/**
      * 获取状态
      *
      * @return state - 状态
      */
     @FieldDef(label="状态")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getState() {
+    public Integer getState() {
         return state;
     }
 
@@ -423,7 +414,7 @@ public class Labor extends BaseDomain {
      *
      * @param state 状态
      */
-    public void setState(Byte state) {
+    public void setState(Integer state) {
         this.state = state;
     }
 
@@ -454,7 +445,7 @@ public class Labor extends BaseDomain {
      */
     @FieldDef(label="创建日期")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -463,7 +454,7 @@ public class Labor extends BaseDomain {
      *
      * @param createTime 创建日期
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -474,7 +465,7 @@ public class Labor extends BaseDomain {
      */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -483,7 +474,7 @@ public class Labor extends BaseDomain {
      *
      * @param modifyTime 修改时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -734,7 +725,7 @@ public class Labor extends BaseDomain {
      */
     @FieldDef(label="劳务类型(1:马甲证,2:自用证)")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Integer getLaborType() {
+    public String getLaborType() {
         return laborType;
     }
 
@@ -743,7 +734,7 @@ public class Labor extends BaseDomain {
      *
      * @param laborType 劳务类型(1:马甲证,2:自用证)
      */
-    public void setLaborType(Integer laborType) {
+    public void setLaborType(String laborType) {
         this.laborType = laborType;
     }
 
@@ -754,7 +745,7 @@ public class Labor extends BaseDomain {
      */
     @FieldDef(label="取消时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCancelTime() {
+    public LocalDateTime getCancelTime() {
         return cancelTime;
     }
 
@@ -763,7 +754,7 @@ public class Labor extends BaseDomain {
      *
      * @param cancelTime 取消时间
      */
-    public void setCancelTime(Date cancelTime) {
+    public void setCancelTime(LocalDateTime cancelTime) {
         this.cancelTime = cancelTime;
     }
 
@@ -834,8 +825,8 @@ public class Labor extends BaseDomain {
      */
     @FieldDef(label="更名主单id")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getRenameId() {
-        return renameId;
+    public String getRenameCode() {
+        return renameCode;
     }
 
     /**
@@ -843,8 +834,8 @@ public class Labor extends BaseDomain {
      *
      * @param renameId 更名主单id
      */
-    public void setRenameId(Long renameId) {
-        this.renameId = renameId;
+    public void setRenameCode(String renameCode) {
+        this.renameCode = renameCode;
     }
 
     /**
@@ -874,8 +865,8 @@ public class Labor extends BaseDomain {
      */
     @FieldDef(label="更型主单id")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getRemodelId() {
-        return remodelId;
+    public String getRemodelCode() {
+        return remodelCode;
     }
 
     /**
@@ -883,8 +874,8 @@ public class Labor extends BaseDomain {
      *
      * @param remodelId 更型主单id
      */
-    public void setRemodelId(Long remodelId) {
-        this.remodelId = remodelId;
+    public void setRemodelCode(String remodelCode) {
+        this.remodelCode = remodelCode;
     }
 
     /**
@@ -894,8 +885,8 @@ public class Labor extends BaseDomain {
      */
     @FieldDef(label="续费父单ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getRenewId() {
-        return renewId;
+    public String getRenewCode() {
+        return renewCode;
     }
 
     /**
@@ -903,8 +894,8 @@ public class Labor extends BaseDomain {
      *
      * @param renewId 续费父单ID
      */
-    public void setRenewId(Long renewId) {
-        this.renewId = renewId;
+    public void setRenewCode(String renewCode) {
+        this.renewCode = renewCode;
     }
 
     /**
