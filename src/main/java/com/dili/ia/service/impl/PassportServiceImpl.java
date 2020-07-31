@@ -40,6 +40,7 @@ import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -90,7 +91,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     /**
      * 查询列表
      *
-     * @param  passport
+     * @param  passportDto
      * @param  useProvider
      * @return EasyuiPageOutput
      * @date   2020/7/29
@@ -119,7 +120,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
      * @date   2020/7/27
      */
     @Override
-    public BaseOutput<Passport> addPassport(PassportDto passportDto, UserTicket userTicket) {
+    public BaseOutput<Passport> addPassport(PassportDto passportDto, UserTicket userTicket) throws Exception {
         Passport passport = new Passport();
         BeanUtils.copyProperties(passportDto, passport);
 
@@ -131,11 +132,11 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         passport.setVersion(0);
         passport.setCode(passportCode);
         passport.setCreatorId(userTicket.getId());
-        passport.setCreator(userTicket.getRealName());
-        passport.setMarketId(userTicket.getFirmId());
-        passport.setMarketCode(userTicket.getFirmCode());
         passport.setCreateTime(LocalDateTime.now());
         passport.setModifyTime(LocalDateTime.now());
+        passport.setMarketId(userTicket.getFirmId());
+        passport.setCreator(userTicket.getRealName());
+        passport.setMarketCode(userTicket.getFirmCode());
         passport.setState(PassportStateEnum.CREATED.getCode());
 
         this.getActualDao().insertSelective(passport);
@@ -151,24 +152,24 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
      * @date   2020/7/27
      */
     @Override
-    public BaseOutput<Passport> updatePassport(PassportDto passportDto, UserTicket userTicket)  throws Exception {
+    public BaseOutput<Passport> updatePassport(PassportDto passportDto, UserTicket userTicket) throws Exception {
 
         Passport passportInfo = this.get(passportDto.getId());
         if (passportInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，修改失败。");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该记录已删除，修改失败。");
         }
 
         // 已创建状态才能修改
         if (!PassportStateEnum.CREATED.getCode().equals(passportInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改");
         }
 
-        BeanUtils.copyProperties(passportDto, passportInfo);
         passportInfo.setModifyTime(LocalDateTime.now());
+        BeanUtils.copyProperties(passportDto, passportInfo);
         passportInfo.setVersion(passportInfo.getVersion() + 1);
 
         if (this.updateSelective(passportInfo) == 0) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
 
         return BaseOutput.success().setData(passportInfo);
@@ -183,33 +184,34 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
      * @date   2020/7/27
      */
     @Override
-    public BaseOutput<Passport> submit(Long id, UserTicket userTicket)  throws Exception {
+    @GlobalTransactional
+    public BaseOutput<Passport> submit(Long id, UserTicket userTicket) throws Exception {
         // 先查询通行证
         Passport passportInfo = this.get(id);
         if (passportInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该通行证信息已不存在!");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该通行证信息已不存在!");
         }
 
         // 已创建状态才能提交
         if (!PassportStateEnum.CREATED.getCode().equals(passportInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
         }
 
         // 修改水电费单状态为已提交
         passportInfo.setState(PassportStateEnum.SUBMITTED.getCode());
         passportInfo.setSubmitterId(userTicket.getId());
-        passportInfo.setSubmitter(userTicket.getRealName());
         passportInfo.setSubmitTime(LocalDateTime.now());
+        passportInfo.setSubmitter(userTicket.getRealName());
         if (this.updateSelective(passportInfo) == 0) {
             logger.info("多人提交通行证付款!");
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         // 创建缴费单
         PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
         paymentOrder.setBusinessId(passportInfo.getId());
-        paymentOrder.setBusinessCode(passportInfo.getCode());
         paymentOrder.setAmount(passportInfo.getAmount());
+        paymentOrder.setBusinessCode(passportInfo.getCode());
         paymentOrder.setBizType(BizTypeEnum.PASSPORT.getCode());
         paymentOrderService.insertSelective(paymentOrder);
 
@@ -229,24 +231,24 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
      * @date   2020/7/27
      */
     @Override
-    public BaseOutput<Passport> cancle(Long id, UserTicket userTicket)  throws Exception {
+    public BaseOutput<Passport> cancel(Long id, UserTicket userTicket) throws Exception {
         // 先查询通行证
         Passport passportInfo = this.get(id);
         if (passportInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
         }
 
         // 已创建状态才能取消
         if (!PassportStateEnum.CREATED.getCode().equals(passportInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
         }
 
         passportInfo.setCancelerId(userTicket.getId());
-        passportInfo.setCanceler(userTicket.getRealName());
         passportInfo.setCancelTime(LocalDateTime.now());
+        passportInfo.setCanceler(userTicket.getRealName());
         passportInfo.setState(PassportStateEnum.CANCELLED.getCode());
         if (this.updateSelective(passportInfo) == 0) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         return BaseOutput.success().setData(passportInfo);
@@ -261,16 +263,17 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
      * @date   2020/7/27
      */
     @Override
+    @GlobalTransactional
     public BaseOutput<Passport> withdraw(Long id, UserTicket userTicket) throws Exception {
         // 先查询通行证
         Passport passportInfo = this.get(id);
         if (passportInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
         }
 
         // 已提交状态才能撤回
         if (!PassportStateEnum.SUBMITTED.getCode().equals(passportInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
         }
 
         passportInfo.setWithdrawOperatorId(userTicket.getId());
@@ -304,11 +307,12 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
      * @date   2020/7/27
      */
     @Override
+    @GlobalTransactional
     public BaseOutput<Passport> settlementDealHandler(SettleOrder settleOrder) {
 
         // 修改缴费单相关数据
         if (null == settleOrder){
-            throw new BusinessException(ResultCode.PARAMS_ERROR, "回调参数为空！");
+            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "回调参数为空！");
         }
         PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
         //结算单code唯一
@@ -316,7 +320,8 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         condition.setBizType(BizTypeEnum.PASSPORT.getCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
         Passport passportInfo = this.get(paymentOrderPO.getBusinessId());
-        if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
+        //如果已支付，直接返回
+        if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) {
             return BaseOutput.success().setData(passportInfo);
         }
         if (!paymentOrderPO.getState().equals(PaymentOrderStateEnum.NOT_PAID.getCode())){
@@ -332,7 +337,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
         if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
             logger.info("缴费单成功回调 -- 更新【缴费单】,乐观锁生效！【付款单paymentOrderID:{}】", paymentOrderPO.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         // 修改通行证
@@ -349,7 +354,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
         if (this.updateSelective(passportInfo) == 0) {
             logger.info("缴费单成功回调 -- 更新【通行证】状态,乐观锁生效！【通行证Id:{}】", passportInfo.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         return BaseOutput.success().setData(passportInfo);
@@ -363,14 +368,14 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
      * @date   2020/7/27
      */
     @Override
-    public PrintDataDto<PassportPrintDto> receiptPaymentData(String orderCode, Integer reprint) {
+    public PrintDataDto<PassportPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws Exception {
         PaymentOrder paymentOrderCondition = new PaymentOrder();
 
         paymentOrderCondition.setCode(orderCode);
         paymentOrderCondition.setBizType(BizTypeEnum.PASSPORT.getCode());
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
         if (null == paymentOrder) {
-            throw new RuntimeException("businessCode无效");
+            throw new BusinessException(ResultCode.DATA_ERROR, "businessCode无效");
         }
         if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
@@ -411,17 +416,17 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
      * @date   2020/7/27
      */
     @Override
+    @GlobalTransactional
     public BaseOutput<Passport> refund(PassportRefundOrderDto passportRefundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 查询相关数据
-        String code = passportRefundOrderDto.getBusinessCode();
-        Passport passportInfo = this.getPassportByCode(code);
+        Passport passportInfo = this.get(passportRefundOrderDto.getBusinessId());
         if (PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
         // 构建退款单以及新增
-        RefundOrder refundOrder = buildRefundOrderDto(userTicket, passportInfo, passportRefundOrderDto);
+        buildRefundOrderDto(userTicket, passportInfo, passportRefundOrderDto);
 
         LoggerUtil.buildLoggerContext(passportInfo.getId(), passportInfo.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 

@@ -68,12 +68,12 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
 
         // 设置相关属性值
         meterDto.setCreatorId(userTicket.getId());
-        meterDto.setCreator(userTicket.getUserName());
-        meterDto.setCreatorDepId(userTicket.getDepartmentId());
-        meterDto.setMarketId(userTicket.getFirmId());
-        meterDto.setMarketCode(userTicket.getFirmCode());
         meterDto.setCreateTime(LocalDateTime.now());
         meterDto.setModifyTime(LocalDateTime.now());
+        meterDto.setMarketId(userTicket.getFirmId());
+        meterDto.setCreator(userTicket.getUserName());
+        meterDto.setMarketCode(userTicket.getFirmCode());
+        meterDto.setCreatorDepId(userTicket.getDepartmentId());
         meterDto.setVersion(1);
 
         BeanUtils.copyProperties(meterDto, meter);

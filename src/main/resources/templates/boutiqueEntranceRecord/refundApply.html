@@ -2,29 +2,29 @@
 
 <div class="container-fluid">
     <form id="refundApplyForm" role="form">
-        <input type="hidden" name="businessId" value="${boutiqueEntranceRecord.id}"/>
-        <input type="hidden" name="businessCode" value="${boutiqueEntranceRecord.code!}"/>
-        <input type="hidden" name="departmentId" value="${boutiqueEntranceRecord.departmentId!}"/>
-        <input type="hidden" name="departmentName" value="${boutiqueEntranceRecord.departmentName!}"/>
-        <input type="hidden" name="customerId" value="${boutiqueEntranceRecord.customerId!}"/>
+        <input type="hidden" name="businessId" value="${boutiqueFeeOrder.id}"/>
+        <input type="hidden" name="businessCode" value="${boutiqueFeeOrder.code!}"/>
+        <input type="hidden" name="departmentId" value="${boutiqueFeeOrder.departmentId!}"/>
+        <input type="hidden" name="departmentName" value="${boutiqueFeeOrder.departmentName!}"/>
+        <input type="hidden" name="customerId" value="${boutiqueFeeOrder.customerId!}"/>
         <div class="row row-cols-4">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
-                <input type="text" class="form-control" id="customerName" name="customerName" value="${boutiqueEntranceRecord.customerName!}" readonly/>
+                <input type="text" class="form-control" id="customerName" name="customerName" value="${boutiqueFeeOrder.customerName!}" readonly/>
             </div>
             <div class="form-group col">
                 <label for="certificateNumber">证件号码<i class="red">*</i></label>
-                <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${boutiqueEntranceRecord.certificateNumber!}" readonly/>
+                <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${boutiqueFeeOrder.certificateNumber!}" readonly/>
             </div>
             <div class="form-group col">
                 <label for="customerCellphone">联系电话<i class="red">*</i></label>
-                <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${boutiqueEntranceRecord.customerCellphone!}" readonly/>
+                <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${boutiqueFeeOrder.customerCellphone!}" readonly/>
             </div>
         </div>
         <div class="row row-cols-4">
             <div class="form-group col align-items-end">
-                <label for="amount" class="">保证金<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="amount"  name="amount" oninput="calcTotalRefundAmount()" placeholder="可退<#centToYuan value='${boutiqueEntranceRecord.amount!}'/>" min="0" max="<#centToYuan value='${boutiqueEntranceRecord.amount!}'/>" required/>
+                <label for="amount" class="">精品停车费<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve money" id="amount"  name="amount" oninput="calcTotalRefundAmount()" placeholder="可退<#centToYuan value='${boutiqueFeeOrder.amount!}'/>" min="0" max="<#centToYuan value='${boutiqueFeeOrder.amount!}'/>" required/>
             </div>
 
             <div class="form-group col align-items-end">

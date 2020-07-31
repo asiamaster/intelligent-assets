@@ -2,16 +2,20 @@ package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.TransferDeductionItem;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
  * @author:       xiaosa
- * @date:         2020/7/23
+ * @date:         2020/7/31
  * @version:      农批业务系统重构
- * @description:  精品停车退款
+ * @description:  精品停车退款dto
  */
-public class BoutiqueRefundDto {
+public class BoutiqueFeeRefundOrderDto {
+
+    /**
+     * 数据的主键
+     */
+    private Long businessId;
 
     /**
      * 数据的code
@@ -62,6 +66,14 @@ public class BoutiqueRefundDto {
      * 转抵扣
      */
     private List<TransferDeductionItem> transferDeductionItems;
+
+    public Long getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(Long businessId) {
+        this.businessId = businessId;
+    }
 
     public Long getPayeeAmount() {
         return payeeAmount;

@@ -14,6 +14,11 @@ import java.util.List;
 public class PassportRefundOrderDto {
 
     /**
+     * 数据的主键id
+     */
+    private Long businessId;
+
+    /**
      * 数据的code
      */
     private String businessCode;
@@ -62,6 +67,14 @@ public class PassportRefundOrderDto {
      * 转抵扣
      */
     private List<TransferDeductionItem> transferDeductionItems;
+
+    public Long getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(Long businessId) {
+        this.businessId = businessId;
+    }
 
     public Long getPayeeAmount() {
         return payeeAmount;

@@ -215,11 +215,18 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@RequestBody MeterDetailDto meterDetailDto) {
+    public @ResponseBody BaseOutput insert(@RequestBody MeterDetailDto meterDetailDto) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
-        BaseOutput<MeterDetail> baseOutput = meterDetailService.addMeterDetail(meterDetailDto, userTicket);
+        BaseOutput<MeterDetail> baseOutput = null;
+        try {
+            baseOutput = meterDetailService.addMeterDetail(meterDetailDto, userTicket);
+        }catch (BusinessException e) {
+            logger.info("新增水电费单异常！");
+            return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+        }catch (Exception e) {
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+        }
 
         // 写业务日志
         if (baseOutput.isSuccess()){
@@ -240,7 +247,7 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput submit(String ids) {
+    public @ResponseBody BaseOutput submit(String ids) throws Exception {
         List<Long> list = Arrays.stream(ids.split(",")).map(Long::valueOf)
                 .collect(Collectors.toList());
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -265,7 +272,7 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submitAll.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput submitAll(Integer metertype) {
+    public @ResponseBody BaseOutput submitAll(Integer metertype) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         BaseOutput<List<MeterDetailDto>> baseOutput = meterDetailService.submitAll(userTicket, metertype);
@@ -290,7 +297,7 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput withdraw(Long id) {
+    public @ResponseBody BaseOutput withdraw(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 

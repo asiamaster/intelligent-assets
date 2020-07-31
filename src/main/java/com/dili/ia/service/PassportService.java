@@ -38,7 +38,7 @@ public interface PassportService extends BaseService<Passport, Long> {
      * @return BaseOutput
      * @date   2020/7/27
      */
-    BaseOutput<Passport> addPassport(PassportDto passportDto, UserTicket userTicket);
+    BaseOutput<Passport> addPassport(PassportDto passportDto, UserTicket userTicket) throws Exception;
 
     /**
      * 修改通行证
@@ -57,7 +57,7 @@ public interface PassportService extends BaseService<Passport, Long> {
      * @return BaseOutput
      * @date   2020/7/27
      */
-    BaseOutput<Passport> cancle(Long id, UserTicket userTicket) throws Exception;
+    BaseOutput<Passport> cancel(Long id, UserTicket userTicket) throws Exception;
 
     /**
      * 提交通行证缴费
@@ -95,7 +95,7 @@ public interface PassportService extends BaseService<Passport, Long> {
      * @return BaseOutput
      * @date   2020/7/27
      */
-    PrintDataDto<PassportPrintDto> receiptPaymentData(String orderCode, Integer reprint);
+    PrintDataDto<PassportPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws Exception;
 
     /**
      * 退款单 查询

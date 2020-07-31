@@ -1,23 +1,17 @@
 package com.dili.ia.api;
 
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.Passport;
-import com.dili.ia.domain.dto.BoutiqueRefundDto;
-import com.dili.ia.domain.dto.PassportDto;
-import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
-import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

@@ -3,15 +3,12 @@ package com.dili.ia.controller;
 import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
-import com.dili.ia.domain.dto.BoutiqueRefundDto;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
-import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 
-import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
@@ -19,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -94,6 +90,7 @@ public class BoutiqueEntranceRecordController {
      * @date   2020/7/13
      */
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="confirm", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput add(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) throws Exception {
 
         boutiqueEntranceRecordService.insert(boutiqueEntranceRecord);
@@ -113,6 +110,7 @@ public class BoutiqueEntranceRecordController {
     public @ResponseBody BaseOutput confirm(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
         BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.confirm(boutiqueEntranceRecord, userTicket);
 
         // 写业务日志
@@ -247,27 +245,5 @@ public class BoutiqueEntranceRecordController {
     public @ResponseBody BaseOutput update(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) {
         boutiqueEntranceRecordService.updateSelective(boutiqueEntranceRecord);
         return BaseOutput.success("修改成功");
-    }
-
-    /**
-     * 退款申请
-     *
-     * @param boutiqueInRefundDto
-     * @return BaseOutput
-     * @date   2020/7/23
-     */
-    @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput refund(@Validated BoutiqueRefundDto boutiqueInRefundDto) {	        //throw new BusinessException("2000", "errorCode");
-        try {
-            boutiqueEntranceRecordService.refund(boutiqueInRefundDto);
-        }catch (BusinessException e) {
-            logger.error("精品停车{}退款申请异常！",boutiqueInRefundDto.getBusinessCode(), e);
-            return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
-        }catch (Exception e) {
-            logger.error("精品停车{}退款申请异常！",boutiqueInRefundDto.getBusinessCode(), e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
-        }
-        return BaseOutput.success("退款成功");
     }
 }

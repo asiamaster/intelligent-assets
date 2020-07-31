@@ -4,10 +4,8 @@ import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.BoutiqueFreeSets;
 import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
-import com.dili.ia.domain.dto.BoutiqueRefundDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
@@ -15,7 +13,6 @@ import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.BoutiqueOrderStateEnum;
 import com.dili.ia.glossary.BoutiqueStateEnum;
-import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.BoutiqueEntranceRecordMapper;
@@ -26,7 +23,6 @@ import com.dili.ia.service.BoutiqueFeeOrderService;
 import com.dili.ia.service.BoutiqueFreeSetsService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.util.LoggerUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -40,7 +36,6 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
-import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -88,9 +83,6 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     @Autowired
     private SettlementRpcResolver settlementRpcResolver;
 
-    @Autowired
-    private RefundOrderService refundOrderService;
-
     @Value("${settlement.app-id}")
     private Long settlementAppId;
 
@@ -104,7 +96,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/7/13
      */
     @Override
-    public BoutiqueEntranceRecordDto getBoutiqueEntranceDtoById(Long id) {
+    public BoutiqueEntranceRecordDto getBoutiqueEntranceDtoById(Long id){
         BoutiqueEntranceRecordDto boutiqueEntranceRecordDto = new BoutiqueEntranceRecordDto();
 
         // 不联表查询，先查询精品停车数据
@@ -189,7 +181,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             });
         }
 
-        String code = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode());
+        String code = uidRpcResolver.bizNumber(BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode());
 
         // 新增精品停车交费单
         feeOrder.setCode(code);
@@ -268,7 +260,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/7/13
      */
     @Override
-    public BaseOutput<BoutiqueEntranceRecord> forceLeave(Long id, UserTicket userTicket) {
+    public BaseOutput<BoutiqueEntranceRecord> forceLeave(Long id, UserTicket userTicket) throws Exception {
 
         BoutiqueEntranceRecord recordInfo = this.get(id);
         if(recordInfo == null){
@@ -406,34 +398,6 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     }
 
     /**
-     * 退款申请
-     *
-     * @param refundDto
-     * @return BaseOutput
-     * @date   2020/7/23
-     */
-    @Override
-    public void refund(BoutiqueRefundDto refundDto) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
-        // 查询相关数据
-        String code = refundDto.getBusinessCode();
-        BoutiqueFeeOrderDto orderDto = this.getBoutiqueAndOrderByCode(code);
-        if (!BoutiqueOrderStateEnum.PAID.getCode().equals(orderDto.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-        }
-        // 构建退款单,并且新增
-        RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundDto, orderDto);
-
-        LoggerUtil.buildLoggerContext(orderDto.getId(), orderDto.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-
-        // 修改状态
-        orderDto.setModifyTime(LocalDateTime.now());
-        orderDto.setState(PassportStateEnum.SUBMITTED_REFUND.getCode());
-        boutiqueFeeOrderService.updateSelective(orderDto);
-    }
-
-    /**
      * 根据 code 获取退款单相关信息
      * 
      * @param
@@ -483,7 +447,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     /**
      * 修改交费单的状态（作废交费单）
      */
-    private void invalidOrders(BoutiqueEntranceRecord record, UserTicket userTicket){
+    private void invalidOrders(BoutiqueEntranceRecord record, UserTicket userTicket) throws Exception {
         List<BoutiqueFeeOrderDto> orderDtoList=boutiqueFeeOrderService.listByRecordId(record.getId());
         if(orderDtoList != null && orderDtoList.size()>0){
             orderDtoList.stream().filter(feeOrderDto -> feeOrderDto.getState().equals(BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode())).forEach(feeOrderDto -> {
@@ -533,36 +497,4 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         return order;
     }
 
-    /**
-     * 构建退款
-     */
-    private RefundOrder buildRefundOrderDto(UserTicket userTicket, BoutiqueRefundDto boutiqueRefundDto, BoutiqueFeeOrderDto orderDto) {
-        //退款单
-        RefundOrder refundOrder = new RefundOrder();
-
-        refundOrder.setMarketId(userTicket.getFirmId());
-        refundOrder.setMarketCode(userTicket.getFirmCode());
-
-        refundOrder.setBusinessId(orderDto.getId());
-        refundOrder.setBusinessCode(orderDto.getCode());
-        refundOrder.setCustomerId(orderDto.getCustomerId());
-        refundOrder.setCustomerName(orderDto.getCustomerName());
-        refundOrder.setCertificateNumber(orderDto.getCertificateNumber());
-        refundOrder.setCustomerCellphone(orderDto.getCustomerCellphone());
-
-        refundOrder.setPayee(boutiqueRefundDto.getPayee());
-        refundOrder.setPayeeId(boutiqueRefundDto.getPayeeId());
-        refundOrder.setPayeeAmount(boutiqueRefundDto.getPayeeAmount());
-        refundOrder.setRefundReason(boutiqueRefundDto.getRefundReason());
-        refundOrder.setTotalRefundAmount(boutiqueRefundDto.getTotalRefundAmount());
-
-        refundOrder.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
-        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.PASSPORT_REFUND.getCode()));
-
-        if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
-            logger.info("通行证【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
-        }
-        return refundOrder;
-    }
 }

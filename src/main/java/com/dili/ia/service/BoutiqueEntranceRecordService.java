@@ -2,10 +2,8 @@ package com.dili.ia.service;
 
 import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
-import com.dili.ia.domain.dto.BoutiqueRefundDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.settlement.domain.SettleOrder;
@@ -67,7 +65,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return BaseOutput
      * @date   2020/7/13
      */
-    BaseOutput<BoutiqueEntranceRecord> forceLeave(Long id, UserTicket userTicket);
+    BaseOutput<BoutiqueEntranceRecord> forceLeave(Long id, UserTicket userTicket) throws Exception;
 
     /**
      * 缴费成功回调
@@ -89,15 +87,6 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
     PrintDataDto<BoutiqueEntrancePrintDto> receiptPaymentData(String orderCode, Integer reprint);
 
     /**
-     * 退款申请
-     *
-     * @param boutiqueInRefundDto
-     * @return BaseOutput
-     * @date   2020/7/23
-     */
-    void refund(BoutiqueRefundDto boutiqueInRefundDto);
-
-    /**
      * 根据code获取相关数据
      *
      * @param  code
@@ -105,4 +94,5 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @date   2020/7/30
      */
     BoutiqueFeeOrderDto getBoutiqueAndOrderByCode(String code);
+
 }
