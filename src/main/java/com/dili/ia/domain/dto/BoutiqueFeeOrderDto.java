@@ -2,6 +2,8 @@ package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.BoutiqueFeeOrder;
 
+import javax.persistence.Column;
+
 
 /**
  * @author:       xiaosa
@@ -29,6 +31,32 @@ public class BoutiqueFeeOrderDto extends BoutiqueFeeOrder {
      * 身份证号
      */
     private String certificateNumber;
+
+    /**
+     * 接车部门
+     */
+    private Long departmentId;
+
+    /**
+     * 部门名称
+     */
+    private String departmentName;
+
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
 
     public String getCertificateNumber() {
         return certificateNumber;

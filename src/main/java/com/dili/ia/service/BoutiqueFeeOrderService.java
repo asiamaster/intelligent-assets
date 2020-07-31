@@ -2,6 +2,7 @@ package com.dili.ia.service;
 
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
+import com.dili.ia.domain.dto.BoutiqueFeeRefundOrderDto;
 import com.dili.ss.base.BaseService;
 
 import java.util.List;
@@ -22,4 +23,22 @@ public interface BoutiqueFeeOrderService extends BaseService<BoutiqueFeeOrder, L
      * @date   2020/7/13
      */
     List<BoutiqueFeeOrderDto> listByRecordId(Long recordId);
+
+    /**
+     * 根据主键查询精品停车单和精品停车相关信息
+     * 
+     * @param  orderId
+     * @return BoutiqueFeeOrderDto
+     * @date   2020/7/31
+     */
+    BoutiqueFeeOrderDto getBoutiqueFeeOrderDtoById(Long orderId);
+
+    /**
+     * 退款申请
+     *
+     * @param refundOrderDto
+     * @return BaseOutput
+     * @date   2020/7/23
+     */
+    void refund(BoutiqueFeeRefundOrderDto refundOrderDto);
 }

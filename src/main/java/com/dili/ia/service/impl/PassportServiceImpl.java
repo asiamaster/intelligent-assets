@@ -90,7 +90,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     /**
      * 查询列表
      *
-     * @param  passport
+     * @param  passportDto
      * @param  useProvider
      * @return EasyuiPageOutput
      * @date   2020/7/29
@@ -415,13 +415,12 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 查询相关数据
-        String code = passportRefundOrderDto.getBusinessCode();
-        Passport passportInfo = this.getPassportByCode(code);
+        Passport passportInfo = this.get(passportRefundOrderDto.getBusinessId());
         if (PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
         // 构建退款单以及新增
-        RefundOrder refundOrder = buildRefundOrderDto(userTicket, passportInfo, passportRefundOrderDto);
+        buildRefundOrderDto(userTicket, passportInfo, passportRefundOrderDto);
 
         LoggerUtil.buildLoggerContext(passportInfo.getId(), passportInfo.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 

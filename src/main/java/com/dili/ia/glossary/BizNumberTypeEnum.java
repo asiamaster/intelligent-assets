@@ -23,9 +23,9 @@ public enum BizNumberTypeEnum {
     DEPOSIT_ORDER("depositOrder", "保证金业务单"),
     DEPOSIT_REFUND_ORDER("depositRefund", "保证金退款单"),
     BOUTIQUE_ENTRANCE("boutiqueEntrance", "精品停车单"),
-    BOUTIQUE_ENTRANCE_REFUND("boutiqueEntranceRefundOrder", "精品停车单"),
+    BOUTIQUE_ORDER_REFUND("boutiqueRefundOrder", "精品停车退款单"),
     PASSPORT("passport", "通行证"),
-    PASSPORT_REFUND("passportRefundOrder", "通行证"),
+    PASSPORT_REFUND("passportRefundOrder", "通行证退款单"),
     ;
 
     private String name;

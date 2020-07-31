@@ -106,8 +106,6 @@
         });
 
         // 构建退款参数
-
-
         formData.transferDeductionItems = transferDeductionItems;
         bui.util.yuanToCentForMoneyEl(formData);
         return JSON.stringify(formData);
@@ -167,7 +165,7 @@
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
-            url: "/boutiqueEntranceRecord/refund.action",
+            url: "/boutiqueFeeOrder/refund.action",
             data: buildFormData(),
             dataType: "json",
             contentType: "application/json",

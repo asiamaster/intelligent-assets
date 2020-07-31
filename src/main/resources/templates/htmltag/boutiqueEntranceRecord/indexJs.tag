@@ -116,6 +116,25 @@
     }
 
 
+    /**
+     打开退款窗口
+     */
+    function openRefundHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        let url = '/boutiqueFeeOrder/refundApply.html?id=' + rows[0].id;
+        dia = bs4pop.dialog({
+            title: '退款申请',
+            content: url,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '95%',
+            height : '95%',
+            btns: []
+        });
+
+    }
 
     /**
      打开处理页面
@@ -221,18 +240,22 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_confirm').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.COUNTING.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_submit').attr('disabled', false);
             $('#btn_leave').attr('disabled', false);
             $('#btn_forceLeave').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.LEAVE.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.CANCEL.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
         }
     });
 
