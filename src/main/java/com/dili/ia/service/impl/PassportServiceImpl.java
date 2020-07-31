@@ -21,6 +21,7 @@ import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -41,6 +42,7 @@ import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -82,6 +84,9 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
     @Autowired
     private RefundOrderService refundOrderService;
+
+    @Autowired
+    private TransferDeductionItemService transferDeductionItemService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -434,6 +439,14 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         passportInfo.setModifyTime(LocalDateTime.now());
         passportInfo.setState(PassportStateEnum.SUBMITTED_REFUND.getCode());
         this.updateSelective(passportInfo);
+
+        // 转抵信息
+        if (CollectionUtils.isNotEmpty(passportRefundOrderDto.getTransferDeductionItems())) {
+            passportRefundOrderDto.getTransferDeductionItems().forEach(o -> {
+                o.setRefundOrderId(passportRefundOrderDto.getBusinessId());
+                transferDeductionItemService.insertSelective(o);
+            });
+        }
 
         return BaseOutput.success().setData(passportInfo);
     }
