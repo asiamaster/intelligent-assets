@@ -265,33 +265,41 @@
     //选中行事件 -- 可操作按钮控制
     _grid.on('check.bs.table', function (e, row, $element) {
         let state = row.$_state;
+        let bizType = row.$_bizType;
         //审批状态
         let approvalState = row.$_approvalState;
         if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CREATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            //劳务/入库单不审核可直接提交
+            if(bizType == ${@com.dili.ia.glossary.BizTypeEnum.LABOR_VEST.getCode()}
+            || bizType == ${@com.dili.ia.glossary.BizTypeEnum.STOCKIN.getCode()}){
+            	$('#btn_submit').attr('disabled', false);
+            }else{
 
-            //没有审批状态可以 提交审批，修改和取消
-            if(!approvalState){
-                $('#btn_approval').attr('disabled', false);
-                $('#btn_update').attr('disabled', false);
-                $('#btn_cancel').attr('disabled', false);
-                return;
-            }
-            //待审批时可以 提交审批，修改和取消
-            if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}){
-                $('#btn_approval').attr('disabled', false);
-                $('#btn_edit').attr('disabled', false);
-                $('#btn_cancel').attr('disabled', false);
-            }
-            //审批中不允许修改、取消和提交付款
-            //审批通过后直接提交退款
-            //审批拒绝后，可以再次提交审批，修改和取消
-            else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVAL_DENIED.getCode()}){
-                $('#btn_approval').attr('disabled', false);
-                $('#btn_edit').attr('disabled', false);
-                $('#btn_cancel').attr('disabled', false);
+                //没有审批状态可以 提交审批，修改和取消
+                if(!approvalState){
+                    $('#btn_approval').attr('disabled', false);
+                    $('#btn_update').attr('disabled', false);
+                    $('#btn_cancel').attr('disabled', false);
+                    return;
+                }
+                //待审批时可以 提交审批，修改和取消
+                if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}){
+                    $('#btn_approval').attr('disabled', false);
+                    $('#btn_edit').attr('disabled', false);
+                    $('#btn_cancel').attr('disabled', false);
+                }
+                //审批中不允许修改、取消和提交付款
+                //审批通过后直接提交退款
+                //审批拒绝后，可以再次提交审批，修改和取消
+                else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVAL_DENIED.getCode()}){
+                    $('#btn_approval').attr('disabled', false);
+                    $('#btn_edit').attr('disabled', false);
+                    $('#btn_cancel').attr('disabled', false);
+                }
+                
             }
         } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CANCELD.getCode()}) {
             $('#toolbar button').attr('disabled', true);
