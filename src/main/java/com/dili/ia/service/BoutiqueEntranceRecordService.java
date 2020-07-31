@@ -65,7 +65,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return BaseOutput
      * @date   2020/7/13
      */
-    BaseOutput<BoutiqueEntranceRecord> forceLeave(Long id, UserTicket userTicket);
+    BaseOutput<BoutiqueEntranceRecord> forceLeave(Long id, UserTicket userTicket) throws Exception;
 
     /**
      * 缴费成功回调

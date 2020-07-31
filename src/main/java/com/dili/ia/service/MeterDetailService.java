@@ -48,7 +48,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/6/28
      */
-    BaseOutput<MeterDetail> addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket);
+    BaseOutput<MeterDetail> addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket) throws Exception;
 
     /**
      * 修改 水电费单
@@ -85,7 +85,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/7/6
      */
-    BaseOutput<List<MeterDetail>> submit(List<Long> id, UserTicket userTicket);
+    BaseOutput<List<MeterDetail>> submit(List<Long> id, UserTicket userTicket) throws Exception;
 
     /**
      * 全部提交水电费单(生缴费单和结算单)
@@ -95,7 +95,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/7/29
      */
-    BaseOutput<List<MeterDetailDto>> submitAll(UserTicket userTicket, Integer metertype);
+    BaseOutput<List<MeterDetailDto>> submitAll(UserTicket userTicket, Integer metertype) throws Exception;
 
     /**
      * 缴费回调
@@ -104,7 +104,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return
      * @date   2020/7/6
      */
-    BaseOutput<MeterDetail> settlementDealHandler(SettleOrder settleOrder);
+    BaseOutput<MeterDetail> settlementDealHandler(SettleOrder settleOrder) throws Exception;
 
     /**
      * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)
@@ -113,7 +113,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return 是否成功
      * @date   2020/7/6
      */
-    BaseOutput<MeterDetail> withdraw(Long id, UserTicket userTicket);
+    BaseOutput<MeterDetail> withdraw(Long id, UserTicket userTicket) throws Exception;
 
     /**
      * 取消水电费单(取消缴费单和结算单,将水电费单修改为已创建)
@@ -132,7 +132,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return
      * @date   2020/7/10
      */
-    PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint);
+    PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws Exception;
 
     /**
      * 计费规则

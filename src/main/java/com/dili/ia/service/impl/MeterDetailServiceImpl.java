@@ -45,6 +45,7 @@ import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -186,8 +187,8 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date   2020/6/28
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public BaseOutput<MeterDetail> addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket) {
+    @GlobalTransactional
+    public BaseOutput<MeterDetail> addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket) throws Exception {
         MeterDetail meterDetail = new MeterDetail();
         BeanUtils.copyProperties(meterDetailDto, meterDetail);
 
@@ -229,7 +230,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         CustomerMeter customerMeter = customerMeterService.getBindInfoByMeterId(meterDetail.getMeterId());
         if (null == customerMeter || !customerMeter.getCustomerId().equals(meterDetail.getCustomerId())) {
             //已被解绑或删除
-            BaseOutput.failure("表已被解绑或删除，请刷新数据后重试!");
+            return BaseOutput.failure("表已被解绑或删除，请刷新数据后重试!");
         }
 
         return BaseOutput.success().setData(meterDetail);
@@ -243,17 +244,18 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date   2020/7/1
      */
     @Override
+    @GlobalTransactional
     public BaseOutput<MeterDetail> updateMeterDetail(MeterDetailDto meterDetailDto) {
 
         // 先查询
         MeterDetail meterDetailInfo = this.get(meterDetailDto.getId());
         if (meterDetailInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，修改失败。");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该记录已删除，修改失败。");
         }
 
         // 已创建状态才能修改
         if (!MeterDetailStateEnum.CREATED.getCode().equals(meterDetailInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改");
         }
 
         //在更新状态之前查询指数信息，不然可能会查询出当前数据(脏读)
@@ -261,7 +263,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         if (!lastAmountReturn.isSuccess()){
             return BaseOutput.failure("该表初始指数获取失败,保存失败!");
         }
-        Long lastAmount = (Long) lastAmountReturn.getData();
 
         //构建动态收费项
         if (meterDetailDto.getBusinessChargeItems() != null) {
@@ -277,7 +278,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailInfo.setModifyTime(LocalDateTime.now());
         meterDetailInfo.setVersion(meterDetailInfo.getVersion() + 1);
         if (this.updateSelective(meterDetailInfo) == 0) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
 
         return BaseOutput.success().setData(meterDetailInfo);
@@ -292,14 +293,13 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      */
     @Override
     @Transactional
-    public BaseOutput<List<MeterDetail>> submit(List<Long> ids, UserTicket userTicket) {
+    public BaseOutput<List<MeterDetail>> submit(List<Long> ids, UserTicket userTicket) throws Exception {
         List<MeterDetail> meterDetailList = new ArrayList<>();
         // 多个提交
         for (Long id : ids) {
             // 先查询水电费单
             MeterDetail meterDetailInfo = this.get(id);
             if (meterDetailInfo == null) {
-//                throw new BusinessException(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
             }
 
             // 修改水电费单状态为已提交
@@ -309,7 +309,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             meterDetailInfo.setSubmitTime(LocalDateTime.now());
             if (this.updateSelective(meterDetailInfo) == 0) {
                 logger.info("多人提交水电费单!");
-//                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
             }
 
             // 创建缴费单
@@ -337,7 +336,8 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date   2020/7/29
      */
     @Override
-    public BaseOutput<List<MeterDetailDto>> submitAll(UserTicket userTicket, Integer metertype) {
+    @GlobalTransactional
+    public BaseOutput<List<MeterDetailDto>> submitAll(UserTicket userTicket, Integer metertype) throws Exception {
         // 查询所有未提交的水电费单
         MeterDetailDto meterDetailQuery = new MeterDetailDto();
         meterDetailQuery.setType(metertype);
@@ -360,12 +360,13 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date   2020/7/6
      */
     @Override
-    public BaseOutput<MeterDetail> withdraw(Long id, UserTicket userTicket) {
+    @GlobalTransactional
+    public BaseOutput<MeterDetail> withdraw(Long id, UserTicket userTicket) throws Exception {
 
         // 查询数据,对比状态
         MeterDetail meterDetailInfo = this.get(id);
         if (meterDetailInfo != null && !MeterDetailStateEnum.SUBMITED.getCode().equals(meterDetailInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
         meterDetailInfo.setWithdrawOperatorId(userTicket.getId());
         meterDetailInfo.setWithdrawOperator(userTicket.getRealName());
@@ -373,7 +374,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailInfo.setState(MeterDetailStateEnum.CREATED.getCode());
         if (this.updateSelective(meterDetailInfo) == 0) {
             logger.info("撤回水电费【修改为已创建】失败.");
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         // 撤销缴费单
@@ -381,7 +382,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         paymentOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
         if (paymentOrderService.updateSelective(paymentOrder) == 0) {
             logger.info("撤回水电费【删除缴费单】失败.");
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         // 撤回结算单多人操作已判断
@@ -403,14 +404,14 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         // 查询数据,对比状态
         MeterDetail meterDetailInfo = this.get(id);
         if (meterDetailInfo != null && !MeterDetailStateEnum.CREATED.getCode().equals(meterDetailInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
         meterDetailInfo.setCancelerId(userTicket.getId());
         meterDetailInfo.setCanceler(userTicket.getRealName());
         meterDetailInfo.setModifyTime(LocalDateTime.now());
         meterDetailInfo.setState(MeterDetailStateEnum.CANCELLED.getCode());
         if (this.updateSelective(meterDetailInfo) == 0) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         return BaseOutput.success().setData(meterDetailInfo);
@@ -424,7 +425,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date   2020/7/6
      */
     @Override
-    public BaseOutput<MeterDetail> settlementDealHandler(SettleOrder settleOrder) {
+    public BaseOutput<MeterDetail> settlementDealHandler(SettleOrder settleOrder) throws Exception {
 
         // 修改缴费单相关数据
         if (null == settleOrder){
@@ -483,7 +484,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date   2020/7/10
      */
     @Override
-    public PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint) {
+    public PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws Exception {
         PaymentOrder paymentOrderCondition = new PaymentOrder();
 
         paymentOrderCondition.setCode(orderCode);
@@ -695,7 +696,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @param businessCode
      * @return
      */
-    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
+    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode) throws Exception{
         PaymentOrder pb = new PaymentOrder();
 
         pb.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());

@@ -69,7 +69,7 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * @return CustomerMeterDto
      * @date   2020/6/28
      */
-    CustomerMeterDto getBindInfoByMeterId(Long meterId);
+    CustomerMeterDto getBindInfoByMeterId(Long meterId) throws Exception;
 
     /**
      * 根据表编号模糊查询表客户信息列表

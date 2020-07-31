@@ -188,7 +188,7 @@ public class CustomerMeterController {
      * @date   2020/6/28
      */
     @RequestMapping(value="/getBindInfoByMeterId.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getBindInfoByMeterId(Long meterId) {
+    public @ResponseBody BaseOutput getBindInfoByMeterId(Long meterId) throws Exception {
         CustomerMeterDto customerMeterInfo = customerMeterService.getBindInfoByMeterId(meterId);
 
         return BaseOutput.success().setData(customerMeterInfo);

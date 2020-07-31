@@ -1,13 +1,19 @@
 package com.dili.ia.controller;
 
+import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.domain.dto.BoutiqueFeeRefundOrderDto;
 import com.dili.ia.service.BoutiqueFeeOrderService;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +26,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-07-13 10:49:05.
+ * @author:       xiaosa
+ * @date:         2020/7/31
+ * @version:      农批业务系统重构
+ * @description:  
  */
 @Controller
 @RequestMapping("/boutiqueFeeOrder")
@@ -39,7 +47,7 @@ public class BoutiqueFeeOrderController {
      * @date   2020/7/13
      */
     @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
-    public String refundApply(ModelMap modelMap, Long id) {
+    public String refundApply(ModelMap modelMap, Long id) throws Exception {
         BoutiqueFeeOrderDto boutiqueFeeOrderDto = null;
         if (id != null) {
             boutiqueFeeOrderDto = boutiqueFeeOrderService.getBoutiqueFeeOrderDtoById(id);
@@ -67,6 +75,28 @@ public class BoutiqueFeeOrderController {
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
         return BaseOutput.success("退款成功");
+    }
+
+    /**
+     * 修改BoutiqueFeeOrder
+     * @param id
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput cancel(Long id) throws Exception {
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
+        BaseOutput<BoutiqueFeeOrder> baseOutput = boutiqueFeeOrderService.cancel(id, userTicket);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()){
+            BoutiqueFeeOrder order = baseOutput.getData();
+            LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
+        return baseOutput;
     }
 
 

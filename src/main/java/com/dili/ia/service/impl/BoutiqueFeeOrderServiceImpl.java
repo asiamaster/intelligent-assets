@@ -17,15 +17,17 @@ import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.java.B;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,7 +64,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
      * @date   2020/7/13
      */
     @Override
-    public List<BoutiqueFeeOrderDto> listByRecordId(Long recordId) {
+    public List<BoutiqueFeeOrderDto> listByRecordId(Long recordId){
         List<BoutiqueFeeOrderDto> boutiqueFeeOrderDtoList = this.getActualDao().listByRecordId(recordId);
         return boutiqueFeeOrderDtoList;
     }
@@ -75,7 +77,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
      * @date   2020/7/31
      */
     @Override
-    public BoutiqueFeeOrderDto getBoutiqueFeeOrderDtoById(Long orderId) {
+    public BoutiqueFeeOrderDto getBoutiqueFeeOrderDtoById(Long orderId) throws Exception {
         BoutiqueFeeOrderDto boutiqueFeeOrderDto = new BoutiqueFeeOrderDto();
         BoutiqueFeeOrder orderInfo = this.get(orderId);
         if (orderInfo != null) {
@@ -102,7 +104,8 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
      * @date   2020/7/23
      */
     @Override
-    public void refund(BoutiqueFeeRefundOrderDto refundDto) {
+    @GlobalTransactional
+    public void refund(BoutiqueFeeRefundOrderDto refundDto) throws Exception {
         BoutiqueFeeOrder orderInfo = new BoutiqueFeeOrder();
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
@@ -112,7 +115,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
         // 构建退款单,并且新增
-        RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundDto, orderDtoInfo);
+        buildRefundOrderDto(userTicket, refundDto, orderDtoInfo);
 
         LoggerUtil.buildLoggerContext(orderDtoInfo.getId(), orderDtoInfo.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
@@ -121,6 +124,30 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
         orderDtoInfo.setState(PassportStateEnum.SUBMITTED_REFUND.getCode());
         BeanUtils.copyProperties(orderDtoInfo, orderInfo);
         this.updateSelective(orderInfo);
+    }
+
+    @Override
+    public BaseOutput<BoutiqueFeeOrder> cancel(Long id, UserTicket userTicket) throws Exception {
+        BoutiqueFeeOrder orderInfo = this.get(id);
+
+        if (orderInfo == null) {
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
+        }
+
+        // 已创建状态才能取消
+        if (!BoutiqueOrderStateEnum.CREATED.getCode().equals(orderInfo.getState())) {
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
+        }
+
+        orderInfo.setCancelerId(userTicket.getId());
+        orderInfo.setCanceler(userTicket.getRealName());
+        orderInfo.setCancelTime(LocalDateTime.now());
+        orderInfo.setState(BoutiqueOrderStateEnum.CANCELLED.getCode());
+        if (this.updateSelective(orderInfo) == 0) {
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
+        return BaseOutput.success().setData(orderInfo);
     }
 
     /**

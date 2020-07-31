@@ -148,7 +148,7 @@ public class PassportController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput add(@RequestBody PassportDto passportDto) {
+    public @ResponseBody BaseOutput add(@RequestBody PassportDto passportDto) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
@@ -218,13 +218,13 @@ public class PassportController {
      * @return
      * @date   2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="cancle", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        BaseOutput<Passport> baseOutput = passportService.cancle(id, userTicket);
+        BaseOutput<Passport> baseOutput = passportService.cancel(id, userTicket);
 
         // 写业务日志
         if (baseOutput.isSuccess()){
@@ -247,8 +247,16 @@ public class PassportController {
     public @ResponseBody BaseOutput withdraw(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        BaseOutput<Passport> baseOutput = null;
 
-        BaseOutput<Passport> baseOutput = passportService.withdraw(id, userTicket);
+        try {
+            baseOutput = passportService.withdraw(id, userTicket);
+        }catch (BusinessException e) {
+            logger.info("精品停车撤回异常！");
+            return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+        }catch (Exception e) {
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+        }
 
         // 写业务日志
         if (baseOutput.isSuccess()){

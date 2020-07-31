@@ -18,6 +18,7 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,7 +137,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      * @date   2020/6/16
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     public BaseOutput<CustomerMeter> updateCustomerMeter(CustomerMeterDto customerMeterDto) {
         CustomerMeter customerMeter = new CustomerMeter();
 
@@ -176,7 +177,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      * @date   2020/6/16
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     public BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id) {
         // 先查询是否还存在该用户表关系
         CustomerMeter customerMeter = this.getActualDao().getMeterById(id);
@@ -207,7 +208,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      * @date   2020/6/28
      */
     @Override
-    public CustomerMeterDto getBindInfoByMeterId(Long meterId) {
+    public CustomerMeterDto getBindInfoByMeterId(Long meterId) throws Exception {
         CustomerMeterDto customerMeterDto = new CustomerMeterDto();
 
         CustomerMeter customerMeterInfo = this.getActualDao().getBindInfoByMeterId(meterId);
@@ -222,7 +223,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
 
         customerMeterDto.setLastAmount(lastAmount);
 
-        return null;
+        return customerMeterDto;
     }
 
     /**

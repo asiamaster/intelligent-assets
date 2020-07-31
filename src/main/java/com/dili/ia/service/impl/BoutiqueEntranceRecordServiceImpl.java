@@ -96,7 +96,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/7/13
      */
     @Override
-    public BoutiqueEntranceRecordDto getBoutiqueEntranceDtoById(Long id) {
+    public BoutiqueEntranceRecordDto getBoutiqueEntranceDtoById(Long id){
         BoutiqueEntranceRecordDto boutiqueEntranceRecordDto = new BoutiqueEntranceRecordDto();
 
         // 不联表查询，先查询精品停车数据
@@ -260,7 +260,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/7/13
      */
     @Override
-    public BaseOutput<BoutiqueEntranceRecord> forceLeave(Long id, UserTicket userTicket) {
+    public BaseOutput<BoutiqueEntranceRecord> forceLeave(Long id, UserTicket userTicket) throws Exception {
 
         BoutiqueEntranceRecord recordInfo = this.get(id);
         if(recordInfo == null){
@@ -447,7 +447,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     /**
      * 修改交费单的状态（作废交费单）
      */
-    private void invalidOrders(BoutiqueEntranceRecord record, UserTicket userTicket){
+    private void invalidOrders(BoutiqueEntranceRecord record, UserTicket userTicket) throws Exception {
         List<BoutiqueFeeOrderDto> orderDtoList=boutiqueFeeOrderService.listByRecordId(record.getId());
         if(orderDtoList != null && orderDtoList.size()>0){
             orderDtoList.stream().filter(feeOrderDto -> feeOrderDto.getState().equals(BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode())).forEach(feeOrderDto -> {
