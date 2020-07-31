@@ -38,7 +38,7 @@
             $('[name="customerCellphone"]').val(suggestion.customerCellphone);
             $('[name="customerName"]').val(suggestion.customerName);
             $('[name="customerId"]').val(suggestion.customerId);
-            $('[name="price"]').val(suggestion.price);
+            $('[name="price"]').val(suggestion.price/100);
             $('[name="meterId"]').val(suggestion.meterId);
             $.ajax({
                 type: "post",
@@ -158,6 +158,9 @@
         })
         _formData.businessChargeItems = businessChargeDtos;
 
-        return JSON.stringify(_formData)
+        // 金钱乘以100
+        bui.util.yuanToCentForMoneyEl(_formData);
+
+        return JSON.stringify(_formData);
     }
 </script>

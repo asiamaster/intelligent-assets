@@ -22,6 +22,7 @@
     <result column="valid_period" jdbcType="INTEGER" property="validPeriod" />
     <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="toll_amount" jdbcType="BIGINT" property="tollAmount" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
@@ -46,7 +47,7 @@
     -->
     id, create_time, modify_time, code, license_type, license_number, customer_id, customer_name, 
     customer_cellphone, certificate_number, department_id, department_name, car_number, 
-    car_type, model, start_time, end_time, amount, state, creator_id, creator, submitter_id, 
+    car_type, valid_period, start_time, end_time, toll_amount, amount, state, creator_id, creator, submitter_id,
     submitter, submit_time, withdraw_operator_id, withdraw_operator, withdraw_time, canceler_id, 
     canceler, cancel_time, notes, market_id, market_code, version
   </sql>
@@ -104,8 +105,8 @@
       <if test="carType != null">
         car_type = #{carType,jdbcType=INTEGER},
       </if>
-      <if test="model != null">
-        model = #{model,jdbcType=INTEGER},
+      <if test="validPeriod != null">
+        valid_period = #{validPeriod,jdbcType=INTEGER},
       </if>
       <if test="startTime != null">
         start_time = #{startTime,jdbcType=TIMESTAMP},
@@ -161,4 +162,42 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="listPassports" parameterType="com.dili.ia.domain.dto.PassportDto" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List" />
+    from
+        passport
+    <where>
+        <if test="licenseType != null">
+          and license_type = #{licenseType,jdbcType=INTEGER}
+        </if>
+        <if test="state != null">
+        and state = #{state,jdbcType=INTEGER}
+        </if>
+        <if test="startTimeQuery != null">
+          and create_time  <![CDATA[ >= ]]> #{startTimeQuery}
+        </if>
+        <if test="endTimeQuery != null">
+          and create_time  <![CDATA[ <= ]]> #{endTimeQuery}
+        </if>
+        <if test="keyword != null and keyword != ''">
+          and (
+          license_number like concat('', #{keyword}, '%')
+          or car_number like concat('', #{keyword}, '%')
+          or customer_name like concat('', #{keyword}, '%')
+          )
+        </if>
+    </where>
+
+  </select>
+
+  <select id="getPassportByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List" />
+    from
+        passport
+    where
+        code = #{code}
+  </select>
 </mapper>

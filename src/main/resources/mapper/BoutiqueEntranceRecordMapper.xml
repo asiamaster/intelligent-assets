@@ -126,7 +126,8 @@
         bfo.state as state,
         ber.customer_id as customerId,
         ber.customer_name as customerName,
-        ber.customer_cellphone as customerCellphone
+        ber.customer_cellphone as customerCellphone,
+        ber.certificate_number as certificateNumber
     from
         boutique_fee_order as bfo
     left join boutique_entrance_record ber on ber.id = bfo.record_id

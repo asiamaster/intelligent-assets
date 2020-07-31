@@ -8,10 +8,10 @@ package com.dili.ia.glossary;
  */
 public enum PassportStateEnum {
     CREATED(1, "已创建"),
-    SUBMITTED_PAY(2, "已提交"),
+    SUBMITTED(2, "已提交"),
     CANCELLED(3, "已取消"),
     NOT_START(4, "未开始"),
-    IN_FORCE(5, "未开始"),
+    IN_FORCE(5, "已生效"),
     SUBMITTED_REFUND(6, "退款中"),
     REFUNDED(7, "已退款"),
     EXPIRED(8, "已到期"),

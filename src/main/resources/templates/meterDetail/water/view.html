@@ -5,77 +5,69 @@
             <div class="row row-cols-4" >
                 <div class="form-group col">
                     <label for="code">单号<i class="red">*</i></label>
-                    <input type="text" class="form-control" name="code" value="${meterDetail.code}" disabled />
+                    <input type="text" class="form-control" name="code" value="${meterDetail.code}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="state">状态</label>
-                    <select id="state"  name="state" class="form-control" disabled></select>
+                    <select id="state"  name="state" class="form-control" readonly></select>
                     <#bcomboProvider _log="状态" _id="state" _provider="meterDetailStateProvider" _value="${meterDetail.state!}"/>
                 </div>
                 <div class="form-group col">
                     <label for="">操作员<i class="red">*</i></label>
-                    <input type="text" class="form-control" name="creator" value="${meterDetail.creator}" disabled />
+                    <input type="text" class="form-control" name="creator" value="${meterDetail.creator}" readonly />
                 </div>
                 <div class="form-group col col">
                     <label for="">创建日期</label>
-                    <input type="text" class="form-control" value="${meterDetail.createTime!,localDateTimeFormat='yyyy-MM-dd'}" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="">收费员<i class="red">*</i></label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.code}" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="">交费日期<i class="red">*</i></label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.code}" disabled />
+                    <input type="text" class="form-control" value="${meterDetail.createTime!,localDateTimeFormat='yyyy-MM-dd'}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">截止月份<i class="red">*</i></label>
-                    <input type="text" class="form-control laymonth" value="${meterDetail.usageTime!,localDateTimeFormat='yyyy-MM'}" name="" disabled />
+                    <input type="text" class="form-control laymonth" value="${meterDetail.usageTime!,localDateTimeFormat='yyyy-MM'}" name="" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">表编号<i class="red">*</i></label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.number}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.number}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="assetsType">类别</label>
-                    <select id="assetsType"  name="assetsType" class="form-control" disabled></select>
+                    <select id="assetsType"  name="assetsType" class="form-control" readonly></select>
                     <#bcomboProvider _log="状态" _id="assetsType" _provider="assetsTypeProvider" _value="${meterDetail.assetsType!}"/>
                 </div>
                 <div class="form-group col">
                     <label for="">表地址</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.assetsName}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.assetsName}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">部门</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.departmentName}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.departmentName}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">手机号码</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.customerCellphone}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.customerCellphone}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">客户名称</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.customerName}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.customerName}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">上期指数</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.lastAmount}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.lastAmount}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">本期指数<i class="red">*</i></label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.thisAmount}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.thisAmount}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">用水量</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.usageAmount}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.usageAmount}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">单价<i class="red">*</i></label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.price}" disabled />
+                    <input type="text" class="form-control" name="" value="<#centToYuan value='${meterDetail.price}'/>" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">水费</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.receivable}" disabled />
+                    <input type="text" class="form-control" name="" value="<#centToYuan value='${meterDetail.receivable}'/>" readonly />
                 </div>
 
 				<%
@@ -89,19 +81,19 @@
 
                 <div class="form-group col">
                     <label for="">合金金额</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.amount}" disabled />
+                    <input type="text" class="form-control" name="" value="<#centToYuan value='${meterDetail.amount}'/>" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">抄表日期</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.recordTime,localDateTimeFormat='yyyy-MM-dd'}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.recordTime,localDateTimeFormat='yyyy-MM-dd'}" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="">抄表员</label>
-                    <input type="text" class="form-control" name="" value="${meterDetail.recorderName}" disabled />
+                    <input type="text" class="form-control" name="" value="${meterDetail.recorderName}" readonly />
                 </div>
                 <div class="form-group col-12">
                     <label for="notes">备注</label>
-                    <textarea id="notes" class="form-control" name="" rows="2" maxlength="100" value="${meterDetail.notes}" disabled></textarea>
+                    <textarea id="notes" class="form-control" name="" rows="2" maxlength="100" value="${meterDetail.notes}" readonly></textarea>
                 </div>
             </div>
 

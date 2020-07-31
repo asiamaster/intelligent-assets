@@ -139,10 +139,10 @@ public class MeterDetailController {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(id);
-            businessLogQueryInput.setBusinessType(LogBizTypeConst.UTILITIES);
-            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-            if(businessLogOutput.isSuccess()){
-                modelMap.put("logs",businessLogOutput.getData());
+            businessLogQueryInput.setBusinessType(LogBizTypeConst.WATER_ELECTRICITY_CODE);
+            BaseOutput list = businessLogRpc.list(businessLogQueryInput);
+            if(list.isSuccess()){
+                modelMap.put("logs",list.getData());
             }
         }catch (Exception e){
             logger.error("日志服务查询异常",e);
@@ -213,7 +213,7 @@ public class MeterDetailController {
      * @return 是否成功
      * @date   2020/6/28
      */
-    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput insert(@RequestBody MeterDetailDto meterDetailDto) {
 
@@ -238,7 +238,7 @@ public class MeterDetailController {
      * @return 是否成功
      * @date   2020/7/6
      */
-    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(String ids) {
         List<Long> list = Arrays.stream(ids.split(",")).map(Long::valueOf)
@@ -257,13 +257,38 @@ public class MeterDetailController {
     }
 
     /**
+     * 全部提交水电费单(生缴费单和结算单)
+     *
+     * @param
+     * @return 是否成功
+     * @date   2020/7/29
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/submitAll.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput submitAll(Integer metertype) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
+        BaseOutput<List<MeterDetailDto>> baseOutput = meterDetailService.submitAll(userTicket, metertype);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()){
+            List<MeterDetailDto> meterDetailList = baseOutput.getData();
+            if (meterDetailList != null && meterDetailList.size() > 0) {
+                meterDetailList.forEach(meterDetail -> LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null));
+            }
+        }
+
+        return baseOutput;
+    }
+
+    /**
      * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)
      *
      * @param  id
      * @return 是否成功
      * @date   2020/7/6
      */
-    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
 
@@ -287,7 +312,7 @@ public class MeterDetailController {
      * @return 是否成功
      * @date   2020/7/6
      */
-    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
 
@@ -311,7 +336,7 @@ public class MeterDetailController {
      * @return 是否成功
      * @date   2020/6/29
      */
-    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(@RequestBody MeterDetailDto meterDetailDto) {
 
@@ -347,21 +372,21 @@ public class MeterDetailController {
      * @return BaseOutput
      * @date   2020/7/17
      */
-    @RequestMapping(value="/getCost.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.UTILITIES, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput getCost(@RequestBody MeterDetailDto meterDetailDto) {	        //throw new BusinessException("2000", "errorCode");
-        BaseOutput baseOutput = BaseOutput.success();
-
-        try {
-            baseOutput.setData(meterDetailService.getCost(meterDetailDto));
-        }catch (BusinessException e) {
-            logger.error("费用{}计算异常！",meterDetailDto.getCode(), e);
-            return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
-        }catch (Exception e) {
-            logger.error("费用{}计算异常！",meterDetailDto.getCode(), e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
-        }
-
-        return baseOutput;
-    }
+//    @RequestMapping(value="/getCost.action", method = {RequestMethod.GET, RequestMethod.POST})
+//    public @ResponseBody BaseOutput getCost(@RequestBody MeterDetailDto meterDetailDto) {
+//        //throw new BusinessException("2000", "errorCode");
+//        BaseOutput baseOutput = BaseOutput.success();
+//
+//        try {
+//            baseOutput.setData(meterDetailService.getCost(meterDetailDto));
+//        }catch (BusinessException e) {
+//            logger.error("费用{}计算异常！",meterDetailDto.getCode(), e);
+//            return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+//        }catch (Exception e) {
+//            logger.error("费用{}计算异常！",meterDetailDto.getCode(), e);
+//            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+//        }
+//
+//        return baseOutput;
+//    }
 }

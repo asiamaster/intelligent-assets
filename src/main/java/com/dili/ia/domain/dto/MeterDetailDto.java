@@ -49,6 +49,7 @@ public class MeterDetailDto extends MeterDetail {
      */
     private String assetsType;
 
+
     /**
      * 对应编号,名称(表地址)
      */
@@ -90,11 +91,15 @@ public class MeterDetailDto extends MeterDetail {
     private Long sharedAmount;
 
 
-    /**
-     * 收费员、缴费日期
-     */
+    private String UsageMonth;
 
+    public String getUsageMonth() {
+        return UsageMonth;
+    }
 
+    public void setUsageMonth(String usageMonth) {
+        UsageMonth = usageMonth;
+    }
 
     public List<BusinessChargeItem> getBusinessChargeItems() {
         return businessChargeItems;

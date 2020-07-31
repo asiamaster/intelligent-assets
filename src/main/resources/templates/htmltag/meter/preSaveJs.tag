@@ -47,10 +47,12 @@
 
         //没有id就新增
         if (_formData.id == null || _formData.id == "") {
-            debugger
+            // 金钱乘以100
+            bui.util.yuanToCentForMoneyEl(_formData);
             _url = "${contextPath}/meter/add.action";
         } else {//有id就修改
-            debugger
+            // 金钱乘以100
+            bui.util.yuanToCentForMoneyEl(_formData);
             _url = "${contextPath}/meter/update.action";
         }
         $.ajax({

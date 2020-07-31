@@ -76,7 +76,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return BaseOutput
      * @date   2020/7/14
      */
-    BaseOutput<EarnestOrder> settlementDealHandler(SettleOrder settleOrder);
+    BaseOutput<BoutiqueFeeOrder> settlementDealHandler(SettleOrder settleOrder);
 
     /**
      * 打印票据
@@ -97,5 +97,12 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      */
     void refund(BoutiqueRefundDto boutiqueInRefundDto);
 
+    /**
+     * 根据code获取相关数据
+     *
+     * @param  code
+     * @return
+     * @date   2020/7/30
+     */
     BoutiqueFeeOrderDto getBoutiqueAndOrderByCode(String code);
 }

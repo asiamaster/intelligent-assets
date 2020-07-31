@@ -169,6 +169,7 @@
         md.usage_amount,
         md.receivable,
         md.amount,
+        md.amount - md.receivable as sharedAmount,
         md.creator_dep_id,
         md.notes,
         md.submitter_id,
@@ -212,7 +213,7 @@
      </if>
      <if test="keyword != null and keyword != ''">
           and (
-          m.number =  #{keyword}
+          m.number like concat('', #{keyword}, '%')
           or md.code like concat('', #{keyword}, '%')
           or md.customer_name like concat('', #{keyword}, '%')
           )
@@ -399,7 +400,7 @@
         meter_detail md
     LEFT JOIN meter m on md.meter_id = m.id
     WHERE
-        md.code = #{code}
+        md.id = #{id}
   </select>
 
     <select id="listMeterDetailByUnPayBusiness" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">
@@ -411,5 +412,17 @@
             meter_id = #{meterId}
         AND
             state IN (#{status})
+    </select>
+
+    <select id="listByStateCreatedAndType" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">
+        SELECT DISTINCT
+            md.id
+        FROM
+            meter_detail as md
+        left join meter as m on md.meter_id = m.id
+        WHERE
+            md.state = #{state}
+        and
+            m.type = #{type}
     </select>
 </mapper>

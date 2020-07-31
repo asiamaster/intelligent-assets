@@ -1,7 +1,9 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.service.MeterDetailService;
+import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
@@ -37,12 +39,12 @@ public class MeterDetailApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType="utilities", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
-            BaseOutput<EarnestOrder> output = meterDetailService.settlementDealHandler(settleOrder);
+            BaseOutput<MeterDetail> output = meterDetailService.settlementDealHandler(settleOrder);
             if (output.isSuccess()){
                 //记录业务日志
                 LoggerUtil.buildLoggerContext(output.getData().getId(), output.getData().getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), output.getData().getMarketId(), null);
@@ -63,7 +65,7 @@ public class MeterDetailApi {
      * @param orderCode
      * @return
      */
-    @BusinessLogger(businessType="utilities", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/queryPrintData/meter_detail", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, Integer reprint){
         try{

@@ -57,11 +57,11 @@
                 </div>
                 <div class="form-group col">
                     <label for="price">单价<i class="red">*</i></label>
-                    <input type="text" class="form-control" id="price" name="price" readonly />
+                    <input type="text" class="form-control floatReserve money" id="price" name="price" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="receivable">水费</label>
-                    <input type="text" class="form-control" id="receivable" name="receivable" readonly />
+                    <input type="text" class="form-control floatReserve money" id="receivable" name="receivable" readonly />
                 </div>
 
                 <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
@@ -75,7 +75,7 @@
 
                 <div class="form-group col">
                     <label for="amount">合计金额</label>
-                    <input type="text" class="form-control" id="amount" name="amount" readonly />
+                    <input type="text" class="form-control floatReserve money" id="amount" name="amount" readonly />
                 </div>
                 <div class="form-group col">
                     <label for="recordTime">抄表日期</label>

@@ -66,7 +66,7 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * @return MeterDetailDto
      * @date   2020/7/10
      */
-    MeterDetailDto getMeterDetailByCode(String code);
+    MeterDetailDto getMeterDetailByCode(Long id);
 
     /**
      * 根据 code 查询实体
@@ -76,4 +76,13 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * @date   2020/7/10
      */
     List<MeterDetailDto> listMeterDetailByUnPayBusiness(MeterDetailDto meterDetailDto);
+
+    /**
+     * 查询所有未提交的水电费单
+     *
+     * @param  meterDetailQuery
+     * @return List
+     * @date   2020/7/29
+     */
+    List<MeterDetailDto> listByStateCreatedAndType(MeterDetailDto meterDetailQuery);
 }

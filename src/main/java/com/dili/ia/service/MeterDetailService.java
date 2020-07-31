@@ -1,6 +1,5 @@
 package com.dili.ia.service;
 
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.PrintDataDto;
@@ -89,13 +88,23 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
     BaseOutput<List<MeterDetail>> submit(List<Long> id, UserTicket userTicket);
 
     /**
+     * 全部提交水电费单(生缴费单和结算单)
+     *
+     * @param
+     * @param metertype
+     * @return 是否成功
+     * @date   2020/7/29
+     */
+    BaseOutput<List<MeterDetailDto>> submitAll(UserTicket userTicket, Integer metertype);
+
+    /**
      * 缴费回调
      *
      * @param  settleOrder
      * @return
      * @date   2020/7/6
      */
-    BaseOutput<EarnestOrder> settlementDealHandler(SettleOrder settleOrder);
+    BaseOutput<MeterDetail> settlementDealHandler(SettleOrder settleOrder);
 
     /**
      * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)

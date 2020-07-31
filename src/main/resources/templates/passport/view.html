@@ -1,0 +1,134 @@
+<#bs4Body>
+
+<div class="container-fluid">
+    <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.passport'/>">
+    <form id="saveForm" role="form" novalidate>
+        <input type="hidden" name="id" value="${passport.id!}">
+        <input type="hidden" name="version" value="${passport.version!}">
+
+
+        <div class="breadcrumb" >
+            客户信息
+        </div>
+        <div class="row row-cols-4 collapse show" id="customerInfo">
+            <div class="form-group col">
+                <label for="customerName">客户名称<i class="red">*</i></label>
+                <input type="text" class="form-control isMobile" id="customerName" name="customerName"  value="${passport.customerName}" readonly />
+            </div>
+            <div class="form-group col">
+                <label for="certificateNumber">证件号码<i class="red">*</i></label>
+                <input type="text" class="form-control isMobile" id="certificateNumber" name="certificateNumber"  value="${passport.certificateNumber}" readonly />
+            </div>
+            <div class="form-group col">
+                <label for="">联系电话<i class="red">*</i></label>
+                <input type="text" class="form-control isMobile" id="customerCellphone" name="customerCellphone"  value="${passport.customerCellphone}" readonly />
+            </div>
+            <div class="form-group col">
+                <label for="">性别</label>
+                <select name="" id="" readonly=""></select>
+            </div>
+        </div>
+
+        <div class="breadcrumb">
+            业务信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#otherInfo" aria-expanded="true" aria-controls="otherInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+        </div>
+        <div class="row row-cols-4 collapse show" id="otherInfo">
+            <div class="form-group col">
+                <label for="departmentId">业务所属部门<i class="red">*</i></label>
+                <select id="departmentId"  name="departmentId" class="form-control" readonly></select>
+                <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _value="${passport.departmentId!}"/>
+            </div>
+            <div class="form-group col">
+                <label for="licenseType">证件类型<i class="red">*</i></label>
+                <select id="licenseType"  name="licenseType" class="form-control" readonly></select>
+                <#bcomboProvider _id="licenseType" _provider="passportTypeProvider" _value="${passport.licenseType!}"/>
+            </div>
+
+            <div class="form-group col">
+                <label for="carType">运营车型<i class="red">*</i></label>
+                <select id="carType"  name="carType" class="form-control" readonly></select>
+                <#bcomboProvider _id="carType" _provider="authDepartmentProvider" _value="${passport.carType!}"/>
+            </div>
+
+            <div class="form-group col">
+                <label for="carNumber">车号<i class="red">*</i></label>
+                <input type="text" id="carNumber" name="carNumber" class="form-control" value="${passport.carNumber!}" readonly>
+            </div>
+            <div class="form-group col">
+                <label for="validPeriod">有效期<i class="red">*</i></label>
+                <select id="validPeriod"  name="validPeriod" class="form-control" readonly></select>
+                <#bcomboProvider _id="validPeriod" _provider="passportPeriodProvider" _value="${passport.validPeriod!}"/>
+            </div>
+            <div class="form-group col">
+                <label for="startTime">开始日期<i class="red">*</i></label>
+                <input type="text" id="startTime" name="startTime" class="form-control laydate laystart" value="${passport.startTime!,localDateTimeFormat='yyyy-MM-dd'}" readonly>
+            </div>
+            <div class="form-group col">
+                <label for="endTime">结束日期<i class="red">*</i></label>
+                <input type="text" id="endTime" name="endTime" class="form-control laydate layend" value="${passport.endTime!,localDateTimeFormat='yyyy-MM-dd'}" readonly>
+            </div>
+            <div class="form-group col">
+                <label for="tollAmount" class="">通行费<i class="red">*</i></label>
+                <input id="tollAmount" type="number" class="form-control floatReserve money" name="tollAmount" range="0 9999999.99" value="<#centToYuan value='${passport.tollAmount}'/>" readonly />
+            </div>
+
+        </div>
+
+        <div class="breadcrumb">
+            金额信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+        </div>
+        <div class="row  row-cols-4 collapse show" id="moneyInfo">
+            <div class="form-group col">
+                <label for="amount" class="">合计金额<i class="red">*</i></label>
+                <input id="amount" type="number" class="form-control floatReserve money"name="amount" range="0 9999999.99" value="<#centToYuan value='${passport.amount}'/>" readonly />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-8">
+                <label for="notes">备注</label>
+                <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100" value="${passport.notes!}" readonly></textarea>
+            </div>
+        </div>
+
+        <%if(isNotEmpty(logs) && logs.~size>0){ %>
+                <div class="breadcrumb">
+                    业务记录
+                    <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#recordInfo" aria-expanded="true" aria-controls="recordInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+                </div>
+                <div class="collapse" id="recordInfo">
+                    <table data-toggle="table">
+                        <thead>
+                        <tr>
+                            <th data-align="center">时间</th>
+                            <th data-align="center">操作</th>
+                            <th data-align="center">详情</th>
+                            <th data-align="center">补充信息</th>
+                            <th data-align="center">工作员</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%
+                        for(log in logs){%>
+                        <tr>
+                            <td class="text-center align-middle" >${log.createTime!}</td>
+                            <td class="text-center align-middle" >${log.operationTypeText!}</td>
+                            <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.content!}" >${log.content!}</td>
+                            <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.notes!}" >${log.notes!}</td>
+                            <td class="text-center align-middle" >${log.operatorName!}</td>
+                        </tr>
+                        <% }%>
+                        </tbody>
+                    </table>
+                </div>
+                <% }%>
+
+    </form>
+</div>
+
+</#bs4Body>
+
+<#js_customerAutocompleteJs/>
+
+<#meterDetail_preSaveJs />

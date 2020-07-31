@@ -1,0 +1,128 @@
+<#bs4Body>
+
+<div class="container-fluid">
+    <#bs4nav>
+    <form id="queryForm" role="form" >
+            <div class="row row-cols-6">
+                <div class="form-group col">
+                    <label for="licenseType">证件类型<i class="red">*</i></label>
+                    <select id="licenseType"  name="licenseType" class="form-control"></select>
+                    <#bcomboProvider _id="licenseType" _provider="passportTypeProvider"/>
+                </div>
+
+                <div class="form-group col">
+                    <label for="state">状态</label>
+                    <select id="state"  name="state" class="form-control"></select>
+                    <#bcomboProvider _id="state" _provider="passportStateProvider"/>
+                </div>
+
+                <div class="form-group col-auto">
+                    <label for="createdStart">创建时间</label>
+                    <div class="form-inline">
+                        <div class="input-group">
+                            <input type="text" name="startTimeQuery" id="startTimeQuery" class="form-control laydatetime laystart" value="${startTimeQuery!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                            <div class="input-group-append">
+                                <label for="startTimeQuery" class="input-group-text fa fa-calendar"></label>
+                            </div>
+                        </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                        <div class="input-group" id="datetimepicker3">
+                            <input type="text" name="endTimeQuery" id="endTimeQuery" class="form-control date laydatetime layend" value="${endTimeQuery!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                            <div class="input-group-append">
+                                <label for="endTimeQuery" class="input-group-text fa fa-calendar"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group col">
+                    <label for="keyword">证件号/车号/客户名称</label>
+                    <input type="keyword" class="form-control" name="keyword" id="keyword" maxlength="50"/>
+                </div>
+                <div class="col-auto align-self-center mt-3">
+                    <button id="clear" type="button" class="btn btn-outline-primary mr-2" onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                    <button id="query" type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+                </div>
+            </div>
+        </form>
+    </#bs4nav>
+<hr>
+    <div class="row">
+        <div class="col-12">
+            <div id="toolbar" class="btn-group" role="group" aria-label="工具栏">
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
+                <#resource code="addPassport">
+                    <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
+                </#resource>
+                <#resource code="updatePassport">
+                    <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
+                </#resource>
+                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
+                <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
+                <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
+                <#resource code="refundPassport">
+                    <button id="btn_refund" type="button" class="btn btn-primary" onclick="openRefundHandler()"><i class="fa fa-ban"></i> 退款申请</button>
+                </#resource>
+                <button id="btn_print" type="button" class="btn btn-primary" onclick="openPrintHandler()"><i class="fa fa-ban"></i> 打印证件</button>
+            </div>
+            <table id="grid" data-toggle="table" data-title="表列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="10"
+                   data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                   data-click-to-select="true"  data-checkbox-header="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"  data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true" data-detail-view="true">
+                <thead>
+                <tr>
+                    <th data-checkbox="true"></th>
+                    <th data-field="code" data-sortable="true" data-align="center">
+                        单号
+                    </th>
+                    <th data-field="licenseType" data-sortable="true" data-align="center"  data-provider="passportTypeProvider" >
+                        证件类型
+                    </th>
+                    <th data-field="licenseNumber" data-sortable="true" data-align="center">
+                        证件号
+                    </th>
+                    <th data-field="departmentName" data-sortable="true" data-align="center">
+                        部门
+                    </th>
+                    <th data-field="customerName" data-sortable="true" data-align="center">
+                        客户名称
+                    </th>
+                    <th data-field="customerCellphone" data-sortable="true" data-align="center">
+                        联系电话
+                    </th>
+                    <th data-field="carType" data-sortable="true" data-align="center">
+                        车型
+                    </th>
+                    <th data-field="carNumber" data-sortable="true" data-align="center">
+                        车号
+                    </th>
+                    <th data-field="validPeriod" data-sortable="true" data-align="center" data-provider="passportPeriodProvider">
+                        有效期
+                    </th>
+                    <th data-field="startTime" data-sortable="true" data-align="center" data-provider="dateProvider">
+                        开始日期
+                    </th>
+                    <th data-field="endTime" data-sortable="true" data-align="center" data-provider="dateProvider">
+                        结束日期
+                    </th>
+                    <th data-field="state" data-sortable="true" data-align="center" data-provider="passportStateProvider">
+                        业务状态
+                    </th>
+                    <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                        合计金额
+                    </th>
+                    <th data-field="creator" data-sortable="true" data-align="center">
+                        创建人
+                    </th>
+                    <th data-field="createTime" data-sortable="true" data-align="center" data-provider="dateProvider">
+                        创建日期
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+</#bs4Body>
+
+<#passport_indexJs />
