@@ -542,6 +542,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
         refundOrder.setPayee(passportRefundOrderDto.getPayee());
         refundOrder.setPayeeId(passportRefundOrderDto.getPayeeId());
+        refundOrder.setRefundType(passportRefundOrderDto.getRefundType());
         refundOrder.setPayeeAmount(passportRefundOrderDto.getPayeeAmount());
         refundOrder.setRefundReason(passportRefundOrderDto.getRefundReason());
         refundOrder.setTotalRefundAmount(passportRefundOrderDto.getTotalRefundAmount());

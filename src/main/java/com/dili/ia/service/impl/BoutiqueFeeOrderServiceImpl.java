@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -182,6 +181,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
 
         refundOrder.setPayee(refundOrderDto.getPayee());
         refundOrder.setPayeeId(refundOrderDto.getPayeeId());
+        refundOrder.setRefundType(refundOrderDto.getRefundType());
         refundOrder.setPayeeAmount(refundOrderDto.getPayeeAmount());
         refundOrder.setRefundReason(refundOrderDto.getRefundReason());
         refundOrder.setTotalRefundAmount(refundOrderDto.getTotalRefundAmount());
