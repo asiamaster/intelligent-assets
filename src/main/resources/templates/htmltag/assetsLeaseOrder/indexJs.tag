@@ -665,7 +665,6 @@
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
         }
-        $('#btn_submit').attr('disabled', false);
     });
     /*****************************************自定义事件区 end**************************************/
 </script>
