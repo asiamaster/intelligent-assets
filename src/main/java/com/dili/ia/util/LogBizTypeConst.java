@@ -30,7 +30,8 @@ public class LogBizTypeConst {
 
     // 其它收费
     public static final String OTHER_FEE="other_fee";
-
+    // 劳务马甲
+    public static final String LABOR_VEST="labor_vest";
 
 
 }
