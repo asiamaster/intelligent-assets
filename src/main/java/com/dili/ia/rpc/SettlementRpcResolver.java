@@ -45,7 +45,7 @@ public class SettlementRpcResolver {
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
     
-    private String settlerHandlerUrl = "http://10.28.1.187:8381/api/labor/vest/settlementDealHandler";
+    //private String settlerHandlerUrl = "http://10.28.1.187:8381/api/labor/vest/settlementDealHandler";
 	
     /**
      * 【提交】结算单 --- 到结算中心
@@ -54,7 +54,7 @@ public class SettlementRpcResolver {
      */
     public SettleOrder submit(SettleOrderDto settleOrder){
     	settleOrder.setAppId(settlementAppId);
-    	settleOrder.setReturnUrl(settlerHandlerUrl);
+    	//settleOrder.setReturnUrl(settlerHandlerUrl);
     	LOG.info("结算成功!业务号:" + JSON.toJSONString(settleOrder));
     	BaseOutput<SettleOrder> result = settlementRpc.submit(settleOrder);
         if(!result.isSuccess()){
