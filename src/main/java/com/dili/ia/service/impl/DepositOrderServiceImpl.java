@@ -932,6 +932,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setCancelerId(userTicket.getId());
         depositOrder.setCanceler(userTicket.getRealName());
         depositOrder.setState(DepositOrderStateEnum.CANCELD.getCode());
+        //取消解除关联操作关系
+        depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
         if (this.updateSelective(depositOrder) == 0){
             LOG.error("保证金取消失败，取消更新状态记录数为 0，取消保证金ID【{}】", depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "取消失败！");
@@ -986,6 +988,14 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return BaseOutput.success();
     }
 
+    /**
+     * 老数据处理-- 新增保证金单
+     * 新增已交费的保证金单，
+     * 修改/新增保证金余额，
+     * 新增已交费的缴费单，
+     * 新增已结算的结算单；
+     *
+     * */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput oldDataHandler(List<DepositOrder> depositOrderList, UserTicket creatorTicket, UserTicket submiterTicket, UserTicket settlementTicket) {
@@ -1007,6 +1017,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 if (!output.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
                 }
+                //修改/新增保证金余额单 @TODO
+
                 //新增【已交费】的缴费单
                 PaymentOrder pb = this.buildPaymentOrder(submiterTicket, output.getData(), o.getAmount());
                 //【已交费】缴费单数据更新
@@ -1065,7 +1077,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setWaitAmount(0L);
         depositOrder.setPaidAmount(depositOrder.getAmount());
 
-        this.insertSelective(depositOrder);
+        Integer id = this.insertSelective(depositOrder);
         return BaseOutput.success().setData(depositOrder);
     }
 }
