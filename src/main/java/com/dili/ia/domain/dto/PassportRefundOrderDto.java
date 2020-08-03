@@ -56,7 +56,7 @@ public class PassportRefundOrderDto {
     /**
      * 退款类型
      */
-    private String refundType;
+    private Integer refundType;
 
     /**
      * 退款原因
@@ -148,11 +148,11 @@ public class PassportRefundOrderDto {
         this.payeeCertificateNumber = payeeCertificateNumber;
     }
 
-    public String getRefundType() {
+    public Integer getRefundType() {
         return refundType;
     }
 
-    public void setRefundType(String refundType) {
+    public void setRefundType(Integer refundType) {
         this.refundType = refundType;
     }
 }

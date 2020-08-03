@@ -272,9 +272,12 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
-            //劳务/入库单不审核可直接提交
+            //劳务/入库单不审核可直接提交,精品停车和通行证
             if(bizType == ${@com.dili.ia.glossary.BizTypeEnum.LABOR_VEST.getCode()}
-            || bizType == ${@com.dili.ia.glossary.BizTypeEnum.STOCKIN.getCode()}){
+            || bizType == ${@com.dili.ia.glossary.BizTypeEnum.STOCKIN.getCode()}
+            || bizType == ${@com.dili.ia.glossary.BizTypeEnum.BOUTIQUE_ENTRANCE.getCode()}
+            || bizType == ${@com.dili.ia.glossary.BizTypeEnum.PASSPORT.getCode()}
+            ){
             	$('#btn_submit').attr('disabled', false);
             }else{
 

@@ -14,6 +14,7 @@ import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.BoutiqueFeeOrderService;
 import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -22,12 +23,12 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -55,6 +56,9 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
 
     @Autowired
     private RefundOrderService refundOrderService;
+
+    @Autowired
+    private TransferDeductionItemService transferDeductionItemService;
 
     /**
      * 根据精品停车主键 recordId 查询缴费单列表
@@ -124,6 +128,14 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
         orderDtoInfo.setState(PassportStateEnum.SUBMITTED_REFUND.getCode());
         BeanUtils.copyProperties(orderDtoInfo, orderInfo);
         this.updateSelective(orderInfo);
+
+        // 转抵信息
+        if (CollectionUtils.isNotEmpty(refundDto.getTransferDeductionItems())) {
+            refundDto.getTransferDeductionItems().forEach(o -> {
+                o.setRefundOrderId(refundDto.getBusinessId());
+                transferDeductionItemService.insertSelective(o);
+            });
+        }
     }
 
     @Override
@@ -169,6 +181,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
 
         refundOrder.setPayee(refundOrderDto.getPayee());
         refundOrder.setPayeeId(refundOrderDto.getPayeeId());
+        refundOrder.setRefundType(refundOrderDto.getRefundType());
         refundOrder.setPayeeAmount(refundOrderDto.getPayeeAmount());
         refundOrder.setRefundReason(refundOrderDto.getRefundReason());
         refundOrder.setTotalRefundAmount(refundOrderDto.getTotalRefundAmount());
