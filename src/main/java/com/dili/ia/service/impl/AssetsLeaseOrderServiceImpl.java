@@ -1367,7 +1367,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 //            return null;
 //        }
         List<DepositOrder> depositOrders = new ArrayList<>();
-        dto.getLeaseOrderItems().stream().forEach(l -> {
+        dto.getLeaseOrderItems().stream().filter(o->o.getDepositMakeUpAmount() > 0).forEach(l -> {
             DepositOrder depositOrder = new DepositOrder();
             depositOrder.setCustomerId(dto.getCustomerId());
             depositOrder.setCustomerName(dto.getCustomerName());
