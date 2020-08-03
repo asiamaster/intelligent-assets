@@ -1,5 +1,6 @@
 package com.dili.ia.domain.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -50,13 +51,13 @@ public class LaborDto {
      * 开始日期
      */
     @NotNull(message = "开始日期不能为空")
-    private Date startDate;
+    private LocalDateTime startDate;
 
     /**
      * 结束日期
      */
     @NotNull(message = "结算日期不能为空")
-    private Date endDate;
+    private LocalDateTime endDate;
 
     /**
      * 备注
@@ -101,11 +102,17 @@ public class LaborDto {
      */
     @NotNull(message = "客户手机号不能为空")
     private String customerCellphone;
+    
+    /**
+     * 证件号
+     */
+    @NotNull(message = "客户证件号不能为空")
+    private String certificateNumber;
 
     /**
      * 客户性别
      */
-    private Byte customerSex;
+    private Integer customerSex;
 
     /**
      * 上下半年
@@ -206,19 +213,19 @@ public class LaborDto {
 		this.interval = interval;
 	}
 
-	public Date getStartDate() {
+	public LocalDateTime getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
+	public void setStartDate(LocalDateTime startDate) {
 		this.startDate = startDate;
 	}
 
-	public Date getEndDate() {
+	public LocalDateTime getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
+	public void setEndDate(LocalDateTime endDate) {
 		this.endDate = endDate;
 	}
 
@@ -286,11 +293,11 @@ public class LaborDto {
 		this.customerCellphone = customerCellphone;
 	}
 
-	public Byte getCustomerSex() {
+	public Integer getCustomerSex() {
 		return customerSex;
 	}
 
-	public void setCustomerSex(Byte customerSex) {
+	public void setCustomerSex(Integer customerSex) {
 		this.customerSex = customerSex;
 	}
 
@@ -393,7 +400,12 @@ public class LaborDto {
 	public void setActionType(String actionType) {
 		this.actionType = actionType;
 	}
-	
-	
-	
+
+	public String getCertificateNumber() {
+		return certificateNumber;
+	}
+
+	public void setCertificateNumber(String certificateNumber) {
+		this.certificateNumber = certificateNumber;
+	}
 }

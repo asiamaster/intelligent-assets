@@ -98,7 +98,7 @@ public class LaborController {
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessCode(code);
             businessLogQueryInput.setBusinessType(LogBizTypeConst.STOCK);
-            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            BaseOutput<BusinessLog> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if(businessLogOutput.isSuccess()){
                 modelMap.put("logs",businessLogOutput.getData());
             }
