@@ -32,7 +32,7 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 	
 	@Override
 	public BaseOutput submitHandler(RefundOrder refundOrder) {
-		laborService.refundSubmitHandler(refundOrder);
+		//laborService.refundSubmitHandler(refundOrder);
 		return BaseOutput.success();
 	}
 

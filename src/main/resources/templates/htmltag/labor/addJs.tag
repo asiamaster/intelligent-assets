@@ -73,6 +73,15 @@ $(document).on('change', '#interval', function() {
 	changeEndDay($("#interval").val(),$('#startDate').val());
 });
 
+$(document).on('change', '.chargeItem', function() {
+	let total = 0;
+	$('#saveForm').find('.chargeItem').each(function(){
+		total = parseInt(total) + parseInt($(this).val());
+	})
+	$('#amount').val(total);
+});
+
+
 function changeEndDay(interval,date){
 	if(interval == 0){
 		$('#endDate').val(null);
