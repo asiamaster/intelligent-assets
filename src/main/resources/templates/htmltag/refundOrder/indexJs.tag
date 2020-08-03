@@ -302,31 +302,30 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
-            $('#btn_edit').attr('disabled', false);
 
             <%//摊位租赁退款单需要提交审批
             if(bizType=="1"){%>
-            //没有审批状态可以 提交审批，修改和取消
-            if(!approvalState){
-                $('#btn_approval').attr('disabled', false);
-                $('#btn_edit').attr('disabled', false);
-                $('#btn_cancel').attr('disabled', false);
-                return;
-            }
-            //待审批时可以 提交审批，修改和取消
-            if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}){
-                $('#btn_approval').attr('disabled', false);
-                $('#btn_edit').attr('disabled', false);
-                $('#btn_cancel').attr('disabled', false);
-            }
-            //审批中不允许修改、取消和提交付款
-            //审批通过后直接提交退款
-            //审批拒绝后，可以再次提交审批，修改和取消
-            else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVAL_DENIED.getCode()}){
-                $('#btn_approval').attr('disabled', false);
-                $('#btn_edit').attr('disabled', false);
-                $('#btn_cancel').attr('disabled', false);
-            }
+                //没有审批状态可以 提交审批，修改和取消
+                if(!approvalState){
+                    $('#btn_approval').attr('disabled', false);
+                    $('#btn_edit').attr('disabled', false);
+                    $('#btn_cancel').attr('disabled', false);
+                    return;
+                }
+                //待审批时可以 提交审批，修改和取消
+                if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}){
+                    $('#btn_approval').attr('disabled', false);
+                    $('#btn_edit').attr('disabled', false);
+                    $('#btn_cancel').attr('disabled', false);
+                }
+                //审批中不允许修改、取消和提交付款
+                //审批通过后直接提交退款
+                //审批拒绝后，可以再次提交审批，修改和取消
+                else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVAL_DENIED.getCode()}){
+                    $('#btn_approval').attr('disabled', false);
+                    $('#btn_edit').attr('disabled', false);
+                    $('#btn_cancel').attr('disabled', false);
+                }
             <%}else{%>
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);

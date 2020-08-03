@@ -94,9 +94,12 @@
         <th data-field="bizType" data-sortable="true" data-sort-name="biz_type" data-align="center" data-provider="bizTypeProvider">
             业务类型
         </th>
+        <%//摊位租赁退款单需要提交审批
+        if(bizType=="1"){%>
         <th data-field="approvalState" data-sortable="true" data-align="center" data-sort-name="approval_state" data-provider="approvalStateProvider">
             审批状态
         </th>
+        <%}%>
         <th data-field="customerName" data-sortable="true" data-align="center">
             客户名称
         </th>

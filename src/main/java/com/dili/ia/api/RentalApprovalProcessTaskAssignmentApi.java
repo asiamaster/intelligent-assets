@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 /**
  * 租赁审批流程任务分配接口
+ * BPMC的动态任务分配调用
  */
 @RestController
 @RequestMapping("/api/rentalApprovalProcessTaskAssignmentApi")
@@ -46,7 +47,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
      * @return
      */
     @PostMapping(value="/managerApprovalAssignment")
-    public BaseOutput<Assignment> managerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
+    public BaseOutput<Assignment> managerApprovalAssignment(TaskMapping taskMapping) {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
@@ -61,7 +62,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
      * @return
      */
     @PostMapping(value="/checkerApprovalAssignment")
-    public BaseOutput<Assignment> checkerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
+    public BaseOutput<Assignment> checkerApprovalAssignment(TaskMapping taskMapping) {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
@@ -77,7 +78,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
      * @return
      */
     @PostMapping(value="/viceGeneralManagerApprovalAssignment")
-    public BaseOutput<Assignment> viceGeneralManagerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
+    public BaseOutput<Assignment> viceGeneralManagerApprovalAssignment(TaskMapping taskMapping) {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
@@ -92,7 +93,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
      * @return
      */
     @PostMapping(value="/generalManagerApprovalAssignment")
-    public BaseOutput<Assignment> generalManagerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
+    public BaseOutput<Assignment> generalManagerApprovalAssignment(TaskMapping taskMapping) {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
@@ -112,7 +113,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
     }
 
     /**
-     * 构建异处理人分配
+     * 构建处理人分配
      * @return
      */
     private Assignment getHandlerAssignment(String handlerId){
