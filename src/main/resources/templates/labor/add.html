@@ -5,38 +5,13 @@
 		<input type="hidden" id="code" name="code" value="${labor.code!}" />
 		<input type="hidden" id="actionType" name="actionType" value="add" />
 		<div class="breadcrumb">
-		<%if(isNotEmpty(labor)){%>
-			 客户信息
-			 <%if(type == 'rename'){%>
+		 客户信息
+		<%if(isNotEmpty(labor) && type != 'remodel' && type != 'renew'){%>
 			 <a href="javascript:;" class="ml-2"
 			id="getCustomer">刷卡获取</a>
-			<% } %>
-			  <a href="javascript:;"
-				class="ml-auto" data-toggle="collapse" data-target="#customerInfo"
-				aria-expanded="true" aria-controls="customerInfo">收起 <i
-				class="fa fa-angle-double-up" aria-hidden="true"></i></a>
-				</div>
-				<div class="row row-cols-4 collapse show" id="customerInfo">
-					<div class="form-group col-4">
-						<label for="customerName">客户名称<i class="red">*</i></label> <input
-							type="hidden" class="" id="customerId" name="customerId"
-							value="${labor.customerId!}" readonly required /> <input
-							type="text" class="form-control rename" id="customerName"
-							name="customerName" value="${labor.customerName!}" 
-							required />
-					</div>
-		
-					<div class="form-group col-4">
-						<label for="">联系电话<i class="red">*</i></label> <input type="text"
-							class="form-control isMobile rename" id="customerCellphone"
-							name="customerCellphone" value="${labor.customerCellphone!}"
-							required />
-					</div>
-				</div>
-
-		<% } else {%>
-		 客户信息 <a href="javascript:;" class="ml-2"
-			id="getCustomer">刷卡获取</a> <a href="javascript:;" class="ml-auto"
+		<% } %>
+		 
+			<a href="javascript:;" class="ml-auto"
 			data-toggle="collapse" data-target="#customerInfo"
 			aria-expanded="true" aria-controls="customerInfo">收起 <i
 			class="fa fa-angle-double-up" aria-hidden="true"></i></a>
@@ -48,24 +23,28 @@
 						_hiddenDomainName="customerId" _displayDomainId="customerName"
 						_displayDomainName="customerName" _placeholder=""
 						_validatorMethod="isSelected"
-						_optionVariable="customerNameAutoCompleteOption" _queryParams="{organizationType:'individual'}" _required="true" />
+						_optionVariable="customerNameAutoCompleteOption" _value="${labor.customerId!}"  _text="${labor.customerName!}" _queryParams="{organizationType:'individual'}" _required="true" />
 				</div>
 			
 				<div class="form-group col">
 					<label for="_certificateNumber">证件号码<i class="red">*</i></label> <input
 						type="text" class="form-control" id="certificateNumber"
-						name="certificateNumber" required />
+						name="certificateNumber" value="${labor.certificateNumber!}" required readonly/>
 				</div>
 				<div class="form-group col">
-					<label for="">联系电话<i class="red">*</i></label> <input type="text"
-						class="form-control isMobile" id="customerCellphone"
-						name="customerCellphone" required />
-				</div>
+						<label for="">联系电话<i class="red">*</i></label> <input type="text"
+							class="form-control isMobile rename" id="customerCellphone"
+							name="customerCellphone" value="${labor.customerCellphone!}"
+							required />
+					</div>
 				<div class="form-group col">
-					<label for="">性别</label> <select name="" id=""></select>
+					<label for="">性别</label> <input type="text"
+							class="form-control" id="customerSex"
+							name="customerSex" value="${labor.customerSex!}"
+							required />
 				</div>
 			</div>
-		<% }%>
+		
 <div class="breadcrumb">
 	业务信息 <a href="javascript:;" class="ml-auto" data-toggle="collapse"
 		data-target="#otherInfo" aria-expanded="true"
@@ -96,7 +75,6 @@
 	<div class="form-group col">
 		<label for="departmentId">办理周期<i class="red">*</i></label> <select
 			id="interval" name="interval" class="form-control renew" required>
-			<option value="0">--请选择--</option>
 		</select>
 		<#bcomboProvider _id="interval" _value="${labor.interval!}"
 			_provider="dataDictionaryValueProvider"
@@ -105,13 +83,13 @@
 	<div class="form-group col">
 		<label for="startTime">开始日期<i class="red">*</i></label> <input
 			type="text" id="startDate" name="startDate"
-			class="form-control laydate laystart renew" value="${labor.startDate!}"
+			class="form-control laydate laystart renew" value="${labor.startDate!,localDateTimeFormat='yyyy-MM-dd'}"
 			required>
 	</div>
 	<div class="form-group col">
 		<label for="endTime">结束日期<i class="red">*</i></label> <input
 			type="text" id="endDate" name="endDate"
-			class="form-control laydate layend renew" value="${labor.endDate!}"
+			class="form-control laydate layend renew" value="${labor.endDate!,localDateTimeFormat='yyyy-MM-dd'}"
 			required>
 	</div>
 	

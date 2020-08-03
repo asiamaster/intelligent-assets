@@ -129,4 +129,12 @@ public interface LaborService extends BaseService<Labor, Long> {
 	 * @throws
 	 */
 	void settlementDealHandler(SettleOrder settleOrder);
+	
+	/**
+	 * 
+	 * @Title scanLaborVest
+	 * @Description 扫描过期,待生效单
+	 * @throws
+	 */
+	void scanLaborVest();
 }

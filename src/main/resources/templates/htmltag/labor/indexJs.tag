@@ -273,14 +273,38 @@
             });
     	} 
     }
+    
+    
+    /**
+     * 打开支付窗口
+     */
+    function openPrintHandler() {
+    	if(isSelectRow()){
+    		//获取选中行的数据
+    		let rows = _grid.bootstrapTable('getSelections');
+    		let selectedRow = rows[0];
+    		dia = bs4pop.dialog({
+    			title: '打印预览',//对话框title
+    			content: bui.util.HTMLDecode(template('printView', {selectedRow})), //对话框内容，可以是 string、element，$object
+    			width: '30%',//宽度
+    			height: '90%',//高度
+    			btns: [{label: '取消',className: 'btn btn-secondary',onClick(e){
+
+    			}
+    			}, {label: '确定',className: 'btn btn-primary',onClick(e){}
+    			}]
+    		});
+    	}
+    }
+
 
     //选中行事件
-    _grid.on('uncheck.bs.table', function (e, row, $element) {
+   /* _grid.on('uncheck.bs.table', function (e, row, $element) {
         currentSelectRowIndex = undefined;
-    });
+    });*/
 
     //选中行事件 -- 可操作按钮控制
-    /*_grid.on('check.bs.table', function (e, row, $element) {
+    _grid.on('check.bs.table', function (e, row, $element) {
         let state = row.$_state;
         if (state == ${@com.dili.ia.glossary.LaborStateEnum.CREATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
@@ -298,12 +322,41 @@
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_withdraw').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.LaborStateEnum.SUBMITTED_PAY.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.LaborStateEnum.NOT_STARTED.getCode()}
+        || state == ${@com.dili.ia.glossary.LaborStateEnum.IN_EFFECTIVE.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_print').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
+            $('#btn_renew').attr('disabled', false);
+            $('#btn_rename').attr('disabled', false);
+            $('#btn_remodel').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.LaborStateEnum.IN_RENAME.getCode()}
+        || state == ${@com.dili.ia.glossary.LaborStateEnum.IN_REMODEL.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.LaborStateEnum.RENAME.getCode()}
+        || state == ${@com.dili.ia.glossary.LaborStateEnum.REMODEL.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
         }
-    });*/
+        else if (state == ${@com.dili.ia.glossary.LaborStateEnum.SUBMITTED_REFUND.getCode()}
+        || state == ${@com.dili.ia.glossary.LaborStateEnum.REFUNDED.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.LaborStateEnum.EXPIRED.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+            $('#btn_add').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
+            $('#btn_renew').attr('disabled', false);
+        }
+    });
 
 </script>
 

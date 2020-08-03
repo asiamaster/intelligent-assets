@@ -37,7 +37,14 @@
     }
     // 提交保存
     function saveOrUpdateHandler(){
+    	let validator = $('#saveForm').validate({ignore:''})
+        if (!validator.form()) {
+            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+            $('.collapse:not(.show)').addClass('show');
+            return false;
+        }
     	let labor = buildFormData();
+    	
     	let url = "";
     	if(strIsNotEmpty(labor.code)){
     		url = "${contextPath}/labor/vest/update.action"
@@ -67,7 +74,7 @@
         });
     }
 
-$('#startDate').val(moment().format("YYYY-MM-DD"));
+
 
 $(document).on('change', '#interval', function() {
 	changeEndDay($("#interval").val(),$('#startDate').val());
@@ -103,11 +110,15 @@ laydate.render({
 
 $(function () {
 	let type = '${type!}';
+	
+	if(type != "update"){
+		$('#startDate').val(moment().format("YYYY-MM-DD"));
+	}
 	if(type != "update" && type != ""){
 		//根据操作类型判断可修改数据
 		$('#code').attr("name",type+"Code");
 		$('#actionType').val(type);
-		$('#saveForm').find('input,select').each(function(){
+		$('#saveForm').find('input').each(function(){
 			if(!$(this).hasClass(type)){
 				$(this).attr("readonly","readonly");
 				//$(this).attr("disabled","disabled");
@@ -118,6 +129,9 @@ $(function () {
 				$(this).attr("disabled","disabled");
 			}
 		})
+		if(type == "rename"){
+			$('#customerName').removeAttr("readonly");
+		}
 	}
 });
 

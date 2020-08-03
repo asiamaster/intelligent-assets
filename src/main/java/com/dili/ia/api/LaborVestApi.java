@@ -39,8 +39,6 @@ public class LaborVestApi {
 	 * @param settleOrder
 	 * @return
 	 */
-	// @BusinessLogger(businessType="stock_in", content="${code!}",
-	// operationType="pay", systemCode = "INTELLIGENT_ASSETS")
 	@RequestMapping(value = "/settlementDealHandler", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
 		try {
@@ -54,46 +52,18 @@ public class LaborVestApi {
 			return BaseOutput.failure("冷库结算回调异常！").setData(false);
 		}
 	}
-
-	/* *//**
-			 * 冷库结算票据打印
-			 * 
-			 * @param settleOrder
-			 * @return
-			 */
-	/*
-	@BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-	@RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.GET, RequestMethod.POST})
-	public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, String reprint){
-	 try{
-	     return BaseOutput.success().setData(stockInService.receiptPaymentData(orderCode, reprint));
-	 }catch (BusinessException e){
-	     LOG.error("冷库结算票据打印异常！", e);
-	     return BaseOutput.failure(e.getErrorMsg()).setData(false);
-	 }catch (Exception e){
-	     LOG.error("冷库结算票据打印异常！", e);
-	     return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
-	 }
-	}
 	
-	*//**
-		 * 冷库结算票据打印
-		 * 
-		 * @param settleOrder
-		 * @return
-		 *//*
-			@BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-			@RequestMapping(value="/queryPrintData/stock_out", method = {RequestMethod.GET, RequestMethod.POST})
-			public @ResponseBody BaseOutput<Boolean> queryStockOutPrintData(String orderCode, String reprint){
-			 try{
-			     return BaseOutput.success().setData(stockOutService.receiptStockOutData(orderCode, reprint));
-			 }catch (BusinessException e){
-			     LOG.error("冷库出库票据打印异常！", e);
-			     return BaseOutput.failure(e.getErrorMsg()).setData(false);
-			 }catch (Exception e){
-			     LOG.error("冷库出库票据打印异常！", e);
-			     return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
-			 }
-			}*/
+	/**
+	 * 
+	 * @Title scanEffective
+	 * @Description 定时任务扫描失效,待生效马甲单
+	 * @throws
+	 */
+	@RequestMapping(value = "/scanEffective", method = { RequestMethod.GET, RequestMethod.POST })
+	public void scanEffective() {
+		LOG.info("--马甲单定时任务开始--");
+		laborService.scanLaborVest();
+		LOG.info("--马甲单定时任务结束--");
+	}
 
 }

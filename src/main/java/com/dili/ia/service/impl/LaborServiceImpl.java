@@ -31,6 +31,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollectionUtil;
 import io.seata.spring.annotation.GlobalTransactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -323,12 +324,22 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		// 变更缴费单状态
 		paymentOrderService.updateSelective(paymentOrder);
 		Labor domain = new Labor();
-		if (LocalDateTime.now().isBefore(labor.getStartDate())) {
+		if (LocalDateTime.now().isAfter(labor.getStartDate())) {
 			update(domain, code, labor.getVersion(), LaborStateEnum.IN_EFFECTIVE);
 		} else {
 			update(domain, code, labor.getVersion(), LaborStateEnum.NOT_STARTED);
 		}
-
+		// 获取更名 更型单信息
+		//String oldCode = StringUtils.isNotEmpty(labor.getRenameCode())?labor.getRenameCode():labor.getRemodelCode();
+		if(StringUtils.isNotEmpty(labor.getRenameCode())) {
+			Labor reLabor = getLaborByCode(labor.getRenameCode());
+			Labor laborDomain = new Labor();
+			update(laborDomain, reLabor.getCode(), reLabor.getVersion(), LaborStateEnum.RENAME);
+		} else if (StringUtils.isNotEmpty(labor.getRemodelCode())) {
+			Labor reLabor = getLaborByCode(labor.getRemodelCode());
+			Labor laborDomain = new Labor();
+			update(laborDomain, reLabor.getCode(), reLabor.getVersion(), LaborStateEnum.RENAME);
+		}
 	}
 	
 	private Labor getLaborByCode(String code) {
@@ -398,4 +409,37 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		return laborDto;
 	}
 	
+	// 生效
+	private void reEffective() {
+		Labor condtion = new Labor();
+		condtion.setStartDate(LocalDate.now().atStartOfDay());
+		condtion.setState(LaborStateEnum.NOT_STARTED.getCode());
+		Labor domain = new Labor();
+		domain.setState(LaborStateEnum.IN_EFFECTIVE.getCode());
+		updateSelectiveByExample(domain, condtion);
+		
+	}
+	
+	// 过期
+	private void reExpire() {
+		Labor condtion = new Labor();
+		condtion.setEndDate(LocalDate.now().atStartOfDay());
+		Labor domain = new Labor();
+		domain.setState(LaborStateEnum.EXPIRED.getCode());
+		updateSelectiveByExample(domain, condtion);
+	}
+
+	@Override
+	public void scanLaborVest() {
+		try {
+			reEffective();
+		} catch (Exception e) {
+			LOG.error("生效订单扫描失败{}",LocalDateTime.now(),e.getMessage());
+		}
+		try {
+			reExpire();
+		} catch (Exception e) {
+			LOG.error("过期订单扫描失败{}",LocalDateTime.now(),e.getMessage());
+		}
+	}
 }

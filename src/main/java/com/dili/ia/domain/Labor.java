@@ -150,6 +150,9 @@ public class Labor extends BaseDomain {
      */
     @Column(name = "`customer_cellphone`")
     private String customerCellphone;
+    
+    @Column(name = "`certificate_number`")
+    private String certificateNumber;
 
     /**
      * 客户性别
@@ -1009,4 +1012,14 @@ public class Labor extends BaseDomain {
     public void setCreatorId(Long creatorId) {
         this.creatorId = creatorId;
     }
+
+	public String getCertificateNumber() {
+		return certificateNumber;
+	}
+
+	public void setCertificateNumber(String certificateNumber) {
+		this.certificateNumber = certificateNumber;
+	}
+    
+    
 }
