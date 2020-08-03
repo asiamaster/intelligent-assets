@@ -15,11 +15,11 @@
         <div class="row row-cols-4 collapse show" id="customerInfo">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
-                <#bautoCompleteProvider _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _optionVariable="customerNameAutoCompleteOption" _text="${passport.customerName!}" _required="true"/>
+                <#bautoCompleteProvider _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _optionVariable="customerNameAutoCompleteOption" _value="${passport.customerId!}" _text="${passport.customerName!}" _required="true"/>
             </div>
             <div class="form-group col">
-                <label for="_certificateNumber">证件号码<i class="red">*</i></label>
-                <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" _displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected" _optionVariable="certificateNumberAutoCompleteOption" _text="${passport.certificateNumber!}" _required="true"/>
+                <label for="certificateNumber">证件号码<i class="red">*</i></label>
+                <input type="text" class="form-control" id="certificateNumber" name="certificateNumber"  value="${passport.certificateNumber}" required />
             </div>
             <div class="form-group col">
                 <label for="">联系电话<i class="red">*</i></label>
@@ -97,10 +97,14 @@
         <div class="row">
             <div class="form-group col-8">
                 <label for="notes">备注</label>
-                <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100" value="${passport.notes!}"></textarea>
+                <input id="notes" class="form-control" name="notes" rows="1" maxlength="100" value="${passport.notes!}"/>
             </div>
         </div>
 
+        <div class="text-right btn-r-b">
+            <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
+            <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveOrUpdateHandler,1000,true)()" id="formSubmit">保存</button>
+        </div>
     </form>
 </div>
 
@@ -108,4 +112,4 @@
 
 <#js_customerAutocompleteJs/>
 
-<#meterDetail_preSaveJs />
+<#passport_preSaveJs />

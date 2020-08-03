@@ -88,7 +88,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     @Value("${settlement.app-id}")
     private Long settlementAppId;
 
-    private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/passport/settlementDealHandler";
+    private String settlerHandlerUrl = "http://10.28.1.59:8381/api/passport/settlementDealHandler";
 
     /**
      * 查询列表
@@ -152,6 +152,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
      */
     @Override
     public BaseOutput<Passport> updatePassport(PassportDto passportDto, UserTicket userTicket) throws Exception {
+        Passport passportParam = new Passport();
 
         Passport passportInfo = this.get(passportDto.getId());
         if (passportInfo == null) {
@@ -163,11 +164,11 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改");
         }
 
-        passportInfo.setModifyTime(LocalDateTime.now());
-        BeanUtils.copyProperties(passportDto, passportInfo);
-        passportInfo.setVersion(passportInfo.getVersion() + 1);
+        BeanUtils.copyProperties(passportDto, passportParam);
+        passportParam.setModifyTime(LocalDateTime.now());
+        passportParam.setVersion(passportInfo.getVersion() + 1);
 
-        if (this.updateSelective(passportInfo) == 0) {
+        if (this.updateSelective(passportParam) == 0) {
             return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
 
@@ -185,6 +186,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     @Override
     @GlobalTransactional
     public BaseOutput<Passport> submit(Long id, UserTicket userTicket) throws Exception {
+
         // 先查询通行证
         Passport passportInfo = this.get(id);
         if (passportInfo == null) {
@@ -196,12 +198,11 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
         }
 
-        // 修改水电费单状态为已提交，并且生成证件号
+        // 修改水电费单状态为已提交
         passportInfo.setState(PassportStateEnum.SUBMITTED.getCode());
         passportInfo.setSubmitterId(userTicket.getId());
         passportInfo.setSubmitTime(LocalDateTime.now());
         passportInfo.setSubmitter(userTicket.getRealName());
-
 
         if (this.updateSelective(passportInfo) == 0) {
             logger.info("多人提交通行证付款!");
@@ -315,11 +316,11 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         if (null == settleOrder){
             return BaseOutput.failure(ResultCode.PARAMS_ERROR, "回调参数为空！");
         }
-        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder paymentOrder = new PaymentOrder();
         //结算单code唯一
-        condition.setCode(settleOrder.getOrderCode());
-        condition.setBizType(BizTypeEnum.PASSPORT.getCode());
-        PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
+        paymentOrder.setCode(settleOrder.getOrderCode());
+        paymentOrder.setBizType(BizTypeEnum.PASSPORT.getCode());
+        PaymentOrder paymentOrderPO = paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null);
         Passport passportInfo = this.get(paymentOrderPO.getBusinessId());
         //如果已支付，直接返回
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) {
@@ -341,8 +342,11 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        // 修改通行证
+        // 修改通行证,生成证件号
         passportInfo.setModifyTime(LocalDateTime.now());
+        // TODO 证件号
+
+
         // 判断交费后状态
         if(passportInfo.getStartTime() != null && LocalDateTime.now().isBefore(passportInfo.getStartTime())){
             passportInfo.setState(PassportStateEnum.NOT_START.getCode());

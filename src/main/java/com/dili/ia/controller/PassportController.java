@@ -72,20 +72,34 @@ public class PassportController {
         Passport passport = passportService.get(id);
         modelMap.put("passport",passport);
 
-//        try{
-//            //日志查询
-//            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-//            businessLogQueryInput.setBusinessId(id);
-//            businessLogQueryInput.setBusinessType(LogBizTypeConst.PASSPORT);
-//            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-//            if(businessLogOutput.isSuccess()){
-//                modelMap.put("logs",businessLogOutput.getData());
-//            }
-//        }catch (Exception e){
-//            logger.error("日志服务查询异常",e);
-//        }
+        try{
+            //日志查询
+            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+            businessLogQueryInput.setBusinessId(id);
+            businessLogQueryInput.setBusinessType(LogBizTypeConst.PASSPORT);
+            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            if(businessLogOutput.isSuccess()){
+                modelMap.put("logs",businessLogOutput.getData());
+            }
+        }catch (Exception e){
+            logger.error("日志服务查询异常",e);
+        }
 
         return "passport/view";
+    }
+
+    /**
+     * 跳转到 查看 页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/print.html", method = RequestMethod.GET)
+    public String print(ModelMap modelMap, long id) {
+
+        Passport passport = passportService.get(id);
+        modelMap.put("passport",passport);
+
+        return "passport/print";
     }
 
     /**
@@ -170,7 +184,7 @@ public class PassportController {
      * @return
      * @date   2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(@RequestBody PassportDto passportDto) throws Exception {
 

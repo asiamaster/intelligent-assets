@@ -279,6 +279,7 @@
             || bizType == ${@com.dili.ia.glossary.BizTypeEnum.PASSPORT.getCode()}
             ){
             	$('#btn_submit').attr('disabled', false);
+                $('#btn_cancel').attr('disabled', false);
             }else{
 
                 //没有审批状态可以 提交审批，修改和取消
