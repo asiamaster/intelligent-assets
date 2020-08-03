@@ -3,7 +3,6 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
@@ -11,7 +10,6 @@ import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.MeterDetailStateEnum;
 import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
@@ -52,7 +50,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author:      xiaosa
@@ -129,9 +126,6 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         Passport passport = new Passport();
         BeanUtils.copyProperties(passportDto, passport);
 
-        // TODO 证件号
-
-
         // 生成通行证交费的 code
         String passportCode = uidRpcResolver.bizNumber(BizNumberTypeEnum.PASSPORT.getCode());
         passport.setVersion(0);
@@ -202,11 +196,13 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
         }
 
-        // 修改水电费单状态为已提交
+        // 修改水电费单状态为已提交，并且生成证件号
         passportInfo.setState(PassportStateEnum.SUBMITTED.getCode());
         passportInfo.setSubmitterId(userTicket.getId());
         passportInfo.setSubmitTime(LocalDateTime.now());
         passportInfo.setSubmitter(userTicket.getRealName());
+
+
         if (this.updateSelective(passportInfo) == 0) {
             logger.info("多人提交通行证付款!");
             return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");

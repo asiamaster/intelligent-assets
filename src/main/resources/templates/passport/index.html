@@ -5,9 +5,11 @@
     <form id="queryForm" role="form" >
             <div class="row row-cols-6">
                 <div class="form-group col">
-                    <label for="licenseType">证件类型<i class="red">*</i></label>
-                    <select id="licenseType"  name="licenseType" class="form-control"></select>
-                    <#bcomboProvider _id="licenseType" _provider="passportTypeProvider"/>
+                    <label for="licenseCode">证件类型<i class="red">*</i></label>
+                    <select id="licenseCode"  name="licenseType" class="form-control"></select>
+                    <#bcomboProvider _id="licenseCode" _value="${passport.licenseCode!}"
+                    _provider="dataDictionaryValueProvider"
+                    _queryParams='{dd_code:"passport_license_code", required:true}' />
                 </div>
 
                 <div class="form-group col">
@@ -74,7 +76,7 @@
                     <th data-field="code" data-sortable="true" data-align="center">
                         单号
                     </th>
-                    <th data-field="licenseType" data-sortable="true" data-align="center"  data-provider="passportTypeProvider" >
+                    <th data-field="licenseCode" data-sortable="true" data-align="center"  data-provider="dataDictionaryValueProvider" data-query-params='{dd_code:"passport_license_code", required:true}'>
                         证件类型
                     </th>
                     <th data-field="licenseNumber" data-sortable="true" data-align="center">
@@ -89,13 +91,13 @@
                     <th data-field="customerCellphone" data-sortable="true" data-align="center">
                         联系电话
                     </th>
-                    <th data-field="carType" data-sortable="true" data-align="center">
+                    <th data-field="carType" data-sortable="true" data-align="center" data-provider="dataDictionaryValueProvider" data-query-params='{dd_code:"passport_car_type", required:true}'>
                         车型
                     </th>
                     <th data-field="carNumber" data-sortable="true" data-align="center">
                         车号
                     </th>
-                    <th data-field="validPeriod" data-sortable="true" data-align="center" data-provider="passportPeriodProvider">
+                    <th data-field="validPeriod" data-sortable="true" data-align="center" data-provider="dataDictionaryValueProvider" data-query-params='{dd_code:"labor_interval", required:true}'>
                         有效期
                     </th>
                     <th data-field="startTime" data-sortable="true" data-align="center" data-provider="dateProvider">

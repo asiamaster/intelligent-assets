@@ -18,13 +18,15 @@
                     <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" _displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected" _optionVariable="certificateNumberAutoCompleteOption" _required="true"/>
                 </div>
                 <div class="form-group col">
-                    <label for="">联系电话<i class="red">*</i></label>
+                    <label for="customerCellphone">联系电话<i class="red">*</i></label>
                     <input type="text" class="form-control isMobile" id="customerCellphone" name="customerCellphone" required />
                 </div>
                 <div class="form-group col">
-                    <label for="">性别</label>
-                    <select name="" id=""></select>
+                    <label for="gender">性别<i class="red">*</i></label>
+                    <select id="gender"  name="gender"  class="form-control" required disabled ></select>
+                    <#bcomboProvider _id="gender" _provider="customerSexProvider"/>
                 </div>
+
             </div>
             <div class="breadcrumb">
                 业务信息
@@ -36,16 +38,25 @@
                     <select id="departmentId"  name="departmentId" class="form-control" required></select>
                     <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider"/>
                 </div>
+
                 <div class="form-group col">
-                    <label for="licenseType">证件类型<i class="red">*</i></label>
-                    <select id="licenseType"  name="licenseType" class="form-control" required></select>
-                    <#bcomboProvider _id="licenseType" _provider="passportTypeProvider"/>
+                    <label for="licenseCode">证件类型<i class="red">*</i></label>
+                    <select id="licenseCode"  name="licenseCode" class="form-control" required>
+                        <option>--请选择--</option>
+                    </select>
+                    <#bcomboProvider _id="licenseCode" _value="${passport.licenseCode!}"
+                    _provider="dataDictionaryValueProvider"
+                    _queryParams='{dd_code:"passport_license_code", required:true}' />
                 </div>
 
                 <div class="form-group col">
                     <label for="carType">运营车型<i class="red">*</i></label>
-                    <select id="carType"  name="carType" class="form-control" required></select>
-                    <#bcomboProvider _id="carType" _provider="authDepartmentProvider"/>
+                    <select id="carType"  name="carType" class="form-control" required>
+                        <option>--请选择--</option>
+                    </select>
+                    <#bcomboProvider _id="carType" _value="${passport.carType!}"
+                    _provider="dataDictionaryValueProvider"
+                    _queryParams='{dd_code:"passport_car_type", required:true}' />
                 </div>
 
                 <div class="form-group col">
@@ -54,18 +65,27 @@
                 </div>
                 <div class="form-group col">
                     <label for="validPeriod">有效期<i class="red">*</i></label>
-                    <select id="validPeriod"  name="validPeriod" class="form-control" required></select>
-                    <#bcomboProvider _id="validPeriod" _provider="passportPeriodProvider"/>
+                    <select id="validPeriod"  name="validPeriod" class="form-control" required>
+                        <option value="0">--请选择--</option>
+                    </select>
+                    <#bcomboProvider _id="validPeriod" _value="${passport.validPeriod!}"
+                    _provider="dataDictionaryValueProvider"
+                    _queryParams='{dd_code:"labor_interval", required:true}' />
                 </div>
                 <div class="form-group col">
-                    <label for="startTime">开始日期<i class="red">*</i></label>
-                    <input type="text" id="startTime" name="startTime" class="form-control laydate laystart" required>
+                    <label for="startTime">开始日期<i class="red">*</i></label> <input
+                        type="text" id="startTime" name="startTime"
+                        class="form-control laydate laystart renew" value="${passport.startTime!}"
+                        required>
                 </div>
                 <div class="form-group col">
-                    <label for="endTime">结束日期<i class="red">*</i></label>
+                    <label for="endTime">结束日期<i class="red">*</i></label> <input
+                        type="text" id="endTime" name="endTime"
+                        class="form-control laydate layend renew" value="${passport.endTime!}"
+                        required>
+                </div>
 
-                    <input type="text" id="endTime" name="endTime" class="form-control laydate layend" required>
-                </div>
+
                 <div class="form-group col">
                     <label for="tollAmount" class="">通行费<i class="red">*</i></label>
                     <input id="tollAmount" type="number" class="form-control floatReserve money" name="tollAmount" range="0 9999999.99" required />

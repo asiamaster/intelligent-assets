@@ -72,18 +72,18 @@ public class PassportController {
         Passport passport = passportService.get(id);
         modelMap.put("passport",passport);
 
-        try{
-            //日志查询
-            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-            businessLogQueryInput.setBusinessId(id);
-            businessLogQueryInput.setBusinessType(LogBizTypeConst.PASSPORT);
-            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-            if(businessLogOutput.isSuccess()){
-                modelMap.put("logs",businessLogOutput.getData());
-            }
-        }catch (Exception e){
-            logger.error("日志服务查询异常",e);
-        }
+//        try{
+//            //日志查询
+//            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+//            businessLogQueryInput.setBusinessId(id);
+//            businessLogQueryInput.setBusinessType(LogBizTypeConst.PASSPORT);
+//            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+//            if(businessLogOutput.isSuccess()){
+//                modelMap.put("logs",businessLogOutput.getData());
+//            }
+//        }catch (Exception e){
+//            logger.error("日志服务查询异常",e);
+//        }
 
         return "passport/view";
     }
