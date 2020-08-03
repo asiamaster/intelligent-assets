@@ -17,6 +17,7 @@ import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.LaborService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.ss.base.BaseServiceImpl;
@@ -33,6 +34,7 @@ import io.seata.spring.annotation.GlobalTransactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +68,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	@Autowired
 	private RefundOrderService refundOrderService;
 	
+	@Autowired
+	private TransferDeductionItemService transferDeductionItemService;
+	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
     
@@ -82,7 +87,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		Labor labor = buildLabor(laborDto, userTicket);
 		this.insertSelective(labor);
 		List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(laborDto.getBusinessChargeItems(), labor.getId(), labor.getCode());
-		businessChargeItemService.batchInsert(businessChargeItems);
+		if(CollectionUtil.isNotEmpty(businessChargeItems)) {
+			businessChargeItemService.batchInsert(businessChargeItems);
+		}
 	}
 	
 	private void updateOldLabor(String code,String actionType) {
@@ -261,10 +268,18 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		Labor labor = getLaborByCode(refundInfoDto.getCode());
 		checkRefund(labor);
+		Labor domain = new Labor(userTicket);
+		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.SUBMITTED_REFUND);
 		// 获取结算单
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, labor.getCode());
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, labor, order);
-		refundOrderService.doAddHandler(refundOrder);
+		// refundOrderService.doAddHandler(refundOrder);
+		if (CollectionUtils.isNotEmpty(refundInfoDto.getTransferDeductionItems())) {
+			refundInfoDto.getTransferDeductionItems().forEach(o -> {
+                o.setRefundOrderId(refundOrder.getId());
+                transferDeductionItemService.insertSelective(o);
+            });
+        }
         //LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 		
@@ -282,7 +297,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 		String code = refundOrder.getBusinessCode();
 		Labor labor = getLaborByCode(code);
-		checkRefund(labor);
+		if(labor.getState() != LaborStateEnum.SUBMITTED_REFUND.getCode()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+		}
 		Labor domain = new Labor();
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.REFUNDED);
 		
@@ -344,13 +361,14 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		refundOrder.setCustomerId(labor.getCustomerId());
 		refundOrder.setCustomerName(labor.getCustomerName());
 		refundOrder.setCustomerCellphone(labor.getCustomerCellphone());
-		refundOrder.setCertificateNumber("0000");
-		refundOrder.setTotalRefundAmount(refundInfoDto.getAmount());
-		refundOrder.setPayeeAmount(refundInfoDto.getAmount());
+		refundOrder.setCertificateNumber(refundInfoDto.getPayeeCertificateNumber());
+		refundOrder.setTotalRefundAmount(refundInfoDto.getTotalRefundAmount());
+		refundOrder.setPayeeAmount(refundInfoDto.getPayeeAmount());
 		refundOrder.setRefundReason(refundInfoDto.getNotes());
 		refundOrder.setBizType(BizTypeEnum.LABOR_VEST.getCode());
-		refundOrder.setPayeeId(order.getCustomerId());
-		refundOrder.setRefundType(order.getWay());
+		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
+		refundOrder.setPayee(refundInfoDto.getPayee());
+		refundOrder.setRefundType(refundInfoDto.getRefundType());
 		refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
 			LOG.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());

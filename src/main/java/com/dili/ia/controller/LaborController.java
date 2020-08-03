@@ -251,9 +251,20 @@ public class LaborController {
      * @param labor
      * @return BaseOutput
      */
+    @RequestMapping(value="/refundApply.html", method = {RequestMethod.GET, RequestMethod.POST})
+    public String refundApply(ModelMap modelMap,String code) {	        
+    	modelMap.put("labor", laborService.getLabor(code));
+    	return "labor/refundApply";
+    }
+    
+    /**
+     * 退款申请
+     * @param labor
+     * @return BaseOutput
+     */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput refund(@Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
+    public @ResponseBody BaseOutput refund(@RequestBody @Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
     	try {
     		laborService.refund(refundInfoDto);
     	}catch (BusinessException e) {
