@@ -5,24 +5,39 @@
     <form id="queryForm" role="form" >
         <div class="row row-cols-6">
             <div class="form-group col">
-                <label for="state">业务状态</label>
-                <select id="state" name="state" class="form-control"></select>
-                <#bcomboProvider _id="state" _provider="LaborVestStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
+                <label for="laborType">马甲类型</label>
+                <select id="laborType" name="laborType" class="form-control"></select>
+                <#bcomboProvider _id="laborType" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"labor_vest_type"}' />
             </div>
             <div class="form-group col">
-                <label for="state">交费状态</label>
-                <select id="state" name="state" class="form-control"></select>
-                <#bcomboProvider _id="state" _provider="LaborVestStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
+                <label for="state">劳务状态</label>
+                <select id="state" name="state" class="form-control" >
+                </select>
+                <#bcomboProvider _id="state" _provider="laborVestStateProvider" />
+            </div>
+            <div class="form-group col">
+                <label for="interval">办理周期</label>
+                <select id="interval" name="interval" class="form-control"></select>
+                <#bcomboProvider _id="interval" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"labor_interval"}' />
+            </div>
+            <div class="form-group col">
+                <label for="models">运营车型</label>
+                <select id="models" name="models" class="form-control"></select>
+                <#bcomboProvider _id="models" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"labor_car_type"}' />
             </div>
             <div class="form-group col">
                 <label for="likeCustomerName">客户名称</label>
                 <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
             </div>
-           
             <div class="form-group col">
-                <label for="code">业务编号</label>
-                <input type="text" class="form-control" name="" id="" maxlength="50"/>
+                <label for="workCard">马甲号</label>
+                <input type="text" class="form-control" name="workCard" id="workCard" maxlength="50"/>
             </div>
+            <div class="form-group col">
+                <label for="customerCellphone">客户手机号</label>
+                <input type="text" class="form-control" name="customerCellphone" id="customerCellphone" maxlength="50"/>
+            </div>
+         
             <div class="form-group col-auto">
                 <label for="createdStart">创建时间</label>
                 <div class="form-inline">
@@ -105,13 +120,13 @@
                     <th data-field="customerCellphone" data-sortable="true" data-align="center">
                         联系电话
                     </th>
-                    <th data-field="" data-sortable="true" data-provider="" data-align="center">
+                    <th data-field="customerSex" data-sortable="true" data-align="center">
                         性别
                     </th>
                     <th data-field="laborType" data-sortable="true" data-provider="dataDictionaryValueProvider" data-query-params='{dd_code:"labor_vest_type", required:true}' data-align="center">
                         马甲类型
                     </th>	
-                    <th data-field="" data-sortable="true" data-provider="" data-align="center">
+                    <th data-field="workCard" data-sortable="true"  data-align="center">
                         马甲号
                     </th>
                     <th data-field="models" data-sortable="true" data-provider="dataDictionaryValueProvider" data-query-params='{dd_code:"labor_car_type", required:true}'  data-align="center">

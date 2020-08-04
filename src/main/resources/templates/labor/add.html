@@ -23,7 +23,7 @@
 						_hiddenDomainName="customerId" _displayDomainId="customerName"
 						_displayDomainName="customerName" _placeholder=""
 						_validatorMethod="isSelected"
-						_optionVariable="customerNameAutoCompleteOption" _value="${labor.customerId!}"  _text="${labor.customerName!}" _queryParams="{organizationType:'individual'}" _required="true" />
+						_optionVariable="customerNameAutoCompleteOptionV1" _value="${labor.customerId!}"  _text="${labor.customerName!}"  _required="true" />
 				</div>
 			
 				<div class="form-group col">
@@ -39,8 +39,8 @@
 					</div>
 				<div class="form-group col">
 					<label for="">性别</label> <input type="text"
-							class="form-control" id="customerSex"
-							name="customerSex" value="${labor.customerSex!}"
+							class="form-control" id="customerGender"
+							name="customerGender" value="${labor.customerGender!}"
 							required />
 				</div>
 			</div>
@@ -101,7 +101,7 @@
 					 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />				
 		        </div>
 		        <% } }%>
-	<%if(isNotEmpty(labor.businessChargeItems) && labor.businessChargeItems.~size>0){
+	<%if(isNotEmpty(labor.businessChargeItems) && labor.businessChargeItems.~size>0 && (type=='update')){
 		        for(item in labor.businessChargeItems){
 		        %>		        
 		        <div class="form-group col">

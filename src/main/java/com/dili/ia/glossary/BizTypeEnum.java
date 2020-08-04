@@ -19,6 +19,8 @@ public enum BizTypeEnum {
     STOCKOUT("9", "冷库出库"),
     OTHER_FEE("10", "其它收费"),
     LABOR_VEST("11", "劳务马甲"),
+    LABOR_VEST_RENAME("12", "劳务马甲更名费"),
+    LABOR_VEST_REMODEL("13", "劳务马甲更型费"),
     ;
 
     private String name;

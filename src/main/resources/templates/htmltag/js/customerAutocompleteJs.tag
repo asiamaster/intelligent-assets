@@ -44,6 +44,39 @@
             $('#certificateNumber, #_certificateNumber, #customerCellphone').valid();
         }
     };
+    
+    /**
+     * 查询个人用户 organizationType=individual
+     */
+    var customerNameAutoCompleteOptionV1 = {
+            serviceUrl: '/customer/listNormalV1.action',
+            paramName: 'likeName',
+            displayFieldName: 'name',
+            showNoSuggestionNotice: true,
+            noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>',
+            transformResult: function (result) {
+                if(result.success){
+                    let data = result.data;
+                    return {
+                        suggestions: $.map(data, function (dataItem) {
+                            return $.extend(dataItem, {
+                                    value: dataItem.name + '（' + dataItem.certificateNumber + '）'
+                                }
+                            );
+                        })
+                    }
+                }else{
+                    bs4pop.alert(result.message, {type: 'error'});
+                    return false;
+                }
+            },
+            selectFn: function (suggestion) {
+                $('#certificateNumber, #_certificateNumber').val(suggestion.certificateNumber);
+                $('#customerCellphone').val(suggestion.contactsPhone);
+                $('#customerGender').val(suggestion.gender);
+                $('#certificateNumber, #_certificateNumber, #customerCellphone').valid();
+            }
+        };
     // 证件号码
     var certificateNumberAutoCompleteOption = {
         minChars: 6,

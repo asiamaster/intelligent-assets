@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,11 +67,12 @@ public class LaborController {
      * @return String
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap,Integer type) {
+    public String add(ModelMap modelMap,String type) {
     	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
     	List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
 				queryBusinessChargeItemConfig(userTicket.getFirmId(), BizTypeEnum.LABOR_VEST.getCode(), YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
+        modelMap.put("type", "add");
         return "labor/add";
     }
     
@@ -115,6 +116,29 @@ public class LaborController {
      */
     @RequestMapping(value="/update.html", method = {RequestMethod.GET, RequestMethod.POST})
     public String update(ModelMap modelMap,String code, String type) {
+    	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+    	String businessChargeType = null;
+    	switch (type) {
+		case "renew": {	
+			businessChargeType = BizTypeEnum.LABOR_VEST.getCode();
+			break;
+		}
+		case "remodel": {	
+			businessChargeType = BizTypeEnum.LABOR_VEST_REMODEL.getCode();
+			break;
+		}
+		case "rename": {	
+			businessChargeType = BizTypeEnum.LABOR_VEST_RENAME.getCode();
+			break;
+		}
+		default:
+		}
+
+    	if(StringUtils.isNotEmpty(businessChargeType)) {
+    		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
+    				queryBusinessChargeItemConfig(userTicket.getFirmId(), businessChargeType, YesOrNoEnum.YES.getCode());
+        	modelMap.put("chargeItems", chargeItemDtos);
+    	}
     	modelMap.put("labor", laborService.getLabor(code));
     	modelMap.put("type", type);
         return "labor/add";
@@ -144,12 +168,15 @@ public class LaborController {
     		switch (laborDto.getActionType()) {
 			case "rename": {
 				laborService.rename(laborDto);
+				break;
 			}
 			case "remodel": {
 				laborService.remodel(laborDto);
+				break;
 			}
 			case "renew": {
 				laborService.renew(laborDto);
+				break;
 			}
 			default:
 				laborService.create(laborDto);

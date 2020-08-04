@@ -157,8 +157,8 @@ public class Labor extends BaseDomain {
     /**
      * 客户性别
      */
-    @Column(name = "`customer_sex`")
-    private Byte customerSex;
+    @Column(name = "`customer_gender`")
+    private Integer customerGender;
 
     /**
      * 上下半年
@@ -688,17 +688,17 @@ public class Labor extends BaseDomain {
      */
     @FieldDef(label="客户性别")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getCustomerSex() {
-        return customerSex;
+    public Integer getCustomerGender() {
+        return customerGender;
     }
 
     /**
      * 设置客户性别
      *
-     * @param customerSex 客户性别
+     * @param customerGender 客户性别
      */
-    public void setCustomerSex(Byte customerSex) {
-        this.customerSex = customerSex;
+    public void setCustomerGender(Integer customerGender) {
+        this.customerGender = customerGender;
     }
 
     /**

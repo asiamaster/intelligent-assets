@@ -52,4 +52,25 @@ public class CustomerController {
         customerQuery.setMarketId(userTicket.getFirmId());
         return customerRpc.listNormalPage(customerQuery);
     }
+    
+    /**
+     * 查询个人客户  individual
+     * @param likeName
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @RequestMapping(value="/listNormalV1.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput<List<Customer>> listNormal(String likeName) throws CloneNotSupportedException {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            return BaseOutput.failure("未登录");
+        }
+        CustomerQuery customerQuery = new CustomerQuery();
+        if(StringUtils.isNotBlank(likeName)){
+            customerQuery.setName(likeName);
+        }
+        customerQuery.setOrganizationType("individual");
+        customerQuery.setMarketId(userTicket.getFirmId());
+        return customerRpc.listNormalPage(customerQuery);
+    }
 }

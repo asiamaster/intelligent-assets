@@ -90,9 +90,19 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
+        let title = "";
+        if(type == 'renew'){
+        	title = "马甲续费办理"
+        }else if(type == 'rename'){
+        	title = "马甲更名办理"
+        }else if(type == 'remodel'){
+        	title = "马甲更型办理"
+        }else{
+        	title = "马甲修改办理"
+        }
 
         dia = bs4pop.dialog({
-            title: '修改马甲办理',//对话框title
+            title: title,//对话框title
             content: '${contextPath}/labor/vest/update.html?type='+type+'&code='+rows[0].code, //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
             height: '95%',//高度
@@ -276,7 +286,7 @@
     
     
     /**
-     * 打开支付窗口
+     * 打印预览窗口
      */
     function openPrintHandler() {
     	if(isSelectRow()){

@@ -1,6 +1,12 @@
 package com.dili.ia.domain.dto;
 
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
+
 import com.dili.ia.domain.Labor;
+import com.dili.ss.domain.annotation.Like;
+import com.dili.ss.domain.annotation.Operator;
 
 /**
  * <B>Description</B>
@@ -12,5 +18,41 @@ import com.dili.ia.domain.Labor;
  * @date 2020年7月28日
  */
 public class LaborQueryDto extends Labor {
+	
+	@Column(name = "`create_time`")
+	@Operator(Operator.GREAT_EQUAL_THAN)
+	private LocalDateTime createdStart;
+	
+	@Column(name = "`create_time`")
+	@Operator(Operator.LITTLE_EQUAL_THAN)
+	private LocalDateTime createdEnd;
+	
+	@Column(name = "`customer_name`")
+	@Like
+	private String likeCustomerName;
 
+	public LocalDateTime getCreatedStart() {
+		return createdStart;
+	}
+
+	public void setCreatedStart(LocalDateTime createdStart) {
+		this.createdStart = createdStart;
+	}
+
+	public LocalDateTime getCreatedEnd() {
+		return createdEnd;
+	}
+
+	public void setCreatedEnd(LocalDateTime createdEnd) {
+		this.createdEnd = createdEnd;
+	}
+
+	public String getLikeCustomerName() {
+		return likeCustomerName;
+	}
+
+	public void setLikeCustomerName(String likeCustomerName) {
+		this.likeCustomerName = likeCustomerName;
+	}
+	
 }

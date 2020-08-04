@@ -112,7 +112,7 @@ public class LaborDto {
     /**
      * 客户性别
      */
-    private Integer customerSex;
+    private Integer customerGender;
 
     /**
      * 上下半年
@@ -293,12 +293,12 @@ public class LaborDto {
 		this.customerCellphone = customerCellphone;
 	}
 
-	public Integer getCustomerSex() {
-		return customerSex;
+	public Integer getCustomerGender() {
+		return customerGender;
 	}
 
-	public void setCustomerSex(Integer customerSex) {
-		this.customerSex = customerSex;
+	public void setCustomerGender(Integer customerGender) {
+		this.customerGender = customerGender;
 	}
 
 	public Long getHalfYear() {
