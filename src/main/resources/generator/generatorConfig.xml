@@ -46,14 +46,14 @@
 
         <!-- Controller生成插件 -->
         <!-- targetProject和targetPackage必填 -->
-<!--        <plugin type="${myController.Plugin}">-->
-<!--            <property name="targetProject" value="${targetJavaProject}"></property>-->
-<!--            <property name="targetPackage" value="${targetControllerPackage}"></property>-->
-<!--            &lt;!&ndash; 如果不配置，则不会在类上继承 &ndash;&gt;-->
-<!--            &lt;!&ndash;<property name="controllerSuperClass" value="com.dili.ss.base.BaseControllerImpl"></property>&ndash;&gt;-->
-<!--            &lt;!&ndash; 如果不配置，则不会在接口上继承 &ndash;&gt;-->
-<!--            &lt;!&ndash;<property name="controllerSuperInterface" value="com.dili.ss.base.BaseController"></property>&ndash;&gt;-->
-<!--        </plugin>-->
+        <plugin type="${myController.Plugin}">
+            <property name="targetProject" value="${targetJavaProject}"></property>
+            <property name="targetPackage" value="${targetControllerPackage}"></property>
+            <!-- 如果不配置，则不会在类上继承 -->
+            <!--<property name="controllerSuperClass" value="com.dili.ss.base.BaseControllerImpl"></property>-->
+            <!-- 如果不配置，则不会在接口上继承 -->
+            <!--<property name="controllerSuperInterface" value="com.dili.ss.base.BaseController"></property>-->
+        </plugin>
 
         <!-- beetl模板文件生成插件 -->
         <!--<plugin type="com.dili.ss.mbg.beetl.BeetlTemplatesPlugin">-->
@@ -102,7 +102,7 @@
 <!--        <table domainObjectName="TransferDeductionItem" tableName="transfer_deduction_item">-->
 <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
 <!--        </table>-->
-       <table tableName="approval_process">
+       <table tableName="invoice_record">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
 

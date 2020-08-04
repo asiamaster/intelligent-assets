@@ -1,18 +1,16 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.InvoiceRecord;
+import com.dili.ia.domain.dto.InvoiceRecordDto;
 import com.dili.ia.service.InvoiceRecordService;
 import com.dili.ss.domain.BaseOutput;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
+ * 开票记录
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-07-30 11:20:01.
  */
@@ -27,7 +25,7 @@ public class InvoiceRecordController {
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
+    @GetMapping(value="/index.html")
     public String index(ModelMap modelMap) {
         return "invoiceRecord/index";
     }
@@ -38,8 +36,8 @@ public class InvoiceRecordController {
      * @return String
      * @throws Exception
      */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute InvoiceRecord invoiceRecord) throws Exception {
+    @PostMapping(value="/listPage.action")
+    public @ResponseBody String listPage(InvoiceRecordDto invoiceRecord) throws Exception {
         return invoiceRecordService.listEasyuiPageByExample(invoiceRecord, true).toString();
     }
 
@@ -48,8 +46,8 @@ public class InvoiceRecordController {
      * @param invoiceRecord
      * @return BaseOutput
      */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute InvoiceRecord invoiceRecord) {
+    @PostMapping(value="/insert.action")
+    public @ResponseBody BaseOutput insert(InvoiceRecord invoiceRecord) {
         invoiceRecordService.insertSelective(invoiceRecord);
         return BaseOutput.success("新增成功");
     }
@@ -59,8 +57,8 @@ public class InvoiceRecordController {
      * @param invoiceRecord
      * @return BaseOutput
      */
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute InvoiceRecord invoiceRecord) {
+    @PostMapping(value="/update.action")
+    public @ResponseBody BaseOutput update(InvoiceRecord invoiceRecord) {
         invoiceRecordService.updateSelective(invoiceRecord);
         return BaseOutput.success("修改成功");
     }
@@ -70,7 +68,7 @@ public class InvoiceRecordController {
      * @param id
      * @return BaseOutput
      */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping(value="/delete.action")
     public @ResponseBody BaseOutput delete(Long id) {
         invoiceRecordService.delete(id);
         return BaseOutput.success("删除成功");
