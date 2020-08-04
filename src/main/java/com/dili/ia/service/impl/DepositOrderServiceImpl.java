@@ -569,7 +569,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("缴费单成功回调 -- 更新【保证金单】状态,乐观锁生效！【保证金单DepositOrderID:{}】", depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-        //更新保证金余额 --- 缴费成功保证金余额增加
+        //【更新/修改】保证金余额 --- 缴费成功保证金余额增加
         this.updateDepositBalance(depositOrder, paymentOrderPO.getAmount());
         //记录日志
         msgService.sendBusinessLog(recordPayLog(settleOrder, depositOrder));
@@ -1005,7 +1005,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrderList.stream().forEach(o ->{
             List<DepositOrder> deList = queryDepositOrder(o.getBizType(), o.getBusinessId(), o.getAssetsId());
             if (CollectionUtils.isEmpty(deList)){ // 没有的话，就【新增】
-                o.setIsRelated(YesOrNoEnum.YES.getCode());
+                o.setIsRelated(YesOrNoEnum.NO.getCode());
                 if (o.getBusinessId() == null){
                     throw new BusinessException(ResultCode.PARAMS_ERROR, "关联订单ID不能为空");
                 }
@@ -1017,33 +1017,82 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 if (!output.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
                 }
-                //修改/新增保证金余额单 @TODO
+                DepositOrder newDepositOrder = output.getData();
 
+                //【更新/修改】保证金余额 --- 缴费成功保证金余额增加
+                this.updateDepositBalance(newDepositOrder, newDepositOrder.getAmount());
                 //新增【已交费】的缴费单
-                PaymentOrder pb = this.buildPaymentOrder(submiterTicket, output.getData(), o.getAmount());
-                //【已交费】缴费单数据更新
-                pb.setState(PayStateEnum.PAID.getCode());
-                pb.setState(PaymentOrderStateEnum.PAID.getCode());
-//                pb.setPayedTime(settleOrder.getOperateTime());
-//                pb.setSettlementCode(settleOrder.getCode());
-//                pb.setSettlementOperator(settleOrder.getOperatorName());
-//                pb.setSettlementWay(settleOrder.getWay());
-                paymentOrderService.insertSelective(pb);
+                PaymentOrder pb = this.buildPaidPaymentOrder(submiterTicket, newDepositOrder, o.getAmount());
+                //结算后，回写结算信息到缴费单 @TODO 待确认传入参数来源
+//                pb.setPayedTime(newSettleOrder.getOperateTime());
+//                pb.setSettlementCode(newSettleOrder.getCode());
+//                pb.setSettlementOperator(newSettleOrder.getOperatorName());
+//                pb.setSettlementWay(newSettleOrder.getWay());
+                Integer poId = paymentOrderService.insertSelective(pb);
+                PaymentOrder newPaymentOrder = paymentOrderService.get(Long.valueOf(poId));
 
                 //新增【已结算】的结算单，提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
                 //@TODO需要结算单独提供接口
-//                SettleOrderDto settleOrder = buildSettleOrderDto(submiterTicket, o, pb, o.getAmount());
-//                BaseOutput<SettleOrder> out= settlementRpc.submit(settleOrder);
-//                if (!out.isSuccess()){
-//                    LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
-//                    throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
-//                }
-
+                SettleOrderDto settleOrder = buildPaidSettleOrderDto(submiterTicket, o, newPaymentOrder, o.getAmount());
+                //@TODO 结算已交费的结算单接口提供
+                BaseOutput<SettleOrder> out= settlementRpc.submit(settleOrder);
+                if (!out.isSuccess()){
+                    LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
+                    throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
+                }
             }
         });
         return BaseOutput.success();
     }
 
+    //组装缴费单 PaymentOrder
+    private PaymentOrder buildPaidPaymentOrder(UserTicket submiterTicket, DepositOrder depositOrder, Long paidAmount){
+        PaymentOrder pb = new PaymentOrder();
+        pb.setCode(depositOrder.getMarketCode().toUpperCase() + this.getBizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setAmount(paidAmount);
+        pb.setBusinessId(depositOrder.getId());
+        pb.setBusinessCode(depositOrder.getCode());
+        pb.setCreatorId(submiterTicket.getId());
+        pb.setCreator(submiterTicket.getRealName());
+        pb.setMarketId(submiterTicket.getFirmId());
+        pb.setMarketCode(submiterTicket.getFirmCode());
+        pb.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+        pb.setState(PayStateEnum.PAID.getCode());
+        pb.setVersion(0);
+        pb.setIsSettle(YesOrNoEnum.YES.getCode());
+        return pb;
+    }
+
+    //组装 -- 结算中心缴费单 SettleOrder
+    private SettleOrderDto buildPaidSettleOrderDto(UserTicket submitterTicket,DepositOrder depositOrder, PaymentOrder paymentOrder, Long paidAmount){
+        SettleOrderDto settleOrder = new SettleOrderDto();
+        //以下是提交到结算中心的必填字段
+        settleOrder.setMarketId(depositOrder.getMarketId()); //市场ID
+        settleOrder.setMarketCode(depositOrder.getMarketCode());
+        settleOrder.setOrderCode(paymentOrder.getCode());//订单号 唯一
+        settleOrder.setBusinessCode(paymentOrder.getBusinessCode()); //缴费单业务单号
+        settleOrder.setCustomerId(depositOrder.getCustomerId());//客户ID
+        settleOrder.setCustomerName(depositOrder.getCustomerName());// "客户姓名
+        settleOrder.setCustomerPhone(depositOrder.getCustomerCellphone());//"客户手机号
+        settleOrder.setAmount(paidAmount); //金额
+        settleOrder.setBusinessDepId(depositOrder.getDepartmentId()); //"业务部门ID
+        settleOrder.setBusinessDepName(departmentRpc.get(depositOrder.getDepartmentId()).getData().getName());//"业务部门名称
+        settleOrder.setSubmitterId(submitterTicket.getId());// "提交人ID
+        settleOrder.setSubmitterName(submitterTicket.getRealName());// "提交人姓名
+        if (submitterTicket.getDepartmentId() != null){
+            settleOrder.setSubmitterDepId(submitterTicket.getDepartmentId()); //"提交人部门ID
+            settleOrder.setSubmitterDepName(departmentRpc.get(submitterTicket.getDepartmentId()).getData().getName());
+        }
+        settleOrder.setSubmitTime(LocalDateTime.now());
+        settleOrder.setAppId(settlementAppId);//应用ID
+        //@TODO 结算单需要调整类型，为String
+        settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.DEPOSIT_ORDER.getCode())); // 业务类型
+        settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
+        settleOrder.setState(SettleStateEnum.DEAL.getCode());
+        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
+
+        return settleOrder;
+    }
 
     public BaseOutput<DepositOrder> addPaidDepositOrder(UserTicket userTicket, DepositOrder depositOrder) {
         //检查参数
@@ -1078,6 +1127,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setPaidAmount(depositOrder.getAmount());
 
         Integer id = this.insertSelective(depositOrder);
-        return BaseOutput.success().setData(depositOrder);
+        DepositOrder newDE = this.get(Long.valueOf(id));
+        return BaseOutput.success().setData(newDE);
     }
 }
