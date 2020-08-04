@@ -1,7 +1,7 @@
 package com.dili.ia.provider;
 
+import com.dili.ia.glossary.CustomerSexEnum;
 import com.dili.ia.glossary.PassportStateEnum;
-import com.dili.ia.glossary.PassportTypeEnum;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
@@ -18,14 +18,14 @@ import java.util.stream.Stream;
  * @author:       xiaosa
  * @date:         2020/7/29
  * @version:      农批业务系统重构
- * @description:  通行证证件类型
+ * @description:  通行证状态
  */
 @Component
-public class PassportTypeProvider implements ValueProvider {
+public class CustomerSexProvider implements ValueProvider {
     private static final List<ValuePair<?>> BUFFER = new ArrayList<>();
 
     static {
-        BUFFER.addAll(Stream.of(PassportTypeEnum.values())
+        BUFFER.addAll(Stream.of(CustomerSexEnum.values())
                 .map(e -> new ValuePairImpl<>(e.getName(), e.getCode().toString()))
                 .collect(Collectors.toList()));
     }

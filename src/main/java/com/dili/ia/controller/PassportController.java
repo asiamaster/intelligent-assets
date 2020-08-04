@@ -89,6 +89,20 @@ public class PassportController {
     }
 
     /**
+     * 跳转到 查看 页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/print.html", method = RequestMethod.GET)
+    public String print(ModelMap modelMap, long id) {
+
+        Passport passport = passportService.get(id);
+        modelMap.put("passport",passport);
+
+        return "passport/print";
+    }
+
+    /**
      * 跳转到 新增 页面
      * @param modelMap
      * @return String
@@ -170,7 +184,7 @@ public class PassportController {
      * @return
      * @date   2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(@RequestBody PassportDto passportDto) throws Exception {
 

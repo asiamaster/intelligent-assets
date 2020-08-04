@@ -9,12 +9,13 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="code" jdbcType="VARCHAR" property="code" />
-    <result column="license_type" jdbcType="INTEGER" property="licenseType" />
+    <result column="license_code" jdbcType="VARCHAR" property="licenseCode" />
     <result column="license_number" jdbcType="VARCHAR" property="licenseNumber" />
     <result column="customer_id" jdbcType="BIGINT" property="customerId" />
     <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
     <result column="customer_cellphone" jdbcType="VARCHAR" property="customerCellphone" />
     <result column="certificate_number" jdbcType="VARCHAR" property="certificateNumber" />
+    <result column="gender" jdbcType="INTEGER" property="gender" />
     <result column="department_id" jdbcType="BIGINT" property="departmentId" />
     <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
     <result column="car_number" jdbcType="VARCHAR" property="carNumber" />
@@ -45,8 +46,8 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, create_time, modify_time, code, license_type, license_number, customer_id, customer_name, 
-    customer_cellphone, certificate_number, department_id, department_name, car_number, 
+    id, create_time, modify_time, code, license_code, license_number, customer_id, customer_name,
+    customer_cellphone, certificate_number, gender, department_id, department_name, car_number,
     car_type, valid_period, start_time, end_time, toll_amount, amount, state, creator_id, creator, submitter_id,
     submitter, submit_time, withdraw_operator_id, withdraw_operator, withdraw_time, canceler_id, 
     canceler, cancel_time, notes, market_id, market_code, version
@@ -169,8 +170,8 @@
     from
         passport
     <where>
-        <if test="licenseType != null">
-          and license_type = #{licenseType,jdbcType=INTEGER}
+        <if test="licenseCode != null">
+          and license_code = #{licenseCode,jdbcType=VARCHAR}
         </if>
         <if test="state != null">
         and state = #{state,jdbcType=INTEGER}

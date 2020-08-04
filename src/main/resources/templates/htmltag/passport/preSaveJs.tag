@@ -26,27 +26,31 @@
         $('#amount').val(parseFloat(tollAmount));
     }
 
-    $('#validPeriod, #startTime').on('change', function () {
-        startTime();
-    })
+    // 计算开始日期和结束日期
+    $('#startTime').val(moment().format("YYYY-MM-DD"));
 
-    // 计算结束日期
-    function startTime() {
-        let startTime = $('#startTime').val();
-        let validPeriod = $('#validPeriod').val();
-        if (validPeriod == ${@com.dili.ia.glossary.PassportPeriodEnum.ONE_MONTH.getCode()}) {
-            startTime.addMonths(startTime, 1);
-        } else if ( validPeriod == ${@com.dili.ia.glossary.PassportPeriodEnum.TWO_MONTH.getCode()}) {
-            startTime.addMonths(startTime, 2);
-        } else if ( validPeriod == ${@com.dili.ia.glossary.PassportPeriodEnum.QUARTERLY.getCode()}) {
-            startTime.addMonths(startTime, 3);
-        } else if ( validPeriod == ${@com.dili.ia.glossary.PassportPeriodEnum.HALF_YEAR.getCode()}) {
-            startTime.addMonths(startTime, 6);
-        } else if ( validPeriod == ${@com.dili.ia.glossary.PassportPeriodEnum.ONE_YEAR.getCode()}) {
-            startTime.addMonths(startTime, 12);
+    $(document).on('change', '#validPeriod', function() {
+        changeEndDay($("#validPeriod").val(),$('#startTime').val());
+    });
+
+    function changeEndDay(validPeriod,date){
+        if(validPeriod == 0){
+            $('#endTime').val(null);
+            return;
         }
-        $('#endTime').val(parseFloat(startTime));
+        $('#endTime').val(moment(date).add('month', validPeriod).format('YYYY-MM-DD'));
+
     }
+
+    laydate.render({
+        elem: '#startTime',
+        theme: '#007bff',
+        trigger: 'click',
+        done: function(value, date){
+            //监听日期被切换
+            changeEndDay($("#validPeriod").val(),value);
+        }
+    });
 
     // 提交保存
     function saveOrUpdateHandler(){
@@ -78,7 +82,7 @@
                 if(!ret.success){
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
-                    parent.dia.hide()
+                    parent.dia.hide();
                 }
             },
             error: function (error) {

@@ -45,8 +45,8 @@ public class Passport extends BaseDomain {
     /**
      * 通行证件类型
      */
-    @Column(name = "`license_type`")
-    private Integer licenseType;
+    @Column(name = "`license_code`")
+    private String licenseCode;
 
     /**
      * 证件号
@@ -71,6 +71,12 @@ public class Passport extends BaseDomain {
      */
     @Column(name = "`customer_cellphone`")
     private String customerCellphone;
+
+    /**
+     * 客户性别
+     */
+    @Column(name = "`gender`")
+    private Integer gender;
 
     /**
      * 客户证件号
@@ -295,17 +301,17 @@ public class Passport extends BaseDomain {
      */
     @FieldDef(label="通行证件类型")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Integer getLicenseType() {
-        return licenseType;
+    public String getLicenseCode() {
+        return licenseCode;
     }
 
     /**
      * 设置通行证件类型
      *
-     * @param licenseType 通行证件类型
+     * @param licenseCode 通行证件类型
      */
-    public void setLicenseType(Integer licenseType) {
-        this.licenseType = licenseType;
+    public void setLicenseCode(String licenseCode) {
+        this.licenseCode = licenseCode;
     }
 
     /**
@@ -406,6 +412,16 @@ public class Passport extends BaseDomain {
      */
     public void setCertificateNumber(String certificateNumber) {
         this.certificateNumber = certificateNumber;
+    }
+
+    @FieldDef(label="客户性别", maxLength = 2)
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getGender() {
+        return gender;
+    }
+
+    public void setGender(Integer gender) {
+        this.gender = gender;
     }
 
     /**
