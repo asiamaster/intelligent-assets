@@ -3,7 +3,11 @@ package com.dili.ia.service;
 import com.dili.ia.domain.Labor;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.LaborDto;
+import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.RefundInfoDto;
+import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
+import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.glossary.LaborStateEnum;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -137,4 +141,29 @@ public interface LaborService extends BaseService<Labor, Long> {
 	 * @throws
 	 */
 	void scanLaborVest();
+	
+	/**
+	 * 
+	 * @Title receiptPaymentData
+	 * @Description 马甲办理收款票据打印
+	 * @param orderCode
+	 * @param reprint
+	 * @return
+	 * @throws
+	 */
+	PrintDataDto<LaborPayPrintDto> receiptPaymentData(String orderCode, String reprint);
+	
+	/**
+	 * 
+	 * @Title receiptRefundPrintData
+	 * @Description 退款单打印
+	 * @param orderCode
+	 * @param reprint
+	 * @return
+	 * @throws
+	 */
+	PrintDataDto<LaborRefundPrintDto> receiptRefundPrintData(String orderCode, String reprint);
+	
+	
+
 }

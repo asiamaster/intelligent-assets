@@ -240,6 +240,12 @@ public class Labor extends BaseDomain {
 
     @Column(name = "`creator_id`")
     private Long creatorId;
+    
+    @Column(name = "`submitter_id`")
+    private Long submitterId;
+    
+    @Column(name = "`submitter`")
+    private String submitter;
 
     public Labor() {
     	super();
@@ -1019,6 +1025,22 @@ public class Labor extends BaseDomain {
 
 	public void setCertificateNumber(String certificateNumber) {
 		this.certificateNumber = certificateNumber;
+	}
+
+	public Long getSubmitterId() {
+		return submitterId;
+	}
+
+	public void setSubmitterId(Long submitterId) {
+		this.submitterId = submitterId;
+	}
+
+	public String getSubmitter() {
+		return submitter;
+	}
+
+	public void setSubmitter(String submitter) {
+		this.submitter = submitter;
 	}
     
     

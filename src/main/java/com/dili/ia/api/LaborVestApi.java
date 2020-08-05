@@ -65,5 +65,41 @@ public class LaborVestApi {
 		laborService.scanLaborVest();
 		LOG.info("--马甲单定时任务结束--");
 	}
+	
+	/**
+     * 劳务马甲结算票据打印
+     * @param settleOrder
+     * @return
+     */
+    @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, String reprint){
+        try{
+            return BaseOutput.success().setData(laborService.receiptPaymentData(orderCode, reprint));
+        }catch (BusinessException e){
+            LOG.error("劳务结算票据打印异常！", e);
+            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+        }catch (Exception e){
+            LOG.error("劳务结算票据打印异常！", e);
+            return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
+        }
+    }
+    
+    /**
+     * 劳务马甲退款票据打印
+     * @param settleOrder
+     * @return
+     */
+    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput<Boolean> queryRefundPrintData(String orderCode, String reprint){
+        try{
+            return BaseOutput.success().setData(laborService.receiptRefundPrintData(orderCode, reprint));
+        }catch (BusinessException e){
+            LOG.error("劳务结算票据打印异常！", e);
+            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+        }catch (Exception e){
+            LOG.error("劳务结算票据打印异常！", e);
+            return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
+        }
+    }
 
 }

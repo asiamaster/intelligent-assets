@@ -4,12 +4,17 @@ import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.Labor;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.LaborDto;
+import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.RefundInfoDto;
+import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
+import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.LaborStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
+import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.LaborMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
@@ -31,8 +36,10 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollectionUtil;
 import io.seata.spring.annotation.GlobalTransactional;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -183,12 +190,14 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		paymentOrderService.insertSelective(paymentOrder);
 		// 结算服务
 		SettleOrderDto settleOrderDto = settlementRpcResolver.buildSettleOrderDto(userTicket,
-				labor, paymentOrder.getCode(), paymentOrder.getAmount(), BizTypeEnum.STOCKIN);
+				labor, paymentOrder.getCode(), paymentOrder.getAmount(), BizTypeEnum.LABOR_VEST);
 		settleOrderDto.setReturnUrl(settlerHandlerUrl);
 		settlementRpcResolver.submit(settleOrderDto);
 		
 		Labor domain = new Labor(userTicket);
 		domain.setPaymentOrderCode(paymentOrder.getCode());
+		domain.setSubmitter(userTicket.getRealName());
+		domain.setSubmitterId(userTicket.getId());
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.SUBMITTED_PAY);
 	}
 
@@ -281,7 +290,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
                 transferDeductionItemService.insertSelective(o);
             });
         }
-        //LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        //LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 		
 	@Override
@@ -441,5 +450,85 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		} catch (Exception e) {
 			LOG.error("过期订单扫描失败{}",LocalDateTime.now(),e.getMessage());
 		}
+	}
+
+	@Override
+	public PrintDataDto<LaborPayPrintDto> receiptPaymentData(String orderCode, String reprint) {
+		PaymentOrder paymentOrder = paymentOrderService.getByCode(orderCode);
+		if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
+		}
+		Labor labor = getLaborByCode(paymentOrder.getBusinessCode());
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, labor.getCode());
+		LaborPayPrintDto laborPrintDto = new LaborPayPrintDto();
+		laborPrintDto.setPrintTime(LocalDateTime.now());
+		laborPrintDto.setReprint(reprint);
+		laborPrintDto.setBusinessType(BizTypeEnum.LABOR_VEST.getName());
+		laborPrintDto.setWorkCard(labor.getWorkCard());
+		laborPrintDto.setModels(labor.getModels());
+		laborPrintDto.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
+		laborPrintDto.setCustomerCellphone(labor.getCustomerCellphone());
+		laborPrintDto.setCustomerName(labor.getCustomerName());
+		laborPrintDto.setCardNo("");
+		laborPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+		laborPrintDto.setSubmitter(labor.getSubmitter());
+		DateTimeFormatter sdf1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		laborPrintDto.setEffectiveDate(sdf1.format(labor.getStartDate())+"至"+sdf1.format(labor.getEndDate()));
+		laborPrintDto.setNotes(labor.getNotes());
+		
+		laborPrintDto.setPayWay(String.valueOf(paymentOrder.getSettlementWay()));
+		//TODO 判断支付方式
+		//园区卡号
+		laborPrintDto.setCardNo(order.getAccountNumber());
+		//流水号
+		laborPrintDto.setSerialNumber(order.getSerialNumber());
+		PrintDataDto<LaborPayPrintDto> printDataDto = new PrintDataDto<>();
+		printDataDto.setName(PrintTemplateEnum.LABOR_VEST_PAY.getName());
+		printDataDto.setItem(laborPrintDto);
+		return printDataDto;	
+	}
+
+	@Override
+	public PrintDataDto<LaborRefundPrintDto> receiptRefundPrintData(String orderCode, String reprint) {
+		RefundOrder refundOrder = getOrderByCode(orderCode);
+		Labor labor = getLaborByCode(refundOrder.getBusinessCode());
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, labor.getCode());
+		LaborRefundPrintDto printDto = new LaborRefundPrintDto();
+		printDto.setPrintTime(LocalDateTime.now());
+		printDto.setReprint(reprint);
+		printDto.setBusinessType(BizTypeEnum.LABOR_VEST.getName());
+		printDto.setWorkCard(labor.getWorkCard());
+		printDto.setTotalAmount(String.valueOf(labor.getAmount()));
+		printDto.setCustomerCellphone(labor.getCustomerCellphone());
+		printDto.setCustomerName(labor.getCustomerName());
+		printDto.setSettlementOperator(order.getOperatorName());
+		printDto.setSubmitter(labor.getSubmitter());
+		printDto.setNotes(labor.getNotes());
+		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
+		//TODO 判断支付方式
+		//园区卡号
+		printDto.setAccountCardNo(order.getAccountNumber());
+		//银行卡号
+		printDto.setBankName(refundOrder.getBank());
+		printDto.setBankNo(refundOrder.getBankCardNo());
+		// 获取转抵信息
+		TransferDeductionItem condtion = new TransferDeductionItem();
+		condtion.setRefundOrderId(refundOrder.getId());
+		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
+		PrintDataDto<LaborRefundPrintDto> printDataDto = new PrintDataDto<>();
+		printDataDto.setName(PrintTemplateEnum.LABOR_VEST_PAY.getName());
+		printDataDto.setItem(printDto);
+		return printDataDto;	
+	}
+	
+	private RefundOrder getOrderByCode(String code) {
+		RefundOrder condtion = new RefundOrder();
+		condtion.setCode(code);
+		List<RefundOrder> refundOrders = refundOrderService.list(condtion);
+		if(CollectionUtil.isNotEmpty(refundOrders)) {
+			return refundOrders.get(0);
+		}
+		throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
+
 	}
 }
