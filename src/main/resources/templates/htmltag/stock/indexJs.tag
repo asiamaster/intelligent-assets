@@ -80,7 +80,15 @@ function openAddHandler(type,title) {
         backdrop : 'static',
         width: '95%',
         height : '95%',
-        btns: []
+        btns: [{label: '取消',className: 'btn-secondary',onClick(e, $iframe){
+
+        }
+	    }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
+	            let diaWindow = $iframe[0].contentWindow;
+	            bui.util.debounce(diaWindow.doAddStockInHandler,1000,true)()
+	            return false;
+	        }
+	    }]
     });
 }
 
@@ -145,7 +153,15 @@ function openUpdateHandler() {
 	        backdrop : 'static',
 	        width: '95%',
 	        height : '95%',
-	        btns: []
+	        btns: [{label: '取消',className: 'btn-secondary',onClick(e, $iframe){
+
+	        }
+		    }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
+		            let diaWindow = $iframe[0].contentWindow;
+		            bui.util.debounce(diaWindow.doAddStockInHandler,1000,true)()
+		            return false;
+		        }
+		    }]
 	    });
 	}
 
