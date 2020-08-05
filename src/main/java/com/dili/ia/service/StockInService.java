@@ -6,6 +6,7 @@ import java.util.Map;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
@@ -80,10 +81,10 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * 
 	 * @Title refund
 	 * @Description 退款
-	 * @param stockInRefundDto
+	 * @param refundInfoDto
 	 * @throws
 	 */
-	void refund(StockInRefundDto stockInRefundDto);
+	void refund(RefundInfoDto refundInfoDto);
 	
 	/**
 	 * 

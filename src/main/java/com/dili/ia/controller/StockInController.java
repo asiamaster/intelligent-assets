@@ -6,10 +6,12 @@ import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.dto.AssetsDto;
+import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
 import com.dili.ia.domain.dto.StockInQueryDto;
 import com.dili.ia.domain.dto.StockInRefundDto;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.StockInService;
@@ -74,7 +76,7 @@ public class StockInController {
     	modelMap.put("type", type == null ? 1:type);
     	//动态收费项
 		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
-				queryBusinessChargeItemConfig(userTicket.getFirmId(), "STOCK_IN", YesOrNoEnum.YES.getCode());
+				queryBusinessChargeItemConfig(userTicket.getFirmId(), BizTypeEnum.STOCKIN.getCode(), YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
         return "stock/add";
     }
@@ -124,7 +126,7 @@ public class StockInController {
     	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
     	modelMap.put("stockIn",stockInService.view(code));
     	List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
-				queryBusinessChargeItemConfig(userTicket.getFirmId(), "STOCK_IN", YesOrNoEnum.YES.getCode());
+				queryBusinessChargeItemConfig(userTicket.getFirmId(), BizTypeEnum.STOCKIN.getCode(), YesOrNoEnum.YES.getCode());
     	modelMap.put("chargeItems", chargeItemDtos);
         return "stock/update";
     }
@@ -257,22 +259,33 @@ public class StockInController {
     
     /**
      * 退款申请
+     * @param labor
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/refundApply.html", method = {RequestMethod.GET, RequestMethod.POST})
+    public String refundApply(ModelMap modelMap,String code) {	        
+    	modelMap.put("stockIn", stockInService.view(code));
+    	return "stock/refundApply";
+    }
+
+    /**
+     * 退款申请
      * @param stockIn
      * @return BaseOutput
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput refund(@Validated StockInRefundDto stockInRefundDto) {	        //throw new BusinessException("2000", "errorCode");
+    public @ResponseBody BaseOutput refund(@RequestBody @Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
     	try {
-    		stockInService.refund(stockInRefundDto);
+    		stockInService.refund(refundInfoDto);
     	}catch (BusinessException e) {
-			LOG.error("入库单{}退款申请异常！",stockInRefundDto.getCode(), e);
+			LOG.error("入库单{}退款申请异常！",refundInfoDto.getCode(), e);
 			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
 		}catch (Exception e) {
-			LOG.error("入库单{}退款申请异常！",stockInRefundDto.getCode(), e);
+			LOG.error("入库单{}退款申请异常！",refundInfoDto.getCode(), e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
 		}
-    	return BaseOutput.success("退款成功");
+    	return BaseOutput.success("退款申请成功");
     }
     
     /**

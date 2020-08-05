@@ -214,7 +214,7 @@ function buildFormData() {
 }
 
 // 提交保存
-function doAddStockInHandler() {
+function doUpdateStockInHandler() {
 	if(!validateForm()){
 		return;
 	}
@@ -232,6 +232,7 @@ function doAddStockInHandler() {
 				});
 			} else {
 				bs4pop.alert(ret.message, {type: 'success'});
+				parent.$('#grid').bootstrapTable('refresh');
 			}
 		},
 		error: function(error) {

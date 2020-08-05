@@ -86,7 +86,8 @@ function openAddHandler(type,title) {
 	    }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
 	            let diaWindow = $iframe[0].contentWindow;
 	            bui.util.debounce(diaWindow.doAddStockInHandler,1000,true)()
-	            return false;
+	            parent.$('#grid').bootstrapTable('refresh')				
+	            return true;
 	        }
 	    }]
     });
@@ -117,27 +118,6 @@ function openViewHandler(code) {
 	    });
 	}
 
-/*function openViewHandler(type) {
-	//获取选中行的数据
-	let rows = _grid.bootstrapTable('getSelections');
-	if (null == rows || rows.length == 0) {
-		bs4pop.alert('请选中一条数据');
-		return false;
-	}
-	window.location.href = "${contextPath}/stock/stockIn/view.html?code="+rows[0].code;
-}*/
-/**
- * 修改
- */
-/*function openUpdateHandler() {
-	//获取选中行的数据
-	let rows = _grid.bootstrapTable('getSelections');
-	if (null == rows || rows.length == 0) {
-		bs4pop.alert('请选中一条数据');
-		return false;
-	}
-	window.location.href = "${contextPath}/stock/stockIn/update.html?code="+rows[0].code;
-}*/
 
 function openUpdateHandler() {
 	let rows = _grid.bootstrapTable('getSelections');
@@ -158,8 +138,8 @@ function openUpdateHandler() {
 	        }
 		    }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
 		            let diaWindow = $iframe[0].contentWindow;
-		            bui.util.debounce(diaWindow.doAddStockInHandler,1000,true)()
-		            return false;
+		            bui.util.debounce(diaWindow.doUpdateStockInHandler,1000,true)()			
+		            return true;
 		        }
 		    }]
 	    });
@@ -370,6 +350,29 @@ function openRefundHandler() {
 			}]
 		});
 	}
+}
+
+function openRefundHandler(){
+	if(isSelectRow()){
+		let rows = _grid.bootstrapTable('getSelections');
+        let selectedRow = rows[0];
+		dia = bs4pop.dialog({
+            title: '退款申请',//对话框title
+            content: '${contextPath}/stock/stockIn/refundApply.html?code='+selectedRow.code, //对话框内容，可以是 string、element，$object
+            width: '80%',//宽度
+            height: '95%',//高度
+            isIframe: true,//默认是页面层，非iframe
+            btns: [{label: '取消',className: 'btn-secondary',onClick(e, $iframe){
+
+                }
+            }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
+                    let diaWindow = $iframe[0].contentWindow;
+                    bui.util.debounce(diaWindow.saveFormHandler,1000,true)()
+                    return false;
+                }
+            }]
+        });
+	} 
 }
 
 

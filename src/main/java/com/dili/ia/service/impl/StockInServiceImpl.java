@@ -33,6 +33,7 @@ import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockWeighmanRecord;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.StockInDetailDto;
 import com.dili.ia.domain.dto.StockInDto;
@@ -72,6 +73,7 @@ import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 
 import cn.hutool.core.bean.BeanUtil;
@@ -108,6 +110,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	@Autowired
 	private BusinessChargeItemService businessChargeItemService;
+	
+	@Autowired
+	private DepartmentRpc departmentRpc;
 	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -441,8 +446,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 
 	@Override
 	@Transactional
-	public void refund(StockInRefundDto stockInRefundDto) {
-		String code = stockInRefundDto.getCode();
+	public void refund(RefundInfoDto refundInfoDto) {
+		String code = refundInfoDto.getCode();
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);
 		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
@@ -458,7 +463,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		// 获取结算单
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, stockIn.getCode());
-		RefundOrder refundOrder = buildRefundOrderDto(userTicket, stockInRefundDto, stockIn,order);
+		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, stockIn,order);
 		refundOrderService.doSubmitDispatcher(refundOrder);
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
@@ -513,10 +518,14 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		settleOrderInfoDto.setCustomerName(stockIn.getCustomerName());
 		settleOrderInfoDto.setCustomerPhone(stockIn.getCustomerCellphone());
 		settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+		if (userTicket.getDepartmentId() != null){
+            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
+            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+        }
 		return settleOrderInfoDto;
 	}
 	
-	private RefundOrder buildRefundOrderDto(UserTicket userTicket, StockInRefundDto stockInRefundDto, StockIn stockIn,SettleOrder order) {
+	private RefundOrder buildRefundOrderDto(UserTicket userTicket, RefundInfoDto refundInfoDto, StockIn stockIn,SettleOrder order) {
 		//退款单
 		RefundOrder refundOrder = new RefundOrder();
 		refundOrder.setBusinessCode(stockIn.getCode());
@@ -525,12 +534,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		refundOrder.setCustomerName(stockIn.getCustomerName());
 		refundOrder.setCustomerCellphone(stockIn.getCustomerCellphone());
 		refundOrder.setCertificateNumber("0000");
-		refundOrder.setTotalRefundAmount(stockInRefundDto.getAmount());
-		refundOrder.setPayeeAmount(stockInRefundDto.getAmount());
-		refundOrder.setRefundReason(stockInRefundDto.getNotes());
+		refundOrder.setTotalRefundAmount(refundInfoDto.getTotalRefundAmount());
+		refundOrder.setPayeeAmount(refundInfoDto.getPayeeAmount());
+		refundOrder.setRefundReason(refundInfoDto.getNotes());
 		refundOrder.setBizType(BizTypeEnum.STOCKIN.getCode());
 		refundOrder.setPayeeId(order.getCustomerId());
-		refundOrder.setRefundType(order.getWay());
+		refundOrder.setRefundType(refundInfoDto.getRefundType());
 		refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
 			LOG.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
@@ -559,6 +568,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		// paymentOrder.setIsSettle();
 		StockIn domain = new StockIn();
 		domain.setPayDate(LocalDateTime.now());
+		domain.setTollman(settleOrder.getOperatorName());
+		domain.setTollmanId(settleOrder.getOperatorId());
 		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		// 入库 库存
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
@@ -617,7 +628,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInDetail.getBusinessChargeItems().forEach(itme -> {
 			QueryFeeInput queryFeeInput =new QueryFeeInput();
 			queryFeeInput.setMarketId(userTicket.getFirmId());
-			queryFeeInput.setBusinessType("STOCK_IN");
+			queryFeeInput.setBusinessType(BizTypeEnum.STOCKIN.getCode());
 			queryFeeInput.setChargeItem(itme.getChargeItemId());
 			Map<String, Object> calcParams = new HashMap<String, Object>();
 			calcParams.put("quantity", stockInDetail.getQuantity());

@@ -145,7 +145,9 @@
 <!-- 零散入库 -->
 <script id="detailInfo2" type="text/html">
 	<form id="saveForm_{{index}}" role="form" class="detailInfo" novalidate>
-	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
+	<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
+
+					<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
 					<label for="">区域</label>
 	                <div class="input-group">
