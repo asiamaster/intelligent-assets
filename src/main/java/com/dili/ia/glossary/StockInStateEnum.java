@@ -16,6 +16,7 @@ public enum StockInStateEnum {
 	PAID(4, "已缴费"),
 	SUBMITTED_REFUND(5, "退款中"),
 	REFUNDED(6, "已退款"),
+	EXPIRE(7, "已到期")
     ;
     private String name;
     private Integer code ;

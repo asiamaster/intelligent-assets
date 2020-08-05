@@ -95,4 +95,17 @@ public class StockInApi {
         }
     }
     
+    
+    /**
+	 * 
+	 * @Title scanEffective
+	 * @Description 定时任务扫描失效,待生效马甲单
+	 * @throws
+	 */
+	@RequestMapping(value = "/scanEffective", method = { RequestMethod.GET, RequestMethod.POST })
+	public void scanEffective() {
+		LOG.info("--冷库入库过期单定时任务开始--");
+		stockInService.scanStockIn();
+		LOG.info("--冷库入库过期单定时任务结束--");
+	}
 }

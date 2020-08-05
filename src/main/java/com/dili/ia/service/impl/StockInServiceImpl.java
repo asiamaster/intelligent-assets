@@ -630,5 +630,15 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
 		return batchQueryFee.getData();
 	}
+
+	@Override
+	public void scanStockIn() {
+		StockIn condition = new StockIn();
+		condition.setState(StockInStateEnum.PAID.getCode());
+		condition.setExpireDate(LocalDate.now().atStartOfDay());
+		StockIn domain = new StockIn();
+		domain.setState(StockInStateEnum.EXPIRE.getCode());
+		updateSelectiveByExample(domain, condition);
+	}
 	
 }

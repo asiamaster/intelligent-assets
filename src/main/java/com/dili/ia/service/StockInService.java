@@ -143,4 +143,12 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @throws
 	 */
 	List<QueryFeeOutput> getCost(StockInDetailDto stockInDetailDto);
+	
+	/**
+	 * 
+	 * @Title scanStockIn
+	 * @Description 定时任务过期订单信息
+	 * @throws
+	 */
+	void scanStockIn();
 }
