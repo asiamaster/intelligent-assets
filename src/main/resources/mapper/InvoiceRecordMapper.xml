@@ -10,7 +10,7 @@
     <result column="type" jdbcType="TINYINT" property="type" />
     <result column="target" jdbcType="VARCHAR" property="target" />
     <result column="target_id" jdbcType="BIGINT" property="targetId" />
-    <result column="amount" jdbcType="VARCHAR" property="amount" />
+    <result column="amount" jdbcType="BIGINT" property="amount" />
     <result column="invoice_date" jdbcType="DATE" property="invoiceDate" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
     <result column="creator" jdbcType="VARCHAR" property="creator" />

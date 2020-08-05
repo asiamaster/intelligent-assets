@@ -14,6 +14,40 @@
     let currentSelectRowIndex;
     var dia;
 
+    //开票类型的select2控件参数
+    let invoiceTypeOption = {
+        //隐藏搜索框
+        minimumResultsForSearch: -1
+    };
+
+    //开票主体的select2控件参数
+    var customerNameAutoCompleteOption = {
+        serviceUrl: '/customer/listNormal.action',
+        paramName: 'likeName',
+        displayFieldName: 'name',
+        showNoSuggestionNotice: true,
+        noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户</a>',
+        transformResult: function (result) {
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '（' + dataItem.certificateNumber + '）'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return false;
+            }
+        },
+        selectFn: function (suggestion) {
+
+        }
+    };
+
     /*********************变量定义区 end***************/
 
 
@@ -107,6 +141,66 @@
      */
     function codeFormatter(value,row,index) {
         return '<a href="javascript:openViewHandler('+row.id+')">'+value+'</a>';
+    }
+
+    /**
+     * 打开开票
+     */
+    function openInvoiceHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length != 1) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        bs4pop.dialog({
+            title: "开票",
+            content: bui.util.HTMLDecode(template('invoiceTpl', {})),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            onShowEnd: function(){
+                laydate.render({
+                    elem: "#_invoiceDate",
+                    type: 'date',
+                    theme: '#007bff',
+                    trigger:'click'
+                });
+            },
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick(e) {
+                        if ($('#_invoiceForm').validate().form() != true) {
+                            return false;
+                        }
+                        bui.loading.show('努力提交中，请稍候。。。');
+                        let _formData = bui.util.removeKeyStartWith($('#_invoiceForm').serializeObject(true), "_");
+                        $.extend(_formData, {businessKey:rows[0].code});
+                        $.ajax({
+                            type: "POST",
+                            url: "${contextPath}/invoiceRecord/insert.action",
+                            data: _formData,
+                            dataType: "json",
+                            async: true,
+                            success: function (data) {
+                                bui.loading.hide();
+                                if (data.success) {
+                                    _grid.bootstrapTable('refresh');
+                                } else {
+                                    bs4pop.alert(data.result, {type: 'error'});
+                                }
+                            },
+                            error: function (a, b, c) {
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
+                    }
+                },
+                {label: '取消', className: 'btn-default', onClick(e) {}}
+            ]
+        });
+
     }
 
     /**
@@ -634,6 +728,10 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
+            //未开票才显示开票按钮
+            if(row.$_isInvoice != 1){
+                $('#btn_invoice').attr('disabled', false);
+            }
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
@@ -644,6 +742,10 @@
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
+            //未开票才显示开票按钮
+            if(row.$_isInvoice != 1){
+                $('#btn_invoice').attr('disabled', false);
+            }
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
@@ -655,6 +757,10 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
+            //未开票才显示开票按钮
+            if(row.$_isInvoice != 1){
+                $('#btn_invoice').attr('disabled', false);
+            }
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {

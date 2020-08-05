@@ -1,355 +1,157 @@
 package com.dili.ia.domain;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.dili.ss.domain.BaseDomain;
-import com.dili.ss.metadata.FieldEditor;
-import com.dili.ss.metadata.annotation.EditMode;
-import com.dili.ss.metadata.annotation.FieldDef;
-import org.springframework.format.annotation.DateTimeFormat;
+import com.dili.ss.dto.IBaseDomain;
+import com.dili.ss.mvc.annotation.Cent2Yuan;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
- * 由MyBatis Generator工具自动生成
- * 开票记录
- * This file was generated on 2020-07-30 11:20:01.
+ *  由MyBatis Generator工具自动生成
+ *  开票记录
+ *  This file was generated on 2020-07-30 11:20:01.
  */
-@Table(name = "`invoice_record`")
-public class InvoiceRecord extends BaseDomain {
-    /**
-     * id
-     */
-    @Id
-    @Column(name = "`id`")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(
+        name = "`invoice_record`"
+)
+public interface InvoiceRecord extends IBaseDomain {
+  /**
+   *  id
+   */
+  @Column(
+          name = "`id`"
+  )
+  @Id
+  @GeneratedValue(
+          strategy = GenerationType.IDENTITY
+  )
+  Long getId();
 
-    /**
-     * 业务号
-     */
-    @Column(name = "`business_key`")
-    private String businessKey;
+  void setId(Long id);
 
-    /**
-     * 开票类型, 1:普票， 2: 专票
-     */
-    @Column(name = "`type`")
-    private Byte type;
+  /**
+   *  业务号
+   */
+  @Column(
+          name = "`business_key`"
+  )
+  String getBusinessKey();
 
-    /**
-     * 开票主体
-     */
-    @Column(name = "`target`")
-    private String target;
+  void setBusinessKey(String businessKey);
 
-    /**
-     * 开票主体id
-     */
-    @Column(name = "`target_id`")
-    private String targetId;
+  /**
+   *  开票类型, 1:普票， 2: 专票
+   */
+  @Column(
+          name = "`type`"
+  )
+  Byte getType();
 
-    /**
-     * 开票金额
-     */
-    @Column(name = "`amount`")
-    private String amount;
+  void setType(Byte type);
 
-    /**
-     * 开票日期
-     */
-    @Column(name = "`invoice_date`")
-    @JSONField(format = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate invoiceDate;
+  /**
+   *  开票主体
+   */
+  @Column(
+          name = "`target`"
+  )
+  String getTarget();
 
-    /**
-     * 开票人
-     */
-    @Column(name = "`creator_id`")
-    private Long creatorId;
+  void setTarget(String target);
 
-    /**
-     * 开票人名称
-     */
-    @Column(name = "`creator`")
-    private String creator;
+  /**
+   *  开票主体id
+   */
+  @Column(
+          name = "`target_id`"
+  )
+  String getTargetId();
 
-    /**
-     * 备注
-     */
-    @Column(name = "`notes`")
-    private String notes;
+  void setTargetId(String targetId);
 
-    /**
-     * 创建时间
-     */
-    @Column(name = "`create_time`")
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createTime;
+  /**
+   *  开票金额
+   */
+  @Column(
+          name = "`amount`"
+  )
+  @Cent2Yuan
+  Long getAmount();
 
-    /**
-     * 修改时间
-     */
-    @Column(name = "`modify_time`")
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime modifyTime;
+  void setAmount(Long amount);
 
-    /**
-     * 市场id
-     */
-    @Column(name = "`firm_id`")
-    private Long firmId;
+  /**
+   *  开票日期
+   */
+  @Column(
+          name = "`invoice_date`"
+  )
+  LocalDate getInvoiceDate();
 
-    /**
-     * 获取id
-     *
-     * @return id - id
-     */
-    @FieldDef(label="id")
-    @EditMode(editor = FieldEditor.Number, required = true)
-    public Long getId() {
-        return id;
-    }
+  void setInvoiceDate(LocalDate invoiceDate);
 
-    /**
-     * 设置id
-     *
-     * @param id id
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
+  /**
+   *  开票人
+   */
+  @Column(
+          name = "`creator_id`"
+  )
+  Long getCreatorId();
 
-    /**
-     * 获取业务号
-     *
-     * @return business_key - 业务号
-     */
-    @FieldDef(label="业务号", maxLength = 64)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getBusinessKey() {
-        return businessKey;
-    }
+  void setCreatorId(Long creatorId);
 
-    /**
-     * 设置业务号
-     *
-     * @param businessKey 业务号
-     */
-    public void setBusinessKey(String businessKey) {
-        this.businessKey = businessKey;
-    }
+  /**
+   *  开票人名称
+   */
+  @Column(
+          name = "`creator`"
+  )
+  String getCreator();
 
-    /**
-     * 获取开票类型, 1:普票， 2: 专票
-     *
-     * @return type - 开票类型, 1:普票， 2: 专票
-     */
-    @FieldDef(label="开票类型, 1:普票， 2: 专票")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getType() {
-        return type;
-    }
+  void setCreator(String creator);
 
-    /**
-     * 设置开票类型, 1:普票， 2: 专票
-     *
-     * @param type 开票类型, 1:普票， 2: 专票
-     */
-    public void setType(Byte type) {
-        this.type = type;
-    }
+  /**
+   *  备注
+   */
+  @Column(
+          name = "`notes`"
+  )
+  String getNotes();
 
-    /**
-     * 获取开票主体
-     *
-     * @return target - 开票主体
-     */
-    @FieldDef(label="开票主体", maxLength = 64)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getTarget() {
-        return target;
-    }
+  void setNotes(String notes);
 
-    /**
-     * 设置开票主体
-     *
-     * @param target 开票主体
-     */
-    public void setTarget(String target) {
-        this.target = target;
-    }
+  /**
+   *  创建时间
+   */
+  @Column(
+          name = "`create_time`"
+  )
+  LocalDateTime getCreateTime();
 
-    /**
-     * 获取开票金额
-     *
-     * @return amount - 开票金额
-     */
-    @FieldDef(label="开票金额", maxLength = 64)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getAmount() {
-        return amount;
-    }
+  void setCreateTime(LocalDateTime createTime);
 
-    /**
-     * 设置开票金额
-     *
-     * @param amount 开票金额
-     */
-    public void setAmount(String amount) {
-        this.amount = amount;
-    }
+  /**
+   *  修改时间
+   */
+  @Column(
+          name = "`modify_time`"
+  )
+  LocalDateTime getModifyTime();
 
-    /**
-     * 获取开票日期
-     *
-     * @return invoice_date - 开票日期
-     */
-    @FieldDef(label="开票日期")
-    @EditMode(editor = FieldEditor.Date, required = false)
-    public LocalDate getInvoiceDate() {
-        return invoiceDate;
-    }
+  void setModifyTime(LocalDateTime modifyTime);
 
-    /**
-     * 设置开票日期
-     *
-     * @param invoiceDate 开票日期
-     */
-    public void setInvoiceDate(LocalDate invoiceDate) {
-        this.invoiceDate = invoiceDate;
-    }
+  /**
+   *  市场id
+   */
+  @Column(
+          name = "`firm_id`"
+  )
+  Long getFirmId();
 
-    /**
-     * 获取开票人
-     *
-     * @return creator_id - 开票人
-     */
-    @FieldDef(label="开票人")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getCreatorId() {
-        return creatorId;
-    }
-
-    /**
-     * 设置开票人
-     *
-     * @param creatorId 开票人
-     */
-    public void setCreatorId(Long creatorId) {
-        this.creatorId = creatorId;
-    }
-
-    /**
-     * 获取开票人名称
-     *
-     * @return creator - 开票人名称
-     */
-    @FieldDef(label="开票人名称", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getCreator() {
-        return creator;
-    }
-
-    /**
-     * 设置开票人名称
-     *
-     * @param creator 开票人名称
-     */
-    public void setCreator(String creator) {
-        this.creator = creator;
-    }
-
-    /**
-     * 获取备注
-     *
-     * @return notes - 备注
-     */
-    @FieldDef(label="备注", maxLength = 120)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getNotes() {
-        return notes;
-    }
-
-    /**
-     * 设置备注
-     *
-     * @param notes 备注
-     */
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    /**
-     * 获取创建时间
-     *
-     * @return create_time - 创建时间
-     */
-    @FieldDef(label="创建时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    /**
-     * 设置创建时间
-     *
-     * @param createTime 创建时间
-     */
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
-
-    /**
-     * 获取修改时间
-     *
-     * @return modify_time - 修改时间
-     */
-    @FieldDef(label="修改时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    public LocalDateTime getModifyTime() {
-        return modifyTime;
-    }
-
-    /**
-     * 设置修改时间
-     *
-     * @param modifyTime 修改时间
-     */
-    public void setModifyTime(LocalDateTime modifyTime) {
-        this.modifyTime = modifyTime;
-    }
-
-    /**
-     * 获取市场id
-     *
-     * @return firm_id - 市场id
-     */
-    @FieldDef(label="市场id")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getFirmId() {
-        return firmId;
-    }
-
-    /**
-     * 设置市场id
-     *
-     * @param firmId 市场id
-     */
-    public void setFirmId(Long firmId) {
-        this.firmId = firmId;
-    }
-
-    public String getTargetId() {
-        return targetId;
-    }
-
-    public void setTargetId(String targetId) {
-        this.targetId = targetId;
-    }
+  void setFirmId(Long firmId);
 }

@@ -1,48 +1,51 @@
 package com.dili.ia.provider;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dili.ia.glossary.InvoiceTypeEnum;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
 import com.dili.ss.metadata.ValueProvider;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 开票类型
  * @description:
  * @author: WM
- * @time: 2020/8/4 11:28
+ * @time: 2020/8/5 11:20
  */
 @Component
-public class InvoiceTypeProvider implements ValueProvider {
-    private static final List<ValuePair<?>> BUFFER = new ArrayList<>();
+public class YesOrNoProvider implements ValueProvider {
+
+    private static final List<ValuePair<?>> BUFFER;
 
     static {
-        BUFFER.addAll(Stream.of(InvoiceTypeEnum.values())
-                .map(e -> new ValuePairImpl<>(e.getName(), e.getCode().toString()))
-                .collect(Collectors.toList()));
+        BUFFER = Stream.of(YesOrNoEnum.values())
+                .map(e->new ValuePairImpl<String>(e.getName(), e.getCode().toString()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<ValuePair<?>> getLookupList(Object o, Map map, FieldMeta fieldMeta) {
-        removeEmpty1(map);
+    public List<ValuePair<?>> getLookupList(Object obj, Map metaMap, FieldMeta fieldMeta) {
+        removeEmpty1(metaMap);
         return BUFFER;
     }
 
     @Override
-    public String getDisplayText(Object object, Map map, FieldMeta fieldMeta) {
-        if (null == object) {
-            return null;
+    public String getDisplayText(Object obj, Map metaMap, FieldMeta fieldMeta) {
+        if(obj == null || "".equals(obj)){
+            return "-";
         }
-        ValuePair<?> valuePair = BUFFER.stream().filter(val -> val.getValue().equals(object.toString())).findFirst().orElseGet(null);
-        return valuePair == null ? null : valuePair.getText();
+        for(ValuePair<?> valuePair : BUFFER){
+            if(obj.toString().equals(valuePair.getValue())){
+                return valuePair.getText();
+            }
+        }
+        return null;
     }
 
     /**
