@@ -33,14 +33,14 @@ public class InvoiceRecordDto extends InvoiceRecord {
     /**
      * 修改开始时间
      */
-    @Column(name = "`create_time`")
+    @Column(name = "`modify_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifyTimeSt;
     /**
      * 修改结束时间
      */
-    @Column(name = "`create_time`")
+    @Column(name = "`modify_time`")
     @Operator(Operator.LITTLE_EQUAL_THAN)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifyTimeEnd;
