@@ -16,7 +16,7 @@
   </settings>
   <objectFactory type="com.dili.ss.dao.DtoInstObjectFactory">
   </objectFactory>
-  <plugins>
+<!--  <plugins>
     <plugin interceptor="com.dili.ss.dao.PerformanceInterceptor"/>
-  </plugins>
+  </plugins>-->
 </configuration>

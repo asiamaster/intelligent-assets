@@ -688,7 +688,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
             //业务收费项完成分摊
             businessChargeItems.stream().filter(bci -> bci.getPaymentAmount() > 0L).forEach(bci -> {
-                ApportionRecord apportionRecord = buildApportionRecord(leaseOrder, o, bci);
+                ApportionRecord apportionRecord = buildApportionRecord( o, bci);
                 apportionRecords.add(apportionRecord);
 
                 bci.setWaitAmount(bci.getWaitAmount() - bci.getPaymentAmount());
@@ -1557,14 +1557,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
     /**
      * 构建分摊明细
-     * @param leaseOrder
      * @param o
      * @param bci
      * @return
      */
-    private ApportionRecord buildApportionRecord(AssetsLeaseOrder leaseOrder, AssetsLeaseOrderItem o, BusinessChargeItem bci) {
+    private ApportionRecord buildApportionRecord(AssetsLeaseOrderItem o, BusinessChargeItem bci) {
         ApportionRecord apportionRecord = new ApportionRecord();
-        apportionRecord.setLeaseOrderId(leaseOrder.getId());
+        apportionRecord.setLeaseOrderId(o.getLeaseOrderId());
         apportionRecord.setLeaseOrderItemId(o.getId());
         apportionRecord.setAmount(bci.getPaymentAmount());
         apportionRecord.setChargeItemId(bci.getChargeItemId());
