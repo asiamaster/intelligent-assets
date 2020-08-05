@@ -1,3 +1,10 @@
+--退款数据处理
+UPDATE assets_lease_order set state = 6 WHERE state = 7;
+UPDATE assets_lease_order_item set state = 6 WHERE state = 7;
+--资产类型初始化
+UPDATE assets_lease_order set assets_type = 1;
+UPDATE assets_lease_order_item set assets_type = 1;
+
 ALTER TABLE `dili-assets`.`apportion_record`
 MODIFY COLUMN `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间' AFTER `id`,
 ADD COLUMN `lease_order_id` bigint(20) NOT NULL COMMENT '订单ID' AFTER `create_time`,
@@ -8,7 +15,7 @@ CHANGE COLUMN `lease_item_id` `lease_order_item_id` bigint(20) NOT NULL COMMENT 
 
 ALTER TABLE `dili-assets`.`assets_lease_order_item`
 CHANGE COLUMN `booth_id` `assets_id` bigint(20) NULL DEFAULT NULL COMMENT '资产ID' AFTER `lease_order_code`,
-CHANGE COLUMN `booth_name` `assets_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '资产名称' AFTER `asset_id`;
+CHANGE COLUMN `booth_name` `assets_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '资产名称' AFTER `assets_id`;
 ALTER TABLE `dili-assets`.`assets_lease_order_item`
 ADD COLUMN `exit_time` datetime(0) NULL COMMENT '退场时间' AFTER `refund_state`;
 update assets_lease_order_item set total_amount = rent_amount + manage_amount;

@@ -3,7 +3,8 @@
 <mapper namespace="com.dili.ia.mapper.BusinessChargeItemMapper">
     <select id="queryBusinessChargeItem" resultType="Map">
         SELECT
-        cast(business_id as char) as businessId,
+        cast(business_id as char) as businessId
+        <if test="chargeItemDtos != null and chargeItemDtos.size()>0">,</if>
         <foreach collection="chargeItemDtos" item="chargeItem" separator=",">
             cast(
                 MAX(

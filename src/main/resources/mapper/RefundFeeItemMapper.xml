@@ -3,7 +3,8 @@
 <mapper namespace="com.dili.ia.mapper.RefundFeeItemMapper">
     <select id="queryRefundFeeItem" resultType="Map" >
         SELECT
-        cast(refund_order_id as char) as refundOrderId,
+        cast(refund_order_id as char) as refundOrderId
+        <if test="chargeItemDtos != null and chargeItemDtos.size()>0">,</if>
         <foreach collection="chargeItemDtos" item="chargeItem" separator=",">
             cast(
             MAX(
