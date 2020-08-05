@@ -246,6 +246,12 @@ public class AssetsLeaseOrder extends BaseDomain {
     private Integer version;
 
     /**
+     * 是否开票
+     */
+    @Column(name = "`is_invoice`")
+    private Integer isInvoice;
+
+    /**
      * 流程实例ID
      */
     @Column(name = "`process_instance_id`")
@@ -655,5 +661,13 @@ public class AssetsLeaseOrder extends BaseDomain {
 
     public void setApprovalState(Integer approvalState) {
         this.approvalState = approvalState;
+    }
+
+    public Integer getIsInvoice() {
+        return isInvoice;
+    }
+
+    public void setIsInvoice(Integer isInvoice) {
+        this.isInvoice = isInvoice;
     }
 }

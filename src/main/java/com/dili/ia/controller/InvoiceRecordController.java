@@ -1,9 +1,14 @@
 package com.dili.ia.controller;
 
+import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.InvoiceRecord;
 import com.dili.ia.domain.dto.InvoiceRecordDto;
+import com.dili.ia.service.AssetsLeaseOrderService;
 import com.dili.ia.service.InvoiceRecordService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.exception.NotLoginException;
+import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -18,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/invoiceRecord")
 public class InvoiceRecordController {
     @Autowired
-    InvoiceRecordService invoiceRecordService;
+    private InvoiceRecordService invoiceRecordService;
 
     /**
      * 跳转到InvoiceRecord页面
@@ -48,8 +53,13 @@ public class InvoiceRecordController {
      */
     @PostMapping(value="/insert.action")
     public @ResponseBody BaseOutput insert(InvoiceRecord invoiceRecord) {
-        invoiceRecordService.insertSelective(invoiceRecord);
-        return BaseOutput.success("新增成功");
+        try {
+            invoiceRecordService.insertInvoiceRecord(invoiceRecord);
+            return BaseOutput.success("新增成功");
+        } catch (Exception e) {
+            return BaseOutput.failure("新增失败:"+e.getMessage());
+        }
+
     }
 
     /**
@@ -59,8 +69,13 @@ public class InvoiceRecordController {
      */
     @PostMapping(value="/update.action")
     public @ResponseBody BaseOutput update(InvoiceRecord invoiceRecord) {
-        invoiceRecordService.updateSelective(invoiceRecord);
-        return BaseOutput.success("修改成功");
+        try {
+            invoiceRecordService.updateSelective(invoiceRecord);
+            return BaseOutput.success("修改成功");
+        } catch (Exception e) {
+            return BaseOutput.failure("修改失败:"+e.getMessage());
+        }
+
     }
 
     /**
@@ -70,7 +85,12 @@ public class InvoiceRecordController {
      */
     @PostMapping(value="/delete.action")
     public @ResponseBody BaseOutput delete(Long id) {
-        invoiceRecordService.delete(id);
-        return BaseOutput.success("删除成功");
+        try {
+            invoiceRecordService.delete(id);
+            return BaseOutput.success("删除成功");
+        } catch (Exception e) {
+            return BaseOutput.failure("删除失败:"+e.getMessage());
+        }
+
     }
 }

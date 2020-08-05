@@ -122,7 +122,6 @@
                 {label: '取消', className: 'btn-default', onClick(e) {}}
             ]
         });
-
     }
 
     /**
