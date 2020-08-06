@@ -115,4 +115,12 @@ public interface PassportService extends BaseService<Passport, Long> {
      */
     BaseOutput<Passport> refund(PassportRefundOrderDto passportRefundOrderDto);
 
+    /**
+     * 
+     * 
+     * @param
+     * @return 
+     * @date   2020/8/6
+     */
+    void passportTasking();
 }

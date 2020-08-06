@@ -174,7 +174,7 @@
           and license_code = #{licenseCode,jdbcType=VARCHAR}
         </if>
         <if test="state != null">
-        and state = #{state,jdbcType=INTEGER}
+            and state = #{state,jdbcType=INTEGER}
         </if>
         <if test="startTimeQuery != null">
           and create_time  <![CDATA[ >= ]]> #{startTimeQuery}

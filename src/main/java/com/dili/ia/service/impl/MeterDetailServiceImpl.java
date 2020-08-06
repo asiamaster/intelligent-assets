@@ -205,8 +205,13 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
         Long lastAmount = (Long) lastAmountReturn.getData();
 
-        // 生成水电费单号的 code
-        String meterDetailCode = uidRpcResolver.bizNumber(BizNumberTypeEnum.WATER_ELECTRICITY_CODE.getCode());
+        Meter meter = meterService.get(meterDetailDto.getMeterId());
+        String MeterTypeCode = BizNumberTypeEnum.WATER_CODE.getCode();
+        if (MeterTypeEnum.ELECTRIC_METER.getCode().equals(meter.getType())) {
+            MeterTypeCode = BizNumberTypeEnum.ELECTRICITY_CODE.getCode();
+        }
+        // 生成水或者电费单号的 code
+        String meterDetailCode = uidRpcResolver.bizNumber(MeterTypeCode);
         meterDetail.setVersion(0);
         meterDetail.setCode(meterDetailCode);
         meterDetail.setCreatorId(userTicket.getId());

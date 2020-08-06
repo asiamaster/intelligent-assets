@@ -49,6 +49,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -88,7 +89,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     @Value("${settlement.app-id}")
     private Long settlementAppId;
 
-    private String settlerHandlerUrl = "http://10.28.1.59:8381/api/passport/settlementDealHandler";
+    private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/passport/settlementDealHandler";
 
     /**
      * 查询列表
@@ -344,8 +345,9 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
         // 修改通行证,生成证件号
         passportInfo.setModifyTime(LocalDateTime.now());
-        // TODO 证件号
-
+        String licenseCode = passportInfo.getLicenseCode().toLowerCase();
+        String code = uidRpcResolver.bizNumber("passport_" + licenseCode);
+        passportInfo.setLicenseNumber(code);
 
         // 判断交费后状态
         if(passportInfo.getStartTime() != null && LocalDateTime.now().isBefore(passportInfo.getStartTime())){
@@ -449,6 +451,51 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         }
 
         return BaseOutput.success().setData(passportInfo);
+    }
+
+    /**
+     * 定时任务，修改通行证状态（未生效变为已生效/已过期，已生效变为已过期）
+     * 
+     * @param
+     * @return 
+     * @date   2020/8/6
+     */
+    @Override
+    public void passportTasking() {
+        List<Passport> passportList = new ArrayList<>();
+
+        // 搜索未生效或者已生效的通行证
+        PassportDto passportDtoParam = new PassportDto();
+        passportDtoParam.setState(PassportStateEnum.NOT_START.getCode());
+        List<Passport> passportInfoList = this.getActualDao().listPassports(passportDtoParam);
+        if (passportInfoList != null && passportInfoList.size() > 0) {
+            for (Passport passportInfo : passportInfoList) {
+                // 当前时间大于开始时间,则为已生效
+                if (passportInfo.getStartTime().isBefore(LocalDateTime.now()) && LocalDateTime.now().isBefore(passportInfo.getEndTime())) {
+                    passportInfo.setState(PassportStateEnum.IN_FORCE.getCode());
+                    passportInfoList.add(passportInfo);
+                } else if (passportInfo.getEndTime().isBefore(LocalDateTime.now())) {
+                    passportInfo.setState(PassportStateEnum.EXPIRED.getCode());
+                    passportList.add(passportInfo);
+                }
+            }
+        }
+
+        passportDtoParam.setState(PassportStateEnum.IN_FORCE.getCode());
+        List<Passport> passportForceList = this.getActualDao().listPassports(passportDtoParam);
+        if (passportForceList != null && passportForceList.size() > 0) {
+            for (Passport passportInfo : passportForceList) {
+                // 当前时间大于结束时间,则为已到期
+                if (passportInfo.getEndTime().isBefore(LocalDateTime.now())) {
+                    passportInfo.setState(PassportStateEnum.EXPIRED.getCode());
+                    passportList.add(passportInfo);
+                }
+            }
+        }
+
+        // 集合修改
+        this.batchUpdateSelective(passportList);
+
     }
 
     /**

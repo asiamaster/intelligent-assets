@@ -19,15 +19,23 @@ public enum BizNumberTypeEnum {
     TRANSACTION_CODE("transactionCode", "客户账户流水号"),
     STOCK_IN_CODE("stockInCode", "入库单号"),
     STOCK_IN_DETAIL_CODE("stockInDetail", "入库详情单号"),
-    WATER_ELECTRICITY_CODE("waterElectricity", "水电费单"),
     DEPOSIT_ORDER("depositOrder", "保证金业务单"),
     DEPOSIT_REFUND_ORDER("depositRefund", "保证金退款单"),
-    BOUTIQUE_ENTRANCE("boutiqueEntrance", "精品停车单"),
+    BOUTIQUE_ENTRANCE_ORDER("boutiqueEntrance", "精品停车单"),
     BOUTIQUE_ORDER_REFUND("boutiqueRefundOrder", "精品停车退款单"),
     LABOR_VEST("laborVest", "劳务马甲单"),
-    BOUTIQUE_ENTRANCE_REFUND("boutiqueEntranceRefundOrder", "精品停车单"),
     PASSPORT("passport", "通行证"),
     PASSPORT_REFUND("passportRefundOrder", "通行证退款单"),
+    WATER_CODE("water", "水费单"),
+    ELECTRICITY_CODE("electricity", "电费单"),
+    // 下面几个都是在通行证缴费成功回调时自动生成
+//    PASSPORT_YY_CODE("passport_yy", "通行证证件营运编号"),
+//    PASSPORT_HX_CODE("passport_hx", "通行证证件海鲜编号"),
+//    PASSPORT_ZY_CODE("passport_zy", "通行证证件自用编号"),
+//    PASSPORT_WS_CODE("passport_ws", "通行证证件外市编号"),
+//    PASSPORT_CS_CODE("passport_cs", "通行证证件超市编号"),
+//    PASSPORT_YZ_CODE("passport_yz", "通行证证件业主编号"),
+
     ;
 
     private String name;

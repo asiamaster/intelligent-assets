@@ -81,4 +81,17 @@ public class PassportApi {
         }
     }
 
+    /**
+     *
+     * @Title scanEffective
+     * @Description 定时任务扫描失效,待生效马甲单
+     * @throws
+     */
+    @RequestMapping(value = "/scanEffective", method = { RequestMethod.GET, RequestMethod.POST })
+    public void scanEffective() {
+        LOG.info("--通行证判断是否已生效和已过期的定时任务开始--");
+        passportService.passportTasking();
+        LOG.info("--通行证判断是否已生效和已过期的定时任务结束--");
+    }
+
 }
