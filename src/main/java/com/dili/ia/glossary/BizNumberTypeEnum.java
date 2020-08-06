@@ -19,6 +19,7 @@ public enum BizNumberTypeEnum {
     TRANSACTION_CODE("transactionCode", "客户账户流水号"),
     STOCK_IN_CODE("stockInCode", "入库单号"),
     STOCK_IN_DETAIL_CODE("stockInDetail", "入库详情单号"),
+    WATER_ELECTRICITY_CODE("waterElectricity", "水电费单"),
     DEPOSIT_ORDER("depositOrder", "保证金业务单"),
     DEPOSIT_REFUND_ORDER("depositRefund", "保证金退款单"),
     LABOR_VEST("laborVest", "劳务马甲单"),
@@ -28,13 +29,12 @@ public enum BizNumberTypeEnum {
     VEST_GX("vest_gx", "马甲号干果业户小型电动车及人力车"),
     VEST_GD("vest_gd", "马甲号干果业户大型电动车"),
 
-    WATER_CODE("water", "水费单"),
-    ELECTRICITY_CODE("electricity", "电费单"),
     BOUTIQUE_ENTRANCE("boutiqueEntrance", "精品停车单"),
     BOUTIQUE_ORDER_REFUND("boutiqueRefundOrder", "精品停车退款单"),
     PASSPORT("passport", "通行证"),
     PASSPORT_REFUND("passportRefundOrder", "通行证退款单"),
-
+    WATER_CODE("water", "水费单"),
+    ELECTRICITY_CODE("electricity", "电费单"),
     // 下面几个都是在通行证缴费成功回调时自动生成
 //    PASSPORT_YY_CODE("passport_yy", "通行证证件营运编号"),
 //    PASSPORT_HX_CODE("passport_hx", "通行证证件海鲜编号"),
