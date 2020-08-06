@@ -74,7 +74,7 @@
             }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
                     let diaWindow = $iframe[0].contentWindow;
                     bui.util.debounce(diaWindow.saveOrUpdateHandler,1000,true)()
-                    return false;
+                    return true;
                 }
             }]
         });
@@ -112,7 +112,7 @@
             }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
                     let diaWindow = $iframe[0].contentWindow;
                     bui.util.debounce(diaWindow.saveOrUpdateHandler,1000,true)()
-                    return false;
+                    return true;
                 }
             }]
         });
@@ -277,7 +277,7 @@
                 }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
                         let diaWindow = $iframe[0].contentWindow;
                         bui.util.debounce(diaWindow.saveFormHandler,1000,true)()
-                        return false;
+                        return true;
                     }
                 }]
             });

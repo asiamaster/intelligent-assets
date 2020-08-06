@@ -72,6 +72,12 @@ public class Labor extends BaseDomain {
      */
     @Column(name = "`state`")
     private Integer state;
+    
+    /**
+     * 上一步状态
+     */
+    @Column(name = "`pre_state`")
+    private Integer preState;
 
     /**
      * 备注
@@ -1041,6 +1047,14 @@ public class Labor extends BaseDomain {
 
 	public void setSubmitter(String submitter) {
 		this.submitter = submitter;
+	}
+
+	public Integer getPreState() {
+		return preState;
+	}
+
+	public void setPreState(Integer preState) {
+		this.preState = preState;
 	}
     
     

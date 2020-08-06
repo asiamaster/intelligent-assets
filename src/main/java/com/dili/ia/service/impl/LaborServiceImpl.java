@@ -226,8 +226,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 				&& labor.getState() != LaborStateEnum.EXPIRED.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		Labor odlLabor = new Labor(userTicket);
-		update(odlLabor, labor.getCode(), labor.getVersion(), LaborStateEnum.IN_RENAME);
+		// Labor odlLabor = new Labor(userTicket);
+		// update(odlLabor, labor.getCode(), labor.getVersion(), LaborStateEnum.IN_RENAME);
 		Labor domain = buildLabor(laborDto, userTicket);
 		domain.setRenewCode(labor.getCode());
 		this.insertSelective(domain);
@@ -279,6 +279,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		Labor labor = getLaborByCode(refundInfoDto.getCode());
 		checkRefund(labor);
 		Labor domain = new Labor(userTicket);
+		domain.setPreState(labor.getState());
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.SUBMITTED_REFUND);
 		// 获取结算单
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, labor.getCode());
@@ -333,11 +334,16 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		// 变更缴费单状态
 		paymentOrderService.updateSelective(paymentOrder);
 		Labor domain = new Labor();
+		// 生成马甲号
+		String workCard	= buildVestCode(labor.getMarketCode(), labor.getModels());
+		domain.setLicensePlate(workCard);
+		domain.setWorkCard(workCard);
 		if (LocalDateTime.now().isAfter(labor.getStartDate())) {
 			update(domain, code, labor.getVersion(), LaborStateEnum.IN_EFFECTIVE);
 		} else {
 			update(domain, code, labor.getVersion(), LaborStateEnum.NOT_STARTED);
 		}
+		
 		// 获取更名 更型单信息
 		//String oldCode = StringUtils.isNotEmpty(labor.getRenameCode())?labor.getRenameCode():labor.getRemodelCode();
 		if(StringUtils.isNotEmpty(labor.getRenameCode())) {
@@ -347,8 +353,43 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		} else if (StringUtils.isNotEmpty(labor.getRemodelCode())) {
 			Labor reLabor = getLaborByCode(labor.getRemodelCode());
 			Labor laborDomain = new Labor();
-			update(laborDomain, reLabor.getCode(), reLabor.getVersion(), LaborStateEnum.RENAME);
+			update(laborDomain, reLabor.getCode(), reLabor.getVersion(), LaborStateEnum.REMODEL);
 		}
+	}
+	
+	private String buildVestCode(String firmCode,String models) {
+		String type = "";
+		switch (models) {
+		case "RL": {
+			type = BizNumberTypeEnum.VEST_RL.getCode();	
+			break;
+		}
+		case "DD": {
+			type = BizNumberTypeEnum.VEST_DD.getCode();	
+			break;
+		}
+		case "JZ": {
+			type = BizNumberTypeEnum.VEST_JZ.getCode();	
+			break;
+		}
+		case "GX": {
+			type = BizNumberTypeEnum.VEST_GX.getCode();	
+			break;
+		}
+		case "GD": {
+			type = BizNumberTypeEnum.VEST_GD.getCode();	
+			break;
+		}
+		default:
+			break;
+		}
+		String code = uidRpcResolver.bizNumber(firmCode+"_"+type);
+		if(StringUtils.isEmpty(code)) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "马甲号生成失败");
+		}
+		// HZSCRL200001
+		// 重新拼接规则号HZSC20RL0001
+		return code;
 	}
 	
 	private Labor getLaborByCode(String code) {
@@ -530,5 +571,12 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		}
 		throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
 
+	}
+
+	@Override
+	public void cancleRefund(RefundOrder refundOrder) {
+		Labor labor = getLaborByCode(refundOrder.getBusinessCode());
+		Labor domain = new Labor();
+		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.getLaborStateEnum(labor.getPreState()));
 	}
 }

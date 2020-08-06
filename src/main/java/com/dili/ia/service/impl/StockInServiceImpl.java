@@ -461,10 +461,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				throw new BusinessException(ResultCode.DATA_ERROR, "库存件数小于作废件数,退款失败");
 			}
 		}
+		StockIn domain = new StockIn(userTicket);
+		updateStockIn(domain, stockIn.getCode(), stockIn.getVersion(), StockInStateEnum.SUBMITTED_REFUND);
 		// 获取结算单
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, stockIn.getCode());
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, stockIn,order);
-		refundOrderService.doSubmitDispatcher(refundOrder);
+		// refundOrderService.doSubmitDispatcher(refundOrder);
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
 	}
@@ -538,7 +540,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		refundOrder.setPayeeAmount(refundInfoDto.getPayeeAmount());
 		refundOrder.setRefundReason(refundInfoDto.getNotes());
 		refundOrder.setBizType(BizTypeEnum.STOCKIN.getCode());
-		refundOrder.setPayeeId(order.getCustomerId());
+		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
+		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
 		refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {

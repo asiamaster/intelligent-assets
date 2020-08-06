@@ -198,7 +198,8 @@ function saveFormHandler(){
 			if(!ret.success){
 				bs4pop.alert(ret.message, {type: 'error'});
 			}else{
-				parent.dia.hide()
+				bs4pop.alert(ret.message, {type: 'success'});
+				parent.$('#grid').bootstrapTable('refresh');
 			}
 		},
 		error: function (error) {

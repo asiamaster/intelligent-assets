@@ -74,6 +74,9 @@
                 $('#certificateNumber, #_certificateNumber').val(suggestion.certificateNumber);
                 $('#customerCellphone').val(suggestion.contactsPhone);
                 $('#customerGender').val(suggestion.gender);
+                if(suggestion.gender == undefined){
+                	$('#customerGender').val(1);
+                }
                 $('#certificateNumber, #_certificateNumber, #customerCellphone').valid();
             }
         };

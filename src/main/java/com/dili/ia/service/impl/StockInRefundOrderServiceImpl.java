@@ -43,27 +43,20 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 
 	@Override
 	public BaseOutput submitHandler(RefundOrder refundOrder) {
-		String code = refundOrder.getBusinessCode();
+		/*String code = refundOrder.getBusinessCode();
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = stockInService.getStockInByCode(code);
 		if (stockIn.getState() != StockInStateEnum.PAID.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		StockIn domain = new StockIn(userTicket);
-		updateState(domain, stockIn.getCode(), stockIn.getVersion(), StockInStateEnum.SUBMITTED_REFUND);
+		updateState(domain, stockIn.getCode(), stockIn.getVersion(), StockInStateEnum.SUBMITTED_REFUND);*/
 		return BaseOutput.success();
 	}
 
 	@Override
 	public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-		String code = refundOrder.getBusinessCode();
-		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-		StockIn stockIn = stockInService.getStockInByCode(code);
-		if (stockIn.getState() != StockInStateEnum.SUBMITTED_REFUND.getCode()) {
-			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-		}
-		StockIn domain = new StockIn(userTicket);
-		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
+		
 		return BaseOutput.success();
 	}
 
@@ -75,7 +68,14 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 
 	@Override
 	public BaseOutput cancelHandler(RefundOrder refundOrder) {
-		withdrawHandler(refundOrder);
+		String code = refundOrder.getBusinessCode();
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		StockIn stockIn = stockInService.getStockInByCode(code);
+		if (stockIn.getState() != StockInStateEnum.SUBMITTED_REFUND.getCode()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+		}
+		StockIn domain = new StockIn(userTicket);
+		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		return BaseOutput.success();
 	}
 
