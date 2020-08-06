@@ -32,6 +32,7 @@
             return false;
         }
         bui.loading.show('努力提交中，请稍候。。。');
+        $("#_assignee").attr("disabled", false);
         let _formData = bui.util.removeKeyStartWith($('#_form').serializeObject(true), "_");
         let _url = null;
         //没有id就新增
@@ -150,9 +151,9 @@
             dataType: "json",
             async: true,
             success: function (data) {
-                var editInfo = $.extend({"districtIds":data}, row);
+                var editInfo = $.extend({"districtIds":data}, row, {batchUpdate:true});
                 delete(editInfo["districtId"]);
-                bs4popDialog('批量修改审批人分配区域', editInfo, saveOrUpdateHandler)
+                bs4popDialog('批量修改审批人分配区域', editInfo, saveOrUpdateHandler);
             },
             error: function (a, b, c) {
                 bui.loading.hide();

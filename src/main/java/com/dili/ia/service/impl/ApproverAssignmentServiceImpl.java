@@ -30,17 +30,10 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
     @Override
     @Transactional
     public void updateEx(ApproverAssignmentDto approverAssignmentDto) {
-        ApproverAssignment approverAssignment = DTOUtils.newInstance(ApproverAssignment.class);
-        approverAssignment.setProcessDefinitionKey(approverAssignmentDto.getProcessDefinitionKey());
-        approverAssignment.setTaskDefinitionKey(approverAssignmentDto.getTaskDefinitionKey());
-        approverAssignment.setAssignee(approverAssignmentDto.getAssignee());
-        approverAssignment.setRows(1);
         //查询原始的分配数据，用于判断是否修改流程、任务和办理人
         ApproverAssignment originalApproverAssignment = get(approverAssignmentDto.getId());
-        //如果修改了流程、任务和办理人
-        //并且
-        //修改后的流程、任务和办理人，在数据库中存在其它相同的流程、任务和办理人
-        if(!isEqual(originalApproverAssignment, approverAssignmentDto) && !list(approverAssignment).isEmpty()){
+        //如果修改了流程、任务和办理人，则抛异常
+        if(!isEqual(originalApproverAssignment, approverAssignmentDto)){
             throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的流程、任务和办理人");
         }
         if (approverAssignmentDto.getDistrictIds() != null){
