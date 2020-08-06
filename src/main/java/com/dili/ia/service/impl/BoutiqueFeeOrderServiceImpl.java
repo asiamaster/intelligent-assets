@@ -110,7 +110,6 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     @Override
     @GlobalTransactional
     public void refund(BoutiqueFeeRefundOrderDto refundDto) throws Exception {
-        BoutiqueFeeOrder orderInfo = new BoutiqueFeeOrder();
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 查询相关数据
@@ -125,9 +124,8 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
 
         // 修改状态
         orderDtoInfo.setModifyTime(LocalDateTime.now());
-        orderDtoInfo.setState(PassportStateEnum.SUBMITTED_REFUND.getCode());
-        BeanUtils.copyProperties(orderDtoInfo, orderInfo);
-        this.updateSelective(orderInfo);
+        orderDtoInfo.setState(BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode());
+        this.updateSelective(orderDtoInfo);
 
         // 转抵信息
         if (CollectionUtils.isNotEmpty(refundDto.getTransferDeductionItems())) {
@@ -152,8 +150,9 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
         }
 
         orderInfo.setCancelerId(userTicket.getId());
-        orderInfo.setCanceler(userTicket.getRealName());
         orderInfo.setCancelTime(LocalDateTime.now());
+        orderInfo.setCanceler(userTicket.getRealName());
+        orderInfo.setVersion(orderInfo.getVersion() + 1);
         orderInfo.setState(BoutiqueOrderStateEnum.CANCELLED.getCode());
         if (this.updateSelective(orderInfo) == 0) {
             return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");

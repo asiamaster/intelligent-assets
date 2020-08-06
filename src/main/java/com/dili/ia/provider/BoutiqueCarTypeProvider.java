@@ -1,7 +1,6 @@
 package com.dili.ia.provider;
 
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.CarTypeEnum;
+import com.dili.ia.glossary.BoutiqueCarTypeEnum;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
@@ -23,11 +22,11 @@ import java.util.stream.Stream;
  * @createTime 2020-03-11 18:13
  */
 @Component
-public class CarTypeProvider implements ValueProvider {
+public class BoutiqueCarTypeProvider implements ValueProvider {
     private static final List<ValuePair<?>> BUFFER = new ArrayList<>();
 
     static {
-        BUFFER.addAll(Stream.of(CarTypeEnum.values())
+        BUFFER.addAll(Stream.of(BoutiqueCarTypeEnum.values())
                 .map(e -> new ValuePairImpl<>(e.getName(), e.getCode().toString()))
                 .collect(Collectors.toList()));
     }

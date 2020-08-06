@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     private BoutiqueEntranceRecordService boutiqueEntranceRecordService;
 
     /**
-     * 退款单 -- 提交
+     * 退款单 -- 提交(退款的提交无需改变通行证缴费单的信息)
      * 
      * @param
      * @return 
@@ -44,18 +45,11 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
      */
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
-
-        BoutiqueFeeOrderDto orderDto = boutiqueEntranceRecordService.getBoutiqueAndOrderByCode(refundOrder.getCode());
-        if (!BoutiqueOrderStateEnum.PAID.getCode().equals(orderDto.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-        }
-
-        this.updateState(refundOrder.getCode(), orderDto.getVersion(), BoutiqueOrderStateEnum.SUBMITTED_REFUND);
         return BaseOutput.success();
     }
 
     /**
-     * 退款单 -- 撤回
+     * 退款单 -- 撤回(退款的撤回无需改变通行证缴费单的信息)
      *
      * @param
      * @return
@@ -63,18 +57,11 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
      */
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-
-        BoutiqueFeeOrderDto orderDto = boutiqueEntranceRecordService.getBoutiqueAndOrderByCode(refundOrder.getCode());
-        if (!BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode().equals(orderDto.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-        }
-
-        this.updateState(refundOrder.getCode(), orderDto.getVersion(), BoutiqueOrderStateEnum.PAID);
         return BaseOutput.success();
     }
 
     /**
-     * 退款单 -- 退款成功回调
+     * 退款单 -- 退款成功回调(精品停车的交费单状态由退款中修改为已退款)
      *
      * @param
      * @return
@@ -83,18 +70,18 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     @Override
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 
-        BoutiqueFeeOrderDto orderDto = boutiqueEntranceRecordService.getBoutiqueAndOrderByCode(refundOrder.getCode());
-        if (!BoutiqueOrderStateEnum.PAID.getCode().equals(orderDto.getState())) {
+        BoutiqueFeeOrderDto orderDto = boutiqueEntranceRecordService.getBoutiqueAndOrderByCode(refundOrder.getBusinessCode());
+        if (!BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode().equals(orderDto.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
 
-        this.updateState(refundOrder.getCode(), orderDto.getVersion(), BoutiqueOrderStateEnum.REFUNDED);
+        this.updateState(refundOrder.getBusinessCode(), orderDto.getVersion(), BoutiqueOrderStateEnum.REFUNDED);
 
         return BaseOutput.success();
     }
 
     /**
-     * 退款单 -- 取消
+     * 退款单 -- 取消(精品停车的交费单状态由退款中修改为已缴费)
      *
      * @param
      * @return
@@ -102,7 +89,13 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
      */
     @Override
     public BaseOutput cancelHandler(RefundOrder refundOrder) {
-        this.withdrawHandler(refundOrder);
+
+        BoutiqueFeeOrderDto orderDto = boutiqueEntranceRecordService.getBoutiqueAndOrderByCode(refundOrder.getBusinessCode());
+        if (!BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode().equals(orderDto.getState())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+        }
+
+        this.updateState(refundOrder.getBusinessCode(), orderDto.getVersion(), BoutiqueOrderStateEnum.PAID);
 
         return BaseOutput.success();
     }
@@ -132,11 +125,11 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     }
 
     private void updateState(String code, Integer version, BoutiqueOrderStateEnum state) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         BoutiqueFeeOrder domain = new BoutiqueFeeOrder();
         domain.setVersion(version + 1);
         domain.setState(state.getCode());
+        domain.setModifyTime(LocalDateTime.now());
 
         BoutiqueFeeOrder condition = new BoutiqueFeeOrder();
         condition.setCode(code);

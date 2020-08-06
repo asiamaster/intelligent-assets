@@ -2,6 +2,7 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
+import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -9,6 +10,7 @@ import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -58,10 +61,12 @@ public class BoutiqueEntranceRecordController {
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap, Long id) {
         BoutiqueEntranceRecordDto boutiqueEntranceRecordDto = null;
+
         if (id != null) {
             boutiqueEntranceRecordDto = boutiqueEntranceRecordService.getBoutiqueEntranceDtoById(id);
         }
         modelMap.put("boutiqueEntranceRecord", boutiqueEntranceRecordDto);
+
         return "boutiqueEntranceRecord/view";
     }
 
@@ -75,10 +80,12 @@ public class BoutiqueEntranceRecordController {
     @RequestMapping(value="/confirm.html", method = RequestMethod.GET)
     public String confirm(ModelMap modelMap, Long id) {
         BoutiqueEntranceRecord boutiqueEntranceRecord = null;
+
         if (id != null) {
             boutiqueEntranceRecord = boutiqueEntranceRecordService.get(id);
         }
         modelMap.put("boutiqueEntranceRecord", boutiqueEntranceRecord);
+
         return "boutiqueEntranceRecord/confirm";
     }
 
@@ -93,9 +100,16 @@ public class BoutiqueEntranceRecordController {
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="confirm", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput add(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) throws Exception {
 
-        boutiqueEntranceRecordService.insert(boutiqueEntranceRecord);
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        return BaseOutput.success();
+        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.addBoutique(boutiqueEntranceRecord);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()) {
+            LoggerUtil.buildLoggerContext(boutiqueEntranceRecord.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
+        return baseOutput;
     }
 
     /**
@@ -131,10 +145,12 @@ public class BoutiqueEntranceRecordController {
     @RequestMapping(value="/submit.html", method = RequestMethod.GET)
     public String pay(ModelMap modelMap, Long id) {
         BoutiqueEntranceRecordDto boutiqueEntranceRecordDto = null;
+
         if (id != null) {
             boutiqueEntranceRecordDto = boutiqueEntranceRecordService.getBoutiqueEntranceDtoById(id);
         }
         modelMap.put("boutiqueEntranceRecord", boutiqueEntranceRecordDto);
+
         return "boutiqueEntranceRecord/submit";
     }
 
@@ -146,16 +162,41 @@ public class BoutiqueEntranceRecordController {
      * @date   2020/7/13
      */
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput submit(@ModelAttribute BoutiqueFeeOrder feeOrder) throws Exception {
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_FEE_ORDER, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput submit(@RequestBody BoutiqueFeeOrder feeOrder) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
         BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.submit(feeOrder, userTicket);
 
         // 写业务日志
         if (baseOutput.isSuccess()){
             BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
             LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
+        return baseOutput;
+    }
+
+    /**
+     * 取消(进门取消，可在待确认和计费中取消)
+     *
+     * @param id
+     * @return BaseOutput
+     * @date   2020/8/5
+     */
+    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput cancel(Long id) throws Exception {
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
+        BaseOutput<BoutiqueFeeOrder> baseOutput = boutiqueEntranceRecordService.cancel(id, userTicket);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()){
+            BoutiqueFeeOrder order = baseOutput.getData();
+            LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
 
         return baseOutput;
@@ -173,6 +214,7 @@ public class BoutiqueEntranceRecordController {
     public @ResponseBody BaseOutput leave(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
         BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.leave(id, userTicket);
 
         // 写业务日志
@@ -192,19 +234,27 @@ public class BoutiqueEntranceRecordController {
      * @date   2020/7/13
      */
     @RequestMapping(value="/forceLeave.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="leave", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="forceLeave", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput forceLeave(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.forceLeave(id, userTicket);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()){
-            BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        try{
+            BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.forceLeave(id, userTicket);
+
+            // 写业务日志
+            if (baseOutput.isSuccess()){
+                BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+            return baseOutput;
+        }catch (BusinessException e){
+            logger.error("精品停车强制离场异常！", e);
+            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+        }catch (Exception e){
+            logger.error("精品停车强制离场异常！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }
-
-        return baseOutput;
     }
 
 
@@ -220,19 +270,6 @@ public class BoutiqueEntranceRecordController {
     public @ResponseBody String listPage(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) throws Exception {
         return boutiqueEntranceRecordService.listEasyuiPageByExample(boutiqueEntranceRecord, true).toString();
     }
-
-    /**
-     * 新增精品停车（提供给进门收费项目）
-     *
-     * @param boutiqueEntranceRecord
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) {
-        boutiqueEntranceRecordService.insertSelective(boutiqueEntranceRecord);
-        return BaseOutput.success("新增成功");
-    }
-
 
     /**
      * 修改状态

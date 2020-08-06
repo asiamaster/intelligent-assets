@@ -137,6 +137,48 @@
     }
 
     /**
+     取消
+     */
+    function openCancelHandler() {
+        if(isSelectRow()){
+            bs4pop.confirm('确定取消该业务单？', {}, function (sure) {
+                if(sure){
+                    bui.loading.show('努力提交中，请稍候。。。');
+                    //获取选中行的数据
+                    let rows = _grid.bootstrapTable('getSelections');
+
+                    if (null == rows || rows.length == 0 || rows.length != 1) {
+                        bs4pop.alert('请选中一条数据');
+                        return false;
+                    }
+
+                    let selectedRow = rows[0];
+
+                    $.ajax({
+                        type: "POST",
+                        url: "${contextPath}/boutiqueFeeOrder/cancel.action",
+                        data: {id: selectedRow.id},
+                        processData:true,
+                        dataType: "json",
+                        success : function(ret) {
+                            bui.loading.hide();
+                            if(ret.success){
+                                queryDataHandler();
+                            }else{
+                                bs4pop.alert(ret.message, {type: 'error'});
+                            }
+                        },
+                        error : function() {
+                            bui.loading.hide();
+                            bs4pop.alert('远程访问失败', {type: 'error'});
+                        }
+                    });
+                }
+            })
+        }
+    }
+
+    /**
      打开处理页面
      */
     function openSubmitHandler() {
@@ -146,6 +188,19 @@
             bs4pop.alert('请选中一条数据');
             return false;
         }
+
+        // 如果当前时间小于下次计费时间，则还未生成缴费
+        let countTime = rows[0].countTime;
+        if (countTime != null && countTime != '') {
+            let nowDate = new Date();
+            let date3 = nowDate.getTime() - new Date(countTime).getTime();
+            let plate = rows[0].plate;
+            if (date3 < 0) {
+                bs4pop.alert( '{' + plate + '}' + '暂未产生费用', {type: 'error'});
+                return false;
+            }
+        }
+
         dia = bs4pop.dialog({
             title: '确认计费',//对话框title
             content: '${contextPath}/boutiqueEntranceRecord/submit.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object

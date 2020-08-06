@@ -1,7 +1,6 @@
 package com.dili.ia.provider;
 
 import com.dili.ia.glossary.BoutiqueStateEnum;
-import com.dili.ia.glossary.CarTypeEnum;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;

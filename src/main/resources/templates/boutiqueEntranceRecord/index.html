@@ -7,12 +7,12 @@
 
             <div class="form-group col">
                 <label for="plate">挂号:</label>
-                <input type="number" class="form-control" name="plate" id="plate" maxlength="50"/>
+                <input type="text" class="form-control" name="plate" id="plate" maxlength="50"/>
             </div>
 
             <div class="form-group col">
                 <label for="customerName">客户名称:</label>
-                <input type="customerName" class="form-control" name="customerName" id="customerName" maxlength="50"/>
+                <input type="text" class="form-control" name="customerName" id="customerName" maxlength="50"/>
             </div>
 
             <div>
@@ -72,7 +72,7 @@
         <th data-field="plate" data-sortable="true" data-align="center">
             挂号
         </th>
-        <th data-field="carTypeId" data-sortable="true" data-align="center" data-provider="datetimeProvider">
+        <th data-field="carTypeId" data-sortable="true" data-align="center" data-provider="boutiqueCarTypeProvider">
             车型
         </th>
         <th data-field="departmentName" data-sortable="true" data-align="center">
@@ -81,10 +81,10 @@
         <th data-field="confirmTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
             确认时间
         </th>
-        <th data-field="createTime" data-sortable="true" data-align="center">
+        <th data-field="parking" data-sortable="true" data-align="center" data-formatter="dateFormatter">
             停车时长
         </th>
-        <th data-field="totalAmount" data-sortable="true" data-align="center">
+        <th data-field="totalAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
             已缴费
         </th>
         <th data-field="leaveTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
@@ -93,6 +93,7 @@
         <th data-field="state" data-sortable="true" data-align="center" data-provider="boutiqueStateProvider">
             状态
         </th>
+
     </tr>
     </thead>
 </table>
@@ -103,6 +104,21 @@
 
 
 </#bs4Body>
+
+
+<script>
+    function dateFormatter(value,row) {
+        // 计算停车时长
+        var confirmTime = row.confirmTime;
+        if (confirmTime != null && confirmTime != "") {
+            var nowDate = new Date();
+            var date3 = nowDate.getTime() - new Date(confirmTime).getTime();
+            var hours = Math.ceil(date3/(3600*1000));
+            return hours;
+        }
+    }
+
+</script>
 
 <#boutiqueEntranceRecord_indexJs />
 

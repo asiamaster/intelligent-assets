@@ -78,12 +78,12 @@ public class BoutiqueFeeOrderController {
     }
 
     /**
-     * 修改BoutiqueFeeOrder
+     * 取消
      * @param id
      * @return BaseOutput
      */
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_FEE_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput cancel(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

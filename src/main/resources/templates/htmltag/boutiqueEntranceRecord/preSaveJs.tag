@@ -113,10 +113,15 @@
 
         bui.loading.show('努力提交中，请稍候。。。');
         let _formData = $('#saveForm').serializeObject();
+
+        // 金钱乘以100
+        bui.util.yuanToCentForMoneyEl(_formData);
+
         $.ajax({
             type: "POST",
             url: "${contextPath}/boutiqueEntranceRecord/submit.action",
-            data: _formData,
+            data: JSON.stringify(_formData),
+            contentType: "application/json",
             dataType: "json",
             success: function (ret) {
                 bui.loading.hide();

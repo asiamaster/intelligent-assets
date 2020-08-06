@@ -13,7 +13,7 @@
             <div class="form-group col">
                 <label for="carTypeId">车型</label>
                 <select id="carTypeId"  name="carTypeId" class="form-control" disabled ></select>
-                <#bcomboProvider _log="车型" _id="carTypeId" _provider="carTypeProvider" _value="${boutiqueEntranceRecord.carTypeId!}"  />
+                <#bcomboProvider _log="车型" _id="carTypeId" _provider="boutiqueCarTypeProvider" _value="${boutiqueEntranceRecord.carTypeId!}"  />
             </div>
 
             <div class="form-group col">
@@ -28,22 +28,22 @@
 
             <div class="form-group col">
                 <label for="enterTime">进场时间<i class="red">*</i></label>
-                <input type="text" class="form-control" value="${boutiqueEntranceRecord.enterTime!,localDateTimeFormat='yyyy-MM-dd HH:MM:SS'}" disabled />
+                <input type="text" class="form-control" value="${boutiqueEntranceRecord.enterTime!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" disabled />
             </div>
 
             <div class="form-group col">
                 <label _log for="confirmTime">确认时间<i class="red">*</i></label>
-                <input type="text" class="form-control" value="${boutiqueEntranceRecord.confirmTime!,localDateTimeFormat='yyyy-MM-dd HH:MM:SS'}" disabled />
+                <input type="text" class="form-control" value="${boutiqueEntranceRecord.confirmTime!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" disabled />
             </div>
 
             <div class="form-group col">
                 <label _log for="price">开始计费<i class="red">*</i></label>
-                <input type="text" class="form-control" value="${boutiqueEntranceRecord.countTime!,localDateTimeFormat='yyyy-MM-dd HH:MM:SS'}" disabled />
+                <input type="text" class="form-control" value="${boutiqueEntranceRecord.startTime!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" disabled />
             </div>
 
             <div class="form-group col">
                 <label _log for="price">下次计费<i class="red">*</i></label>
-                <input type="text" class="form-control" value="${boutiqueEntranceRecord.countTime!,localDateTimeFormat='yyyy-MM-dd HH:MM:SS'}" disabled />
+                <input type="text" class="form-control" value="${boutiqueEntranceRecord.countTime!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" disabled />
             </div>
 
             <div class="form-group col">
@@ -54,8 +54,55 @@
 
             <div class="form-group col">
                 <label _log for="totalAmount">已交费<i class="red">*</i></label>
-                <input type="text" class="form-control" id="totalAmount" name="totalAmount" value="${boutiqueEntranceRecord.totalAmount!}" disabled  />
+                <input type="text" class="form-control" id="totalAmount" name="totalAmount" value="<#centToYuan value='${boutiqueEntranceRecord.totalAmount}'/>"  disabled  />
             </div>
+        </div>
+
+        <div class="col-12">
+            <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i>取消</button>
+                <button id="btn_confirm" type="button" class="btn btn-primary" onclick="openRefundHandler()"><i class="fa fa-undo"></i> 退款申请</button>
+            </div>
+        </div>
+        <div class="collapse show" id="details">
+            <table class="table table-bordered table-hover table-striped" id="boothTable" >
+                <thead>
+                <tr>
+                    <th style="font-weight:normal; ">缴费单号</th>
+                    <th style="font-weight:normal; ">创建时间</th>
+                    <th style="font-weight:normal; ">费用时间范围</th>
+                    <th style="font-weight:normal; ">缴费金额/元</th>
+                    <th style="font-weight:normal; ">备注</th>
+                    <th style="font-weight:normal; ">状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                <%
+                if(boutiqueEntranceRecord.orderDtoList.~size>0){
+                for(item in boutiqueEntranceRecord.orderDtoList){%>
+                <tr>
+                    <td>
+                        ${item.code!'--'}
+                    </td>
+                    <td>
+                        ${item.createTime!'--', localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}
+                    </td>
+                    <td>
+                        ${item.startTime!'--', localDateTimeFormat='yyyy-MM-dd HH:mm:ss'} - ${item.endTime!'--', localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}
+                    </td>
+                    <td>
+                        <#centToYuan value='${item.amount!0}'/>
+                    </td>
+                    <td>
+                        ${item.notes!'--'}
+                    </td>
+                    <td>
+                        ${@com.dili.ia.glossary.BoutiqueOrderStateEnum.getBoutiqueOrderStateEnumName(item.state!)}
+                    </td>
+                </tr>
+                <% } } %>
+                </tbody>
+            </table>
         </div>
 
     </form>
@@ -65,5 +112,6 @@
 
 <#js_customerAutocompleteJs/>
 <#boutiqueEntranceRecord_indexJs />
+
 
 
