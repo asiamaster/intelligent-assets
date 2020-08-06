@@ -264,6 +264,7 @@
 <!-- 开票模板 -->
 <script id="invoiceTpl" type="text/html">
     <form id="_invoiceForm" method="post" >
+        <input name="_totalAmount" id="_totalAmount" value="{{totalAmount}}" type="hidden">
         <div class="form-group row">
             <label class="col-2 col-form-label text-right" for="_type">开票类型<i class="red">*</i></label>
             <div class="col-10">
