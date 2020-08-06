@@ -158,18 +158,14 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      */
     BaseOutput oldDataHandler(List<DepositOrder> depositOrderList);
     /**
-     *  * 老数据处理-- 新增保证金单
-     *      * 新增已交费的保证金单，
-     *      * 修改/新增保证金余额，
-     *      * 新增已交费的缴费单，
-     *      * 新增已结算的结算单；
-     *      *
-     *      *新增关联退款单
-     *      *新增退款单的退款结算单
      *
-     * 批量【新增】,【已交费】的保证金单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
+     * 新增关联退款单
+     * 修改/新增保证金余额，
+     * 新增退款单的退款结算单
+     *
+     * 批量【新增】,【已退款】的保证金退款单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
      * @param refundOrderList 租赁订单退款单列表
-     * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
+     * refundOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
      *                         departmentId 业务所属部门ID ; departmentName 部门名称; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
      *                         assetsId 资产ID; businessId 关联订单ID; bizType 关联订单业务类型;
      *                         Payee 收款人,  PayeeID 收款人ID, PayeeCertificateNumber 收款人证件号
