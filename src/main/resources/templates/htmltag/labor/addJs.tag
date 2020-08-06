@@ -64,7 +64,8 @@
                 if(!ret.success){
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
-                    parent.closeDialog(parent.dia);
+                	bs4pop.alert(ret.message, {type: 'success'});
+    				parent.$('#grid').bootstrapTable('refresh');
                 }
             },
             error: function (error) {
@@ -120,6 +121,8 @@ $(function () {
 		let startDate = moment("${labor.endDate!}").add('day', 1)
 		$('#startDate').val(startDate.format("YYYY-MM-DD"));
 		$('#endDate').val(startDate.add('month', 1).format('YYYY-MM-DD'));
+		$(".chargeItem").removeAttr("readonly");
+
 	}
 	if(type != "update" && type != "add"){
 		//根据操作类型判断可修改数据
@@ -139,6 +142,7 @@ $(function () {
 		if(type == "rename"){
 			$('#customerName').removeAttr("readonly");
 		}
+		$(".chargeItem").removeAttr("readonly");
 	}
 });
 

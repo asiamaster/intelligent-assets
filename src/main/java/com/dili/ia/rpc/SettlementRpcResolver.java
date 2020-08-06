@@ -13,6 +13,7 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,9 @@ public class SettlementRpcResolver {
 	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
+	
+	@Autowired
+	private  DepartmentRpc departmentRpc;
     
     //private String settlerHandlerUrl = "http://10.28.1.187:8381/api/labor/vest/settlementDealHandler";
 	
@@ -124,6 +128,10 @@ public class SettlementRpcResolver {
 		settleOrderInfoDto.setCustomerName(labor.getCustomerName());
 		settleOrderInfoDto.setCustomerPhone(labor.getCustomerCellphone());
 		//settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+		if (userTicket.getDepartmentId() != null){
+            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
+            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+        }
 		return settleOrderInfoDto;
 	}
 }

@@ -108,6 +108,14 @@ public interface LaborService extends BaseService<Labor, Long> {
 	
 	/**
 	 * 
+	 * @Title cancleRefund
+	 * @Description 取消退款申请
+	 * @throws
+	 */
+	void cancleRefund(RefundOrder refundOrder);
+	
+	/**
+	 * 
 	 * @Title refundSubmitHandler
 	 * @Description 退款申请回调
 	 * @param refundOrder

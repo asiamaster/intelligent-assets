@@ -38,7 +38,7 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 
 	@Override
 	public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-		return null;
+		return BaseOutput.success();
 	}
 
 	@Override
@@ -49,14 +49,14 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 
 	@Override
 	public BaseOutput cancelHandler(RefundOrder refundOrder) {
-		// TODO Auto-generated method stub
-		return null;
+		laborService.cancleRefund(refundOrder);
+		return BaseOutput.success();
 	}
 
 	@Override
 	public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
-		// TODO Auto-generated method stub
-		return null;
+		laborService.receiptRefundPrintData(refundOrder.getCode(), "reprint");
+		return BaseOutput.success();
 	}
 
 	@Override
