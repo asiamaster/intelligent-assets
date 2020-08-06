@@ -23,42 +23,64 @@ public class LeaseDataHandlerApi {
 
     /**
      * 去掉保证金后数据处理
+     *
      * @return
      */
-    @GetMapping(value="/leaseOrderDataHandler")
-    public @ResponseBody BaseOutput leaseOrderDataHandler(){
-        try{
+    @GetMapping(value = "/leaseOrderDataHandler")
+    public @ResponseBody
+    BaseOutput leaseOrderDataHandler() {
+        try {
             return assetsLeaseDataHandlerService.leaseOrderDataHandler();
-        }catch (Exception e){
-            LOG.error("跑订单数据异常！", e);
+        } catch (Exception e) {
+            LOG.error("跑订单数据异常 FAIL！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
 
     /**
      * 迁移保证金后数据处理
+     *
      * @return
      */
-    @GetMapping(value="/moveDepositAmount")
-    public @ResponseBody BaseOutput moveDepositAmount(){
-        try{
+    @GetMapping(value = "/moveDepositAmount")
+    public @ResponseBody
+    BaseOutput moveDepositAmount() {
+        try {
             return assetsLeaseDataHandlerService.moveDepositAmount();
-        }catch (Exception e){
-            LOG.error("扫描等待停租的摊位异常！", e);
+        } catch (Exception e) {
+            LOG.error("迁移保证金后数据处理异常 FAIL！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
 
     /**
      * 跑订单项及收费项数据
+     *
      * @return
      */
-    @GetMapping(value="/leaseOrderChargeItemDataHandler")
-    public @ResponseBody BaseOutput leaseOrderChargeItemDataHandler(){
-        try{
+    @GetMapping(value = "/leaseOrderChargeItemDataHandler")
+    public @ResponseBody
+    BaseOutput leaseOrderChargeItemDataHandler() {
+        try {
             return assetsLeaseDataHandlerService.leaseOrderChargeItemDataHandler();
-        }catch (Exception e){
-            LOG.error("跑订单项及收费项数据异常！", e);
+        } catch (Exception e) {
+            LOG.error("跑订单项及收费项数据异常 FAIL！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     * 跑退款单金额及退款收费项数据
+     *
+     * @return
+     */
+    @GetMapping(value = "/refundOrderChargeItemDataHandler")
+    public @ResponseBody
+    BaseOutput refundOrderChargeItemDataHandler() {
+        try {
+            return assetsLeaseDataHandlerService.refundOrderChargeItemDataHandler();
+        } catch (Exception e) {
+            LOG.error("跑退款单金额及退款收费项数据异常 FAIL！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }

@@ -28,7 +28,6 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
     @Operator(Operator.LITTLE_EQUAL_THAN)
     private LocalDateTime stopTimeLet;
 
-
     @Operator(Operator.IN)
     @Column(name = "id")
     private List<Long> ids;
@@ -43,7 +42,11 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
 
     @Operator(Operator.IN)
     @Column(name = "state")
-    private List<Long> states;
+    private List<Integer> states;
+
+    @Operator(Operator.IN)
+    @Column(name = "refund_state")
+    private List<Integer> refundStates;
 
     @Transient
     private List<BusinessChargeItem> businessChargeItems;
@@ -108,12 +111,20 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
         this.districtIds = districtIds;
     }
 
-    public List<Long> getStates() {
+    public List<Integer> getStates() {
         return states;
     }
 
-    public void setStates(List<Long> states) {
+    public void setStates(List<Integer> states) {
         this.states = states;
+    }
+
+    public List<Integer> getRefundStates() {
+        return refundStates;
+    }
+
+    public void setRefundStates(List<Integer> refundStates) {
+        this.refundStates = refundStates;
     }
 
     public List<BusinessChargeItem> getBusinessChargeItems() {
