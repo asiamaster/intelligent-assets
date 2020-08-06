@@ -264,11 +264,12 @@
 <!-- 开票模板 -->
 <script id="invoiceTpl" type="text/html">
     <form id="_invoiceForm" method="post" >
+        <input name="_totalAmount" id="_totalAmount" value="{{totalAmount}}" type="hidden">
         <div class="form-group row">
             <label class="col-2 col-form-label text-right" for="_type">开票类型<i class="red">*</i></label>
             <div class="col-10">
                 <select id="_type" name="_type" class="form-control" required>
-                    <option value="{{$_type}}" selected>{{type}}</option>
+                    <option value="1" selected>普票</option>
                 </select>
                 <#bselect2 _escape="true" _id="_type"  _provider="invoiceTypeProvider" _mode="remote" _optionVariable="invoiceTypeOption" />
             </div>
@@ -282,7 +283,7 @@
         <div class="form-group row">
             <label class="col-2 col-form-label text-right" for="_amount">开票金额<i class="red">*</i></label>
             <div class="col-10">
-                <input type="text" class="form-control" id="_amount" value="{{amount}}" name="_amount" minlength="1" maxlength="10" placeholder="" required number/>
+                <input type="text" class="form-control" id="_amount" value="{{amount}}" name="_amount" min="0" max="{{amount}}" placeholder="" required number/>
             </div>
         </div>
         <div class="form-group row">
@@ -299,7 +300,7 @@
         <div class="form-group row">
             <label class="col-2 col-form-label text-right" for="_notes">备注</label>
             <div class="col-10">
-                <input type="text" class="form-control" id="_notes" value="{{notes}}" name="_notes" maxlength="120" />
+                <input type="text" class="form-control" id="_notes" value="{{notes}}" name="_notes" maxlength="50" />
             </div>
         </div>
     </form>

@@ -11,6 +11,7 @@
     <result column="target" jdbcType="VARCHAR" property="target" />
     <result column="target_id" jdbcType="BIGINT" property="targetId" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
+    <result column="total_amount" jdbcType="BIGINT" property="totalAmount" />
     <result column="invoice_date" jdbcType="DATE" property="invoiceDate" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
     <result column="creator" jdbcType="VARCHAR" property="creator" />
@@ -23,7 +24,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, business_key, type, target, target_id, amount, invoice_date, creator_id, creator, notes,
+    id, business_key, type, target, target_id, amount, total_amount, invoice_date, creator_id, creator, notes,
     create_time, modify_time, firm_id
   </sql>
 

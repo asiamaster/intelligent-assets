@@ -8,7 +8,6 @@ import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.uap.sdk.domain.UserTicket;
 
 import java.util.List;
 import java.util.Map;
@@ -155,10 +154,27 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      *                         businessId 关联订单ID; bizType 关联订单业务类型;
      *                         CreatorId 创建人ID,  Creator 创建人姓名, MarketId 市场ID, MarketCode 市场Code,
      *
-     * @param creatorTicket 创建人信息
-     * @param submiterTicket 提交人信息
-     * @param settlementTicket 结算人信息
      * @return BaseOutput
      */
-    BaseOutput oldDataHandler(List<DepositOrder> depositOrderList, UserTicket creatorTicket, UserTicket submiterTicket, UserTicket settlementTicket);
+    BaseOutput oldDataHandler(List<DepositOrder> depositOrderList);
+    /**
+     *  * 老数据处理-- 新增保证金单
+     *      * 新增已交费的保证金单，
+     *      * 修改/新增保证金余额，
+     *      * 新增已交费的缴费单，
+     *      * 新增已结算的结算单；
+     *      *
+     *      *新增关联退款单
+     *      *新增退款单的退款结算单
+     *
+     * 批量【新增】,【已交费】的保证金单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
+     * @param depositOrderList 保证金订单列表
+     * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
+     *                         departmentId 业务所属部门ID ; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
+     *                         assetsType 资产类型; assetsId 资产ID; assetsName 资产名称; amount 保证金金额; isRelated 是否关联订单1，是，0否;
+     *                         businessId 关联订单ID; bizType 关联订单业务类型;
+     *                         CreatorId 创建人ID,  Creator 创建人姓名, MarketId 市场ID, MarketCode 市场Code,
+     * @return BaseOutput
+     */
+    BaseOutput oldRefundOrderDataHandler(List<DepositOrder> depositOrderList);
 }

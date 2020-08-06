@@ -137,7 +137,7 @@
             }
             row = rows[0];
         }
-        bs4popDialog('修改审批人分配', row, saveOrUpdateHandler);
+        bs4popDialog('修改开票记录', row, saveOrUpdateHandler);
     }
 
     /**

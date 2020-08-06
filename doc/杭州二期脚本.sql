@@ -89,7 +89,7 @@ CREATE TABLE `invoice_record` (
 	`invoice_date` DATE NULL DEFAULT NULL COMMENT '开票日期',
 	`creator_id` BIGINT(20) NULL DEFAULT NULL COMMENT '开票人',
 	`creator` VARCHAR(20) NULL DEFAULT NULL COMMENT '开票人名称' COLLATE 'utf8mb4_general_ci',
-	`notes` VARCHAR(120) NULL DEFAULT NULL COMMENT '备注' COLLATE 'utf8mb4_general_ci',
+	`notes` VARCHAR(50) NULL DEFAULT NULL COMMENT '备注' COLLATE 'utf8mb4_general_ci',
 	`create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 	`modify_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
 	`firm_id` BIGINT(20) NULL DEFAULT NULL COMMENT '市场id',
