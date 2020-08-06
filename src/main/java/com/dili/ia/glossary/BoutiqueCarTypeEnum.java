@@ -6,7 +6,7 @@ package com.dili.ia.glossary;
  * @version:     农批业务系统重构
  * @description: 精品停车 车型 枚举
  */
-public enum CarTypeEnum {
+public enum BoutiqueCarTypeEnum {
     TRAILER(1,"挂车"),
     CONTAINER_TRUCK(2,"柜车"),
     ;
@@ -14,13 +14,13 @@ public enum CarTypeEnum {
     private String name;
     private Integer code ;
 
-    CarTypeEnum(Integer code, String name){
+    BoutiqueCarTypeEnum(Integer code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static CarTypeEnum getCarTypeEnum(Integer code) {
-        for (CarTypeEnum anEnum : CarTypeEnum.values()) {
+    public static BoutiqueCarTypeEnum getCarTypeEnum(Integer code) {
+        for (BoutiqueCarTypeEnum anEnum : BoutiqueCarTypeEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }
@@ -29,7 +29,7 @@ public enum CarTypeEnum {
     }
 
     public static String getCarTypeEnumName(Integer code) {
-        for (CarTypeEnum r : CarTypeEnum.values()) {
+        for (BoutiqueCarTypeEnum r : BoutiqueCarTypeEnum.values()) {
             if (r.getCode().equals(code)) {
                 return r.getName();
             }

@@ -27,7 +27,7 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
 
 
     /**
-     * 退款单 -- 提交
+     * 退款单 -- 提交(无需改变通行证缴费单的状态)
      * 
      * @param
      * @return 
@@ -35,18 +35,11 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
      */
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
-
-        Passport passportInfo = passportService.getPassportByCode(refundOrder.getBusinessCode());
-        if (!PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-        }
-
-        this.updateState(refundOrder.getBusinessCode(), passportInfo.getVersion(), PassportStateEnum.SUBMITTED_REFUND);
         return BaseOutput.success();
     }
 
     /**
-     * 退款单 -- 撤回
+     * 退款单 -- 撤回(无需改变通行证缴费单的状态)
      *
      * @param
      * @return
@@ -54,19 +47,11 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
      */
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-
-        Passport passportInfo = passportService.getPassportByCode(refundOrder.getBusinessCode());
-
-        if (!PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-        }
-
-        this.updateState(refundOrder.getBusinessCode(), passportInfo.getVersion(), PassportStateEnum.SUBMITTED_REFUND);
         return BaseOutput.success();
     }
 
     /**
-     * 退款单 -- 退款成功回调
+     * 退款单 -- 退款成功回调(将通行证缴费单的状态由退款中修改为已退款)
      *
      * @param
      * @return
@@ -87,7 +72,7 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     }
 
     /**
-     * 退款单 -- 取消
+     * 退款单 -- 取消(将通行证缴费单的状态由退款中还原原状态 - 未生效/已生效/已过期)
      *
      * @param
      * @return
@@ -146,12 +131,13 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         Passport domain = new Passport();
         domain.setVersion(version + 1);
         domain.setState(state.getCode());
+        domain.setModifyTime(LocalDateTime.now());
 
         Passport condition = new Passport();
         condition.setCode(code);
         condition.setVersion(version);
 
-        // 修改精品停车交费单状态
+        // 修改通行证交费单状态
         int row = passportService.updateSelectiveByExample(domain, condition);
         if (row != 1) {
             throw new BusinessException(ResultCode.DATA_ERROR, "业务繁忙,稍后再试");

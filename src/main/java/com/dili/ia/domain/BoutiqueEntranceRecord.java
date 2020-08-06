@@ -104,7 +104,7 @@ public class BoutiqueEntranceRecord extends BaseDomain {
     private LocalDateTime startTime;
 
     /**
-     * 计费时间
+     * 下次计费时间
      */
     @Column(name = "`count_time`")
     private LocalDateTime countTime;

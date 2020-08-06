@@ -35,6 +35,7 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -115,18 +116,20 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * 确认计费
      *
      * @param  boutiqueEntranceRecord
-     * @param userTicket
+     * @param  userTicket
      * @return BaseOutput
      * @date   2020/7/13
      */
     @Override
     public BaseOutput<BoutiqueEntranceRecord> confirm(BoutiqueEntranceRecord boutiqueEntranceRecord, UserTicket userTicket) throws Exception {
         BoutiqueEntranceRecord recordInfo = this.get(boutiqueEntranceRecord.getId());
+
         if(recordInfo == null){
-            throw new BusinessException("","所选记录不存在");
+            return BaseOutput.failure(ResultCode.DATA_ERROR,"所选记录不存在");
         }
+
         if(!recordInfo.getState().equals(BoutiqueStateEnum.NOCONFIRM.getCode())){
-            throw new BusinessException("","所选记录状态已变更,请刷新重试");
+            return BaseOutput.failure(ResultCode.DATA_ERROR,"所选记录状态已变更,请刷新重试");
         }
 
         // 根据车型查询免费时长
@@ -145,14 +148,18 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         recordInfo.setConfirmTime(boutiqueEntranceRecord.getConfirmTime());
         recordInfo.setState(BoutiqueStateEnum.COUNTING.getCode());
         recordInfo.setModifyTime(LocalDateTime.now());
+        recordInfo.setVersion(recordInfo.getVersion() + 1);
+
         if(userTicket != null){
             recordInfo.setOperatorId(userTicket.getId());
             recordInfo.setOperatorName(userTicket.getRealName());
         }
+
         if ( this.updateSelective(recordInfo) == 0) {
             logger.info("精品停车确认计费失败，id:{}", recordInfo.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
+
         return BaseOutput.success().setData(recordInfo);
     }
 
@@ -165,33 +172,38 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/7/14
      */
     @Override
+    @GlobalTransactional
     public BaseOutput<BoutiqueEntranceRecord> submit(BoutiqueFeeOrder feeOrder, UserTicket userTicket) throws Exception {
         // 先查询精品停车信息
         BoutiqueEntranceRecord recordInfo = this.get(feeOrder.getRecordId());
+
         if (recordInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "精品停车信息不存在");
+            return BaseOutput.failure(ResultCode.DATA_ERROR,"精品停车信息不存在");
         }
 
         // 先根据 recordId 查询是否已存在已提交状态的交费单
         List<BoutiqueFeeOrderDto> orderDtoList = boutiqueFeeOrderService.listByRecordId(feeOrder.getRecordId());
         if (orderDtoList != null && orderDtoList.size() > 0) {
-            orderDtoList.stream().filter(feeOrderDto -> BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode().equals(feeOrderDto.getState())).forEach(feeOrderDto -> {
-                throw new BusinessException(ResultCode.DATA_ERROR, "已存在已提交的交费单，请先处理。");
-            });
+            for (BoutiqueFeeOrderDto feeOrderDto : orderDtoList) {
+                if (BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode().equals(feeOrderDto.getState())) {
+                    return BaseOutput.failure(ResultCode.DATA_ERROR, "已存在已提交的交费单，请先处理。");
+                }
+            }
         }
 
         String code = uidRpcResolver.bizNumber(BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode());
 
         // 新增精品停车交费单
         feeOrder.setCode(code);
+        feeOrder.setVersion(0);
         feeOrder.setCreateTime(LocalDateTime.now());
         feeOrder.setModifyTime(LocalDateTime.now());
         feeOrder.setSubmitterId(userTicket.getId());
         feeOrder.setMarketId(userTicket.getFirmId());
-        feeOrder.setMarketCode(userTicket.getFirmCode());
         feeOrder.setSubmitter(userTicket.getRealName());
+        feeOrder.setStartTime(recordInfo.getCountTime());
+        feeOrder.setMarketCode(userTicket.getFirmCode());
         feeOrder.setState(BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode());
-        // TODO 费用时间范围存为开始时间和结束时间
 
         boutiqueFeeOrderService.insertSelective(feeOrder);
 
@@ -207,7 +219,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, feeOrder, recordInfo, paymentOrder.getCode(), paymentOrder.getAmount());
         settlementRpcResolver.submit(settleOrderDto);
 
-        return null;
+        return BaseOutput.success().setData(recordInfo);
     }
 
     /**
@@ -221,21 +233,28 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     @Override
     public BaseOutput<BoutiqueEntranceRecord> leave(Long id, UserTicket userTicket) throws Exception {
         BoutiqueEntranceRecord recordInfo = this.get(id);
+
         if(recordInfo == null){
-            throw new BusinessException("","所选记录不存在");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "所选记录不存在");
         }
+
         if(!(recordInfo.getState().equals(BoutiqueStateEnum.NOCONFIRM.getCode()) || recordInfo.getState().equals(BoutiqueStateEnum.COUNTING.getCode()))){
-            throw new BusinessException("","所选记录状态已变更,请刷新重试");
+            return BaseOutput.failure(ResultCode.DATA_ERROR,  "所选记录状态已变更,请刷新重试");
         }
+
         if(recordInfo.getCountTime() != null && recordInfo.getCountTime().isBefore(LocalDateTime.now())){
-            throw new BusinessException("",recordInfo.getPlate()+" 有停车费未结清，请结清后再离场");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, recordInfo.getPlate()+" 有停车费未结清，请结清后再离场");
         }
+
         List<BoutiqueFeeOrderDto> orderDtoList = boutiqueFeeOrderService.listByRecordId(recordInfo.getId());
         if(orderDtoList != null && orderDtoList.size()>0){
-            orderDtoList.stream().filter(order -> order.getState().equals(BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode())).forEach(order -> {
-                throw new BusinessException("", recordInfo.getPlate() + " 有停车费未结清，请结清后再离场");
-            });
+            for (BoutiqueFeeOrderDto orderDto : orderDtoList) {
+                if (BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode().equals(orderDto.getState())) {
+                    return BaseOutput.failure(ResultCode.DATA_ERROR, recordInfo.getPlate()+" 有停车费未结清，请结清后再离场");
+                }
+            }
         }
+
         recordInfo.setState(BoutiqueStateEnum.LEAVE.getCode());
         if(userTicket != null){
             recordInfo.setOperatorId(userTicket.getId());
@@ -243,9 +262,9 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         }
         recordInfo.setLeaveTime(LocalDateTime.now());
         recordInfo.setModifyTime(LocalDateTime.now());
-        if ( this.updateSelective(recordInfo) == 0) {
-            logger.info("精品停车离场失败，id:{}", recordInfo.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        recordInfo.setVersion(recordInfo.getVersion() + 1);
+        if (this.updateSelective(recordInfo) == 0) {
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         return BaseOutput.success().setData(recordInfo);
@@ -260,13 +279,13 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      */
     @Override
     public BaseOutput<BoutiqueEntranceRecord> forceLeave(Long id, UserTicket userTicket) throws Exception {
-
         BoutiqueEntranceRecord recordInfo = this.get(id);
+
         if(recordInfo == null){
-            throw new BusinessException("","所选记录不存在");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "所选记录不存在");
         }
         if(!recordInfo.getState().equals(BoutiqueStateEnum.COUNTING.getCode())){
-            throw new BusinessException("","所选记录状态已变更,请刷新重试");
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "所选记录状态已变更,请刷新重试");
         }
         //修改记录状态为已离场
         recordInfo.setState(BoutiqueStateEnum.LEAVE.getCode());
@@ -274,9 +293,9 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         recordInfo.setOperatorName(userTicket.getRealName());
         recordInfo.setLeaveTime(LocalDateTime.now());
         recordInfo.setModifyTime(LocalDateTime.now());
-        if ( this.updateSelective(recordInfo) == 0) {
-            logger.info("精品停车强制离场失败，id:{}", recordInfo.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        recordInfo.setVersion(recordInfo.getVersion() + 1);
+        if (this.updateSelective(recordInfo) == 0) {
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         // 修改交费单的状态
@@ -298,7 +317,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         if (null == settleOrder){
             throw new BusinessException(ResultCode.PARAMS_ERROR, "回调参数为空！");
         }
-        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder condition = new PaymentOrder();
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
         condition.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
@@ -336,6 +355,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         recordInfo.setModifyTime(LocalDateTime.now());
         recordInfo.setCountTime(feeOrderInfo.getEndTime());
         recordInfo.setTotalAmount(recordInfo.getTotalAmount() + feeOrderInfo.getAmount());
+        recordInfo.setVersion(recordInfo.getVersion() + 1);
         if ( this.updateSelective(recordInfo) == 0) {
             logger.info("缴费单成功回调 -- 更新【精品停车下次计费时间】状态,乐观锁生效！【精品停车Id:{}】", recordInfo.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -384,7 +404,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         boutiqueTrancePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
         boutiqueTrancePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         boutiqueTrancePrintDto.setSubmitter(paymentOrder.getCreator());
-        boutiqueTrancePrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
+        boutiqueTrancePrintDto.setBusinessType(BizTypeEnum.BOUTIQUE_ENTRANCE.getName());
         boutiqueTrancePrintDto.setPlate(recordInfo.getPlate());
         // 拼接结算详情
         String settleWayDetails = "计费时间：" + feeOrder.getStartTime() + "至" + feeOrder.getEndTime();
@@ -406,6 +426,54 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     @Override
     public BoutiqueFeeOrderDto getBoutiqueAndOrderByCode(String code) {
         return this.getActualDao().getBoutiqueAndOrderByCode(code);
+    }
+
+    /**
+     * 取消(进门取消，可在待确认和计费中取消)
+     *
+     * @param id
+     * @return BaseOutput
+     * @date   2020/8/5
+     */
+    @Override
+    public BaseOutput<BoutiqueFeeOrder> cancel(Long id, UserTicket userTicket) {
+        BoutiqueEntranceRecord recordInfo = this.get(id);
+
+        if(recordInfo == null){
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "所选记录不存在");
+        }
+
+        if (!(BoutiqueStateEnum.NOCONFIRM.getCode().equals(recordInfo.getState()) ||  BoutiqueStateEnum.COUNTING.getCode().equals(recordInfo.getState()))) {
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "精品停车不是待确认和计费中状态，不能取消！");
+        }
+
+        // 修改状态
+        recordInfo.setModifyTime(LocalDateTime.now());
+        recordInfo.setCancelTime(LocalDateTime.now());
+        recordInfo.setState(BoutiqueStateEnum.CANCEL.getCode());
+
+        if (this.updateSelective(recordInfo) == 0) {
+            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
+        return BaseOutput.success().setData(recordInfo);
+    }
+
+    /**
+     * 新增计费（提供给其他服务调用者）
+     *
+     * @param boutiqueEntranceRecord
+     * @return BaseOutput
+     * @date   2020/7/13
+     */
+    @Override
+    public BaseOutput<BoutiqueEntranceRecord> addBoutique(BoutiqueEntranceRecord boutiqueEntranceRecord) {
+        boutiqueEntranceRecord.setCreateTime(LocalDateTime.now());
+        boutiqueEntranceRecord.setModifyTime(LocalDateTime.now());
+        boutiqueEntranceRecord.setState(BoutiqueStateEnum.NOCONFIRM.getCode());
+        this.insertSelective(boutiqueEntranceRecord);
+
+        return BaseOutput.success();
     }
 
     /**
