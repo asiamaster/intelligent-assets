@@ -88,13 +88,13 @@
         <div class="form-group row">
             <label class="col-2 col-form-label text-right" for="_processDefinitionKey">流程定义key<i class="red">*</i></label>
             <div class="col-10">
-                <input type="text" class="form-control" id="_processDefinitionKey" value="{{processDefinitionKey}}" name="_processDefinitionKey" minlength="1" maxlength="64" placeholder="" required/>
+                <input type="text" class="form-control" id="_processDefinitionKey" value="{{processDefinitionKey}}" name="_processDefinitionKey" minlength="1" maxlength="64" placeholder="" {{if batchUpdate}}readonly{{/if}} required/>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-2 col-form-label text-right" for="_taskDefinitionKey">任务定义key<i class="red">*</i></label>
             <div class="col-10">
-                <input type="text" class="form-control" id="_taskDefinitionKey" name="_taskDefinitionKey" value="{{taskDefinitionKey}}"  placeholder="" minlength="1" maxlength="64" required/>
+                <input type="text" class="form-control" id="_taskDefinitionKey" name="_taskDefinitionKey" value="{{taskDefinitionKey}}"  placeholder="" minlength="1" maxlength="64" {{if batchUpdate}}readonly{{/if}} required/>
             </div>
         </div>
         {{if districtIds}}
@@ -123,7 +123,7 @@
         <div class="form-group row">
             <label class="col-2 col-form-label text-right" for="_assignee">办理人*</label>
             <div class="col-10">
-                <select id="_assignee" name="_assignee" class="form-control" required>
+                <select id="_assignee" name="_assignee" class="form-control" {{if batchUpdate}}disabled{{/if}} required>
                     {{if assignee}}
                     <option value="{{$_assignee}}" selected>{{assignee}}</option>
                     {{/if}}
