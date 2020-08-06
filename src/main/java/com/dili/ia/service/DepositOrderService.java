@@ -5,6 +5,7 @@ import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.RefundOrderTempDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -149,10 +150,9 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * 批量【新增】,【已交费】的保证金单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
      * @param depositOrderList 保证金订单列表
      * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
-     *                         departmentId 业务所属部门ID ; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
+     *                         departmentId 业务所属部门ID ; departmentName 部门名称; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
      *                         assetsType 资产类型; assetsId 资产ID; assetsName 资产名称; amount 保证金金额; isRelated 是否关联订单1，是，0否;
      *                         businessId 关联订单ID; bizType 关联订单业务类型;
-     *                         CreatorId 创建人ID,  Creator 创建人姓名, MarketId 市场ID, MarketCode 市场Code,
      *
      * @return BaseOutput
      */
@@ -168,13 +168,13 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      *      *新增退款单的退款结算单
      *
      * 批量【新增】,【已交费】的保证金单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
-     * @param depositOrderList 保证金订单列表
+     * @param refundOrderList 租赁订单退款单列表
      * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
-     *                         departmentId 业务所属部门ID ; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
-     *                         assetsType 资产类型; assetsId 资产ID; assetsName 资产名称; amount 保证金金额;
-     *                         businessId 关联订单ID; bizType 关联订单业务类型;
-     *                         CreatorId 创建人ID,  Creator 创建人姓名, MarketId 市场ID, MarketCode 市场Code,
+     *                         departmentId 业务所属部门ID ; departmentName 部门名称; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
+     *                         assetsId 资产ID; businessId 关联订单ID; bizType 关联订单业务类型;
+     *                         Payee 收款人,  PayeeID 收款人ID, PayeeCertificateNumber 收款人证件号
+     *                        RefundType 退款方式 ; Bank 银行 ； BankCardNo 卡号； TotalRefundAmount 总退款金额 ； PayeeAmount付款金额
      * @return BaseOutput
      */
-    BaseOutput oldRefundOrderDataHandler(List<DepositOrder> depositOrderList);
+    BaseOutput oldRefundOrderDataHandler(List<RefundOrderTempDto> refundOrderList);
 }
