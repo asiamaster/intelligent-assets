@@ -171,7 +171,7 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @param depositOrderList 保证金订单列表
      * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
      *                         departmentId 业务所属部门ID ; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
-     *                         assetsType 资产类型; assetsId 资产ID; assetsName 资产名称; amount 保证金金额; isRelated 是否关联订单1，是，0否;
+     *                         assetsType 资产类型; assetsId 资产ID; assetsName 资产名称; amount 保证金金额;
      *                         businessId 关联订单ID; bizType 关联订单业务类型;
      *                         CreatorId 创建人ID,  Creator 创建人姓名, MarketId 市场ID, MarketCode 市场Code,
      * @return BaseOutput
