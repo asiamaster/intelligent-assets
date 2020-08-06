@@ -67,7 +67,7 @@ public class AssetsLeaseOrderItemController {
      * @param leaseOrderItem
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${boothName} ${isNotEmpty(stopTime)?'停租时间:'+stopTime : ''}",operationType="stopLease",systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${assetsName} ${isNotEmpty(stopTime)?'停租时间:'+stopTime : ''}",operationType="stopLease",systemCode = "INTELLIGENT_ASSETS")
     @PostMapping(value="/stopRent.action")
     public @ResponseBody BaseOutput stopRent(AssetsLeaseOrderItem leaseOrderItem){
         try {

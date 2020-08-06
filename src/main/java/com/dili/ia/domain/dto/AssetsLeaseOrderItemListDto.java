@@ -34,8 +34,8 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
     private List<Long> ids;
 
     @Operator(Operator.IN)
-    @Column(name = "booth_id")
-    private List<Long> boothIds;
+    @Column(name = "assets_id")
+    private List<Long> assetsIds;
 
     @Operator(Operator.IN)
     @Column(name = "district_id")
@@ -92,12 +92,12 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
         this.ids = ids;
     }
 
-    public List<Long> getBoothIds() {
-        return boothIds;
+    public List<Long> getAssetsIds() {
+        return assetsIds;
     }
 
-    public void setBoothIds(List<Long> boothIds) {
-        this.boothIds = boothIds;
+    public void setAssetsIds(List<Long> assetsIds) {
+        this.assetsIds = assetsIds;
     }
 
     public List<Long> getDistrictIds() {
