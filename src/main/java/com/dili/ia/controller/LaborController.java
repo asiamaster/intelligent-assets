@@ -14,6 +14,7 @@ import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.LaborService;
 import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.valid.LaborGetCost;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
@@ -27,6 +28,8 @@ import com.dili.uap.sdk.session.SessionContext;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -73,6 +76,7 @@ public class LaborController {
 				queryBusinessChargeItemConfig(userTicket.getFirmId(), BizTypeEnum.LABOR_VEST.getCode(), YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("type", "add");
+    	modelMap.put("businessChargeType", BizTypeEnum.LABOR_VEST.getCode());
         return "labor/add";
     }
     
@@ -141,6 +145,7 @@ public class LaborController {
     	}
     	modelMap.put("labor", laborService.getLabor(code));
     	modelMap.put("type", type);
+    	modelMap.put("businessChargeType", businessChargeType);
         return "labor/add";
     }
     
@@ -310,10 +315,10 @@ public class LaborController {
      * @return BaseOutput
      */
     @RequestMapping(value="/getCost.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getCost(@RequestBody List<BusinessChargeItem> businessChargeItems) {	        //throw new BusinessException("2000", "errorCode");
+    public @ResponseBody BaseOutput getCost(@RequestBody @Validated(LaborGetCost.class) LaborDto laborDto) {	        //throw new BusinessException("2000", "errorCode");
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
-    		//baseOutput.setData(laborService.getCost(laborDetailDto));
+    		baseOutput.setData(laborService.getCost(laborDto));
     	}catch (BusinessException e) {
 			//LOG.error("费用{}计算异常！",laborDetailDto.getCode(), e);
 			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());

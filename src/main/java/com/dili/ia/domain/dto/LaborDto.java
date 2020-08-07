@@ -4,9 +4,13 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
+import javax.validation.GroupSequence;
 import javax.validation.constraints.NotNull;
 
 import com.dili.ia.domain.BusinessChargeItem;
+import com.dili.ia.valid.LaborGetCost;
+
+import net.sf.jsqlparser.statement.select.First;
 
 /**
  * <B>Description</B>
@@ -24,6 +28,7 @@ public class LaborDto {
     /**
      * 运营车型
      */
+    @NotNull(message = "运营车型不能为空",groups = {LaborGetCost.class})
     private String models;
 
     /**
@@ -50,13 +55,13 @@ public class LaborDto {
     /**
      * 开始日期
      */
-    @NotNull(message = "开始日期不能为空")
+    @NotNull(message = "开始日期不能为空",groups = {LaborGetCost.class})
     private LocalDateTime startDate;
 
     /**
      * 结束日期
      */
-    @NotNull(message = "结算日期不能为空")
+    @NotNull(message = "结算日期不能为空",groups = {LaborGetCost.class})
     private LocalDateTime endDate;
 
     /**
@@ -122,6 +127,7 @@ public class LaborDto {
     /**
      * 劳务类型(1:马甲证,2:自用证)
      */
+    @NotNull(message = "劳务车型不能为空",groups = {LaborGetCost.class})
     private String laborType;
 
     /**
@@ -159,6 +165,12 @@ public class LaborDto {
      * rename remodel renew
      */
     private String actionType;
+    
+    /**
+     * 收费类型
+     */
+    @NotNull(message = "系统错误",groups = {LaborGetCost.class})
+    private String businessChargeType;
     
     /**
      * 收费项
@@ -408,4 +420,14 @@ public class LaborDto {
 	public void setCertificateNumber(String certificateNumber) {
 		this.certificateNumber = certificateNumber;
 	}
+
+	public String getBusinessChargeType() {
+		return businessChargeType;
+	}
+
+	public void setBusinessChargeType(String businessChargeType) {
+		this.businessChargeType = businessChargeType;
+	}
+	
+	
 }

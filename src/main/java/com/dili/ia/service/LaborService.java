@@ -1,5 +1,9 @@
 package com.dili.ia.service;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.RequestBody;
+
 import com.dili.ia.domain.Labor;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.LaborDto;
@@ -9,6 +13,7 @@ import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
 import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.glossary.LaborStateEnum;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 
@@ -172,6 +177,13 @@ public interface LaborService extends BaseService<Labor, Long> {
 	 */
 	PrintDataDto<LaborRefundPrintDto> receiptRefundPrintData(String orderCode, String reprint);
 	
-	
-
+	/**
+	 * 
+	 * @Title getCost
+	 * @Description 获取动态收费项
+	 * @param laborDto
+	 * @return
+	 * @throws
+	 */
+	List<QueryFeeOutput> getCost(LaborDto laborDto);
 }

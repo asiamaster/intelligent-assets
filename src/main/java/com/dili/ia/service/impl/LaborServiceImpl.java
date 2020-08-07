@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.Labor;
 import com.dili.ia.domain.PaymentOrder;
@@ -23,24 +24,34 @@ import com.dili.ia.service.LaborService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
+import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import io.seata.spring.annotation.GlobalTransactional;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -78,6 +89,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	
 	@Autowired
 	private TransferDeductionItemService transferDeductionItemService;
+	
+	@Autowired
+	private ChargeRuleRpc chargeRuleRpc;
 	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -578,5 +592,27 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		Labor labor = getLaborByCode(refundOrder.getBusinessCode());
 		Labor domain = new Labor();
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.getLaborStateEnum(labor.getPreState()));
+	}
+
+	@Override
+	public List<QueryFeeOutput> getCost(LaborDto laborDto) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		List<QueryFeeInput> queryFeeInputs = new ArrayList<>();
+		long day = DateUtil.betweenDay(DateUtils.localDateTimeToUdate(laborDto.getStartDate()), 
+				DateUtils.localDateTimeToUdate(laborDto.getEndDate()), true);
+		laborDto.getBusinessChargeItems().forEach(itme -> {
+			QueryFeeInput queryFeeInput =new QueryFeeInput();
+			queryFeeInput.setMarketId(userTicket.getFirmId());
+			queryFeeInput.setBusinessType(laborDto.getBusinessChargeType());
+			queryFeeInput.setChargeItem(itme.getChargeItemId());
+			Map<String, Object> calcParams = new HashMap<String, Object>();
+			calcParams.put("laborType", laborDto.getLaborType());
+			calcParams.put("models", laborDto.getModels());
+			calcParams.put("day", day);
+			queryFeeInput.setCalcParams(calcParams);
+			queryFeeInputs.add(queryFeeInput);
+		});
+		BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
+		return batchQueryFee.getData();
 	}
 }
