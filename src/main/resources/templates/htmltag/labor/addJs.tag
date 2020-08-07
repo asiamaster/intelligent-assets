@@ -60,13 +60,13 @@
     		dataType: "json",
     		contentType: "application/json",
             success: function (ret) {
-                bui.loading.hide();
                 if(!ret.success){
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
-                	bs4pop.alert(ret.message, {type: 'success'});
-    				parent.$('#grid').bootstrapTable('refresh');
+                	parent.closeDialog(parent.dia);
+    				parent.$('#grid').bootstrapTable('refresh');	
                 }
+                bui.loading.hide();
             },
             error: function (error) {
                 bui.loading.hide();

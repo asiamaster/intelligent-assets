@@ -61,12 +61,12 @@ function queryParams(params) {
 
 
 /**
-     打开新增窗口
+ * 关闭弹窗
  */
-/*function openAddHandler(type) {
-	window.location.href = "${contextPath}/stock/stockIn/add.html?type="+type;
-
-}*/
+function closeDialog(dialog){
+    dialog.hide();
+    queryDataHandler();
+}
 
 /**
  * 打开新增窗口
@@ -85,9 +85,8 @@ function openAddHandler(type,title) {
         }
 	    }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
 	            let diaWindow = $iframe[0].contentWindow;
-	            bui.util.debounce(diaWindow.doAddStockInHandler,1000,true)()
-	            parent.$('#grid').bootstrapTable('refresh')				
-	            return true;
+	            bui.util.debounce(diaWindow.doAddStockInHandler,1000,false)()
+	            return false;
 	        }
 	    }]
     });
@@ -138,8 +137,8 @@ function openUpdateHandler() {
 	        }
 		    }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
 		            let diaWindow = $iframe[0].contentWindow;
-		            bui.util.debounce(diaWindow.doUpdateStockInHandler,1000,true)()			
-		            return true;
+		            bui.util.debounce(diaWindow.doUpdateStockInHandler,1000,false)()			
+		            return false;
 		        }
 		    }]
 	    });
@@ -367,7 +366,7 @@ function openRefundHandler(){
                 }
             }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
                     let diaWindow = $iframe[0].contentWindow;
-                    bui.util.debounce(diaWindow.saveFormHandler,1000,true)()
+                    bui.util.debounce(diaWindow.saveFormHandler,1000,false)()
                     return false;
                 }
             }]
