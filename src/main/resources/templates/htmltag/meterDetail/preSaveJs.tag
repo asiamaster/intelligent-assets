@@ -12,11 +12,61 @@
         });
     });
 
-    var numberAutoCompleteOption = {
-        serviceUrl: '/customerMeter/listCustomerMeterByLikeName.action',
+    // 水表用户关系
+    var numberByWaterAutoCompleteOption = {
+        serviceUrl: '/customerMeter/listCustomerMeterByLikeNameWater.action',
         paramName: 'keyword',
         displayFieldName: 'name',
         params: {'type': meterType},
+        transformResult: function (response) {
+            if(response.success){
+                return {
+                    suggestions: $.map(response.data, function(item) {
+                        return  $.extend(item, {
+                            value: item.number + ''
+                        });
+                    })
+                };
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return false;
+            }
+        },
+        selectFn: function (suggestion) {
+            $('[name="number"]').val(suggestion.value);
+            $('[name="assetsType"]').val(suggestion.assetsType);
+            $('[name="assetsName"]').val(suggestion.assetsName);
+            $('[name="customerCellphone"]').val(suggestion.customerCellphone);
+            $('[name="customerName"]').val(suggestion.customerName);
+            $('[name="customerId"]').val(suggestion.customerId);
+            $('[name="price"]').val(suggestion.price/100);
+            $('[name="meterId"]').val(suggestion.meterId);
+            $.ajax({
+                type: "post",
+                url: '/meterDetail/getLastAmount.action',
+                datatype: 'json',
+                data: {'meterId': suggestion.meterId},
+                success: function(res){
+                    if(res.success === true) {
+                        $('[name="lastAmount"]').val(res.data);
+                        calcReceivable();
+                        calcAmount();
+                    } else {
+                        bs4pop.alert("上期指数获取失败!", {type: 'error'});
+                    }
+                },
+                error: function(error){
+                    bs4pop.alert("上期指数获取失败!", {type: 'error'});
+                }
+            })
+        }
+    };
+
+    // 电表用户关系
+    var numberByElectricityAutoCompleteOption = {
+        serviceUrl: '/customerMeter/listCustomerMeterByLikeNameElectricity.action',
+        paramName: 'keyword',
+        displayFieldName: 'name',
         transformResult: function (response) {
             if(response.success){
                 return {

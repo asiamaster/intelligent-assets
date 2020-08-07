@@ -5,6 +5,7 @@ import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.glossary.CustomerMeterStateEnum;
+import com.dili.ia.glossary.MeterTypeEnum;
 import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -173,9 +174,23 @@ public class CustomerMeterController {
      * @return 表客户List
      * @date   2020/7/10
      */
-    @RequestMapping(value="/listCustomerMeterByLikeName.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput listCustomerMeterByLikeName(Integer type, String keyword) {
-        List<CustomerMeterDto> customerMeterDtoList = customerMeterService.listCustomerMetersByLikeName(type, keyword);
+    @RequestMapping(value="/listCustomerMeterByLikeNameWater.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput listCustomerMeterByLikeNameWater(String keyword) {
+        List<CustomerMeterDto> customerMeterDtoList = customerMeterService.listCustomerMetersByLikeName(MeterTypeEnum.WATER_METER.getCode(), keyword);
+
+        return BaseOutput.success().setData(customerMeterDtoList);
+    }
+
+    /**
+     * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)
+     *
+     * @param  keyword 输入编号
+     * @return 表客户List
+     * @date   2020/7/10
+     */
+    @RequestMapping(value="/listCustomerMeterByLikeNameElectricity.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput listCustomerMeterByLikeNameElectricity(String keyword) {
+        List<CustomerMeterDto> customerMeterDtoList = customerMeterService.listCustomerMetersByLikeName(MeterTypeEnum.ELECTRIC_METER.getCode(), keyword);
 
         return BaseOutput.success().setData(customerMeterDtoList);
     }
