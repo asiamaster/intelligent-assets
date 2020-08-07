@@ -340,7 +340,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
-        //@TODO 结算单需要调整类型，为String
         settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.DEPOSIT_ORDER.getCode())); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
@@ -1018,7 +1017,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 this.saveOrupdateDepositBalance(newDepositOrder, newDepositOrder.getAmount());
                 //新增【已交费】的缴费单
                 PaymentOrder pb = this.buildPaidPaymentOrder(newDepositOrder);
-                //结算后，回写结算信息到缴费单 @TODO 待确认传入参数来源
+                //结算后，回写结算信息到缴费单
                 pb.setPayedTime(LocalDateTime.now());
                 pb.setSettlementCode(settleCode);
                 pb.setSettlementOperator("杭州系统");
@@ -1031,7 +1030,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 settleOrder.setCode(settleCode);
                 List<SettleOrder> settleOrderList = new ArrayList<>();
                 settleOrderList.add(settleOrder);
-                //@TODO 结算已交费的结算单接口提供
                 BaseOutput<?> out= settlementRpc.batchSaveDealt(settleOrderList);
                 if (!out.isSuccess()){
                     LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
@@ -1083,15 +1081,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 refundOrderService.insertSelective(refundOrder);
 
                 //新增【已处理】的结算单，提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-                //@TODO 需要结算单独提供接口
                 SettleOrderDto settleOrder = buildRefundSettleOrderDto(refundOrder);
                 settleOrder.setCode(settleCode);
                 List<SettleOrder> settleOrderList = new ArrayList<>();
                 settleOrderList.add(settleOrder);
-                //@TODO 结算已交费的结算单接口提供
                 BaseOutput<?> out= settlementRpc.batchSaveDealt(settleOrderList);
                 if (!out.isSuccess()){
-                    LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
+                    LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData()) ;
                     throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
                 }
             });
