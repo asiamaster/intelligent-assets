@@ -1,31 +1,31 @@
---退款数据处理
+-- 退款数据处理
 UPDATE assets_lease_order set state = 6 WHERE state = 7;
 UPDATE assets_lease_order_item set state = 6 WHERE state = 7;
---资产类型初始化
+-- 资产类型初始化
 UPDATE assets_lease_order set assets_type = 1;
 UPDATE assets_lease_order_item set assets_type = 1;
 
-ALTER TABLE `dili-assets`.`apportion_record`
+ALTER TABLE `apportion_record`
 MODIFY COLUMN `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间' AFTER `id`,
 ADD COLUMN `lease_order_id` bigint(20) NOT NULL COMMENT '订单ID' AFTER `create_time`,
 MODIFY COLUMN `lease_item_id` bigint(20) NOT NULL COMMENT '订单项ID' AFTER `create_time`,
 MODIFY COLUMN `charge_item_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '收费项名称' AFTER `charge_item_id`;
-ALTER TABLE `dili-assets`.`apportion_record`
+ALTER TABLE `apportion_record`
 CHANGE COLUMN `lease_item_id` `lease_order_item_id` bigint(20) NOT NULL COMMENT '订单项ID' AFTER `create_time`;
 
-ALTER TABLE `dili-assets`.`assets_lease_order_item`
+ALTER TABLE `assets_lease_order_item`
 CHANGE COLUMN `booth_id` `assets_id` bigint(20) NULL DEFAULT NULL COMMENT '资产ID' AFTER `lease_order_code`,
 CHANGE COLUMN `booth_name` `assets_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '资产名称' AFTER `assets_id`;
-ALTER TABLE `dili-assets`.`assets_lease_order_item`
+ALTER TABLE `assets_lease_order_item`
 ADD COLUMN `exit_time` datetime(0) NULL COMMENT '退场时间' AFTER `refund_state`;
 update assets_lease_order_item set total_amount = rent_amount + manage_amount;
 
-ALTER TABLE `dili-assets`.`refund_order`
+ALTER TABLE `refund_order`
 ADD COLUMN `payee_certificate_number` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收款人证件号' AFTER `payee`;
-ALTER TABLE `dili-assets`.`transfer_deduction_item`
+ALTER TABLE `transfer_deduction_item`
 ADD COLUMN `payee_certificate_number` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收款人证件号' AFTER `payee`;
 
---租赁单和退款单新增流程实例和定义id
+-- 租赁单和退款单新增流程实例和定义id
 ALTER TABLE `assets_lease_order`
 	ADD COLUMN `is_invoice` TINYINT NULL DEFAULT '0' COMMENT '是否开票 1:是 0：否' AFTER `version`,
 	ADD COLUMN `process_instance_id` VARCHAR(64) NULL DEFAULT NULL COMMENT '流程实例id' AFTER `is_invoice`,
@@ -36,7 +36,7 @@ ALTER TABLE `refund_order`
 	ADD COLUMN `process_definition_id` VARCHAR(64) NULL DEFAULT NULL COMMENT '流程定义id' AFTER `process_instance_id`,
     ADD COLUMN `approval_state` TINYINT NULL DEFAULT NULL COMMENT '审批状态(1: 待审批 2: 审批中 3:审批通过 4:审批拒绝)' AFTER `process_definition_id`;
 
---创建审批表
+-- 创建审批表
 CREATE TABLE `approval_process` (
 	`id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
 	`process_instance_id` VARCHAR(64) NULL DEFAULT NULL COMMENT '流程实例id' COLLATE 'utf8mb4_general_ci',
@@ -61,7 +61,7 @@ AUTO_INCREMENT=94
 ;
 
 
---任务人分配
+-- 任务人分配
 CREATE TABLE `approver_assignment` (
 	`id` BIGINT(20) NOT NULL AUTO_INCREMENT,
 	`district_id` BIGINT(20) NOT NULL COMMENT '区域id，可能是一级或二级',
@@ -78,7 +78,7 @@ ENGINE=InnoDB
 AUTO_INCREMENT=108
 ;
 
---开票记录
+-- 开票记录
 CREATE TABLE `invoice_record` (
 	`id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
 	`business_key` VARCHAR(64) NULL DEFAULT NULL COMMENT '业务号' COLLATE 'utf8mb4_general_ci',
@@ -101,15 +101,15 @@ ENGINE=InnoDB
 AUTO_INCREMENT=3
 ;
 
--- 字段删除脚本（数据迁移完后执行）
-ALTER TABLE `dili-assets`.`lease_order`
+--  字段删除脚本（数据迁移完后执行）
+ALTER TABLE `lease_order`
 DROP COLUMN `rent_amount`,
 DROP COLUMN `deposit_amount`,
 DROP COLUMN `manage_amount`,
 DROP COLUMN `deposit_deduction`;
 
--- 字段删除脚本（数据迁移完后执行）
-ALTER TABLE `dili-assets`.`lease_order_item`
+--  字段删除脚本（数据迁移完后执行）
+ALTER TABLE `lease_order_item`
 DROP COLUMN `deposit_amount_flag`,
 DROP COLUMN `deposit_amount_source_id`,
 DROP COLUMN `deposit_amount`,
