@@ -33,6 +33,10 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
     private List<Long> ids;
 
     @Operator(Operator.IN)
+    @Column(name = "lease_order_id")
+    private List<Long> leaseOrderIds;
+
+    @Operator(Operator.IN)
     @Column(name = "assets_id")
     private List<Long> assetsIds;
 
@@ -93,6 +97,14 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
 
     public void setIds(List<Long> ids) {
         this.ids = ids;
+    }
+
+    public List<Long> getLeaseOrderIds() {
+        return leaseOrderIds;
+    }
+
+    public void setLeaseOrderIds(List<Long> leaseOrderIds) {
+        this.leaseOrderIds = leaseOrderIds;
     }
 
     public List<Long> getAssetsIds() {

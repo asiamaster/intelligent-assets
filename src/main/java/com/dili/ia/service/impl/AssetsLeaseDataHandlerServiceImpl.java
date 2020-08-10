@@ -70,16 +70,17 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
     }
 
     @Override
+    @Transactional
     public BaseOutput moveDepositAmount() {
         LOG.info("******************保证金数据迁移开始。。。****************************");
         AssetsLeaseOrderItemListDto itemCondition = new AssetsLeaseOrderItemListDto();
         itemCondition.setPayState(PayStateEnum.PAID.getCode());
         itemCondition.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
-        itemCondition.setRefundStates(List.of(LeaseRefundStateEnum.WAIT_APPLY.getCode(),LeaseRefundStateEnum.REFUNDED.getCode()));
+        itemCondition.setRefundStates(List.of(LeaseRefundStateEnum.WAIT_APPLY.getCode(), LeaseRefundStateEnum.REFUNDED.getCode()));
         List<AssetsLeaseOrderItem> assetsLeaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition).stream().filter(o -> o.getDepositAmount() > 0).collect(Collectors.toList());
         AssetsLeaseOrderListDto orderCondition = new AssetsLeaseOrderListDto();
-        orderCondition.setIds(assetsLeaseOrderItems.stream().map(o->o.getLeaseOrderId()).collect(Collectors.toList()));
-        Map<Long,AssetsLeaseOrder> assetsLeaseOrderMap = assetsLeaseOrderService.listByExample(orderCondition).stream().collect(Collectors.toMap(AssetsLeaseOrder::getId, Function.identity()));
+        orderCondition.setIds(assetsLeaseOrderItems.stream().map(o -> o.getLeaseOrderId()).collect(Collectors.toList()));
+        Map<Long, AssetsLeaseOrder> assetsLeaseOrderMap = assetsLeaseOrderService.listByExample(orderCondition).stream().collect(Collectors.toMap(AssetsLeaseOrder::getId, Function.identity()));
         List<DepositOrder> depositOrders = new ArrayList<>();
         assetsLeaseOrderItems.stream().forEach(o -> {
             AssetsLeaseOrder assetsLeaseOrder = assetsLeaseOrderMap.get(o.getLeaseOrderId());
@@ -105,6 +106,19 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
             depositOrders.add(depositOrder);
         });
         depositOrderService.oldDataHandler(depositOrders);
+
+        //删除之前导入的保证金数据
+        AssetsLeaseOrder assetsLeaseOrderDelCondition = new AssetsLeaseOrder();
+        assetsLeaseOrderDelCondition.setIsShow(YesOrNoEnum.NO.getCode());
+        List<Long> waitDelLeaseOrderIds = assetsLeaseOrderService.listByExample(assetsLeaseOrderDelCondition).stream().map(o -> o.getId()).collect(Collectors.toList());
+        assetsLeaseOrderService.delete(waitDelLeaseOrderIds);
+
+        AssetsLeaseOrderItemListDto assetsLeaseOrderItemDelCondition = new AssetsLeaseOrderItemListDto();
+        assetsLeaseOrderItemDelCondition.setLeaseOrderIds(waitDelLeaseOrderIds);
+        assetsLeaseOrderItemService.deleteByExample(assetsLeaseOrderItemDelCondition);
+        LOG.info("******************保证金导入数据已删除。。。****************************");
+
+
         LOG.info("******************保证金数据迁移结束 success。。。****************************");
         return BaseOutput.success();
     }
@@ -236,7 +250,7 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
             manageRefundFeeItem.setModifyTime(LocalDateTime.now());
             refundFeeItems.add(manageRefundFeeItem);
 
-            if( assetsLeaseOrderItem.getDepositRefundAmount() > 0L ){
+            if (assetsLeaseOrderItem.getDepositRefundAmount() > 0L) {
                 o.setTotalRefundAmount(o.getTotalRefundAmount() - assetsLeaseOrderItem.getDepositRefundAmount());
                 TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
                 transferDeductionItemCondition.setRefundOrderId(o.getId());
