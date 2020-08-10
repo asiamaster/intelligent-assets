@@ -61,13 +61,19 @@
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
                 <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i>取消</button>
-                <button id="btn_confirm" type="button" class="btn btn-primary" onclick="openRefundHandler()"><i class="fa fa-undo"></i> 退款申请</button>
+                <button id="btn_refund" type="button" class="btn btn-primary" onclick="openRefundHandler()"><i class="fa fa-ban"></i> 退款测试</button>
+
             </div>
         </div>
-        <div class="collapse show" id="details">
-            <table class="table table-bordered table-hover table-striped" id="boothTable" >
+        <div id="details">
+            <table id="boutiqueListTable" data-toggle="table"  class="table" data-toolbar="#toolbar"
+                   data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                   data-click-to-select="true" data-unique-id="id" data-sort-name="id"
+                   data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
                 <thead>
                 <tr>
+                    <th data-radio="true"></th>
                     <th style="font-weight:normal; ">缴费单号</th>
                     <th style="font-weight:normal; ">创建时间</th>
                     <th style="font-weight:normal; ">费用时间范围</th>
@@ -81,6 +87,7 @@
                 if(boutiqueEntranceRecord.orderDtoList.~size>0){
                 for(item in boutiqueEntranceRecord.orderDtoList){%>
                 <tr>
+                    <td></td>
                     <td>
                         ${item.code!'--'}
                     </td>

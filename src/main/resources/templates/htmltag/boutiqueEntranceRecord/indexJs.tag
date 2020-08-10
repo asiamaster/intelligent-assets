@@ -4,6 +4,8 @@
         //行索引计数器
         //如 let itemIndex = 0;
     let _grid = $('#grid');
+    let _boutiqueListTable = $('#boutiqueListTable');
+
     let _form = $('#_form');
     let currentSelectRowIndex;
     var dia;
@@ -119,9 +121,19 @@
     /**
      打开退款窗口
      */
-    function openRefundHandler() {
+    function openRefundHandler(id) {
         //获取选中行的数据
-        let rows = _grid.bootstrapTable('getSelections');
+        debugger
+        if(!id){
+            //获取选中行的数据
+            // let rows = _grid.bootstrapTable('getSelections');
+            let rows = _boutiqueListTable.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            let id = rows[0].id;
+        }
         let url = '/boutiqueFeeOrder/refundApply.html?id=' + rows[0].id;
         dia = bs4pop.dialog({
             title: '退款申请',
@@ -135,6 +147,8 @@
         });
 
     }
+
+
 
     /**
      取消
