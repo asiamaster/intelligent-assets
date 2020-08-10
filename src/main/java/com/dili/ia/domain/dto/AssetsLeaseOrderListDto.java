@@ -50,8 +50,16 @@ public class AssetsLeaseOrderListDto extends AssetsLeaseOrder {
      * @return
      */
     @Column(name = "customer_name")
-    @Like
+    @Like(Like.RIGHT)
     private String likeCustomerName;
+
+    /**
+     * 创建人模糊查询
+     * @return
+     */
+    @Column(name = "creator")
+    @Like(Like.RIGHT)
+    private String likeCreator;
 
     @Transient
     private String assetsName;
@@ -135,6 +143,14 @@ public class AssetsLeaseOrderListDto extends AssetsLeaseOrder {
 
     public void setLikeCustomerName(String likeCustomerName) {
         this.likeCustomerName = likeCustomerName;
+    }
+
+    public String getLikeCreator() {
+        return likeCreator;
+    }
+
+    public void setLikeCreator(String likeCreator) {
+        this.likeCreator = likeCreator;
     }
 
     public String getAssetsName() {
