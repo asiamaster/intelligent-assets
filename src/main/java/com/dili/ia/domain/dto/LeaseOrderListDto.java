@@ -54,7 +54,7 @@ public interface LeaseOrderListDto extends LeaseOrder{
      * @return
      */
     @Column(name = "customer_name")
-    @Like(value = "RIGHT")
+    @Like(Like.RIGHT)
     String getLikeCustomerName();
     void setLikeCustomerName(String likeCustomerName);
 
@@ -63,7 +63,7 @@ public interface LeaseOrderListDto extends LeaseOrder{
      * @return
      */
     @Column(name = "creator")
-    @Like(value = "RIGHT")
+    @Like(Like.RIGHT)
     String getLikeCreator();
     void setLikeCreator(String likeCreator);
 
