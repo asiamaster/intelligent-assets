@@ -54,9 +54,18 @@ public interface LeaseOrderListDto extends LeaseOrder{
      * @return
      */
     @Column(name = "customer_name")
-    @Like
+    @Like(Like.RIGHT)
     String getLikeCustomerName();
     void setLikeCustomerName(String likeCustomerName);
+
+    /**
+     * 创建人模糊查询
+     * @return
+     */
+    @Column(name = "creator")
+    @Like(Like.RIGHT)
+    String getLikeCreator();
+    void setLikeCreator(String likeCreator);
 
     //摊位名称
     @Transient
