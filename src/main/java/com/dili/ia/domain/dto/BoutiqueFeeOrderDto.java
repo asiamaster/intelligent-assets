@@ -3,6 +3,9 @@ package com.dili.ia.domain.dto;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 
 /**
@@ -12,6 +15,12 @@ import javax.persistence.Column;
  * @description:  精品停车交费单 Dto
  */
 public class BoutiqueFeeOrderDto extends BoutiqueFeeOrder {
+
+    /**
+     * 主键ID
+     */
+    private Long id;
+
     /**
      * 客户ID
      */
@@ -41,6 +50,16 @@ public class BoutiqueFeeOrderDto extends BoutiqueFeeOrder {
      * 部门名称
      */
     private String departmentName;
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getDepartmentId() {
         return departmentId;
