@@ -118,7 +118,11 @@ ENGINE=InnoDB
 AUTO_INCREMENT=3
 ;
 
-
+-- 删除基础数据表
+DROP TABLE `dili-assets`.``category`;
+DROP TABLE `dili-assets`.`district`;
+DROP TABLE `dili-assets`.`booth`;
+DROP TABLE `dili-assets`.`booth_rent`;
 
 
 -- 报表模块 ------------------------------------------------
