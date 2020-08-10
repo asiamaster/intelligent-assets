@@ -73,6 +73,11 @@ function openViewHandler() {
 	}
 	window.location.href = "${contextPath}/stock/stockInDetail/view.html?code=" + rows[0].code;
 }
+
+function codeFormatter(value,row,index) {
+    return '<a href="javascript:openViewHandler(\''+row.code+'\')">'+value+'</a>';
+}
+
 </script>
 
 

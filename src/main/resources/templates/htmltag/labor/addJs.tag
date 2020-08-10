@@ -129,9 +129,8 @@ $(function () {
 		//续费  默认老单结束时间为新单开始时间
 		let startDate = moment("${labor.endDate!}").add('day', 1)
 		$('#startDate').val(startDate.format("YYYY-MM-DD"));
-		$('#endDate').val(startDate.add('month', 1).format('YYYY-MM-DD'));
+		$('#endDate').val(startDate.add('month', ${labor.interval!}).format('YYYY-MM-DD'));
 		$(".chargeItem").removeAttr("readonly");
-
 	}
 	if(type != "update" && type != "add"){
 		//根据操作类型判断可修改数据
@@ -151,21 +150,18 @@ $(function () {
 		$(".chargeItem").removeAttr("readonly");
 		if(type == "rename"){
 			$('#customerName').removeAttr("readonly");
-			//setTimeout(function(){ getCost() }, 1000);
 		}
+		setTimeout(function(){ getCost(); }, 1000);
 	}
+	
 });
 
 //计算应收取费用
 $(document).on('change',".get-cost", function() {
 	getCost();
 });
-$(document).on('change',".rename", function() {
-	getCost();
-});
 
 function getCost(){
-	console.log(31232);
 	let detail = {};
 	detail.laborType=$("[name=laborType]").find("option:selected").val();
 	detail.models=$("[name=models]").find("option:selected").val();
