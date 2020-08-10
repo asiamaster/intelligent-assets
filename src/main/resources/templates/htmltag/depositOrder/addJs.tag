@@ -14,12 +14,24 @@
     //对应摊位
     $(function () {
         registerMsg();
+        $('#assetsNameInput').hide();
     });
 
     //初始化刷卡
     initSwipeCard({
         id:'getCustomer',
     });
+
+    $('#assetsType').on('change', function(){
+        $('[name="assetsId"]').val('');
+        $('[name="assetsName"]').val('').hide();
+        if($(this).val() == 1 ) {
+            $('#assetsName').show();
+        } else {
+            $('#assetsNameInput').show();
+        }
+    })
+
     let assetsType = $('[name="assetsType"]').val();
     var boothAutoCompleteOption = {
         paramName: 'keyword',
@@ -30,7 +42,6 @@
             return params;
         },
         transformResult: function (result) {
-            debugger
             if(result.success){
                 let data = result.data;
                 return {
