@@ -46,6 +46,8 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
     @Autowired
     TransferDeductionItemService transferDeductionItemService;
     @Autowired
+    PaymentOrderService paymentOrderService;
+    @Autowired
     SettlementRpc settlementRpc;
 
     @Override
@@ -60,7 +62,6 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
             if (PayStateEnum.PAID.getCode().equals(o.getPayState())) {
                 o.setPaidAmount(o.getPayAmount());
             }
-
         });
         if (assetsLeaseOrderService.batchUpdateSelective(assetsLeaseOrders) != assetsLeaseOrders.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -68,6 +69,25 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
         LOG.info("****************跑订单数据结束 success。。。******************");
         return BaseOutput.success();
     }
+
+    /**
+     * 缴费数据处理
+     * @param assetsLeaseOrders
+     * @return
+     */
+    public Boolean paymentDataHandler(List<AssetsLeaseOrder> assetsLeaseOrders){
+        assetsLeaseOrders.stream().filter(o -> PayStateEnum.PAID.getCode().equals(o.getPayState())).forEach(o -> {
+            PaymentOrder paymentOrderCondition = new PaymentOrder();
+            paymentOrderCondition.setBusinessId(o.getId());
+            paymentOrderCondition.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
+            List<PaymentOrder> paymentOrders = paymentOrderService.listByExample(paymentOrderCondition);
+
+
+
+        });
+        return true;
+    }
+
 
     @Override
     @Transactional
