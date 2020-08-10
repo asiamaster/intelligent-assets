@@ -4,6 +4,7 @@
 	<form id="saveForm" role="form" novalidate>
 		<input type="hidden" id="code" name="code" value="${labor.code!}" />
 		<input type="hidden" id="actionType" name="actionType" value="add" />
+		<input type="hidden" id="businessChargeType" name="businessChargeType" value="${businessChargeType!}" />
 		<div class="breadcrumb">
 		 客户信息
 		<%if(isNotEmpty(labor) && type != 'remodel' && type != 'renew'){%>
@@ -60,14 +61,14 @@
 	</div>
 	<div class="form-group col">
 		<label for="departmentId">马甲类型<i class="red">*</i></label> <select
-			id="laborType" name="laborType" class="form-control" required></select>
+			id="laborType" name="laborType" class="form-control get-cost" required></select>
 		<#bcomboProvider _id="laborType" _value="${labor.laborType!}"
 			_provider="dataDictionaryValueProvider"
 			_queryParams='{dd_code:"labor_vest_type", required:true}' />
 	</div>
 	<div class="form-group col">
 		<label for="departmentId">运营车型<i class="red">*</i></label> <select
-			id="models" name="models" class="form-control remodel" required></select>
+			id="models" name="models" class="form-control remodel get-cost" required></select>
 		<#bcomboProvider _id="models" _value="${labor.models!}"
 			_provider="dataDictionaryValueProvider"
 			_queryParams='{dd_code:"labor_car_type", required:true}' />
@@ -83,13 +84,13 @@
 	<div class="form-group col">
 		<label for="startTime">开始日期<i class="red">*</i></label> <input
 			type="text" id="startDate" name="startDate"
-			class="form-control laydate laystart renew" value="${labor.startDate!,localDateTimeFormat='yyyy-MM-dd'}"
+			class="form-control laydate laystart renew " value="${labor.startDate!,localDateTimeFormat='yyyy-MM-dd'}"
 			required>
 	</div>
 	<div class="form-group col">
 		<label for="endTime">结束日期<i class="red">*</i></label> <input
 			type="text" id="endDate" name="endDate"
-			class="form-control laydate layend renew" value="${labor.endDate!,localDateTimeFormat='yyyy-MM-dd'}"
+			class="form-control laydate layend renew " value="${labor.endDate!,localDateTimeFormat='yyyy-MM-dd'}"
 			required>
 	</div>
 	

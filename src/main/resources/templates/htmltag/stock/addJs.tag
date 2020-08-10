@@ -184,16 +184,14 @@ function doAddStockInHandler() {
 		dataType: "json",
 		contentType: "application/json",
 		success: function(ret) {
-			bui.loading.hide();
-			if (!ret.success) {
-				bs4pop.alert(ret.message, {
-					type: 'error'
-				});
-			} else {
-				bs4pop.alert(ret.message, {type: 'success'});
-				parent.$('#grid').bootstrapTable('refresh');
-			}
-		},
+            if(!ret.success){
+                bs4pop.alert(ret.message, {type: 'error'});
+            }else{
+            	parent.closeDialog(parent.dia);
+				parent.$('#grid').bootstrapTable('refresh');	
+            }
+            bui.loading.hide();
+        },
 		error: function(error) {
 			bui.loading.hide();
 			bs4pop.alert('远程访问失败', {
