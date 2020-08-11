@@ -7,7 +7,6 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
-import com.dili.ia.domain.dto.RefundOrderTempDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.DepositOrderMapper;
@@ -76,6 +75,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     TransferDeductionItemService transferDeductionItemService;
     @Autowired
     CustomerAccountService customerAccountService;
+    @Autowired
+    TransactionDetailsService transactionDetailsService;
 
     public DepositOrderMapper getActualDao() {
         return (DepositOrderMapper)getDao();
@@ -744,6 +745,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                     LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
                     throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
                 }
+                //写入转抵转入流水
+                TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.TRANSFER_IN.getCode(), BizTypeEnum.DEPOSIT_ORDER.getCode(), TransactionItemTypeEnum.TRANSFER.getCode(), o.getPayeeAmount(), refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), refundOrder.getCode(), refundOrder.getMarketId(), refundOrder.getCreatorId(), refundOrder.getCreator());
+                transactionDetailsService.insertSelective(transactionDetails);
             });
         }
 
@@ -1051,48 +1055,51 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput oldRefundOrderDataHandler(List<RefundOrderTempDto> refundOrderList) {
-        if (CollectionUtils.isEmpty(refundOrderList)){
+    public BaseOutput oldRefundOrderDataHandler(RefundOrder oldRefundOrder, Long assetsId, TransferDeductionItem transferDeductionItem) {
+        if (null == oldRefundOrder){
             return BaseOutput.failure("数据为空！");
         }
-        refundOrderList.stream().forEach(o ->{
-            List<DepositOrder> deList = queryDepositOrderOldDataHandler(o.getBizType(), o.getBusinessId(), o.getAssetsId());
-            // 为空的话，抛出异常，因为退款单一定对应有业务单。 不为空的话就【新增】关联退款单
-            if (CollectionUtils.isEmpty(deList)){
-                throw new BusinessException(ResultCode.DATA_ERROR, "创建保证金退款单失败，退款单没有找到关联业务单，BusinessId=" + o.getBusinessId() + "，AssetsId=" + o.getAssetsId());
+        List<DepositOrder> deList = queryDepositOrderOldDataHandler(oldRefundOrder.getBizType(), oldRefundOrder.getBusinessId(), assetsId);
+        // 为空的话，抛出异常，因为退款单一定对应有业务单。 不为空的话就【新增】关联退款单
+        if (CollectionUtils.isEmpty(deList)){
+            throw new BusinessException(ResultCode.DATA_ERROR, "创建保证金退款单失败，退款单没有找到关联业务单，BusinessId=" + oldRefundOrder.getBusinessId() + "，AssetsId=" + assetsId);
+        }
+        //不为空的话就【新增】关联退款单
+        deList.stream().forEach(depOrder -> {
+            //修改保证金业务单为【已退款费 -- 已交清 -- 全额退款】的保证金单
+            depOrder.setState(DepositOrderStateEnum.REFUND.getCode());
+            depOrder.setRefundState(DepositRefundStateEnum.REFUNDED.getCode());
+            depOrder.setRefundAmount(depOrder.getAmount());
+            if (this.updateSelective(depOrder) == 0) {
+                LOG.info("修改保证金【解除关联操作】失败 ,乐观锁生效！【保证金单ID:{}】", oldRefundOrder.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
             }
-            //不为空的话就【新增】关联退款单
-            deList.stream().forEach(depOrder -> {
-                //修改保证金业务单为【已退款费 -- 已交清 -- 全额退款】的保证金单
-                depOrder.setState(DepositOrderStateEnum.REFUND.getCode());
-                depOrder.setRefundState(DepositRefundStateEnum.REFUNDED.getCode());
-                depOrder.setRefundAmount(depOrder.getAmount());
-                if (this.updateSelective(depOrder) == 0) {
-                    LOG.info("修改保证金【解除关联操作】失败 ,乐观锁生效！【保证金单ID:{}】", o.getId());
-                    throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-                }
-                //【更新/修改】保证金余额 --- 缴费成功保证金余额增加
-                this.saveOrupdateDepositBalance(depOrder, 0 - depOrder.getAmount());
-
-                //结算编号
-                String settleCode = o.getMarketCode().toUpperCase() + this.getBizNumber("settleOrder");
-                //新增【已退款】的退款单
-                RefundOrder refundOrder = this.buildRefundOrder(depOrder,o, settleCode);
-                refundOrderService.insertSelective(refundOrder);
-
-                //新增【已处理】的结算单，提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-                SettleOrderDto settleOrder = buildRefundSettleOrderDto(refundOrder);
-                settleOrder.setCode(settleCode);
-                List<SettleOrder> settleOrderList = new ArrayList<>();
-                settleOrderList.add(settleOrder);
-                BaseOutput<?> out= settlementRpc.batchSaveDealt(settleOrderList);
-                if (!out.isSuccess()){
-                    LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData()) ;
-                    throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
-                }
-            });
-
+            //【更新/修改】保证金余额 --- 缴费成功保证金余额增加
+            this.saveOrupdateDepositBalance(depOrder, 0 - depOrder.getAmount());
+            //结算编号
+            String settleCode = oldRefundOrder.getMarketCode().toUpperCase() + this.getBizNumber("settleOrder");
+            //新增【已退款】的退款单
+            RefundOrder refundOrder = this.buildRefundOrder(depOrder,oldRefundOrder, settleCode);
+            refundOrderService.insertSelective(refundOrder);
+            //如果有退款到转抵扣的，那么新增一条退款转抵记录 和 转抵转入流水
+            if (null != transferDeductionItem){
+                transferDeductionItem.setRefundOrderId(refundOrder.getId());
+                transferDeductionItemService.insertSelective(transferDeductionItem);
+                TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.TRANSFER_IN.getCode(), BizTypeEnum.DEPOSIT_ORDER.getCode(), TransactionItemTypeEnum.TRANSFER.getCode(), transferDeductionItem.getPayeeAmount(), refundOrder.getId(), refundOrder.getCode(), transferDeductionItem.getPayeeId(), refundOrder.getCode(), refundOrder.getMarketId(), refundOrder.getCreatorId(), refundOrder.getCreator());
+                transactionDetailsService.insertSelective(transactionDetails);
+            }
+            //新增【已处理】的结算单，提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
+            SettleOrderDto settleOrder = buildRefundSettleOrderDto(refundOrder);
+            settleOrder.setCode(settleCode);
+            List<SettleOrder> settleOrderList = new ArrayList<>();
+            settleOrderList.add(settleOrder);
+            BaseOutput<?> out= settlementRpc.batchSaveDealt(settleOrderList);
+            if (!out.isSuccess()){
+                LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData()) ;
+                throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
+            }
         });
+
         return BaseOutput.success();
     }
 
@@ -1106,7 +1113,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     //构建已退款的退款单
-    private RefundOrder buildRefundOrder(DepositOrder depositOrder, RefundOrderTempDto refundOrderTempDto, String settlementCode){
+    private RefundOrder buildRefundOrder(DepositOrder depositOrder, RefundOrder oldRefundOrder, String settlementCode){
         //新增【已退款】的退款单
         RefundOrder refundOrder = new RefundOrder();
         //结算单号
@@ -1135,16 +1142,16 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         refundOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
         refundOrder.setVersion(0);
         //租赁单传入
-        refundOrder.setPayee(refundOrderTempDto.getPayee());
-        refundOrder.setPayeeId(refundOrderTempDto.getPayeeId());
-        refundOrder.setPayeeCertificateNumber(refundOrderTempDto.getPayeeCertificateNumber());
-        refundOrder.setRefundType(refundOrderTempDto.getRefundType());
-        refundOrder.setBank(refundOrderTempDto.getBank());
-        refundOrder.setBankCardNo(refundOrderTempDto.getBankCardNo());
-        refundOrder.setTotalRefundAmount(refundOrderTempDto.getTotalRefundAmount());
-        refundOrder.setPayeeAmount(refundOrderTempDto.getPayeeAmount());
-        refundOrder.setDepartmentId(refundOrderTempDto.getDepartmentId());
-        refundOrder.setDepartmentName(refundOrderTempDto.getDepartmentName());
+        refundOrder.setPayee(oldRefundOrder.getPayee());
+        refundOrder.setPayeeId(oldRefundOrder.getPayeeId());
+        refundOrder.setPayeeCertificateNumber(oldRefundOrder.getPayeeCertificateNumber());
+        refundOrder.setRefundType(oldRefundOrder.getRefundType());
+        refundOrder.setBank(oldRefundOrder.getBank());
+        refundOrder.setBankCardNo(oldRefundOrder.getBankCardNo());
+        refundOrder.setTotalRefundAmount(oldRefundOrder.getTotalRefundAmount());
+        refundOrder.setPayeeAmount(oldRefundOrder.getPayeeAmount());
+        refundOrder.setDepartmentId(oldRefundOrder.getDepartmentId());
+        refundOrder.setDepartmentName(oldRefundOrder.getDepartmentName());
         return refundOrder;
     }
 

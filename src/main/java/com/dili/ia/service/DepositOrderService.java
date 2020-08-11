@@ -3,9 +3,9 @@ package com.dili.ia.service;
 import com.dili.ia.domain.DepositBalance;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
-import com.dili.ia.domain.dto.RefundOrderTempDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -164,13 +164,15 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * 新增退款单的退款结算单
      *
      * 批量【新增】,【已退款】的保证金退款单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
-     * @param refundOrderList 租赁订单退款单列表
-     * refundOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
+     * @param oldRefundOrder 租赁订单退款单
+     * @param assetsId 资产ID
+     * @param transferDeductionItem 保证金有退款到转抵扣金额里面的钱
+     * oldRefundOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
      *                         departmentId 业务所属部门ID ; departmentName 部门名称; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
      *                         assetsId 资产ID; businessId 关联订单ID; bizType 关联订单业务类型;
      *                         Payee 收款人,  PayeeID 收款人ID, PayeeCertificateNumber 收款人证件号
      *                        RefundType 退款方式 ; Bank 银行 ； BankCardNo 卡号； TotalRefundAmount 总退款金额 ； PayeeAmount付款金额
      * @return BaseOutput
      */
-    BaseOutput oldRefundOrderDataHandler(List<RefundOrderTempDto> refundOrderList);
+    BaseOutput oldRefundOrderDataHandler(RefundOrder oldRefundOrder, Long assetsId, TransferDeductionItem transferDeductionItem);
 }
