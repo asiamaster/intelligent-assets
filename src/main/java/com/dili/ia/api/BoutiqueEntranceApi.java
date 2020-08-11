@@ -93,11 +93,11 @@ public class BoutiqueEntranceApi {
         try{
             return BaseOutput.success().setData(boutiqueEntranceService.receiptRefundPrintData(orderCode, reprint));
         }catch (BusinessException e){
-            LOG.error("劳务结算票据打印异常！", e);
+            LOG.error("精品停车退款票据打印异常！", e);
             return BaseOutput.failure(e.getErrorMsg()).setData(false);
         }catch (Exception e){
-            LOG.error("劳务结算票据打印异常！", e);
-            return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
+            LOG.error("精品停车退款票据打印异常！", e);
+            return BaseOutput.failure("精品停车退款票据打印异常！").setData(false);
         }
     }
 

@@ -82,6 +82,24 @@ public class PassportApi {
     }
 
     /**
+     * 通行证退款票据打印
+     * @param orderCode
+     * @return
+     */
+    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput<Boolean> queryRefundPrintData(String orderCode, String reprint){
+        try{
+            return BaseOutput.success().setData(passportService.receiptRefundPrintData(orderCode, reprint));
+        }catch (BusinessException e){
+            LOG.error("通行证退款票据打印异常！", e);
+            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+        }catch (Exception e){
+            LOG.error("通行证退款票据打印异常！", e);
+            return BaseOutput.failure("通行证退款票据打印异常！").setData(false);
+        }
+    }
+
+    /**
      *
      * @Title scanEffective
      * @Description 定时任务扫描失效,待生效马甲单

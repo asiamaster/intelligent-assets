@@ -6,6 +6,7 @@ import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -24,7 +25,7 @@ public interface PassportService extends BaseService<Passport, Long> {
     /**
      * 查询列表
      *
-     * @param  passport
+     * @param  passportDto
      * @param  useProvider
      * @return EasyuiPageOutput
      * @date   2020/7/29
@@ -116,11 +117,20 @@ public interface PassportService extends BaseService<Passport, Long> {
     BaseOutput<Passport> refund(PassportRefundOrderDto passportRefundOrderDto);
 
     /**
-     * 
+     * 定时任务，刷新状态
      * 
      * @param
      * @return 
      * @date   2020/8/6
      */
     void passportTasking();
+
+    /**
+     * 退款票据打印
+     * 
+     * @param
+     * @return 
+     * @date   2020/8/11
+     */
+    PrintDataDto<PassportPrintDto> receiptRefundPrintData(String orderCode, String reprint);
 }

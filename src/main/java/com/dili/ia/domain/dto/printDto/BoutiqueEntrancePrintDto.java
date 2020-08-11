@@ -62,27 +62,52 @@ public class BoutiqueEntrancePrintDto {
     private LocalDateTime confirmTime;
 
     /**
-     * 计费时间
+     * 退款字段 收款人
      */
-    private String billableTime;
+    private String payee;
 
     /**
-     * 退款字段
+     * 收款金额
      */
-    // 收款人
-    private String payee;
-    // 收款金额
     private Long payeeAmount;
-    // 退款方式
+
+    /**
+     * 退款方式
+     */
     private String refundMethod;
-    // 开户行
+
+    /**
+     * 开户行
+     */
     private String bankName;
-    // 银行卡号
+
+    /**
+     * 银行卡号
+     */
     private String bankNo;
-    // 园区卡号
+
+    /**
+     * 园区卡号
+     */
     private String accountCardNo;
-    // 转抵信息
+
+    /**
+     * 转抵信息
+     */
     private List<TransferDeductionItem> transferDeductionItems;
+
+    /**
+     * 退款原因
+     */
+    private String refundReason;
+
+    public String getRefundReason() {
+        return refundReason;
+    }
+
+    public void setRefundReason(String refundReason) {
+        this.refundReason = refundReason;
+    }
 
     public String getPayee() {
         return payee;
@@ -147,21 +172,6 @@ public class BoutiqueEntrancePrintDto {
     public void setConfirmTime(LocalDateTime confirmTime) {
         this.confirmTime = confirmTime;
     }
-
-    public String getBillableTime() {
-        return billableTime;
-    }
-
-    public void setBillableTime(String billableTime) {
-        this.billableTime = billableTime;
-    }
-
-    /**
-     * 退款原因
-     */
-//    private String reson;
-
-
 
     public String getPlate() {
         return plate;

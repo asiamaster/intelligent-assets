@@ -410,8 +410,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         boutiqueTrancePrintDto.setCode(feeOrder.getCode());
         boutiqueTrancePrintDto.setCustomerName(recordInfo.getCustomerName());
         boutiqueTrancePrintDto.setCustomerCellphone(recordInfo.getCustomerCellphone());
-        boutiqueTrancePrintDto.setStartTime(feeOrder.getStartTime());
-        boutiqueTrancePrintDto.setEndTime(feeOrder.getEndTime());
+
         boutiqueTrancePrintDto.setNotes(feeOrder.getNotes());
         boutiqueTrancePrintDto.setAmount(MoneyUtils.centToYuan(feeOrder.getAmount()));
         boutiqueTrancePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
@@ -419,11 +418,11 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         boutiqueTrancePrintDto.setSubmitter(paymentOrder.getCreator());
         boutiqueTrancePrintDto.setBusinessType(BizTypeEnum.BOUTIQUE_ENTRANCE.getName());
 
-        // 精品停车特殊字段
+        // 精品停车特殊字段以及开始时间结束时间
         boutiqueTrancePrintDto.setPlate(recordInfo.getPlate());
-        String billableTime = "计费时间：" + feeOrder.getStartTime() + "至" + feeOrder.getEndTime();
-        boutiqueTrancePrintDto.setBillableTime(billableTime);
         boutiqueTrancePrintDto.setConfirmTime(recordInfo.getConfirmTime());
+        boutiqueTrancePrintDto.setEndTime(feeOrder.getEndTime());
+        boutiqueTrancePrintDto.setStartTime(feeOrder.getStartTime());
 
         PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getCode());
@@ -514,17 +513,17 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
             // 组装退款单信息
             BoutiqueEntrancePrintDto printDto = new BoutiqueEntrancePrintDto();
-            printDto.setPrintTime(LocalDateTime.now());
             printDto.setReprint(reprint);
+            printDto.setNotes(orderInfo.getNotes());
+            printDto.setPrintTime(LocalDateTime.now());
+            printDto.setSubmitter(orderInfo.getSubmitter());
+            printDto.setPayeeAmount(refundOrder.getPayeeAmount());
+            printDto.setCustomerName(recordInfo.getCustomerName());
+            printDto.setRefundReason(refundOrder.getRefundReason());
+            printDto.setSettlementOperator(order.getOperatorName());
             printDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
             printDto.setAmount(String.valueOf(orderInfo.getAmount()));
             printDto.setCustomerCellphone(recordInfo.getCustomerCellphone());
-            printDto.setCustomerName(recordInfo.getCustomerName());
-            printDto.setSettlementOperator(order.getOperatorName());
-            printDto.setSubmitter(orderInfo.getSubmitter());
-            printDto.setNotes(orderInfo.getNotes());
-            printDto.setPayeeAmount(refundOrder.getPayeeAmount());
-
             //TODO 判断支付方式
             //园区卡号
             printDto.setAccountCardNo(order.getAccountNumber());
@@ -537,6 +536,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             transferDeductionItemQuery.setRefundOrderId(refundOrder.getId());
             printDto.setTransferDeductionItems(transferDeductionItemService.list(transferDeductionItemQuery));
 
+            // 打印最外层
             PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();
             printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getName());
             printDataDto.setItem(printDto);
