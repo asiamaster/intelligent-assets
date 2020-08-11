@@ -90,6 +90,9 @@ let saveFormDetail = {
 	        expireDate: {
 	        	required: true
 	        },
+	        carTypePublicCode:{
+	        	required: true
+	        }
 	    },
 	    messages: {
 	    	districtId: {
@@ -112,6 +115,9 @@ let saveFormDetail = {
 	        },
 	        expireDate: {
 	        	required: "过期时间必填"
+	        },
+	        carTypePublicCode:{
+	        	required: "车型必填"
 	        }
 	    },
 	    focusCleanup: true

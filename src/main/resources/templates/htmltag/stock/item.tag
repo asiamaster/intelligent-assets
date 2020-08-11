@@ -12,18 +12,20 @@
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
 						<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
-						<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}" />
+						<label for="">接车单号:</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}" />
 					</div>
 					<div class="form-group col-4">
-						<label for="">车型</label> <input type="text" class="form-control" id="carTypePublicCode_{{index}}" name="carTypePublicCode" value="{{stockDetail.carTypePublicCode}}"
-						  />
+						<label for="">车型:<i class="red">*</i></label>
+						<#bautoCompleteProvider _hiddenDomainId="carTypePublicCode_{{index}}" _hiddenDomainName="carTypePublicCode" _displayDomainId="carTypePublicName_{{index}}"
+							 _displayDomainName="carTypePublicName" _placeholder="" _escape="true" _validatorMethod="isSelected" _optionVariable="carTypeAutoCompleteOption"
+							 _required="true" _value="{{stockDetail.carTypePublicCode}}" _text="{{stockDetail.carTypePublicName}}" />
 					</div>
 					<div class="form-group col-4">
-						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" value="{{stockDetail.carPlate}}"  />
+						<label for="">车牌号:</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" value="{{stockDetail.carPlate}}"  />
 					</div>
 					<div class="form-group col-4">
 						
-						<label for="">区域</label>
+						<label for="">区域:</label>
 		                <div class="input-group">
 		                    <select class="form-control districtId" id="districtId_one_{{index}}" name="districtId_one" required>
 
@@ -34,22 +36,22 @@
 		                </div>
 					</div>
 					<div class="form-group col-4">
-						<label for="">冷库编号：<i class="red">*</i></label>
+						<label for="">冷库编号:<i class="red">*</i></label>
 						<select id="assetsId_{{index}}" name="assetsId" class="form-control"  required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
 						
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" value="{{stockDetail.quantity}}" class="form-control number_change"
+						<label for="quantity" class="">入库件数:<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" value="{{stockDetail.quantity}}" class="form-control number_change"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" value="{{stockDetail.weight}}" class="form-control number_change get-cost"
+						<label for="weight" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" value="{{stockDetail.weight}}" class="form-control number_change get-cost"
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" value="{{stockDetail.amount}}" class="form-control number_change money"
+						<label for="weight" class="">入库金额:<i class="red">*</i></label> <input id="amount_{{index}}" type="number" value="{{stockDetail.amount}}" class="form-control number_change money"
 						 name="amount" range="0 9999999" required readonly />
 					</div>
 					<chargeItems class="chargeItems">
@@ -67,7 +69,7 @@
 				    <% } }%>*/
 				    -->
 					<div class="form-group col-8">
-					    <label for="notes">备注</label>
+					    <label for="notes">备注:</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100" value="{{stockDetail.notes}}">{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
@@ -83,18 +85,20 @@
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
 					<input type="hidden" class="form-control" id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
-					<label for="">接车单号</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}"  />
+					<label for="">接车单号:</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}"  />
 					</div>
 					<div class="form-group col-4">
-						<label for="">车型</label> <input type="text" class="form-control" id="carTypePublicCode_{{index}}" name="carTypePublicCode" value="{{stockDetail.carTypePublicCode}}"
-						  />
-					</div>
+					<label for="">车型:<i class="red">*</i></label>
+					<#bautoCompleteProvider _hiddenDomainId="carTypePublicCode_{{index}}" _hiddenDomainName="carTypePublicCode" _displayDomainId="carTypePublicName_{{index}}"
+						 _displayDomainName="carTypePublicName" _placeholder="" _escape="true" _validatorMethod="isSelected" _optionVariable="carTypeAutoCompleteOption"
+						 _required="true" _value="{{stockDetail.carTypePublicCode}}" _text="{{stockDetail.carTypePublicName}}" />
+							 </div>
 					<div class="form-group col-4">
-						<label for="">车牌号</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" value="{{stockDetail.carPlate}}"  />
+						<label for="">车牌号:</label> <input type="text" class="form-control" id="carPlate_{{index}}" name="carPlate" value="{{stockDetail.carPlate}}"  />
 					</div>
 					
 					<div class="form-group col-4">
-					<label for="">区域</label>
+					<label for="">区域:</label>
 	                <div class="input-group">
 	                    <select class="form-control districtId" id="districtId_one_{{index}}" name="districtId_one" required>
 
@@ -105,37 +109,39 @@
 	                </div>
 					</div>
 					<div class="form-group col-4">
-						<label for="">冷库编号：<i class="red">*</i></label>
+						<label for="">冷库编号:<i class="red">*</i></label>
 						<select id="assetsId_{{index}}" name="assetsId" class="form-control" required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
+						<label for="" class="">入库件数:<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
 						 name="quantity" value="{{stockDetail.quantity}}" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
+						<label for="" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
 						 name="weight" value="{{stockDetail.weight}}" range="0 9999999" required readonly/>
 						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
+						<label for="" class="">入库金额:<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
 						 name="amount" value="{{stockDetail.amount}}" range="0 9999999" required readonly/>
 					</div>
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->
 					</chargeItems>
-					<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+					<!--
+					/*<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
 				        for(item in chargeItems){
 				        %>
 				        <div class="form-group col-4">
 							<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
 							 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />
 						</div>
-				        <% } }%>
+				        <% } }%>*/
+				        -->
 					<div class="form-group col-8">
-					    <label for="">备注</label>
+					    <label for="">备注:</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" value="{{stockDetail.notes}}" maxlength="100">{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
@@ -151,7 +157,7 @@
 
 					<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
-					<label for="">区域</label>
+					<label for="">区域:</label>
 	                <div class="input-group">
 	                    <select class="form-control districtId" id="districtId_one_{{index}}" name="districtId_one" required>
 
@@ -162,40 +168,42 @@
 	                </div>
 					</div>
 					<div class="form-group col-4">
-						<label for="">冷库编号：<i class="red">*</i></label>
+						<label for="">冷库编号:<i class="red">*</i></label>
 						<select id="assetsId_{{index}}" name="assetsId" class="form-control" required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change get-cost count-weight"
+						<label for="quantity" class="">入库件数:<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change get-cost count-weight"
 						 name="quantity" range="0 9999999" value="{{stockDetail.quantity}}" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">单件重(公斤)：<i class="red">*</i></label> <input id="unitWeight_{{index}}" type="number" class="form-control number_change count-weight"
+						<label for="quantity" class="">单件重(公斤):<i class="red">*</i></label> <input id="unitWeight_{{index}}" type="number" class="form-control number_change count-weight"
 						 name="unitWeight" range="0 99999" value="{{stockDetail.unitWeight}}" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
+						<label for="weight" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
 						 name="weight" range="0 9999999" value="{{stockDetail.weight}}" required readonly />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
+						<label for="weight" class="">入库金额:<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
 						 name="amount" range="0 9999999" value="{{stockDetail.amount}}" required readonly/>
 					</div>
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->
 					</chargeItems>
-					<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+					<!--
+					/*<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
 				        for(item in chargeItems){
 				        %>
 				        <div class="form-group col-4">
 							<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
 							 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />
 						</div>
-				        <% } }%>
+				        <% } }%>*/
+				        -->
 					<div class="form-group col-8">
-					    <label for="notes">备注</label>
+					    <label for="notes">备注:</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100" >{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
@@ -324,6 +332,35 @@ $(document).on('change', '.count-weight', function() {
 		countNumber("weight");
 	}
 });
+
+var carTypeAutoCompleteOption = {
+		serviceUrl: '/stock/stockIn/searchCarType.action',
+		paramName : 'keyword',
+		displayFieldName : 'carTypeName',
+		hiddenDomainName : 'code',
+		showNoSuggestionNotice: true,
+		noSuggestionNotice: '无匹配结果',
+		transformResult: function (result) {
+			if(result.success){
+				let data = result.data;
+				return {
+					suggestions: $.map(data, function (dataItem) {
+						return $.extend(dataItem, {
+							value: dataItem.carTypeName + '（' + dataItem.code + '）'
+						}
+						);
+					})
+				}
+			}else{
+				bs4pop.alert(result.message, {type: 'error'});
+				return false;
+			}
+		},
+		selectFn: function (suggestion ,self) {
+            let hiddenDomain = $(self).siblings('input');
+            hiddenDomain.val(suggestion.code);
+		}}
+
 
 function strIsNotEmpty(str){
 	return str!=null&&str!=""&&str!=undefined

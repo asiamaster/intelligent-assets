@@ -3,6 +3,7 @@ package com.dili.ia.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.assets.sdk.dto.CarTypePublicDTO;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.dto.AssetsDto;
@@ -318,6 +319,25 @@ public class StockInController {
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
     		baseOutput.setData(assetsRpc.searchAssets(assetsDto).getData());
+    	}catch (Exception e) {
+			LOG.error("获取异常！", e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+    	return baseOutput;
+    }
+   
+    /**
+     * 获取司磅入库车型
+     * @Title searchCarType
+     * @param name
+     * @param code
+     */
+    @RequestMapping(value="/searchCarType.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput searchCarType(CarTypePublicDTO dto) {	        
+    	BaseOutput baseOutput = BaseOutput.success();
+    	try {
+    		dto.setTag("lkrk");
+    		baseOutput.setData(assetsRpc.searchCarType(dto).getData());
     	}catch (Exception e) {
 			LOG.error("获取异常！", e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");

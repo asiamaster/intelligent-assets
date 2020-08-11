@@ -424,7 +424,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	}
 
 	@Override
-	@Transactional
+	@GlobalTransactional
 	public void withdraw(String code) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		StockIn stockIn = getStockInByCode(code);

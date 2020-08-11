@@ -25,6 +25,7 @@ import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
@@ -161,6 +162,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.CREATED);
 		List<BusinessChargeItem> businessChargeItems = laborDto.getBusinessChargeItems();
 		businessChargeItemService.batchUpdateSelective(businessChargeItems);
+		LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "修改马甲单");
 	}
 	
 	
@@ -180,16 +182,18 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		if(StringUtils.isNotEmpty(oldCode)) {
 			Labor labor = getLaborByCode(oldCode);
 			Labor laborDomain = new Labor(userTicket);
-			if(LocalDateTime.now().isBefore(labor.getStartDate())) {
+			if(LocalDateTime.now().isAfter(labor.getStartDate())) {
 				update(laborDomain, oldCode, labor.getVersion(), LaborStateEnum.IN_EFFECTIVE);
 			}else {
 				update(laborDomain, oldCode, labor.getVersion(), LaborStateEnum.NOT_STARTED);
 			}
 		}
+		LoggerUtil.buildLoggerContext(laborRename.getId(), laborRename.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "取消马甲单");
+
 	}
 
 	@Override
-	@Transactional
+	@GlobalTransactional
 	public void submit(String code) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		Labor labor = getLaborByCode(code);
@@ -215,6 +219,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		domain.setSubmitter(userTicket.getRealName());
 		domain.setSubmitterId(userTicket.getId());
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.SUBMITTED_PAY);
+		LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "提交马甲单");
+
 	}
 
 	@Override
@@ -231,6 +237,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		paymentOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
 		paymentOrderService.updateSelective(paymentOrder);
 		settlementRpcResolver.cancel(paymentOrder.getCode());
+		LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "撤销马甲单");
 	}
 
 	@Override
@@ -249,7 +256,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		this.insertSelective(domain);
 		List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(laborDto.getBusinessChargeItems(), domain.getId(), domain.getCode());
 		businessChargeItemService.batchInsert(businessChargeItems);
-		
+		LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(),
+				userTicket.getRealName(), userTicket.getFirmId(),  String.format("马甲单%s续费%s", labor.getCode(),domain.getCode()));
+
 	}
 
 	@Override
@@ -267,7 +276,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		this.insertSelective(domain);
 		List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(laborDto.getBusinessChargeItems(), domain.getId(), domain.getCode());
 		businessChargeItemService.batchInsert(businessChargeItems);
-		
+		LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(),
+				userTicket.getRealName(), userTicket.getFirmId(), String.format("马甲单%s更名%s", labor.getCode(),domain.getCode()));
+		// LoggerContext.put("content", String.format("马甲单%s更名%s", labor.getCode(),domain.getCode()));
 	}
 
 	@Override
@@ -285,7 +296,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		this.insertSelective(domain);
 		List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(laborDto.getBusinessChargeItems(), domain.getId(), domain.getCode());
 		businessChargeItemService.batchInsert(businessChargeItems);
-		
+		LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(),
+				userTicket.getRealName(), userTicket.getFirmId(), String.format("马甲单%s更型%s", labor.getCode(),domain.getCode()));
 	}
 
 	@Override
@@ -307,7 +319,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
                 transferDeductionItemService.insertSelective(o);
             });
         }
-        //LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 		
 	@Override

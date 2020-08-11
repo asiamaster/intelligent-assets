@@ -41,7 +41,9 @@
                 </div>
                 <div class="form-group col">
                     <label for="">性别</label>
-                    <input type="text" class="form-control" value={!} disabled />
+                    <select class="form-control" id="customerGender" name="customerGender" disabled required > </select>
+                    <#bcomboProvider _id="customerGender" _provider="customerSexProvider" _value="${labor.customerGender!}"/>
+					
                 </div>
             </div>
             <div class="breadcrumb">
@@ -82,11 +84,11 @@
                 </div>
                 <div class="form-group col">
                     <label for="">开始日期</label>
-                    <input type="text" class="form-control" value=${labor.startDate!} disabled />
+                    <input type="text" class="form-control" value="${labor.startDate!,localDateTimeFormat='yyyy-MM-dd'}" disabled />
                 </div>
                 <div class="form-group col">
                     <label for="">结束日期</label>
-                    <input type="text" class="form-control" value="${labor.endDate}" disabled />
+                    <input type="text" class="form-control" value="${labor.endDate!,localDateTimeFormat='yyyy-MM-dd'}" disabled />
                 </div>
                 <%if(isNotEmpty(labor.businessChargeItems) && labor.businessChargeItems.~size>0){
 		        for(item in labor.businessChargeItems){
