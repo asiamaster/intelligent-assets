@@ -110,8 +110,9 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
             depositOrder.setCertificateNumber(assetsLeaseOrder.getCertificateNumber());
             depositOrder.setCustomerCellphone(assetsLeaseOrder.getCustomerCellphone());
             depositOrder.setDepartmentId(assetsLeaseOrder.getDepartmentId());
-            depositOrder.setTypeCode(AssetsTypeEnum.getAssetsTypeEnum(o.getAssetsType()).getTypeCode());
-            depositOrder.setTypeName("摊位租赁");
+            DepositTypeEnum dtEnum = DepositTypeEnum.getAssetsTypeEnum(AssetsTypeEnum.getAssetsTypeEnum(o.getAssetsType()).getTypeCode());
+            depositOrder.setTypeCode(dtEnum.getTypeCode());
+            depositOrder.setTypeName(dtEnum.getTypeName());
             depositOrder.setAssetsType(o.getAssetsType());
             depositOrder.setAssetsId(o.getAssetsId());
             depositOrder.setAssetsName(o.getAssetsName());

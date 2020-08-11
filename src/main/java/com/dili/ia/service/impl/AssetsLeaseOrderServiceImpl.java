@@ -1374,8 +1374,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             depositOrder.setCertificateNumber(dto.getCertificateNumber());
             depositOrder.setCustomerCellphone(dto.getCustomerCellphone());
             depositOrder.setDepartmentId(dto.getDepartmentId());
-            depositOrder.setTypeCode(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getTypeCode());
-            depositOrder.setTypeName("摊位租赁");
+            DepositTypeEnum dtEnum = DepositTypeEnum.getAssetsTypeEnum(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getTypeCode());
+            depositOrder.setTypeCode(dtEnum.getTypeCode());
+            depositOrder.setTypeName(dtEnum.getTypeName());
             depositOrder.setAssetsType(dto.getAssetsType());
             depositOrder.setAssetsId(l.getAssetsId());
             depositOrder.setAssetsName(l.getAssetsName());
