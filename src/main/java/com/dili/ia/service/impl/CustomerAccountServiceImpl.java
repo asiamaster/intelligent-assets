@@ -592,9 +592,9 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     /* ************************************************************** start 【老数据迁移 】 后期删除 ************************************************************************************/
-
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public void oldDataHandler(Long customerId, Long marketId, Long earnestAmount, Long transferAmount) {
+    public void oldDataHandler(Long orderId, Long customerId, Long marketId, Long earnestAmount, Long transferAmount) {
         CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
         if (null == ca){
             LOG.info("客户账户不存在，customerId={}；marketId={}", customerId, marketId);
@@ -609,6 +609,14 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             LOG.info("客户账户处理老数据（退还定金，转抵金额）接口异常,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "客户账户处理老数据（退还定金，转抵金额）接口异常,乐观锁生效！");
         }
+        //删除流水
+        TransactionDetails tdParam = new TransactionDetails();
+        tdParam.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
+        tdParam.setOrderId(orderId);
+        List<TransactionDetails>  tdList = transactionDetailsService.listByExample(tdParam);
+        tdList.stream().forEach(o->{
+            transactionDetailsService.delete(o.getId());
+        });
 
     }
     /* ************************************************************** end 【老数据迁移 】 后期删除 ************************************************************************************/
