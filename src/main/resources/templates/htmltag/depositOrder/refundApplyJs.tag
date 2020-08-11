@@ -48,6 +48,10 @@
 
     /******************************驱动执行区 begin***************************/
     $(function () {
+        if ($('[name="refundType"]').val() != '3'){
+            $('#bankInfo').hide();
+        }
+
         <% if(isNotEmpty(transferDeductionItems)){ %>
             itemIndex += ${transferDeductionItems.~size};
         <% }else{%>
@@ -56,9 +60,6 @@
             }
         <% }%>
 
-        if ($('#id').val() == ''){
-            $('#bankInfo').hide();
-        }
 
     });
     /******************************驱动执行区 end****************************/

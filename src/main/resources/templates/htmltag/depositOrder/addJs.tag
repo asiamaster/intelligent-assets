@@ -23,12 +23,12 @@
     });
 
     $('#assetsType').on('change', function(){
-        $('[name="assetsId"]').val('');
-        $('[name="assetsName"]').val('').hide();
+        $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
+        $('#assetsNameInput').attr('name', '');
         if($(this).val() == 1 ) {
             $('#assetsName').show();
         } else {
-            $('#assetsNameInput').show();
+            $('#assetsNameInput').attr('name', 'assetsName').show();
         }
     })
 
@@ -66,6 +66,7 @@
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);
         let formData = $("input:not(table input),textarea,select").serializeObject();
+        debugger
         let typeName = $('#typeCode').find("option:selected").text();
         bui.util.yuanToCentForMoneyEl(formData);
         $.extend(formData,{typeName});

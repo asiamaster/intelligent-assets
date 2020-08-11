@@ -47,9 +47,19 @@
       /******************************驱动执行区 begin***************************/
     $(function () {
         registerMsg();
+        $('#assetsNameInput').hide();
+
     });
 
-
+    $('#assetsType').on('change', function(){
+        $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
+        $('#assetsNameInput').attr('name', '');
+        if($(this).val() == 1 ) {
+            $('#assetsName').show();
+        } else {
+            $('#assetsNameInput').attr('name', 'assetsName').show();
+        }
+    })
 
     var boothAutoCompleteOption = {
         paramName: 'keyword',
