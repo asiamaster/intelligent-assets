@@ -90,29 +90,6 @@ public class BoutiqueEntranceRecordController {
     }
 
     /**
-     * 新增计费（提供给其他服务调用者）
-     *
-     * @param boutiqueEntranceRecord
-     * @return BaseOutput
-     * @date   2020/7/13
-     */
-    @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="confirm", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput add(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) throws Exception {
-
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
-        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.addBoutique(boutiqueEntranceRecord);
-
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            LoggerUtil.buildLoggerContext(boutiqueEntranceRecord.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        }
-
-        return baseOutput;
-    }
-
-    /**
      * 确认计费
      *
      * @param boutiqueEntranceRecord

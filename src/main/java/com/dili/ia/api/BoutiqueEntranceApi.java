@@ -1,5 +1,6 @@
 package com.dili.ia.api;
 
+import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
@@ -10,10 +11,13 @@ import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,6 +38,29 @@ public class BoutiqueEntranceApi {
 
     @Autowired
     private BoutiqueEntranceRecordService boutiqueEntranceService;
+
+    /**
+     * 新增计费（提供给其他服务调用者）
+     *
+     * @param boutiqueEntranceRecord
+     * @return BaseOutput
+     * @date   2020/7/13
+     */
+    @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="confirm", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput add(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) throws Exception {
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
+        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceService.addBoutique(boutiqueEntranceRecord);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()) {
+            LoggerUtil.buildLoggerContext(boutiqueEntranceRecord.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
+        return baseOutput;
+    }
 
     /**
      * 精品停车缴费成功回调
