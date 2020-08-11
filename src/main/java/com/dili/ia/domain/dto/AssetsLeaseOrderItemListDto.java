@@ -49,8 +49,8 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
     private List<Integer> states;
 
     @Operator(Operator.IN)
-    @Column(name = "refund_state")
-    private List<Integer> refundStates;
+    @Column(name = "deposit_amount_flag")
+    private List<Integer> depositAmountFlags;
 
     @Transient
     private List<BusinessChargeItem> businessChargeItems;
@@ -131,12 +131,12 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
         this.states = states;
     }
 
-    public List<Integer> getRefundStates() {
-        return refundStates;
+    public List<Integer> getDepositAmountFlags() {
+        return depositAmountFlags;
     }
 
-    public void setRefundStates(List<Integer> refundStates) {
-        this.refundStates = refundStates;
+    public void setDepositAmountFlags(List<Integer> depositAmountFlags) {
+        this.depositAmountFlags = depositAmountFlags;
     }
 
     public List<BusinessChargeItem> getBusinessChargeItems() {

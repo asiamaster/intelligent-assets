@@ -54,31 +54,15 @@ public class LeaseDataHandlerApi {
     }
 
     /**
-     * 跑订单项及收费项数据
+     * 跑退款单数据
      *
      * @return
      */
-    @GetMapping(value = "/leaseOrderChargeItemDataHandler")
+    @GetMapping(value = "/refundOrderDataHandler")
     public @ResponseBody
-    BaseOutput leaseOrderChargeItemDataHandler() {
+    BaseOutput refundOrderDataHandler() {
         try {
-            return assetsLeaseDataHandlerService.leaseOrderChargeItemDataHandler();
-        } catch (Exception e) {
-            LOG.error("跑订单项及收费项数据异常 FAIL！", e);
-            return BaseOutput.failure(e.getMessage());
-        }
-    }
-
-    /**
-     * 跑退款单金额及退款收费项数据
-     *
-     * @return
-     */
-    @GetMapping(value = "/refundOrderChargeItemDataHandler")
-    public @ResponseBody
-    BaseOutput refundOrderChargeItemDataHandler() {
-        try {
-            return assetsLeaseDataHandlerService.refundOrderChargeItemDataHandler();
+            return assetsLeaseDataHandlerService.refundOrderDataHandler();
         } catch (Exception e) {
             LOG.error("跑退款单金额及退款收费项数据异常 FAIL！", e);
             return BaseOutput.failure(e.getMessage());

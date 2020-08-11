@@ -222,6 +222,9 @@ public class AssetsLeaseOrderItem extends BaseDomain {
     @Column(name = "`rent_refund_amount`")
     private Long rentRefundAmount;
 
+    @Column(name = "`deposit_amount_source_id`")
+    private Long depositAmountSourceId;
+
     public Integer getDepositAmountFlag() {
         return depositAmountFlag;
     }
@@ -276,6 +279,14 @@ public class AssetsLeaseOrderItem extends BaseDomain {
 
     public void setRentRefundAmount(Long rentRefundAmount) {
         this.rentRefundAmount = rentRefundAmount;
+    }
+
+    public Long getDepositAmountSourceId() {
+        return depositAmountSourceId;
+    }
+
+    public void setDepositAmountSourceId(Long depositAmountSourceId) {
+        this.depositAmountSourceId = depositAmountSourceId;
     }
 
     /*************************** 待删除字段 end 数据处理后删除**********************************************/

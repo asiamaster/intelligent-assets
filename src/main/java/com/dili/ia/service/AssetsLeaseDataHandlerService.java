@@ -2,6 +2,8 @@ package com.dili.ia.service;
 
 import com.dili.ss.domain.BaseOutput;
 
+import java.util.List;
+
 /**
  * 租赁业务数据处理
  */
@@ -11,19 +13,23 @@ public interface AssetsLeaseDataHandlerService {
      * @return
      */
     BaseOutput leaseOrderDataHandler();
+
     /**
      * 迁移保证金数据到保证金模块
      * @return
      */
     BaseOutput moveDepositAmount();
+
     /**
-     * 租赁单收费项数据处理
+     * 退款单数据处理
      * @return
      */
-    BaseOutput leaseOrderChargeItemDataHandler();
+    BaseOutput refundOrderDataHandler();
+
     /**
-     * 退款单单收费项数据处理
+     * 删除租赁单
+     * @param leaseOrderIds
      * @return
      */
-    BaseOutput refundOrderChargeItemDataHandler();
+    BaseOutput deleteLeaseOrder(List<Long> leaseOrderIds);
 }
