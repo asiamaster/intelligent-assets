@@ -49,6 +49,13 @@ var categoryAutoCompleteOption = {
 
 //初始化入库单信息
 $(function() {
+	let uom = '${stockIn.uom!}';
+	$("#uom").val(uom);
+	if(uom == "1"){
+		$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#weight").val()));
+	}else{
+		$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#quantity").val()));
+	}
 	let stockInDetails = JSON.parse('${stockIn.jsonStockInDetailDtos!}');
 	for (let stockDetail of stockInDetails) {
 		stockDetail.departmentId=${stockIn.departmentId!};
@@ -127,7 +134,7 @@ $(document).on('click', '.item-del', function() {
 
 
 //计算金额,重量,数量
-$(document).on('change', '.number_change', function() {
+/*$(document).on('change', '.number_change', function() {
 	let fieldName = $(this).attr("name");
 	countNumber(fieldName);
 	countItemNumber($(this));
@@ -137,18 +144,18 @@ $(document).on('change', '.number_change', function() {
 function countNumber(name){
 	let total = 0;
 	$("#details").find("form").find("[name="+name+"]").each(function() {
-		total = parseInt(total) + parseInt($(this).val());
+		total = parseFloat(total) + parseFloat($(this).val());
 		$("#saveForm").find("[name="+name+"]").val(total);
 	});
 }
 function countItemNumber(obj){
 	let total = 0;
 	obj.closest("form").find(".amount-item").each(function(){
-		total = parseInt(total) + parseInt($(this).val()==""?0:$(this).val());
+		total = parseFloat(total) + parseFloat($(this).val()==""?0:$(this).val());
 	})
 	obj.closest("form").find("[name=amount]").val(total);
 	countNumber("amount")
-}
+}*/
 
 function buildFormData() {
 	// let formData = new FormData($('#saveForm')[0]);

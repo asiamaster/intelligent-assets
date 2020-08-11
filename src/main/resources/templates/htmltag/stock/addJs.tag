@@ -91,7 +91,7 @@ $(document).on('click', '.item-del', function() {
 });
 
 //计算金额,重量,数量
-$(document).on('change', '.number_change', function() {
+/*$(document).on('change', '.number_change', function() {
 	let fieldName = $(this).attr("name");
 	countNumber(fieldName);
 	countItemNumber($(this));
@@ -100,7 +100,7 @@ $(document).on('change', '.number_change', function() {
 function countNumber(name){
 	let total = 0;
 	$("#details").find("form").find("[name="+name+"]").each(function() {
-		total = parseInt(total) + parseInt($(this).val());
+		total = parseFloat(total) + parseFloat($(this).val());
 		$("#saveForm").find("[name="+name+"]").val(total);
 	});
 }
@@ -108,11 +108,11 @@ function countNumber(name){
 function countItemNumber(obj){
 	let total = 0;
 	obj.closest("form").find(".amount-item").each(function(){
-		total = parseInt(total) + parseInt($(this).val()==""?0:$(this).val());
+		total = parseFloat(total) + parseFloat($(this).val()==""?0:$(this).val());
 	})
 	obj.closest("form").find("[name=amount]").val(total);
 	countNumber("amount")
-}
+}*/
 
 //数据组装
 function buildFormData() {

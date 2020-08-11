@@ -625,19 +625,22 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	private ChargeRuleRpc chargeRuleRpc;
 	
 	@Override
-	public List<QueryFeeOutput> getCost(StockInDetailDto stockInDetail) {
+	public List<QueryFeeOutput> getCost(StockInDto stockInDto) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		List<QueryFeeInput> queryFeeInputs = new ArrayList<>();
-		stockInDetail.getBusinessChargeItems().forEach(itme -> {
+		stockInDto.getBusinessChargeItems().forEach(itme -> {
 			QueryFeeInput queryFeeInput =new QueryFeeInput();
 			queryFeeInput.setMarketId(userTicket.getFirmId());
-			queryFeeInput.setBusinessType(BizTypeEnum.STOCKIN.getCode());
+			queryFeeInput.setBusinessType(itme.getBizType());
 			queryFeeInput.setChargeItem(itme.getChargeItemId());
 			Map<String, Object> calcParams = new HashMap<String, Object>();
-			calcParams.put("quantity", stockInDetail.getQuantity());
-			calcParams.put("weight", stockInDetail.getWeight());
-			calcParams.put("assetsId", stockInDetail.getAssetsId());
-			calcParams.put("categoryId", stockInDetail.getCategoryId());
+			calcParams.put("quantity", stockInDto.getQuantity());
+			calcParams.put("weight", stockInDto.getWeight());
+			// calcParams.put("assetsId", stockInDto.getAssetsId());
+			calcParams.put("categoryId", stockInDto.getCategoryId());
+			Map<String, Object> conditionParams = new HashMap<String, Object>();
+			conditionParams.put("uom", stockInDto.getUom());
+			queryFeeInput.setConditionParams(conditionParams);
 			queryFeeInput.setCalcParams(calcParams);
 			queryFeeInputs.add(queryFeeInput);
 		});

@@ -24,6 +24,7 @@ import com.dili.ia.service.LaborService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
@@ -112,6 +113,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		if(CollectionUtil.isNotEmpty(businessChargeItems)) {
 			businessChargeItemService.batchInsert(businessChargeItems);
 		}
+		LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增马甲单");
 	}
 	
 	private void updateOldLabor(String code,String actionType) {

@@ -9,8 +9,8 @@ let _modal = $('#_modal');
 var dia;
 let duration = 3;
 let timeUnit = "month"
-$(".laystart").attr("value", moment().subtract(duration, timeUnit).startOf('day').format('YYYY-MM-DD HH:mm:ss'));
-$(".layend").attr("value", moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'));
+$("#createdStart").attr("value", moment().subtract(duration, timeUnit).startOf('day').format('YYYY-MM-DD HH:mm:ss'));
+$("#createdEnd").attr("value", moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'));
 /*********************变量定义区 end***************/
 
 
@@ -89,7 +89,7 @@ function openAddHandler(type,title) {
         }
 	    }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
 	            let diaWindow = $iframe[0].contentWindow;
-	            bui.util.debounce(diaWindow.doAddStockInHandler,1000,false)()
+	            bui.util.debounce(diaWindow.doAddStockInHandler,1000,true)()
 	            return false;
 	        }
 	    }]
@@ -141,7 +141,7 @@ function openUpdateHandler() {
 	        }
 		    }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
 		            let diaWindow = $iframe[0].contentWindow;
-		            bui.util.debounce(diaWindow.doUpdateStockInHandler,1000,false)()			
+		            bui.util.debounce(diaWindow.doUpdateStockInHandler,1000,true)()			
 		            return false;
 		        }
 		    }]
@@ -370,7 +370,7 @@ function openRefundHandler(){
                 }
             }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
                     let diaWindow = $iframe[0].contentWindow;
-                    bui.util.debounce(diaWindow.saveFormHandler,1000,false)()
+                    bui.util.debounce(diaWindow.saveFormHandler,1000,true)()
                     return false;
                 }
             }]
