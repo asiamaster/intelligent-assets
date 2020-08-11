@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.BoutiqueFreeSets;
+import com.dili.ia.domain.dto.BoutiqueFreeSetsDto;
 import com.dili.ia.service.BoutiqueFreeSetsService;
 import com.dili.ss.domain.BaseOutput;
 import java.util.List;
@@ -27,52 +28,24 @@ public class BoutiqueFreeSetsController {
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
+    @RequestMapping(value="/set.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
-        return "boutiqueFreeSets/index";
-    }
 
-    /**
-     * 分页查询BoutiqueFreeSets，返回easyui分页信息
-     * @param boutiqueFreeSets
-     * @return String
-     * @throws Exception
-     */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute BoutiqueFreeSets boutiqueFreeSets) throws Exception {
-        return boutiqueFreeSetsService.listEasyuiPageByExample(boutiqueFreeSets, true).toString();
-    }
+        BoutiqueFreeSetsDto boutiqueFreeSetsDto = boutiqueFreeSetsService.getHour();
+        modelMap.put("boutiqueFreeSets", boutiqueFreeSetsDto);
 
-    /**
-     * 新增BoutiqueFreeSets
-     * @param boutiqueFreeSets
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute BoutiqueFreeSets boutiqueFreeSets) {
-        boutiqueFreeSetsService.insertSelective(boutiqueFreeSets);
-        return BaseOutput.success("新增成功");
+        return "boutiqueEntranceRecord/set";
     }
 
     /**
      * 修改BoutiqueFreeSets
-     * @param boutiqueFreeSets
+     * @param boutiqueFreeSetsDto
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute BoutiqueFreeSets boutiqueFreeSets) {
-        boutiqueFreeSetsService.updateSelective(boutiqueFreeSets);
+    public @ResponseBody BaseOutput update(@ModelAttribute BoutiqueFreeSetsDto boutiqueFreeSetsDto) {
+        boutiqueFreeSetsService.updateFeeSets(boutiqueFreeSetsDto);
         return BaseOutput.success("修改成功");
     }
 
-    /**
-     * 删除BoutiqueFreeSets
-     * @param id
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        boutiqueFreeSetsService.delete(id);
-        return BaseOutput.success("删除成功");
-    }
 }

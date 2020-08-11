@@ -21,4 +21,29 @@ import java.util.Date;
  */
 public class BoutiqueFreeSetsDto extends BoutiqueFeeOrder {
 
+    /**
+     * 挂车时长
+     */
+    private Integer trailer;
+
+    /**
+     * 挂车时长
+     */
+    private Integer truck;
+
+    public Integer getTrailer() {
+        return trailer;
+    }
+
+    public void setTrailer(Integer trailer) {
+        this.trailer = trailer;
+    }
+
+    public Integer getTruck() {
+        return truck;
+    }
+
+    public void setTruck(Integer truck) {
+        this.truck = truck;
+    }
 }
