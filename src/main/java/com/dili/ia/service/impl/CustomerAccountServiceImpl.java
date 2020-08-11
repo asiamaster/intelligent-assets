@@ -553,7 +553,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             ca.setTransferBalance(ca.getTransferBalance() + amount);
             if(this.updateSelective(ca) == 0){
                 LOG.info("摊位租赁转抵充值调用接口异常，转抵金额充值修改客户账户金额失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
+                throw new BusinessException(ResultCode.DATA_ERROR, "摊位租赁转抵充值调用接口异常，转抵金额充值修改客户账户金额失败,乐观锁生效！");
             }
         }
     }
@@ -590,6 +590,29 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         return BaseOutput.success();
     }
+
+    /* ************************************************************** start 【老数据迁移 】 后期删除 ************************************************************************************/
+
+    @Override
+    public void oldDataHandler(Long customerId, Long marketId, Long earnestAmount, Long transferAmount) {
+        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+        if (null == ca){
+            LOG.info("客户账户不存在，customerId={}；marketId={}", customerId, marketId);
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户账户不存在！customerId=" + customerId);
+        }
+        ca.setEarnestBalance(ca.getEarnestBalance() + earnestAmount);
+        ca.setEarnestAvailableBalance(ca.getEarnestAvailableBalance() + earnestAmount);
+        ca.setTransferBalance(ca.getTransferBalance() + transferAmount);
+        ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() + transferAmount);
+
+        if(this.updateSelective(ca) == 0){
+            LOG.info("客户账户处理老数据（退还定金，转抵金额）接口异常,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户账户处理老数据（退还定金，转抵金额）接口异常,乐观锁生效！");
+        }
+
+    }
+    /* ************************************************************** end 【老数据迁移 】 后期删除 ************************************************************************************/
+
 
 }
 
