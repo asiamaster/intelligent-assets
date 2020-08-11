@@ -105,6 +105,9 @@ public class StockIn extends BaseDomain {
 
     @Column(name = "`category_name`")
     private String categoryName;
+    
+    @Column(name = "`certificate_number`")
+    private String certificateNumber;
 
     /**
      * 产地
@@ -783,4 +786,13 @@ public class StockIn extends BaseDomain {
 	public void setPayDate(LocalDateTime payDate) {
 		this.payDate = payDate;
 	}
+
+	public String getCertificateNumber() {
+		return certificateNumber;
+	}
+
+	public void setCertificateNumber(String certificateNumber) {
+		this.certificateNumber = certificateNumber;
+	}
+	
 }

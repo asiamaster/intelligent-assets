@@ -7,7 +7,7 @@
 				客户信息 
 			</div>
 			<div class="row row-cols-4 collapse show" id="customerInfo">
-				<div class="form-group col-4">
+				<div class="form-group col-3">
 					<label for="customerName">客户名称<i class="red">*</i></label>
 					<input type="hidden" class="" id="customerId"
 					 name="customerId" value="${stockIn.customerId!}" readonly required />
@@ -15,8 +15,12 @@
 					<input type="text" class="form-control" id="customerName"
 					 name="customerName" value="${stockIn.customerName!}" readonly required />
 				</div>
-				
-				<div class="form-group col-4">
+				<div class="form-group col">
+					<label for="_certificateNumber">证件号码<i class="red">*</i></label> <input
+						type="text" class="form-control" id="certificateNumber"
+						name="certificateNumber" value="${stockIn.certificateNumber!}" required readonly/>
+				</div>
+				<div class="form-group col-3">
 					<label for="">联系电话<i class="red">*</i></label> <input type="text" class="form-control isMobile" id="customerCellphone"
 					 name="customerCellphone" value="${stockIn.customerCellphone!}"  required />
 				</div>
@@ -27,29 +31,29 @@
 				 aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
 			</div>
 			<div class="row row-cols-4 collapse show" id="baseInfo">
-				<div class="form-group col-4">
+				<div class="form-group col-3">
 					<label for="">入库单号<i class="red">*</i></label> <input type="text" class="form-control" id="code"
 					 name="code" value="${stockIn.code!}"  readonly required />
 				</div>
 				
-				<div class="form-group col-4">
+				<div class="form-group col-3">
 					<input type="hidden" class="form-control" id=""
 					 name="type" value="${stockIn.type!}"  readonly required />
 					<label for="">入库类型<i class="red">*</i></label> <input type="text" class="form-control" id="type"
 					  value="${@com.dili.ia.glossary.StockInTypeEnum.getStockInTypeEnum(stockIn.type).getName()}"  readonly required />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col-3">
 					<label for="">操作员<i class="red">*</i></label>
 					<input type="hidden" id="operatorId" name="operatorId" value="${stockIn.operatorId!}" />
 					 <input type="text" class="form-control" id="operatorName"
 					 name="operatorName" value="${stockIn.operatorName!}"  readonly required />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col-3">
 					<label for="departmentId" value="${stockIn.departmentId!}" >业务所属部门<i class="red">*</i></label> 
 					<select id="departmentId" name="departmentId" class="form-control" required></select>
 					<#bcomboProvider _id="departmentId" _provider="authDepartmentProvider"  _value="${stockIn.departmentId!}"/>
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col-3">
 					<label for="categoryId">品类<i class="red">*</i></label>
 					<input type="hidden" id="cycle" name="cycle" >
 					
@@ -58,31 +62,42 @@
 					 _required="true" _value="${stockIn.categoryId!}" _text="${stockIn.categoryName!}" />
 				</div>
 				
-				<div class="form-group col-4">
+				<div class="form-group col-3">
 					<label for="">产地<i class="red">*</i></label> <input type="text" class="form-control" id="origin" name="origin"
 					 value="${stockIn.origin!}" required />
 				</div>
-				<div class="form-group col-4">
+				<div class="form-group col-3">
+					<label for="">单价<i class="red">*</i></label> <input type="number" class="form-control" id="unitPrice" name="unitPrice"
+					 required readonly />
+				</div>
+				<div class="form-group col-3">
+					<label for="uom"  >计价单位<i class="red">*</i></label> 
+					<select id="uom" value="${stockIn.uom!}" name="uom" class="form-control" required>
+					<option value=1>重量</option>
+					<option value=2>件数</option>
+					</select>
+				</div>
+				<div class="form-group col-3">
 					<label for="quantity" class="">总件数<i class="red">*</i></label> <input id="quantity" type="number" class="form-control"
 					 name="quantity" range="0 9999999" value="${stockIn.quantity!}" required readonly />
 				</div>
-				<div class="form-group col-4">
-					<label for="weight" class="">总总量<i class="red">*</i></label> <input id="weight" type="number" class="form-control"
+				<div class="form-group col-3">
+					<label for="weight" class="">总净重(公斤):<i class="red">*</i></label> <input id="weight" type="number" class="form-control"
 					 name="weight" range="0 9999999" value="${stockIn.weight!}" required readonly />
 				</div>
-				<div class="form-group col-4">
-					<label for="amount" class="">总金额<i class="red">*</i></label> <input id="amount" type="number" class="form-control money"
+				<div class="form-group col-3">
+					<label for="amount" class="">入库总额(元):<i class="red">*</i></label> <input id="amount" type="number" class="form-control money"
 					 name="amount" range="0 9999999.99" value="<#centToYuan value='${stockIn.amount!}'/>" required readonly />
 				</div>
 				<%if(isNotEmpty(stockIn.businessChargeItems) && stockIn.businessChargeItems.~size>0){
 		        for(item in stockIn.businessChargeItems){
 		        %>		        
-		        <div class="form-group col-4">
-					<label for="amount" class="">${item.chargeItemName!}<i class="red">*</i></label> <input id="chargeItem_${item.chargeItemId!}" type="number" class="form-control chargeItem money"
-					 name="chargeItem_${item.chargeItemId!}" item-id="${item.id!}" chargeItem-version="${item.version!}" chargeItem="${item.chargeItemName!}" value = "<#centToYuan value='${item.amount!}'/>" range="0 9999999.99" required readonly />				
+		        <div class="form-group col-3">
+					<label for="amount" class="">${item.chargeItemName!}<i class="red">*</i></label> <input id="chargeItem_${item.chargeItemId!}" type="number" class="form-control chargeItem amount-item money"
+					 name="chargeItem_${item.chargeItemId!}" item-id="${item.id!}" businessType="${item.bizType!}" chargeItem-version="${item.version!}" chargeItem="${item.chargeItemName!}" value = "<#centToYuan value='${item.amount!}'/>" range="0 9999999.99" required readonly />				
 		        </div>
 		        <% } }%>
-				<div class="form-group col-4">
+				<div class="form-group col-3">
 					<label for="expireDate">到期日期</label> <input type="text" id="expireDate" name="expireDate" class="form-control laydate layend"
 					value="${stockIn.expireDate!,localDateTimeFormat='yyyy-MM-dd'}"  readonly>
 				</div>
@@ -116,7 +131,7 @@
 <#stock_getCost />
 
 <script id="businessChargeItem" type="text/html">
-<div class="form-group col-4">
+<div class="form-group col-3">
 	<label for="amount" class="">{{chargeItem.chargeItemName}}<i class="red">*</i></label> <input id="chargeItem_{{chargeItem.id}}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
 		name="chargeItem_{{chargeItem.chargeItemId}}" item-id="{{chargeItem.id}}" chargeItem="{{chargeItem.chargeItemName}}" value="{{chargeItem.amount}}" range="0 9999999.99" required  />
 </div>

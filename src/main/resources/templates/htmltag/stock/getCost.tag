@@ -6,21 +6,63 @@ function isNull(value){
     return false;
 }
 
+//计算金额,重量,数量
+$(document).on('change', '.number_change', function() {
+	let fieldName = $(this).attr("name");
+	countNumber(fieldName);
+	// countItemNumber($(this));
+
+});
+
+function countNumber(name){
+	let total = 0;
+	$("#details").find("form").find("[name="+name+"]").each(function() {
+		total = parseFloat(total) + parseFloat($(this).val());
+	});
+	$("#saveForm").find("[name="+name+"]").val(total);
+	getCost();
+}
+function countItemNumber(obj){
+	let total = 0;
+	obj.closest("form").find(".amount-item").each(function(){
+		total = parseFloat(total) + parseFloat($(this).val()==""?0:$(this).val());
+	})
+	obj.closest("form").find("[name=amount]").val(total);
+	//countNumber("amount")
+}
+
 //计算应收取费用
-$(document).on('blur',".get-cost", function() {
-	console.log(3123123);
-	let index = $(this).attr("id").split("_")[1];
-	let detail = $("#saveForm_"+index).serializeObject();
+$(document).on('change',"#uom", function() {
+	getCost();
+});
+//计算子单费用
+function countItemAmount(){
+	let uom = $("#uom").val();
+	let unitPrice = parseFloat($("#unitPrice").val());
+	$("#details").find("form").each(function() {
+		if(uom == 1){
+			$(this).find("[name=amount]").val(parseFloat($(this).find("[name=weight]").val())*unitPrice);
+		}else{
+			$(this).find("[name=amount]").val(parseFloat($(this).find("[name=quantity]").val())*unitPrice);
+		}
+	})
+}
+//获取费用
+function getCost(){
+	let detail = {};
 	detail.categoryId=$('#categoryId').val();
-	detail.assetsId=$("#saveForm_"+index).find("[name=assetsId]").find("option:selected").val();
-	if(isNull(detail.categoryId) || isNull(detail.assetsId) || isNull(detail.quantity)){
+	detail.quantity=$('#quantity').val();
+	detail.weight=$('#weight').val();
+	detail.uom=$('#uom').val();
+	if(isNull(detail.categoryId) || (detail.uom == 1 && isNull(detail.weight)) || (detail.uom == 2 && isNull(detail.quantity))){
 		return;
 	}
 	// 动态收费项
 	let itemBusinessChargeDtos = []
-	$("#saveForm_"+index).find('.chargeItem').each(function(){
+	$("#saveForm").find('.chargeItem').each(function(){
 		let itemBusinessCharge = {};
 		itemBusinessCharge.chargeItemId=$(this).attr("name").split("_")[1];
+		itemBusinessCharge.bizType=$(this).attr("businessType");
 		itemBusinessChargeDtos.push(itemBusinessCharge);
 	})
 	detail.businessChargeItems=itemBusinessChargeDtos;
@@ -38,12 +80,19 @@ $(document).on('blur',".get-cost", function() {
 				});
 			} else {
 				for (let item of ret.data) {
-					let obj = $("#saveForm_"+index).find("[name=chargeItem_"+item.chargeItem+"]");
+					let obj = $("#saveForm").find("[name=chargeItem_"+item.chargeItem+"]");
 					obj.val(item.totalFee);
-					countNumber(obj.attr("name"));
+					//countNumber(obj.attr("name"));
 					countItemNumber(obj);
 				}
-				 
+				//计算单价
+				if(detail.uom == 1){
+					$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#weight").val()));
+				}else{
+					$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#quantity").val()));
+				}
+				
+				countItemAmount();
 			}
 		},
 		error: function(error) {
@@ -54,6 +103,7 @@ $(document).on('blur',".get-cost", function() {
 		}
 	});
 
-});
+
+}
 
 </script>

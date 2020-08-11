@@ -86,6 +86,11 @@ public class StockInDto {
     @NotNull
     @Size(max = 40, message = "品类名称太长")
     private String categoryName;
+    
+    /**
+     * 证件号
+     */
+    private String certificateNumber;
 
     /**
      * 产地
@@ -363,6 +368,14 @@ public class StockInDto {
 
 	public void setBusinessChargeItems(List<BusinessChargeItem> businessChargeItems) {
 		this.businessChargeItems = businessChargeItems;
+	}
+
+	public String getCertificateNumber() {
+		return certificateNumber;
+	}
+
+	public void setCertificateNumber(String certificateNumber) {
+		this.certificateNumber = certificateNumber;
 	}
 
 	

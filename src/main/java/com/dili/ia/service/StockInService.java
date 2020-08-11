@@ -143,7 +143,7 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @return
 	 * @throws
 	 */
-	List<QueryFeeOutput> getCost(StockInDetailDto stockInDetailDto);
+	List<QueryFeeOutput> getCost(StockInDto stockInDto);
 	
 	/**
 	 * 

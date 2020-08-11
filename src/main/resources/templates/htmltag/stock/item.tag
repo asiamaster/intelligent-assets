@@ -35,17 +35,17 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号：<i class="red">*</i></label>
-						<select id="assetsId_{{index}}" name="assetsId" class="form-control get-cost"  required> 
+						<select id="assetsId_{{index}}" name="assetsId" class="form-control"  required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
 						
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" value="{{stockDetail.quantity}}" class="form-control number_change get-cost"
+						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" value="{{stockDetail.quantity}}" class="form-control number_change"
 						 name="quantity" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" value="{{stockDetail.weight}}" class="form-control number_change"
+						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" value="{{stockDetail.weight}}" class="form-control number_change get-cost"
 						 name="weight" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
@@ -55,7 +55,8 @@
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->
 					</chargeItems>
-					<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+					<!--
+					/*<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
 				        for(item in chargeItems){
 				        %>
 				        
@@ -63,7 +64,8 @@
 							<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}_{{index}}" type="number" class="form-control amount-item number_change chargeItem money"
 							 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />
 						</div>
-				        <% } }%>
+				    <% } }%>*/
+				    -->
 					<div class="form-group col-8">
 					    <label for="notes">备注</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100" value="{{stockDetail.notes}}">{{stockDetail.notes}}</textarea>
@@ -109,11 +111,11 @@
 						</select>
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change get-cost"
+						<label for="" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
 						 name="quantity" value="{{stockDetail.quantity}}" range="0 9999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
+						<label for="" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
 						 name="weight" value="{{stockDetail.weight}}" range="0 9999999" required readonly/>
 						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
 					</div>
@@ -166,12 +168,16 @@
 						</select>
 					</div>
 					<div class="form-group col-4">
-						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change get-cost"
+						<label for="quantity" class="">入库件数：<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change get-cost count-weight"
 						 name="quantity" range="0 9999999" value="{{stockDetail.quantity}}" required />
 					</div>
 					<div class="form-group col-4">
+						<label for="quantity" class="">单件重(公斤)：<i class="red">*</i></label> <input id="unitWeight_{{index}}" type="number" class="form-control number_change count-weight"
+						 name="unitWeight" range="0 99999" value="{{stockDetail.unitWeight}}" required />
+					</div>
+					<div class="form-group col-4">
 						<label for="weight" class="">货物净重(公斤)：<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
-						 name="weight" range="0 9999999" value="{{stockDetail.weight}}" required />
+						 name="weight" range="0 9999999" value="{{stockDetail.weight}}" required readonly />
 					</div>
 					<div class="form-group col-4">
 						<label for="weight" class="">入库金额：<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
@@ -308,6 +314,17 @@ function getCycle(stockInDate,days){
 	}
 	$("#expireDate").val(moment(stockInDate).add(days-1,"days").format("YYYY-MM-DD"))
 }
+
+$(document).on('change', '.count-weight', function() {
+	let ind = $(this).attr('id').split('_')[1];
+	let quantity = $("#quantity_"+ind).val();
+	let unitWeight = $("#unitWeight_"+ind).val();
+	if(strIsNotEmpty(quantity) && strIsNotEmpty(unitWeight)){
+		$("#weight_"+ind).val(quantity*unitWeight);
+		countNumber("weight");
+	}
+});
+
 function strIsNotEmpty(str){
 	return str!=null&&str!=""&&str!=undefined
 }

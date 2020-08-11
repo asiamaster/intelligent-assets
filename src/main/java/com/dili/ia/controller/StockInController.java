@@ -294,15 +294,15 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/getCost.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getCost(@RequestBody StockInDetailDto stockInDetailDto) {	        //throw new BusinessException("2000", "errorCode");
+    public @ResponseBody BaseOutput getCost(@RequestBody StockInDto stockInDto) {	        //throw new BusinessException("2000", "errorCode");
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
-    		baseOutput.setData(stockInService.getCost(stockInDetailDto));
+    		baseOutput.setData(stockInService.getCost(stockInDto));
     	}catch (BusinessException e) {
-			LOG.error("费用{}计算异常！",stockInDetailDto.getCode(), e);
+			LOG.error("费用{}计算异常！",stockInDto.getCode(), e);
 			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
 		}catch (Exception e) {
-			LOG.error("费用{}计算异常！",stockInDetailDto.getCode(), e);
+			LOG.error("费用{}计算异常！",stockInDto.getCode(), e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
 		}
     	return baseOutput;
