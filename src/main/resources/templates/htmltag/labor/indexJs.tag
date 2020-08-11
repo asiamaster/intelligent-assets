@@ -125,16 +125,20 @@
      * 打开查看
      * @param id
      */
-    function openViewHandler(id) {
+    function openViewHandler(code) {
     	//获取选中行的数据
-        let rows = _grid.bootstrapTable('getSelections');
-        if (null == rows || rows.length == 0) {
-            bs4pop.alert('请选中一条数据');
-            return;
-        }
+    	if(!code){
+	        let rows = _grid.bootstrapTable('getSelections');
+	        if (null == rows || rows.length == 0) {
+	            bs4pop.alert('请选中一条数据');
+	           
+	            return;
+	        }
+	        code = rows[0].code;
+    	}
         dia = bs4pop.dialog({
             title: '马甲办理详情',
-            content: '/labor/vest/view.html?code='+rows[0].code,
+            content: '/labor/vest/view.html?code='+code,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -152,7 +156,7 @@
      * @returns {string}
      */
     function codeFormatter(value,row,index) {
-        return '<a href="javascript:openViewHandler('+row.id+')">'+value+'</a>';
+        return '<a href="javascript:openViewHandler(\''+row.code+'\')">'+value+'</a>';
     }
 
     /**

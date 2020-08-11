@@ -127,6 +127,8 @@ public class StockInDetailDto {
 	 */
 	private String carTypePublicCode;
 	
+	private String carTypePublicName;
+	
 	/**
 	 * 入库子单删除
 	 */
@@ -356,6 +358,14 @@ public class StockInDetailDto {
 
 	public void setParentDistrictId(Long parentDistrictId) {
 		this.parentDistrictId = parentDistrictId;
+	}
+
+	public String getCarTypePublicName() {
+		return carTypePublicName;
+	}
+
+	public void setCarTypePublicName(String carTypePublicName) {
+		this.carTypePublicName = carTypePublicName;
 	}
 
 	

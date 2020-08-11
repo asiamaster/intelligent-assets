@@ -159,6 +159,12 @@ public class StockInDetail extends BaseDomain {
      */
     @Column(name = "`car_type_public_code`")
     private String carTypePublicCode;
+   
+    /**
+     * 汽车编号名称
+     */
+    @Column(name = "`car_type_public_name`")
+    private String carTypePublicName;
     
     /**
      * 入库金额
@@ -677,6 +683,14 @@ public class StockInDetail extends BaseDomain {
 
 	public void setParentDistrictId(Long parentDistrictId) {
 		this.parentDistrictId = parentDistrictId;
+	}
+
+	public String getCarTypePublicName() {
+		return carTypePublicName;
+	}
+
+	public void setCarTypePublicName(String carTypePublicName) {
+		this.carTypePublicName = carTypePublicName;
 	}
     
     

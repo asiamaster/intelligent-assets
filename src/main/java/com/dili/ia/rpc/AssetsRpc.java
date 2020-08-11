@@ -3,6 +3,8 @@ package com.dili.ia.rpc;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BoothDTO;
 import com.dili.assets.sdk.dto.BoothRentDTO;
+import com.dili.assets.sdk.dto.CarTypeForJmsfDTO;
+import com.dili.assets.sdk.dto.CarTypePublicDTO;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.ia.domain.dto.AssetsDto;
@@ -167,4 +169,10 @@ public interface AssetsRpc {
      */
     @RequestMapping(value = "/api/assets/search", method = RequestMethod.POST)
     BaseOutput<List<AssetsDto>> searchAssets(AssetsDto input);
+    
+    /**
+     * 公共车型搜索
+     */
+    @RequestMapping(value = "/api/carTypePublic/listCarTypePublicByBusiness", method = RequestMethod.POST)
+    BaseOutput<List<CarTypeForJmsfDTO>> searchCarType(CarTypePublicDTO input);
 }
