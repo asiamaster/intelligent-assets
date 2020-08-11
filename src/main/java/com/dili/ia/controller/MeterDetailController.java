@@ -115,7 +115,7 @@ public class MeterDetailController {
                 queryBusinessChargeItemConfig(userTicket.getFirmId(), "UTTLITIES", YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
 
-        return "meterDetail/water/add";
+        return "meterDetail/electricity/add";
     }
 
     /**
