@@ -1,9 +1,12 @@
 package com.dili.ia.domain.dto.printDto;
 
+import com.dili.ia.domain.TransferDeductionItem;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Column;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author:       xiaosa
@@ -47,8 +50,118 @@ public class BoutiqueEntrancePrintDto {
     private String submitter;
     //结算详情
     private String settleWayDetails;
-    // 车牌号
+
+    /**
+     * 车牌号
+     */
     private String plate;
+
+    /**
+     * 确认时间
+     */
+    private LocalDateTime confirmTime;
+
+    /**
+     * 计费时间
+     */
+    private String billableTime;
+
+    /**
+     * 退款字段
+     */
+    // 收款人
+    private String payee;
+    // 收款金额
+    private Long payeeAmount;
+    // 退款方式
+    private String refundMethod;
+    // 开户行
+    private String bankName;
+    // 银行卡号
+    private String bankNo;
+    // 园区卡号
+    private String accountCardNo;
+    // 转抵信息
+    private List<TransferDeductionItem> transferDeductionItems;
+
+    public String getPayee() {
+        return payee;
+    }
+
+    public void setPayee(String payee) {
+        this.payee = payee;
+    }
+
+    public Long getPayeeAmount() {
+        return payeeAmount;
+    }
+
+    public void setPayeeAmount(Long payeeAmount) {
+        this.payeeAmount = payeeAmount;
+    }
+
+    public String getRefundMethod() {
+        return refundMethod;
+    }
+
+    public void setRefundMethod(String refundMethod) {
+        this.refundMethod = refundMethod;
+    }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
+
+    public String getBankNo() {
+        return bankNo;
+    }
+
+    public void setBankNo(String bankNo) {
+        this.bankNo = bankNo;
+    }
+
+    public String getAccountCardNo() {
+        return accountCardNo;
+    }
+
+    public void setAccountCardNo(String accountCardNo) {
+        this.accountCardNo = accountCardNo;
+    }
+
+    public List<TransferDeductionItem> getTransferDeductionItems() {
+        return transferDeductionItems;
+    }
+
+    public void setTransferDeductionItems(List<TransferDeductionItem> transferDeductionItems) {
+        this.transferDeductionItems = transferDeductionItems;
+    }
+
+    public LocalDateTime getConfirmTime() {
+        return confirmTime;
+    }
+
+    public void setConfirmTime(LocalDateTime confirmTime) {
+        this.confirmTime = confirmTime;
+    }
+
+    public String getBillableTime() {
+        return billableTime;
+    }
+
+    public void setBillableTime(String billableTime) {
+        this.billableTime = billableTime;
+    }
+
+    /**
+     * 退款原因
+     */
+//    private String reson;
+
+
 
     public String getPlate() {
         return plate;

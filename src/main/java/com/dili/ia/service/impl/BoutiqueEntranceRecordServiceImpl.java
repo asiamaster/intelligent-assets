@@ -1,14 +1,19 @@
 package com.dili.ia.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.BoutiqueFreeSets;
+import com.dili.ia.domain.Labor;
 import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
+import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.BoutiqueOrderStateEnum;
@@ -22,6 +27,8 @@ import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.BoutiqueFeeOrderService;
 import com.dili.ia.service.BoutiqueFreeSetsService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -82,6 +89,12 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
     @Autowired
     private SettlementRpcResolver settlementRpcResolver;
+
+    @Autowired
+    private RefundOrderService refundOrderService;
+
+    @Autowired
+    private TransferDeductionItemService transferDeductionItemService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -405,10 +418,12 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         boutiqueTrancePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         boutiqueTrancePrintDto.setSubmitter(paymentOrder.getCreator());
         boutiqueTrancePrintDto.setBusinessType(BizTypeEnum.BOUTIQUE_ENTRANCE.getName());
+
+        // 精品停车特殊字段
         boutiqueTrancePrintDto.setPlate(recordInfo.getPlate());
-        // 拼接结算详情
-        String settleWayDetails = "计费时间：" + feeOrder.getStartTime() + "至" + feeOrder.getEndTime();
-        boutiqueTrancePrintDto.setSettlementOperator(settleWayDetails);
+        String billableTime = "计费时间：" + feeOrder.getStartTime() + "至" + feeOrder.getEndTime();
+        boutiqueTrancePrintDto.setBillableTime(billableTime);
+        boutiqueTrancePrintDto.setConfirmTime(recordInfo.getConfirmTime());
 
         PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getCode());
@@ -474,6 +489,60 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         this.insertSelective(boutiqueEntranceRecord);
 
         return BaseOutput.success();
+    }
+
+    /**
+     * 打印退款
+     *
+     * @param  orderCode
+     * @param  reprint
+     * @return
+     * @date   2020/8/11
+     */
+    @Override
+    public PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, String reprint) {
+        RefundOrder condtion = new RefundOrder();
+        condtion.setCode(orderCode);
+        List<RefundOrder> refundOrders = refundOrderService.list(condtion);
+        if(CollectionUtil.isEmpty(refundOrders)) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
+        } else {
+            RefundOrder refundOrder = refundOrders.get(0);
+            BoutiqueFeeOrder orderInfo = boutiqueFeeOrderService.get(refundOrder.getBusinessId());
+            BoutiqueEntranceRecord recordInfo = this.get(orderInfo.getRecordId());
+            SettleOrder order = settlementRpcResolver.get(settlementAppId, orderInfo.getCode());
+
+            // 组装退款单信息
+            BoutiqueEntrancePrintDto printDto = new BoutiqueEntrancePrintDto();
+            printDto.setPrintTime(LocalDateTime.now());
+            printDto.setReprint(reprint);
+            printDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
+            printDto.setAmount(String.valueOf(orderInfo.getAmount()));
+            printDto.setCustomerCellphone(recordInfo.getCustomerCellphone());
+            printDto.setCustomerName(recordInfo.getCustomerName());
+            printDto.setSettlementOperator(order.getOperatorName());
+            printDto.setSubmitter(orderInfo.getSubmitter());
+            printDto.setNotes(orderInfo.getNotes());
+            printDto.setPayeeAmount(refundOrder.getPayeeAmount());
+
+            //TODO 判断支付方式
+            //园区卡号
+            printDto.setAccountCardNo(order.getAccountNumber());
+            //银行卡号
+            printDto.setBankName(refundOrder.getBank());
+            printDto.setBankNo(refundOrder.getBankCardNo());
+
+            // 获取转抵信息
+            TransferDeductionItem transferDeductionItemQuery = new TransferDeductionItem();
+            transferDeductionItemQuery.setRefundOrderId(refundOrder.getId());
+            printDto.setTransferDeductionItems(transferDeductionItemService.list(transferDeductionItemQuery));
+
+            PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();
+            printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getName());
+            printDataDto.setItem(printDto);
+
+            return printDataDto;
+        }
     }
 
     /**
