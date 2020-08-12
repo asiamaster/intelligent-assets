@@ -306,7 +306,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, DepositOrder depositOrder, Long paidAmount){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.DEPOSIT_ORDER.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(paidAmount);
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
@@ -1158,7 +1158,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaidPaymentOrder(DepositOrder depositOrder){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(depositOrder.getMarketCode().toUpperCase() + this.getBizNumber("hzsc_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(depositOrder.getMarketCode().toUpperCase() + this.getBizNumber("hzsc_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.DEPOSIT_ORDER.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(depositOrder.getAmount());
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
