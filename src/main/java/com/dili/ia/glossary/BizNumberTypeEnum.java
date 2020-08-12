@@ -14,7 +14,6 @@ public enum BizNumberTypeEnum {
     REFUND_ORDER("refundOrder", "退款单"),
     EARNEST_ORDER("earnestOrder", "定金业务单"),
     EARNEST_REFUND_ORDER("earnesRefundtOrder", "定金退款单"),
-    LEASE_REFUND_ORDER("leaseRefundOrder", "租赁退款单"),
     EARNEST_TRANSFER_ORDER("earnestTransferOrder", "定金转移单"),
     TRANSACTION_CODE("transactionCode", "客户账户流水号"),
     DEPOSIT_ORDER("depositOrder", "保证金业务单"),

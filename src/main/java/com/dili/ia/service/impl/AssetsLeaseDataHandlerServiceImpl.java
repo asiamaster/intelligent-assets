@@ -420,15 +420,19 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
             AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
             itemCondition.setLeaseOrderId(o.getId());
             List<AssetsLeaseOrderItem> assetsLeaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
-            assetsLeaseOrderItems.stream().filter(item -> DepositAmountFlagEnum.TRANSFERRED.getCode().equals(item.getDepositAmountFlag()) || DepositAmountFlagEnum.REFUNDED.getCode().equals(item.getDepositAmountFlag()))
-                    .forEach(item -> {
-                        AssetsLeaseOrderItem depositAmountSourceItem = assetsLeaseOrderItemService.get(item.getDepositAmountSourceId());
-                        if (LeaseRefundStateEnum.REFUNDED.getCode().equals(depositAmountSourceItem.getRefundState())) {
-                            depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.REFUNDED.getCode());
-                        } else {
-                            depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
-                        }
-                    });
+            assetsLeaseOrderItems.stream()
+                .filter(item -> DepositAmountFlagEnum.TRANSFERRED.getCode().equals(item.getDepositAmountFlag())
+                        || DepositAmountFlagEnum.REFUNDED.getCode().equals(item.getDepositAmountFlag()))
+                .forEach(item -> {
+                    AssetsLeaseOrderItem depositAmountSourceItem = assetsLeaseOrderItemService.get(item.getDepositAmountSourceId());
+                    if (LeaseRefundStateEnum.REFUNDED.getCode().equals(depositAmountSourceItem.getRefundState())) {
+                        depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.REFUNDED.getCode());
+                    } else {
+                        depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
+                    }
+                    assetsLeaseOrderItemService.updateSelective(depositAmountSourceItem);
+                });
+
         });
         return null;
     }
