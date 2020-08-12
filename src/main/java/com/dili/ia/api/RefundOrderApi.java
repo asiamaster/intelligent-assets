@@ -73,8 +73,8 @@ public class RefundOrderApi {
             }
             return BaseOutput.failure(output.getMessage());
         }catch (BusinessException e){
-            LOG.error("退款成功回调异常！" + e.getErrorMsg(), e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+            LOG.error("退款成功回调异常！" + e.getMessage(), e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }catch (Exception e){
             LOG.error("退款成功回调异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);

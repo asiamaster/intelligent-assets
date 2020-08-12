@@ -146,7 +146,7 @@ public class DepositOrderController {
             return out;
         } catch (BusinessException e) {
             LOG.error("保证金创建退款失败！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("保证金创建退款出错！", e);
             return BaseOutput.failure("创建退款出错！");
@@ -183,7 +183,7 @@ public class DepositOrderController {
             return output;
         }catch (BusinessException e){
             LOG.error("保证金单保存异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("保证金单保存异常！", e);
             return BaseOutput.failure("保证金单保存异常！");
@@ -231,7 +231,7 @@ public class DepositOrderController {
             return output;
         }catch (BusinessException e){
             LOG.error("保证金单修改异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("保证金单修改异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -294,7 +294,7 @@ public class DepositOrderController {
             return output;
         } catch (BusinessException e) {
             LOG.error("保证金单提交失败！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("submit 保证金单提交出错!" ,e);
             return BaseOutput.failure("提交出错！");
@@ -323,7 +323,7 @@ public class DepositOrderController {
             return output;
         } catch (BusinessException e) {
             LOG.error("保证金单撤回出错！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("withdraw 保证金单撤回出错!" ,e);
             return BaseOutput.failure("撤回出错！");
