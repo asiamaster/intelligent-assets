@@ -1,5 +1,7 @@
 package com.dili.ia.api;
 
+import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +41,7 @@ public class LaborVestApi {
 	 * @param settleOrder
 	 * @return
 	 */
-	@RequestMapping(value = "/settlementDealHandler", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST })
 	public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
 		try {
 			laborService.settlementDealHandler(settleOrder);
@@ -71,8 +73,8 @@ public class LaborVestApi {
      * @param settleOrder
      * @return
      */
-    @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, String reprint){
+    @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<LaborRefundPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(laborService.receiptPaymentData(orderCode, reprint));
         }catch (BusinessException e){
@@ -89,8 +91,8 @@ public class LaborVestApi {
      * @param settleOrder
      * @return
      */
-    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryRefundPrintData(String orderCode, String reprint){
+    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<LaborRefundPrintDto>> queryRefundPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(laborService.receiptRefundPrintData(orderCode, reprint));
         }catch (BusinessException e){

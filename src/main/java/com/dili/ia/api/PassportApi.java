@@ -1,6 +1,8 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.Passport;
+import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -41,7 +43,7 @@ public class PassportApi {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody  BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -67,8 +69,8 @@ public class PassportApi {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/queryPrintData/boutique_entrance", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, Integer reprint){
+    @RequestMapping(value="/queryPrintData", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<PassportPrintDto>> queryPaymentPrintData(String orderCode, Integer reprint){
         try{
             if(StringUtils.isBlank(orderCode) || null == reprint){
                 return BaseOutput.failure("参数错误");
@@ -88,8 +90,8 @@ public class PassportApi {
      * @param orderCode
      * @return
      */
-    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryRefundPrintData(String orderCode, String reprint){
+    @RequestMapping(value="/refundOrder/queryPrintData", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<PassportPrintDto>> queryRefundPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(passportService.receiptRefundPrintData(orderCode, reprint));
         }catch (BusinessException e){
