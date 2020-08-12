@@ -11,9 +11,42 @@
         //如 let itemIndex = 0;
     let _grid = $('#grid');
     let _form = $('#_form');
-    let _modal = $('#_modal');
     let currentSelectRowIndex;
     var dia;
+
+    //开票类型的select2控件参数
+    let invoiceTypeOption = {
+        //隐藏搜索框
+        minimumResultsForSearch: -1
+    };
+
+    //开票主体的select2控件参数
+    var customerNameAutoCompleteOption = {
+        serviceUrl: '/customer/listNormal.action',
+        paramName: 'likeName',
+        displayFieldName: 'name',
+        showNoSuggestionNotice: true,
+        noSuggestionNotice: '<a href="javascript:;" id="goCustomerRegister">无此客户</a>',
+        transformResult: function (result) {
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '（' + dataItem.certificateNumber + '）'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return false;
+            }
+        },
+        selectFn: function (suggestion) {
+
+        }
+    };
 
     /*********************变量定义区 end***************/
 
@@ -25,7 +58,7 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {url: '/assetsLeaseOrder/listPage.action',pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {url: '/leaseOrder/listPage.action',pageSize: parseInt(size)});
     });
 
 
@@ -38,7 +71,7 @@
     function openInsertHandler() {
        dia = bs4pop.dialog({
             title: '新增租赁',
-           content: '/assetsLeaseOrder/preSave.html?assetsType=' + $('#assetsType').val(),
+           content: '/leaseOrder/preSave.html?assetsType=' + $('#assetsType').val(),
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -61,7 +94,7 @@
 
         dia = bs4pop.dialog({
             title: '修改租赁',
-            content: '/assetsLeaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
+            content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -89,7 +122,7 @@
 
         dia = bs4pop.dialog({
             title: '摊位租赁详情',
-            content: '/assetsLeaseOrder/view.action?id='+id,
+            content: '/leaseOrder/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -108,6 +141,71 @@
      */
     function codeFormatter(value,row,index) {
         return '<a href="javascript:openViewHandler('+row.id+')">'+value+'</a>';
+    }
+
+    /**
+     * 打开开票
+     */
+    function openInvoiceHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length != 1) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        var param = rows[0];
+        param["targetId"] = param["customerId"];
+        param["target"] = param["customerName"];
+        param["amount"] = param["totalAmount"];
+        param["invoiceDate"] = moment().format("YYYY-MM-DD");
+        bs4pop.dialog({
+            title: "开票",
+            content: bui.util.HTMLDecode(template('invoiceTpl', param)),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            onShowEnd: function(){
+                laydate.render({
+                    elem: "#_invoiceDate",
+                    type: 'date',
+                    theme: '#007bff',
+                    trigger:'click'
+                });
+            },
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick(e) {
+                        if ($('#_invoiceForm').validate().form() != true) {
+                            return false;
+                        }
+                        bui.loading.show('努力提交中，请稍候。。。');
+                        let _formData = bui.util.removeKeyStartWith($('#_invoiceForm').serializeObject(true), "_");
+                        $.extend(_formData, {businessKey:rows[0].code});
+                        $.ajax({
+                            type: "POST",
+                            url: "${contextPath}/invoiceRecord/insert.action",
+                            data: _formData,
+                            dataType: "json",
+                            async: true,
+                            success: function (data) {
+                                bui.loading.hide();
+                                if (data.success) {
+                                    _grid.bootstrapTable('refresh');
+                                } else {
+                                    bs4pop.alert(data.result, {type: 'error'});
+                                }
+                            },
+                            error: function (a, b, c) {
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
+                    }
+                },
+                {label: '取消', className: 'btn-default', onClick(e) {}}
+            ]
+        });
+
     }
 
     /**
@@ -136,7 +234,7 @@
                         bui.loading.show('努力提交中，请稍候。。。');
                         $.ajax({
                             type: "POST",
-                            url: "${contextPath}/assetsLeaseOrder/supplement.action",
+                            url: "${contextPath}/leaseOrder/supplement.action",
                             data: {id: rows[0].id,contractNo : $('#contractNo').val()},
                             processData:true,
                             dataType: "json",
@@ -175,7 +273,7 @@
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/assetsLeaseOrder/cancelOrder.action",
+                    url: "${contextPath}/leaseOrder/cancelOrder.action",
                     data: {id: selectedRow.id},
                     dataType: "json",
                     success : function(ret) {
@@ -214,7 +312,7 @@
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/assetsLeaseOrder/withdrawOrder.action",
+                    url: "${contextPath}/leaseOrder/withdrawOrder.action",
                     data: {id: selectedRow.id},
                     dataType: "json",
                     success : function(ret) {
@@ -247,7 +345,7 @@
         }
         dia = bs4pop.dialog({
             title: '提交付款',
-            content: '/assetsLeaseOrder/submitPayment.html?id='+rows[0].id,
+            content: '/leaseOrder/submitPayment.html?id='+rows[0].id,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -270,7 +368,7 @@
 
         dia = bs4pop.dialog({
             title: '摊位续租',
-            content: '/assetsLeaseOrder/preSave.html?isRenew=1&id=' + rows[0].id + '&assetsType=' + rows[0].assetsType,
+            content: '/leaseOrder/preSave.html?isRenew=1&id=' + rows[0].id + '&assetsType=' + rows[0].assetsType,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -321,7 +419,7 @@
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
                     type: "POST",
-                    url: "${contextPath}/assetsLeaseOrder/submitForApproval.action",
+                    url: "${contextPath}/leaseOrder/submitForApproval.action",
                     data: {id: selectedRow.id},
                     dataType: "json",
                     success : function(ret) {
@@ -424,22 +522,16 @@
 
     /**
      * 打开退款申请Handler
-     * @param type 1：租赁单退款 2： 子单退款
      * @param subTableIndex
      */
-    function openRefundApplyHandler(type,subTableIndex) {
+    function openRefundApplyHandler(subTableIndex) {
         //获取选中行的数据
-        let rows;
-        if(type == 1){
-            rows = _grid.bootstrapTable('getSelections');
-        }else if(type == 2){
-            rows = $('#subGrid' + subTableIndex).bootstrapTable('getSelections');
-        }
+        let rows = $('#subGrid' + subTableIndex).bootstrapTable('getSelections');
         if (null == rows || rows.length == 0) {
             bs4pop.alert('请选中一条数据');
             return;
         }
-        let url = '/assetsLeaseOrder/refundApply.html?id=' + rows[0].id + '&type=' + type;
+        let url = '/leaseOrder/refundApply.html?leaseOrderItemId=' + rows[0].id;
         dia = bs4pop.dialog({
             title: '退款申请',
             content: url,
@@ -499,18 +591,47 @@
         queryDataHandler();
     }
 
+    /**
+     * 收费项Formatter
+     * @param value
+     * @param row
+     * @param index
+     * @returns {string}
+     */
+    function chargeItemFormatter(value,row,index){
+        return value + '(已交' + row.businessChargeItem['chargeItemPaidAmountYuan' + this.chargeItemId] + ')';
+    }
+
+
+    /**
+     * 收费项元信息查询
+     * @param leaseOrderId
+     * @returns {*}
+     */
+    function queryBusinessChargeItemMeta(leaseOrderId){
+        let businessChareItems;
+        $.ajax({
+            url: "${contextPath}/leaseOrder/queryBusinessChargeItemMeta.action?leaseOrderId="+leaseOrderId,
+            dataType: "json",
+            async : false,
+            success : function(result) {
+                if(!result.success){
+                    bs4pop.alert(result.message, {type: 'error'});
+                }else{
+                    businessChareItems = result.data;
+                }
+            },
+            error : function() {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+        return businessChareItems;
+    }
+
     /*****************************************函数区 end**************************************/
 
     /*****************************************自定义事件区 begin************************************/
-    //表单弹框关闭事件
-    // _modal.on('hidden.bs.modal', function () {
-    //     _form[0].reset();
-    //     //重置表单验证到初始状态
-    //     $(this).find('input,select,textarea').removeClass('is-invalid is-valid');
-    //     $(this).find('input,select,textarea').removeAttr('disabled readonly');
-    //     $(this).find('.invalid-feedback').css('display','none');
-    // });
-
     //展开事件
     _grid.on('expand-row.bs.table', function (e,index, row, $detail){
         //展开选中行
@@ -521,9 +642,12 @@
         // }
 
 
-        var cur_table = $detail.html(template('subTable',{index})).find('table');
+        var cur_table = $detail.html(template('subTable', {
+            index,
+            businessChargeItems: queryBusinessChargeItemMeta(row.id)
+        })).find('table');
         $(cur_table).bootstrapTable();
-        $(cur_table).bootstrapTable('refreshOptions', {url: '/assetsLeaseOrderItem/listPage.action?leaseOrderId='+row.id});
+        $(cur_table).bootstrapTable('refreshOptions', {url: '/leaseOrderItem/listPage.action?leaseOrderId=' + row.id});
         //选中行事件
         $(cur_table).on('check.bs.table', function (e,row, $element){
             e.stopPropagation();
@@ -532,12 +656,12 @@
             //（未生效 || 已生效）&& 已交清方可停租
             if ((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
                 || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
-                && row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}
+                && row.stopRentState == ${@com.dili.ia.glossary.StopRentStateEnum.NO_APPLY.getCode()}
             ) {
                 $('#btn_stop_rent'+index).attr('disabled', false);
             }
 
-            if(row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}){
+            if(row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()} && row.paidAmount > 0 ){
                 $('#btn_refund_apply'+index).attr('disabled', false);
             }
         });
@@ -609,6 +733,10 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
+            //未开票才显示开票按钮
+            if(row.$_isInvoice != 1){
+                $('#btn_invoice').attr('disabled', false);
+            }
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
@@ -619,6 +747,10 @@
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
+            //未开票才显示开票按钮
+            if(row.$_isInvoice != 1){
+                $('#btn_invoice').attr('disabled', false);
+            }
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
@@ -630,6 +762,10 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
+            //未开票才显示开票按钮
+            if(row.$_isInvoice != 1){
+                $('#btn_invoice').attr('disabled', false);
+            }
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {

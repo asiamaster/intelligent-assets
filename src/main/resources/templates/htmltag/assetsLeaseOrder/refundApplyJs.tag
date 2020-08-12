@@ -39,7 +39,7 @@
         var customerNameTableAutoCompleteOption = $.extend({},customerNameAutoCompleteOption,{
             selectFn: function (suggestion,element) {
                 let index = getIndex($(element).attr('id'));
-                $('#certificateNumber_'+index).val(suggestion.certificateNumber);
+                $('#payeeCertificateNumber_'+index).val(suggestion.certificateNumber);
             }
         });
 
@@ -48,22 +48,13 @@
 
     /******************************驱动执行区 begin***************************/
     $(function () {
-        while ( itemIndex < 1){
-            addTransferItem();
-        }
-    <% if(isNotEmpty(leaseOrderItem)){ %>
-        <% if(leaseOrderItem.depositAmountFlag == @com.dili.ia.glossary.DepositAmountFlagEnum.FROZEN.getCode()){ %>
-            bs4pop.notice('保证金已被冻结，不能进行退款。', {position: 'bottomleft',autoClose: false});
-            $('#formSubmit').attr('disabled', true);
-        <% }else if(leaseOrderItem.depositAmountFlag == @com.dili.ia.glossary.DepositAmountFlagEnum.DEDUCTION.getCode()){ %>
-            $('#depositRefundAmount').val(0).attr('readonly', true);
-            $('#depositRefundAmount').val(0).attr('readonly', true);
-        <% } %>
-    <% } else {%>
-            let refundMaxAmount = Number(${leaseOrder.paidAmount + leaseOrder.depositDeduction + leaseOrder.earnestDeduction + leaseOrder.transferDeduction}).centToYuan();
-            $('#totalRefundAmount').attr('max', refundMaxAmount).attr('placeHolder','可退'+refundMaxAmount);
-    <% } %>
-
+        <% if(isNotEmpty(transferDeductionItems)){ %>
+            itemIndex += ${transferDeductionItems.~size};
+        <% }else{%>
+            while ( itemIndex < 1){
+                addTransferItem();
+            }
+        <% }%>
 
     });
     /******************************驱动执行区 end****************************/
@@ -115,23 +106,36 @@
                     return false;
                 }
                 let fieldName = $(this).attr("name").split('_')[0];
-                transferDeductionItem[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+                transferDeductionItem[fieldName] =  $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
             });
             if (Object.keys(transferDeductionItem).length > 0) {
                 transferDeductionItems.push(transferDeductionItem);
             }
         });
-        return $.extend(formData, {transferDeductionItems, totalRefundAmountFormatStr: $('#totalRefundAmount').val()});
+        let refundFeeItems = [];
+        $("input[isRefundFeeItem]").each(function (i) {
+            let refundFeeItem = {};
+            refundFeeItem.chargeItemId = this.dataset.chargeItemId;
+            refundFeeItem.chargeItemName = this.dataset.chargeItemName;
+            refundFeeItem.amount = Number($(this).val()).mul(100);
+            refundFeeItems.push(refundFeeItem);
+        });
+        return $.extend(formData, {
+            refundFeeItems,
+            transferDeductionItems,
+            logContent: $('#id').val() ? Log.buildUpdateContent() : ''
+        });
     }
 
     /**
     * 计算退款总金额
     */
     function calcTotalRefundAmount(){
-        let rentRefundAmount = Number($('#rentRefundAmount').val());
-        let manageRefundAmount = Number($('#manageRefundAmount').val());
-        let depositRefundAmount = Number($('#depositRefundAmount').val());
-        $('#totalRefundAmount').val((rentRefundAmount.mul(100) + manageRefundAmount.mul(100) + depositRefundAmount.mul(100)).centToYuan());
+        let totalAmount = 0;
+        $("input[isRefundFeeItem]").each(function (i) {
+            totalAmount = Number(this.value).add(totalAmount);
+        });
+        $('#totalRefundAmount').val(totalAmount);
     }
 
     /**
@@ -181,7 +185,7 @@
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
-            url: "/leaseOrder/createRefundOrder.action",
+            url: "/leaseOrder/createOrUpdateRefundOrder.action",
             data: JSON.stringify(buildFormData()),
             dataType: "json",
             contentType: "application/json; charset=utf-8",
@@ -206,7 +210,7 @@
     /*****************************************自定义事件区 begin************************************/
     //摊位新增事件
     $('#addTransfer').on('click', function(){
-        addTransferItem({index: ++itemIndex});
+        addTransferItem();
     });
 
     //摊位删除事件

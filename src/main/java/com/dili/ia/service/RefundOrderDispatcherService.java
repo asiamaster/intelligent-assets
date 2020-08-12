@@ -15,6 +15,14 @@ import java.util.Set;
 public interface RefundOrderDispatcherService extends BaseService<RefundOrder, Long> {
 
     /**
+     * 退款单 --修改
+     * @param refundOrder 退款单
+     * @return BaseOutput
+     * */
+    default BaseOutput updateHandler(RefundOrder refundOrder){
+        return BaseOutput.success();
+    }
+    /**
      * 退款单 --提交
      * @param refundOrder 退款单
      * @return BaseOutput

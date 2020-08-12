@@ -1,7 +1,7 @@
 <#bs4Body>
 <div class="container-fluid">
-    <div>
-        <iframe height="610" frameborder="0" width="100%" src="${contextPath}/refundOrder/view.action?orderCode=${businessKey}" ></iframe>
+    <!-- 退款单详情 -->
+    <div id="refundOrderView">
     </div>
     <div align="center" id="approvalInfo" >
         <%
@@ -122,7 +122,7 @@
     }
 
     $(function () {
-
+        $("#refundOrderView").load("${contextPath}/refundOrder/viewFragment.action?orderCode=${businessKey}");
     });
 </script>
 

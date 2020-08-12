@@ -28,14 +28,17 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
     @Operator(Operator.LITTLE_EQUAL_THAN)
     private LocalDateTime stopTimeLet;
 
-
     @Operator(Operator.IN)
     @Column(name = "id")
     private List<Long> ids;
 
     @Operator(Operator.IN)
-    @Column(name = "booth_id")
-    private List<Long> boothIds;
+    @Column(name = "lease_order_id")
+    private List<Long> leaseOrderIds;
+
+    @Operator(Operator.IN)
+    @Column(name = "assets_id")
+    private List<Long> assetsIds;
 
     @Operator(Operator.IN)
     @Column(name = "district_id")
@@ -43,7 +46,11 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
 
     @Operator(Operator.IN)
     @Column(name = "state")
-    private List<Long> states;
+    private List<Integer> states;
+
+    @Operator(Operator.IN)
+    @Column(name = "deposit_amount_flag")
+    private List<Integer> depositAmountFlags;
 
     @Transient
     private List<BusinessChargeItem> businessChargeItems;
@@ -92,12 +99,20 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
         this.ids = ids;
     }
 
-    public List<Long> getBoothIds() {
-        return boothIds;
+    public List<Long> getLeaseOrderIds() {
+        return leaseOrderIds;
     }
 
-    public void setBoothIds(List<Long> boothIds) {
-        this.boothIds = boothIds;
+    public void setLeaseOrderIds(List<Long> leaseOrderIds) {
+        this.leaseOrderIds = leaseOrderIds;
+    }
+
+    public List<Long> getAssetsIds() {
+        return assetsIds;
+    }
+
+    public void setAssetsIds(List<Long> assetsIds) {
+        this.assetsIds = assetsIds;
     }
 
     public List<Long> getDistrictIds() {
@@ -108,12 +123,20 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
         this.districtIds = districtIds;
     }
 
-    public List<Long> getStates() {
+    public List<Integer> getStates() {
         return states;
     }
 
-    public void setStates(List<Long> states) {
+    public void setStates(List<Integer> states) {
         this.states = states;
+    }
+
+    public List<Integer> getDepositAmountFlags() {
+        return depositAmountFlags;
+    }
+
+    public void setDepositAmountFlags(List<Integer> depositAmountFlags) {
+        this.depositAmountFlags = depositAmountFlags;
     }
 
     public List<BusinessChargeItem> getBusinessChargeItems() {

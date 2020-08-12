@@ -187,12 +187,109 @@ public class AssetsLeaseOrderItem extends BaseDomain {
     @Column(name = "`refund_state`")
     private Integer refundState;
 
+    //创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "`exit_time`")
+    private LocalDateTime exitTime;
+
     /**
      * 乐观锁，版本号
      */
     @Version
     @Column(name = "`version`")
     private Integer version;
+
+    /*************************** 待删除字段 begin 数据处理后删除**********************************************/
+    @Column(name = "`deposit_amount_flag`")
+    private Integer depositAmountFlag;
+
+    @Column(name = "`deposit_amount`")
+    private Long depositAmount;
+
+    @Column(name = "`manage_amount`")
+    private Long manageAmount;
+
+    @Column(name = "`rent_amount`")
+    private Long rentAmount;
+
+    @Column(name = "`deposit_refund_amount`")
+    private Long depositRefundAmount;
+
+    @Column(name = "`manage_refund_amount`")
+    private Long manageRefundAmount;
+
+    @Column(name = "`rent_refund_amount`")
+    private Long rentRefundAmount;
+
+    @Column(name = "`deposit_amount_source_id`")
+    private Long depositAmountSourceId;
+
+    public Integer getDepositAmountFlag() {
+        return depositAmountFlag;
+    }
+
+    public void setDepositAmountFlag(Integer depositAmountFlag) {
+        this.depositAmountFlag = depositAmountFlag;
+    }
+
+    public Long getDepositAmount() {
+        return depositAmount;
+    }
+
+    public void setDepositAmount(Long depositAmount) {
+        this.depositAmount = depositAmount;
+    }
+
+    public Long getManageAmount() {
+        return manageAmount;
+    }
+
+    public void setManageAmount(Long manageAmount) {
+        this.manageAmount = manageAmount;
+    }
+
+    public Long getRentAmount() {
+        return rentAmount;
+    }
+
+    public void setRentAmount(Long rentAmount) {
+        this.rentAmount = rentAmount;
+    }
+
+    public Long getDepositRefundAmount() {
+        return depositRefundAmount;
+    }
+
+    public void setDepositRefundAmount(Long depositRefundAmount) {
+        this.depositRefundAmount = depositRefundAmount;
+    }
+
+    public Long getManageRefundAmount() {
+        return manageRefundAmount;
+    }
+
+    public void setManageRefundAmount(Long manageRefundAmount) {
+        this.manageRefundAmount = manageRefundAmount;
+    }
+
+    public Long getRentRefundAmount() {
+        return rentRefundAmount;
+    }
+
+    public void setRentRefundAmount(Long rentRefundAmount) {
+        this.rentRefundAmount = rentRefundAmount;
+    }
+
+    public Long getDepositAmountSourceId() {
+        return depositAmountSourceId;
+    }
+
+    public void setDepositAmountSourceId(Long depositAmountSourceId) {
+        this.depositAmountSourceId = depositAmountSourceId;
+    }
+
+    /*************************** 待删除字段 end 数据处理后删除**********************************************/
 
     @Override
     public Long getId() {
@@ -458,6 +555,14 @@ public class AssetsLeaseOrderItem extends BaseDomain {
 
     public void setRefundState(Integer refundState) {
         this.refundState = refundState;
+    }
+
+    public LocalDateTime getExitTime() {
+        return exitTime;
+    }
+
+    public void setExitTime(LocalDateTime exitTime) {
+        this.exitTime = exitTime;
     }
 
     public Integer getVersion() {

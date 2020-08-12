@@ -47,6 +47,14 @@ public class TransferDeductionItem extends BaseDomain {
     @Column(name = "`payee`")
     private String payee;
 
+
+    /**
+     * 收款人证件号
+     */
+    @Column(name = "`payee_certificate_number`")
+    private String payeeCertificateNumber;
+
+
     /**
      * 退款单ID
      */
@@ -129,6 +137,14 @@ public class TransferDeductionItem extends BaseDomain {
      */
     public void setPayee(String payee) {
         this.payee = payee;
+    }
+
+    public String getPayeeCertificateNumber() {
+        return payeeCertificateNumber;
+    }
+
+    public void setPayeeCertificateNumber(String payeeCertificateNumber) {
+        this.payeeCertificateNumber = payeeCertificateNumber;
     }
 
     /**

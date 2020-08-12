@@ -6,6 +6,7 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
+import tk.mybatis.mapper.annotation.Version;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -180,6 +181,12 @@ public class RefundOrder extends BaseDomain {
      */
     @Column(name = "`payee_amount`")
     private Long payeeAmount;
+
+    /**
+     * 收款人证件号
+     */
+    @Column(name = "`payee_certificate_number`")
+    private String payeeCertificateNumber;
 
     /**
      * 撤回操作人ID
@@ -781,6 +788,14 @@ public class RefundOrder extends BaseDomain {
      */
     public void setPayeeAmount(Long payeeAmount) {
         this.payeeAmount = payeeAmount;
+    }
+
+    public String getPayeeCertificateNumber() {
+        return payeeCertificateNumber;
+    }
+
+    public void setPayeeCertificateNumber(String payeeCertificateNumber) {
+        this.payeeCertificateNumber = payeeCertificateNumber;
     }
 
     /**

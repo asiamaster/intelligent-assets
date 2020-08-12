@@ -3,11 +3,12 @@ package com.dili.ia.service;
 import com.dili.ia.domain.DepositBalance;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.uap.sdk.domain.UserTicket;
 
 import java.util.List;
 import java.util.Map;
@@ -53,10 +54,10 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
 
     /**
      * 保证金 --创建退款单
-     * @param refundOrder 退款单
+     * @param depositRefundOrderDto 退款单
      * @return BaseOutput
      * */
-    BaseOutput<RefundOrder> addRefundOrder(RefundOrder refundOrder);
+    BaseOutput<RefundOrder> saveOrUpdateRefundOrder(DepositRefundOrderDto depositRefundOrderDto);
     /**
      * 保证金 --结算退款成功回调
      * @param refundOrder 退款单
@@ -139,18 +140,39 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
     BaseOutput batchReleaseRelated(String bizType, Long businessId, Long assetsId);
 
     /**
+     * 检查当前市场客户状态
+     * @param customerId 客户ID
+     * @param marketId 当前市场ID
+     */
+    void checkCustomerState(Long customerId,Long marketId);
+
+    /**
      * 批量【新增】,【已交费】的保证金单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
      * @param depositOrderList 保证金订单列表
      * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
-     *                         departmentId 业务所属部门ID ; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
+     *                         departmentId 业务所属部门ID ; departmentName 部门名称; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
      *                         assetsType 资产类型; assetsId 资产ID; assetsName 资产名称; amount 保证金金额; isRelated 是否关联订单1，是，0否;
      *                         businessId 关联订单ID; bizType 关联订单业务类型;
-     *                         CreatorId 创建人ID,  Creator 创建人姓名, MarketId 市场ID, MarketCode 市场Code,
      *
-     * @param creatorTicket 创建人信息
-     * @param submiterTicket 提交人信息
-     * @param settlementTicket 结算人信息
      * @return BaseOutput
      */
-    BaseOutput oldDataHandler(List<DepositOrder> depositOrderList, UserTicket creatorTicket, UserTicket submiterTicket, UserTicket settlementTicket);
+    BaseOutput oldDataHandler(List<DepositOrder> depositOrderList);
+    /**
+     *
+     * 新增关联退款单
+     * 修改/新增保证金余额，
+     * 新增退款单的退款结算单
+     *
+     * 批量【新增】,【已退款】的保证金退款单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
+     * @param oldRefundOrder 租赁订单退款单
+     * @param assetsId 资产ID
+     * @param transferDeductionItem 保证金有退款到转抵扣金额里面的钱
+     * oldRefundOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
+     *                         departmentId 业务所属部门ID ; departmentName 部门名称; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
+     *                         assetsId 资产ID; businessId 关联订单ID; bizType 关联订单业务类型;
+     *                         Payee 收款人,  PayeeID 收款人ID, PayeeCertificateNumber 收款人证件号
+     *                        RefundType 退款方式 ; Bank 银行 ； BankCardNo 卡号； TotalRefundAmount 总退款金额 ； PayeeAmount付款金额
+     * @return BaseOutput
+     */
+    BaseOutput oldRefundOrderDataHandler(RefundOrder oldRefundOrder, Long assetsId, TransferDeductionItem transferDeductionItem);
 }

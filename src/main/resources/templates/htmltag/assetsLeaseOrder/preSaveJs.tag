@@ -276,7 +276,7 @@
     function batchQueryDepositBalance(assetsType,customerId, assetsIds) {
         $.ajax({
             type: "post",
-            url: "/assetsLeaseOrder/batchQueryDepositBalance.action",
+            url: "/leaseOrder/batchQueryDepositBalance.action",
             data: JSON.stringify({assetsType,customerId,assetsIds}),
             dataType: "json",
             contentType: "application/json; charset=utf-8",
@@ -304,7 +304,7 @@
     function batchQueryDepositOrder(depositOrderQuery) {
         $.ajax({
             type: "post",
-            url: "/assetsLeaseOrder/batchQueryDepositOrder.action",
+            url: "/leaseOrder/batchQueryDepositOrder.action",
             data: depositOrderQuery,
             dataType: "json",
             success: function (ret) {
@@ -502,7 +502,7 @@
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
-            url: "/assetsLeaseOrder/saveLeaseOrder.action",
+            url: "/leaseOrder/saveLeaseOrder.action",
             data: JSON.stringify(buildFormData()),
             dataType: "json",
             contentType: "application/json; charset=utf-8",

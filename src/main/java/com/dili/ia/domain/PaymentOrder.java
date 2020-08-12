@@ -6,10 +6,10 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
+import tk.mybatis.mapper.annotation.Version;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -40,6 +40,19 @@ public class PaymentOrder extends BaseDomain {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`modify_time`")
     private LocalDateTime modifyTime;
+
+    /**
+     * 客户ID
+     */
+    @Column(name = "`customer_id`")
+    private Long customerId;
+
+    /**
+     * 客户名称
+     */
+    @Column(name = "`customer_name`")
+    private String customerName;
+
 
     /**
      * 业务单ID
@@ -181,6 +194,22 @@ public class PaymentOrder extends BaseDomain {
 
     public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     /**

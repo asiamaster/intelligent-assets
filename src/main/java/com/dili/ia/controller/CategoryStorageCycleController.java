@@ -1,11 +1,9 @@
 package com.dili.ia.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.CategoryDTO;
-import com.dili.ia.domain.CategoryStorageCycle;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ia.domain.dto.CategoryStorageCycleDto;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.CategoryStorageCycleService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
@@ -13,15 +11,6 @@ import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
-
-import cn.hutool.core.bean.BeanUtil;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成

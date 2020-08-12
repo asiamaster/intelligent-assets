@@ -14,12 +14,24 @@
     //对应摊位
     $(function () {
         registerMsg();
+        $('#assetsNameInput').hide();
     });
 
     //初始化刷卡
     initSwipeCard({
         id:'getCustomer',
     });
+
+    $('#assetsType').on('change', function(){
+        $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
+        $('#assetsNameInput').attr('name', '');
+        if($(this).val() == 1 ) {
+            $('#assetsName').show();
+        } else {
+            $('#assetsNameInput').attr('name', 'assetsName').show();
+        }
+    })
+
     let assetsType = $('[name="assetsType"]').val();
     var boothAutoCompleteOption = {
         paramName: 'keyword',
@@ -30,7 +42,6 @@
             return params;
         },
         transformResult: function (result) {
-            debugger
             if(result.success){
                 let data = result.data;
                 return {
@@ -55,6 +66,7 @@
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);
         let formData = $("input:not(table input),textarea,select").serializeObject();
+        debugger
         let typeName = $('#typeCode').find("option:selected").text();
         bui.util.yuanToCentForMoneyEl(formData);
         $.extend(formData,{typeName});

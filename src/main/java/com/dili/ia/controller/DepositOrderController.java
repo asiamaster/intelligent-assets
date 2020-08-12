@@ -4,21 +4,24 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.DepositOrderQuery;
+import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.DepositOrderStateEnum;
-import com.dili.ia.service.DataAuthService;
-import com.dili.ia.service.DepositOrderService;
-import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.common.util.StringUtils;
@@ -28,10 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -54,6 +54,10 @@ public class DepositOrderController {
     BusinessLogRpc businessLogRpc;
     @Autowired
     DataAuthService dataAuthService;
+    @Autowired
+    RefundOrderService refundOrderService;
+    @Autowired
+    TransferDeductionItemService transferDeductionItemService;
 
     /**
      * 跳转到DepositOrder页面
@@ -93,35 +97,58 @@ public class DepositOrderController {
     }
 
     /**
-     * 跳转到保证金管理-新增页面
+     * 跳转到保证金管理-退款申请页面
      * @param modelMap
+     * @param depositOrderId 保证金单ID
+     * @param refundOrderId 退款单ID
      * @return String
      */
-    @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
-    public String refundApply(ModelMap modelMap, Long id) {
-        if(null != id){
-            DepositOrder depositOrder = depositOrderService.get(id);
-            Long maxRefundAmount = depositOrder.getPaidAmount() - depositOrder.getRefundAmount();
-            modelMap.put("depositOrder",depositOrder);
-            modelMap.put("maxRefundAmount", maxRefundAmount);
+    @GetMapping(value = "/refundApply.html")
+    public String refundApply(ModelMap modelMap, Long depositOrderId, Long refundOrderId) {
+        DepositOrder depositOrder = depositOrderService.get(depositOrderId);
+        modelMap.put("depositOrder", depositOrder);
+        Long maxRefundAmount = depositOrder.getPaidAmount() - depositOrder.getRefundAmount();
+        modelMap.put("maxRefundAmount", maxRefundAmount);
+        if (null != refundOrderId) {
+            modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
+            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+            transferDeductionItemCondition.setRefundOrderId(refundOrderId);
+            modelMap.put("transferDeductionItems", transferDeductionItemService.list(transferDeductionItemCondition));
         }
+
         return "depositOrder/refundApply";
     }
+
     /**
      * CustomerAccount--- 保证金退款
-     * @param order
+     * @param orderDto
      * @return BaseOutput
      */
-    @RequestMapping(value="/addRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content = "${content}", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput addRefundOrder(@RequestBody DepositRefundOrderDto orderDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (null == userTicket){
+            return BaseOutput.failure("未登录！");
+        }
         try {
-            BaseOutput<RefundOrder> out = depositOrderService.addRefundOrder(order);
+            BaseOutput<RefundOrder> out = depositOrderService.saveOrUpdateRefundOrder(orderDto);
+            if (out.isSuccess()) {
+                if(StringUtils.isNotBlank(orderDto.getLogContent())){
+                    LoggerContext.put("content", orderDto.getLogContent());
+                    LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+                }else{
+                    LoggerContext.put("content", MoneyUtils.centToYuan(orderDto.getTotalRefundAmount()));
+                    LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
+                }
+                LoggerUtil.buildLoggerContext(orderDto.getBusinessId(), orderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), orderDto.getRefundReason());
+            }
             return out;
         } catch (BusinessException e) {
-            LOG.error("定金创建退款失败！", e);
+            LOG.error("保证金创建退款失败！", e);
             return BaseOutput.failure(e.getErrorMsg());
         } catch (Exception e) {
-            LOG.error("定金创建退款出错！", e);
+            LOG.error("保证金创建退款出错！", e);
             return BaseOutput.failure("创建退款出错！");
         }
     }
@@ -187,6 +214,9 @@ public class DepositOrderController {
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doUpdate(DepositOrder depositOrder) {
         try{
+            if (depositOrder.getId() == null){
+                return BaseOutput.failure("Id不能为空！");
+            }
             DepositOrder old = depositOrderService.get(depositOrder.getId());
             if (null != old && old.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
                 return BaseOutput.failure("关联订单不能修改!");

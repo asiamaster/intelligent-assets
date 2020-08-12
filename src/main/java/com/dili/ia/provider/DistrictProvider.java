@@ -1,52 +1,78 @@
 package com.dili.ia.provider;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.dili.assets.sdk.dto.DistrictDTO;
-import com.dili.ia.rpc.AssetsRpc;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.PageOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
-import com.dili.ss.metadata.ValueProvider;
-import com.dili.uap.sdk.domain.Department;
+import com.dili.ss.metadata.provider.BatchDisplayTextProviderAdaptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * <B>Description</B>
- * 本软件源代码版权归农丰时代及其团队所有,未经许可不得任意复制与传播
- * <B>农丰时代科技有限公司</B>
- *
- * @Description TODO(用一句话描述该文件做什么)
- * @author yangfan
- * @date 2020年6月17日
+ * 街区提供者
+ * @author wangmi
  */
 @Component
-public class DistrictProvider implements ValueProvider{
+public class DistrictProvider extends BatchDisplayTextProviderAdaptor {
 
-	@Autowired
-	private AssetsRpc assetsRpc;
-	
-	@Override
-	public List<ValuePair<?>> getLookupList(Object val, Map metaMap, FieldMeta fieldMeta) {
-		DistrictDTO input = new DistrictDTO();
-		input.setDepartmentId((Long)metaMap.get("departmentId"));
-		List<DistrictDTO> districts = assetsRpc.searchDistrict(input).getData();
+    @SuppressWarnings("all")
+    @Autowired
+    private AssetsRpc assetsRpc;
+
+    @Override
+    protected List getFkList(List<String> ids, Map map) {
+        DistrictDTO districtDTO = new DistrictDTO();
+        districtDTO.setIds(ids);
+        BaseOutput<List<DistrictDTO>> listPageOutput = assetsRpc.searchDistrict(districtDTO);
+        if(!listPageOutput.isSuccess()){
+            return null;
+        }
+        return listPageOutput.getData();
+    }
+
+    @Override
+    protected Map<String, String> getEscapeFileds(Map metaMap) {
+        if(metaMap.get(ESCAPE_FILEDS_KEY) instanceof Map){
+            return (Map)metaMap.get(ESCAPE_FILEDS_KEY);
+        }else {
+            Map<String, String> map = new HashMap<>();
+            map.put(metaMap.get(FIELD_KEY).toString(), "name");
+            return map;
+        }
+    }
+
+    @Override
+    protected String getFkField(Map metaMap) {
+        String fkField = (String)metaMap.get(FK_FILED_KEY);
+        return fkField == null ? "districtId" : fkField;
+    }
+
+
+    @Override
+    public List<ValuePair<?>> getLookupList(Object val, Map metaMap, FieldMeta fieldMeta) {
         List<ValuePair<?>> buffer = new ArrayList<ValuePair<?>>();
-        districts.forEach(o->{
-            buffer.add(new ValuePairImpl(o.getName(),o.getId()));
+        if(null == val){
+            return buffer;
+        }
+        DistrictDTO districtDTO= new DistrictDTO();
+        districtDTO.setNameLike(val.toString());
+        BaseOutput<List<DistrictDTO>> listBaseOutput = assetsRpc.searchDistrict(districtDTO);
+        if(!listBaseOutput.isSuccess()){
+            return buffer;
+        }
+        listBaseOutput.getData().forEach(o->{
+            buffer.add(new ValuePairImpl(o.getName(), o.getId().toString()));
         });
         return buffer;
-	}
-
-	@Override
-	public String getDisplayText(Object val, Map metaMap, FieldMeta fieldMeta) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
 
 }
