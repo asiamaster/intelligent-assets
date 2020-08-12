@@ -306,7 +306,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, DepositOrder depositOrder, Long paidAmount){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(paidAmount);
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
@@ -1024,7 +1024,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 //结算后，回写结算信息到缴费单
                 pb.setPayedTime(LocalDateTime.now());
                 pb.setSettlementCode(settleCode);
-                pb.setSettlementOperator("杭州系统");
+                pb.setSettlementOperator("数据迁移");
                 pb.setSettlementWay(SettleWayEnum.CASH.getCode());
                 paymentOrderService.insertSelective(pb);
 
@@ -1126,11 +1126,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         refundOrder.setBusinessId(depositOrder.getId());
         refundOrder.setBusinessCode(depositOrder.getCode());
         //固定写死参数
-        refundOrder.setSubmitter("杭州系统");
+        refundOrder.setSubmitter("数据迁移");
         refundOrder.setSubmitterId(243L);
         refundOrder.setRefundOperatorId(243L);
-        refundOrder.setRefundOperator("杭州系统");
-        refundOrder.setCreator("杭州系统");
+        refundOrder.setRefundOperator("数据迁移");
+        refundOrder.setCreator("数据迁移");
         refundOrder.setCreatorId(243L);
         refundOrder.setMarketId(11L);
         refundOrder.setMarketCode("hzsc");
@@ -1158,13 +1158,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaidPaymentOrder(DepositOrder depositOrder){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(depositOrder.getMarketCode().toUpperCase() + this.getBizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(depositOrder.getMarketCode().toUpperCase() + this.getBizNumber("hzsc_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(depositOrder.getAmount());
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
         //固定参数
         pb.setCreatorId(243L);
-        pb.setCreator("杭州系统");
+        pb.setCreator("数据迁移");
         pb.setMarketId(11L);
         pb.setMarketCode("hzsc");
         pb.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
@@ -1193,7 +1193,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         settleOrder.setMarketId(11L);
         settleOrder.setMarketCode("hzsc");
         settleOrder.setSubmitterId(243L);// "提交人ID
-        settleOrder.setSubmitterName("杭州系统");// "提交人姓名
+        settleOrder.setSubmitterName("数据迁移");// "提交人姓名
         settleOrder.setSubmitterDepId(74L); //"提交人部门ID --- 线上74
         settleOrder.setSubmitterDepName("市场经营管理部"); // 线上固定 -- 市场经营管理部
         settleOrder.setSubmitTime(LocalDateTime.now());
@@ -1226,7 +1226,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         settleOrder.setMarketId(11L);
         settleOrder.setMarketCode("hzsc");
         settleOrder.setSubmitterId(243L);// "提交人ID
-        settleOrder.setSubmitterName("杭州系统");// "提交人姓名
+        settleOrder.setSubmitterName("数据迁移");// "提交人姓名
         settleOrder.setSubmitterDepId(74L); //"提交人部门ID --- 线上74
         settleOrder.setSubmitterDepName("市场经营管理部"); // 线上固定 -- 市场经营管理部
         settleOrder.setSubmitTime(LocalDateTime.now());
@@ -1239,12 +1239,12 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     public BaseOutput<DepositOrder> addPaidDepositOrder(DepositOrder depositOrder) {
-        //规定参数
+        //固定参数
         depositOrder.setCode("HZSC" + this.getBizNumber("hzsc_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
         depositOrder.setCreatorId(243L);
-        depositOrder.setCreator("杭州系统");
+        depositOrder.setCreator("数据迁移");
         depositOrder.setSubmitterId(243L);
-        depositOrder.setSubmitter("杭州系统");
+        depositOrder.setSubmitter("数据迁移");
         depositOrder.setMarketId(11L);
         depositOrder.setMarketCode("hzsc");
         depositOrder.setSubmitTime(LocalDateTime.now());

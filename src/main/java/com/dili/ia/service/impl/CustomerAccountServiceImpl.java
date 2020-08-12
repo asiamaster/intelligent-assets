@@ -263,7 +263,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         efDto.setPayeeCertificateNumber(efDto.getCertificateNumber());
         efDto.setPayeeName(efDto.getCustomerName());
         efDto.setState(EarnestTransferOrderStateEnum.CREATED.getCode());
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
             LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
             return BaseOutput.failure("编号生成器微服务异常");
@@ -280,14 +280,14 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     @Override
     public BaseOutput addEarnestRefund(RefundOrder order) {
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
-           return BaseOutput.failure("编号生成器微服务异常");
-        }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
+        }
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" +BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
+           return BaseOutput.failure("编号生成器微服务异常");
         }
         //检查客户状态
         checkCustomerState(order.getCustomerId(), userTicket.getFirmId());
