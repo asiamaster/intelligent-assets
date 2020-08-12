@@ -25,6 +25,17 @@ ADD COLUMN `payee_certificate_number` varchar(40) CHARACTER SET utf8mb4 COLLATE 
 ALTER TABLE `transfer_deduction_item`
 ADD COLUMN `payee_certificate_number` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收款人证件号' AFTER `payee`;
 
+-- 编号规则类型修改
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_boothLease_leaseOrder', 202008100051, '摊位租赁订单号', '1');
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('摊位租赁订单号', 'hzsc_boothLease_leaseOrder', 'HZSCTW', 'yyyyMMdd', 4, '1');
+
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_boothLease_paymentOrder', 2020081200051, '摊位租赁缴费单号', '1');
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('摊位租赁缴费单号', 'hzsc_boothLease_paymentOrder', 'HZSCPOTW', 'yyyyMMdd', 5, '1');
+
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_boothLease_refundOrder', 202007290051, '摊位租赁退款单', '1');
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ( '摊位租赁退款单', 'hzsc_boothLease_refundOrder', 'HZSCTKTW', 'yyyyMMdd', 4, '1');
+
+
 --  字段删除脚本（数据迁移完后执行）
 ALTER TABLE `lease_order`
 DROP COLUMN `rent_amount`,
