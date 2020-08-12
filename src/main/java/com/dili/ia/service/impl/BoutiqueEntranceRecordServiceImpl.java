@@ -53,6 +53,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -450,8 +451,8 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/8/5
      */
     @Override
-    public BaseOutput<BoutiqueFeeOrder> cancel(Long id, UserTicket userTicket) {
-        BoutiqueEntranceRecord recordInfo = this.get(id);
+    public BaseOutput<BoutiqueFeeOrder> cancel(BoutiqueEntranceRecordDto recordDto) {
+        BoutiqueEntranceRecord recordInfo = this.get(recordDto.getId());
 
         if(recordInfo == null){
             return BaseOutput.failure(ResultCode.DATA_ERROR, "所选记录不存在");
@@ -464,7 +465,27 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         // 修改状态
         recordInfo.setModifyTime(LocalDateTime.now());
         recordInfo.setCancelTime(LocalDateTime.now());
-        recordInfo.setState(BoutiqueStateEnum.CANCEL.getCode());
+        recordInfo.setState(BoutiqueStateEnum.REVOKE.getCode());
+
+        // 先查询是否有缴费单, 再撤销
+        List<BoutiqueFeeOrderDto> orderDtoList = boutiqueFeeOrderService.listByRecordId(recordDto.getId());
+        if (orderDtoList != null && orderDtoList.size() > 0) {
+            List<BoutiqueFeeOrder> orderAddList = new ArrayList<>();
+            for (BoutiqueFeeOrderDto orderDto : orderDtoList) {
+                BoutiqueFeeOrder orderAdd = new BoutiqueFeeOrder();
+                BeanUtils.copyProperties(orderDto, orderAdd);
+                orderAdd.setCancelTime(LocalDateTime.now());
+                orderAdd.setVersion(orderAdd.getVersion() + 1);
+                orderAdd.setCancelerId(recordDto.getOperatorId());
+                orderAdd.setCanceler(recordDto.getOperatorName());
+                orderAdd.setCancelReason(recordDto.getCancelReason());
+                orderAdd.setState(BoutiqueOrderStateEnum.REVOKE.getCode());
+                orderAddList.add(orderAdd);
+            }
+            if (boutiqueFeeOrderService.batchUpdateSelective(orderAddList) == 0) {
+                return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
+        }
 
         if (this.updateSelective(recordInfo) == 0) {
             return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");

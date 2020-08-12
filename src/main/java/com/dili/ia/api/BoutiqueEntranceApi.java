@@ -3,6 +3,7 @@ package com.dili.ia.api;
 import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -42,21 +43,40 @@ public class BoutiqueEntranceApi {
     /**
      * 新增计费（提供给其他服务调用者）
      *
-     * @param boutiqueEntranceRecord
+     * @param recordDto
      * @return BaseOutput
      * @date   2020/7/13
      */
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="confirm", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput add(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) throws Exception {
+    public @ResponseBody BaseOutput add(@RequestBody BoutiqueEntranceRecordDto recordDto) throws Exception {
 
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
-        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceService.addBoutique(boutiqueEntranceRecord);
+        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceService.addBoutique(recordDto);
 
         // 写业务日志
         if (baseOutput.isSuccess()) {
-            LoggerUtil.buildLoggerContext(boutiqueEntranceRecord.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(recordDto.getId(), null, recordDto.getOperatorId(), recordDto.getOperatorName(), recordDto.getMarketId(), null);
+        }
+
+        return baseOutput;
+    }
+
+    /**
+     * 取消(进门取消，可在待确认和计费中取消)
+     *
+     * @param recordDto
+     * @return BaseOutput
+     * @date   2020/8/5
+     */
+    @RequestMapping(value="/Revoke.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput cancel(@RequestBody BoutiqueEntranceRecordDto recordDto) throws Exception {
+
+        BaseOutput<BoutiqueFeeOrder> baseOutput = boutiqueEntranceService.cancel(recordDto);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()) {
+            LoggerUtil.buildLoggerContext(recordDto.getId(), null, recordDto.getOperatorId(), recordDto.getOperatorName(), recordDto.getMarketId(), null);
         }
 
         return baseOutput;

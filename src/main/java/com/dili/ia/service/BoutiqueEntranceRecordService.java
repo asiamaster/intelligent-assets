@@ -99,11 +99,11 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
     /**
      * 取消(进门取消，可在待确认和计费中取消)
      *
-     * @param id
+     * @param
      * @return BaseOutput
      * @date   2020/8/5
      */
-    BaseOutput<BoutiqueFeeOrder> cancel(Long id, UserTicket userTicket);
+    BaseOutput<BoutiqueFeeOrder> cancel(BoutiqueEntranceRecordDto recordDto );
 
     /**
      * 新增计费（提供给其他服务调用者）

@@ -168,7 +168,7 @@ public class BoutiqueEntranceRecordController {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
-        BaseOutput<BoutiqueFeeOrder> baseOutput = boutiqueEntranceRecordService.cancel(id, userTicket);
+        BaseOutput<BoutiqueFeeOrder> baseOutput = boutiqueEntranceRecordService.cancel(id);
 
         // 写业务日志
         if (baseOutput.isSuccess()){

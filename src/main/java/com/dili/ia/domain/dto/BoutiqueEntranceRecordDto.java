@@ -12,8 +12,34 @@ import java.util.List;
  */
 public class BoutiqueEntranceRecordDto extends BoutiqueEntranceRecord {
 
+    /**
+     * 归属市场ID
+     */
+    private Long marketId;
+
+    /**
+     * 取消原因
+     */
+    private String cancelReason;
+
     // 缴费单列表
     List<BoutiqueFeeOrderDto> orderDtoList;
+
+    public Long getMarketId() {
+        return marketId;
+    }
+
+    public void setMarketId(Long marketId) {
+        this.marketId = marketId;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
 
     public List<BoutiqueFeeOrderDto> getOrderDtoList() {
         return orderDtoList;

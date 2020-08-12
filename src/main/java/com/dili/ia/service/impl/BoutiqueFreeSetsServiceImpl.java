@@ -62,6 +62,6 @@ public class BoutiqueFreeSetsServiceImpl extends BaseServiceImpl<BoutiqueFreeSet
             }
         }
 
-        this.batchUpdate(listAdd);
+        this.batchUpdateSelective(listAdd);
     }
 }

@@ -13,6 +13,7 @@ public enum BoutiqueOrderStateEnum {
     PAID(4, "已缴费"),
     SUBMITTED_REFUND(5, "退款中"),
     REFUNDED(6, "已退款"),
+    REVOKE(7, "已撤销"),
     ;
 
     private String name;
