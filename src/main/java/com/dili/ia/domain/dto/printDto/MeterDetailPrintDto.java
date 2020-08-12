@@ -3,6 +3,7 @@ package com.dili.ia.domain.dto.printDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Column;
 import java.time.LocalDateTime;
 
 /**
@@ -47,6 +48,139 @@ public class MeterDetailPrintDto {
     private String submitter;
     //结算详情
     private String settleWayDetails;
+
+    /**
+     * 水电费打印特殊字段值
+     */
+    /**
+     * 上次指数
+     */
+    private Long lastAmount;
+
+    /**
+     * 本期指数
+     */
+    private Long thisAmount;
+
+    /**
+     * 实际用量
+     */
+    private Long usageAmount;
+
+    /**
+     * 水电费
+     */
+    private Long receivable;
+
+    /**
+     * 公摊费
+     */
+    private Long sharedAmount;
+
+    /**
+     * 单价
+     */
+    private Long price;
+
+    /**
+     * 表编号
+     */
+    private String number;
+
+    /**
+     * 截止月份
+     */
+    private LocalDateTime usageTime;
+
+    /**
+     * 表类别
+     */
+    private String assetsType;
+
+    /**
+     * 表地址,名称(摊位地址)
+     */
+    private String assetsName;
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public LocalDateTime getUsageTime() {
+        return usageTime;
+    }
+
+    public void setUsageTime(LocalDateTime usageTime) {
+        this.usageTime = usageTime;
+    }
+
+    public String getAssetsType() {
+        return assetsType;
+    }
+
+    public void setAssetsType(String assetsType) {
+        this.assetsType = assetsType;
+    }
+
+    public String getAssetsName() {
+        return assetsName;
+    }
+
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
+    }
+
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
+
+    public Long getLastAmount() {
+        return lastAmount;
+    }
+
+    public void setLastAmount(Long lastAmount) {
+        this.lastAmount = lastAmount;
+    }
+
+    public Long getThisAmount() {
+        return thisAmount;
+    }
+
+    public void setThisAmount(Long thisAmount) {
+        this.thisAmount = thisAmount;
+    }
+
+    public Long getUsageAmount() {
+        return usageAmount;
+    }
+
+    public void setUsageAmount(Long usageAmount) {
+        this.usageAmount = usageAmount;
+    }
+
+    public Long getReceivable() {
+        return receivable;
+    }
+
+    public void setReceivable(Long receivable) {
+        this.receivable = receivable;
+    }
+
+    public Long getSharedAmount() {
+        return sharedAmount;
+    }
+
+    public void setSharedAmount(Long sharedAmount) {
+        this.sharedAmount = sharedAmount;
+    }
 
     public String getReprint() {
         return reprint;

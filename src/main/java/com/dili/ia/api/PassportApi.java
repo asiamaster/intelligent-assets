@@ -8,6 +8,8 @@ import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +42,9 @@ public class PassportApi {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
+    public @ResponseBody  BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             BaseOutput<Passport> output = passportService.settlementDealHandler(settleOrder);
             if (output.isSuccess()){
                 //记录业务日志
@@ -78,6 +80,24 @@ public class PassportApi {
         }catch (Exception e){
             LOG.error("通行证缴费票据打印异常！", e);
             return BaseOutput.failure("通行证缴费票据打印异常！").setData(false);
+        }
+    }
+
+    /**
+     * 通行证退款票据打印
+     * @param orderCode
+     * @return
+     */
+    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput<Boolean> queryRefundPrintData(String orderCode, String reprint){
+        try{
+            return BaseOutput.success().setData(passportService.receiptRefundPrintData(orderCode, reprint));
+        }catch (BusinessException e){
+            LOG.error("通行证退款票据打印异常！", e);
+            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+        }catch (Exception e){
+            LOG.error("通行证退款票据打印异常！", e);
+            return BaseOutput.failure("通行证退款票据打印异常！").setData(false);
         }
     }
 

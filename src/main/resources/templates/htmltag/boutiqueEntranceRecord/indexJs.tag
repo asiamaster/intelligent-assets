@@ -321,7 +321,7 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_refund').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.CANCEL.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.REVOKE.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_refund').attr('disabled', false);

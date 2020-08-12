@@ -211,7 +211,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             MeterTypeCode = BizNumberTypeEnum.ELECTRICITY_CODE.getCode();
         }
         // 生成水或者电费单号的 code
-        String meterDetailCode = uidRpcResolver.bizNumber(MeterTypeCode);
+        String meterDetailCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + MeterTypeCode);
         meterDetail.setVersion(0);
         meterDetail.setCode(meterDetailCode);
         meterDetail.setCreatorId(userTicket.getId());
@@ -491,6 +491,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     @Override
     public PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws Exception {
         PaymentOrder paymentOrderCondition = new PaymentOrder();
+        PrintDataDto<MeterDetailPrintDto> printDataDto = new PrintDataDto<>();
 
         paymentOrderCondition.setCode(orderCode);
         paymentOrderCondition.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
@@ -520,12 +521,25 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
         meterDetailPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
-        meterDetailPrintDto.setBusinessType(BizTypeEnum.WATER_ELECTRICITY.getName());
 
-        PrintDataDto<MeterDetailPrintDto> printDataDto = new PrintDataDto<>();
+        // 设置水电费特有的字段
+        meterDetailPrintDto.setNumber(meterDetailInfo.getNumber());
+        meterDetailPrintDto.setUsageTime(meterDetailInfo.getUsageTime());
+        meterDetailPrintDto.setAssetsType(meterDetailInfo.getAssetsType());
+        meterDetailPrintDto.setAssetsName(meterDetailInfo.getAssetsName());
+        meterDetailPrintDto.setLastAmount(meterDetailInfo.getLastAmount());
+        meterDetailPrintDto.setThisAmount(meterDetailInfo.getThisAmount());
+        meterDetailPrintDto.setUsageAmount(meterDetailInfo.getUsageAmount());
+        meterDetailPrintDto.setPrice(meterDetailInfo.getPrice());
+        meterDetailPrintDto.setReceivable(meterDetailInfo.getReceivable());
+        meterDetailPrintDto.setSharedAmount(meterDetailInfo.getAmount() - meterDetailInfo.getReceivable());
+
+        // 设置业务类型名称
+        meterDetailPrintDto.setBusinessType(PrintTemplateEnum.ELECTRICITY_FEE.getName());
         printDataDto.setName(PrintTemplateEnum.ELECTRICITY_FEE.getCode());
         if (MeterTypeEnum.WATER_METER.equals(meterDetailInfo.getState())) {
             printDataDto.setName(PrintTemplateEnum.WATER_FEE.getCode());
+            meterDetailPrintDto.setBusinessType(PrintTemplateEnum.WATER_FEE.getCode());
         }
         printDataDto.setItem(meterDetailPrintDto);
 

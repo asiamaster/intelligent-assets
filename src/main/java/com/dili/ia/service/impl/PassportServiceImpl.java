@@ -1,8 +1,10 @@
 package com.dili.ia.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
@@ -30,7 +32,6 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.ss.util.MoneyUtils;
@@ -128,7 +129,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         BeanUtils.copyProperties(passportDto, passport);
 
         // 生成通行证交费的 code
-        String passportCode = uidRpcResolver.bizNumber(BizNumberTypeEnum.PASSPORT.getCode());
+        String passportCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.PASSPORT.getCode());
         passport.setVersion(0);
         passport.setCode(passportCode);
         passport.setCreatorId(userTicket.getId());
@@ -305,6 +306,8 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     /**
      * 通行证交费成功回调
      *
+     *
+     * @param userTicket
      * @param  settleOrder
      * @return BaseOutput
      * @date   2020/7/27
@@ -346,7 +349,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         // 修改通行证,生成证件号
         passportInfo.setModifyTime(LocalDateTime.now());
         String licenseCode = passportInfo.getLicenseCode().toLowerCase();
-        String code = uidRpcResolver.bizNumber("passport_" + licenseCode);
+        String code = uidRpcResolver.bizNumber(passportInfo.getMarketCode() + "_" + "passport_" + licenseCode);
         passportInfo.setLicenseNumber(code);
 
         // 判断交费后状态
@@ -399,14 +402,19 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         passportPrintDto.setCode(passportInfo.getCode());
         passportPrintDto.setCustomerName(passportInfo.getCustomerName());
         passportPrintDto.setCustomerCellphone(passportInfo.getCustomerCellphone());
-        passportPrintDto.setStartTime(passportInfo.getStartTime());
-        passportPrintDto.setEndTime(passportInfo.getEndTime());
+
         passportPrintDto.setNotes(passportInfo.getNotes());
         passportPrintDto.setAmount(MoneyUtils.centToYuan(passportInfo.getAmount()));
         passportPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
         passportPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         passportPrintDto.setSubmitter(paymentOrder.getCreator());
         passportPrintDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
+
+        // 通行证专有字段 有效期开始时间结束时间
+        passportPrintDto.setPlate(passportInfo.getCarNumber());
+        passportPrintDto.setLicenseNumber(passportInfo.getLicenseNumber());
+        passportPrintDto.setStartTime(passportInfo.getStartTime());
+        passportPrintDto.setEndTime(passportInfo.getEndTime());
 
         PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.PASSPORT.getCode());
@@ -496,6 +504,59 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         // 集合修改
         this.batchUpdateSelective(passportList);
 
+    }
+
+    /**
+     * 退款票据打印
+     *
+     * @param
+     * @return
+     * @date   2020/8/11
+     */
+    @Override
+    public PrintDataDto<PassportPrintDto> receiptRefundPrintData(String orderCode, String reprint) {
+        RefundOrder condtion = new RefundOrder();
+        condtion.setCode(orderCode);
+        List<RefundOrder> refundOrders = refundOrderService.list(condtion);
+        if(CollectionUtil.isEmpty(refundOrders)) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
+        } else {
+            RefundOrder refundOrder = refundOrders.get(0);
+            Passport passportInfo = this.get(refundOrder.getBusinessId());
+            SettleOrder order = settlementRpcResolver.get(settlementAppId, passportInfo.getCode());
+
+            // 组装退款单信息
+            PassportPrintDto printDto = new PassportPrintDto();
+            printDto.setReprint(reprint);
+            printDto.setNotes(passportInfo.getNotes());
+            printDto.setPrintTime(LocalDateTime.now());
+            printDto.setSubmitter(passportInfo.getSubmitter());
+            printDto.setPayeeAmount(refundOrder.getPayeeAmount());
+            printDto.setCustomerName(passportInfo.getCustomerName());
+            printDto.setRefundReason(refundOrder.getRefundReason());
+            printDto.setSettlementOperator(order.getOperatorName());
+            printDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
+            printDto.setAmount(String.valueOf(passportInfo.getAmount()));
+            printDto.setCustomerCellphone(passportInfo.getCustomerCellphone());
+            //TODO 判断支付方式
+            //园区卡号
+            printDto.setAccountCardNo(order.getAccountNumber());
+            //银行卡号
+            printDto.setBankName(refundOrder.getBank());
+            printDto.setBankNo(refundOrder.getBankCardNo());
+
+            // 获取转抵信息
+            TransferDeductionItem transferDeductionItemQuery = new TransferDeductionItem();
+            transferDeductionItemQuery.setRefundOrderId(refundOrder.getId());
+            printDto.setTransferDeductionItems(transferDeductionItemService.list(transferDeductionItemQuery));
+
+            // 打印最外层
+            PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();
+            printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getName());
+            printDataDto.setItem(printDto);
+
+            return printDataDto;
+        }
     }
 
     /**
@@ -595,7 +656,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         refundOrder.setTotalRefundAmount(passportRefundOrderDto.getTotalRefundAmount());
 
         refundOrder.setBizType(BizTypeEnum.PASSPORT.getCode());
-        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.PASSPORT_REFUND.getCode()));
+        refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.PASSPORT_REFUND.getCode()));
 
         if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
             logger.info("通行证【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());

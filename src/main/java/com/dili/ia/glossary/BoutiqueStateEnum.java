@@ -10,7 +10,7 @@ public enum BoutiqueStateEnum {
     NOCONFIRM(1,"待确认"),
     COUNTING(2,"计费中"),
     LEAVE(3,"已离场"),
-    CANCEL(4,"已取消")
+    REVOKE(4,"已撤消")
     ;
 
     private String name;

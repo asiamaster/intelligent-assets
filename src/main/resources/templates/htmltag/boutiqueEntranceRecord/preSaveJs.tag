@@ -32,8 +32,8 @@
         }
     }
 
-    // 提交保存
-    function saveOrUpdateHandler(){
+    // 提交保存时长设置
+    function saveOrUpdateSetHandler(){
         let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
@@ -45,17 +45,17 @@
         let _formData = $('#saveForm').serializeObject();
         let _url = null;
 
-        //没有id就新增
-        if (_formData.id == null || _formData.id == "") {
-            debugger
-            _url = "${contextPath}/meter/add.action";
-        } else {//有id就修改
-            debugger
-            _url = "${contextPath}/meter/update.action";
+        var trailer = _formData.trailer;
+        var truck = _formData.truck;
+        if ( trailer % 24 != 0 || truck % 24 != 0) {
+            bs4pop.alert('时长必须为24的倍数', {type: 'error'});
+            bui.loading.hide();
+            return false;
         }
+
         $.ajax({
             type: "POST",
-            url: _url,
+            url: "${contextPath}/boutiqueFreeSets/update.action",
             data: _formData,
             dataType: "json",
             success: function (ret) {
@@ -72,6 +72,7 @@
             }
         });
     }
+
 
     function doConfirmHandler() {
         let validator = $('#saveForm').validate({ignore:''})
