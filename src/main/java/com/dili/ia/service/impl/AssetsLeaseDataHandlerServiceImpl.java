@@ -208,17 +208,17 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
                 LOG.info("租赁单【编号：{}】,缴费单编号生成异常", o.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
             }
-            newPaymentOrder.setCode(o.getMarketCode().toUpperCase() + paymentBizNumberOutput.getData());
+            newPaymentOrder.setCode(paymentBizNumberOutput.getData());
             waitAddPaymentOrders.add(newPaymentOrder);
 
             SettleOrder settleOrder = settlementRpc.getByCode(newPaymentOrder.getSettlementCode()).getData();
             settleOrder.setId(null);
-            BaseOutput<String> settlementBizNumberOutput = uidFeignRpc.bizNumber("settleOrder");
+            BaseOutput<String> settlementBizNumberOutput = uidFeignRpc.bizNumber("hzsc_settleOrder");
             if (!settlementBizNumberOutput.isSuccess()) {
                 LOG.info("编号生成失败!" + settlementBizNumberOutput.getMessage());
                 throw new BusinessException(ResultCode.DATA_ERROR, "编号生成失败!");
             }
-            settleOrder.setCode(o.getMarketCode().toUpperCase() + settlementBizNumberOutput.getData());
+            settleOrder.setCode(settlementBizNumberOutput.getData());
             settleOrder.setVersion(0);
             settleOrder.setOrderCode(newPaymentOrder.getCode());
             settleOrder.setAmount(o.getPayAmount());
