@@ -263,12 +263,12 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         efDto.setPayeeCertificateNumber(efDto.getCertificateNumber());
         efDto.setPayeeName(efDto.getCustomerName());
         efDto.setState(EarnestTransferOrderStateEnum.CREATED.getCode());
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
             LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
             return BaseOutput.failure("编号生成器微服务异常");
         }
-        efDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+        efDto.setCode(bizNumberOutput.getData());
 
         efDto.setCreatorId(userTicket.getId());
         efDto.setCreator(userTicket.getRealName());
@@ -280,14 +280,14 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     @Override
     public BaseOutput addEarnestRefund(RefundOrder order) {
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
-           return BaseOutput.failure("编号生成器微服务异常");
-        }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
+        }
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" +BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
+           return BaseOutput.failure("编号生成器微服务异常");
         }
         //检查客户状态
         checkCustomerState(order.getCustomerId(), userTicket.getFirmId());
@@ -299,7 +299,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (customerAccount.getEarnestAvailableBalance() < order.getPayeeAmount()){
             return BaseOutput.failure("退款金额不能大于可用余额！");
         }
-        order.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+        order.setCode(bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
         order.setTotalRefundAmount(order.getPayeeAmount());
         //定金退款给本人，收款人为本人
@@ -553,7 +553,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             ca.setTransferBalance(ca.getTransferBalance() + amount);
             if(this.updateSelective(ca) == 0){
                 LOG.info("摊位租赁转抵充值调用接口异常，转抵金额充值修改客户账户金额失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
+                throw new BusinessException(ResultCode.DATA_ERROR, "摊位租赁转抵充值调用接口异常，转抵金额充值修改客户账户金额失败,乐观锁生效！");
             }
         }
     }
@@ -590,6 +590,37 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         return BaseOutput.success();
     }
+
+    /* ************************************************************** start 【老数据迁移 】 后期删除 ************************************************************************************/
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void oldDataHandler(Long orderId, Long customerId, Long marketId, Long earnestAmount, Long transferAmount) {
+        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+        if (null == ca){
+            LOG.info("客户账户不存在，customerId={}；marketId={}", customerId, marketId);
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户账户不存在！customerId=" + customerId);
+        }
+        ca.setEarnestBalance(ca.getEarnestBalance() + earnestAmount);
+        ca.setEarnestAvailableBalance(ca.getEarnestAvailableBalance() + earnestAmount);
+        ca.setTransferBalance(ca.getTransferBalance() + transferAmount);
+        ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() + transferAmount);
+
+        if(this.updateSelective(ca) == 0){
+            LOG.info("客户账户处理老数据（退还定金，转抵金额）接口异常,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户账户处理老数据（退还定金，转抵金额）接口异常,乐观锁生效！");
+        }
+        //删除流水
+        TransactionDetails tdParam = new TransactionDetails();
+        tdParam.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
+        tdParam.setOrderId(orderId);
+        List<TransactionDetails>  tdList = transactionDetailsService.listByExample(tdParam);
+        tdList.stream().forEach(o->{
+            transactionDetailsService.delete(o.getId());
+        });
+
+    }
+    /* ************************************************************** end 【老数据迁移 】 后期删除 ************************************************************************************/
+
 
 }
 

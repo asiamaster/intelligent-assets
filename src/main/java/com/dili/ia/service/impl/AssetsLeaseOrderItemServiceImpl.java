@@ -2,12 +2,15 @@ package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.BoothRentDTO;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.dto.AssetsLeaseOrderItemListDto;
-import com.dili.ia.glossary.*;
+import com.dili.ia.glossary.LeaseOrderItemStateEnum;
+import com.dili.ia.glossary.LeaseOrderStateEnum;
+import com.dili.ia.glossary.StopRentStateEnum;
+import com.dili.ia.glossary.StopWayEnum;
 import com.dili.ia.mapper.AssetsLeaseOrderItemMapper;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.AssetsLeaseOrderItemService;
 import com.dili.ia.service.AssetsLeaseOrderService;
 import com.dili.ia.service.BusinessChargeItemService;
@@ -73,10 +76,6 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
         leaseOrderItem.setStopOperatorName(userTicket.getRealName());
         AssetsLeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
         AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(leaseOrderItemOld.getLeaseOrderId());
-
-        if(!LeaseRefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"已发起过退款申请，不能发起停租");
-        }
 
         if(!StopRentStateEnum.NO_APPLY.getCode().equals(leaseOrderItemOld.getStopRentState())){
             throw new BusinessException(ResultCode.DATA_ERROR,"已发起过停租，不能多次发起停租");

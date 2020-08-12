@@ -3,7 +3,7 @@ package com.dili.ia.controller;
 
 import cn.hutool.core.util.ArrayUtil;
 import com.dili.assets.sdk.dto.DistrictDTO;
-import com.dili.ia.rpc.AssetsRpc;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;

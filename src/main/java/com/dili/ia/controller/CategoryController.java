@@ -1,8 +1,8 @@
 package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.PinyinUtil;

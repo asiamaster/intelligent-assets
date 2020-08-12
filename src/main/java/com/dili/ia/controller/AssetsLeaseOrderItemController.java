@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -32,7 +32,7 @@ import java.util.List;
  * This file was generated on 2020-05-29 14:40:05.
  */
 @Controller
-@RequestMapping("/assetsLeaseOrderItem")
+@RequestMapping("/leaseOrderItem")
 public class AssetsLeaseOrderItemController {
     private final static Logger LOG = LoggerFactory.getLogger(AssetsLeaseOrderItemController.class);
     @Autowired
@@ -47,7 +47,7 @@ public class AssetsLeaseOrderItemController {
      * @return String
      * @throws Exception
      */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping(value="/listPage.action")
     public @ResponseBody String listPage(AssetsLeaseOrderItem leaseOrderItem) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
@@ -67,8 +67,8 @@ public class AssetsLeaseOrderItemController {
      * @param leaseOrderItem
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${boothName} ${isNotEmpty(stopTime)?'停租时间:'+stopTime : ''}",operationType="stopLease",systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/stopRent.action", method = {RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${assetsName} ${isNotEmpty(stopTime)?'停租时间:'+stopTime : ''}",operationType="stopLease",systemCode = "INTELLIGENT_ASSETS")
+    @PostMapping(value="/stopRent.action")
     public @ResponseBody BaseOutput stopRent(AssetsLeaseOrderItem leaseOrderItem){
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

@@ -1,16 +1,12 @@
 package com.dili.ia.controller;
 
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
-import com.dili.ia.domain.ApprovalProcess;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.service.ApprovalProcessService;
-import com.dili.ia.service.AssetsLeaseOrderItemService;
-import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.ia.rpc.CustomerRpc;
+import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -53,6 +49,10 @@ public class RefundOrderController {
     BusinessLogRpc businessLogRpc;
     @Autowired
     private ApprovalProcessService approvalProcessService;
+    @Autowired
+    private RefundFeeItemService refundFeeItemService;
+    @Autowired
+    CustomerRpc customerRpc;
 
     /**
      * 跳转到RefundOrder页面
@@ -129,6 +129,16 @@ public class RefundOrderController {
     }
 
     /**
+     * 跳转到退款单-查看页面版本，用于流程审批
+     * @param modelMap
+     * @return String
+     */
+    @GetMapping(value="/viewFragment.action")
+    public String fragmentView(ModelMap modelMap, Long id, String orderCode){
+        view(modelMap, id, orderCode);
+        return "refundOrder/leaseRefundOrderViewFragment";
+    }
+    /**
      * 跳转到退款单-查看页面
      * @param modelMap
      * @return String
@@ -167,9 +177,15 @@ public class RefundOrderController {
                 TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
                 transferDeductionItemCondition.setRefundOrderId(id);
                 modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
+
                 if(null != refundOrder.getBusinessItemId()){
-                    modelMap.put("leaseOrderItem",assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId()));
+                    AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId());
+                    modelMap.put("leaseOrderItem", leaseOrderItem);
+                    RefundFeeItem condition = new RefundFeeItem();
+                    condition.setRefundOrderId(refundOrder.getId());
+                    modelMap.put("refundFeeItems", refundFeeItemService.list(condition));
                 }
+
                 return "refundOrder/leaseRefundOrderView";
             }
         }
@@ -324,6 +340,55 @@ public class RefundOrderController {
         } catch (Exception e) {
             LOG.error("退款单取消出错！", e);
             return BaseOutput.failure("取消出错！");
+        }
+    }
+
+    /**
+     * 跳转到退款单-查看页面
+     * @param modelMap
+     * @return String
+     */
+    @GetMapping(value="/update.html")
+    public String update(ModelMap modelMap, Long id) {
+        RefundOrder refundOrder = refundOrderService.get(id);
+        if (refundOrder != null){
+            BaseOutput<Customer> payee = customerRpc.get(refundOrder.getPayeeId(), refundOrder.getMarketId());
+            modelMap.put("refundOrder",refundOrder);
+            modelMap.put("payee", payee.getData());
+            if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
+                return "refundOrder/updateView/refundApply";
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
+                return "forward:/depositOrder/refundApply.html?refundOrderId=" + id + "&depositOrderId=" + refundOrder.getBusinessId();
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+                return "forward:/leaseOrder/refundApply.html?refundOrderId=" + id + "&leaseOrderItemId=" + refundOrder.getBusinessItemId();
+            }
+        }
+        return "refundOrder/updateView/refundApply";
+    }
+
+    /**
+     * 修改DepositOrder
+     * @param refundOrder
+     * @return BaseOutput
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput doUpdate(RefundOrder refundOrder) {
+        try{
+            BaseOutput<RefundOrder> output = refundOrderService.doUpdateDispatcher(refundOrder);
+            //写业务日志
+            if (output.isSuccess()){
+                RefundOrder order = refundOrderService.get(refundOrder.getId());
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
+            }
+            return output;
+        }catch (BusinessException e){
+            LOG.error("退款单修改异常！", e);
+            return BaseOutput.failure(e.getErrorMsg());
+        }catch (Exception e){
+            LOG.error("退款单修改异常！", e);
+            return BaseOutput.failure(e.getMessage());
         }
     }
 }

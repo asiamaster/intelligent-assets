@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <B>Description</B>
@@ -61,4 +62,26 @@ public interface SettlementRpc {
      */
     @RequestMapping(value = "/api/settleOrder/getByCode", method = RequestMethod.GET)
     BaseOutput<SettleOrder> getByCode(@RequestParam("code") String settlementCode);
+
+    /**
+     * 【数据迁移】生成【已交费的结算单】 --- 到结算中心
+     * @param itemList 结算单List
+     * @return
+     */
+    @RequestMapping(value = "/api/settleOrder/batchSaveDealt", method = RequestMethod.POST)
+    BaseOutput<?> batchSaveDealt(List<SettleOrder> itemList);
+    /**
+     * 【数据迁移】生成【结算单】和删除【已有的结算单】
+     * @param itemList 结算单List
+     * @return
+     */
+    @RequestMapping(value = "/api/settleOrder/batchSaveDealtAndDelete", method = RequestMethod.POST)
+    BaseOutput<?> batchSaveDealtAndDelete(List<SettleOrder> itemList);
+    /**
+     * 【数据迁移】修改结算单金额
+     * @param itemList
+     * @return
+     */
+    @RequestMapping(value = "/api/settleOrder/batchUpdateAmount", method = RequestMethod.POST)
+    BaseOutput<?> batchUpdateAmount(List<Map<String, Object>> itemList);
 }

@@ -2,19 +2,20 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.DepositOrderStateEnum;
-import com.dili.ia.glossary.DepositRefundStateEnum;
-import com.dili.ia.glossary.PrintTemplateEnum;
+import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.RefundOrderDispatcherService;
+import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.google.common.collect.Sets;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,6 +41,8 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     }
     @Autowired
     DepositOrderService depositOrderService;
+    @Autowired
+    TransferDeductionItemService transferDeductionItemService;
 
     @Override
     public Set<String> getBizType() {
@@ -47,11 +51,32 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
+        TransferDeductionItem condition = new TransferDeductionItem();
+        condition.setRefundOrderId(refundOrder.getId());
+        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(condition);
+        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
+            transferDeductionItems.forEach(o->{
+                depositOrderService.checkCustomerState(o.getPayeeId(),refundOrder.getMarketId());
+            });
+        }
         return BaseOutput.success();
     }
 
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
+        return BaseOutput.success();
+    }
+
+    @Override
+    public BaseOutput updateHandler(RefundOrder refundOrder) {
+        if (refundOrder.getBusinessId() == null){
+            return BaseOutput.failure("参数BusinessId 不能为空！");
+        }
+        DepositOrder depositOrder = depositOrderService.get(refundOrder.getBusinessId());
+        Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
+        if (depositOrder.getPaidAmount() < totalRefundAmount){
+            return BaseOutput.failure("【退款总金额】不能大于订单已交费总金额: " + MoneyUtils.centToYuan(depositOrder.getPaidAmount()));
+        }
         return BaseOutput.success();
     }
 
@@ -87,7 +112,12 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         Map<String,Object> resultMap = new HashMap<>();
         resultMap.put("printTemplateCode", PrintTemplateEnum.DEPOSIT_REFUND_ORDER.getCode());
         DepositOrder depositOrder = depositOrderService.get(refundOrder.getBusinessId());
-        resultMap.put("depositTypeName", depositOrder.getTypeName());
+        //保证金类型
+        resultMap.put("typeName", depositOrder.getTypeName());
+        //资产类型
+        resultMap.put("assetsType", AssetsTypeEnum.getAssetsTypeEnum(depositOrder.getAssetsType()).getName());
+        //资产名称
+        resultMap.put("assetsName", depositOrder.getAssetsName());
         return BaseOutput.success().setData(resultMap);
     }
 }

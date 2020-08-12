@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * 保证金API
+ *
  * <B>Description</B>
  * 本软件源代码版权归农丰时代及其团队所有,未经许可不得任意复制与传播
  * <B>农丰时代科技有限公司</B>
@@ -32,8 +34,8 @@ public class DepositOrderApi {
 
     /**
      * 保证金结算成功回调
-     * @param settleOrder
-     * @return
+     * @param settleOrder 结算单
+     * @return BaseOutput<Boolean>
      */
     @BusinessLogger(businessType="deposit_order", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
@@ -57,7 +59,7 @@ public class DepositOrderApi {
 
     /**
      * 保证金票据打印数据加载
-     * @param orderCode 订单号
+     * @param orderCode 缴费单订单号CODE
      * @param reprint 是否补打标记
      * @return BaseOutput<PrintDataDto>
      */

@@ -1,23 +1,25 @@
 package com.dili.ia.service.impl;
 
-import com.dili.assets.sdk.dto.BoothDTO;
+import com.dili.assets.sdk.dto.AssetsDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.DepositOrderMapper;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
-import com.dili.ia.service.DepositBalanceService;
-import com.dili.ia.service.DepositOrderService;
-import com.dili.ia.service.PaymentOrderService;
-import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.logger.sdk.component.MsgService;
+import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
@@ -32,6 +34,7 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +43,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -55,6 +55,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     private static final Logger LOG = LoggerFactory.getLogger(DepositOrderServiceImpl.class);
     @Autowired
     DepartmentRpc departmentRpc;
+    @Autowired
+    MsgService msgService;
     @Autowired
     CustomerRpc customerRpc;
     @Autowired
@@ -69,6 +71,12 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     RefundOrderService refundOrderService;
     @Autowired
     DepositBalanceService depositBalanceService;
+    @Autowired
+    TransferDeductionItemService transferDeductionItemService;
+    @Autowired
+    CustomerAccountService customerAccountService;
+    @Autowired
+    TransactionDetailsService transactionDetailsService;
 
     public DepositOrderMapper getActualDao() {
         return (DepositOrderMapper)getDao();
@@ -103,7 +111,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
 
-        depositOrder.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
+        depositOrder.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
         depositOrder.setCreatorId(userTicket.getId());
         depositOrder.setCreator(userTicket.getRealName());
         depositOrder.setMarketId(userTicket.getFirmId());
@@ -174,11 +182,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * @param boothId
      */
     private void checkBoothState(Long boothId){
-        BaseOutput<BoothDTO> output = assetsRpc.getBoothById(boothId);
+        BaseOutput<AssetsDTO> output = assetsRpc.getBoothById(boothId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位接口调用异常 "+output.getMessage());
         }
-        BoothDTO booth = output.getData();
+        AssetsDTO booth = output.getData();
         if(null == booth){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位不存在，请核实和修改后再保存");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
@@ -193,7 +201,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * @param customerId
      * @param marketId
      */
-    private void checkCustomerState(Long customerId,Long marketId){
+    @Override
+    public void checkCustomerState(Long customerId,Long marketId){
         BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 "+output.getMessage());
@@ -211,9 +220,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput<DepositOrder> updateDepositOrder(DepositOrder depositOrder) {
-        if (depositOrder.getId() == null){
-            return BaseOutput.failure("Id不能为空！");
-        }
         DepositOrder oldDTO = this.get(depositOrder.getId());
         if (null == oldDTO || !oldDTO.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("修改失败，保证金单状态已变更！");
@@ -300,7 +306,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, DepositOrder depositOrder, Long paidAmount){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.DEPOSIT_ORDER.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(paidAmount);
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
@@ -335,7 +341,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
-        //@TODO 结算单需要调整类型，为String
         settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.DEPOSIT_ORDER.getCode())); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
@@ -440,46 +445,70 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return order;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<RefundOrder> addRefundOrder(RefundOrder refundOrder) {
+    public BaseOutput<RefundOrder> saveOrUpdateRefundOrder(DepositRefundOrderDto depositRefundOrderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
         }
-        PaymentOrder paymentOrder = this.findPaymentOrder(userTicket.getFirmId(), PaymentOrderStateEnum.NOT_PAID.getCode(), refundOrder.getBusinessId(), refundOrder.getBusinessCode());
+        PaymentOrder paymentOrder = this.findPaymentOrder(userTicket.getFirmId(), PaymentOrderStateEnum.NOT_PAID.getCode(), depositRefundOrderDto.getBusinessId(), depositRefundOrderDto.getBusinessCode());
         if (paymentOrder != null){
             withdrawPaymentOrder(paymentOrder);
         }
         //检查客户状态
-        checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
-        DepositOrder depositOrder = this.get(refundOrder.getBusinessId());
+        checkCustomerState(depositRefundOrderDto.getPayeeId(), userTicket.getFirmId());
+        DepositOrder depositOrder = this.get(depositRefundOrderDto.getBusinessId());
         if (null == depositOrder){
-            LOG.info("保证金退款申请，保证金单【ID:{}】不存在！", refundOrder.getBusinessId());
+            LOG.info("保证金退款申请，保证金单【ID:{}】不存在！", depositRefundOrderDto.getBusinessId());
             return BaseOutput.failure("保证金业务单不存在！");
         }
         if (DepositPayStateEnum.UNPAID.getCode().equals(depositOrder.getPayState())){
             return BaseOutput.failure("创建失败，未交费业务单不能退款！");
         }
-        if (DepositOrderStateEnum.REFUNDING.getCode().equals(depositOrder.getState())){
-            return BaseOutput.failure("创建失败，已存在退款中的业务单！");
-        }
-        if (DepositRefundStateEnum.REFUNDED.getCode().equals(depositOrder.getRefundState())){
-            return BaseOutput.failure("创建失败，业务单已全额退款！");
-        }
-        Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
+        Long totalRefundAmount = depositRefundOrderDto.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getPaidAmount() < totalRefundAmount){
             return BaseOutput.failure("退款金额不能大于订单已交费金额！");
         }
-        depositOrder.setState(DepositOrderStateEnum.REFUNDING.getCode());
-        if (this.updateSelective(depositOrder) == 0) {
-            LOG.info("撤回保证金【修改保证金单状态】失败,乐观锁生效。【保证金单ID：】" + depositOrder.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+
+        //新增
+        if(null == depositRefundOrderDto.getId()){
+            if (DepositOrderStateEnum.REFUNDING.getCode().equals(depositOrder.getState())){
+                return BaseOutput.failure("创建失败，已存在退款中的业务单！");
+            }
+            if (DepositRefundStateEnum.REFUNDED.getCode().equals(depositOrder.getRefundState())){
+                return BaseOutput.failure("创建失败，业务单已全额退款！");
+            }
+            depositOrder.setState(DepositOrderStateEnum.REFUNDING.getCode());
+            if (this.updateSelective(depositOrder) == 0) {
+                LOG.info("撤回保证金【修改保证金单状态】失败,乐观锁生效。【保证金单ID：】" + depositOrder.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
+            depositRefundOrderDto.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
+            depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+            BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
+            if (!output.isSuccess()) {
+                LOG.info("租赁单【编号：{}】退款申请接口异常", depositRefundOrderDto.getBusinessCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+            }
+        }else { // 修改
+            if (!refundOrderService.doUpdateDispatcher(depositRefundOrderDto).isSuccess()) {
+                LOG.info("租赁单【编号：{}】退款修改接口异常", depositRefundOrderDto.getBusinessCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
+            }
+            //删除转抵扣项的数据
+            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+            transferDeductionItemCondition.setRefundOrderId(depositRefundOrderDto.getId());
+            transferDeductionItemService.deleteByExample(transferDeductionItemCondition);
         }
 
-        refundOrder.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
-        refundOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
-        refundOrder.setTotalRefundAmount(refundOrder.getPayeeAmount());
-        return refundOrderService.doAddHandler(refundOrder);
+        if (CollectionUtils.isNotEmpty(depositRefundOrderDto.getTransferDeductionItems())) {
+            depositRefundOrderDto.getTransferDeductionItems().forEach(o -> {
+                o.setRefundOrderId(depositRefundOrderDto.getId());
+                transferDeductionItemService.insertSelective(o);
+            });
+        }
+        return BaseOutput.success().setData(depositRefundOrderDto);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -538,13 +567,35 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("缴费单成功回调 -- 更新【保证金单】状态,乐观锁生效！【保证金单DepositOrderID:{}】", depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-        //更新保证金余额 --- 缴费成功保证金余额增加
-        this.updateDepositBalance(depositOrder, paymentOrderPO.getAmount());
+        //【更新/修改】保证金余额 --- 缴费成功保证金余额增加
+        this.saveOrupdateDepositBalance(depositOrder, paymentOrderPO.getAmount());
+        //记录日志
+        msgService.sendBusinessLog(recordPayLog(settleOrder, depositOrder));
 
         return BaseOutput.success().setData(depositOrder);
     }
 
-    private BaseOutput<String> updateDepositBalance(DepositOrder depositOrder, Long payAmount){
+    /**
+     * 记录交费日志
+     *
+     * @param settleOrder 结算单
+     * @param depositOrder 保证金业务单
+     */
+    private BusinessLog recordPayLog(SettleOrder settleOrder, DepositOrder depositOrder) {
+        BusinessLog businessLog = new BusinessLog();
+        businessLog.setBusinessId(depositOrder.getId());
+        businessLog.setBusinessCode(depositOrder.getCode());
+        businessLog.setContent(settleOrder.getCode());
+        businessLog.setOperationType("pay");
+        businessLog.setMarketId(settleOrder.getMarketId());
+        businessLog.setOperatorId(settleOrder.getOperatorId());
+        businessLog.setOperatorName(settleOrder.getOperatorName());
+        businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
+        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        return businessLog;
+    }
+
+    private BaseOutput<String> saveOrupdateDepositBalance(DepositOrder depositOrder, Long payAmount){
         DepositBalance params = new DepositBalance();
         // 保证金余额维度： 保证金类型，资产类型，资产编号，客户
         params.setCustomerId(depositOrder.getCustomerId());
@@ -566,6 +617,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             DepositBalance upDep = new DepositBalance();
             upDep.setId(depositBalance.getId());
             upDep.setBalance(depositBalance.getBalance() + payAmount);
+            upDep.setVersion(depositBalance.getVersion());
             depositBalanceService.updateSelective(upDep);
         }
         return BaseOutput.success();
@@ -585,23 +637,66 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
 
         DepositOrder depositOrder = get(paymentOrder.getBusinessId());
+        Integer settlementWay = paymentOrder.getSettlementWay();
 
-        DepositOrderPrintDto depositOrderPrintDto = new DepositOrderPrintDto();
-        depositOrderPrintDto.setPrintTime(LocalDateTime.now());
-        depositOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
-        depositOrderPrintDto.setCode(depositOrder.getCode());
-        depositOrderPrintDto.setCustomerName(depositOrder.getCustomerName());
-        depositOrderPrintDto.setCustomerCellphone(depositOrder.getCustomerCellphone());
-        depositOrderPrintDto.setNotes(depositOrder.getNotes());
-        depositOrderPrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount())); // 付款金额
-        depositOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
-        depositOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-        depositOrderPrintDto.setSubmitter(paymentOrder.getCreator());
-        depositOrderPrintDto.setBusinessType(BizTypeEnum.DEPOSIT_ORDER.getName());
+        DepositOrderPrintDto dePrintDto = new DepositOrderPrintDto();
+        dePrintDto.setPrintTime(LocalDateTime.now());
+        dePrintDto.setReprint(reprint == 2 ? "(补打)" : "");
+        dePrintDto.setCode(depositOrder.getCode());
+        dePrintDto.setCustomerName(depositOrder.getCustomerName());
+        dePrintDto.setCustomerCellphone(depositOrder.getCustomerCellphone());
+        dePrintDto.setNotes(depositOrder.getNotes());
+        dePrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount())); // 付款金额
+        dePrintDto.setTotalAmount(MoneyUtils.centToYuan(depositOrder.getAmount())); // 业务单合计总金额
+        dePrintDto.setWaitAmount(MoneyUtils.centToYuan(depositOrder.getWaitAmount())); //待付款金额
+        dePrintDto.setSubmitter(paymentOrder.getCreator());
+        dePrintDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getName());
+        dePrintDto.setTypeName(depositOrder.getTypeName());
+        dePrintDto.setAssetsType(AssetsTypeEnum.getAssetsTypeEnum(depositOrder.getAssetsType()).getName());
+        dePrintDto.setAssetsName(depositOrder.getAssetsName());
+        dePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(settlementWay));
+        dePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+
+        //组合支付需要显示结算详情.票据的资产类型和编号，如果有填写，就显示，没填写就不显示,银行卡、POS、微信、支付宝等支付方式均如此显示，现金则不显示流水号,如果是园区卡付款，则显示对应卡号和开卡人姓名
+        StringBuffer settleWayDetails = new StringBuffer();
+        if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
+            settleWayDetails.append("【");
+            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
+            if (output.isSuccess() && CollectionUtils.isNotEmpty(output.getData())){
+                output.getData().forEach(o -> {
+                    //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
+                    settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
+                    if (StringUtils.isNotEmpty(o.getSerialNumber())){
+                        settleWayDetails.append(",").append(o.getSerialNumber());
+                    }
+                    if (StringUtils.isNotEmpty(o.getNotes())){
+                        settleWayDetails.append(",").append("备注：").append(o.getNotes());
+                    }
+                    settleWayDetails.append("\r\n");
+                });
+            }else {
+                LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
+            settleWayDetails.append("】");
+        }else if ( !settlementWay.equals(SettleWayEnum.CASH.getCode())){
+            BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
+            if(output.isSuccess()){
+                SettleOrder settleOrder = output.getData();
+                if(StringUtils.isNotBlank(settleOrder.getSerialNumber())){
+                    settleWayDetails.append("流水号：");
+                    settleWayDetails.append(settleOrder.getSerialNumber());
+                }
+            }else {
+                LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
+        }
+        if (StringUtils.isNotBlank(settleWayDetails)){
+            dePrintDto.setSettleWayDetails(settleWayDetails.toString());
+        }
 
         PrintDataDto printDataDto = new PrintDataDto();
         printDataDto.setName(PrintTemplateEnum.DEPOSIT_ORDER.getCode());
-        printDataDto.setItem(BeanMapUtil.beanToMap(depositOrderPrintDto));
+        printDataDto.setItem(BeanMapUtil.beanToMap(dePrintDto));
         return BaseOutput.success().setData(printDataDto);
     }
 
@@ -617,7 +712,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("此退款单【refundOrderId={}】关联的业务单状态已变更【状态：{}】，退款失败！", refundOrder.getId(), DepositOrderStateEnum.getDepositOrderStateEnumName(depositOrder.getState()));
             return BaseOutput.failure("此退款单关联的业务单状态已变更，退款失败！");
         }
-        Long totalRefundAmount = refundOrder.getPayeeAmount() + depositOrder.getRefundAmount();
+        Long totalRefundAmount = refundOrder.getTotalRefundAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getPaidAmount() < totalRefundAmount){
             LOG.error("异常订单！！！---- 保证金单退款申请结算退款成功 但是退款单退款总金额大于订单可退金额【保证金单ID {}，退款单ID{}】", depositOrder.getId(), refundOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "异常订单！！！-- 退款金额不能大于保证金单可退金额！");
@@ -635,9 +730,51 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         //更新保证金余额 ---- 退款扣减保证金余额
-        this.updateDepositBalance(depositOrder, 0 - refundOrder.getTotalRefundAmount());
+        this.saveOrupdateDepositBalance(depositOrder, 0 - refundOrder.getTotalRefundAmount());
+
+        //转抵扣充值
+        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
+        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
+        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
+            transferDeductionItems.forEach(o -> {
+                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
+                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
+                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
+                if (!accountOutput.isSuccess()) {
+                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
+                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
+                }
+                //写入转抵转入流水
+                TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.TRANSFER_IN.getCode(), BizTypeEnum.DEPOSIT_ORDER.getCode(), TransactionItemTypeEnum.TRANSFER.getCode(), o.getPayeeAmount(), refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), refundOrder.getCode(), refundOrder.getMarketId(), refundOrder.getCreatorId(), refundOrder.getCreator());
+                transactionDetailsService.insertSelective(transactionDetails);
+            });
+        }
+
+        //记录退款日志
+        msgService.sendBusinessLog(recordRefundLog(refundOrder));
 
         return BaseOutput.success();
+    }
+
+
+    /**
+     * 记录退款日志
+     *
+     * @param refundOrder 退款单
+     */
+    private BusinessLog recordRefundLog(RefundOrder refundOrder) {
+        BusinessLog businessLog = new BusinessLog();
+        businessLog.setBusinessId(refundOrder.getBusinessId());
+        businessLog.setBusinessCode(refundOrder.getBusinessCode());
+        businessLog.setContent(refundOrder.getSettlementCode());
+        businessLog.setOperationType("refund");
+        businessLog.setMarketId(refundOrder.getMarketId());
+        businessLog.setOperatorId(refundOrder.getRefundOperatorId());
+        businessLog.setOperatorName(refundOrder.getRefundOperator());
+        businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
+        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        return businessLog;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -796,6 +933,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setCancelerId(userTicket.getId());
         depositOrder.setCanceler(userTicket.getRealName());
         depositOrder.setState(DepositOrderStateEnum.CANCELD.getCode());
+        //取消解除关联操作关系
+        depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
         if (this.updateSelective(depositOrder) == 0){
             LOG.error("保证金取消失败，取消更新状态记录数为 0，取消保证金ID【{}】", depositOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "取消失败！");
@@ -850,77 +989,266 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return BaseOutput.success();
     }
 
+
+   /* ************************************************************** start 【老数据迁移 】 后期删除 ************************************************************************************/
+
+    /**
+     * 老数据处理-- 新增保证金单
+     * 新增已交费的保证金单，
+     * 修改/新增保证金余额，
+     * 新增已交费的缴费单，
+     * 新增已结算的结算单；
+     *
+     * */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput oldDataHandler(List<DepositOrder> depositOrderList, UserTicket creatorTicket, UserTicket submiterTicket, UserTicket settlementTicket) {
+    public BaseOutput oldDataHandler(List<DepositOrder> depositOrderList) {
         if (CollectionUtils.isEmpty(depositOrderList)){
             return BaseOutput.failure("数据为空！");
         }
         depositOrderList.stream().forEach(o ->{
-            List<DepositOrder> deList = queryDepositOrder(o.getBizType(), o.getBusinessId(), o.getAssetsId());
+            List<DepositOrder> deList = queryDepositOrderOldDataHandler(o.getBizType(), o.getBusinessId(), o.getAssetsId());
             if (CollectionUtils.isEmpty(deList)){ // 没有的话，就【新增】
-                o.setIsRelated(YesOrNoEnum.YES.getCode());
-                if (o.getBusinessId() == null){
-                    throw new BusinessException(ResultCode.PARAMS_ERROR, "关联订单ID不能为空");
-                }
-                if (o.getBizType() == null){
-                    throw new BusinessException(ResultCode.PARAMS_ERROR, "关联订单业务类型不能为空");
-                }
                 //新增【已交费 -- 已交清 -- 未退款】的保证金单
-                BaseOutput<DepositOrder> output = this.addPaidDepositOrder(creatorTicket, o);
+                BaseOutput<DepositOrder> output = this.addPaidDepositOrder(o);
                 if (!output.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
                 }
+                DepositOrder newDepositOrder = output.getData();
+                //结算编号
+                String settleCode = o.getMarketCode().toUpperCase() + this.getBizNumber("settleOrder");
+                //【更新/修改】保证金余额 --- 缴费成功保证金余额增加
+                this.saveOrupdateDepositBalance(newDepositOrder, newDepositOrder.getAmount());
                 //新增【已交费】的缴费单
-                PaymentOrder pb = this.buildPaymentOrder(submiterTicket, output.getData(), o.getAmount());
-                //【已交费】缴费单数据更新
-                pb.setState(PayStateEnum.PAID.getCode());
-                pb.setState(PaymentOrderStateEnum.PAID.getCode());
-//                pb.setPayedTime(settleOrder.getOperateTime());
-//                pb.setSettlementCode(settleOrder.getCode());
-//                pb.setSettlementOperator(settleOrder.getOperatorName());
-//                pb.setSettlementWay(settleOrder.getWay());
+                PaymentOrder pb = this.buildPaidPaymentOrder(newDepositOrder);
+                //结算后，回写结算信息到缴费单
+                pb.setPayedTime(LocalDateTime.now());
+                pb.setSettlementCode(settleCode);
+                pb.setSettlementOperator("数据迁移");
+                pb.setSettlementWay(SettleWayEnum.CASH.getCode());
                 paymentOrderService.insertSelective(pb);
 
                 //新增【已结算】的结算单，提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
                 //@TODO需要结算单独提供接口
-//                SettleOrderDto settleOrder = buildSettleOrderDto(submiterTicket, o, pb, o.getAmount());
-//                BaseOutput<SettleOrder> out= settlementRpc.submit(settleOrder);
-//                if (!out.isSuccess()){
-//                    LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
-//                    throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
-//                }
-
+                SettleOrderDto settleOrder = buildPaidSettleOrderDto(newDepositOrder, pb);
+                settleOrder.setCode(settleCode);
+                List<SettleOrder> settleOrderList = new ArrayList<>();
+                settleOrderList.add(settleOrder);
+                BaseOutput<?> out= settlementRpc.batchSaveDealt(settleOrderList);
+                if (!out.isSuccess()){
+                    LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
+                    throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
+                }
             }
         });
         return BaseOutput.success();
     }
-
-
-    public BaseOutput<DepositOrder> addPaidDepositOrder(UserTicket userTicket, DepositOrder depositOrder) {
-        //检查参数
-        BaseOutput checkOut = checkparams(depositOrder);
-        if (!checkOut.isSuccess()){
-            return checkOut;
+    /**
+     * 老数据处理-- 新增保证金单
+     * 新增已交费的保证金单，
+     * 修改/新增保证金余额，
+     * 新增已交费的缴费单，
+     * 新增已结算的结算单；
+     *
+     *新增关联退款单
+     *新增退款单的退款结算单
+     * */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public BaseOutput oldRefundOrderDataHandler(RefundOrder oldRefundOrder, Long assetsId, TransferDeductionItem transferDeductionItem) {
+        if (null == oldRefundOrder){
+            return BaseOutput.failure("数据为空！");
         }
-        //检查客户状态
-        checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
-        //检查摊位状态 @TODO 检查公寓，冷库状态
-        if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType())){
-            checkBoothState(depositOrder.getAssetsId());
+        List<DepositOrder> deList = queryDepositOrderOldDataHandler(oldRefundOrder.getBizType(), oldRefundOrder.getBusinessId(), assetsId);
+        // 为空的话，抛出异常，因为退款单一定对应有业务单。 不为空的话就【新增】关联退款单
+        if (CollectionUtils.isEmpty(deList)){
+            throw new BusinessException(ResultCode.DATA_ERROR, "创建保证金退款单失败，退款单没有找到关联业务单，BusinessId=" + oldRefundOrder.getBusinessId() + "，AssetsId=" + assetsId);
         }
-        BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
-        if(!depOut.isSuccess()){
-            LOGGER.info("获取部门失败！" + depOut.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
-        }
+        //不为空的话就【新增】关联退款单
+        deList.stream().forEach(depOrder -> {
+            //修改保证金业务单为【已退款费 -- 已交清 -- 全额退款】的保证金单
+            depOrder.setState(DepositOrderStateEnum.REFUND.getCode());
+            depOrder.setRefundState(DepositRefundStateEnum.REFUNDED.getCode());
+            depOrder.setRefundAmount(depOrder.getAmount());
+            if (this.updateSelective(depOrder) == 0) {
+                LOG.info("修改保证金【解除关联操作】失败 ,乐观锁生效！【保证金单ID:{}】", oldRefundOrder.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
+            //【更新/修改】保证金余额 --- 缴费成功保证金余额增加
+            this.saveOrupdateDepositBalance(depOrder, 0 - depOrder.getAmount());
+            //结算编号
+            String settleCode = oldRefundOrder.getMarketCode().toUpperCase() + this.getBizNumber("settleOrder");
+            //新增【已退款】的退款单
+            RefundOrder refundOrder = this.buildRefundOrder(depOrder,oldRefundOrder, settleCode);
+            refundOrderService.insertSelective(refundOrder);
+            //如果有退款到转抵扣的，那么新增一条退款转抵记录 和 转抵转入流水
+            if (null != transferDeductionItem){
+                transferDeductionItem.setRefundOrderId(refundOrder.getId());
+                transferDeductionItemService.insertSelective(transferDeductionItem);
+                TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.TRANSFER_IN.getCode(), BizTypeEnum.DEPOSIT_ORDER.getCode(), TransactionItemTypeEnum.TRANSFER.getCode(), transferDeductionItem.getPayeeAmount(), refundOrder.getId(), refundOrder.getCode(), transferDeductionItem.getPayeeId(), refundOrder.getCode(), refundOrder.getMarketId(), refundOrder.getCreatorId(), refundOrder.getCreator());
+                transactionDetailsService.insertSelective(transactionDetails);
+            }
+            //新增【已处理】的结算单，提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
+            SettleOrderDto settleOrder = buildRefundSettleOrderDto(refundOrder);
+            settleOrder.setCode(settleCode);
+            List<SettleOrder> settleOrderList = new ArrayList<>();
+            settleOrderList.add(settleOrder);
+            BaseOutput<?> out= settlementRpc.batchSaveDealt(settleOrderList);
+            if (!out.isSuccess()){
+                LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData()) ;
+                throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
+            }
+        });
 
-        depositOrder.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
-        depositOrder.setCreatorId(userTicket.getId());
-        depositOrder.setCreator(userTicket.getRealName());
-        depositOrder.setMarketId(userTicket.getFirmId());
-        depositOrder.setMarketCode(userTicket.getFirmCode());
-        depositOrder.setDepartmentName(depOut.getData().getName());
+        return BaseOutput.success();
+    }
+
+    private List<DepositOrder> queryDepositOrderOldDataHandler(String bizType, Long businessId, Long assetsId){
+        DepositOrder query = new DepositOrder();
+        query.setBizType(bizType);
+        query.setBusinessId(businessId);
+        query.setAssetsId(assetsId);
+        List<DepositOrder> list = this.listByExample(query);
+        return list;
+    }
+
+    //构建已退款的退款单
+    private RefundOrder buildRefundOrder(DepositOrder depositOrder, RefundOrder oldRefundOrder, String settlementCode){
+        //新增【已退款】的退款单
+        RefundOrder refundOrder = new RefundOrder();
+        //结算单号
+        refundOrder.setSettlementCode(settlementCode);
+        //由关联保证金业务单传入
+        refundOrder.setCustomerId(depositOrder.getCustomerId());
+        refundOrder.setCustomerName(depositOrder.getCustomerName());
+        refundOrder.setCustomerCellphone(depositOrder.getCustomerCellphone());
+        refundOrder.setCertificateNumber(depositOrder.getCertificateNumber());
+        refundOrder.setBusinessId(depositOrder.getId());
+        refundOrder.setBusinessCode(depositOrder.getCode());
+        //固定写死参数
+        refundOrder.setSubmitter("数据迁移");
+        refundOrder.setSubmitterId(243L);
+        refundOrder.setRefundOperatorId(243L);
+        refundOrder.setRefundOperator("数据迁移");
+        refundOrder.setCreator("数据迁移");
+        refundOrder.setCreatorId(243L);
+        refundOrder.setMarketId(11L);
+        refundOrder.setMarketCode("hzsc");
+        refundOrder.setSubmitTime(LocalDateTime.now());
+        refundOrder.setRefundTime(new Date());
+        refundOrder.setState(RefundOrderStateEnum.REFUNDED.getCode());
+        refundOrder.setCode(this.getBizNumber("hzsc_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
+        refundOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+        refundOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
+        refundOrder.setVersion(0);
+        //租赁单传入
+        refundOrder.setPayee(oldRefundOrder.getPayee());
+        refundOrder.setPayeeId(oldRefundOrder.getPayeeId());
+        refundOrder.setPayeeCertificateNumber(oldRefundOrder.getPayeeCertificateNumber());
+        refundOrder.setRefundType(oldRefundOrder.getRefundType());
+        refundOrder.setBank(oldRefundOrder.getBank());
+        refundOrder.setBankCardNo(oldRefundOrder.getBankCardNo());
+        refundOrder.setTotalRefundAmount(oldRefundOrder.getTotalRefundAmount());
+        refundOrder.setPayeeAmount(oldRefundOrder.getPayeeAmount());
+        refundOrder.setDepartmentId(oldRefundOrder.getDepartmentId());
+        refundOrder.setDepartmentName(oldRefundOrder.getDepartmentName());
+        return refundOrder;
+    }
+
+    //组装缴费单 PaymentOrder
+    private PaymentOrder buildPaidPaymentOrder(DepositOrder depositOrder){
+        PaymentOrder pb = new PaymentOrder();
+        pb.setCode(this.getBizNumber("hzsc_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.DEPOSIT_ORDER.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setAmount(depositOrder.getAmount());
+        pb.setBusinessId(depositOrder.getId());
+        pb.setBusinessCode(depositOrder.getCode());
+        //固定参数
+        pb.setCreatorId(243L);
+        pb.setCreator("数据迁移");
+        pb.setMarketId(11L);
+        pb.setMarketCode("hzsc");
+        pb.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+        pb.setState(PayStateEnum.PAID.getCode());
+        pb.setVersion(0);
+        pb.setIsSettle(YesOrNoEnum.YES.getCode());
+        return pb;
+    }
+
+    //组装 -- 结算中心缴费单 SettleOrder
+    private SettleOrderDto buildPaidSettleOrderDto(DepositOrder depositOrder, PaymentOrder paymentOrder){
+        SettleOrderDto settleOrder = new SettleOrderDto();
+        //以下是提交到结算中心的必填字段
+        settleOrder.setMarketId(depositOrder.getMarketId()); //市场ID
+        settleOrder.setMarketCode(depositOrder.getMarketCode());
+        settleOrder.setCustomerId(depositOrder.getCustomerId());//客户ID
+        settleOrder.setCustomerName(depositOrder.getCustomerName());// "客户姓名
+        settleOrder.setCustomerPhone(depositOrder.getCustomerCellphone());//"客户手机号
+        settleOrder.setAmount(depositOrder.getAmount()); //金额
+        settleOrder.setBusinessDepId(depositOrder.getDepartmentId()); //"业务部门ID
+        settleOrder.setBusinessDepName(depositOrder.getDepartmentName());//"业务部门名称
+        //关联缴费单参数
+        settleOrder.setOrderCode(paymentOrder.getCode());//订单号 唯一
+        settleOrder.setBusinessCode(paymentOrder.getBusinessCode()); //缴费单业务单号
+        //固定参数
+        settleOrder.setMarketId(11L);
+        settleOrder.setMarketCode("hzsc");
+        settleOrder.setSubmitterId(243L);// "提交人ID
+        settleOrder.setSubmitterName("数据迁移");// "提交人姓名
+        settleOrder.setSubmitterDepId(74L); //"提交人部门ID --- 线上74
+        settleOrder.setSubmitterDepName("市场经营管理部"); // 线上固定 -- 市场经营管理部
+        settleOrder.setSubmitTime(LocalDateTime.now());
+        settleOrder.setAppId(settlementAppId);//应用ID
+        settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.DEPOSIT_ORDER.getCode())); // 业务类型
+        settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
+        settleOrder.setState(SettleStateEnum.DEAL.getCode());
+        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
+
+        return settleOrder;
+    }
+
+    //组装 -- 结算中心退款单 SettleOrder
+    private SettleOrderDto buildRefundSettleOrderDto(RefundOrder refundOrder){
+        SettleOrderDto settleOrder = new SettleOrderDto();
+        //以下是提交到结算中心的必填字段
+        settleOrder.setMarketId(refundOrder.getMarketId()); //市场ID
+        settleOrder.setMarketCode(refundOrder.getMarketCode());
+        settleOrder.setOrderCode(refundOrder.getCode());//订单号 唯一
+        settleOrder.setBusinessCode(refundOrder.getBusinessCode()); //缴费单业务单号
+        settleOrder.setCustomerId(refundOrder.getPayeeId());//客户ID
+        settleOrder.setCustomerName(refundOrder.getPayee());// "客户姓名
+        Customer customer = customerRpc.get(refundOrder.getPayeeId(), 11L).getData();
+        settleOrder.setCustomerPhone(customer.getContactsPhone());//"客户手机号
+        settleOrder.setAmount(refundOrder.getPayeeAmount()); //金额
+        settleOrder.setBusinessDepId(refundOrder.getDepartmentId()); //"业务部门ID
+        settleOrder.setBusinessDepName(departmentRpc.get(refundOrder.getDepartmentId()).getData().getName());//"业务部门名称
+
+        //固定参数
+        settleOrder.setMarketId(11L);
+        settleOrder.setMarketCode("hzsc");
+        settleOrder.setSubmitterId(243L);// "提交人ID
+        settleOrder.setSubmitterName("数据迁移");// "提交人姓名
+        settleOrder.setSubmitterDepId(74L); //"提交人部门ID --- 线上74
+        settleOrder.setSubmitterDepName("市场经营管理部"); // 线上固定 -- 市场经营管理部
+        settleOrder.setSubmitTime(LocalDateTime.now());
+        settleOrder.setAppId(settlementAppId);//应用ID
+        settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.DEPOSIT_ORDER.getCode())); // 业务类型
+        settleOrder.setType(SettleTypeEnum.REFUND.getCode());// "结算类型  -- 退款
+        settleOrder.setState(SettleStateEnum.DEAL.getCode());
+        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
+        return settleOrder;
+    }
+
+    public BaseOutput<DepositOrder> addPaidDepositOrder(DepositOrder depositOrder) {
+        //固定参数
+        depositOrder.setCode(this.getBizNumber("hzsc_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
+        depositOrder.setCreatorId(243L);
+        depositOrder.setCreator("数据迁移");
+        depositOrder.setSubmitterId(243L);
+        depositOrder.setSubmitter("数据迁移");
+        depositOrder.setMarketId(11L);
+        depositOrder.setMarketCode("hzsc");
+        depositOrder.setSubmitTime(LocalDateTime.now());
+        depositOrder.setIsImport(YesOrNoEnum.YES.getCode());
         //创建已完结的保证金单
         depositOrder.setState(DepositOrderStateEnum.PAID.getCode());
         depositOrder.setPayState(DepositPayStateEnum.PAID.getCode());
@@ -928,8 +1256,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setIsImport(YesOrNoEnum.YES.getCode());
         depositOrder.setWaitAmount(0L);
         depositOrder.setPaidAmount(depositOrder.getAmount());
+        depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
 
         this.insertSelective(depositOrder);
         return BaseOutput.success().setData(depositOrder);
     }
+    /* ************************************************************* end 【老数据迁移 】 后期删除 ************************************************************************************/
+
 }

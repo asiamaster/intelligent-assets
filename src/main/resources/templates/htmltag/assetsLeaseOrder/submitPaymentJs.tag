@@ -12,7 +12,7 @@
     function batchQueryDepositOrder(depositOrderQuery) {
         $.ajax({
             type: "post",
-            url: "/assetsLeaseOrder/batchQueryDepositOrder.action",
+            url: "/leaseOrder/batchQueryDepositOrder.action",
             data: depositOrderQuery,
             dataType: "json",
             async : false,
@@ -88,23 +88,16 @@
         let payAmount = Number($('#payAmount').val());
         let apportionAmount = calcApportionAmount();
         if (payAmount != (apportionAmount.sub(deductionAmount))) {
-            let errorMsg = deductionAmount > 0 ? '【本次付款金额】必须等于【分摊金额+抵扣】' : '【本次付款金额】必须等于【分摊金额】'
+            let errorMsg = deductionAmount > 0 ? '【本次付款金额】必须等于【分摊金额+抵扣】' : '【本次付款金额】必须等于【分摊金额】';
             bs4pop.notice(errorMsg, {position: 'bottomleft'});
             return false;
         }
 
-        if (deductionAmount > 0 && leasePayAmount < 0) {
-            bs4pop.notice('【抵扣】只能分摊到收费项，请确保收费项分摊金额不小于【抵扣】', {position: 'bottomleft'});
+        //抵扣额大于0且分摊总额大于0时，【收费项分摊总额】必须大于等于【抵扣额】
+        if (deductionAmount > 0 && chargeAmount > 0 && leasePayAmount < 0) {
+            bs4pop.notice('【抵扣】只能分摊到收费项，请确保【收费项分摊金额】不小于【抵扣】', {position: 'bottomleft'});
             return false;
         }
-
-        <% if(leaseOrder.paidAmount == 0 && leaseOrder.waitAmount > 0){ %>
-            if (leasePayAmount == 0) {
-                bs4pop.notice('收费项支付金额必须大于0', {position: 'bottomleft'});
-                return false;
-            }
-        <% } %>
-
         return true;
     }
 
@@ -116,17 +109,18 @@
             return false;
         }
 
-        console.log(buildFormData());
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
-            url: "/assetsLeaseOrder/submitPayment.action",
+            url: "/leaseOrder/submitPayment.action",
             data: JSON.stringify(buildFormData()),
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             success: function (ret) {
                 if(!ret.success){
-                    bs4pop.alert(ret.message, {type: 'error'});
+                    bs4pop.alert(ret.message, {type: 'error'},function () {
+                        parent.closeDialog(parent.dia);
+                    });
                 }else{
                     parent.closeDialog(parent.dia);
                 }

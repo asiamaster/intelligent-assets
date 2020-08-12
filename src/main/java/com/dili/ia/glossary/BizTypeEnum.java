@@ -9,9 +9,9 @@ package com.dili.ia.glossary;
  * @createTime 2020-02-17 18:51
  */
 public enum BizTypeEnum {
-    BOOTH_LEASE("1", "摊位租赁"),
-    EARNEST("2", "定金"),
-    DEPOSIT_ORDER("3", "保证金"),
+    BOOTH_LEASE("1", "摊位租赁","boothLease"),
+    EARNEST("2", "定金","earnest"),
+    DEPOSIT_ORDER("3", "保证金","deposit"),
     WATER_ELECTRICITY("5", "水电费"),
     BOUTIQUE_ENTRANCE("6", "精品停车费"),
     PASSPORT("7", "通行证"),
@@ -24,11 +24,13 @@ public enum BizTypeEnum {
     ;
 
     private String name;
+    private String enName;
     private String code ;
 
-    BizTypeEnum(String code, String name){
+    BizTypeEnum(String code, String name, String enName){
         this.code = code;
         this.name = name;
+        this.name = enName;
     }
 
     public static BizTypeEnum getBizTypeEnum(String code) {
@@ -46,5 +48,9 @@ public enum BizTypeEnum {
 
     public String getName() {
         return name;
+    }
+
+    public String getEnName() {
+        return enName;
     }
 }

@@ -2,12 +2,11 @@ package com.dili.ia.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dili.assets.sdk.dto.BoothDTO;
+import com.dili.assets.sdk.dto.AssetsDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -23,8 +22,8 @@ import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
@@ -66,9 +65,9 @@ public class BoothController {
      */
     @RequestMapping("/listPage.action")
     @ResponseBody
-    public String listPage(BoothDTO input) {
+    public String listPage(AssetsDTO input) {
         if (input == null) {
-            input = new BoothDTO();
+            input = new AssetsDTO();
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         input.setIsDelete(YesOrNoEnum.NO.getCode());
@@ -100,7 +99,7 @@ public class BoothController {
      */
     @RequestMapping("/split.html")
     public String split(Long id, ModelMap map) {
-        BoothDTO data = assetsRpc.getBoothById(id).getData();
+        AssetsDTO data = assetsRpc.getBoothById(id).getData();
         if (data != null && data.getCreatorId() != null) {
             BaseOutput<User> userBaseOutput = userRpc.get(data.getCreatorId());
             if (userBaseOutput.isSuccess()) {
@@ -120,7 +119,7 @@ public class BoothController {
      */
     @RequestMapping("/update.html")
     public String update(Long id, ModelMap map) {
-        BoothDTO data = assetsRpc.getBoothById(id).getData();
+        AssetsDTO data = assetsRpc.getBoothById(id).getData();
         if (data != null && data.getCreatorId() != null) {
             BaseOutput<User> userBaseOutput = userRpc.get(data.getCreatorId());
             if (userBaseOutput.isSuccess()) {
@@ -138,7 +137,7 @@ public class BoothController {
      */
     @RequestMapping("/view.html")
     public String view(Long id, ModelMap map) {
-        BoothDTO data = assetsRpc.getBoothById(id).getData();
+        AssetsDTO data = assetsRpc.getBoothById(id).getData();
         if (data != null && data.getCreatorId() != null) {
             BaseOutput<User> userBaseOutput = userRpc.get(data.getCreatorId());
             if (userBaseOutput.isSuccess()) {
@@ -158,7 +157,7 @@ public class BoothController {
     @RequestMapping("/save.action")
     @ResponseBody
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH, content = "${name!}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public BaseOutput save(BoothDTO input) {
+    public BaseOutput save(AssetsDTO input) {
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             input.setCreatorId(userTicket.getId());
@@ -182,7 +181,7 @@ public class BoothController {
     @RequestMapping("/update.action")
     @ResponseBody
     @BusinessLogger(businessType = LogBizTypeConst.BOOTH, content = "${name!}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
-    public BaseOutput update(BoothDTO input, String opType) {
+    public BaseOutput update(AssetsDTO input, String opType) {
         try {
             input.setModifyTime(new Date());
             BaseOutput baseOutput = assetsRpc.updateBooth(input);
@@ -236,18 +235,18 @@ public class BoothController {
     /**
      * 新增BoothOrderR
      */
-    @RequestMapping(value = "/search.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @GetMapping(value = "/search.action")
     public @ResponseBody
-    BaseOutput<List<BoothDTO>> search(String keyword) {
+    BaseOutput<List<AssetsDTO>> search(String keyword) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         JSONObject json = new JSONObject();
         json.put("keyword", keyword);
         json.put("marketId", userTicket.getFirmId());
         try {
-            List<BoothDTO> data = assetsRpc.searchBooth(json).getData();
-            List<BoothDTO> result = new ArrayList<>();
+            List<AssetsDTO> data = assetsRpc.searchBooth(json).getData();
+            List<AssetsDTO> result = new ArrayList<>();
             if (CollUtil.isNotEmpty(data)) {
-                for (BoothDTO dto : data) {
+                for (AssetsDTO dto : data) {
                     if (dto.getParentId() != 0 && dto.getState().equals(EnabledStateEnum.ENABLED.getCode())) {
                         result.add(dto);
                     } else {

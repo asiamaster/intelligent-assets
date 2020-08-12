@@ -134,12 +134,6 @@ public class AssetsLeaseOrder extends BaseDomain {
     private Long totalAmount;
 
     /**
-     * 保证金抵扣金额
-     */
-    @Column(name = "`deposit_deduction`")
-    private Long depositDeduction;
-
-    /**
      * 定金抵扣金额
      */
     @Column(name = "`earnest_deduction`")
@@ -203,12 +197,6 @@ public class AssetsLeaseOrder extends BaseDomain {
     private String notes;
 
     /**
-     * 退款金额
-     */
-    @Column(name = "`refund_amount`")
-    private Long refundAmount;
-
-    /**
      * 1:待申请 2：退款中 3：已退款
      */
     @Column(name = "`refund_state`")
@@ -246,6 +234,12 @@ public class AssetsLeaseOrder extends BaseDomain {
     private Integer version;
 
     /**
+     * 是否开票
+     */
+    @Column(name = "`is_invoice`")
+    private Integer isInvoice;
+
+    /**
      * 流程实例ID
      */
     @Column(name = "`process_instance_id`")
@@ -262,6 +256,54 @@ public class AssetsLeaseOrder extends BaseDomain {
      */
     @Column(name = "`approval_state`")
     private Integer approvalState;
+
+    /*************************** 待删除字段 begin 数据处理后删除**********************************************/
+    @Column(name = "`rent_amount`")
+    private Long rentAmount;
+
+    @Column(name = "`deposit_amount`")
+    private Long depositAmount;
+
+    @Column(name = "`manage_amount`")
+    private Long manageAmount;
+
+    @Column(name = "`deposit_deduction`")
+    private Long depositDeduction;
+
+    public Long getRentAmount() {
+        return rentAmount;
+    }
+
+    public void setRentAmount(Long rentAmount) {
+        this.rentAmount = rentAmount;
+    }
+
+    public Long getDepositAmount() {
+        return depositAmount;
+    }
+
+    public void setDepositAmount(Long depositAmount) {
+        this.depositAmount = depositAmount;
+    }
+
+    public Long getManageAmount() {
+        return manageAmount;
+    }
+
+    public void setManageAmount(Long manageAmount) {
+        this.manageAmount = manageAmount;
+    }
+
+    public Long getDepositDeduction() {
+        return depositDeduction;
+    }
+
+    public void setDepositDeduction(Long depositDeduction) {
+        this.depositDeduction = depositDeduction;
+    }
+
+    /*************************** 待删除字段 begin 数据处理后删除**********************************************/
+
 
     @Override
     public Long getId() {
@@ -457,14 +499,6 @@ public class AssetsLeaseOrder extends BaseDomain {
         this.totalAmount = totalAmount;
     }
 
-    public Long getDepositDeduction() {
-        return depositDeduction;
-    }
-
-    public void setDepositDeduction(Long depositDeduction) {
-        this.depositDeduction = depositDeduction;
-    }
-
     public Long getEarnestDeduction() {
         return earnestDeduction;
     }
@@ -569,14 +603,6 @@ public class AssetsLeaseOrder extends BaseDomain {
         this.notes = notes;
     }
 
-    public Long getRefundAmount() {
-        return refundAmount;
-    }
-
-    public void setRefundAmount(Long refundAmount) {
-        this.refundAmount = refundAmount;
-    }
-
     public Integer getRefundState() {
         return refundState;
     }
@@ -655,5 +681,13 @@ public class AssetsLeaseOrder extends BaseDomain {
 
     public void setApprovalState(Integer approvalState) {
         this.approvalState = approvalState;
+    }
+
+    public Integer getIsInvoice() {
+        return isInvoice;
+    }
+
+    public void setIsInvoice(Integer isInvoice) {
+        this.isInvoice = isInvoice;
     }
 }

@@ -1,13 +1,11 @@
 package com.dili.ia.api;
 
 import com.dili.assets.sdk.dto.DistrictDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.TaskMapping;
 import com.dili.bpmc.sdk.dto.Assignment;
 import com.dili.ia.domain.ApproverAssignment;
 import com.dili.ia.domain.dto.ApproverAssignmentDto;
-import com.dili.ia.glossary.BpmBusinessType;
-import com.dili.ia.glossary.BpmConstants;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.ApproverAssignmentService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -15,7 +13,10 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 /**
  * 租赁审批流程任务分配接口
+ * BPMC的动态任务分配调用
  */
 @RestController
 @RequestMapping("/api/rentalApprovalProcessTaskAssignmentApi")
@@ -45,7 +47,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
      * @return
      */
     @PostMapping(value="/managerApprovalAssignment")
-    public BaseOutput<Assignment> managerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
+    public BaseOutput<Assignment> managerApprovalAssignment(TaskMapping taskMapping) {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
@@ -60,7 +62,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
      * @return
      */
     @PostMapping(value="/checkerApprovalAssignment")
-    public BaseOutput<Assignment> checkerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
+    public BaseOutput<Assignment> checkerApprovalAssignment(TaskMapping taskMapping) {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
@@ -76,7 +78,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
      * @return
      */
     @PostMapping(value="/viceGeneralManagerApprovalAssignment")
-    public BaseOutput<Assignment> viceGeneralManagerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
+    public BaseOutput<Assignment> viceGeneralManagerApprovalAssignment(TaskMapping taskMapping) {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
@@ -91,7 +93,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
      * @return
      */
     @PostMapping(value="/generalManagerApprovalAssignment")
-    public BaseOutput<Assignment> generalManagerApprovalAssignment(@RequestBody TaskMapping taskMapping) {
+    public BaseOutput<Assignment> generalManagerApprovalAssignment(TaskMapping taskMapping) {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
@@ -111,7 +113,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
     }
 
     /**
-     * 构建异处理人分配
+     * 构建处理人分配
      * @return
      */
     private Assignment getHandlerAssignment(String handlerId){
@@ -128,26 +130,42 @@ public class RentalApprovalProcessTaskAssignmentApi {
     private Assignment buildApprovalAssignment(TaskMapping taskMapping){
         Map<String, Object> processVariables = taskMapping.getProcessVariables();
         //获取流程参数中的区域id，以确认审批人
-        Long districtId = (Long)processVariables.get("districtId");
-        //根据区域ID查询本身和子节点
-        BaseOutput<List<DistrictDTO>> listBaseOutput = assetsRpc.listDistrictChild(districtId);
-        if(!listBaseOutput.isSuccess()){
+        Long districtId = Long.parseLong((String)processVariables.get("districtId"));
+        BaseOutput<DistrictDTO> districtById = assetsRpc.getDistrictById(districtId);
+        //查询失败，或者没有父区域，则返回默认处理人
+        if(!districtById.isSuccess() || districtById.getData().getParentId() == 0){
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return getExceptionHandlerAssignment();
         }
-        //区域id列表
-        List<Long> districtIds = listBaseOutput.getData().stream().map(t -> t.getId()).collect(Collectors.toList());
-        ApproverAssignmentDto approverAssignment = new ApproverAssignmentDto();
+        //审批人分配
+        List<ApproverAssignment> approverAssignments = null;
+        //审批人分配查询条件
+        ApproverAssignmentDto approverAssignment = DTOUtils.newInstance(ApproverAssignmentDto.class);
         approverAssignment.setProcessDefinitionKey(taskMapping.getProcessDefinitionKey());
         approverAssignment.setTaskDefinitionKey(taskMapping.getTaskDefinitionKey());
-        approverAssignment.setIds(districtIds);
-        //查询审批人分配，只要业务类型(可理解为流程定义)，任务定义和区域id满足，则认为第一条数据的用户是任务执行人
-        List<ApproverAssignment> approverAssignments = approverAssignmentService.listByExample(approverAssignment);
+        //如果当前区域是一级区域，则从其本身找审批人
+        if(districtById.getData().getParentId().equals(0)){
+            //根据区域ID查询本身和子节点
+            BaseOutput<List<DistrictDTO>> listBaseOutput = assetsRpc.listDistrictChild(districtId);
+            if(!listBaseOutput.isSuccess()){
+                //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
+                return getExceptionHandlerAssignment();
+            }
+//            //区域id列表
+//            List<Long> districtIds = listBaseOutput.getData().stream().map(t -> t.getId()).collect(Collectors.toList());
+            approverAssignment.setDistrictId(districtId);
+            //查询审批人分配，只要业务类型(可理解为流程定义)，任务定义和区域id满足，则认为第一条数据的用户是任务执行人
+            approverAssignments = approverAssignmentService.listByExample(approverAssignment);
+        }else{//如果是二级区域，则从当前区域和其上级区域找审批人
+            approverAssignment.setDistrictIds(Lists.newArrayList(districtId, districtById.getData().getParentId()));
+            approverAssignments = approverAssignmentService.listByExample(approverAssignment);
+        }
+        //如果未找到审批人
         if(CollectionUtils.isEmpty(approverAssignments)){
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return getExceptionHandlerAssignment();
         }
-        return getHandlerAssignment(approverAssignments.get(0).getUserId().toString());
+        return getHandlerAssignment(approverAssignments.get(0).getAssignee().toString());
     }
 
 }
