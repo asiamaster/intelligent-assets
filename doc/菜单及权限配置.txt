@@ -1,2 +1,17 @@
-提交付款 http://ia.diligrp.com:8381/leaseOrder/submitPayment.html
-退款单列表-修改 http://ia.diligrp.com:8381/leaseOrder/refundApply.html
+租赁办理
+    摊位出租管理 http://ia.diligrp.com:8381/leaseOrder/1/index.html
+        新增 addBoothLeaseOrder
+        修改 updateBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/preSave.html)
+        取消 cancelBoothLeaseOrder
+        提交付款 submitPaymentBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/submitPayment.html)
+        撤回 withdrawBoothLeaseOrder
+        补录 supplementBoothLeaseOrder
+        续租 renewBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/renew.html)
+        退款申请 refundApplyBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/refundApply.html)
+        停租 stopRentBoothLeaseOrder
+    摊位退款单 http://ia.diligrp.com:8381/refundOrder/1/index.html
+        修改 updateBoothLeaseRefundOrder(内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        提交 submitBoothLeaseRefundOrder
+        撤回 withdrawBoothLeaseRefundOrder
+        取消 cancelBoothLeaseRefundOrder
+        提交审批 submitBoothLeaseRefundOrderApplication

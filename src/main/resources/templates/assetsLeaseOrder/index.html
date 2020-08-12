@@ -77,35 +77,35 @@
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
                 <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
-                <#resource code="addLeaseOrder">
+                <#resource code="addBoothLeaseOrder">
                 <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
                 </#resource>
-                <#resource code="updateLeaseOrder">
+                <#resource code="updateBoothLeaseOrder">
                 <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 </#resource>
-                <#resource code="cancelLeaseOrder">
+                <#resource code="cancelBoothLeaseOrder">
                 <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                 </#resource>
-                <#resource code="submitLeaseOrderApplication">
+                <#resource code="submitBoothLeaseOrderApplication">
                 <button id="btn_approval" type="button" class="btn btn-primary" onclick="submitForApproval()"><i class="fa fa-paper-plane"></i> 提交审批</button>
                 </#resource>
                 <button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
-                <#resource code="submitPaymentLeaseOrder">
+                <#resource code="submitPaymentBoothLeaseOrder">
                 <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交付款</button>
                 </#resource>
-                <#resource code="withdrawLeaseOrder">
+                <#resource code="withdrawBoothLeaseOrder">
                 <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
                 </#resource>
-                <#resource code="supplementLeaseOrder">
+                <#resource code="supplementBoothLeaseOrder">
                 <button id="btn_supplement" type="button" class="btn btn-primary" onclick="openSupplementHandler()"><i class="fa fa-paint-brush"></i> 补录</button>
                 </#resource>
-                <#resource code="renewLeaseOrder">
+                <#resource code="renewBoothLeaseOrder">
                 <button id="btn_renew" type="button" class="btn btn-primary" onclick="openRenewHandler()"><i class="fa fa-plug"></i> 续租</button>
                 </#resource>
-                <#resource code="refundApplyLeaseOrder">
+                <#resource code="refundApplyBoothLeaseOrder">
                 <button id="btn_refund_apply" type="button" class="btn btn-primary" onclick="openRefundApplyHandler(1)"><i class="fa fa-reply"></i> 退款申请</button>
                 </#resource>
-                <#resource code="invoiceLeaseOrder">
+                <#resource code="invoiceBoothLeaseOrder">
                 <button id="btn_invoice" type="button" class="btn btn-primary" onclick="openInvoiceHandler()"><i class="fa fa-reply"></i>开票</button>
                 </#resource>
 <!--
@@ -192,7 +192,7 @@
 
 </div>
 </#bs4Body>
-<#assetsLeaseOrder_indexJs />
+<#assetsBoothLeaseOrder_indexJs />
 
 <!-- 流程图模板 -->
 <script id="progressTpl" type="text/html">
@@ -202,12 +202,12 @@
 <script id="subTable" type="text/html">
     <div class="px-3 pb-3">
         <div id="toolbar{{index}}" class="btn-group" role="group" aria-label="Toolbar with button groups">
-            <#resource code="refundApplyLeaseOrder">
+            <#resource code="refundApplyBoothLeaseOrder">
             <button id="btn_refund_apply{{index}}" type="button" class="btn btn-primary" onclick="openRefundApplyHandler('{{index}}')"><i
                     class="fa fa-reply"></i> 退款申请
             </button>
             </#resource>
-            <#resource code="stopRentLeaseOrder">
+            <#resource code="stopRentBoothLeaseOrder">
             <button id="btn_stop_rent{{index}}" type="button" class="btn btn-primary" onclick="openStopRentHandler('{{index}}')"><i
                     class="fa fa-stop"></i> 停租
             </button>
