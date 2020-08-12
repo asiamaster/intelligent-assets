@@ -1,5 +1,7 @@
 package com.dili.ia.api;
 
+import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +45,7 @@ public class StockInApi {
      * @return
      */
     @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
         	stockInService.settlementDealHandler(settleOrder);
@@ -63,8 +65,8 @@ public class StockInApi {
      * @return
      */
     @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, String reprint){
+    @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<StockOutPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(stockInService.receiptPaymentData(orderCode, reprint));
         }catch (BusinessException e){
@@ -82,8 +84,8 @@ public class StockInApi {
      * @return
      */
     @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/queryPrintData/stock_out", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryStockOutPrintData(String orderCode, String reprint){
+    @RequestMapping(value="/queryPrintData/stock_out", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<StockOutPrintDto>> queryStockOutPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(stockOutService.receiptStockOutData(orderCode, reprint));
         }catch (BusinessException e){
