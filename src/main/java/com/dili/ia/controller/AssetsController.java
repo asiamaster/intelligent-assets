@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.AssetsDTO;
+import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
@@ -34,8 +36,8 @@ import java.util.List;
  * 摊位控制器
  */
 @Controller
-@RequestMapping("/booth")
-public class BoothController {
+@RequestMapping("/assets")
+public class AssetsController {
 
     @Autowired
     private AssetsRpc assetsRpc;
@@ -43,9 +45,9 @@ public class BoothController {
     /**
      * 新增BoothOrderR
      */
-    @GetMapping(value = "/search.action")
+    @GetMapping(value = "/searchAssets.action")
     public @ResponseBody
-    BaseOutput<List<AssetsDTO>> search(String keyword) {
+    BaseOutput<List<AssetsDTO>> searchAssets(String keyword) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         JSONObject json = new JSONObject();
         json.put("keyword", keyword);
@@ -70,5 +72,26 @@ public class BoothController {
             return BaseOutput.success().setData(new ArrayList<>());
         }
 
+    }
+
+    /**
+     * list Category
+     */
+    @RequestMapping(value = "/searchCategory.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput<List<CategoryDTO>> searchCategory(String keyword) {
+        CategoryDTO categoryDTO = new CategoryDTO();
+        categoryDTO.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
+        categoryDTO.setState(EnabledStateEnum.ENABLED.getCode());
+        if (null == keyword) {
+            categoryDTO.setParent(0L);
+        } else {
+            categoryDTO.setKeyword(keyword);
+        }
+        try {
+            return assetsRpc.list(categoryDTO);
+        } catch (Exception e) {
+            return BaseOutput.success().setData(new ArrayList<>());
+        }
     }
 }
