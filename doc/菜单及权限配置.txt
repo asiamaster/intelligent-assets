@@ -23,3 +23,28 @@
         修改 modifyInvoiceRecord
         删除 deleteInvoiceRecord
         导出 exportInvoiceRecord
+
+
+保证金：
+保证金管理  http://ia.diligrp.com:8381/depositOrder/index.html
+新增  addDepositOrder （内部链接：保证金管理--新增  http://ia.diligrp.com:8381/depositOrder/add.html）
+修改 updateDepositOrder  （内部链接： 保证金管理-修改  http://ia.diligrp.com:8381/depositOrder/update.html）
+提交 submitDepositOrder
+撤回  withdrawDepositOrder
+取消  cancelDepositOrder
+退款申请  refundApplyDepositOrder  （内部链接：保证金管理-退款申请  http://ia.diligrp.com:8381/depositOrder/refundApply.html）
+
+保证金统计 http://ia.diligrp.com:8381/depositBalance/index.html
+
+保证金退款单 http://ia.diligrp.com:8381/refundOrder/3/index.html
+修改   updateRefundOrder （内部链接：修改页面  http://ia.diligrp.com:8381/refundOrder/update.html）
+提交  submitRefundOrder
+撤回  withdrawRefundOrder
+取消  cancelRefundOrder
+
+定金 -- >
+定金退款单：http://ia.diligrp.com:8381/refundOrder/2/index.html
+修改   updateRefundOrder （内部链接：修改页面  http://ia.diligrp.com:8381/refundOrder/update.html）
+提交  submitRefundOrder
+撤回  withdrawRefundOrder
+取消  cancelRefundOrder
