@@ -203,7 +203,7 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
             newPaymentOrder.setModifyTime(LocalDateTime.now());
             newPaymentOrder.setId(null);
             newPaymentOrder.setVersion(0);
-            BaseOutput<String> paymentBizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+            BaseOutput<String> paymentBizNumberOutput = uidFeignRpc.bizNumber(o.getMarketCode() + BizTypeEnum.getBizTypeEnum(AssetsTypeEnum.getAssetsTypeEnum(o.getAssetsType()).getBizType()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
             if (!paymentBizNumberOutput.isSuccess()) {
                 LOG.info("租赁单【编号：{}】,缴费单编号生成异常", o.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
