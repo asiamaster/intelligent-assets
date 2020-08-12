@@ -68,7 +68,7 @@ public class BoutiqueEntranceApi {
      * @return BaseOutput
      * @date   2020/8/5
      */
-    @RequestMapping(value="/Revoke.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput cancel(@RequestBody BoutiqueEntranceRecordDto recordDto) throws Exception {
 
