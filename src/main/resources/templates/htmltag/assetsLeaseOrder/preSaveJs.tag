@@ -39,7 +39,7 @@
     var assetAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
-        serviceUrl: '/booth/search.action',
+        serviceUrl: '/assets/searchAssets.action',
         selectFn: assetSelectHandler,
         transformResult: function (result) {
             if(result.success){
@@ -65,8 +65,8 @@
         language: 'zh-CN',
         maximumSelectionLength: 10,
         ajax: {
-            type:'post',
-            url: '/category/search.action',
+            type:'get',
+            url: '/assets/searchCategory.action',
             data: function (params) {
                 return {
                     keyword: params.term,

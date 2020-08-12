@@ -36,7 +36,7 @@
     var boothAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
-        serviceUrl: '/booth/search.action',
+        serviceUrl: '/assets/searchAssets.action',
         onSearchStart: function (params) {
             params['assetsType'] = $('[name="assetsType"]').val();
             return params;

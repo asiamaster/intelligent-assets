@@ -77,7 +77,7 @@ public class AssetsController {
     /**
      * list Category
      */
-    @RequestMapping(value = "/searchCategory.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @GetMapping(value = "/searchCategory.action")
     public @ResponseBody
     BaseOutput<List<CategoryDTO>> searchCategory(String keyword) {
         CategoryDTO categoryDTO = new CategoryDTO();

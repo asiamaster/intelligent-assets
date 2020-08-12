@@ -29,7 +29,7 @@
     var boothAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
-        serviceUrl: '/booth/search.action',
+        serviceUrl: '/assets/searchAssets.action',
         transformResult: function (result) {
             if(result.success){
                 let data = result.data;
