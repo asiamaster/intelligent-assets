@@ -106,7 +106,7 @@ public class CustomerAccountController {
             return out;
         } catch (BusinessException e) {
             LOG.error("定金创建退款失败！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("定金创建退款出错！", e);
             return BaseOutput.failure("创建退款出错！");
@@ -164,7 +164,7 @@ public class CustomerAccountController {
             return BaseOutput.success("转移成功！");
         } catch (BusinessException e) {
             LOG.error("定金转移失败!", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("定金转移出错!", e);
             return BaseOutput.failure("转移出错！");

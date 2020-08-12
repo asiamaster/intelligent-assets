@@ -14,6 +14,7 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -410,6 +411,7 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
     @Override
     @Transactional
     public BaseOutput deleteLeaseOrder(List<Long> leaseOrderIds) {
+        LOG.info("****************删除租赁数据开始。。。******************");
         AssetsLeaseOrderListDto orderCondition = new AssetsLeaseOrderListDto();
         orderCondition.setIds(leaseOrderIds);
         List<AssetsLeaseOrder> assetsLeaseOrders = assetsLeaseOrderService.listByExample(orderCondition);
@@ -432,8 +434,30 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
                     }
                     assetsLeaseOrderItemService.updateSelective(depositAmountSourceItem);
                 });
-
+            assetsLeaseOrderItemService.delete(assetsLeaseOrderItems.stream().map(item -> item.getId()).collect(Collectors.toList()));
         });
-        return null;
+        assetsLeaseOrders.forEach(o -> {
+            PaymentOrder delPaymentOrderCondition = new PaymentOrder();
+            delPaymentOrderCondition.setBusinessId(o.getId());
+            //删除缴费单记录
+            paymentOrderService.deleteByExample(delPaymentOrderCondition);
+
+            RefundOrder delRefundOrderCondition = new RefundOrder();
+            delRefundOrderCondition.setBusinessId(o.getId());
+            List<RefundOrder> refundOrders = refundOrderService.listByExample(delRefundOrderCondition);
+            refundOrders.forEach(ro -> {
+                TransferDeductionItem delTransferDeductionItemCondition = new TransferDeductionItem();
+                delTransferDeductionItemCondition.setRefundOrderId(ro.getId());
+                //删除转抵扣记录
+                transferDeductionItemService.deleteByExample(delTransferDeductionItemCondition);
+            });
+            //删除退款单
+            refundOrderService.delete(refundOrders.stream().map(ro -> ro.getId()).collect(Collectors.toList()));
+        });
+
+        //删除租赁单
+        assetsLeaseOrderService.delete(assetsLeaseOrders.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        LOG.info("****************删除租赁数据结束【{}】。。。******************", StringUtils.join(leaseOrderIds,","));
+        return BaseOutput.success();
     }
 }

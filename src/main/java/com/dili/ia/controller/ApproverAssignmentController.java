@@ -103,7 +103,7 @@ public class ApproverAssignmentController {
             approverAssignmentService.updateEx(approverAssignmentDto);
             return BaseOutput.success("修改成功");
         }catch (BusinessException e) {
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             return BaseOutput.failure(e.getMessage());
         }
