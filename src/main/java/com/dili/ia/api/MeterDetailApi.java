@@ -1,6 +1,5 @@
 package com.dili.ia.api;
 
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
@@ -22,10 +21,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author:       xiaosa
- * @date:         2020/7/6
- * @version:      农批业务系统重构
- * @description:  水电费缴费后回调
+ * @author: xiaosa
+ * @date: 2020/7/6
+ * @version: 农批业务系统重构
+ * @description: 水电费缴费后回调
  */
 @RestController
 @RequestMapping("/api/meterDetail")
@@ -38,25 +37,26 @@ public class MeterDetailApi {
 
     /**
      * 水电费缴费成功回调
+     *
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${code!}", operationType = "pay", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody
-    BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
-        try{
+    BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
+        try {
             BaseOutput<MeterDetail> output = meterDetailService.settlementDealHandler(settleOrder);
-            if (output.isSuccess()){
+            if (output.isSuccess()) {
                 //记录业务日志
                 LoggerUtil.buildLoggerContext(output.getData().getId(), output.getData().getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), output.getData().getMarketId(), null);
                 return BaseOutput.success().setData(true);
             }
             return BaseOutput.failure(output.getMessage());
-        }catch (BusinessException e){
+        } catch (BusinessException e) {
             LOG.error("水电费缴费回调异常！", e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
-        }catch (Exception e){
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
             LOG.error("水电费缴费回调异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
@@ -64,21 +64,23 @@ public class MeterDetailApi {
 
     /**
      * 水电费缴费票据打印
+     *
      * @param orderCode
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/queryPrintData", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<PrintDataDto<MeterDetailPrintDto>> queryPaymentPrintData(String orderCode, Integer reprint){
-        try{
-            if(StringUtils.isBlank(orderCode) || null == reprint){
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${code!}", operationType = "pay", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput<PrintDataDto<MeterDetailPrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {
+        try {
+            if (StringUtils.isBlank(orderCode) || null == reprint) {
                 return BaseOutput.failure("参数错误");
             }
             return BaseOutput.success().setData(meterDetailService.receiptPaymentData(orderCode, reprint));
-        }catch (BusinessException e){
+        } catch (BusinessException e) {
             LOG.error("水电费缴费票据打印异常！", e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
-        }catch (Exception e){
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
             LOG.error("水电费缴费票据打印异常！", e);
             return BaseOutput.failure("水电费缴费票据打印异常！").setData(false);
         }

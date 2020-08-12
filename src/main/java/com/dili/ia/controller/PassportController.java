@@ -1,9 +1,7 @@
 package com.dili.ia.controller;
 
 
-import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.Passport;
-import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.service.PassportService;
@@ -23,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,9 +31,9 @@ import java.util.List;
 
 
 /**
- * @author:      xiaosa
- * @date:        2020/7/27
- * @version:     农批业务系统重构
+ * @author: xiaosa
+ * @date: 2020/7/27
+ * @version: 农批业务系统重构
  * @description: 通行证
  */
 @Controller
@@ -53,36 +50,38 @@ public class PassportController {
 
     /**
      * 跳转到 index 页面
+     *
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
+    @RequestMapping(value = "/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         return "passport/index";
     }
 
     /**
      * 跳转到 查看 页面
+     *
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/view.action", method = RequestMethod.GET)
+    @RequestMapping(value = "/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap, long id) {
 
         Passport passport = passportService.get(id);
-        modelMap.put("passport",passport);
+        modelMap.put("passport", passport);
 
-        try{
+        try {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(id);
             businessLogQueryInput.setBusinessType(LogBizTypeConst.PASSPORT);
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-            if(businessLogOutput.isSuccess()){
-                modelMap.put("logs",businessLogOutput.getData());
+            if (businessLogOutput.isSuccess()) {
+                modelMap.put("logs", businessLogOutput.getData());
             }
-        }catch (Exception e){
-            logger.error("日志服务查询异常",e);
+        } catch (Exception e) {
+            logger.error("日志服务查询异常", e);
         }
 
         return "passport/view";
@@ -90,24 +89,26 @@ public class PassportController {
 
     /**
      * 跳转到 查看 页面
+     *
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/print.html", method = RequestMethod.GET)
+    @RequestMapping(value = "/print.html", method = RequestMethod.GET)
     public String print(ModelMap modelMap, long id) {
 
         Passport passport = passportService.get(id);
-        modelMap.put("passport",passport);
+        modelMap.put("passport", passport);
 
         return "passport/print";
     }
 
     /**
      * 跳转到 新增 页面
+     *
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/add.html", method = RequestMethod.GET)
+    @RequestMapping(value = "/add.html", method = RequestMethod.GET)
     public String add(ModelMap modelMap) {
 
         return "passport/add";
@@ -115,28 +116,30 @@ public class PassportController {
 
     /**
      * 跳转到 修改 页面
+     *
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/update.html", method = RequestMethod.GET)
+    @RequestMapping(value = "/update.html", method = RequestMethod.GET)
     public String update(ModelMap modelMap, long id) {
 
         Passport passport = passportService.get(id);
-        modelMap.put("passport",passport);
+        modelMap.put("passport", passport);
 
         return "passport/update";
     }
 
     /**
      * 跳转到 申请退款 页面
+     *
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
+    @RequestMapping(value = "/refundApply.html", method = RequestMethod.GET)
     public String refund(ModelMap modelMap, long id) {
 
         Passport passport = passportService.get(id);
-        modelMap.put("passport",passport);
+        modelMap.put("passport", passport);
 
         return "passport/refundApply";
     }
@@ -144,12 +147,13 @@ public class PassportController {
     /**
      * 分页查询
      *
-     * @param  passportDto
+     * @param passportDto
      * @return String
-     * @date   2020/7/27
+     * @date 2020/7/27
      */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute PassportDto passportDto) throws Exception {
+    @RequestMapping(value = "/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody
+    String listPage(@ModelAttribute PassportDto passportDto) throws Exception {
         return passportService.listPassports(passportDto, true).toString();
     }
 
@@ -158,18 +162,19 @@ public class PassportController {
      *
      * @param
      * @return
-     * @date   2020/7/27
+     * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput add(@RequestBody PassportDto passportDto) throws Exception {
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value = "/add.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput add(@RequestBody PassportDto passportDto) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         BaseOutput<Passport> baseOutput = passportService.addPassport(passportDto, userTicket);
 
         // 写业务日志
-        if (baseOutput.isSuccess()){
+        if (baseOutput.isSuccess()) {
             Passport passport = baseOutput.getData();
             LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
@@ -182,18 +187,19 @@ public class PassportController {
      *
      * @param
      * @return
-     * @date   2020/7/27
+     * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@RequestBody PassportDto passportDto) throws Exception {
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value = "/update.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput update(@RequestBody PassportDto passportDto) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         BaseOutput<Passport> baseOutput = passportService.updatePassport(passportDto, userTicket);
 
         // 写业务日志
-        if (baseOutput.isSuccess()){
+        if (baseOutput.isSuccess()) {
             Passport passport = baseOutput.getData();
             LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
@@ -204,20 +210,21 @@ public class PassportController {
     /**
      * 提交通行证缴费
      *
-     * @param  id
+     * @param id
      * @return BaseOutput
-     * @date   2020/7/27
+     * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput submit(Long id) throws Exception {
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput submit(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         BaseOutput<Passport> baseOutput = passportService.submit(id, userTicket);
 
         // 写业务日志
-        if (baseOutput.isSuccess()){
+        if (baseOutput.isSuccess()) {
             Passport passport = baseOutput.getData();
             LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
@@ -230,18 +237,19 @@ public class PassportController {
      *
      * @param
      * @return
-     * @date   2020/7/27
+     * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput cancel(Long id) throws Exception {
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput cancel(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         BaseOutput<Passport> baseOutput = passportService.cancel(id, userTicket);
 
         // 写业务日志
-        if (baseOutput.isSuccess()){
+        if (baseOutput.isSuccess()) {
             Passport passport = baseOutput.getData();
             LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
@@ -252,28 +260,29 @@ public class PassportController {
     /**
      * 撤回通行证缴费
      *
-     * @param  id
+     * @param id
      * @return BaseOutput
-     * @date   2020/7/27
+     * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput withdraw(Long id) throws Exception {
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value = "/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput withdraw(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         BaseOutput<Passport> baseOutput = null;
 
         try {
             baseOutput = passportService.withdraw(id, userTicket);
-        }catch (BusinessException e) {
+        } catch (BusinessException e) {
             logger.info("精品停车撤回异常！");
-            return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
-        }catch (Exception e) {
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
 
         // 写业务日志
-        if (baseOutput.isSuccess()){
+        if (baseOutput.isSuccess()) {
             Passport passport = baseOutput.getData();
             LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         }
@@ -286,19 +295,20 @@ public class PassportController {
      *
      * @param passportRefundOrderDto
      * @return BaseOutput
-     * @date   2020/7/27
+     * @date 2020/7/27
      */
-    @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput refund(@RequestBody PassportRefundOrderDto passportRefundOrderDto) {
+    @RequestMapping(value = "/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput refund(@RequestBody PassportRefundOrderDto passportRefundOrderDto) {
 
         try {
             passportService.refund(passportRefundOrderDto);
 
-        }catch (BusinessException e) {
-            logger.error("通行证{}退款申请异常！",passportRefundOrderDto.getBusinessCode(), e);
-            return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
-        }catch (Exception e) {
-            logger.error("通行证{}退款申请异常！",passportRefundOrderDto.getBusinessCode(), e);
+        } catch (BusinessException e) {
+            logger.error("通行证{}退款申请异常！", passportRefundOrderDto.getBusinessCode(), e);
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.error("通行证{}退款申请异常！", passportRefundOrderDto.getBusinessCode(), e);
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
         return BaseOutput.success("退款成功");
