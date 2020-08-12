@@ -167,7 +167,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 LOG.info("租赁单编号生成异常");
                 throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
             }
-            dto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+            dto.setCode(bizNumberOutput.getData());
             dto.setState(LeaseOrderStateEnum.CREATED.getCode());
             dto.setPayState(PayStateEnum.NOT_PAID.getCode());
             dto.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
@@ -929,7 +929,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 LOG.info("租赁单【编号：{}】退款单编号生成异常", refundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
             }
-            refundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+            refundOrderDto.setCode(bizNumberOutput.getData());
             if (!refundOrderService.doAddHandler(refundOrderDto).isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款申请接口异常", refundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
@@ -1230,7 +1230,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("租赁单【编号：{}】,缴费单编号生成异常", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
         }
-        paymentOrder.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+        paymentOrder.setCode(bizNumberOutput.getData());
         paymentOrder.setBusinessCode(leaseOrder.getCode());
         paymentOrder.setBusinessId(leaseOrder.getId());
         paymentOrder.setMarketId(userTicket.getFirmId());
