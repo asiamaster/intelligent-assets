@@ -1,6 +1,7 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
 import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +75,7 @@ public class LaborVestApi {
      * @return
      */
     @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<PrintDataDto<LaborRefundPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
+    public @ResponseBody BaseOutput<PrintDataDto<LaborPayPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(laborService.receiptPaymentData(orderCode, reprint));
         }catch (BusinessException e){

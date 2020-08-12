@@ -1,6 +1,7 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class StockInApi {
      */
     @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<PrintDataDto<StockOutPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
+    public @ResponseBody BaseOutput<PrintDataDto<StockInPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(stockInService.receiptPaymentData(orderCode, reprint));
         }catch (BusinessException e){
