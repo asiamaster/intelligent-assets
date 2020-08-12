@@ -156,30 +156,6 @@ public class BoutiqueEntranceRecordController {
     }
 
     /**
-     * 取消(进门取消，可在待确认和计费中取消)
-     *
-     * @param id
-     * @return BaseOutput
-     * @date   2020/8/5
-     */
-    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput cancel(Long id) throws Exception {
-
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
-        BaseOutput<BoutiqueFeeOrder> baseOutput = boutiqueEntranceRecordService.cancel(id);
-
-        // 写业务日志
-        if (baseOutput.isSuccess()){
-            BoutiqueFeeOrder order = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        }
-
-        return baseOutput;
-    }
-
-    /**
      * 离场
      *
      * @param id 主键
