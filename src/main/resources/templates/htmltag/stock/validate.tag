@@ -77,9 +77,15 @@ let saveFormDetail = {
 	        },
 	        quantity: {
 	        	required: true,
+	        	digits:true,
+	        },
+	        unitWeight: {
+	        	required: true,
+	        	digits:true,
 	        },
 	        weight: {
 	        	required: true,
+	        	digits:true,
 	        },
 	        amount: {
 	        	required: true,
@@ -103,9 +109,15 @@ let saveFormDetail = {
 	        },
 	        quantity: {
 	        	required: "数量必填",
+	        	digits:"只能输入整数"
+	        },
+	        unitWeight: {
+	        	required: "件重必填",
+	        	digits:"只能输入整数"
 	        },
 	        weight: {
 	        	required: "重量必填",
+	        	digits:"只能输入整数"
 	        },
 	        amount: {
 	        	required: "数量必填",

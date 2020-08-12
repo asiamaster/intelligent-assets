@@ -166,12 +166,10 @@
 
 <#labor_indexJs />
 <script id="printView" type="text/html">
- 		<div class="row row-cols-1">
-		<div>
-		<img src="http://ia.diligrp.com:8381/resources/bui/images/platform/sys-park.png"/>		
-		</div>
-		</div>
-        <div class="row row-cols-1">
+ 		<div class="row row-cols-1" style="padding-left:10%;padding-right:10%">
+ 			<div class="form-group col">
+               <img height="200px" width="200px" src="http://ia.diligrp.com:8381/resources/bui/images/platform/sys-park.png"/>		
+            </div>
             <div class="form-group col">
                 <label >马甲号：</label>
                 <span class ="print">{{selectedRow.code}}</span>
@@ -182,11 +180,11 @@
             </div>
 			<div class="form-group col">
                 <label >姓别：</label>
-               	<span class ="print">{{selectedRow.customerSex}}</span>
+               	<span class ="print">{{selectedRow.customerGender}}</span>
             </div>
 			<div class="form-group col">
                 <label >车型：</label>
-               	<span class ="print">{{selectedRow._models}}</span>
+               	<span class ="print">{{selectedRow.models}}</span>
             </div>
             <div class="form-group col">
                 <label >车牌号：</label>
@@ -194,7 +192,7 @@
             </div>
 			<div class="form-group col">
                 <label >有效期：</label>
-                <span class ="print">{{selectedRow.startDate}}-{{selectedRow.endDate}}</span>
+                <span class ="print">{{selectedRow.se}}</span>
             </div>
         </div>
 </script>
