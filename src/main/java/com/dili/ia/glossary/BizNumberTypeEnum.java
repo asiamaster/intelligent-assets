@@ -32,20 +32,12 @@ public enum BizNumberTypeEnum {
     VEST_GX("vest_gx", "马甲号干果业户小型电动车及人力车"),
     VEST_GD("vest_gd", "马甲号干果业户大型电动车"),
 
-    BOUTIQUE_ENTRANCE("boutiqueEntrance", "精品停车单"),
-    BOUTIQUE_ORDER_REFUND("boutiqueRefund", "精品停车退款单"),
+    BOUTIQUE_ENTRANCE("boutique", "精品停车单"),
     PASSPORT("passport", "通行证"),
-    PASSPORT_REFUND("passportRefund", "通行证退款单"),
     WATER_CODE("water", "水费单"),
     ELECTRICITY_CODE("electricity", "电费单"),
-    // 下面几个都是在通行证缴费成功回调时自动生成
-//    PASSPORT_YY_CODE("passport_yy", "通行证证件营运编号"),
-//    PASSPORT_HX_CODE("passport_hx", "通行证证件海鲜编号"),
-//    PASSPORT_ZY_CODE("passport_zy", "通行证证件自用编号"),
-//    PASSPORT_WS_CODE("passport_ws", "通行证证件外市编号"),
-//    PASSPORT_CS_CODE("passport_cs", "通行证证件超市编号"),
-//    PASSPORT_YZ_CODE("passport_yz", "通行证证件业主编号"),
-
+    // 通行证的证件类型,后续的小写补全直接是代码获取字段值
+    PASSPORT_LICENSE_CODE("passport_", "通行证证件营运编号"),
     ;
 
     private String name;

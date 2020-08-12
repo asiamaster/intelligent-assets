@@ -347,7 +347,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         // 修改通行证,生成证件号
         passportInfo.setModifyTime(LocalDateTime.now());
         String licenseCode = passportInfo.getLicenseCode().toLowerCase();
-        String code = uidRpcResolver.bizNumber(passportInfo.getMarketCode() + "_" + "passport_" + licenseCode);
+        String code = uidRpcResolver.bizNumber(passportInfo.getMarketCode() + "_" + BizNumberTypeEnum.PASSPORT_LICENSE_CODE.getCode() + licenseCode);
         passportInfo.setLicenseNumber(code);
 
         // 判断交费后状态
