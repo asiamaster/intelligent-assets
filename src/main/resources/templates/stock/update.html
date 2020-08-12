@@ -67,7 +67,7 @@
 					 value="${stockIn.origin!}" required />
 				</div>
 				<div class="form-group col-3">
-					<label for="">单价:<i class="red">*</i></label> <input type="number" class="form-control" id="unitPrice" name="unitPrice"
+					<label for="">单价:<i class="red">*</i></label> <input type="number" class="form-control money" id="unitPrice" name="unitPrice"
 					 required readonly />
 				</div>
 				<div class="form-group col-3">
@@ -97,6 +97,10 @@
 					 name="chargeItem_${item.chargeItemId!}" item-id="${item.id!}" businessType="${item.bizType!}" chargeItem-version="${item.version!}" chargeItem="${item.chargeItemName!}" value = "<#centToYuan value='${item.amount!}'/>" range="0 9999999.99" required readonly />				
 		        </div>
 		        <% } }%>
+		        <div class="form-group col">
+					<label for="stockInDate">入库日期:</label> <input type="text" id="stockInDate" name="stockInDate" class="form-control"
+					value="${stockIn.stockInDate!,localDateTimeFormat='yyyy-MM-dd'}" >
+				</div>
 				<div class="form-group col-3">
 					<label for="expireDate">到期日期:</label> <input type="text" id="expireDate" name="expireDate" class="form-control laydate layend"
 					value="${stockIn.expireDate!,localDateTimeFormat='yyyy-MM-dd'}"  readonly>

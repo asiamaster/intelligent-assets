@@ -129,7 +129,12 @@ function buildFormData() {
 		let businessCharge = {};
 		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
 		businessCharge.chargeItemName=$(this).attr("chargeItem");
-		businessCharge.amount=parseInt($(this).val())*100;
+		if($(this).val()){
+			businessCharge.amount=parseInt($(this).val())*100;
+		}else{
+			businessCharge.amount=0;
+		}
+		
 		if (businessCharge != {}) {
 			businessChargeDtos.push(businessCharge);
 		}
@@ -174,9 +179,13 @@ function buildFormData() {
 
 // 提交保存
 function doAddStockInHandler() {
+	//司磅入库参数验证问题
+	if(type != 3){
 	if(!validateForm()){
 		return;
 	}
+	}
+	//let data = buildFormData();
 	$.ajax({
 		type: "POST",
 		url: "${contextPath}/stock/stockIn/insert.action",

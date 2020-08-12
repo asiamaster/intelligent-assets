@@ -85,7 +85,7 @@ let saveFormDetail = {
 	        	required: true,
 	        },
 	        stockInDate: {
-	        	required: true
+	        	required: true,
 	        },
 	        expireDate: {
 	        	required: true

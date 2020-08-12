@@ -171,7 +171,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		// 总金额 件数 重量计算 总量 克 计算 金额 分 计算
 		Long totalWeight = 0L;
 		Long totalQuantity = 0L;
-		Long totalMoney = 0L;
+		//Long totalMoney = 0L;
 		for (StockInDetailDto stockInDetailDto : detailDtos) {
 			StockInDetail detail = new StockInDetail();
 			BeanUtils.copyProperties(stockInDetailDto, detail);
@@ -182,11 +182,11 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			detail.setMarketCode(stockIn.getMarketCode());
 			detail.setModifyTime(LocalDateTime.now());
 			detail.setVersion(1);
-			totalWeight += stockInDetailDto.getWeight();
-			totalQuantity += stockInDetailDto.getQuantity();
-			totalMoney += stockInDetailDto.getAmount();
+			totalWeight += defaultValue(stockInDetailDto.getWeight());
+			totalQuantity += defaultValue(stockInDetailDto.getQuantity());
+			//totalMoney += defaultValue(stockInDetailDto.getAmount());
 			// 司磅入库,保存司磅记录信息
-			if (stockIn.getType() == StockInTypeEnum.WEIGHT.getCode()) {
+			if (stockIn.getType() == StockInTypeEnum.WEIGHT.getCode() && stockInDetailDto.getStockWeighmanRecordDto() != null) {
 				StockWeighmanRecord stockWeighmanRecord = bulidWeighmanRecord(stockInDetailDto.getStockWeighmanRecordDto(),detail);
 				// stockWeighmanRecord.setVersion(1);
 				stockWeighmanRecordService.insertSelective(stockWeighmanRecord);
@@ -200,7 +200,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		
 		stockIn.setWeight(totalWeight);
 		stockIn.setQuantity(totalQuantity);
-		stockIn.setAmount(totalMoney);
+		//stockIn.setAmount(totalMoney);
 		/*if(CollectionUtils.isNotEmpty(detailList)) {
 			stockInDetailService.batchInsert(detailList);
 		}*/
@@ -209,6 +209,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		
 		return detailList;
+	}
+	
+	private Long defaultValue(Long value) {
+		return value==null?0:value;
 	}
 	
 	private StockWeighmanRecord bulidWeighmanRecord (StockWeighmanRecordDto stockWeighmanRecordDto,StockInDetail detail) {
@@ -234,10 +238,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		// 总金额 件数 重量计算 总量 克 计算金额 分 计算
 		Long totalWeight = 0L;
 		Long totalQuantity = 0L;
-		Long totalMoney = 0L;
+		//Long totalMoney = 0L;
 		stockIn.setWeight(totalWeight);
 		stockIn.setQuantity(totalQuantity);
-		stockIn.setAmount(totalQuantity);
+		//stockIn.setAmount(totalQuantity);
 		List<StockInDetailDto> addDetailDtos = new ArrayList<StockInDetailDto>();
 		List<StockInDetailDto> detailDtos = stockInDto.getStockInDetailDtos();
 		for (StockInDetailDto stockInDetailDto : detailDtos) {
@@ -252,9 +256,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				continue;
 			}
 
-			totalWeight += stockInDetailDto.getWeight();
-			totalQuantity += stockInDetailDto.getQuantity();
-			totalMoney += stockInDetailDto.getAmount();
+			totalWeight += defaultValue(stockInDetailDto.getWeight());
+			totalQuantity += defaultValue(stockInDetailDto.getQuantity());
+			//totalMoney += defaultValue(stockInDetailDto.getAmount());
 			// 修改入库单信息
 			StockInDetail domain = new StockInDetail();
 			BeanUtil.copyProperties(stockInDetailDto, domain,
@@ -286,7 +290,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		BeanUtil.copyProperties(stockInDto, domain, CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));
 		domain.setWeight(stockIn.getWeight() + totalWeight);
 		domain.setQuantity(stockIn.getQuantity() + totalQuantity);
-		domain.setAmount(stockIn.getAmount() + totalMoney);
+		//domain.setAmount(stockIn.getAmount() + totalMoney);
 		domain.setVersion(stockIn.getVersion());
 		StockIn condition = new StockIn();
 		condition.setCode(stockIn.getCode());
