@@ -211,7 +211,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             MeterTypeCode = BizNumberTypeEnum.ELECTRICITY_CODE.getCode();
         }
         // 生成水或者电费单号的 code
-        String meterDetailCode = uidRpcResolver.bizNumber(MeterTypeCode);
+        String meterDetailCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + MeterTypeCode);
         meterDetail.setVersion(0);
         meterDetail.setCode(meterDetailCode);
         meterDetail.setCreatorId(userTicket.getId());

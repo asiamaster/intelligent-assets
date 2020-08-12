@@ -1,8 +1,6 @@
 package com.dili.ia.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.dili.ia.domain.BoutiqueEntranceRecord;
-import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -11,7 +9,6 @@ import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
-import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
@@ -35,7 +32,6 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.ss.util.MoneyUtils;
@@ -133,7 +129,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         BeanUtils.copyProperties(passportDto, passport);
 
         // 生成通行证交费的 code
-        String passportCode = uidRpcResolver.bizNumber(BizNumberTypeEnum.PASSPORT.getCode());
+        String passportCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.PASSPORT.getCode());
         passport.setVersion(0);
         passport.setCode(passportCode);
         passport.setCreatorId(userTicket.getId());
@@ -310,6 +306,8 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     /**
      * 通行证交费成功回调
      *
+     *
+     * @param userTicket
      * @param  settleOrder
      * @return BaseOutput
      * @date   2020/7/27
@@ -351,7 +349,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         // 修改通行证,生成证件号
         passportInfo.setModifyTime(LocalDateTime.now());
         String licenseCode = passportInfo.getLicenseCode().toLowerCase();
-        String code = uidRpcResolver.bizNumber("passport_" + licenseCode);
+        String code = uidRpcResolver.bizNumber(passportInfo.getMarketCode() + "_" + "passport_" + licenseCode);
         passportInfo.setLicenseNumber(code);
 
         // 判断交费后状态
@@ -658,7 +656,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         refundOrder.setTotalRefundAmount(passportRefundOrderDto.getTotalRefundAmount());
 
         refundOrder.setBizType(BizTypeEnum.PASSPORT.getCode());
-        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.PASSPORT_REFUND.getCode()));
+        refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.PASSPORT_REFUND.getCode()));
 
         if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
             logger.info("通行证【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());

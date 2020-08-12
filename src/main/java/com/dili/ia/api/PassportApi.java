@@ -8,6 +8,8 @@ import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +42,9 @@ public class PassportApi {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
+    public @ResponseBody  BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             BaseOutput<Passport> output = passportService.settlementDealHandler(settleOrder);
             if (output.isSuccess()){
                 //记录业务日志

@@ -204,7 +204,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             }
         }
 
-        String code = uidRpcResolver.bizNumber(BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode());
+        String code = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode());
 
         // 新增精品停车交费单
         feeOrder.setCode(code);

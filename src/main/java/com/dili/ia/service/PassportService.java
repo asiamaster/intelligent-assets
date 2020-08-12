@@ -1,12 +1,9 @@
 package com.dili.ia.service;
 
-import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.Passport;
-import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
-import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -83,11 +80,12 @@ public interface PassportService extends BaseService<Passport, Long> {
     /**
      * 通行证交费成功回调
      * 
+     *
      * @param  settleOrder
      * @return BaseOutput
      * @date   2020/7/27
      */
-    BaseOutput<Passport> settlementDealHandler(SettleOrder settleOrder);
+    BaseOutput<Passport> settlementDealHandler( SettleOrder settleOrder);
 
     /**
      * 通行证打印票据

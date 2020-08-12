@@ -186,7 +186,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
         refundOrder.setTotalRefundAmount(refundOrderDto.getTotalRefundAmount());
 
         refundOrder.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
-        refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.BOUTIQUE_ORDER_REFUND.getCode()));
+        refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.BOUTIQUE_ORDER_REFUND.getCode()));
 
         if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
             logger.info("通行证【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
