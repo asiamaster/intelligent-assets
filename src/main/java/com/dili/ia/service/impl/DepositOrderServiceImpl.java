@@ -111,7 +111,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
 
-        depositOrder.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
+        depositOrder.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
         depositOrder.setCreatorId(userTicket.getId());
         depositOrder.setCreator(userTicket.getRealName());
         depositOrder.setMarketId(userTicket.getFirmId());
@@ -306,7 +306,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, DepositOrder depositOrder, Long paidAmount){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.DEPOSIT_ORDER.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.DEPOSIT_ORDER.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(paidAmount);
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
@@ -484,7 +484,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 LOG.info("撤回保证金【修改保证金单状态】失败,乐观锁生效。【保证金单ID：】" + depositOrder.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
             }
-            depositRefundOrderDto.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
+            depositRefundOrderDto.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
             depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
             BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
             if (!output.isSuccess()) {
@@ -1137,7 +1137,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         refundOrder.setSubmitTime(LocalDateTime.now());
         refundOrder.setRefundTime(new Date());
         refundOrder.setState(RefundOrderStateEnum.REFUNDED.getCode());
-        refundOrder.setCode("HZSC" + this.getBizNumber("hzsc_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
+        refundOrder.setCode(this.getBizNumber("hzsc_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
         refundOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
         refundOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
         refundOrder.setVersion(0);
@@ -1158,7 +1158,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaidPaymentOrder(DepositOrder depositOrder){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(depositOrder.getMarketCode().toUpperCase() + this.getBizNumber("hzsc_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.DEPOSIT_ORDER.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(this.getBizNumber("hzsc_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.DEPOSIT_ORDER.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(depositOrder.getAmount());
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
@@ -1240,7 +1240,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     public BaseOutput<DepositOrder> addPaidDepositOrder(DepositOrder depositOrder) {
         //固定参数
-        depositOrder.setCode("HZSC" + this.getBizNumber("hzsc_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
+        depositOrder.setCode(this.getBizNumber("hzsc_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
         depositOrder.setCreatorId(243L);
         depositOrder.setCreator("数据迁移");
         depositOrder.setSubmitterId(243L);

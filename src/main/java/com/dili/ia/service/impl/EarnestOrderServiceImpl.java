@@ -98,7 +98,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
-        earnestOrder.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_ORDER.getCode()));
+        earnestOrder.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_ORDER.getCode()));
         earnestOrder.setCreatorId(userTicket.getId());
         earnestOrder.setCreator(userTicket.getRealName());
         earnestOrder.setMarketId(userTicket.getFirmId());
@@ -320,7 +320,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, EarnestOrder earnestOrder){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(userTicket.getFirmCode().toUpperCase() + this.getBizNumber(userTicket.getFirmCode() + "_" +BizTypeEnum.getBizTypeEnum(BizTypeEnum.EARNEST.getCode()).getEnName() + "_" +  BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" +BizTypeEnum.getBizTypeEnum(BizTypeEnum.EARNEST.getCode()).getEnName() + "_" +  BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(earnestOrder.getAmount());
         pb.setBusinessId(earnestOrder.getId());
         pb.setBusinessCode(earnestOrder.getCode());

@@ -268,7 +268,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
             return BaseOutput.failure("编号生成器微服务异常");
         }
-        efDto.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+        efDto.setCode(bizNumberOutput.getData());
 
         efDto.setCreatorId(userTicket.getId());
         efDto.setCreator(userTicket.getRealName());
@@ -299,7 +299,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (customerAccount.getEarnestAvailableBalance() < order.getPayeeAmount()){
             return BaseOutput.failure("退款金额不能大于可用余额！");
         }
-        order.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+        order.setCode(bizNumberOutput.getData());
         order.setBizType(BizTypeEnum.EARNEST.getCode());
         order.setTotalRefundAmount(order.getPayeeAmount());
         //定金退款给本人，收款人为本人
