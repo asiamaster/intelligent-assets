@@ -100,3 +100,12 @@ DROP COLUMN `refund_amount`,
 DROP COLUMN `deposit_refund_amount`,
 DROP COLUMN `manage_refund_amount`,
 DROP COLUMN `rent_refund_amount`;
+
+
+-- 结算 dili-settlement
+INSERT INTO `application_config` (`app_id`, `group_code`, `code`, `val`, `state`, `notes`) VALUES
+ (101, 101, 3, '保证金', 1, 'group_code(101)表示业务类型'),
+ (101, 102, 3, 'http://ia.diligrp.com:8381/depositOrder/view.action', 1, 'group_code(102)表示缴费业务详情URL'),
+ (101, 103, 3, 'http://ia.diligrp.com:8381/refundOrder/view.action', 1, 'group_code(103)表示退款业务详情URL'),
+ (101, 104, 3, 'http://ia.diligrp.com:8381/api/depositOrder/queryPrintData', 1, 'group_code(104)表示缴费打印数据URL'),
+ (101, 105, 3, 'http://ia.diligrp.com:8381/api/refundOrder/queryPrintData', 1, 'group_code(105)表示退款打印数据URL');
