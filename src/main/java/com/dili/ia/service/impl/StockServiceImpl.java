@@ -161,7 +161,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 	public void stockOut(Long stockId, Long weight, Long quantity,String notes) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		Stock stock = this.get(stockId);
-		stockDeduction(stock, weight, quantity);
+		stockDeduction(stock, 0L, quantity);
 		// 出库单
 		buildStockOut(stock, userTicket, notes, weight, quantity);
 	}

@@ -123,11 +123,12 @@
                     <th style="font-weight:normal; ">入库件数</th>
                     <th style="font-weight:normal; ">货物净重</th>
                     <th style="font-weight:normal; ">总费用</th>
-                    <%
+                    <!--  <%
 	                if(stockIn.businessChargeItems.~size>0){
 	                for(chargeItem in stockIn.businessChargeItems){%>
 	              	 <th style="font-weight:normal; ">${chargeItem.chargeItemName}</th>
 	                <% } } %>
+	                 -->
                     <th style="font-weight:normal; ">备注</th>
                 </tr>
                 </thead>
@@ -153,7 +154,7 @@
                         ${item.districtName!'--'}
                     </td>
                     <td>
-                        ${item.assetsName!'--'}
+                        ${item.assetsCode!'--'}
                     </td>
                     <td>
                         ${item.quantity!'--'}
@@ -164,6 +165,7 @@
                     <td>
                         <#centToYuan value='${item.amount!0}'/>
                     </td>
+                    <!-- 
                     <%
 	                if(item.businessChargeItem.~size>0){
 	                for(chargeItem in item.businessChargeItem){%>
@@ -171,6 +173,7 @@
 	                        <#centToYuan value='${chargeItem.amount!0}'/>
 	                  </td>
 	                <% } } %>
+	                 -->
                     <td>
                         ${item.notes!'--'}
                     </td>

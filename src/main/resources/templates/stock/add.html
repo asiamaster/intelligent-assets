@@ -48,7 +48,7 @@
 					 required />
 				</div>
 				<div class="form-group col">
-					<label for="">单价:<i class="red">*</i></label> <input type="number" class="form-control" id="unitPrice" name="unitPrice"
+					<label for="">单价:<i class="red">*</i></label> <input type="number" class="form-control money" id="unitPrice" name="unitPrice"
 					 required readonly />
 				</div>
 				<div class="form-group col-3">
@@ -60,11 +60,11 @@
 				</div>
 				<div class="form-group col">
 					<label for="quantity" class="">总件数:<i class="red">*</i></label> <input id="quantity" type="number" class="form-control"
-					 name="quantity" range="0 9999999" required readonly />
+					 name="quantity" range="0 9999999"  required readonly />
 				</div>
 				<div class="form-group col">
 					<label for="weight" class="">总净重(公斤):<i class="red">*</i></label> <input id="weight" type="number" class="form-control"
-					 name="weight" range="0 9999999" required readonly />
+					 name="weight" range="0 9999999"  required readonly />
 				</div>
 				<div class="form-group col">
 					<label for="amount" class="">入库总额(元):<i class="red">*</i></label> <input id="amount" type="number" class="form-control money"
@@ -79,7 +79,7 @@
 		        </div>
 		        <% } }%>
 				<div class="form-group col">
-					<label for="stockInDate">入库日期:</label> <input type="text" id="stockInDate" name="stockInDate" class="form-control laydate">
+					<label for="stockInDate">入库日期:</label> <input type="text" id="stockInDate" name="stockInDate" class="form-control">
 				</div>
 				<div class="form-group col">
 					<label for="expireDate">到期日期:</label> <input type="text" id="expireDate" name="expireDate" class="form-control laydate"

@@ -141,6 +141,9 @@ public class StockIn extends BaseDomain {
      */
     @Column(name = "`uom`")
     private Integer uom;
+    
+    @Column(name = "`unit_price`")
+    private Long unitPrice;
 
     @Column(name = "`version`")
     private Integer version;
@@ -793,6 +796,14 @@ public class StockIn extends BaseDomain {
 
 	public void setCertificateNumber(String certificateNumber) {
 		this.certificateNumber = certificateNumber;
+	}
+
+	public Long getUnitPrice() {
+		return unitPrice;
+	}
+
+	public void setUnitPrice(Long unitPrice) {
+		this.unitPrice = unitPrice;
 	}
 	
 }

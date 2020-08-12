@@ -132,6 +132,8 @@ public class StockInDto {
     @NotNull
     private LocalDateTime expireDate;
     
+    private Long unitPrice;
+    
     /**
      * 入库单详情(子单)
      */
@@ -376,6 +378,14 @@ public class StockInDto {
 
 	public void setCertificateNumber(String certificateNumber) {
 		this.certificateNumber = certificateNumber;
+	}
+
+	public Long getUnitPrice() {
+		return unitPrice;
+	}
+
+	public void setUnitPrice(Long unitPrice) {
+		this.unitPrice = unitPrice;
 	}
 
 	

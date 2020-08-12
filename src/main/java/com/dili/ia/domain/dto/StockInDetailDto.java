@@ -95,19 +95,19 @@ public class StockInDetailDto {
 	/**
 	 * 入库数量
 	 */
-	@NotNull
+	//@NotNull
 	private Long quantity;
 
 	/**
 	 * 入库总量
 	 */
-	@NotNull
+	//@NotNull
 	private Long weight;
 	
 	/**
 	 * 入库金额
 	 */
-	@NotNull
+	//@NotNull
 	private Long amount;
 
 	/**
