@@ -4,6 +4,8 @@ import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
+import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -47,7 +49,7 @@ public class BoutiqueEntranceApi {
      * @return BaseOutput
      * @date   2020/7/13
      */
-    @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/add.action", method = {RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="confirm", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput add(@RequestBody BoutiqueEntranceRecordDto recordDto) throws Exception {
 
@@ -68,7 +70,7 @@ public class BoutiqueEntranceApi {
      * @return BaseOutput
      * @date   2020/8/5
      */
-    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/cancel.action", method = {RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput cancel(@RequestBody BoutiqueEntranceRecordDto recordDto) throws Exception {
 
@@ -88,7 +90,7 @@ public class BoutiqueEntranceApi {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
@@ -114,8 +116,8 @@ public class BoutiqueEntranceApi {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/queryPrintData/boutique_entrance", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, Integer reprint){
+    @RequestMapping(value="/queryPrintData", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<BoutiqueEntrancePrintDto>> queryPaymentPrintData(String orderCode, Integer reprint){
         try{
             if(StringUtils.isBlank(orderCode) || null == reprint){
                 return BaseOutput.failure("参数错误");
@@ -135,8 +137,8 @@ public class BoutiqueEntranceApi {
      * @param orderCode
      * @return
      */
-    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryRefundPrintData(String orderCode, String reprint){
+    @RequestMapping(value="/refundOrder/queryPrintData", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<BoutiqueEntrancePrintDto>> queryRefundPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(boutiqueEntranceService.receiptRefundPrintData(orderCode, reprint));
         }catch (BusinessException e){

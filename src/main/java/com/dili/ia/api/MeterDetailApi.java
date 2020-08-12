@@ -2,6 +2,8 @@ package com.dili.ia.api;
 
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.MeterDetail;
+import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -40,7 +42,7 @@ public class MeterDetailApi {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
@@ -66,8 +68,8 @@ public class MeterDetailApi {
      * @return
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/queryPrintData/meter_detail", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> queryPaymentPrintData(String orderCode, Integer reprint){
+    @RequestMapping(value="/queryPrintData", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<MeterDetailPrintDto>> queryPaymentPrintData(String orderCode, Integer reprint){
         try{
             if(StringUtils.isBlank(orderCode) || null == reprint){
                 return BaseOutput.failure("参数错误");
