@@ -427,7 +427,9 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
         orderCondition.setIds(leaseOrderIds);
         List<AssetsLeaseOrder> assetsLeaseOrders = assetsLeaseOrderService.listByExample(orderCondition);
         assetsLeaseOrders.forEach(o -> {
-            if (o.getEarnestDeduction() > 0L || o.getTransferDeduction() > 0L) {
+            if ((o.getEarnestDeduction() > 0L || o.getTransferDeduction() > 0L)
+                    && !LeaseOrderStateEnum.CREATED.getCode().equals(o.getState())
+                    && !LeaseOrderStateEnum.CANCELD.getCode().equals(o.getState())) {
                 customerAccountService.oldDataHandler(o.getId(), o.getCustomerId(), o.getMarketId(), o.getEarnestDeduction(), o.getTransferDeduction());
             }
             AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
