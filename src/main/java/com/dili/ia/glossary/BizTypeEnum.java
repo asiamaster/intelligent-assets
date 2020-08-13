@@ -15,12 +15,12 @@ public enum BizTypeEnum {
     WATER_ELECTRICITY("5", "水电费", "waterElectricity"),
     BOUTIQUE_ENTRANCE("6", "精品停车费", "boutique"),
     PASSPORT("7", "通行证", "passport"),
-    STOCKIN("8", "冷库入库"),
-    STOCKOUT("9", "冷库出库"),
-    OTHER_FEE("10", "其它收费"),
-    LABOR_VEST("11", "劳务马甲"),
-    LABOR_VEST_RENAME("12", "劳务马甲更名费"),
-    LABOR_VEST_REMODEL("13", "劳务马甲更型费"),
+    STOCKIN("8", "冷库入库", "stockIn"),
+    STOCKOUT("9", "冷库出库", "stockout"),
+    OTHER_FEE("10", "其它收费", "otherFee"),
+    LABOR_VEST("11", "劳务马甲", "laborVest"),
+    LABOR_VEST_RENAME("12", "劳务马甲更名费", "laborVestRename"),
+    LABOR_VEST_REMODEL("13", "劳务马甲更型费", "laborVestRemodel"),
     ;
 
     private String name;

@@ -53,7 +53,7 @@ public class StockInApi {
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.error("冷库结算回调异常！结算单{},入库单{}",settleOrder.getCode(),settleOrder.getBusinessCode(), e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }catch (Exception e){
             LOG.error("冷库结算回调异常！", e);
             return BaseOutput.failure("冷库结算回调异常！").setData(false);
@@ -72,7 +72,7 @@ public class StockInApi {
             return BaseOutput.success().setData(stockInService.receiptPaymentData(orderCode, reprint));
         }catch (BusinessException e){
             LOG.error("冷库结算票据打印异常！", e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }catch (Exception e){
             LOG.error("冷库结算票据打印异常！", e);
             return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
@@ -91,7 +91,7 @@ public class StockInApi {
             return BaseOutput.success().setData(stockOutService.receiptStockOutData(orderCode, reprint));
         }catch (BusinessException e){
             LOG.error("冷库出库票据打印异常！", e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }catch (Exception e){
             LOG.error("冷库出库票据打印异常！", e);
             return BaseOutput.failure("冷库出库票据打印异常！").setData(false);

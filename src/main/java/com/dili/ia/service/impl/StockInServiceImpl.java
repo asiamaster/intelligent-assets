@@ -547,7 +547,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
-		refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
+		refundOrder.setCode(uidRpcResolver.bizNumber(BizTypeEnum.STOCKIN.getEnName()
+				+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
 			LOG.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
 			throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");

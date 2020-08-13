@@ -2,7 +2,6 @@ package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.CarTypePublicDTO;
-import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.dto.AssetsDto;
 import com.dili.ia.domain.dto.RefundInfoDto;
@@ -49,10 +48,7 @@ public class StockInController {
     
     @Autowired
     private BusinessLogRpc businessLogRpc;
-    
-    @Autowired
-    private AssetsRpc assetsRpc;
-    
+   
     /**
      * 跳转到StockIn页面
      * @param modelMap
@@ -143,7 +139,7 @@ public class StockInController {
     		stockInService.createStockIn(stockInDto);
 		}catch (BusinessException e) {
 			LOG.error("入库单保存异常！", e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("入库单保存异常！", e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -164,7 +160,7 @@ public class StockInController {
     		stockInService.updateStockIn(stockIn);
     	}catch (BusinessException e) {
 			LOG.error("入库单{}修改异常！",stockIn.getCode(), e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("入库单{}修改异常！",stockIn.getCode(), e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -184,7 +180,7 @@ public class StockInController {
             stockInService.cancel(code);
     	}catch (BusinessException e) {
 			LOG.error("入库单{}取消异常！",code, e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("入库单{}取消异常！",code, e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -204,7 +200,7 @@ public class StockInController {
             stockInService.submit(code);
     	}catch (BusinessException e) {
 			LOG.error("入库单{}提交异常！",code, e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("入库单{}提交异常！",code, e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -225,7 +221,7 @@ public class StockInController {
         	stockInService.withdraw(code);
     	}catch (BusinessException e) {
 			LOG.error("入库单{}撤回异常！",code, e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("入库单{}撤回异常！",code, e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -268,7 +264,7 @@ public class StockInController {
     		stockInService.refund(refundInfoDto);
     	}catch (BusinessException e) {
 			LOG.error("入库单{}退款申请异常！",refundInfoDto.getCode(), e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("入库单{}退款申请异常！",refundInfoDto.getCode(), e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -288,7 +284,7 @@ public class StockInController {
     		baseOutput.setData(stockInService.getCost(stockInDto));
     	}catch (BusinessException e) {
 			LOG.error("费用{}计算异常！",stockInDto.getCode(), e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("费用{}计算异常！",stockInDto.getCode(), e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -305,7 +301,7 @@ public class StockInController {
     public @ResponseBody BaseOutput getColdStorage(AssetsDto assetsDto) {	        
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
-    		baseOutput.setData(assetsRpc.searchAssets(assetsDto).getData());
+    		//TODO baseOutput.setData(assetsRpc.searchAssets(assetsDto).getData());
     	}catch (Exception e) {
 			LOG.error("获取异常！", e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -324,7 +320,7 @@ public class StockInController {
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
     		dto.setTag("lkrk");
-    		baseOutput.setData(assetsRpc.searchCarType(dto).getData());
+    		//TODO baseOutput.setData(assetsRpc.searchCarType(dto).getData());
     	}catch (Exception e) {
 			LOG.error("获取异常！", e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
