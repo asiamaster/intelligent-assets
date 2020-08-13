@@ -60,7 +60,7 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
                 approverAssignmentCondition.setProcessDefinitionKey(approverAssignmentDto.getProcessDefinitionKey());
                 approverAssignmentCondition.setDistrictId(approverAssignmentDto.getDistrictId());
                 List<ApproverAssignment> select = getActualDao().select(approverAssignmentCondition);
-                //在相同的区域、流程和任务定义，不允许有不同的审批人
+                //在相同的区域、流程和任务定义，不允许有不同的审批人(以后支持多实例/会签功能后，会调整)
                 if(!select.isEmpty()){
                     throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
                 }
