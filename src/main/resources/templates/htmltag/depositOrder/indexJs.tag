@@ -297,7 +297,6 @@
             $('#btn_submit').attr('disabled', false);
         }  else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.SUBMITTED.getCode()} && isRelated == ${@com.dili.commons.glossary.YesOrNoEnum.NO.getCode()}) {
             $('#btn_withdraw').attr('disabled', false);
-            $('#btn_submit').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.DepositOrderStateEnum.PAID.getCode()}) {
             $('#btn_refund_apply').attr('disabled', false);
             if (payState == ${@com.dili.ia.glossary.DepositPayStateEnum.NOT_PAID.getCode()} && isRelated == ${@com.dili.commons.glossary.YesOrNoEnum.NO.getCode()}){
