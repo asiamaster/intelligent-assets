@@ -110,6 +110,7 @@ public class CustomerAccountController {
      * @param order
      * @return BaseOutput
      */
+    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_ACCOUNT, content = "${content}", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput saveOrUpdateRefundOrder(@RequestBody EarnestRefundOrderDto order) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

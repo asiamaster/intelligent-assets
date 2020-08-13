@@ -284,11 +284,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
         }
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + "_" + BizNumberTypeEnum.EARNEST_ORDER.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
-           return BaseOutput.failure("编号生成器微服务异常");
-        }
         //检查客户状态
         checkCustomerState(refundOrder.getCustomerId(), userTicket.getFirmId());
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(refundOrder.getCustomerId(), userTicket.getFirmId());
@@ -299,15 +294,20 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (customerAccount.getEarnestAvailableBalance() < refundOrder.getPayeeAmount()){
             return BaseOutput.failure("退款金额不能大于可用余额！");
         }
+        refundOrder.setTotalRefundAmount(refundOrder.getPayeeAmount());
+        //定金退款给本人，收款人为本人
+        refundOrder.setPayeeId(refundOrder.getCustomerId());
+        refundOrder.setPayee(refundOrder.getCustomerName());
 
         //新增
         if(null == refundOrder.getId()){
+            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_ORDER.getCode());
+            if(!bizNumberOutput.isSuccess()){
+                LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
+                return BaseOutput.failure("编号生成器微服务异常");
+            }
             refundOrder.setCode(bizNumberOutput.getData());
             refundOrder.setBizType(BizTypeEnum.EARNEST.getCode());
-            refundOrder.setTotalRefundAmount(refundOrder.getPayeeAmount());
-            //定金退款给本人，收款人为本人
-            refundOrder.setPayeeId(refundOrder.getCustomerId());
-            refundOrder.setPayee(refundOrder.getCustomerName());
             BaseOutput output = refundOrderService.doAddHandler(refundOrder);
             if (!output.isSuccess()) {
                 LOG.info("客户账户定金退款【业务ID：{}】退款申请接口异常,原因：{}", customerAccount.getId(), output.getMessage());

@@ -6,16 +6,6 @@
         }
     });
 
-    // 退款方式
-    $('#refundType').on('change', function () {
-        if($(this).val() == '3') {
-            $('[data-refund-way="bank"]').show();
-        } else {
-            $('[data-refund-way="bank"]').hide();
-            $('[data-refund-way="bank"]').find('input').val("");
-        }
-    })
-
     function buildFormData(){
         let formData = $("input:not(table input),textarea,select").serializeObject();
         bui.util.yuanToCentForMoneyEl(formData);
@@ -32,8 +22,9 @@
             $.ajax({
                 type: "POST",
                 url: "${contextPath}/customerAccount/saveOrUpdateRefundOrder.action",
-                data: buildFormData(),
+                data:JSON.stringify(buildFormData()),
                 dataType: "json",
+                contentType: "application/json; charset=utf-8",
                 success: function (ret) {
                     if(!ret.success){
                         bs4pop.alert(ret.message, {type: 'error'});
