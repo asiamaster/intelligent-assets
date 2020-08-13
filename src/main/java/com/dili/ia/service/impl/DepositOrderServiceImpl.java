@@ -488,7 +488,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 LOG.info("撤回保证金【修改保证金单状态】失败,乐观锁生效。【保证金单ID：】" + depositOrder.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
             }
-            depositRefundOrderDto.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.DEPOSIT_ORDER.getEnName() + BizNumberTypeEnum.REFUND_ORDER.getCode()));
+            depositRefundOrderDto.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.DEPOSIT_ORDER.getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
             depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
             BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
             if (!output.isSuccess()) {
@@ -1133,7 +1133,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         oldRefundOrder.setMarketCode("hzsc");
         oldRefundOrder.setRefundTime(new Date());
         oldRefundOrder.setState(RefundOrderStateEnum.REFUNDED.getCode());
-        oldRefundOrder.setCode(this.getBizNumber("hzsc_" + BizTypeEnum.DEPOSIT_ORDER.getEnName() + BizNumberTypeEnum.REFUND_ORDER.getCode()));
+        oldRefundOrder.setCode(this.getBizNumber("hzsc_" + BizTypeEnum.DEPOSIT_ORDER.getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
         oldRefundOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
         oldRefundOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
         oldRefundOrder.setVersion(0);
