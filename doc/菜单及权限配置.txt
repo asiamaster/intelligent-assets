@@ -4,8 +4,8 @@
         修改 updateBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/preSave.html)
         取消 cancelBoothLeaseOrder
         提交付款 submitPaymentBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/submitPayment.html)
-        提交审批 submitLeaseOrderApplication
-        开票 invoiceLeaseOrder
+        提交审批 submitBoothLeaseOrderApplication
+        开票 invoiceBoothLeaseOrder
         撤回 withdrawBoothLeaseOrder
         补录 supplementBoothLeaseOrder
         续租 renewBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/renew.html)
