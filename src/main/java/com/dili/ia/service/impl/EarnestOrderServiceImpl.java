@@ -320,7 +320,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, EarnestOrder earnestOrder){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" +BizTypeEnum.getBizTypeEnum(BizTypeEnum.EARNEST.getCode()).getEnName() + "_" +  BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + "_" +  BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(earnestOrder.getAmount());
         pb.setBusinessId(earnestOrder.getId());
         pb.setBusinessCode(earnestOrder.getCode());

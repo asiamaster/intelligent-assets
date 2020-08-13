@@ -15,16 +15,13 @@ public enum BizNumberTypeEnum {
     PAYMENT_ORDER("paymentOrder", "缴费单"),
     //编号规则 BizTypeEnum.enName + '_' + BizNumberTypeEnum.code
     REFUND_ORDER("refundOrder", "退款单"),
-
     EARNEST_ORDER("earnestOrder", "定金业务单"),
-    EARNEST_REFUND_ORDER("earnesRefundtOrder", "定金退款单"),
     EARNEST_TRANSFER_ORDER("earnestTransferOrder", "定金转移单"),
     TRANSACTION_CODE("transactionCode", "客户账户流水号"),
     STOCK_IN_CODE("stockInCode", "入库单号"),
     STOCK_IN_DETAIL_CODE("stockInDetail", "入库详情单号"),
     WATER_ELECTRICITY_CODE("waterElectricity", "水电费单"),
     DEPOSIT_ORDER("depositOrder", "保证金业务单"),
-    DEPOSIT_REFUND_ORDER("depositRefundOrder", "保证金退款单"),
     LABOR_VEST("laborVest", "劳务马甲单"),
     VEST_RL("vest_rl", "马甲号人力车"),
     VEST_DD("vest_dd", "马甲号电动车"),

@@ -152,7 +152,7 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
      *                         departmentId 业务所属部门ID ; departmentName 部门名称; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
      *                         assetsType 资产类型; assetsId 资产ID; assetsName 资产名称; amount 保证金金额; isRelated 是否关联订单1，是，0否;
-     *                         businessId 关联订单ID; bizType 关联订单业务类型;
+     *                         businessId 关联订单ID; bizType 关联订单业务类型; 创建人；创建人ID；提交人；提交人ID；提交时间；
      *
      * @return BaseOutput
      */
@@ -172,6 +172,7 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      *                         assetsId 资产ID; businessId 关联订单ID; bizType 关联订单业务类型;
      *                         Payee 收款人,  PayeeID 收款人ID, PayeeCertificateNumber 收款人证件号
      *                        RefundType 退款方式 ; Bank 银行 ； BankCardNo 卡号； TotalRefundAmount 总退款金额 ； PayeeAmount付款金额
+     *                              ; 创建人；创建人ID；提交人；提交人ID；提交时间；
      * @return BaseOutput
      */
     BaseOutput oldRefundOrderDataHandler(RefundOrder oldRefundOrder, Long assetsId, TransferDeductionItem transferDeductionItem);

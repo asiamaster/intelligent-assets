@@ -30,8 +30,10 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
+import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
+import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +57,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     private static final Logger LOG = LoggerFactory.getLogger(DepositOrderServiceImpl.class);
     @Autowired
     DepartmentRpc departmentRpc;
+    @Autowired
+    UserRpc userRpc;
     @Autowired
     MsgService msgService;
     @Autowired
@@ -306,7 +310,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, DepositOrder depositOrder, Long paidAmount){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.DEPOSIT_ORDER.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.DEPOSIT_ORDER.getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(paidAmount);
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
@@ -484,7 +488,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 LOG.info("撤回保证金【修改保证金单状态】失败,乐观锁生效。【保证金单ID：】" + depositOrder.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
             }
-            depositRefundOrderDto.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
+            depositRefundOrderDto.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.DEPOSIT_ORDER.getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
             depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
             BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
             if (!output.isSuccess()) {
@@ -1115,56 +1119,37 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     //构建已退款的退款单
     private RefundOrder buildRefundOrder(DepositOrder depositOrder, RefundOrder oldRefundOrder, String settlementCode){
         //新增【已退款】的退款单
-        RefundOrder refundOrder = new RefundOrder();
         //结算单号
-        refundOrder.setSettlementCode(settlementCode);
+        oldRefundOrder.setSettlementCode(settlementCode);
         //由关联保证金业务单传入
-        refundOrder.setCustomerId(depositOrder.getCustomerId());
-        refundOrder.setCustomerName(depositOrder.getCustomerName());
-        refundOrder.setCustomerCellphone(depositOrder.getCustomerCellphone());
-        refundOrder.setCertificateNumber(depositOrder.getCertificateNumber());
-        refundOrder.setBusinessId(depositOrder.getId());
-        refundOrder.setBusinessCode(depositOrder.getCode());
+        oldRefundOrder.setCustomerId(depositOrder.getCustomerId());
+        oldRefundOrder.setCustomerName(depositOrder.getCustomerName());
+        oldRefundOrder.setCustomerCellphone(depositOrder.getCustomerCellphone());
+        oldRefundOrder.setCertificateNumber(depositOrder.getCertificateNumber());
+        oldRefundOrder.setBusinessId(depositOrder.getId());
+        oldRefundOrder.setBusinessCode(depositOrder.getCode());
         //固定写死参数
-        refundOrder.setSubmitter("数据迁移");
-        refundOrder.setSubmitterId(243L);
-        refundOrder.setRefundOperatorId(243L);
-        refundOrder.setRefundOperator("数据迁移");
-        refundOrder.setCreator("数据迁移");
-        refundOrder.setCreatorId(243L);
-        refundOrder.setMarketId(11L);
-        refundOrder.setMarketCode("hzsc");
-        refundOrder.setSubmitTime(LocalDateTime.now());
-        refundOrder.setRefundTime(new Date());
-        refundOrder.setState(RefundOrderStateEnum.REFUNDED.getCode());
-        refundOrder.setCode(this.getBizNumber("hzsc_" + BizNumberTypeEnum.DEPOSIT_REFUND_ORDER.getCode()));
-        refundOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
-        refundOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
-        refundOrder.setVersion(0);
-        //租赁单传入
-        refundOrder.setPayee(oldRefundOrder.getPayee());
-        refundOrder.setPayeeId(oldRefundOrder.getPayeeId());
-        refundOrder.setPayeeCertificateNumber(oldRefundOrder.getPayeeCertificateNumber());
-        refundOrder.setRefundType(oldRefundOrder.getRefundType());
-        refundOrder.setBank(oldRefundOrder.getBank());
-        refundOrder.setBankCardNo(oldRefundOrder.getBankCardNo());
-        refundOrder.setTotalRefundAmount(oldRefundOrder.getTotalRefundAmount());
-        refundOrder.setPayeeAmount(oldRefundOrder.getPayeeAmount());
-        refundOrder.setDepartmentId(oldRefundOrder.getDepartmentId());
-        refundOrder.setDepartmentName(oldRefundOrder.getDepartmentName());
-        return refundOrder;
+        oldRefundOrder.setMarketId(11L);
+        oldRefundOrder.setMarketCode("hzsc");
+        oldRefundOrder.setRefundTime(new Date());
+        oldRefundOrder.setState(RefundOrderStateEnum.REFUNDED.getCode());
+        oldRefundOrder.setCode(this.getBizNumber("hzsc_" + BizTypeEnum.DEPOSIT_ORDER.getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
+        oldRefundOrder.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+        oldRefundOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
+        oldRefundOrder.setVersion(0);
+        return oldRefundOrder;
     }
 
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaidPaymentOrder(DepositOrder depositOrder){
         PaymentOrder pb = new PaymentOrder();
-        pb.setCode(this.getBizNumber("hzsc_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.DEPOSIT_ORDER.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+        pb.setCode(this.getBizNumber("hzsc_" + BizTypeEnum.DEPOSIT_ORDER.getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(depositOrder.getAmount());
         pb.setBusinessId(depositOrder.getId());
         pb.setBusinessCode(depositOrder.getCode());
         //固定参数
-        pb.setCreatorId(243L);
-        pb.setCreator("数据迁移");
+        pb.setCreatorId(depositOrder.getSubmitterId());
+        pb.setCreator(depositOrder.getSubmitter());
         pb.setMarketId(11L);
         pb.setMarketCode("hzsc");
         pb.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
@@ -1186,17 +1171,26 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         settleOrder.setAmount(depositOrder.getAmount()); //金额
         settleOrder.setBusinessDepId(depositOrder.getDepartmentId()); //"业务部门ID
         settleOrder.setBusinessDepName(depositOrder.getDepartmentName());//"业务部门名称
+        settleOrder.setSubmitterId(depositOrder.getSubmitterId());// "提交人ID
+        settleOrder.setSubmitterName(depositOrder.getSubmitter());// "提交人姓名
+        BaseOutput<User> output = userRpc.get(depositOrder.getSubmitterId());
+        if (!output.isSuccess()){
+            LOG.error("调用UserRpc 查询用户异常");
+            throw new BusinessException(ResultCode.DATA_ERROR, "调用UserRpc 查询用户异常");
+        }
+        User user = output.getData();
+        if (user.getDepartmentId() != null){
+            settleOrder.setSubmitterDepId(user.getDepartmentId()); //"提交人部门ID --- 线上74
+            BaseOutput<Department> deOutput = departmentRpc.get(user.getDepartmentId());
+            settleOrder.setSubmitterDepName(deOutput.getData().getName()); // 线上固定 -- 市场经营管理部
+        }
+        settleOrder.setSubmitTime(depositOrder.getSubmitTime());
         //关联缴费单参数
         settleOrder.setOrderCode(paymentOrder.getCode());//订单号 唯一
         settleOrder.setBusinessCode(paymentOrder.getBusinessCode()); //缴费单业务单号
         //固定参数
         settleOrder.setMarketId(11L);
         settleOrder.setMarketCode("hzsc");
-        settleOrder.setSubmitterId(243L);// "提交人ID
-        settleOrder.setSubmitterName("数据迁移");// "提交人姓名
-        settleOrder.setSubmitterDepId(74L); //"提交人部门ID --- 线上74
-        settleOrder.setSubmitterDepName("市场经营管理部"); // 线上固定 -- 市场经营管理部
-        settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
         settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.DEPOSIT_ORDER.getCode())); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
@@ -1221,15 +1215,21 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         settleOrder.setAmount(refundOrder.getPayeeAmount()); //金额
         settleOrder.setBusinessDepId(refundOrder.getDepartmentId()); //"业务部门ID
         settleOrder.setBusinessDepName(departmentRpc.get(refundOrder.getDepartmentId()).getData().getName());//"业务部门名称
-
+        settleOrder.setSubmitTime(refundOrder.getSubmitTime());
+        BaseOutput<User> output = userRpc.get(refundOrder.getSubmitterId());
+        if (!output.isSuccess()){
+            LOG.error("调用UserRpc 查询用户异常");
+            throw new BusinessException(ResultCode.DATA_ERROR, "调用UserRpc 查询用户异常");
+        }
+        User user = output.getData();
+        if (user.getDepartmentId() != null) {
+            settleOrder.setSubmitterDepId(user.getDepartmentId()); //"提交人部门ID --- 线上74
+            BaseOutput<Department> deOutput = departmentRpc.get(user.getDepartmentId());
+            settleOrder.setSubmitterDepName(deOutput.getData().getName()); // 线上固定 -- 市场经营管理部
+        }
         //固定参数
         settleOrder.setMarketId(11L);
         settleOrder.setMarketCode("hzsc");
-        settleOrder.setSubmitterId(243L);// "提交人ID
-        settleOrder.setSubmitterName("数据迁移");// "提交人姓名
-        settleOrder.setSubmitterDepId(74L); //"提交人部门ID --- 线上74
-        settleOrder.setSubmitterDepName("市场经营管理部"); // 线上固定 -- 市场经营管理部
-        settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
         settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.DEPOSIT_ORDER.getCode())); // 业务类型
         settleOrder.setType(SettleTypeEnum.REFUND.getCode());// "结算类型  -- 退款
@@ -1241,13 +1241,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     public BaseOutput<DepositOrder> addPaidDepositOrder(DepositOrder depositOrder) {
         //固定参数
         depositOrder.setCode(this.getBizNumber("hzsc_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
-        depositOrder.setCreatorId(243L);
-        depositOrder.setCreator("数据迁移");
-        depositOrder.setSubmitterId(243L);
-        depositOrder.setSubmitter("数据迁移");
         depositOrder.setMarketId(11L);
         depositOrder.setMarketCode("hzsc");
-        depositOrder.setSubmitTime(LocalDateTime.now());
         depositOrder.setIsImport(YesOrNoEnum.YES.getCode());
         //创建已完结的保证金单
         depositOrder.setState(DepositOrderStateEnum.PAID.getCode());

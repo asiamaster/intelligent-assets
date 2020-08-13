@@ -212,7 +212,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         }
 
         // 创建缴费单
-        PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
+        PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.PASSPORT);
         paymentOrder.setBusinessId(passportInfo.getId());
         paymentOrder.setAmount(passportInfo.getAmount());
         paymentOrder.setBusinessCode(passportInfo.getCode());
