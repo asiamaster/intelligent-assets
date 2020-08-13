@@ -426,28 +426,31 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
         AssetsLeaseOrderListDto orderCondition = new AssetsLeaseOrderListDto();
         orderCondition.setIds(leaseOrderIds);
         List<AssetsLeaseOrder> assetsLeaseOrders = assetsLeaseOrderService.listByExample(orderCondition);
-        assetsLeaseOrders.stream().filter( o -> PayStateEnum.PAID.getCode().equals(o.getPayState())).forEach(o -> {
+        assetsLeaseOrders.forEach(o -> {
             if (o.getEarnestDeduction() > 0L || o.getTransferDeduction() > 0L) {
                 customerAccountService.oldDataHandler(o.getId(), o.getCustomerId(), o.getMarketId(), o.getEarnestDeduction(), o.getTransferDeduction());
             }
             AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
             itemCondition.setLeaseOrderId(o.getId());
             List<AssetsLeaseOrderItem> assetsLeaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
-            assetsLeaseOrderItems.stream()
-                .filter(item -> DepositAmountFlagEnum.TRANSFERRED.getCode().equals(item.getDepositAmountFlag())
-                        || DepositAmountFlagEnum.REFUNDED.getCode().equals(item.getDepositAmountFlag()))
-                .forEach(item -> {
-                    AssetsLeaseOrderItem depositAmountSourceItem = assetsLeaseOrderItemService.get(item.getDepositAmountSourceId());
-                    if (LeaseRefundStateEnum.REFUNDED.getCode().equals(depositAmountSourceItem.getRefundState())) {
-                        depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.REFUNDED.getCode());
-                    } else {
-                        depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
-                    }
-                    assetsLeaseOrderItemService.updateSelective(depositAmountSourceItem);
-                });
+            if (o.getDepositDeduction() > 0L
+                    && !LeaseOrderStateEnum.CREATED.getCode().equals(o.getState())
+                    && !LeaseOrderStateEnum.CANCELD.getCode().equals(o.getState())) {
+                assetsLeaseOrderItems.stream()
+                        .filter(item -> null != item.getDepositAmountSourceId())
+                        .forEach(item -> {
+                            AssetsLeaseOrderItem depositAmountSourceItem = assetsLeaseOrderItemService.get(item.getDepositAmountSourceId());
+                            if (LeaseRefundStateEnum.REFUNDED.getCode().equals(depositAmountSourceItem.getRefundState())) {
+                                depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.REFUNDED.getCode());
+                            } else {
+                                depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
+                            }
+                            assetsLeaseOrderItemService.updateSelective(depositAmountSourceItem);
+                        });
+            }
+            //删除订单项记录
             assetsLeaseOrderItemService.delete(assetsLeaseOrderItems.stream().map(item -> item.getId()).collect(Collectors.toList()));
-        });
-        assetsLeaseOrders.forEach(o -> {
+
             PaymentOrder delPaymentOrderCondition = new PaymentOrder();
             delPaymentOrderCondition.setBusinessId(o.getId());
             //删除缴费单记录
@@ -470,7 +473,7 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
 
         //删除租赁单
         assetsLeaseOrderService.delete(assetsLeaseOrders.stream().map(o -> o.getId()).collect(Collectors.toList()));
-        LOG.info("****************删除租赁数据结束【{}】。。。******************", StringUtils.join(leaseOrderIds,","));
+        LOG.info("****************删除租赁数据结束【{}】 success。。。******************", StringUtils.join(leaseOrderIds,","));
         return BaseOutput.success();
     }
 }
