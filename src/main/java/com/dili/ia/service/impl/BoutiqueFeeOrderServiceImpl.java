@@ -8,7 +8,6 @@ import com.dili.ia.domain.dto.BoutiqueFeeRefundOrderDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.BoutiqueOrderStateEnum;
-import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.mapper.BoutiqueFeeOrderMapper;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
@@ -34,10 +33,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * @author:       xiaosa
- * @date:         2020/7/13
- * @version:      农批业务系统重构
- * @description:  缴费单
+ * @author: xiaosa
+ * @date: 2020/7/13
+ * @version: 农批业务系统重构
+ * @description: 缴费单
  */
 @Service
 public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrder, Long> implements BoutiqueFeeOrderService {
@@ -45,7 +44,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     private final static Logger logger = LoggerFactory.getLogger(BoutiqueFeeOrderServiceImpl.class);
 
     public BoutiqueFeeOrderMapper getActualDao() {
-        return (BoutiqueFeeOrderMapper)getDao();
+        return (BoutiqueFeeOrderMapper) getDao();
     }
 
     @Autowired
@@ -63,12 +62,12 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     /**
      * 根据精品停车主键 recordId 查询缴费单列表
      *
-     * @param  recordId 精品停车主键
+     * @param recordId 精品停车主键
      * @return list
-     * @date   2020/7/13
+     * @date 2020/7/13
      */
     @Override
-    public List<BoutiqueFeeOrderDto> listByRecordId(Long recordId){
+    public List<BoutiqueFeeOrderDto> listByRecordId(Long recordId) {
         List<BoutiqueFeeOrderDto> boutiqueFeeOrderDtoList = this.getActualDao().listByRecordId(recordId);
         return boutiqueFeeOrderDtoList;
     }
@@ -76,9 +75,9 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     /**
      * 根据主键查询精品停车单和精品停车相关信息
      *
-     * @param  orderId
+     * @param orderId
      * @return BoutiqueFeeOrderDto
-     * @date   2020/7/31
+     * @date 2020/7/31
      */
     @Override
     public BoutiqueFeeOrderDto getBoutiqueFeeOrderDtoById(Long orderId) throws Exception {
@@ -105,7 +104,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
      *
      * @param refundDto
      * @return BaseOutput
-     * @date   2020/7/23
+     * @date 2020/7/23
      */
     @Override
     @GlobalTransactional
@@ -186,7 +185,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
         refundOrder.setTotalRefundAmount(refundOrderDto.getTotalRefundAmount());
 
         refundOrder.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
-        refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.BOUTIQUE_ORDER_REFUND.getCode()));
+        refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode()).getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
 
         if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
             logger.info("通行证【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());

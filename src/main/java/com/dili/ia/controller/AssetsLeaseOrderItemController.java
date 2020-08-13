@@ -85,7 +85,7 @@ public class AssetsLeaseOrderItemController {
             return output;
         }catch (BusinessException e){
             LOG.info("摊位停租异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("摊位停租异常！", e);
             return BaseOutput.failure(e.getMessage());

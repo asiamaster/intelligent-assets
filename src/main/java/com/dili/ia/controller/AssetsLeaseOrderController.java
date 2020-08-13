@@ -178,7 +178,7 @@ public class AssetsLeaseOrderController {
             return BaseOutput.success();
         } catch (BusinessException e) {
             LOG.info("审批通过处理异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("审批通过处理异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -202,7 +202,7 @@ public class AssetsLeaseOrderController {
             return BaseOutput.success();
         } catch (BusinessException e) {
             LOG.info("审批拒绝处理异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("审批拒绝处理异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -224,7 +224,7 @@ public class AssetsLeaseOrderController {
             return BaseOutput.success().setData(businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList())));
         } catch (BusinessException e) {
             LOG.info("收费项meta信息查询异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("收费项meta信息查询异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -416,7 +416,7 @@ public class AssetsLeaseOrderController {
             return assetsLeaseOrderService.supplement(leaseOrder);
         } catch (BusinessException e) {
             LOG.info("租赁订单信息补录异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("租赁订单信息补录异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -439,7 +439,7 @@ public class AssetsLeaseOrderController {
             return assetsLeaseOrderService.cancelOrder(id);
         } catch (BusinessException e) {
             LOG.info("租赁订单取消异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("租赁订单取消异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -462,7 +462,7 @@ public class AssetsLeaseOrderController {
             return assetsLeaseOrderService.withdrawOrder(id);
         } catch (BusinessException e) {
             LOG.info("租赁订单撤回异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("租赁订单撤回异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -498,7 +498,7 @@ public class AssetsLeaseOrderController {
             return output;
         } catch (BusinessException e) {
             LOG.info("资产租赁订单保存异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("资产租赁订单保存异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -545,7 +545,7 @@ public class AssetsLeaseOrderController {
             return assetsLeaseOrderService.submitPayment(assetsLeaseSubmitPaymentDto);
         } catch (BusinessException e) {
             LOG.info("资产租赁订单提交付款异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("资产租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -567,7 +567,7 @@ public class AssetsLeaseOrderController {
             return BaseOutput.success();
         } catch (BusinessException e) {
             LOG.info("资产租赁订单提交审批异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("资产租赁订单提交审批异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -603,7 +603,7 @@ public class AssetsLeaseOrderController {
             return output;
         } catch (BusinessException e) {
             LOG.info("资产租赁退款单创建或修改异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("资产租赁退款单创建或修改异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -637,7 +637,7 @@ public class AssetsLeaseOrderController {
             return BaseOutput.success().setData(depositOrderService.listByExample(depositOrderQuery));
         } catch (BusinessException e) {
             LOG.info("批量查询保证金单异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("批量查询保证金单异常！", e);
             return BaseOutput.failure(e.getMessage());

@@ -216,7 +216,7 @@ public class RefundOrderController {
             return out;
         } catch (BusinessException e) {
             LOG.error("退款单提交失败！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("退款单提交出错！", e);
             return BaseOutput.failure("提交出错！");
@@ -236,7 +236,7 @@ public class RefundOrderController {
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("资产租赁订单提交审批异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("资产租赁订单提交审批异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -258,7 +258,7 @@ public class RefundOrderController {
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("审批通过处理异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("审批通过处理异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -281,7 +281,7 @@ public class RefundOrderController {
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("审批拒绝处理异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("审批拒绝处理异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -310,7 +310,7 @@ public class RefundOrderController {
             return out;
         } catch (BusinessException e) {
             LOG.error("退款单测回失败！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("退款单测回出错！", e);
             return BaseOutput.failure("撤回出错！");
@@ -336,7 +336,7 @@ public class RefundOrderController {
             return output;
         } catch (BusinessException e) {
             LOG.error("退款单取消失败！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("退款单取消出错！", e);
             return BaseOutput.failure("取消出错！");
@@ -385,7 +385,7 @@ public class RefundOrderController {
             return output;
         }catch (BusinessException e){
             LOG.error("退款单修改异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("退款单修改异常！", e);
             return BaseOutput.failure(e.getMessage());
