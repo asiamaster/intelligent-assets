@@ -202,7 +202,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             }
         }
 
-        String code = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+        String code = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode());
 
         // 新增精品停车交费单
         feeOrder.setCode(code);
@@ -219,7 +219,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         boutiqueFeeOrderService.insertSelective(feeOrder);
 
         // 创建缴费单
-        PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
+        PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.BOUTIQUE_ENTRANCE);
         paymentOrder.setBusinessCode(code);
         paymentOrder.setBusinessId(feeOrder.getId());
         paymentOrder.setAmount(feeOrder.getAmount());

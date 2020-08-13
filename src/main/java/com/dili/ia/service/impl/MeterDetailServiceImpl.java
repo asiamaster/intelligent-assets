@@ -212,7 +212,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
 
         // 生成水或者电费单号的 code(和其他业务生成 code 不一样，因为水电费的业务类型bizType没有拆分为水费和电费)
-        String meterDetailCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + MeterTypeCode  + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+        String meterDetailCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + MeterTypeCode);
         meterDetail.setVersion(0);
         meterDetail.setCode(meterDetailCode);
         meterDetail.setCreatorId(userTicket.getId());
@@ -318,7 +318,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             }
 
             // 创建缴费单
-            PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
+            PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.WATER_ELECTRICITY);
             paymentOrder.setBusinessId(meterDetailInfo.getId());
             paymentOrder.setBusinessCode(meterDetailInfo.getCode());
             paymentOrder.setAmount(meterDetailInfo.getAmount());
