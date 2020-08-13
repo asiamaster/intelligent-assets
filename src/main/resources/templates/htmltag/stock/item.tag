@@ -224,7 +224,7 @@
 function changeDistrict(index,parent,value,level){
 	$.ajax({
 		type: "POST",
-		url: "/district/search.action",
+		url: "/stock/stockIn/searchDistrict.action",
 		data: {parentId: parent},
 		success: function (data) {
 			if (data.code == "200") {
@@ -240,7 +240,7 @@ function changeDistrict(index,parent,value,level){
 					//当index大于0 标记为新增详情,只触发当前index的更新
 					let htmlConent = '<option value="" selected="">-- 请选择--</option>';
 					for (let item of array) {
-						htmlConent+='<option value="'+item.id+'" >'+item.text+'</option>'
+						htmlConent+='<option value="'+item.id+'" >'+item.name+'</option>'
 					}
 					$('#districtId_'+level+'_'+index).html(htmlConent);
 					if(value != null){

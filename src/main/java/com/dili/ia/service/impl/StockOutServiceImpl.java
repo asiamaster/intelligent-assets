@@ -40,6 +40,7 @@ public class StockOutServiceImpl extends BaseServiceImpl<StockOut, Long> impleme
 		stockOutPrintDto.setReprint(reprint);
 		stockOutPrintDto.setPrintTime(LocalDateTime.now());
 		stockOutPrintDto.setBusinessType(BizTypeEnum.STOCKOUT.getCode());
+		stockOutPrintDto.setSubmitter(stockOut.getCreator());
 		PrintDataDto<StockOutPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setItem(stockOutPrintDto);
 		printDataDto.setName(PrintTemplateEnum.STOCK_OUT_ORDER.getCode());

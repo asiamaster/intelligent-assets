@@ -592,9 +592,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		StockIn stockIn = getStockInByCode(paymentOrder.getBusinessCode());
 		StockInPrintDto stockInPrintDto = new StockInPrintDto();
-		//stockInPrintDto.set
+		//TODO stockInPrintDto.set
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, stockIn.getCode());
 		stockInPrintDto.setBusinessType(BizTypeEnum.STOCKIN.getCode());
-		stockInPrintDto.setCardNo("");
+		stockInPrintDto.setCardNo(order.getAccountNumber());
 		stockInPrintDto.setCategoryName(stockIn.getCategoryName());
 		stockInPrintDto.setCustomerCellphone(stockIn.getCustomerCellphone());
 		stockInPrintDto.setCustomerName(stockIn.getCustomerName());
@@ -612,11 +613,11 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			StockInPrintItemDto stockInPrintItemDto = new StockInPrintItemDto();
 			BeanUtil.copyProperties(detail, stockInPrintItemDto);
 			stockInPrintItemDto.setExpireDate(stockIn.getExpireDate());
-			stockInPrintItemDto.setPayWay("paymentOrder.get");
-			stockInPrintItemDto.setProxyPayer("proxyPayer");
+			stockInPrintItemDto.setPayWay(order.getWayName());
+			//stockInPrintItemDto.setProxyPayer(order.get);
 			stockInPrintItemDto.setStockInDate(stockIn.getStockInDate());
 			stockInPrintItemDto.setStockInType(String.valueOf(stockIn.getType()));
-			stockInPrintItemDto.setUnitPrice("unitPrice");
+			stockInPrintItemDto.setUnitPrice(String.valueOf(stockIn.getUnitPrice()/100));
 			stockInItems.add(stockInPrintItemDto);
 		});
 		stockInPrintDto.setStockInItems(stockInItems);

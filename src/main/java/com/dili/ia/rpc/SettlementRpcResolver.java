@@ -59,10 +59,10 @@ public class SettlementRpcResolver {
     public SettleOrder submit(SettleOrderDto settleOrder){
     	settleOrder.setAppId(settlementAppId);
     	//settleOrder.setReturnUrl(settlerHandlerUrl);
-    	LOG.info("结算成功!业务号:" + JSON.toJSONString(settleOrder));
+    	//LOG.info("结算成功!业务号:" + JSON.toJSONString(settleOrder));
     	BaseOutput<SettleOrder> result = settlementRpc.submit(settleOrder);
         if(!result.isSuccess()){
-        	LOG.info("结算调用失败!业务号:" + settleOrder.getBusinessCode()+",message"+result.getErrorData());
+        	LOG.info("结算调用失败!业务号:" + settleOrder.getBusinessCode()+",message:"+JSON.toJSONString(result));
             throw new BusinessException(ResultCode.APP_ERROR, "结算调用失败!");
         }
         LOG.info("结算成功!业务号:" + settleOrder.getBusinessCode());

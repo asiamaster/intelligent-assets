@@ -1,7 +1,11 @@
 package com.dili.ia.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
-import com.dili.assets.sdk.dto.CarTypePublicDTO;
+import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
+import com.dili.assets.sdk.dto.DistrictDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.dto.AssetsDto;
 import com.dili.ia.domain.dto.RefundInfoDto;
@@ -49,6 +53,9 @@ public class StockInController {
     @Autowired
     private BusinessLogRpc businessLogRpc;
    
+    @Autowired
+    private AssetsRpc assetsRpc;
+    
     /**
      * 跳转到StockIn页面
      * @param modelMap
@@ -301,7 +308,7 @@ public class StockInController {
     public @ResponseBody BaseOutput getColdStorage(AssetsDto assetsDto) {	        
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
-    		//TODO baseOutput.setData(assetsRpc.searchAssets(assetsDto).getData());
+    		baseOutput.setData(assetsRpc.searchBooth((JSONObject)JSON.toJSON(assetsDto)).getData());
     	}catch (Exception e) {
 			LOG.error("获取异常！", e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -316,11 +323,30 @@ public class StockInController {
      * @param code
      */
     @RequestMapping(value="/searchCarType.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput searchCarType(CarTypePublicDTO dto) {	        
+    public @ResponseBody BaseOutput searchCarType(CarTypeForBusinessDTO dto) {	        
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
-    		dto.setTag("lkrk");
-    		//TODO baseOutput.setData(assetsRpc.searchCarType(dto).getData());
+    		dto.setBusinessCode("lkrk");
+    		baseOutput.setData(assetsRpc.listCarTypePublicByBusiness(dto).getData());
+    	}catch (Exception e) {
+			LOG.error("获取异常！", e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+    	return baseOutput;
+    }
+    
+    /**
+     * 获取司磅入库车型
+     * @Title searchCarType
+     * @param name
+     * @param code
+     */
+    @RequestMapping(value="/searchDistrict.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput searchDistrict(DistrictDTO input) {	        
+    	BaseOutput baseOutput = BaseOutput.success();
+    	try {
+    		 input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
+    		 baseOutput.setData(assetsRpc.searchDistrict(input).getData());
     	}catch (Exception e) {
 			LOG.error("获取异常！", e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
