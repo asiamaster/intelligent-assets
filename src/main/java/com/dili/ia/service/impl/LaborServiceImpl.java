@@ -202,10 +202,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		}
 		
 		// 结算单
-		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
+		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket,BizTypeEnum.LABOR_VEST);
 		paymentOrder.setBusinessCode(code);
 		paymentOrder.setAmount(labor.getAmount());
-		paymentOrder.setBizType(BizTypeEnum.LABOR_VEST.getCode());
 		paymentOrder.setBusinessId(labor.getId());
 		paymentOrderService.insertSelective(paymentOrder);
 		// 结算服务
@@ -458,7 +457,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
-		refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
+		refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.LABOR_VEST.getEnName()
+				+"_"+BizNumberTypeEnum.REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
 			LOG.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
 			throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");

@@ -33,3 +33,17 @@ INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_pass
 
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-通行证证件类型营运', 'hzsc_passport_yy', 'YY', 'yy', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_passport_yy', 2020081200001, '杭州水产-通行证证件类型营运', '1');
+
+
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-冷库缴费单', 'hzsc_stockIn_paymentOrder', 'HZSCSI', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_stockIn_paymentOrder', 2020081200001, '杭州水产-冷库缴费单', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务马甲缴费单', 'hzsc_laborVest_paymentOrder', 'HZSCMJ', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_laborVest_paymentOrder', 2020081200001, '杭州水产-劳务马甲缴费单', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-冷库退款单', 'hzsc_stockIn_refundOrder', 'HZSCTKSI', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_stockIn_refundOrder', 2020081200001, '杭州水产-冷库退款单', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务马甲退款单', 'hzsc_laborVest_refundOrder', 'HZSCTKMJ', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_laborVest_refundOrder', 2020081200001, '杭州水产-劳务马甲退款单', '1');

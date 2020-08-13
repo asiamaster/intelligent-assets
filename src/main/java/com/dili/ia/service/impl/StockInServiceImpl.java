@@ -319,10 +319,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			}
 		}
 		// 创建收费单费用收取
-		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket);
+		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket,BizTypeEnum.STOCKIN);
 		paymentOrder.setBusinessCode(code);
 		paymentOrder.setAmount(stockIn.getAmount());
-		paymentOrder.setBizType(BizTypeEnum.STOCKIN.getCode());
 		paymentOrder.setBusinessId(stockIn.getId());
 		paymentOrderService.insertSelective(paymentOrder);
 		// 提交入库单
@@ -539,7 +538,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		refundOrder.setCustomerId(stockIn.getCustomerId());
 		refundOrder.setCustomerName(stockIn.getCustomerName());
 		refundOrder.setCustomerCellphone(stockIn.getCustomerCellphone());
-		refundOrder.setCertificateNumber("0000");
+		refundOrder.setCertificateNumber(stockIn.getCertificateNumber());
 		refundOrder.setTotalRefundAmount(refundInfoDto.getTotalRefundAmount());
 		refundOrder.setPayeeAmount(refundInfoDto.getPayeeAmount());
 		refundOrder.setRefundReason(refundInfoDto.getNotes());
@@ -547,7 +546,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
-		refundOrder.setCode(uidRpcResolver.bizNumber(BizNumberTypeEnum.LEASE_REFUND_ORDER.getCode()));
+		refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.STOCKIN.getEnName()
+				+"_"+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
 			LOG.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
 			throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");

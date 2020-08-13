@@ -1,5 +1,20 @@
 package com.dili.ia.controller;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.dto.LaborDto;
@@ -19,16 +34,6 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -174,7 +179,7 @@ public class LaborController {
 			}
 		}catch (BusinessException e) {
 			LOG.error("劳务马甲单保存异常！", e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("劳务马甲单保存异常！", e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -195,7 +200,7 @@ public class LaborController {
     		laborService.update(laborDto);
     	}catch (BusinessException e) {
 			LOG.error("劳务马甲单{}修改异常！",laborDto.getCode(), e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("劳务马甲单{}修改异常！",laborDto.getCode(), e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -215,7 +220,7 @@ public class LaborController {
             laborService.cancel(code);
     	}catch (BusinessException e) {
 			LOG.error("劳务马甲单{}取消异常！",code, e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("劳务马甲单{}取消异常！",code, e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -235,7 +240,7 @@ public class LaborController {
             laborService.submit(code);
     	}catch (BusinessException e) {
 			LOG.error("劳务马甲单{}提交异常！",code, e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("劳务马甲单{}提交异常！",code, e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -256,7 +261,7 @@ public class LaborController {
         	laborService.withdraw(code);
     	}catch (BusinessException e) {
 			LOG.error("劳务马甲单{}撤回异常！",code, e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("劳务马甲单{}撤回异常！",code, e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -287,7 +292,7 @@ public class LaborController {
     		laborService.refund(refundInfoDto);
     	}catch (BusinessException e) {
 			LOG.error("劳务马甲单{}退款申请异常！",refundInfoDto.getCode(), e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("劳务马甲单{}退款申请异常！",refundInfoDto.getCode(), e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
@@ -307,7 +312,7 @@ public class LaborController {
     		baseOutput.setData(laborService.getCost(laborDto));
     	}catch (BusinessException e) {
 			//LOG.error("费用{}计算异常！",laborDetailDto.getCode(), e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			//LOG.error("费用{}计算异常！",laborDetailDto.getCode(), e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");

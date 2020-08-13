@@ -2,6 +2,7 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.glossary.BizNumberTypeEnum;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.mapper.PaymentOrderMapper;
 import com.dili.ia.rpc.UidRpcResolver;
@@ -56,5 +57,19 @@ public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long>
 			return null;
 		}
 		return paymentOrders.get(0);
+	}
+
+	@Override
+	public PaymentOrder buildPaymentOrder(UserTicket userTicket, BizTypeEnum biz) {
+		PaymentOrder paymentOrder = new PaymentOrder();
+		paymentOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+biz.getEnName()+"_"+BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+		paymentOrder.setCreateTime(LocalDateTime.now());
+		paymentOrder.setCreator(userTicket.getUserName());
+		paymentOrder.setCreatorId(userTicket.getId());
+		paymentOrder.setMarketCode(userTicket.getFirmCode());
+		paymentOrder.setMarketId(userTicket.getFirmId());
+		paymentOrder.setBizType(biz.getCode());
+		paymentOrder.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
+		return paymentOrder;
 	}
 }

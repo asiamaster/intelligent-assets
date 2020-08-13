@@ -300,6 +300,8 @@
     		//获取选中行的数据
     		let rows = _grid.bootstrapTable('getSelections');
     		let selectedRow = rows[0];
+    		let se = moment(selectedRow.startDate).format('YYYY/MM/DD')+"-"+moment(selectedRow.endDate).format('YYYY/MM/DD');
+    		selectedRow.se = se;
     		dia = bs4pop.dialog({
     			title: '打印预览',//对话框title
     			content: bui.util.HTMLDecode(template('printView', {selectedRow})), //对话框内容，可以是 string、element，$object
@@ -308,7 +310,9 @@
     			btns: [{label: '取消',className: 'btn btn-secondary',onClick(e){
 
     			}
-    			}, {label: '确定',className: 'btn btn-primary',onClick(e){}
+    			}, {label: '打印',className: 'btn btn-primary',onClick(e){
+    				//
+    			}
     			}]
     		});
     	}

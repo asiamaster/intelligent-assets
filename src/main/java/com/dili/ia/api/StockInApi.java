@@ -1,6 +1,7 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ public class StockInApi {
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.error("冷库结算回调异常！结算单{},入库单{}",settleOrder.getCode(),settleOrder.getBusinessCode(), e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }catch (Exception e){
             LOG.error("冷库结算回调异常！", e);
             return BaseOutput.failure("冷库结算回调异常！").setData(false);
@@ -66,12 +67,12 @@ public class StockInApi {
      */
     @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<PrintDataDto<StockOutPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
+    public @ResponseBody BaseOutput<PrintDataDto<StockInPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(stockInService.receiptPaymentData(orderCode, reprint));
         }catch (BusinessException e){
             LOG.error("冷库结算票据打印异常！", e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }catch (Exception e){
             LOG.error("冷库结算票据打印异常！", e);
             return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
@@ -90,7 +91,7 @@ public class StockInApi {
             return BaseOutput.success().setData(stockOutService.receiptStockOutData(orderCode, reprint));
         }catch (BusinessException e){
             LOG.error("冷库出库票据打印异常！", e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }catch (Exception e){
             LOG.error("冷库出库票据打印异常！", e);
             return BaseOutput.failure("冷库出库票据打印异常！").setData(false);

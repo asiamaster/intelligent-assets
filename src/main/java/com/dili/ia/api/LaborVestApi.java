@@ -1,6 +1,7 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
 import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +13,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.ia.service.LaborService;
-import com.dili.ia.service.StockInService;
-import com.dili.ia.service.StockOutService;
-import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
@@ -48,7 +46,7 @@ public class LaborVestApi {
 			return BaseOutput.success();
 		} catch (BusinessException e) {
 			LOG.error("冷库结算回调异常！结算单{},入库单{}", settleOrder.getCode(), settleOrder.getBusinessCode(), e);
-			return BaseOutput.failure(e.getErrorMsg()).setData(false);
+			return BaseOutput.failure(e.getMessage()).setData(false);
 		} catch (Exception e) {
 			LOG.error("冷库结算回调异常！", e);
 			return BaseOutput.failure("冷库结算回调异常！").setData(false);
@@ -74,12 +72,12 @@ public class LaborVestApi {
      * @return
      */
     @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<PrintDataDto<LaborRefundPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
+    public @ResponseBody BaseOutput<PrintDataDto<LaborPayPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(laborService.receiptPaymentData(orderCode, reprint));
         }catch (BusinessException e){
             LOG.error("劳务结算票据打印异常！", e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }catch (Exception e){
             LOG.error("劳务结算票据打印异常！", e);
             return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
@@ -97,7 +95,7 @@ public class LaborVestApi {
             return BaseOutput.success().setData(laborService.receiptRefundPrintData(orderCode, reprint));
         }catch (BusinessException e){
             LOG.error("劳务结算票据打印异常！", e);
-            return BaseOutput.failure(e.getErrorMsg()).setData(false);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }catch (Exception e){
             LOG.error("劳务结算票据打印异常！", e);
             return BaseOutput.failure("冷库出库票据打印异常！").setData(false);

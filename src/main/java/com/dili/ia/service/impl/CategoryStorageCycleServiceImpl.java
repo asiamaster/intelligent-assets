@@ -1,21 +1,26 @@
 package com.dili.ia.service.impl;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.ia.domain.CategoryStorageCycle;
 import com.dili.ia.domain.dto.CategoryQuery;
 import com.dili.ia.domain.dto.CategoryStorageCycleDto;
 import com.dili.ia.mapper.CategoryStorageCycleMapper;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.service.CategoryStorageCycleService;
 import com.dili.ss.base.BaseServiceImpl;
-import com.dili.ss.beetl.format.LocalDateFormat;
-import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
@@ -23,21 +28,6 @@ import com.github.pagehelper.Page;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.map.MapUtil;
-
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * 由MyBatis Generator工具自动生成

@@ -124,7 +124,7 @@ public class StockController {
         	stockService.stockOut(stockId, weight, quantity,notes);
     	}catch (BusinessException e) {
 			LOG.error("出库{}异常！",stockId, e);
-			return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
 			LOG.error("出库{}异常！",stockId, e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
