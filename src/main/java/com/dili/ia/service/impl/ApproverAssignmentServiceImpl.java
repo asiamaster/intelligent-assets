@@ -32,11 +32,11 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
     public void updateEx(ApproverAssignmentDto approverAssignmentDto) {
         //查询原始的分配数据，用于判断是否修改流程、任务和办理人
         ApproverAssignment originalApproverAssignment = get(approverAssignmentDto.getId());
-        //如果修改了流程、任务和办理人，则抛异常
-        if(!isEqual(originalApproverAssignment, approverAssignmentDto)){
-            throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的流程、任务和办理人");
-        }
         if (approverAssignmentDto.getDistrictIds() != null){
+            //如果修改了流程、任务和办理人，则抛异常
+            if(!isEqual(originalApproverAssignment, approverAssignmentDto)){
+                throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的流程、任务和办理人");
+            }
             ApproverAssignment deleteApproverAssignment = DTOUtils.newInstance(ApproverAssignment.class);
             deleteApproverAssignment.setAssignee(originalApproverAssignment.getAssignee());
             deleteApproverAssignment.setTaskDefinitionKey(originalApproverAssignment.getTaskDefinitionKey());
@@ -53,6 +53,18 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
             //再重新进行批量插入
             batchInsert(approverAssignments);
         }else {
+            //如果修改了流程、任务和办理人，则判断是否和已有的数据重复
+            if(!isEqual(originalApproverAssignment, approverAssignmentDto)){
+                ApproverAssignment approverAssignmentCondition = DTOUtils.newInstance(ApproverAssignment.class);
+                approverAssignmentCondition.setAssignee(approverAssignmentDto.getAssignee());
+                approverAssignmentCondition.setTaskDefinitionKey(approverAssignmentDto.getTaskDefinitionKey());
+                approverAssignmentCondition.setProcessDefinitionKey(approverAssignmentDto.getProcessDefinitionKey());
+                approverAssignmentCondition.setDistrictId(approverAssignmentDto.getDistrictId());
+                List<ApproverAssignment> select = getActualDao().select(approverAssignmentCondition);
+                if(!select.isEmpty()){
+                    throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
+                }
+            }
             updateSelective(approverAssignmentDto);
         }
     }
