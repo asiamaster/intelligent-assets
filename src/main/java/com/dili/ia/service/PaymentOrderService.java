@@ -1,6 +1,8 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.glossary.BizNumberTypeEnum;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ss.base.BaseService;
 import com.dili.uap.sdk.domain.UserTicket;
 
@@ -18,7 +20,19 @@ public interface PaymentOrderService extends BaseService<PaymentOrder, Long> {
 	 * @return
 	 * @throws
 	 */
+	@Deprecated
 	PaymentOrder buildPaymentOrder(UserTicket userTicket);
+	
+	/**
+	 * 
+	 * @Title buildPaymentOrder
+	 * @Description 构建缴费单
+	 * @param userTicket
+	 * @param biz
+	 * @return
+	 * @throws
+	 */
+	PaymentOrder buildPaymentOrder(UserTicket userTicket,BizTypeEnum biz);
 	
 	/**
 	 * 
