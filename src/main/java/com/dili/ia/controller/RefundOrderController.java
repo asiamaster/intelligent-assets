@@ -171,9 +171,12 @@ public class RefundOrderController {
 
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
                 return "refundOrder/earnestRefundOrderView";
-            } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode()) || refundOrder.getBizType().equals(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode())|| refundOrder.getBizType().equals(BizTypeEnum.PASSPORT.getCode())){
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
                 return "refundOrder/depositRefundOrderView";
-            }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode())|| refundOrder.getBizType().equals(BizTypeEnum.PASSPORT.getCode())){
+                return "refundOrder/commonRefundOrderView";
+            }
+            else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
                 TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
                 transferDeductionItemCondition.setRefundOrderId(id);
                 modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
