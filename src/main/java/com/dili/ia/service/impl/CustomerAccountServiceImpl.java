@@ -284,7 +284,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
         }
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" +BizNumberTypeEnum.EARNEST_REFUND_ORDER.getCode());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + BizNumberTypeEnum.EARNEST_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
             LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
            return BaseOutput.failure("编号生成器微服务异常");
