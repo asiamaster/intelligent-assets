@@ -359,7 +359,7 @@ public class RefundOrderController {
             modelMap.put("refundOrder",refundOrder);
             modelMap.put("payee", payee.getData());
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
-                return "refundOrder/updateView/refundApply";
+                return "forward:/customerAccount/earnestRefund.html?refundOrderId=" + id + "&customerAccountId=" + refundOrder.getBusinessId();
             } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
                 return "forward:/depositOrder/refundApply.html?refundOrderId=" + id + "&depositOrderId=" + refundOrder.getBusinessId();
             } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){

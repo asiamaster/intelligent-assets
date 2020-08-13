@@ -3,6 +3,7 @@
 <div class="container-fluid">
     <form id="saveForm" role="form" action="">
         <div class="row row-cols-4">
+            <input type="hidden" id="id" name="id" value="${refundOrder.id!}"/>
             <input type="hidden" name="customerId" value="${customerAccount.customerId!}">
             <input type="hidden" name="businessId" value="${customerAccount.id!}">
             <div class="form-group col">
@@ -26,19 +27,20 @@
         </div>
         <div class="row row-cols-4">
             <div class="form-group col">
-                <label for="refundType">退款方式<i class="red">*</i></label>
-                <select id="refundType"  name="refundType" class="form-control" required></select>
-                <#bcomboProvider _id="refundType" _provider="refundTypeProvider"/>
+                <label for="refundType" class="">退款方式<i class="red">*</i></label>
+                <select id="refundType" name="refundType" class="form-control" onchange="javascript:$('#bankInfo').toggle()"></select>
+                <#bcomboProvider _log="退款方式" _id="refundType" _provider="refundTypeProvider" _queryParams='{required:true}' _value="${refundOrder.refundType!}" />
             </div>
-
-            <div class="form-group col" data-refund-way="bank">
-                <label for="" class="">开户行</label>
-                <input type="text" class="form-control" name="bank" maxlength="50" required />
+            <div id="bankInfo"  class="row row-cols-4"  <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == @com.dili.ia.glossary.RefundTypeEnum.BANK.getCode()){ %> style="display: flex" <% } else {%>  style="display: none" <%}%> >
+            <div class="form-group col">
+                <label for="bank" class="" _log>开户行<i class="red">*</i></label>
+                <input type="text" class="form-control" id="bank"  name="bank" value="${refundOrder.bank!}" maxlength="50" required/>
             </div>
-            <div class="form-group col" data-refund-way="bank">
-                <label for="" class="">银行卡号</label>
-                <input type="text" class="form-control digits" name="bankCardNo" maxlength="30" required />
+            <div class="form-group col">
+                <label for="bankCardNo" class="" _log>银行卡号<i class="red">*</i></label>
+                <input type="text" class="form-control" id="bankCardNo" name="bankCardNo" value="${refundOrder.bankCardNo!}" maxlength="30" required/>
             </div>
+        </div>
         </div>
         <div class="row row-cols-1">
             <div class="form-group col">
@@ -54,5 +56,4 @@
 </div>
 
 </#bs4Body>
-
 <#customerAccount_earnestRefundJs />

@@ -1,7 +1,9 @@
 <script>
-
+    /******************************驱动执行区 begin***************************/
     $(function () {
-        $('[data-refund-way="bank"]').hide();
+        if ($('[name="refundType"]').val() != '3'){
+            $('#bankInfo').hide();
+        }
     });
 
     // 退款方式
@@ -29,7 +31,7 @@
             // let _formData = new FormData($('#saveForm')[0]);
             $.ajax({
                 type: "POST",
-                url: "${contextPath}/customerAccount/doAddEarnestRefund.action",
+                url: "${contextPath}/customerAccount/saveOrUpdateRefundOrder.action",
                 data: buildFormData(),
                 dataType: "json",
                 success: function (ret) {

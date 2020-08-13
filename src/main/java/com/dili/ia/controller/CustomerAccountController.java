@@ -7,24 +7,29 @@ import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.CustomerAccountListDto;
+import com.dili.ia.domain.dto.EarnestRefundOrderDto;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DataAuthService;
+import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import io.seata.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -36,13 +41,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/customerAccount")
 public class CustomerAccountController {
-    private final static Logger LOG = LoggerFactory.getLogger(EarnestOrderController.class);
+    private final static Logger LOG = LoggerFactory.getLogger(CustomerAccountController.class);
     @Autowired
     CustomerAccountService customerAccountService;
     @Autowired
     DataAuthService dataAuthService;
     @Autowired
     CustomerRpc customerRpc;
+    @Autowired
+    RefundOrderService refundOrderService;
     /**
      * 跳转到CustomerAccount页面
      * @param modelMap
@@ -68,14 +75,18 @@ public class CustomerAccountController {
     /**
      * 跳转到CustomerAccount页面---定金退款
      * @param modelMap
-     * @param id 客户账户Id
+     * @param customerAccountId 客户账户Id
+     * @param refundOrderId 退款单ID
      * @return String
      */
     @RequestMapping(value="/earnestRefund.html", method = RequestMethod.GET)
-    public String earnestRefund(ModelMap modelMap, Long id) {
-        if(null != id){
-            CustomerAccount customerAccount = customerAccountService.get(id);
+    public String earnestRefund(ModelMap modelMap, Long customerAccountId, Long refundOrderId) {
+        if(null != customerAccountId){
+            CustomerAccount customerAccount = customerAccountService.get(customerAccountId);
             modelMap.put("customerAccount",customerAccount);
+        }
+        if (null != refundOrderId) {
+            modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
         }
         return "customerAccount/earnestRefund";
     }
@@ -99,10 +110,24 @@ public class CustomerAccountController {
      * @param order
      * @return BaseOutput
      */
-    @RequestMapping(value="/doAddEarnestRefund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doEarnestRefund(RefundOrder order) {
+    @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput saveOrUpdateRefundOrder(@RequestBody EarnestRefundOrderDto order) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (null == userTicket){
+            return BaseOutput.failure("未登录！");
+        }
         try {
-            BaseOutput<RefundOrder> out = customerAccountService.addEarnestRefund(order);
+            BaseOutput<RefundOrder> out = customerAccountService.saveOrUpdateRefundOrder(order);
+            if (out.isSuccess()) {
+                if(StringUtils.isNotBlank(order.getLogContent())){
+                    LoggerContext.put("content", order.getLogContent());
+                    LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+                }else{
+                    LoggerContext.put("content", MoneyUtils.centToYuan(order.getTotalRefundAmount()));
+                    LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
+                }
+                LoggerUtil.buildLoggerContext(order.getBusinessId(), order.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
+            }
             return out;
         } catch (BusinessException e) {
             LOG.error("定金创建退款失败！", e);
