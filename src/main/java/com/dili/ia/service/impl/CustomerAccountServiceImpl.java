@@ -279,33 +279,48 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public BaseOutput addEarnestRefund(RefundOrder order) {
+    public BaseOutput saveOrUpdateRefundOrder(RefundOrder refundOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
         }
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + "_" + BizNumberTypeEnum.EARNEST_ORDER.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
-           return BaseOutput.failure("编号生成器微服务异常");
-        }
         //检查客户状态
-        checkCustomerState(order.getCustomerId(), userTicket.getFirmId());
-        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(order.getCustomerId(), userTicket.getFirmId());
+        checkCustomerState(refundOrder.getCustomerId(), userTicket.getFirmId());
+        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(refundOrder.getCustomerId(), userTicket.getFirmId());
         if (null == customerAccount){
-            LOG.info("客户账户退款申请，客户账户【{}】在市场【{}:{}】不存在！", order.getCustomerId(), userTicket.getFirmId(), userTicket.getFirmCode());
+            LOG.info("客户账户退款申请，客户账户【{}】在市场【{}:{}】不存在！", refundOrder.getCustomerId(), userTicket.getFirmId(), userTicket.getFirmCode());
             return BaseOutput.failure("客户账户不存在！");
         }
-        if (customerAccount.getEarnestAvailableBalance() < order.getPayeeAmount()){
+        if (customerAccount.getEarnestAvailableBalance() < refundOrder.getPayeeAmount()){
             return BaseOutput.failure("退款金额不能大于可用余额！");
         }
-        order.setCode(bizNumberOutput.getData());
-        order.setBizType(BizTypeEnum.EARNEST.getCode());
-        order.setTotalRefundAmount(order.getPayeeAmount());
+        refundOrder.setTotalRefundAmount(refundOrder.getPayeeAmount());
         //定金退款给本人，收款人为本人
-        order.setPayeeId(order.getCustomerId());
-        order.setPayee(order.getCustomerName());
-        return refundOrderService.doAddHandler(order);
+        refundOrder.setPayeeId(refundOrder.getCustomerId());
+        refundOrder.setPayee(refundOrder.getCustomerName());
+
+        //新增
+        if(null == refundOrder.getId()){
+            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_ORDER.getCode());
+            if(!bizNumberOutput.isSuccess()){
+                LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
+                return BaseOutput.failure("编号生成器微服务异常");
+            }
+            refundOrder.setCode(bizNumberOutput.getData());
+            refundOrder.setBizType(BizTypeEnum.EARNEST.getCode());
+            BaseOutput output = refundOrderService.doAddHandler(refundOrder);
+            if (!output.isSuccess()) {
+                LOG.info("客户账户定金退款【业务ID：{}】退款申请接口异常,原因：{}", customerAccount.getId(), output.getMessage());
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常;" + output.getMessage());
+            }
+        }else { // 修改
+            BaseOutput<RefundOrder> output = refundOrderService.doUpdateDispatcher(refundOrder);
+            if (!output.isSuccess()) {
+                LOG.info("客户账户定金退款【业务ID：{}】退款修改接口异常,原因：{}", refundOrder.getBusinessId(), output.getMessage());
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常;" + output.getMessage());
+            }
+        }
+        return BaseOutput.success();
     }
 
     /**

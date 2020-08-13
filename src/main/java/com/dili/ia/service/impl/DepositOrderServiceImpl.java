@@ -254,6 +254,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         oldDto.setCustomerCellphone(dto.getCustomerCellphone());
         oldDto.setDepartmentId(dto.getDepartmentId());
         oldDto.setAmount(dto.getAmount());
+        oldDto.setWaitAmount(dto.getAmount());
         oldDto.setNotes(dto.getNotes());
         oldDto.setModifyTime(LocalDateTime.now());
         oldDto.setVersion(dto.getVersion());
