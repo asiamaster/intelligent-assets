@@ -101,20 +101,20 @@
                     <tr>
                         <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
                         <th style="font-weight:normal;width: 15rem;" >资产编号<i class="red">*</i></th>
-                        <th style="font-weight:normal;width: 7rem;">规格<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 7rem;">规格</th>
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <th style="font-weight:normal;width: 7rem;">租赁数量<i class="red">*</i></th>
                         <% } %>
                         <th style="font-weight:normal;width: 5rem;">转角</th>
-                        <th style="font-weight:normal;width: 7rem;">单价<i class="red">*</i></th>
-                        <th style="font-weight:normal;width: 7rem;">应交月数<i class="red">*</i></th>
-                        <th style="font-weight:normal;width: 7rem;">优惠金额<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 9rem;">单价<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 6rem;">应交月数<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 9rem;">优惠金额<i class="red">*</i></th>
                         <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                         for(item in chargeItems){
                         %>
                         <th style="font-weight:normal; ">${item.chargeItem!}<i class="red">*</i></th>
                         <% } }%>
-                        <th style="font-weight:normal; ">保证金</th>
+                        <th style="font-weight:normal; min-width: 21rem;">保证金</th>
                     </tr>
                     </thead>
                     <tbody>
