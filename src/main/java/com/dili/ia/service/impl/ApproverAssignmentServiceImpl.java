@@ -56,11 +56,12 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
             //如果修改了流程、任务和办理人，则判断是否和已有的数据重复
             if(!isEqual(originalApproverAssignment, approverAssignmentDto)){
                 ApproverAssignment approverAssignmentCondition = DTOUtils.newInstance(ApproverAssignment.class);
-                approverAssignmentCondition.setAssignee(approverAssignmentDto.getAssignee());
+//                approverAssignmentCondition.setAssignee(approverAssignmentDto.getAssignee());
                 approverAssignmentCondition.setTaskDefinitionKey(approverAssignmentDto.getTaskDefinitionKey());
                 approverAssignmentCondition.setProcessDefinitionKey(approverAssignmentDto.getProcessDefinitionKey());
                 approverAssignmentCondition.setDistrictId(approverAssignmentDto.getDistrictId());
                 List<ApproverAssignment> select = getActualDao().select(approverAssignmentCondition);
+                //在相同的区域、流程和任务定义，不允许有不同的审批人
                 if(!select.isEmpty()){
                     throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
                 }
