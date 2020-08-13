@@ -21,7 +21,7 @@ public enum BizTypeEnum {
     BizTypeEnum(String code, String name, String enName){
         this.code = code;
         this.name = name;
-        this.name = enName;
+        this.enName = enName;
     }
 
     public static BizTypeEnum getBizTypeEnum(String code) {
