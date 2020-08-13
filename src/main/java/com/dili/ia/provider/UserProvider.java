@@ -36,7 +36,7 @@ public class UserProvider extends BatchDisplayTextProviderAdaptor {
     protected List getFkList(List<String> ids, Map map) {
         UserQuery user = DTOUtils.newInstance(UserQuery.class);
         user.setIds(ids);
-        PageOutput<List<User>> listPageOutput = userRpc.listByExample(user);
+        BaseOutput<List<User>> listPageOutput = userRpc.listByExample(user);
         if(!listPageOutput.isSuccess()){
             return null;
         }

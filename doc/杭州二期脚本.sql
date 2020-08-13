@@ -68,19 +68,18 @@ INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_deposit_paymentOrder', 2020081200001, '杭州水产-保证金缴费单', '1');
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-定金业务单', 'hzsc_earnestOrder', 'HZSCDJ', 'yyyyMMdd', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_earnestOrder', 202008120001, '杭州水产-定金业务单', '1');
-INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-定金退款单', 'hzsc_earnesRefundtOrder', 'HZSCTKDJ', 'yyyyMMdd', 4, '1');
-INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_earnesRefundtOrder', 202008120001, '杭州水产-定金退款单', '1');
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-定金退款单', 'hzsc_earnes_refundtOrder', 'HZSCTKDJ', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_earnes_refundtOrder', 202008120001, '杭州水产-定金退款单', '1');
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-定金转移单', 'hzsc_earnestTransferOrder', 'HZSCZY', 'yyyyMMdd', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_earnestTransferOrder', 202008120001, '杭州水产-定金转移单', '1');
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-客户账户流水号', 'hzsc_transactionCode', 'HZSCLS', 'yyyyMMdd', 6, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_transactionCode', 20200812000001, '杭州水产-客户账户流水号', '1');
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-保证金业务单', 'hzsc_depositOrder', 'HZSCBZJ', 'yyyyMMdd', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_depositOrder', 202008120001, '杭州水产-保证金业务单', '1');
-INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-保证金退款单', 'hzsc_depositRefundOrder', 'HZSCTKBZJ', 'yyyyMMdd', 4, '1');
-INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_depositRefundOrder', 202008120001, '杭州水产-保证金退款单', '1');
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-保证金退款单', 'hzsc_deposit_refundOrder', 'HZSCTKBZJ', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_deposit_refundOrder', 202008120001, '杭州水产-保证金退款单', '1');
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-结算单', 'hzsc_settleOrder', 'HZSCJS', 'yyyyMMdd', 5, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_settleOrder', 2020081200001, '杭州水产-结算单', '1');
-
 
 --  字段删除脚本（数据迁移完后执行）
 ALTER TABLE `lease_order`

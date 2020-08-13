@@ -1,120 +1,134 @@
 <#bs4Body>
 
 <div class="container-fluid">
-    <form id="addForm" role="form">
+    <form id="refundApplyForm" role="form">
+        <div class="breadcrumb" >
+            客户信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
+               aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+        </div>
+        <div class="row row-cols-4 collapse show"  id="customerInfo">
+            <div class="form-group col">
+                <label for="customerName" _log>客户名称<i class="red">*</i></label>
+                <input type="text" class="form-control" id="customerName" name="customerName" value="${refundOrder.customerName!}" readonly/>
+            </div>
+            <div class="form-group col">
+                <label for="certificateNumber" _log>证件号码<i class="red">*</i></label>
+                <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${refundOrder.certificateNumber!}" readonly/>
+            </div>
+            <div class="form-group col">
+                <label for="customerCellphone" _log>联系电话<i class="red">*</i></label>
+                <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${refundOrder.customerCellphone!}" readonly/>
+            </div>
+        </div>
+        <div class="row row-cols-4">
+            <div class="form-group col">
+                <label for="totalRefundAmount" class="" _log>退款金额<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount" range="0 9999999.99"  value="<#centToYuan value='${refundOrder.totalRefundAmount!}'/>" disabled />
+            </div>
+        </div>
         <div class="breadcrumb">
-            基本信息
+            基础信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div id="baseInfo" class="row row-cols-4 collapse show">
+        <div class="row row-cols-4 collapse show" id="baseInfo">
             <div class="form-group col">
-                <label for="" class="">退款单编号</label>
-                <input type="text" class="form-control" value="${refundOrder.code!}" disabled />
+                <label >收款人<i class="red">*</i></label>
+                <input type="text" class="form-control" value="${refundOrder.payee!}" disabled />
             </div>
             <div class="form-group col">
-                <label for="" class="">对应订单编号</label>
-                <input type="text" class="form-control" value="${refundOrder.businessCode!}" disabled />
+                <label class="">证件号<i class="red">*</i></label>
+                <input type="text" class="form-control" value="${refundOrder.payeeCertificateNumber!}" disabled />
             </div>
             <div class="form-group col">
-                <label for="" class="">状态</label>
-                <input type="text" class="form-control" value="${@com.dili.ia.glossary.RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.state).getName()}" disabled />
+                <label  class="" _log>金额<i class="red">*</i></label>
+                <input type="text" class="form-control" value="<#centToYuan value='${refundOrder.payeeAmount!0}'/>" disabled />
             </div>
             <div class="form-group col">
-                <label for="" class="">退款金额</label>
-                <input type="text" class="form-control" value="<#centToYuan value='${refundOrder.totalRefundAmount!}'/>" disabled />
-            </div>
-            <div class="form-group col">
-                <label for="" class="">客户名称</label>
-                <input type="text" class="form-control" value="${refundOrder.customerName!}" disabled />
-            </div>
-            <div class="form-group col">
-                <label for="" class="">证件号码</label>
-                <input type="text" class="form-control" value="${refundOrder.certificateNumber!}" disabled />
-            </div>
-            <div class="form-group col">
-                <label for="" class="">联系电话</label>
-                <input type="text" class="form-control" value="${refundOrder.customerCellphone!}" disabled />
+                <label class="">退款方式<i class="red">*</i></label>
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.RefundTypeEnum.getRefundTypeEnum(refundOrder.refundType).getName()}" disabled />
             </div>
         </div>
-
-        <div class="breadcrumb">
-            退款详情
-            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#detailInfo" aria-expanded="true" aria-controls="detailInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
-        </div>
-        <div id="detailInfo" class="collapse show">
-            <div class="row row-cols-4 ">
-                <%if(refundOrder.totalRefundAmount > refundOrder.payeeAmount){ %>
-                <div class="form-group col">
-                    <label for="" class="">扣除金额</label>
-                    <input type="text" class="form-control" value="${refundOrder.payee!}" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="" class="">转入到</label>
-                    <input type="text" class="form-control" value="<#centToYuan value='${refundOrder.payeeAmount!}'/>" disabled />
-                </div>
-                <% }%>
-                <div class="form-group col">
-                    <label for="" class="">收款人</label>
-                    <input type="text" class="form-control" value="${refundOrder.payee!}" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="" class="">退款金额</label>
-                    <input type="text" class="form-control" value="<#centToYuan value='${refundOrder.payeeAmount!}'/>" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="" class="">退款方式</label>
-                    <input type="text" class="form-control" value="${@com.dili.ia.glossary.RefundTypeEnum.getRefundTypeEnum(refundOrder.refundType).getName()}" disabled />
-                </div>
-                <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == 3){ %>
-                <div class="form-group col">
-                    <label for="" class="">开户行</label>
-                    <input type="text" class="form-control" value="${refundOrder.bank!}" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="" class="">银行账号</label>
-                    <input type="text" class="form-control" value="${refundOrder.bankCardNo!}" disabled />
-                </div>
-                <% }%>
+        <%if(refundOrder.refundType == @com.dili.ia.glossary.RefundTypeEnum.BANK.getCode()){ %>
+        <div id="bankInfo" class="row row-cols-4">
+            <div class="form-group col">
+                <label for="" class="">开户行</label>
+                <input type="text" class="form-control" value="${refundOrder.bank!}" disabled />
             </div>
-            <div class="row">
-                <div class="form-group col-8">
-                    <label for="">退款原因及详情</label>
-                    <textarea class="form-control" id="" rows="1" maxlength="100" disabled >${refundOrder.refundReason!}</textarea>
-                </div>
+            <div class="form-group col">
+                <label for="" class="">银行账号</label>
+                <input type="text" class="form-control" value="${refundOrder.bankCardNo!}" disabled />
             </div>
-        </div>
-        <%if(isNotEmpty(logs) && logs.~size>0){ %>
-            <div class="breadcrumb">
-                业务记录
-                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#recordInfo" aria-expanded="true" aria-controls="recordInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
-            </div>
-        <div class="collapse" id="recordInfo">
-            <table data-toggle="table">
-                <thead>
-                <tr>
-                    <th data-align="center">时间</th>
-                    <th data-align="center">操作</th>
-                    <th data-align="center">详情</th>
-                    <th data-align="center">补充信息</th>
-                    <th data-align="center">工作员</th>
-                </tr>
-                </thead>
-                <tbody>
-                <%
-                for(log in logs){%>
-                <tr>
-                    <td class="text-center align-middle" >${log.createTime!}</td>
-                    <td class="text-center align-middle" >${log.operationTypeText!}</td>
-                    <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.content!}">${log.content!}</td>
-                    <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.notes!}">${log.notes!}</td>
-                    <td class="text-center align-middle" >${log.operatorName!}</td>
-                </tr>
-                <% }%>
-                </tbody>
-            </table>
         </div>
         <% }%>
-    </form>
+</div>
+
+<%if(isNotEmpty(transferDeductionItems) && transferDeductionItems.~size>0){ %>
+<div class="breadcrumb">
+    转抵信息
+    <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#transferInfo" aria-expanded="true" aria-controls="transferInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+</div>
+<div class="collapse show" id="transferInfo">
+    <table class="table table-bordered table-hover table-striped" id="transferTable">
+        <thead>
+        <tr>
+            <th style="font-weight:normal;" class="text-center">收款人<i class="red">*</i></th>
+            <th style="font-weight:normal;" class="text-center">证件号<i class="red">*</i></th>
+            <th style="font-weight:normal; " class="text-center">收款金额<i class="red">*</i></th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+        for(item in transferDeductionItems){%>
+        <tr>
+            <td class="text-center align-middle" >${item.payee!}</td>
+            <td class="text-center align-middle">${item.payeeCertificateNumber!}</td>
+            <td class="text-center align-middle" ><#centToYuan value='${item.payeeAmount!}'/></td>
+        </tr>
+        <% }%>
+        </tbody>
+    </table>
+</div>
+<% }%>
+
+<div class="row">
+    <div class="form-group col-6">
+        <label for="refundReason" _log>退款原因<i class="red">*</i></label>
+        <textarea class="form-control" id="refundReason" name="refundReason" rows="2" maxlength="100" readonly>${refundOrder.refundReason!}</textarea>
+    </div>
+</div>
+<%if(isNotEmpty(logs) && logs.~size>0){ %>
+<div class="breadcrumb">
+    业务记录
+    <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#recordInfo" aria-expanded="true" aria-controls="recordInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+</div>
+<div class="collapse" id="recordInfo">
+    <table data-toggle="table">
+        <thead>
+        <tr>
+            <th data-align="center">时间</th>
+            <th data-align="center">操作</th>
+            <th data-align="center">详情</th>
+            <th data-align="center">补充信息</th>
+            <th data-align="center">工作员</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+        for(log in logs){%>
+        <tr>
+            <td class="text-center align-middle" >${log.createTime!}</td>
+            <td class="text-center align-middle" >${log.operationTypeText!}</td>
+            <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.content!}">${log.content!}</td>
+            <td class="text-center align-middle" >${log.notes!}</td>
+            <td class="text-center align-middle" >${log.operatorName!}</td>
+        </tr>
+        <% }%>
+        </tbody>
+    </table>
+</div>
+<% }%>
+</form>
 </div>
 
 </#bs4Body>

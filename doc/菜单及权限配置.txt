@@ -33,22 +33,19 @@
 撤回  withdrawDepositOrder
 取消  cancelDepositOrder
 退款申请  refundApplyDepositOrder  （内部链接：保证金管理-退款申请  http://ia.diligrp.com:8381/depositOrder/refundApply.html）
-修改   updateRefundOrder （内部链接：修改页面  http://ia.diligrp.com:8381/refundOrder/update.html）
-提交  submitRefundOrder
-撤回  withdrawRefundOrder
-取消  cancelRefundOrder
+
 
 保证金统计 http://ia.diligrp.com:8381/depositBalance/index.html
 
 保证金退款单 http://ia.diligrp.com:8381/refundOrder/3/index.html
-修改   updateRefundOrder （内部链接：修改页面  http://ia.diligrp.com:8381/refundOrder/update.html）
-提交  submitRefundOrder
-撤回  withdrawRefundOrder
-取消  cancelRefundOrder
+修改   updateDepositRefundOrder （内部链接：修改页面  http://ia.diligrp.com:8381/refundOrder/update.html）
+提交  submitDepositRefundOrder
+撤回  withdrawDepositRefundOrder
+取消  cancelDepositRefundOrder
 
 定金 -- >
 定金退款单：http://ia.diligrp.com:8381/refundOrder/2/index.html
-修改   updateRefundOrder （内部链接：修改页面  http://ia.diligrp.com:8381/refundOrder/update.html）
-提交  submitRefundOrder
-撤回  withdrawRefundOrder
-取消  cancelRefundOrder
+修改   updateEarnestRefundOrder （内部链接：修改页面  http://ia.diligrp.com:8381/refundOrder/update.html）
+提交  submitEarnestRefundOrder
+撤回  withdrawEarnestRefundOrder
+取消  cancelEarnestRefundOrder
