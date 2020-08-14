@@ -72,7 +72,7 @@ public class LeaseDataHandlerApi {
 
     /**
      * 删除租赁单
-     *
+     * 有退款转抵的不能删除
      * @return
      */
     @PostMapping(value = "/deleteLeaseOrder")

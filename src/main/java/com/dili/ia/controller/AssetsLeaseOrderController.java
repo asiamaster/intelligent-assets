@@ -283,7 +283,7 @@ public class AssetsLeaseOrderController {
         try {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-            businessLogQueryInput.setBusinessId(id);
+            businessLogQueryInput.setBusinessId(leaseOrder.getId());
             businessLogQueryInput.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if (businessLogOutput.isSuccess()) {
