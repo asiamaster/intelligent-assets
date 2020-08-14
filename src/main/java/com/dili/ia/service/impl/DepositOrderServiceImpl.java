@@ -497,7 +497,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
             }
         }else { // 修改
-            if (!refundOrderService.doUpdateDispatcher(depositRefundOrderDto).isSuccess()) {
+            if (!refundOrderService.doUpdatedHandler(depositRefundOrderDto).isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款修改接口异常", depositRefundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
             }

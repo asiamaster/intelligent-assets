@@ -376,7 +376,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput<RefundOrder> doUpdateDispatcher(RefundOrder refundOrder) {
+    public BaseOutput<RefundOrder> doUpdatedHandler(RefundOrder refundOrder) {
         if (null == refundOrder || null == refundOrder.getId()){
             return BaseOutput.failure("退款单修改，必要参数（ID）不能为空");
         }
@@ -387,16 +387,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
         //检查客户状态
         checkCustomerState(refundOrder.getPayeeId(), oldOrder.getMarketId());
-       //获取业务service,调用业务实现
-        RefundOrderDispatcherService service = refundBiz.get(oldOrder.getBizType());
-        if(service!=null){
-            refundOrder.setBusinessId(oldOrder.getBusinessId());
-            BaseOutput refundResult = service.updateHandler(refundOrder);
-            if (!refundResult.isSuccess()){
-                LOG.info("退款单修改--回调业务返回失败！" + refundResult.getMessage());
-                throw new BusinessException(ResultCode.DATA_ERROR, "退款单修改回调业务返回失败！" + refundResult.getMessage());
-            }
-        }
         refundOrder.setVersion(oldOrder.getVersion());
         if (refundOrderService.updateSelective(refundOrder) == 0) {
             LOG.info("退款单修改--更新退款单状态记录数为0，多人操作，请重试！");

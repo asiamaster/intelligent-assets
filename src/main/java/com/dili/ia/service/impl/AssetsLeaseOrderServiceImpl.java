@@ -940,7 +940,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
 
         }else{ //修改
-            if (!refundOrderService.doUpdateDispatcher(refundOrderDto).isSuccess()) {
+            if (!refundOrderService.doUpdatedHandler(refundOrderDto).isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款修改接口异常", refundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
             }
