@@ -1,10 +1,6 @@
 <script>
     /******************************驱动执行区 begin***************************/
-    $(function () {
-        if ($('[name="refundType"]').val() != '3'){
-            $('#bankInfo').hide();
-        }
-    });
+
 
     function buildFormData(){
         let formData = $("input:not(table input),textarea,select").serializeObject();
