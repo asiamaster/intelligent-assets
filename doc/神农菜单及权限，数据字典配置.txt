@@ -57,3 +57,20 @@
         撤回 withdrawRefundOrder
         修改 updateRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
         取消 cancelRefundOrder
+
+
+数据字典
+    通行证车类型 passport_car_type
+        微型面包车 1 (值可修改)
+        小货车    2 (值可变)
+
+    通行证证件类型代号 passport_license_code
+        营运车辆通行证     YY  (值可修改)
+        海鲜专线通行证     HX  (值可修改)
+        自用通行证        ZY   (值可修改)
+        外市县上货车辆     WS  (值可修改)
+        超市上货车辆      CS   (值可修改)
+        业主出场上货车辆   YZ   (值可修改)
+
+
+
