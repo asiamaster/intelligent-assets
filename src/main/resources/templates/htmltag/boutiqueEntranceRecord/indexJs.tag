@@ -132,9 +132,9 @@
                 bs4pop.alert('请选中一条数据');
                 return;
             }
-            let id = rows[0].id;
+            var id = rows[0]['0'];
         }
-        let url = '/boutiqueFeeOrder/refundApply.html?id=' + rows[0].id;
+        let url = '/boutiqueFeeOrder/refundApply.html?id=' + id;
         dia = bs4pop.dialog({
             title: '退款申请',
             content: url,
@@ -154,24 +154,24 @@
      取消
      */
     function openCancelHandler() {
-        if(isSelectRow()){
+        if(!id){
+            //获取选中行的数据
+            // let rows = _grid.bootstrapTable('getSelections');
+            let rows = _boutiqueListTable.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            var id = rows[0]['0'];
+        }
             bs4pop.confirm('确定取消该业务单？', {}, function (sure) {
+                debugger
+                let data = JSON.stringify({id: id});
                 if(sure){
-                    bui.loading.show('努力提交中，请稍候。。。');
-                    //获取选中行的数据
-                    let rows = _grid.bootstrapTable('getSelections');
-
-                    if (null == rows || rows.length == 0 || rows.length != 1) {
-                        bs4pop.alert('请选中一条数据');
-                        return false;
-                    }
-
-                    let selectedRow = rows[0];
-
                     $.ajax({
                         type: "POST",
-                        url: "${contextPath}/boutiqueFeeOrder/cancel.action",
-                        data: {id: selectedRow.id},
+                        url: "${contextPath}/boutiqueFeeOrder/cancel.action?id=' + id",
+                        data: data,
                         processData:true,
                         dataType: "json",
                         success : function(ret) {
@@ -189,7 +189,6 @@
                     });
                 }
             })
-        }
     }
 
     /**
