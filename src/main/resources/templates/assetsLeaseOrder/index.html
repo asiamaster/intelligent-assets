@@ -28,6 +28,11 @@
                         <#bcomboProvider _id="payState" _provider="payStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
                     </div>
                     <div class="form-group col">
+                        <label for="refundState">退款状态</label>
+                        <select id="refundState" name="refundState" class="form-control"></select>
+                        <#bcomboProvider _id="refundState" _provider="leaseRefundStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
+                    </div>
+                    <div class="form-group col">
                         <label for="likeCustomerName">客户名称</label>
                         <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
                     </div>
