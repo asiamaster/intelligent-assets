@@ -48,6 +48,9 @@
             <if test="state != null">
                 and si.state = #{state}
             </if>
+            <if test="marketId != null">
+                and si.market_id = #{marketId}
+            </if>
             <if test="departmentId != null">
                 and si.department_id = #{departmentId}
             </if>

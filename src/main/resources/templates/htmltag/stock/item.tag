@@ -122,12 +122,12 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
-						 name="weight" value="{{stockDetail.weight}}" range="0.01 9999999" required readonly/>
+						 name="weight" value="{{stockDetail.weight}}" range="0 9999999" required readonly/>
 						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库金额:<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
-						 name="amount" value="{{stockDetail.amount}}" range="0.01 9999999" required readonly/>
+						 name="amount" value="{{stockDetail.amount}}" range="0 9999999" required readonly/>
 					</div>
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->

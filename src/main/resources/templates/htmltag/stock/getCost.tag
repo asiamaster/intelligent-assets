@@ -88,8 +88,14 @@ function getCost(){
 				//计算单价
 				if(detail.uom == 1){
 					$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#weight").val()));
+					if($("#weight").val() == 0){
+						$("#unitPrice").val(0);
+					}
 				}else{
 					$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#quantity").val()));
+					if($("#quantity").val() == 0){
+						$("#unitPrice").val(0);
+					}
 				}
 				
 				countItemAmount();

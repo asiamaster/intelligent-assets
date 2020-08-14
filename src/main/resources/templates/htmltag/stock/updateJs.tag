@@ -222,10 +222,8 @@ function buildFormData() {
 
 // 提交保存
 function doUpdateStockInHandler() {
-	if(type != 3){
-		if(!validateForm()){
-			return;
-		}
+	if(!validateForm()){
+		return;
 	}
 	$.ajax({
 		type: "POST",

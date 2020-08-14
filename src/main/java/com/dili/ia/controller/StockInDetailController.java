@@ -15,6 +15,8 @@ import com.dili.ia.domain.dto.StockInDetailQueryDto;
 import com.dili.ia.service.StockInDetailService;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.metadata.ValueProviderUtils;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 
 /**
@@ -56,6 +58,8 @@ public class StockInDetailController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute StockInDetailQueryDto stockInDetailQueryDto) throws Exception {
+    	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+    	stockInDetailQueryDto.setMarketId(userTicket.getFirmId());
     	Page<Map<String, String>> page = stockInDetailService.selectByContion(stockInDetailQueryDto);
     	Map<String, String> map = stockInDetailQueryDto.getMetadata();
     	List<Map> result = ValueProviderUtils.buildDataByProvider(map, page.getResult());

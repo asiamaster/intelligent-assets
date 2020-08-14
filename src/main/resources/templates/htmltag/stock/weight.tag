@@ -118,7 +118,7 @@ function openWeightUpdateHandler(index) {
         	if(strIsNotEmpty(ob.grossWeight) && strIsNotEmpty(ob.tareWeight)){
         		weightItem.find("[name=weight]").val(ob.grossWeight-ob.tareWeight);
         	}else{
-        		weightItem.find("[name=weight]").val();
+        		weightItem.find("[name=weight]").val(0);
         	}
         	//weightItem.find("[name=weight]").val($("#grossWeight").val());
         	countNumber("weight");

@@ -58,6 +58,8 @@ public class StockInDetailQueryDto extends BaseDomain{
 	private Integer expireDay;
 	
 	private Long departmentId;
+	
+	private Long marketId;
 
 	/*private String orderByColumn;
 	
@@ -182,6 +184,14 @@ public class StockInDetailQueryDto extends BaseDomain{
 
 	public void setExpireDay(Integer expireDay) {
 		this.expireDay = expireDay;
+	}
+
+	public Long getMarketId() {
+		return marketId;
+	}
+
+	public void setMarketId(Long marketId) {
+		this.marketId = marketId;
 	}
 
 	

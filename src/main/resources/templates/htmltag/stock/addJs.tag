@@ -180,10 +180,8 @@ function buildFormData() {
 // 提交保存
 function doAddStockInHandler() {
 	//司磅入库参数验证问题
-	if(type != 3){
 	if(!validateForm()){
 		return;
-	}
 	}
 	//let data = buildFormData();
 	$.ajax({
