@@ -3,9 +3,12 @@ package com.dili.ia.domain.dto;
 import com.dili.ia.domain.*;
 import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,6 +18,16 @@ import java.util.List;
  * This file was generated on 2020-02-11 15:54:49.
  */
 public class AssetsLeaseOrderListDto extends AssetsLeaseOrder {
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "`start_time`")
+    @Operator(Operator.GREAT_EQUAL_THAN)
+    private LocalDate startTimeStart;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "`start_time`")
+    @Operator(Operator.LITTLE_EQUAL_THAN)
+    private LocalDate startTimeEnd;
+
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
     private LocalDateTime createdStart;
@@ -80,6 +93,22 @@ public class AssetsLeaseOrderListDto extends AssetsLeaseOrder {
 
     @Transient
     private String logContent;
+
+    public LocalDate getStartTimeStart() {
+        return startTimeStart;
+    }
+
+    public void setStartTimeStart(LocalDate startTimeStart) {
+        this.startTimeStart = startTimeStart;
+    }
+
+    public LocalDate getStartTimeEnd() {
+        return startTimeEnd;
+    }
+
+    public void setStartTimeEnd(LocalDate startTimeEnd) {
+        this.startTimeEnd = startTimeEnd;
+    }
 
     public LocalDateTime getCreatedStart() {
         return createdStart;
