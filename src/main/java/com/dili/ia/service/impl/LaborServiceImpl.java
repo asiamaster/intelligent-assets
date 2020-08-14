@@ -538,14 +538,13 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		laborPrintDto.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
 		laborPrintDto.setCustomerCellphone(labor.getCustomerCellphone());
 		laborPrintDto.setCustomerName(labor.getCustomerName());
-		laborPrintDto.setCardNo("");
 		laborPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
 		laborPrintDto.setSubmitter(labor.getSubmitter());
 		DateTimeFormatter sdf1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		laborPrintDto.setEffectiveDate(sdf1.format(labor.getStartDate())+"至"+sdf1.format(labor.getEndDate()));
 		laborPrintDto.setNotes(labor.getNotes());
 		
-		laborPrintDto.setPayWay(String.valueOf(paymentOrder.getSettlementWay()));
+		laborPrintDto.setPayWay(order.getWayName());
 		//TODO 判断支付方式
 		//园区卡号
 		laborPrintDto.setCardNo(order.getAccountNumber());

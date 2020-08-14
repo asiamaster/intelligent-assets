@@ -4,6 +4,9 @@ import com.dili.ia.domain.StockOut;
 import com.dili.ia.domain.dto.StockOutQuery;
 import com.dili.ia.service.StockOutService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -52,6 +55,8 @@ public class StockOutController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute StockOutQuery stockOut) throws Exception {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		stockOut.setMarketId(userTicket.getFirmId());
         return stockOutService.listEasyuiPageByExample(stockOut, true).toString();
     }
 

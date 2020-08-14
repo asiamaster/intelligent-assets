@@ -122,12 +122,12 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
-						 name="weight" value="{{stockDetail.weight}}" range="0.01 9999999" required readonly/>
+						 name="weight" value="{{stockDetail.weight}}" range="0 9999999" required readonly/>
 						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库金额:<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
-						 name="amount" value="{{stockDetail.amount}}" range="0.01 9999999" required readonly/>
+						 name="amount" value="{{stockDetail.amount}}" range="0 9999999" required readonly/>
 					</div>
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->
@@ -224,7 +224,7 @@
 function changeDistrict(index,parent,value,level){
 	$.ajax({
 		type: "POST",
-		url: "/district/search.action",
+		url: "/stock/stockIn/searchDistrict.action",
 		data: {parentId: parent},
 		success: function (data) {
 			if (data.code == "200") {
@@ -240,7 +240,7 @@ function changeDistrict(index,parent,value,level){
 					//当index大于0 标记为新增详情,只触发当前index的更新
 					let htmlConent = '<option value="" selected="">-- 请选择--</option>';
 					for (let item of array) {
-						htmlConent+='<option value="'+item.id+'" >'+item.text+'</option>'
+						htmlConent+='<option value="'+item.id+'" >'+item.name+'</option>'
 					}
 					$('#districtId_'+level+'_'+index).html(htmlConent);
 					if(value != null){

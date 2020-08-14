@@ -3,6 +3,9 @@ package com.dili.ia.controller;
 import com.dili.ia.domain.StockRecord;
 import com.dili.ia.service.StockRecordService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -40,7 +43,9 @@ public class StockRecordController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute StockRecord stockRecord) throws Exception {
-        return stockRecordService.listEasyuiPageByExample(stockRecord, true).toString();
+    	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+    	stockRecord.setMarketId(userTicket.getFirmId());
+    	return stockRecordService.listEasyuiPageByExample(stockRecord, true).toString();
     }
 
     /**

@@ -148,6 +148,8 @@ public class LaborController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute LaborQueryDto labor) throws Exception {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		labor.setMarketId(userTicket.getFirmId());
 		return laborService.listEasyuiPageByExample(labor, true).toString();
     	
     }
