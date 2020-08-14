@@ -143,8 +143,8 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
             return BaseOutput.failure(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
         }
 
-        // 已创建状态才能取消
-        if (!BoutiqueOrderStateEnum.CREATED.getCode().equals(orderInfo.getState())) {
+        // 精品停车缴费，缴费单就是已提交状态
+        if (!BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode().equals(orderInfo.getState())) {
             return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
         }
 
