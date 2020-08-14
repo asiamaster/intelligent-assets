@@ -5,7 +5,7 @@
     function buildFormData(){
         let formData = $("input:not(table input),textarea,select").serializeObject();
         bui.util.yuanToCentForMoneyEl(formData);
-        return formData;
+        return $.extend(formData, {logContent: $('#id').val() ? Log.buildUpdateContent() : ''});
     }
 
     // 定金退款保存
