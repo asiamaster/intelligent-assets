@@ -126,7 +126,7 @@ public class DepositOrderController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content = "${content}", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput addRefundOrder(@RequestBody DepositRefundOrderDto orderDto) {
+    public @ResponseBody BaseOutput saveOrUpdateRefundOrder(@RequestBody DepositRefundOrderDto orderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
