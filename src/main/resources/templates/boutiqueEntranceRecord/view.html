@@ -60,7 +60,7 @@
 
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
-                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i>取消</button>
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-eye"></i>取消</button>
                 <button id="btn_refund" type="button" class="btn btn-primary" onclick="openRefundHandler()"><i class="fa fa-ban"></i> 退款测试</button>
 
             </div>
@@ -73,6 +73,7 @@
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
                 <thead>
                 <tr>
+                    <th data-id="id" class="d-none"></th>
                     <th data-radio="true"></th>
                     <th style="font-weight:normal; ">缴费单号</th>
                     <th style="font-weight:normal; ">创建时间</th>
@@ -87,6 +88,7 @@
                 if(boutiqueEntranceRecord.orderDtoList.~size>0){
                 for(item in boutiqueEntranceRecord.orderDtoList){%>
                 <tr>
+                    <td data-id="id" class="d-none">${item.id!''}</td>
                     <td></td>
                     <td>
                         ${item.code!'--'}

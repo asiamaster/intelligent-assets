@@ -2,13 +2,13 @@ package com.dili.ia.api;
 
 import com.dili.ia.service.AssetsLeaseDataHandlerService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.retrofitful.annotation.POST;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 摊位租赁数据处理api
@@ -22,7 +22,7 @@ public class LeaseDataHandlerApi {
 
 
     /**
-     * 去掉保证金后数据处理
+     * 跑租赁单数据
      *
      * @return
      */
@@ -65,6 +65,23 @@ public class LeaseDataHandlerApi {
             return assetsLeaseDataHandlerService.refundOrderDataHandler();
         } catch (Exception e) {
             LOG.error("跑退款单金额及退款收费项数据异常 FAIL！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+
+    /**
+     * 删除租赁单
+     * 正式数据有退款转抵的不能删除
+     * @return
+     */
+    @PostMapping(value = "/deleteLeaseOrder")
+    public @ResponseBody
+    BaseOutput deleteLeaseOrder(@RequestBody List<Long> leaseOrderIds) {
+        try {
+            return assetsLeaseDataHandlerService.deleteLeaseOrder(leaseOrderIds);
+        } catch (Exception e) {
+            LOG.error("删除租赁单数据异常 FAIL！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }

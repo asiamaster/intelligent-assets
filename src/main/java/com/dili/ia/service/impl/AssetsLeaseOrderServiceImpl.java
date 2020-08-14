@@ -915,8 +915,12 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
         //新增
         if(null == refundOrderDto.getId()){
-            //同步更新主单退款状态为【退款中】
             AssetsLeaseOrder leaseOrder = get(leaseOrderItem.getLeaseOrderId());
+            //判断缴费单是否需要撤回 需要撤回则撤回
+            if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
+                withdrawPaymentOrder(leaseOrder.getPaymentId());
+            }
+            //同步更新主单退款状态为【退款中】
             leaseOrder.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
             if (updateSelective(leaseOrder) == 0) {
                 LOG.info("摊位租赁单退款状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
@@ -936,7 +940,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
 
         }else{ //修改
-            if (!refundOrderService.doUpdateDispatcher(refundOrderDto).isSuccess()) {
+            if (!refundOrderService.doUpdatedHandler(refundOrderDto).isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款修改接口异常", refundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
             }
@@ -1009,7 +1013,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (refundStates.contains(LeaseRefundStateEnum.REFUNDING.getCode())) {
             leaseOrder.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
         } else {
-            if (refundStates.size() == 1 && refundStates.contains(LeaseRefundStateEnum.REFUNDED.getCode())) {
+            if (CollectionUtils.isEmpty(refundStates) || (refundStates.size() == 1 && refundStates.contains(LeaseRefundStateEnum.REFUNDED.getCode()))) {
                 leaseOrder.setRefundState(LeaseRefundStateEnum.REFUNDED.getCode());
             } else {
                 leaseOrder.setRefundState(LeaseRefundStateEnum.PARTIAL_REFUND.getCode());

@@ -38,7 +38,7 @@ public interface RefundOrderService extends BaseService<RefundOrder, Long> {
      * @param refundOrder 退款单
      * @return BaseOutput
      * */
-    BaseOutput<RefundOrder> doUpdateDispatcher(RefundOrder refundOrder);
+    BaseOutput<RefundOrder> doUpdatedHandler(RefundOrder refundOrder);
 
     /**
      * 退款单 --撤回

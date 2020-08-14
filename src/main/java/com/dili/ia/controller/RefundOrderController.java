@@ -352,7 +352,7 @@ public class RefundOrderController {
     }
 
     /**
-     * 跳转到退款单-查看页面
+     * 跳转到退款单-查看页面 --// 修改在各个业务
      * @param modelMap
      * @return String
      */
@@ -364,7 +364,7 @@ public class RefundOrderController {
             modelMap.put("refundOrder",refundOrder);
             modelMap.put("payee", payee.getData());
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
-                return "refundOrder/updateView/refundApply";
+                return "forward:/customerAccount/earnestRefund.html?refundOrderId=" + id + "&customerAccountId=" + refundOrder.getBusinessId();
             } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
                 return "forward:/depositOrder/refundApply.html?refundOrderId=" + id + "&depositOrderId=" + refundOrder.getBusinessId();
             } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
@@ -372,31 +372,5 @@ public class RefundOrderController {
             }
         }
         return "refundOrder/updateView/refundApply";
-    }
-
-    /**
-     * 修改DepositOrder
-     * @param refundOrder
-     * @return BaseOutput
-     */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doUpdate(RefundOrder refundOrder) {
-        try{
-            BaseOutput<RefundOrder> output = refundOrderService.doUpdateDispatcher(refundOrder);
-            //写业务日志
-            if (output.isSuccess()){
-                RefundOrder order = refundOrderService.get(refundOrder.getId());
-                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
-            }
-            return output;
-        }catch (BusinessException e){
-            LOG.error("退款单修改异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }catch (Exception e){
-            LOG.error("退款单修改异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }
     }
 }
