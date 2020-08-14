@@ -33,9 +33,11 @@
             <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
         </#resource>
         <#resource code="updateMeter">
-        <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
+            <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
         </#resource>
-        <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 复制</button>
+        <#resource code="copyMeter">
+            <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 复制</button>
+        </#resource>
 </div>
 <table id="grid" data-toggle="table" data-title="表列表" class="table" data-toolbar="#toolbar"
        data-pagination="true" data-page-number="1" data-page-size="10"

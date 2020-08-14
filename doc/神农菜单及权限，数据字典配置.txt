@@ -1,0 +1,59 @@
+水电费
+    表管理 http://ia.diligrp.com:8381/meter/index.html
+        新增 addMeter         (内部链接：http://ia.diligrp.com:8381/meter/add.html)
+        修改 updateMeter      (内部链接：http://ia.diligrp.com:8381/meter/update.html)
+        复制 copyMeter
+    表用户关系 http://ia.diligrp.com:8381/customerMeter/index.html
+        新增 addCustomerMeter (内部链接：http://ia.diligrp.com:8381/customerMeter/add.html)
+        解绑 unbindCustomerMeter
+    水费 http://ia.diligrp.com:8381/meterDetail/water/index.html
+        新增 addMeterDetailWater      (内部链接：http://ia.diligrp.com:8381/meterDetail/water/add.html)
+        修改 updateMeterDetailWater   (内部链接：http://ia.diligrp.com:8381/meterDetail/water/update.html)
+        查看 viewMeterDetailWater
+        提交 submitMeterDetailWater
+        批量提交 submitAllMeterDetailWater
+        撤回 withdrawMeterDetailWater
+        取消 cancelMeterDetailWater
+        导出 exportMeterDetailWater
+    电费 http://ia.diligrp.com:8381/meterDetail/electricity/index.html
+        新增 addMeterDetailElectricity      (内部链接：http://ia.diligrp.com:8381/meterDetail/electricity/add.html)
+        修改 updateMeterDetailElectricity   (内部链接：http://ia.diligrp.com:8381/meterDetail/electricity/update.html)
+        查看 viewMeterDetailElectricity
+        提交 submitMeterDetailElectricity
+        批量提交 submitAllMeterDetailElectricity
+        撤回 withdrawMeterDetailElectricity
+        取消 cancelMeterDetailElectricity
+        导出 exportMeterDetailElectricity
+
+精品停车
+    精品停车 http://ia.diligrp.com:8381/boutiqueEntranceRecord/index.html
+        确认计费 confirmBoutique   (内部链接：http://ia.diligrp.com:8381/boutiqueEntranceRecord/confirm.html)
+        交费 submitBoutique        (内部链接：http://ia.diligrp.com:8381/boutiqueEntranceRecord/submit.html)
+        退款 refundBoutique        (内部链接：http://ia.diligrp.com:8381/boutiqueFeeOrder/refundApply.html)
+        离场 leaveBoutique
+        强制离场 forceLeaveBoutique
+        查看 viewBoutique
+    精品停车退款 http://ia.diligrp.com:8381/refundOrder/6/index.html
+        提交 submitRefundOrder
+        撤回 withdrawRefundOrder
+        修改 updateRefundOrder   (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        取消 cancelRefundOrder
+    精品停车时长设置 http://ia.diligrp.com:8381/boutiqueFreeSets/set.html
+        新增 addBoutiqueSets
+
+劳务
+    通行证 http://ia.diligrp.com:8381/passport/index.html
+        新增 addPassport       (内部链接：http://ia.diligrp.com:8381/passport/add.html)
+        修改 updatePassport    (内部链接：http://ia.diligrp.com:8381/passport/update.html)
+        退款 refundPassport    (内部链接：http://ia.diligrp.com:8381/passport/refundApply.html)
+        打印 printPassport     (内部链接：http://ia.diligrp.com:8381/passport/print.html)
+        查看 viewPassport
+        提交 submitPassport
+        撤回 withdrawPassport
+        取消 cancelPassport
+
+    通行证退款 http://ia.diligrp.com:8381/refundOrder/7/index.html
+        提交 submitRefundOrder
+        撤回 withdrawRefundOrder
+        修改 updateRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        取消 cancelRefundOrder

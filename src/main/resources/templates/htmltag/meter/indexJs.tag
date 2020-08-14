@@ -112,8 +112,7 @@
             closeBtn: true,
             backdrop : 'static',
             width: '80%',
-            height : '95%',
-            btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
+            height : '95%'
         });
     }
 
