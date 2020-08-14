@@ -65,7 +65,7 @@
                     <button id="btn_refund" type="button" class="btn btn-primary" onclick="openRefundHandler()"><i class="fa fa-ban"></i> 退款申请</button>
                 </#resource>
                 <#resource code="printPassport">
-                    <button id="btn_print" type="button" class="btn btn-primary" onclick="openPrintHandler()"><i class="fa fa-ban"></i> 打印证件</button>
+                    <button id="btn_print" type="button" class="btn btn-primary" onclick="openPassportPrintHandler()"><i class="fa fa-ban"></i> 打印证件</button>
                 </#resource>
             </div>
             <table id="grid" data-toggle="table" data-title="表列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="10"
@@ -130,3 +130,4 @@
 </#bs4Body>
 
 <#passport_indexJs />
+<#print />

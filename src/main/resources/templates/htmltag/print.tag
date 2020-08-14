@@ -5,6 +5,18 @@ function te(){
 	print(orderCode,url);	
 }
 
+// 通行证证件打印
+function openPassportPrintHandler(){
+    //获取选中行的数据
+    let rows = _grid.bootstrapTable('getSelections');
+    if (null == rows || rows.length == 0 || rows.length != 1) {
+        bs4pop.alert('请选中一条数据');
+        return false;
+    }
+    let url = '${contextPath}/passport/print.html?id='+rows[0].id;
+    print(url,url);
+}
+
 function print(url,temp){
 	
       if(typeof callbackObj != 'undefined'){
