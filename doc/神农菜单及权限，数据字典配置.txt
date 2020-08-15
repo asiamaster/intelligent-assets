@@ -51,13 +51,62 @@
         提交 submitPassport
         撤回 withdrawPassport
         取消 cancelPassport
-
+   马甲 http://ia.diligrp.com:8381/labor/vest/index.html
+        新增 addLaborVest (内部链接:http://ia.diligrp.com:8381/labor/vest/add.html)
+        修改 updateLaborVest (内部链接:http://ia.diligrp.com:8381/labor/vest/update.html)
+        查看 viewLaborVest (内部链接:http://ia.diligrp.com:8381/labor/vest/view.html)
+        取消 cancelLaborVest
+        提交 submitLaborVest
+        撤回 withdrawLaborVest
+        续费 renewLaborVest
+        更名 renameLaborVest
+        更型 remodelLaborVest
+        退款 refundLaborVest (内部链接:http://ia.diligrp.com:8381/labor/vest/refundApply.html)
+        打印 printLaborVest
     通行证退款 http://ia.diligrp.com:8381/refundOrder/7/index.html
         提交 submitRefundOrder
         撤回 withdrawRefundOrder
         修改 updateRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
         取消 cancelRefundOrder
+    马甲退款 http://ia.diligrp.com:8381/refundOrder/11/index.html
+        提交 submitRefundOrder
+        撤回 withdrawRefundOrder
+        修改 updateRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        取消 cancelRefundOrder
 
+冷库出入库
+    入库首页 http://ia.diligrp.com:8381/stock/stockIn/index.html
+        入库 addStockIn (内部链接:http://ia.diligrp.com:8381/stock/stockIn/add.html)
+        下载 doExport 
+        查看 viewStockIn (内部链接:http://ia.diligrp.com:8381/stock/stockIn/view.html)
+        修改 updateStockIn (内部链接:http://ia.diligrp.com:8381/stock/stockIn/update.html)
+        取消 cancelStockIn
+        提交 submitStockIn
+        支付 payStockIn
+        撤回 removeStockIn
+        退款申请 refundStockIn (内部链接:http://ia.diligrp.com:8381/stock/stockIn/refundApply.html)      
+    出库办理 http://ia.diligrp.com:8381/stock/stock/out.html
+        下载 doExport
+        出库 stockOut
+        入库详情 sockInList (内部链接:http://ia.diligrp.com:8381/stock/stock/inList.html)
+        出库详情 sockOutList (内部链接:http://ia.diligrp.com:8381/stock/stock/outList.html)
+    出库记录 http://ia.diligrp.com:8381/stock/stockOut/index.html
+        下载 doExport
+        查看 viewStockOutDetail (内部链接:http://ia.diligrp.com:8381/stock/stockOut/view.html)
+    客户库存 http://ia.diligrp.com:8381/stock/stock/index.html
+        入库详情 stockInList (内部链接:http://ia.diligrp.com:8381/stock/stock/inList.html)
+        出库详情 stockOutList (内部链接:http://ia.diligrp.com:8381/stock/stock/outList.html)
+    子单记录 http://ia.diligrp.com:8381/stock/stockInDetail/index.html
+        下载 doExport
+        查看 viewStockInDetail (内部链接:http://ia.diligrp.com:8381/stock/stockInDetail/view.html)
+    退款单 http://ia.diligrp.com:8381/refundOrder/8/index.html
+        撤回 withdrawRefundOrder
+        提交 submitRefundOrder
+        修改 updateRefundOrder
+        取消 cancelRefundOrder
+    存储周期 http://ia.diligrp.com:8381/stock/categoryCycle/list.html
+        查看品类列表 CATEGORY_TABLE (内部链接 :http://ia.diligrp.com:8381/stock/categoryCycle/table.html)
+        修改周期 EDIT_CATEGORY_CYCLE
 
 数据字典
     通行证车类型 passport_car_type
@@ -72,5 +121,21 @@
         超市上货车辆      CS   (值可修改)
         业主出场上货车辆   YZ   (值可修改)
 
-
+    劳务办理周期 labor_interval
+        一月 1
+        两月 2
+        季度 3
+        半年 6
+        一年 12
+        其他 0
+    劳务马甲运营车型 labor_car_type
+         电动车 DD
+         人力车 RL
+         精品业户电动车及人力车 JZ
+         干果业户小型电动车及人力车 GX
+         干果业户大型电动车 GD
+     劳务马甲类型 labor_vest_type
+         自用车辆 ZY
+         运营车型 YY
+    
 

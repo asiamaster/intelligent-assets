@@ -35,6 +35,33 @@ INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_passport_yy', 2020081200001, '杭州水产-通行证证件类型营运', '1');
 
 
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-冷库入库单', 'hzsc_stockInCode', 'HZSCSI', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_stockInCode', 2020081200001, '杭州水产-冷库入库单', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-冷库入库子单', 'hzsc_stockInDetail', 'HZSCSID', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_stockInDetail', 2020081200001, '杭州水产-冷库入库子单', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-冷库出库单', 'hzsc_stockOut', 'HZSCSO', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_stockOut', 2020081200001, '杭州水产-冷库出库单', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务马甲单', 'hzsc_laborVest', 'HSSCMJ', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_laborVest', 2020081200001, '杭州水产-劳务马甲单', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务人力马甲号', 'hzsc_vest_rl', 'HZSCRL', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_vest_rl', 2020081200001, '杭州水产-劳务人力马甲号', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_dd', 'HZSCDD', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_vest_dd', 2020081200001, '杭州水产-劳务电动马甲号', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务精品业户电动车及人力车马甲号', 'hzsc_vest_jz', 'HZSCJZ', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_vest_jz', 2020081200001, '杭州水产-劳务精品业户电动车及人力车马甲号', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务干果业户小型电动车及人力车马甲号', 'hzsc_vest_gx', 'HZSCGX', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_vest_gx', 2020081200001, '杭州水产-劳务干果业户小型电动车及人力车马甲号', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务干果业户大型电动车马甲号', 'hzsc_vest_gd', 'HZSCGD', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_vest_gd', 2020081200001, '杭州水产-劳务干果业户大型电动车马甲号', '1');
+
 
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-冷库缴费单', 'hzsc_stockIn_paymentOrder', 'HZSCSI', 'yyyyMMdd', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_stockIn_paymentOrder', 2020081200001, '杭州水产-冷库缴费单', '1');

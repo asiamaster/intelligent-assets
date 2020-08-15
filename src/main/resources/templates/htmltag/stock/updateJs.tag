@@ -51,11 +51,11 @@ var categoryAutoCompleteOption = {
 $(function() {
 	let uom = '${stockIn.uom!}';
 	$("#uom").val(uom);
-	if(uom == "1"){
+	/*if(uom == "1"){
 		$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#weight").val()));
 	}else{
 		$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#quantity").val()));
-	}
+	}*/
 	let stockInDetails = JSON.parse('${stockIn.jsonStockInDetailDtos!}');
 	for (let stockDetail of stockInDetails) {
 		stockDetail.departmentId=${stockIn.departmentId!};

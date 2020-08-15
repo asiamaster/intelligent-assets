@@ -189,7 +189,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 	
 	public void buildStockOut(Stock stock,UserTicket userTicket,String notes,Long weight, Long quantity) {
 		StockOut stockOut = new StockOut();
-		String code = uidRpcResolver.bizNumber(stock.getMarketCode()+"_"+BizNumberTypeEnum.STOCK_IN_DETAIL_CODE.getCode());
+		String code = uidRpcResolver.bizNumber(stock.getMarketCode()+"_"+BizNumberTypeEnum.STOCK_OUT.getCode());
 		stockOut.setCode(code);
 		BeanUtil.copyProperties(stock, stockOut,"id");
 		stockOut.setQuantity(quantity);
