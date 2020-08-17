@@ -106,7 +106,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         //检查客户状态
         checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
         //检查摊位状态 @TODO 检查公寓，冷库状态
-        if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType())){
+        if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) && depositOrder.getAssetsId() != null){
             checkBoothState(depositOrder.getAssetsId());
         }
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
@@ -155,12 +155,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (depositOrder.getAssetsType() == null){
             return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产类型不能为空");
         }
-        if (!depositOrder.getAssetsType().equals(AssetsTypeEnum.OTHER.getCode()) && depositOrder.getAssetsId() == null){
-            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产ID不能为空");
-        }
-        if (!depositOrder.getAssetsType().equals(AssetsTypeEnum.OTHER.getCode()) && depositOrder.getAssetsName() == null){
-            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产名称不能为空");
-        }
+        //资产编号可以为空
+//        if (!depositOrder.getAssetsType().equals(AssetsTypeEnum.OTHER.getCode()) && depositOrder.getAssetsId() == null){
+//            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产ID不能为空");
+//        }
+//        if (!depositOrder.getAssetsType().equals(AssetsTypeEnum.OTHER.getCode()) && depositOrder.getAssetsName() == null){
+//            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产名称不能为空");
+//        }
         if (depositOrder.getAmount() == null){
             return BaseOutput.failure(ResultCode.PARAMS_ERROR, "保证金金额不能为空");
         }
@@ -277,7 +278,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         //检查客户状态
         checkCustomerState(de.getCustomerId(),de.getMarketId());
         //检查摊位状态 @TODO 检查公寓，冷库状态
-        if(AssetsTypeEnum.BOOTH.getCode().equals(de.getAssetsType())){
+        if(AssetsTypeEnum.BOOTH.getCode().equals(de.getAssetsType()) && de.getAssetsId() != null){
             checkBoothState(de.getAssetsId());
         }
         //检查是否可以进行提交付款
@@ -602,11 +603,12 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     private BaseOutput<String> saveOrupdateDepositBalance(DepositOrder depositOrder, Long payAmount){
         DepositBalance params = new DepositBalance();
-        // 保证金余额维度： 保证金类型，资产类型，资产编号，客户
+        // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称
         params.setCustomerId(depositOrder.getCustomerId());
         params.setTypeCode(depositOrder.getTypeCode());
         params.setAssetsType(depositOrder.getAssetsType());
         params.setAssetsId(depositOrder.getAssetsId());
+        params.setAssetsName(depositOrder.getAssetsName());
         params.setMarketId(depositOrder.getMarketId());
         params.setMarketCode(depositOrder.getMarketCode());
         DepositBalance depositBalance = depositBalanceService.listByExample(params).stream().findFirst().orElse(null);
