@@ -137,4 +137,41 @@
       bfo.code = #{code,jdbcType=VARCHAR}
     </if>
   </select>
+
+  <select id="listBoutiques" parameterType="com.dili.ia.domain.dto.BoutiqueEntranceRecordDto" resultType="com.dili.ia.domain.dto.BoutiqueEntranceRecordDto">
+    select
+        <include refid="Base_Column_List"></include>
+    from
+        boutique_entrance_record
+    <where>
+      <if test="enterTimeStart != null">
+        and enter_time <![CDATA[ >= ]]> #{enterTimeStart,jdbcType=TIMESTAMP}
+      </if>
+      <if test="enterTimeEnd != null">
+        and enter_time <![CDATA[ <= ]]> #{enterTimeEnd,jdbcType=TIMESTAMP}
+      </if>
+      <if test="confirmTimeStart != null">
+        and confirm_time <![CDATA[ >= ]]> #{confirmTimeStart,jdbcType=TIMESTAMP}
+      </if>
+      <if test="confirmTimeEnd != null">
+        and confirm_time <![CDATA[ <= ]]> #{confirmTimeEnd,jdbcType=TIMESTAMP}
+      </if>
+      <if test="plate != null">
+        and plate = #{plate,jdbcType=VARCHAR}
+      </if>
+      <if test="customerName != null">
+        and customer_name = #{customerName,jdbcType=VARCHAR}
+      </if>
+      <if test="state != null">
+        and state = #{state,jdbcType=INTEGER}
+      </if>
+      <if test="carTypeId != null">
+        and car_type_id = #{carTypeId,jdbcType=BIGINT}
+      </if>
+      <if test="departmentId != null">
+        and department_id = #{departmentId,jdbcType=BIGINT}
+      </if>
+
+    </where>
+  </select>
 </mapper>

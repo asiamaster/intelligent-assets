@@ -9,7 +9,13 @@
     let _form = $('#_form');
     let currentSelectRowIndex;
     var dia;
+    let duration = 2;
+    let timeUnit = "day"
+    $("#enterTimeStart").attr("value", moment().subtract(duration, timeUnit).startOf('day').format('YYYY-MM-DD HH:mm:ss'));
+    $("#enterTimeEnd").attr("value", moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'));
 
+    $("#confirmTimeStart").attr("value", moment().subtract(duration, timeUnit).startOf('day').format('YYYY-MM-DD HH:mm:ss'));
+    $("#confirmTimeEnd").attr("value", moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'));
     /*********************变量定义区 end***************/
 
 

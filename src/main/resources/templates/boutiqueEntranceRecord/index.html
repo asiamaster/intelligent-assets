@@ -33,6 +33,43 @@
                 <#bcomboProvider _id="departmentId" _provider="carDepartmentProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
 
+            <div class="form-group col-auto">
+                <label for="enterTimeLabel">进场时间</label>
+                <div class="form-inline">
+                    <div class="input-group">
+                        <input type="text" name="enterTimeStart" id="enterTimeStart" class="form-control laydatetime laystart" value="${enterTimeStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <div class="input-group-append">
+                            <label for="enterTimeStart" class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                    <div class="input-group">
+                        <input type="text" name="enterTimeEnd" id="enterTimeEnd" class="form-control laydatetime layend" value="${enterTimeEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <div class="input-group-append">
+                            <label for="enterTimeEnd" class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group col-auto">
+                <label for="confirmTimeLabel">确认时间</label>
+                <div class="form-inline">
+                    <div class="input-group">
+                        <input type="text" name="confirmTimeStart" id="confirmTimeStart" class="form-control laydatetime laystart" value="${confirmTimeStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <div class="input-group-append">
+                            <label for="confirmTimeStart" class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                    <div class="input-group" id="datetimepicker3">
+                        <input type="text" name="confirmTimeEnd" id="confirmTimeEnd" class="form-control laydatetime layend" value="${confirmTimeEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <div class="input-group-append">
+                            <label for="confirmTimeEnd" class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
                 <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
