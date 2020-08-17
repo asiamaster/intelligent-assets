@@ -16,8 +16,11 @@ import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.logger.sdk.glossary.LoggerConstant;
+import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -28,6 +31,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.mvc.util.RequestUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.User;
@@ -81,6 +85,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     CustomerAccountService customerAccountService;
     @Autowired
     TransactionDetailsService transactionDetailsService;
+    @Autowired
+    BusinessLogRpc businessLogRpc;
 
     public DepositOrderMapper getActualDao() {
         return (DepositOrderMapper)getDao();
@@ -90,6 +96,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     private Long settlementAppId;
     @Value("${depositOrder.settlement.handler.url}")
     private String settlerHandlerUrl;
+    @Value("${contextPath}")
+    private String businessLogReferer;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -258,7 +266,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         oldDto.setWaitAmount(dto.getAmount());
         oldDto.setNotes(dto.getNotes());
         oldDto.setModifyTime(LocalDateTime.now());
-        oldDto.setVersion(dto.getVersion());
 
         return oldDto;
     }
@@ -796,6 +803,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             assetsIdsMap.put(o.getAssetsId(), o.getId());
         });
 
+        List<BusinessLog> BList = new ArrayList<>();
         depositOrderList.stream().forEach(o ->{
             List<DepositOrder> deList = queryDepositOrder(o.getBizType(), o.getBusinessId(), o.getAssetsId());
             if (CollectionUtils.isEmpty(deList)){ // 没有的话，就【新增】
@@ -806,10 +814,14 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 if (o.getBizType() == null){
                     throw new BusinessException(ResultCode.PARAMS_ERROR, "关联订单业务类型不能为空");
                 }
-                BaseOutput output = this.addDepositOrder(o);
+                BaseOutput<DepositOrder> output = this.addDepositOrder(o);
                 if (!output.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
                 }
+                BusinessLog businessLog = this.buildCommonLog(output.getData());
+                businessLog.setOperationType("add");
+                businessLog.setContent(output.getData().getCode());
+                BList.add(businessLog);
             }else {// 有的话， 就【修改】
                 o.setId(deList.get(0).getId());
                 BaseOutput output = this.updateDepositOrder(o);
@@ -820,13 +832,45 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 if (assetsIdsMap.containsKey(o.getAssetsId())){
                     assetsIdsMap.remove(o.getAssetsId());
                 }
+                BusinessLog businessLog = this.buildCommonLog(o);
+                businessLog.setOperationType("edit");
+                //@TODO 修改内容记录
+//                businessLog.setContent(output.getData().getCode());
+                BList.add(businessLog);
             }
+
         });
         assetsIdsMap.forEach((key, value) -> { //【取消】
             DepositOrder depositOrder = this.get(value);
             this.cancelDepositOrder(depositOrder);
+
+            BusinessLog businessLog = this.buildCommonLog(depositOrder);
+            businessLog.setOperationType("cancel");
+            businessLog.setContent(depositOrder.getCode());
+            BList.add(businessLog);
         });
+
+        if (CollectionUtils.isNotEmpty(BList)){
+            businessLogRpc.batchSave(BList, businessLogReferer);
+        }
+
         return BaseOutput.success();
+    }
+
+    private BusinessLog buildCommonLog(DepositOrder depositOrder){
+        BusinessLog businessLog = new BusinessLog();
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        businessLog.setRemoteIp(RequestUtils.getIpAddress(LoggerContext.getRequest()));
+        businessLog.setServerIp(LoggerContext.getRequest().getLocalAddr());
+        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
+        businessLog.setBusinessCode(depositOrder.getCode());
+        businessLog.setBusinessId(depositOrder.getId());
+        businessLog.setOperatorId(userTicket.getId());
+        businessLog.setOperatorName(userTicket.getRealName());
+        businessLog.setMarketId(userTicket.getFirmId());
+        businessLog.setNotes(depositOrder.getNotes());
+        return businessLog;
     }
 
     private List<DepositOrder> queryDepositOrder(String bizType, Long businessId, Long assetsId){
@@ -851,15 +895,25 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (businessId == null){
             return BaseOutput.failure("参数businessId 不能为空！");
         }
+        List<BusinessLog> BList = new ArrayList<>();
         map.forEach((key, value) -> {
             List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, key);
             if (CollectionUtils.isNotEmpty(deList)){
-                BaseOutput output = this.submitDepositOrder(deList.get(0).getId(), value, deList.get(0).getWaitAmount());
+                BaseOutput<DepositOrder> output = this.submitDepositOrder(deList.get(0).getId(), value, deList.get(0).getWaitAmount());
                 if (!output.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
                 }
+                //日志构建
+                BusinessLog businessLog = this.buildCommonLog(output.getData());
+                businessLog.setOperationType("submit");
+                businessLog.setContent(output.getData().getCode());
+                BList.add(businessLog);
             }
         });
+        //日志记录
+        if (CollectionUtils.isNotEmpty(BList)){
+            businessLogRpc.batchSave(BList, businessLogReferer);
+        }
         return BaseOutput.success();
     }
 
@@ -873,13 +927,19 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             return BaseOutput.failure("参数bizType 不能为空！");
         }
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        List<BusinessLog> BList = new ArrayList<>();
         deList.stream().forEach(o -> {
             // 如果状态是【已提交】状态，就同步撤回
             if (o.getState().equals(DepositOrderStateEnum.SUBMITTED.getCode())){
-                BaseOutput output = this.withdrawDepositOrder(o.getId());
+                BaseOutput<DepositOrder> output = this.withdrawDepositOrder(o.getId());
                 if (!output.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
                 }
+                // 日志构建
+                BusinessLog businessLog = this.buildCommonLog(output.getData());
+                businessLog.setOperationType("withdraw");
+                businessLog.setContent(output.getData().getCode());
+                BList.add(businessLog);
             }else if (o.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
                 //如果状态是【已创建】，就不做任何处理
             }else {// 如果状态不是【已提交】状态，就解除关联订单操作关系
@@ -890,6 +950,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 }
             }
         });
+
+        if (CollectionUtils.isNotEmpty(BList)){
+            businessLogRpc.batchSave(BList, businessLogReferer);
+        }
+
         return BaseOutput.success();
     }
 
@@ -903,13 +968,24 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             return BaseOutput.failure("参数businessId 不能为空！");
         }
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        List<BusinessLog> BList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(deList)){
             deList.stream().forEach(o -> {
-                BaseOutput output = this.submitDepositOrder(o.getId(), o.getAmount(), o.getWaitAmount());
+                BaseOutput<DepositOrder> output = this.submitDepositOrder(o.getId(), o.getAmount(), o.getWaitAmount());
                 if (!output.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
                 }
+                // 日志构建
+                BusinessLog businessLog = this.buildCommonLog(output.getData());
+                businessLog.setOperationType("submit");
+                businessLog.setContent(output.getData().getCode());
+                BList.add(businessLog);
             });
+        }
+
+        // 日志记录
+        if (CollectionUtils.isNotEmpty(BList)){
+            businessLogRpc.batchSave(BList, businessLogReferer);
         }
         return BaseOutput.success();
     }
@@ -923,11 +999,21 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (businessId == null){
             return BaseOutput.failure("参数businessId 不能为空！");
         }
+        List<BusinessLog> BList = new ArrayList<>();
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
         if (CollectionUtils.isNotEmpty(deList)){
             deList.stream().forEach(o -> {
                 this.cancelDepositOrder(o);
+                // 日志构建
+                BusinessLog businessLog = this.buildCommonLog(o);
+                businessLog.setOperationType("cancel");
+                businessLog.setContent(o.getCode());
+                BList.add(businessLog);
             });
+        }
+        // 日志记录
+        if (CollectionUtils.isNotEmpty(BList)){
+            businessLogRpc.batchSave(BList, businessLogReferer);
         }
         return BaseOutput.success();
     }
