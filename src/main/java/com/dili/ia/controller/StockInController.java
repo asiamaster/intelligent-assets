@@ -161,7 +161,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "update", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput update(@RequestBody @Validated StockInDto stockIn) {
     	try {
     		stockInService.updateStockIn(stockIn);

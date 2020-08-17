@@ -7,16 +7,16 @@
 			<div class="row row-cols-4 collapse show" id="customerInfo">
 				<div class="form-group col">
 					<label for="customerName">客户名称<i class="red">*</i></label>
-					<input id="customerName" type="text" class="form-control  "
+					<input  type="text" class="form-control  "
 					 name="customerName" value="${stockIn.customerName!}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="_certificateNumber">证件号码<i class="red">*</i></label>
-					<input id="customerName" type="text" class="form-control  "
+					<input  type="text" class="form-control  "
 					 name="customerName" value="${stockIn.customerName!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">联系电话<i class="red">*</i></label> <input id="customerCellphone" type="text" class="form-control  "
+					<label for="">联系电话<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="customerCellphone" value="${stockIn.customerCellphone!}" readonly />
 				</div>
 			</div>
@@ -26,39 +26,39 @@
 			</div>
 			<div class="row row-cols-4 collapse show" id="baseInfo">
 				<div class="form-group col">
-					<label for="">入库单号<i class="red">*</i></label> <input id="code" type="text" class="form-control  "
+					<label for="">入库单号<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="code" value="${stockIn.code!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">入库类型<i class="red">*</i></label> <input id="code" type="text" class="form-control  "
+					<label for="">入库类型<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="type" value="${@com.dili.ia.glossary.StockInTypeEnum.getStockInTypeEnum(stockIn.type).getName()}"  readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">操作员<i class="red">*</i></label> <input id="operatorName" type="text" class="form-control  "
+					<label for="">操作员<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="operatorName" value="${stockIn.operatorName!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">所属部门<i class="red">*</i></label> <input id="departmentName" type="text" class="form-control  "
+					<label for="">所属部门<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="departmentName" value="${stockIn.departmentName!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">货物品类<i class="red">*</i></label> <input id="categoryName" type="text" class="form-control  "
+					<label for="">货物品类<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="categoryName" value="${stockIn.categoryName!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">产地<i class="red">*</i></label> <input id="origin" type="text" class="form-control  "
+					<label for="">产地<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="origin" value="${stockIn.origin!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">总件数<i class="red">*</i></label> <input id="quantity" type="text" class="form-control  "
+					<label for="">总件数<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="quantity" value="${stockIn.quantity!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">总净重(公斤)<i class="red">*</i></label> <input id="weight" type="text" class="form-control  "
+					<label for="">总净重(公斤)<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="weight" value="${stockIn.weight!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">入库总额(元)<i class="red">*</i></label> <input id="amount" type="text" class="form-control  "
+					<label for="">入库总额(元)<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="amount" value="<#centToYuan value='${stockIn.amount!}'/>" readonly />
 				</div>
 				<%
@@ -82,23 +82,23 @@
 			</div>
 			<div class="row row-cols-4 collapse show" id="payInfo">
 				<div class="form-group col">
-					<label for="">结算单号<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
+					<label for="">结算单号<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.settleOrder.code!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">缴费日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
+					<label for="">缴费日期<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.settleOrder.operateTime!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">缴费金额<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
+					<label for="">缴费金额<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.settleOrder.amount!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">卡号<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
+					<label for="">卡号<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.settleOrder.accountNumber!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">收费员<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
+					<label for="">收费员<i class="red">*</i></label> <input  type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.settleOrder.operatorName!'--'}" readonly />
 				</div>
 				
@@ -182,19 +182,39 @@
                 </tbody>
             </table>
 			</div>
-			<div class="breadcrumb">
-			日志记录 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#details" aria-expanded="true"
-			 aria-controls="operational-log">收起
-				<i class="fa fa-angle-double-up" aria-hidden="true"></i>
-			</a>
-			</div>
-			<div class="collapse show" id="operational-log">
-			<%if(isNotEmpty(logs) && logs.~size>0){
-	           for(item in logs){%>
-	           ${item.content!},${item.operatorName!},${item.createTime!}
-	           <% } } %>
 			
-			</div>
+			<%if(isNotEmpty(logs) && logs.~size>0){ %>
+            <div class="breadcrumb">
+                业务记录
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#recordInfo" aria-expanded="true" aria-controls="recordInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+            </div>
+            <div class="collapse" id="recordInfo">
+                <table data-toggle="table">
+                    <thead>
+                    <tr>
+                        <th data-align="center">时间</th>
+                        <th data-align="center">操作</th>
+                        <th data-align="center">详情</th>
+                        <th data-align="center">补充信息</th>
+                        <th data-align="center">工作员</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <%
+                    for(log in logs){%>
+                    <tr>
+                        <td class="text-center align-middle" >${log.createTime!}</td>
+                        <td class="text-center align-middle" >${log.operationTypeText!}</td>
+                        <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.content!}" >${log.content!}</td>
+                        <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.notes!}" >${log.notes!}</td>
+                        <td class="text-center align-middle" >${log.operatorName!}</td>
+                    </tr>
+                    <% }%>
+                    </tbody>
+                </table>
+            </div>
+            <% }%>
+			
 		</form>
 	</div>
 </#bs4Body>

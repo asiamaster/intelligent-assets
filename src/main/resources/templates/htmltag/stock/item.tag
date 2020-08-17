@@ -70,7 +70,7 @@
 				    -->
 					<div class="form-group col-8">
 					    <label for="notes">备注:</label>
-					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100" value="{{stockDetail.notes}}">{{stockDetail.notes}}</textarea>
+					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="200" value="{{stockDetail.notes}}">{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
@@ -144,7 +144,7 @@
 				        -->
 					<div class="form-group col-8">
 					    <label for="">备注:</label>
-					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" value="{{stockDetail.notes}}" maxlength="100">{{stockDetail.notes}}</textarea>
+					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" value="{{stockDetail.notes}}" maxlength="200">{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
@@ -206,7 +206,7 @@
 				        -->
 					<div class="form-group col-8">
 					    <label for="notes">备注:</label>
-					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="100" >{{stockDetail.notes}}</textarea>
+					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="200" >{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
@@ -340,7 +340,7 @@ var carTypeAutoCompleteOption = {
 		serviceUrl: '/stock/stockIn/searchCarType.action',
 		paramName : 'keyword',
 		displayFieldName : 'carTypeName',
-		hiddenDomainName : 'code',
+		hiddenDomainName : 'number',
 		showNoSuggestionNotice: true,
 		noSuggestionNotice: '无匹配结果',
 		transformResult: function (result) {
@@ -349,7 +349,7 @@ var carTypeAutoCompleteOption = {
 				return {
 					suggestions: $.map(data, function (dataItem) {
 						return $.extend(dataItem, {
-							value: dataItem.carTypeName + '（' + dataItem.code + '）'
+							value: dataItem.carTypeName + '（' + dataItem.number + '）'
 						}
 						);
 					})
@@ -361,7 +361,7 @@ var carTypeAutoCompleteOption = {
 		},
 		selectFn: function (suggestion ,self) {
             let hiddenDomain = $(self).siblings('input');
-            hiddenDomain.val(suggestion.code);
+            hiddenDomain.val(suggestion.number);
 		}}
 
 
