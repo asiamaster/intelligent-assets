@@ -603,11 +603,12 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     private BaseOutput<String> saveOrupdateDepositBalance(DepositOrder depositOrder, Long payAmount){
         DepositBalance params = new DepositBalance();
-        // 保证金余额维度： 保证金类型，资产类型，资产编号，客户
+        // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称
         params.setCustomerId(depositOrder.getCustomerId());
         params.setTypeCode(depositOrder.getTypeCode());
         params.setAssetsType(depositOrder.getAssetsType());
         params.setAssetsId(depositOrder.getAssetsId());
+        params.setAssetsName(depositOrder.getAssetsName());
         params.setMarketId(depositOrder.getMarketId());
         params.setMarketCode(depositOrder.getMarketCode());
         DepositBalance depositBalance = depositBalanceService.listByExample(params).stream().findFirst().orElse(null);
