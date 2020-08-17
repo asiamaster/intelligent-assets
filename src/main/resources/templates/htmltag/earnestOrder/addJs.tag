@@ -58,7 +58,6 @@
     // 添加摊位
     $('#addBooth').on('click', function () {
         if ($('#boothTable tr').length < 11) {
-            debugger
             addBoothItem();
         } else {
             bs4pop.notice('最多10个摊位', {position: 'leftcenter', type: 'warning'})
@@ -146,7 +145,6 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (ret) {
-                debugger
                 bui.loading.hide();
                 if(ret.code != '200'){
                     bs4pop.alert(ret.message, {type: 'error'});
