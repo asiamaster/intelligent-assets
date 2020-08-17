@@ -59,6 +59,7 @@
                     suggestions: $.map(data, function (dataItem) {
                         return $.extend(dataItem, {
                                 id : dataItem.certificateNumber,
+                                customerId : dataItem.id,
                                 value: dataItem.name + '（' + dataItem.certificateNumber + '）'
                             }
                         );
@@ -71,7 +72,7 @@
         },
         selectFn: function (suggestion) {
             $('#customerName').val(suggestion.name);
-            $('#customerId').val(suggestion.id);
+            $('#customerId').val(suggestion.customerId);
             $('#customerCellphone').val(suggestion.contactsPhone);
             $('#customerName, #customerCellphone').valid();
         }
