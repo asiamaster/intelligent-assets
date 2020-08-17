@@ -58,6 +58,7 @@
                 return {
                     suggestions: $.map(data, function (dataItem) {
                         return $.extend(dataItem, {
+                                id : dataItem.certificateNumber,
                                 value: dataItem.name + '（' + dataItem.certificateNumber + '）'
                             }
                         );
