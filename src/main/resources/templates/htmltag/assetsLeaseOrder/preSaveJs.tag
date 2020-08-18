@@ -25,7 +25,7 @@
     $.extend(certificateNumberAutoCompleteOption,{
         selectFn: function (suggestion) {
             $('#customerName').val(suggestion.name);
-            $('#customerId').val(suggestion.id);
+            $('#customerId').val(suggestion.customerId);
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#customerName,#customerCellphone").valid();
 
