@@ -1,5 +1,6 @@
 package com.dili.ia.provider;
 
+import bsh.StringUtil;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ss.domain.BaseOutput;
@@ -9,6 +10,7 @@ import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
 import com.dili.ss.metadata.provider.BatchDisplayTextProviderAdaptor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -70,7 +72,11 @@ public class DistrictProvider extends BatchDisplayTextProviderAdaptor {
             return buffer;
         }
         listBaseOutput.getData().forEach(o->{
-            buffer.add(new ValuePairImpl(o.getName(), o.getId().toString()));
+            if(StringUtils.isBlank(o.getParentName())) {
+                buffer.add(new ValuePairImpl(o.getName(), o.getId().toString()));
+            }else{
+                buffer.add(new ValuePairImpl(o.getParentName() +" -> " + o.getName(), o.getId().toString()));
+            }
         });
         return buffer;
     }
