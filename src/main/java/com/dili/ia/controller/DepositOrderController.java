@@ -217,10 +217,6 @@ public class DepositOrderController {
             if (depositOrder.getId() == null){
                 return BaseOutput.failure("Id不能为空！");
             }
-            DepositOrder old = depositOrderService.get(depositOrder.getId());
-            if (null != old && old.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
-                return BaseOutput.failure("关联订单不能修改!");
-            }
             BaseOutput<DepositOrder> output = depositOrderService.updateDepositOrder(depositOrder);
             //写业务日志
             if (output.isSuccess()){

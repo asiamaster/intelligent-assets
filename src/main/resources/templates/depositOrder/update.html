@@ -31,7 +31,7 @@
         <div class="row row-cols-2 collapse show" id="baseInfo">
             <div class="form-group col">
                 <label for="departmentId" >业务所属部门<i class="red">*</i></label>
-                <select id="departmentId"  name="departmentId" class="form-control"></select>
+                <select id="departmentId"  name="departmentId" class="form-control" required></select>
                 <#bcomboProvider _log="业务所属部门" _id="departmentId" _provider="authDepartmentProvider" _value="${depositOrder.departmentId!}"/>
 
             </div>

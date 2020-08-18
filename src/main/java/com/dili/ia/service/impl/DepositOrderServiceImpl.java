@@ -19,7 +19,6 @@ import com.dili.ia.util.LogBizTypeConst;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
-import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
@@ -38,7 +37,9 @@ import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
+import com.dili.uap.sdk.session.PermissionContext;
 import com.dili.uap.sdk.session.SessionContext;
+import com.dili.uap.sdk.util.WebContent;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -233,9 +234,28 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput<DepositOrder> updateDepositOrder(DepositOrder depositOrder) {
+        //检查参数
+        BaseOutput checkOut = checkparams(depositOrder);
+        if (!checkOut.isSuccess()){
+            return checkOut;
+        }
         DepositOrder oldDTO = this.get(depositOrder.getId());
         if (null == oldDTO || !oldDTO.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("修改失败，保证金单状态已变更！");
+        }
+        if (oldDTO.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+            return BaseOutput.failure("关联订单不能修改!");
+        }
+        //检查客户状态
+        checkCustomerState(depositOrder.getCustomerId(),oldDTO.getMarketId());
+        //检查摊位状态 @TODO 检查公寓，冷库状态
+        if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) && depositOrder.getAssetsId() != null){
+            checkBoothState(depositOrder.getAssetsId());
+        }
+        BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
+        if(!depOut.isSuccess()){
+            LOGGER.info("获取部门失败！" + depOut.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
         //修改有清空修改，所以使用update
         if (this.update(this.buildUpdateDto(oldDTO, depositOrder)) == 0){
@@ -860,8 +880,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     private BusinessLog buildCommonLog(DepositOrder depositOrder){
         BusinessLog businessLog = new BusinessLog();
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        businessLog.setRemoteIp(RequestUtils.getIpAddress(LoggerContext.getRequest()));
-        businessLog.setServerIp(LoggerContext.getRequest().getLocalAddr());
+        businessLog.setRemoteIp(RequestUtils.getIpAddress(WebContent.getRequest()));
+        businessLog.setServerIp(WebContent.getRequest().getLocalAddr());
         businessLog.setSystemCode("INTELLIGENT_ASSETS");
         businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
         businessLog.setBusinessCode(depositOrder.getCode());
