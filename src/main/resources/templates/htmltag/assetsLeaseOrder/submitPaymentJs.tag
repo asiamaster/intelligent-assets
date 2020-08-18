@@ -23,10 +23,12 @@
                         for (let depositOrder of depositOrders) {
                             let index = getIndex($("table input.assets[value='" + depositOrder.assetsId + "']").attr('id'));
                             $('#depositAmount_' + index).val(Number(depositOrder.waitAmount).centToYuan());
-                            if(depositOrder.state == ${@com.dili.ia.glossary.DepositOrderStateEnum.CANCELD.getCode()}
+                            if (depositOrder.state == ${@com.dili.ia.glossary.DepositOrderStateEnum.CANCELD.getCode()}
                                 || depositOrder.payState == ${@com.dili.ia.glossary.DepositPayStateEnum.PAID.getCode()}
                                     || depositOrder.refundState != ${@com.dili.ia.glossary.DepositRefundStateEnum.NO_REFUNDED.getCode()}){
                                 $('#depositAmount_' + index).attr('readonly', true);
+                            } else {
+                                $('#depositAmount_' + index).attr('readonly', false);
                             }
                         }
                     }
