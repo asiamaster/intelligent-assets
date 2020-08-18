@@ -71,6 +71,7 @@ public class StockDto {
     private Long outWeight;
     private Long cancelQuantity;
     private Long cancelWeight;
+    private Long stockQuantity;
 	public Long getDistrictId() {
 		return districtId;
 	}
@@ -209,6 +210,11 @@ public class StockDto {
 	public void setId(Long id) {
 		this.id = id;
 	}
+	public Long getStockQuantity() {
+		return stockQuantity;
+	}
+	public void setStockQuantity(Long stockQuantity) {
+		this.stockQuantity = stockQuantity;
+	}
 	
-    
 }

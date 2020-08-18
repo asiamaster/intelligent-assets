@@ -7,7 +7,7 @@ var categoryAutoCompleteOption = {
 		maximumSelectionLength: 10,
 		ajax: {
 			type: 'post',
-			url: '/category/search.action',
+			url: '/stock/categoryCycle/searchV2.action',
 			data: function(params) {
 				return {
 					keyword: params.term,
@@ -53,7 +53,7 @@ $(document).on('change', '#district-two', function() {
 function getDistrict(obj,parent){
 	$.ajax({
 		type: "POST",
-		url: "/district/search.action",
+		url: "/stock/stockIn/searchDistrict.action",
 		data: {parentId: parent},
 		success: function (data) {
 			if (data.code == "200") {

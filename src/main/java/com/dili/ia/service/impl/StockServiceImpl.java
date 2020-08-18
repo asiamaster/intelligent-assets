@@ -152,7 +152,16 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		record.setStockId(stock.getId());
 		record.setMarketId(stock.getMarketId());
 		record.setMarketCode(stock.getMarketCode());
-		record.setCreateTime(LocalDate.now());
+		record.setCreateTime(LocalDateTime.now());
+		record.setOperationDay(LocalDate.now());
+		//计算期末库存
+		if(StockRecordTypeEnum.STOCK_IN == type) {
+			record.setStockQuantity(stock.getQuantity()+quantity);
+			record.setStockWeight(stock.getWeight()+weight);
+		}else {
+			record.setStockQuantity(stock.getQuantity()-quantity);
+			record.setStockWeight(stock.getWeight()-weight);
+		}
 		stockRecordService.insertSelective(record);		
 	}
 
@@ -163,7 +172,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		Stock stock = this.get(stockId);
 		stockDeduction(stock, 0L, quantity);
 		// 出库单
-		buildStockOut(stock, userTicket, notes, weight, quantity);
+		buildStockOut(stock, userTicket, notes, 0L, quantity);
 	}
 	
 	private void stockDeduction(Stock stock,Long weight, Long quantity){

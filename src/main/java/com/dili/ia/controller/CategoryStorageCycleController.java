@@ -3,6 +3,7 @@ package com.dili.ia.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
+import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.ia.domain.dto.CategoryStorageCycleDto;
 import com.dili.ia.service.CategoryStorageCycleService;
 import com.dili.ss.domain.BaseOutput;
@@ -113,12 +114,30 @@ public class CategoryStorageCycleController {
     }
     
     /**
-     * 品类搜索
+     * 品类搜索获取存储周期
      */
     @RequestMapping(value = "/search.action")
     public @ResponseBody BaseOutput<JSONObject> searchCategory(String keyword) {
         try {
             return BaseOutput.success().setData(categoryStorageCycleService.searchCategory(keyword));
+        } catch (Exception e) {
+        	LOG.error("获取品类周期失败",e.getMessage());
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+    
+    /**
+     * 品类搜索
+     */
+    @RequestMapping(value = "/searchV2.action")
+    public @ResponseBody BaseOutput<JSONObject> searchV2(String keyword) {
+        try {
+        	CategoryDTO categoryDTO = new CategoryDTO();
+            categoryDTO.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
+            categoryDTO.setState(EnabledStateEnum.ENABLED.getCode());
+            categoryDTO.setKeyword(keyword);
+            //根据关键词查询品类
+            return BaseOutput.success().setData(assetsRpc.list(categoryDTO).getData());
         } catch (Exception e) {
         	LOG.error("获取品类周期失败",e.getMessage());
             return BaseOutput.failure(e.getMessage());

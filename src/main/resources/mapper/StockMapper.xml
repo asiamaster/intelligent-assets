@@ -17,17 +17,22 @@
 	
 	<select id="countCustomerStock" parameterType="com.dili.ia.domain.dto.StockQueryDto"
 		resultType="com.dili.ia.domain.dto.StockDto">
-		SELECT *,(t.inQuantity-t.outQuantity-t.cancelQuantity) quantity FROM (
+		SELECT t.customer_cellphone AS customerCellphone,t.department_name AS departmentName,t.assets_name AS assetsName,t.district_name AS districtName,t.category_name AS categoryName,t.customer_name AS customerName,
+		t.inQuantity,
+		t.outQuantity,
+		t.cancelQuantity,
+		t.stockInDay ,
+		ssr.stock_quantity stockQuantity FROM (
 		SELECT
-		<include refid="Base_Column_List" />
-		sum( IF ( sr.type = 1, sr.quantity, 0 ) ) AS inQuantity,
-		sum( IF ( sr.type = 1, sr.weight, 0 ) ) AS inWeight,
-		sum( IF ( sr.type = 2, sr.quantity, 0 ) ) AS outQuantity,
-		sum( IF ( sr.type = 2, sr.weight, 0 ) ) AS outWeight,
+		Max(sr.id) sid,s.customer_cellphone,s.department_name,s.assets_name,s.district_name,s.customer_name,s.category_name,
+		sum( IF ( sr.type = 1, sr.quantity, 0 ) ) AS inQuantity,		
+		sum( IF ( sr.type = 2, sr.quantity, 0 ) ) AS outQuantity,		
 		sum( IF ( sr.type = 3, sr.quantity, 0 ) ) AS cancelQuantity,
-		sum( IF ( sr.type = 3, sr.weight, 0 ) ) AS cancelWeight,
-		s.quantity AS quantity,
-		sr.create_time stockInDay
+		<!--
+		sum( IF ( sr.type = 1, sr.weight, 0 ) ) AS inWeight,
+		sum( IF ( sr.type = 2, sr.weight, 0 ) ) AS outWeight,
+		sum( IF ( sr.type = 3, sr.weight, 0 ) ) AS cancelWeight,-->
+		sr.operation_day stockInDay
 		from stock as s
 		left join stock_record as sr on sr.stock_id = s.id
 		<where>
@@ -53,8 +58,8 @@
 				and sr.create_time &lt; #{endTime}
 			</if>
 		</where>
-		group by s.assets_id,s.category_id,s.customer_id,sr.create_time order by ${sort} ${order}
-		) as t  
+		group by s.assets_id,s.category_id,s.customer_id,sr.operation_day order by ${sort} ${order}
+		) as t INNER JOIN stock_record as ssr on ssr.id= t.sid
 	</select>
 
 </mapper>

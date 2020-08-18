@@ -6,6 +6,7 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.*;
 
@@ -61,8 +62,17 @@ public class StockRecord extends BaseDomain {
     private String marketCode;
     
     @Column(name = "`create_time`")
-    private LocalDate createTime;
+    private LocalDateTime createTime;
 
+    @Column(name = "`operation_day`")
+    private LocalDate operationDay;
+    
+    @Column(name = "`stock_quantity`")
+    private Long stockQuantity;
+    
+    @Column(name = "`stock_weight`")
+    private Long stockWeight;
+    
     /**
      * @return id
      */
@@ -215,12 +225,36 @@ public class StockRecord extends BaseDomain {
         this.marketCode = marketCode;
     }
 
-	public LocalDate getCreateTime() {
+	public LocalDateTime getCreateTime() {
 		return createTime;
 	}
 
-	public void setCreateTime(LocalDate createTime) {
+	public void setCreateTime(LocalDateTime createTime) {
 		this.createTime = createTime;
+	}
+
+	public LocalDate getOperationDay() {
+		return operationDay;
+	}
+
+	public void setOperationDay(LocalDate operationDay) {
+		this.operationDay = operationDay;
+	}
+
+	public Long getStockQuantity() {
+		return stockQuantity;
+	}
+
+	public void setStockQuantity(Long stockQuantity) {
+		this.stockQuantity = stockQuantity;
+	}
+
+	public Long getStockWeight() {
+		return stockWeight;
+	}
+
+	public void setStockWeight(Long stockWeight) {
+		this.stockWeight = stockWeight;
 	}
     
     
