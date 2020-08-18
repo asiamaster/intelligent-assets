@@ -217,6 +217,11 @@ public class DepositOrderController {
             if (depositOrder.getId() == null){
                 return BaseOutput.failure("Id不能为空！");
             }
+            //只能在这里验证，service 方法关联修改也调用了，所以不能再里面验证
+            DepositOrder oldDTO = depositOrderService.get(depositOrder.getId());
+            if (oldDTO.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                return BaseOutput.failure("关联订单不能修改!");
+            }
             BaseOutput<DepositOrder> output = depositOrderService.updateDepositOrder(depositOrder);
             //写业务日志
             if (output.isSuccess()){
