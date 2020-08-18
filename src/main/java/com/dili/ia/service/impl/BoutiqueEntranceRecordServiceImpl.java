@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.BoutiqueFreeSets;
+import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
@@ -35,10 +36,14 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +103,22 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     private Long settlementAppId;
 
     private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/boutiqueEntrance/settlementDealHandler";
+
+    @Override
+    public EasyuiPageOutput listBoutiques(BoutiqueEntranceRecordDto boutiqueDto, boolean useProvider) throws Exception {
+        // 分页
+        if (boutiqueDto.getRows() != null && boutiqueDto.getRows() >= 1) {
+            PageHelper.startPage(boutiqueDto.getPage(), boutiqueDto.getRows());
+        }
+
+        List<BoutiqueEntranceRecordDto> boutiqueList = this.getActualDao().listBoutiques(boutiqueDto);
+
+        // 基础代码
+        long total = boutiqueList instanceof Page ? ((Page) boutiqueList).getTotal() : (long) boutiqueList.size();
+        List results = useProvider ? ValueProviderUtils.buildDataByProvider(boutiqueDto, boutiqueList) : boutiqueList;
+
+        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results);
+    }
 
     /**
      * 根据主键获取精品停车数据以及精品停车交费列表

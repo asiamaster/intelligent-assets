@@ -10,6 +10,7 @@ import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 
 /**
@@ -19,6 +20,15 @@ import com.dili.uap.sdk.domain.UserTicket;
  * @description:  精品停车
  */
 public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntranceRecord, Long> {
+
+    /**
+     * 列表查询
+     *
+     * @param  boutiqueEntranceRecordDto
+     * @return
+     * @date   2020/8/17
+     */
+    EasyuiPageOutput listBoutiques(BoutiqueEntranceRecordDto boutiqueEntranceRecordDto, boolean b) throws Exception;
     
     /**
      * 根据主键获取精品停车数据以及精品停车交费列表
@@ -123,4 +133,5 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @date   2020/8/11
      */
     PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, String reprint);
+
 }

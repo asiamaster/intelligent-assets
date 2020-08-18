@@ -216,15 +216,15 @@ public class BoutiqueEntranceRecordController {
     /**
      * 分页查询精品停车列表，返回easyui分页信息
      *
-     * @param boutiqueEntranceRecord
+     * @param boutiqueEntranceRecordDto
      * @return String
      * @throws Exception
      * @date 2020/7/13
      */
     @RequestMapping(value = "/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
-    String listPage(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) throws Exception {
-        return boutiqueEntranceRecordService.listEasyuiPageByExample(boutiqueEntranceRecord, true).toString();
+    String listPage(@ModelAttribute BoutiqueEntranceRecordDto boutiqueEntranceRecordDto) throws Exception {
+        return boutiqueEntranceRecordService.listBoutiques(boutiqueEntranceRecordDto, true).toString();
     }
 
     /**

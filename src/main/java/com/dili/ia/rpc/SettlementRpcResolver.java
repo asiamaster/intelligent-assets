@@ -115,6 +115,13 @@ public class SettlementRpcResolver {
 		return result.getData();
     };
     
+    /**
+     * 
+     * 
+     * @param
+     * @return 
+     * @date   2020/8/6
+     */
     public SettleOrderDto buildSettleOrderDto(UserTicket userTicket, Labor labor,String orderCode,Long amount,BizTypeEnum bizTypeEnum) {
 		SettleOrderInfoDto settleOrderInfoDto = 
 				new SettleOrderInfoDto(userTicket, bizTypeEnum,SettleTypeEnum.PAY,SettleStateEnum.WAIT_DEAL);
