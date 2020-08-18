@@ -38,7 +38,9 @@ import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
+import com.dili.uap.sdk.session.PermissionContext;
 import com.dili.uap.sdk.session.SessionContext;
+import com.dili.uap.sdk.util.WebContent;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -860,8 +862,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     private BusinessLog buildCommonLog(DepositOrder depositOrder){
         BusinessLog businessLog = new BusinessLog();
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        businessLog.setRemoteIp(RequestUtils.getIpAddress(LoggerContext.getRequest()));
-        businessLog.setServerIp(LoggerContext.getRequest().getLocalAddr());
+        businessLog.setRemoteIp(RequestUtils.getIpAddress(WebContent.getRequest()));
+        businessLog.setServerIp(WebContent.getRequest().getLocalAddr());
         businessLog.setSystemCode("INTELLIGENT_ASSETS");
         businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
         businessLog.setBusinessCode(depositOrder.getCode());

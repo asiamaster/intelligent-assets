@@ -1080,7 +1080,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new AppException(ResultCode.DATA_ERROR, districtOutput.getMessage());
         }
         //构建一级区域名称，用于流程流转
-        String districtName = null;
         if (districtOutput.getData().getParentId() == 0L || "0".equals(districtOutput.getData().getParentId())) {
             return districtOutput.getData().getName();
         } else {
