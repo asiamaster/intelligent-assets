@@ -428,31 +428,31 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
         List<AssetsLeaseOrder> assetsLeaseOrders = assetsLeaseOrderService.listByExample(orderCondition);
 
         //处理定金抵扣和转抵扣
-//        assetsLeaseOrders.stream().filter(o -> o.getEarnestDeduction() > 0L || o.getTransferDeduction() > 0L
-//                && !LeaseOrderStateEnum.CREATED.getCode().equals(o.getState())
-//                && !LeaseOrderStateEnum.CANCELD.getCode().equals(o.getState())).forEach(o -> {
-//            customerAccountService.oldDataHandler(o.getId(), o.getCustomerId(), o.getMarketId(), o.getEarnestDeduction(), o.getTransferDeduction());
-//        });
+        assetsLeaseOrders.stream().filter(o -> o.getEarnestDeduction() > 0L || o.getTransferDeduction() > 0L
+                && !LeaseOrderStateEnum.CREATED.getCode().equals(o.getState())
+                && !LeaseOrderStateEnum.CANCELD.getCode().equals(o.getState())).forEach(o -> {
+            customerAccountService.oldDataHandler(o.getId(), o.getCustomerId(), o.getMarketId(), o.getEarnestDeduction(), o.getTransferDeduction());
+        });
 
         //处理保证金抵扣
-//        assetsLeaseOrders.stream().filter(o -> o.getDepositDeduction() > 0L
-//                && !LeaseOrderStateEnum.CREATED.getCode().equals(o.getState())
-//                && !LeaseOrderStateEnum.CANCELD.getCode().equals(o.getState())).forEach(o -> {
-//            AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
-//            itemCondition.setLeaseOrderId(o.getId());
-//            List<AssetsLeaseOrderItem> assetsLeaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
-//            assetsLeaseOrderItems.stream()
-//                    .filter(item -> null != item.getDepositAmountSourceId())
-//                    .forEach(item -> {
-//                        AssetsLeaseOrderItem depositAmountSourceItem = assetsLeaseOrderItemService.get(item.getDepositAmountSourceId());
-//                        if (LeaseRefundStateEnum.REFUNDED.getCode().equals(depositAmountSourceItem.getRefundState())) {
-//                            depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.REFUNDED.getCode());
-//                        } else {
-//                            depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
-//                        }
-//                        assetsLeaseOrderItemService.updateSelective(depositAmountSourceItem);
-//                    });
-//        });
+        assetsLeaseOrders.stream().filter(o -> o.getDepositDeduction() > 0L
+                && !LeaseOrderStateEnum.CREATED.getCode().equals(o.getState())
+                && !LeaseOrderStateEnum.CANCELD.getCode().equals(o.getState())).forEach(o -> {
+            AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
+            itemCondition.setLeaseOrderId(o.getId());
+            List<AssetsLeaseOrderItem> assetsLeaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
+            assetsLeaseOrderItems.stream()
+                    .filter(item -> null != item.getDepositAmountSourceId())
+                    .forEach(item -> {
+                        AssetsLeaseOrderItem depositAmountSourceItem = assetsLeaseOrderItemService.get(item.getDepositAmountSourceId());
+                        if (LeaseRefundStateEnum.REFUNDED.getCode().equals(depositAmountSourceItem.getRefundState())) {
+                            depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.REFUNDED.getCode());
+                        } else {
+                            depositAmountSourceItem.setDepositAmountFlag(DepositAmountFlagEnum.TRANSFERRED.getCode());
+                        }
+                        assetsLeaseOrderItemService.updateSelective(depositAmountSourceItem);
+                    });
+        });
 
         //删除相关数据
         assetsLeaseOrders.forEach(o -> {
@@ -463,12 +463,14 @@ public class AssetsLeaseDataHandlerServiceImpl implements AssetsLeaseDataHandler
             assetsLeaseOrderItemService.delete(assetsLeaseOrderItems.stream().map(item -> item.getId()).collect(Collectors.toList()));
 
             PaymentOrder delPaymentOrderCondition = new PaymentOrder();
+            delPaymentOrderCondition.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
             delPaymentOrderCondition.setBusinessId(o.getId());
             //删除缴费单记录
             paymentOrderService.deleteByExample(delPaymentOrderCondition);
 
             RefundOrder delRefundOrderCondition = new RefundOrder();
             delRefundOrderCondition.setBusinessId(o.getId());
+            delRefundOrderCondition.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
             List<RefundOrder> refundOrders = refundOrderService.listByExample(delRefundOrderCondition);
             //删除退款单
             if(CollectionUtils.isNotEmpty(refundOrders)){
