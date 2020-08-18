@@ -537,6 +537,7 @@
     $(document).on('click', '.item-del', function () {
         if ($('#assetTable tr').length > 1) {
             $(this).closest('tr').remove();
+            calcTotalAmount(true);
         }
     });
 
