@@ -378,7 +378,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             printDataDto.setName(resultMap.get("printTemplateCode").toString());
             return BaseOutput.success().setData(printDataDto);
         } catch (BusinessException e) {
-            LOG.info("获取打印数据异常！{}", e.getErrorMsg());
+            LOG.info("获取打印数据异常！{}", e.getMessage());
             return BaseOutput.failure(e.getMessage());
         }catch (Exception e1){
             LOG.info("获取打印数据异常！{}", e1.getMessage());

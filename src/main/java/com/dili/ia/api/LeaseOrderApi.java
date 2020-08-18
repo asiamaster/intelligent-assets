@@ -124,7 +124,7 @@ public class LeaseOrderApi {
             return leaseOrderService.updateLeaseOrderBySettleInfo(settleOrder);
         }catch (BusinessException e){
             LOG.info("摊位租赁结算成功回调异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("摊位租赁结算成功回调异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);

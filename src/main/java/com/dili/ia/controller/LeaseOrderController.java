@@ -119,9 +119,9 @@ public class LeaseOrderController {
                     errorMap.put("cardNo",LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))));
                     errorMap.put("boothName",o.get("摊位编号"));
                     errorMap.put("depositAmount",o.get("保证金"));
-                    errorMap.put("errorInfo",e.getErrorMsg());
+                    errorMap.put("errorInfo",e.getMessage());
                     errorList.add(errorMap);
-                    LOG.error(o.get("客户名称") + " " + LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))) +  " " + o.get("摊位编号")  + e.getErrorMsg());
+                    LOG.error(o.get("客户名称") + " " + LeaseOrderImportService.convertSnToString(String.valueOf(o.get("证件号"))) +  " " + o.get("摊位编号")  + e.getMessage());
                 } catch (Exception e) {
                     Map<String, Object> errorMap = new HashMap<>();
                     errorMap.put("customerName",o.get("客户名称"));
@@ -284,7 +284,7 @@ public class LeaseOrderController {
             return leaseOrderService.supplement(leaseOrder);
         }catch (BusinessException e){
             LOG.info("租赁订单信息补录异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("租赁订单信息补录异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -305,7 +305,7 @@ public class LeaseOrderController {
             return leaseOrderService.cancelOrder(id);
         }catch (BusinessException e){
             LOG.info("租赁订单取消异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("租赁订单取消异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -326,7 +326,7 @@ public class LeaseOrderController {
             return leaseOrderService.withdrawOrder(id);
         }catch (BusinessException e){
             LOG.info("租赁订单撤回异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("租赁订单撤回异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -363,7 +363,7 @@ public class LeaseOrderController {
             return output;
         }catch (BusinessException e){
             LOG.info("摊位租赁订单保存异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("摊位租赁订单保存异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -393,7 +393,7 @@ public class LeaseOrderController {
             return leaseOrderService.submitPayment(id,amount,waitAmount);
         }catch (BusinessException e){
             LOG.info("摊位租赁订单提交付款异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("摊位租赁订单提交付款异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -420,7 +420,7 @@ public class LeaseOrderController {
             return output;
         }catch (BusinessException e){
             LOG.info("摊位租赁退款申请异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("摊位租赁退款申请异常！", e);
             return BaseOutput.failure(e.getMessage());

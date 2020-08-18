@@ -190,7 +190,7 @@ public class EarnestOrderController {
             return output;
         }catch (BusinessException e){
             LOG.error("定金单保存异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("定金单保存异常！", e);
             return BaseOutput.failure("定金单保存异常！");
@@ -224,7 +224,7 @@ public class EarnestOrderController {
             return output;
         }catch (BusinessException e){
             LOG.error("定金单修改异常！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("定金单修改异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -250,7 +250,7 @@ public class EarnestOrderController {
             return output;
         } catch (BusinessException e) {
             LOG.error("定金单提交失败！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("submit 定金单提交出错!" ,e);
             return BaseOutput.failure("提交出错！");
@@ -275,7 +275,7 @@ public class EarnestOrderController {
             return BaseOutput.success("修改成功");
         } catch (BusinessException e) {
             LOG.error("定金单撤回出错！", e);
-            return BaseOutput.failure(e.getErrorMsg());
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("withdraw 定金单撤回出错!" ,e);
             return BaseOutput.failure("撤回出错！");
