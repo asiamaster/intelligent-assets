@@ -24,6 +24,7 @@
 
     $('#assetsType').on('change', function(){
         $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
+        $('#assetsName-error').remove();
         $('#assetsNameInput').attr('name', '');
         if($(this).val() == 1 ) {
             $('#assetsName').show();

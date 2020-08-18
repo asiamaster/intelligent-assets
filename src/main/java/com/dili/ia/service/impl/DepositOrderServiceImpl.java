@@ -243,9 +243,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (null == oldDTO || !oldDTO.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
             return BaseOutput.failure("修改失败，保证金单状态已变更！");
         }
-        if (oldDTO.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
-            return BaseOutput.failure("关联订单不能修改!");
-        }
         //检查客户状态
         checkCustomerState(depositOrder.getCustomerId(),oldDTO.getMarketId());
         //检查摊位状态 @TODO 检查公寓，冷库状态

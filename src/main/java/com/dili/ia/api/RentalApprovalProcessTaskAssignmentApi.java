@@ -134,8 +134,8 @@ public class RentalApprovalProcessTaskAssignmentApi {
         //获取流程参数中的区域id，以确认审批人
         Long districtId = Long.parseLong((String)processVariables.get("districtId"));
         BaseOutput<DistrictDTO> districtById = assetsRpc.getDistrictById(districtId);
-        //查询失败，或者没有父区域，则返回默认处理人
-        if(!districtById.isSuccess() || districtById.getData().getParentId() == 0){
+        //查询失败，则返回默认处理人
+        if(!districtById.isSuccess()){
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return getExceptionHandlerAssignment();
         }
@@ -146,7 +146,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
         approverAssignment.setProcessDefinitionKey(taskMapping.getProcessDefinitionKey());
         approverAssignment.setTaskDefinitionKey(taskMapping.getTaskDefinitionKey());
         //如果当前区域是一级区域，则从其本身找审批人
-        if(districtById.getData().getParentId().equals(0)){
+        if(districtById.getData().getParentId().equals(0L)){
             //根据区域ID查询本身和子节点
             BaseOutput<List<DistrictDTO>> listBaseOutput = assetsRpc.listDistrictChild(districtId);
             if(!listBaseOutput.isSuccess()){
