@@ -277,7 +277,7 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(@RequestParam Long id, @RequestParam Long amount, @RequestParam Long waitAmount) {
         try {
@@ -290,6 +290,7 @@ public class DepositOrderController {
             if (output.isSuccess()){
                 DepositOrder order = output.getData();
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerContext.put("content", MoneyUtils.centToYuan(amount));
                 LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             }
             return output;
