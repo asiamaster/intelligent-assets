@@ -825,6 +825,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchAddOrUpdateDepositOrder(String bizType, Long businessId, List<DepositOrder> depositOrderList) {
+        if (null == bizType || null == businessId){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数不能为空bizType=" + bizType + "，businessId=" + businessId);
+        }
         List<DepositOrder> oldList = this.queryDepositOrder(bizType, businessId, null);
         Map<Long, Long> assetsIdsMap = new HashMap<>();
         oldList.stream().forEach(o ->{
