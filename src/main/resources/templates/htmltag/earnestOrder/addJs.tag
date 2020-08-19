@@ -149,7 +149,8 @@
                 if(ret.code != '200'){
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
-                    parent.dia.hide();
+                    parent.closeDialog(parent.dia);
+
                 }
             },
             error: function (error) {
