@@ -257,54 +257,6 @@ public class AssetsLeaseOrder extends BaseDomain {
     @Column(name = "`approval_state`")
     private Integer approvalState;
 
-    /*************************** 待删除字段 begin 数据处理后删除**********************************************/
-    @Column(name = "`rent_amount`")
-    private Long rentAmount;
-
-    @Column(name = "`deposit_amount`")
-    private Long depositAmount;
-
-    @Column(name = "`manage_amount`")
-    private Long manageAmount;
-
-    @Column(name = "`deposit_deduction`")
-    private Long depositDeduction;
-
-    public Long getRentAmount() {
-        return rentAmount;
-    }
-
-    public void setRentAmount(Long rentAmount) {
-        this.rentAmount = rentAmount;
-    }
-
-    public Long getDepositAmount() {
-        return depositAmount;
-    }
-
-    public void setDepositAmount(Long depositAmount) {
-        this.depositAmount = depositAmount;
-    }
-
-    public Long getManageAmount() {
-        return manageAmount;
-    }
-
-    public void setManageAmount(Long manageAmount) {
-        this.manageAmount = manageAmount;
-    }
-
-    public Long getDepositDeduction() {
-        return depositDeduction;
-    }
-
-    public void setDepositDeduction(Long depositDeduction) {
-        this.depositDeduction = depositDeduction;
-    }
-
-    /*************************** 待删除字段 begin 数据处理后删除**********************************************/
-
-
     @Override
     public Long getId() {
         return id;

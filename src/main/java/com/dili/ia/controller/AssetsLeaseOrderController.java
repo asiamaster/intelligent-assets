@@ -383,12 +383,12 @@ public class AssetsLeaseOrderController {
             }
         }
 
-        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
-        if (CollectionUtils.isEmpty(departmentIdList)){
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
-        }
-        leaseOrder.setMarketId(userTicket.getFirmId());
-        leaseOrder.setDepartmentIds(departmentIdList);
+//        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+//        if (CollectionUtils.isEmpty(departmentIdList)){
+//            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+//        }
+//        leaseOrder.setMarketId(userTicket.getFirmId());
+//        leaseOrder.setDepartmentIds(departmentIdList);
 
         if (StringUtils.isNotBlank(leaseOrder.getAssetsName())) {
             AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
