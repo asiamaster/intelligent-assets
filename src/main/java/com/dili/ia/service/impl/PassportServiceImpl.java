@@ -129,7 +129,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         BeanUtils.copyProperties(passportDto, passport);
 
         // 生成通行证交费的 code
-        String passportCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.PASSPORT.getCode()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+        String passportCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.PASSPORT.getCode());
         passport.setVersion(0);
         passport.setCode(passportCode);
         passport.setCreatorId(userTicket.getId());
