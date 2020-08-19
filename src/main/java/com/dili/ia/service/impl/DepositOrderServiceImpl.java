@@ -689,26 +689,38 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         dePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
 
         //组合支付需要显示结算详情.票据的资产类型和编号，如果有填写，就显示，没填写就不显示,银行卡、POS、微信、支付宝等支付方式均如此显示，现金则不显示流水号,如果是园区卡付款，则显示对应卡号和开卡人姓名
-        StringBuffer settleWayDetails = new StringBuffer();
+        StringBuilder settleWayDetails = new StringBuilder();
+        String settleWayDetailsStr = null;
         if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
+            //标记是否需要换行，默认标记不换行 ，结算详情中，如果未填备注和流水，则不换行；有备注或者流水，则每种支付方式单独换行；
+            Boolean  flag = true;
             settleWayDetails.append("【");
             BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
-            if (output.isSuccess() && CollectionUtils.isNotEmpty(output.getData())){
-                output.getData().forEach(o -> {
+            List<SettleWayDetail> swdList = output.getData();
+            if (output.isSuccess() && CollectionUtils.isNotEmpty(swdList)){
+                for(SettleWayDetail swd : swdList){
                     //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
-                    settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
-                    if (StringUtils.isNotEmpty(o.getSerialNumber())){
-                        settleWayDetails.append(",").append(o.getSerialNumber());
+                    settleWayDetails.append(SettleWayEnum.getNameByCode(swd.getWay())).append("  ").append(MoneyUtils.centToYuan(swd.getAmount()));
+                    if (StringUtils.isNotEmpty(swd.getSerialNumber())){
+                        settleWayDetails.append(",").append(swd.getSerialNumber());
+                        flag = false; //换行标记
                     }
-                    if (StringUtils.isNotEmpty(o.getNotes())){
-                        settleWayDetails.append(",").append("备注：").append(o.getNotes());
+                    if (StringUtils.isNotEmpty(swd.getNotes())){
+                        settleWayDetails.append(",").append("备注：").append(swd.getNotes());
+                        flag = false; //换行标记
                     }
                     settleWayDetails.append("\r\n");
-                });
+                }
+                //去掉最后一个换行符
+                settleWayDetails.replace(settleWayDetails.length()-2, settleWayDetails.length(), " ");
+                settleWayDetails.append("】");
+                settleWayDetailsStr = settleWayDetails.toString();
+                if (flag){ // 默认都是换行了的 ，标记flag = false, 不换行的话(flag=true)需要处理 换行符
+                    settleWayDetailsStr.replaceAll("\r\n", " ");
+                }
             }else {
-                LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
+                LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}", output.getMessage());
             }
-            settleWayDetails.append("】");
         }else if ( !settlementWay.equals(SettleWayEnum.CASH.getCode())){
             BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
             if(output.isSuccess()){
@@ -716,13 +728,14 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 if(StringUtils.isNotBlank(settleOrder.getSerialNumber())){
                     settleWayDetails.append("流水号：");
                     settleWayDetails.append(settleOrder.getSerialNumber());
+                    settleWayDetailsStr = settleWayDetails.toString();
                 }
             }else {
                 LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
             }
         }
-        if (StringUtils.isNotBlank(settleWayDetails)){
-            dePrintDto.setSettleWayDetails(settleWayDetails.toString());
+        if (null != settleWayDetailsStr){
+            dePrintDto.setSettleWayDetails(settleWayDetailsStr);
         }
 
         PrintDataDto printDataDto = new PrintDataDto();
