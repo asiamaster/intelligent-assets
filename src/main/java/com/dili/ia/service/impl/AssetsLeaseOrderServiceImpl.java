@@ -1381,10 +1381,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      * @param dto
      */
     private void saveOrUpdateDepositOrders(AssetsLeaseOrderListDto dto) {
-//        List<DataDictionaryValue> list = dataDictionaryRpc.listDataDictionaryValueByDdCode(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getTypeCode()).getData();
-//        if (org.apache.commons.collections4.CollectionUtils.isEmpty(list)) {
-//            return null;
-//        }
         List<DepositOrder> depositOrders = new ArrayList<>();
         dto.getLeaseOrderItems().stream().filter(o->o.getDepositMakeUpAmount() > 0).forEach(l -> {
             DepositOrder depositOrder = new DepositOrder();
@@ -1405,7 +1401,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             depositOrder.setBizType(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getBizType());
             depositOrders.add(depositOrder);
         });
-        depositOrderService.batchAddOrUpdateDepositOrder(depositOrders);
+        depositOrderService.batchAddOrUpdateDepositOrder(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getBizType(), dto.getId(), depositOrders);
     }
 
     /**
