@@ -24,6 +24,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -443,13 +444,13 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
         EarnestOrder earnestOrder = get(paymentOrder.getBusinessId());
         EarnestOrderPrintDto earnestOrderPrintDto = new EarnestOrderPrintDto();
-        earnestOrderPrintDto.setPrintTime(LocalDateTime.now());
+        earnestOrderPrintDto.setPrintTime(DateUtils.format(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss"));
         earnestOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         earnestOrderPrintDto.setCode(earnestOrder.getCode());
         earnestOrderPrintDto.setCustomerName(earnestOrder.getCustomerName());
         earnestOrderPrintDto.setCustomerCellphone(earnestOrder.getCustomerCellphone());
-        earnestOrderPrintDto.setStartTime(earnestOrder.getStartTime());
-        earnestOrderPrintDto.setEndTime(earnestOrder.getEndTime());
+        earnestOrderPrintDto.setStartTime(DateUtils.format(earnestOrder.getStartTime(), "yyyy-MM-dd"));
+        earnestOrderPrintDto.setEndTime(DateUtils.format(earnestOrder.getEndTime(), "yyyy-MM-dd"));
         earnestOrderPrintDto.setNotes(earnestOrder.getNotes());
         earnestOrderPrintDto.setAmount(MoneyUtils.centToYuan(earnestOrder.getAmount()));
         earnestOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));

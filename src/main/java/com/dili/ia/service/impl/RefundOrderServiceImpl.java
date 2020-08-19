@@ -595,7 +595,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
     private RefundOrderPrintDto buildCommonPrintDate(RefundOrder refundOrder, Integer reprint){
         RefundOrderPrintDto roPrintDto = new RefundOrderPrintDto();
-        roPrintDto.setPrintTime(LocalDateTime.now());
+        roPrintDto.setPrintTime(DateUtils.format(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss"));
         roPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         roPrintDto.setCode(refundOrder.getCode());
 

@@ -31,6 +31,7 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.mvc.util.RequestUtils;
+import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.User;
@@ -671,7 +672,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         Integer settlementWay = paymentOrder.getSettlementWay();
 
         DepositOrderPrintDto dePrintDto = new DepositOrderPrintDto();
-        dePrintDto.setPrintTime(LocalDateTime.now());
+        dePrintDto.setPrintTime(DateUtils.format(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss"));
         dePrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         dePrintDto.setCode(depositOrder.getCode());
         dePrintDto.setCustomerName(depositOrder.getCustomerName());

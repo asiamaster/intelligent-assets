@@ -15,17 +15,11 @@ import java.time.LocalDateTime;
  */
 public class EarnestOrderPrintDto {
     //打印时间
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime printTime;
+    private String printTime;
     //开始日期
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime startTime;
+    private String startTime;
     //结束日期
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime endTime;
+    private String endTime;
 
     //补打标记
     private String reprint;
@@ -93,27 +87,27 @@ public class EarnestOrderPrintDto {
         this.customerCellphone = customerCellphone;
     }
 
-    public LocalDateTime getPrintTime() {
+    public String getPrintTime() {
         return printTime;
     }
 
-    public void setPrintTime(LocalDateTime printTime) {
+    public void setPrintTime(String printTime) {
         this.printTime = printTime;
     }
 
-    public LocalDateTime getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getEndTime() {
+    public String getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
+    public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
 
