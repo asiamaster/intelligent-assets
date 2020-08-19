@@ -5,7 +5,6 @@ import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 
-import javax.persistence.Column;
 import javax.persistence.Transient;
 
 /**
@@ -16,40 +15,60 @@ import javax.persistence.Transient;
  * @author qinkelan
  * @createTime 2020-03-02 11:32
  */
-public interface EarnestTransferDto extends EarnestTransferOrder {
+public class EarnestTransferDto extends EarnestTransferOrder {
     @Transient
-    @FieldDef(label="客户ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getCustomerId();
-
-    void setCustomerId(Long customerId);
+    private Long customerId;
 
     @Transient
-    @FieldDef(label="客户名称", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getCustomerName();
-
-    void setCustomerName(String customerName);
-
-    @Transient
-    @FieldDef(label="客户电话", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getCustomerCellphone();
-
-    void setCustomerCellphone(String customerCellphone);
-
-    @Transient
-    @FieldDef(label="客户证件号码", maxLength = 40)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getCertificateNumber();
-
-    void setCertificateNumber(String certificateNumber);
+    private String customerName;
 
 
     @Transient
-    @FieldDef(label="CustomerAccount页面打开时的版本号version")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getPayerAccountVersion();
+    private String customerCellphone;
 
-    void setPayerAccountVersion(Long version);
+    @Transient
+    private String certificateNumber;
+
+    @Transient
+    private Long payerAccountVersion;
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerCellphone() {
+        return customerCellphone;
+    }
+
+    public void setCustomerCellphone(String customerCellphone) {
+        this.customerCellphone = customerCellphone;
+    }
+
+    public String getCertificateNumber() {
+        return certificateNumber;
+    }
+
+    public void setCertificateNumber(String certificateNumber) {
+        this.certificateNumber = certificateNumber;
+    }
+
+    public Long getPayerAccountVersion() {
+        return payerAccountVersion;
+    }
+
+    public void setPayerAccountVersion(Long payerAccountVersion) {
+        this.payerAccountVersion = payerAccountVersion;
+    }
 }

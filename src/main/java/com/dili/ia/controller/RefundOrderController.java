@@ -1,12 +1,12 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.bpmc.sdk.domain.TaskCenterParam;
+import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.service.LeaseOrderItemService;
-import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.ia.rpc.CustomerRpc;
+import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -14,7 +14,7 @@ import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.dto.IDTO;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -24,15 +24,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
+ * 退款单控制器
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-03-09 19:34:40.
  */
@@ -43,32 +42,77 @@ public class RefundOrderController {
     @Autowired
     RefundOrderService refundOrderService;
     @Autowired
-    LeaseOrderItemService leaseOrderItemService;
+    AssetsLeaseOrderItemService assetsLeaseOrderItemService;
     @Autowired
     TransferDeductionItemService transferDeductionItemService;
     @Autowired
     BusinessLogRpc businessLogRpc;
+    @Autowired
+    private ApprovalProcessService approvalProcessService;
+    @Autowired
+    private RefundFeeItemService refundFeeItemService;
+    @Autowired
+    CustomerRpc customerRpc;
 
     /**
      * 跳转到RefundOrder页面
      * @param modelMap
+     * @param bizType 参考BizTypeEnum, 1：摊位租赁， 2:定金， 3:摊位保证金
      * @return String
      */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
-    public String index(ModelMap modelMap) {
+    @GetMapping(value="/{bizType}/index.html")
+    public String index(ModelMap modelMap, @PathVariable("bizType") String bizType) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
-        Calendar c = Calendar.getInstance();
-        c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-        c.add(Calendar.DAY_OF_MONTH, -2);
-        Date createdStart = c.getTime();
-
-        Calendar ce = Calendar.getInstance();
-        ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
-        Date  createdEnd = ce.getTime();
-
+        LocalDateTime nowTime = LocalDateTime.now();
+        LocalDateTime createdStart = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() -2 , 0, 0 ,0);
+        LocalDateTime createdEnd = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() , 23, 59 ,59);
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
+        modelMap.put("createdStart", createdStart);
+        modelMap.put("createdEnd", createdEnd);
+        modelMap.put("bizType", bizType);
         return "refundOrder/index";
+    }
+
+    /**
+     * 跳转到资产审批页面，任务中心调用
+     * @param modelMap
+     * @param bizType 参考BizTypeEnum, 1：摊位租赁， 2:定金， 3:摊位保证金
+     * @return String
+     */
+    @GetMapping(value="/{bizType}/approval.html")
+    public String assetsApproval(@PathVariable Integer bizType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
+        modelMap.put("taskDefinitionKey", taskCenterParam.getTaskDefinitionKey());
+        modelMap.put("processInstanceId", taskCenterParam.getProcessInstanceId());
+        modelMap.put("taskId", taskCenterParam.getTaskId());
+        modelMap.put("businessKey", taskCenterParam.getBusinessKey());
+        modelMap.put("formKey", taskCenterParam.getFormKey());
+        ApprovalProcess approvalProcess = new ApprovalProcess();
+        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
+        //查询审批记录
+        List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
+        modelMap.put("approvalProcesses", approvalProcesses);
+        return "refundOrder/approval";
+    }
+
+    /**
+     * 跳转到退款单审批详情页面，用于查看归档记录
+     * @param modelMap
+     * @param assetsType 1：摊位， 2： 冷库， 3: 公寓, 4:其它
+     * @return String
+     */
+    @GetMapping(value="/{assetsType}/approvalDetail.html")
+    public String assetsApprovalDetail(@PathVariable Integer assetsType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
+        modelMap.put("taskDefinitionKey", taskCenterParam.getTaskDefinitionKey());
+        modelMap.put("processInstanceId", taskCenterParam.getProcessInstanceId());
+        modelMap.put("taskId", taskCenterParam.getTaskId());
+        modelMap.put("businessKey", taskCenterParam.getBusinessKey());
+        modelMap.put("formKey", taskCenterParam.getFormKey());
+        ApprovalProcess approvalProcess = new ApprovalProcess();
+        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
+        List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
+        modelMap.put("approvalProcesses", approvalProcesses);
+        return "refundOrder/approvalDetail";
     }
 
     /**
@@ -85,17 +129,27 @@ public class RefundOrderController {
     }
 
     /**
+     * 跳转到退款单-查看页面版本，用于流程审批
+     * @param modelMap
+     * @return String
+     */
+    @GetMapping(value="/viewFragment.action")
+    public String fragmentView(ModelMap modelMap, Long id, String orderCode){
+        view(modelMap, id, orderCode);
+        return "refundOrder/leaseRefundOrderViewFragment";
+    }
+    /**
      * 跳转到退款单-查看页面
      * @param modelMap
      * @return String
      */
-    @RequestMapping(value="/view.action", method = RequestMethod.GET)
+    @GetMapping(value="/view.action")
     public String view(ModelMap modelMap, Long id, String orderCode) {
         RefundOrder refundOrder = null;
         if(null != id) {
             refundOrder = refundOrderService.get(id);
         }else if(StringUtils.isNotBlank(orderCode)){
-            RefundOrder query = DTOUtils.newInstance(RefundOrder.class);
+            RefundOrder query = new RefundOrder();
             query.setCode(orderCode);
             refundOrder = refundOrderService.get(refundOrderService.listByExample(query).stream().findFirst().orElse(null).getId());
             id = refundOrder.getId();
@@ -117,13 +171,24 @@ public class RefundOrderController {
 
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
                 return "refundOrder/earnestRefundOrderView";
-            }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
-                TransferDeductionItem transferDeductionItemCondition = DTOUtils.newInstance(TransferDeductionItem.class);
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
+                TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
                 transferDeductionItemCondition.setRefundOrderId(id);
                 modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
+                return "refundOrder/depositRefundOrderView";
+            }else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+                TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+                transferDeductionItemCondition.setRefundOrderId(id);
+                modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
+
                 if(null != refundOrder.getBusinessItemId()){
-                    modelMap.put("leaseOrderItem",leaseOrderItemService.get(refundOrder.getBusinessItemId()));
+                    AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId());
+                    modelMap.put("leaseOrderItem", leaseOrderItem);
+                    RefundFeeItem condition = new RefundFeeItem();
+                    condition.setRefundOrderId(refundOrder.getId());
+                    modelMap.put("refundFeeItems", refundFeeItemService.list(condition));
                 }
+
                 return "refundOrder/leaseRefundOrderView";
             }
         }
@@ -158,6 +223,71 @@ public class RefundOrderController {
         } catch (Exception e) {
             LOG.error("退款单提交出错！", e);
             return BaseOutput.failure("提交出错！");
+        }
+    }
+
+    /**
+     * 提交审批
+     * @param id
+     * @return
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER,operationType="submitForApproval",systemCode = "INTELLIGENT_ASSETS")
+    @PostMapping(value="/submitForApproval.action")
+    public @ResponseBody BaseOutput submitForApproval(@RequestParam Long id){
+        try{
+            refundOrderService.submitForApproval(id);
+            return BaseOutput.success();
+        }catch (BusinessException e){
+            LOG.info("资产租赁订单提交审批异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }catch (Exception e){
+            LOG.error("资产租赁订单提交审批异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * 审批通过处理
+     * @return
+     */
+    @PostMapping(value="/approvedHandler.action")
+    public @ResponseBody BaseOutput approvedHandler(@Validated ApprovalParam approvalParam){
+        try{
+            if(StringUtils.isNotEmpty(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString())){
+                return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
+            }
+            refundOrderService.approvedHandler(approvalParam);
+            return BaseOutput.success();
+        }catch (BusinessException e){
+            LOG.info("审批通过处理异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }catch (Exception e){
+            LOG.error("审批通过处理异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * 审批拒绝处理
+     * @return
+     */
+    @PostMapping(value="/approvedDeniedHandler.action")
+    public @ResponseBody BaseOutput approvedDeniedHandler(@Validated ApprovalParam approvalParam){
+        try{
+            if(StringUtils.isNotEmpty(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString())){
+                return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
+            }
+            refundOrderService.
+                    approvedDeniedHandler(approvalParam);
+            return BaseOutput.success();
+        }catch (BusinessException e){
+            LOG.info("审批拒绝处理异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }catch (Exception e){
+            LOG.error("审批拒绝处理异常！", e);
+            return BaseOutput.failure(e.getMessage());
         }
     }
 
@@ -214,5 +344,28 @@ public class RefundOrderController {
             LOG.error("退款单取消出错！", e);
             return BaseOutput.failure("取消出错！");
         }
+    }
+
+    /**
+     * 跳转到退款单-查看页面 --// 修改在各个业务
+     * @param modelMap
+     * @return String
+     */
+    @GetMapping(value="/update.html")
+    public String update(ModelMap modelMap, Long id) {
+        RefundOrder refundOrder = refundOrderService.get(id);
+        if (refundOrder != null){
+            BaseOutput<Customer> payee = customerRpc.get(refundOrder.getPayeeId(), refundOrder.getMarketId());
+            modelMap.put("refundOrder",refundOrder);
+            modelMap.put("payee", payee.getData());
+            if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
+                return "forward:/customerAccount/earnestRefund.html?refundOrderId=" + id + "&customerAccountId=" + refundOrder.getBusinessId();
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
+                return "forward:/depositOrder/refundApply.html?refundOrderId=" + id + "&depositOrderId=" + refundOrder.getBusinessId();
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+                return "forward:/leaseOrder/refundApply.html?refundOrderId=" + id + "&leaseOrderItemId=" + refundOrder.getBusinessItemId();
+            }
+        }
+        return "refundOrder/updateView/refundApply";
     }
 }

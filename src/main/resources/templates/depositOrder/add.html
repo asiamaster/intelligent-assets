@@ -1,0 +1,76 @@
+<#bs4Body>
+    <div class="container-fluid">
+        <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.deposit_order'/>">
+        <form id="saveForm" role="form" novalidate>
+            <div class="breadcrumb" >
+                客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
+                   aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-2 collapse show"  id="customerInfo">
+                <div class="form-group col">
+                    <label for="customerName">客户名称<i class="red">*</i></label>
+                    <#bautoCompleteProvider _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _optionVariable="customerNameAutoCompleteOption" _required="true"/>
+                </div>
+            
+                <div class="form-group col">
+                    <label for="_certificateNumber">证件号码<i class="red">*</i></label>
+                    <#bautoCompleteProvider _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" _displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected" _optionVariable="certificateNumberAutoCompleteOption" _required="true"/>
+                </div>
+            
+                <div class="form-group col">
+                    <label for="">联系电话<i class="red">*</i></label>
+                    <input type="text" class="form-control isMobile" id="customerCellphone" name="customerCellphone" required />
+                </div>
+            </div>
+            <div class="breadcrumb">
+                基础信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-2 collapse show" id="baseInfo">
+                <div class="form-group col">
+                    <label for="departmentId">业务所属部门<i class="red">*</i></label>
+                    <select id="departmentId"  name="departmentId" class="form-control" required></select>
+                    <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider"/>
+
+                </div>
+                <div class="form-group col">
+                    <label for="typeCode">保证金类型<i class="red">*</i></label>
+                    <select id="typeCode" name="typeCode" class="form-control" required></select>
+                    <#bcomboProvider _log="保证金类型" _id="typeCode" _provider="dataDictionaryValueProvider" _value="${depositOrder.typeCode!}" _queryParams='{dd_code:"deposit_type"}'/>
+                </div>
+                <div class="form-group col">
+                    <label for="assetsType">资产类型<i class="red">*</i></label>
+                    <select id="assetsType"  name="assetsType" class="form-control" required>
+                        <option value="">-- 请选择 --</option>
+                        <option value="1">摊位</option>
+                        <option value="100">其它</option>
+                    </select>
+                </div>
+                <div class="form-group col">
+                    <label for="assetsName" class="">资产编号</label>
+                    <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption"/>
+                    <input id="assetsNameInput" type="text" class="form-control"/>
+
+                </div>
+            
+                <div class="form-group col">
+                    <label for="amount" class="">保证金金额<i class="red">*</i></label>
+                    <input id="amount" type="number" class="form-control floatReserve money"name="amount" range="0 9999999.99" required />
+                </div>
+                <div class="form-group col-12">
+                    <label for="notes">备注</label>
+                    <textarea id="notes" class="form-control" name="notes" rows="2" maxlength="100"></textarea>
+                </div>
+            </div>
+            <div class="text-right btn-r-b">
+                <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
+                <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doAddDepositHandler,1000,true)()" id="formSubmit">保存</button>
+            </div>
+        </form>
+    </div>
+
+</#bs4Body>
+
+<#js_customerAutocompleteJs/>
+<#depositOrder_addJs />

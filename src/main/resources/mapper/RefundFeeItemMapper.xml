@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.ia.mapper.RefundFeeItemMapper">
+    <select id="queryRefundFeeItem" resultType="Map" >
+        SELECT
+        cast(refund_order_id as char) as refundOrderId
+        <if test="chargeItemDtos != null and chargeItemDtos.size()>0">,</if>
+        <foreach collection="chargeItemDtos" item="chargeItem" separator=",">
+            cast(
+            MAX(
+            CASE charge_item_id
+            WHEN #{chargeItem.id} THEN
+            amount
+            ELSE
+            0
+            END
+            )
+            as char
+            ) as chargeItem${chargeItem.id},
+            cast(
+            truncate(
+            MAX(
+            CASE charge_item_id
+            WHEN #{chargeItem.id} THEN
+            amount
+            ELSE
+            0
+            END
+            )/100
+            ,2)
+            as char
+            ) as chargeItemYuan${chargeItem.id}
+        </foreach>
+        FROM
+        refund_fee_item
+        WHERE refund_order_id IN
+        <foreach collection="refundOrderIds" item="refundOrderId" open="(" close=")" separator=",">
+            #{refundOrderId}
+        </foreach>
+        GROUP BY
+        refund_order_id;
+    </select>
+</mapper>

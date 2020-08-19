@@ -1,23 +1,11 @@
 <script>
+    /******************************驱动执行区 begin***************************/
 
-    $(function () {
-        $('[data-refund-way="bank"]').hide();
-    });
-
-    // 退款方式
-    $('#refundType').on('change', function () {
-        if($(this).val() == '3') {
-            $('[data-refund-way="bank"]').show();
-        } else {
-            $('[data-refund-way="bank"]').hide();
-            $('[data-refund-way="bank"]').find('input').val("");
-        }
-    })
 
     function buildFormData(){
         let formData = $("input:not(table input),textarea,select").serializeObject();
         bui.util.yuanToCentForMoneyEl(formData);
-        return formData;
+        return $.extend(formData, {logContent: $('#id').val() ? Log.buildUpdateContent() : ''});
     }
 
     // 定金退款保存
@@ -29,9 +17,10 @@
             // let _formData = new FormData($('#saveForm')[0]);
             $.ajax({
                 type: "POST",
-                url: "${contextPath}/customerAccount/doAddEarnestRefund.action",
-                data: buildFormData(),
+                url: "${contextPath}/customerAccount/saveOrUpdateRefundOrder.action",
+                data:JSON.stringify(buildFormData()),
                 dataType: "json",
+                contentType: "application/json; charset=utf-8",
                 success: function (ret) {
                     if(!ret.success){
                         bs4pop.alert(ret.message, {type: 'error'});

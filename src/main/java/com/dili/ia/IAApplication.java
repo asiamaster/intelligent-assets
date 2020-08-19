@@ -16,11 +16,11 @@ import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = {"com.dili.ia.rpc", "com.dili.logger.sdk.rpc"})
+@EnableFeignClients(basePackages = {"com.dili.ia.rpc", "com.dili.logger.sdk.rpc", "com.dili.assets.sdk.rpc"})
 @MapperScan(basePackages = { "com.dili.ia.mapper", "com.dili.ss.dao"})
-@ComponentScan(basePackages={"com.dili.ss", "com.dili.ia", "com.dili.uap.sdk", "com.dili.logger.sdk"})
-@RestfulScan({"com.dili.ia.rpc","com.dili.uap.sdk.rpc"})
-@DTOScan(value={"com.dili.ss", "com.dili.ia.domain", "com.dili.uap.sdk.domain"})
+@ComponentScan(basePackages={"com.dili.ss", "com.dili.ia", "com.dili.uap.sdk", "com.dili.logger.sdk", "com.dili.assets.sdk", "com.dili.bpmc.sdk","com.dili.commons"})
+@RestfulScan({"com.dili.ia.rpc","com.dili.uap.sdk.rpc", "com.dili.bpmc.sdk.rpc"})
+@DTOScan(value={"com.dili.ss", "com.dili.ia.domain", "com.dili.uap.sdk.domain", "com.dili.bpmc.sdk"})
 public class IAApplication  extends SpringBootServletInitializer {
 
 	@LoadBalanced

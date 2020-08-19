@@ -1,172 +1,498 @@
 package com.dili.ia.domain;
 
-import com.dili.ss.dto.IBaseDomain;
+import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 import tk.mybatis.mapper.annotation.Version;
 
-import java.util.Date;
 import javax.persistence.*;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import java.time.LocalDateTime;
 
 /**
  * 由MyBatis Generator工具自动生成
  * 缴费单
- * This file was generated on 2020-02-28 21:11:27.
+ * This file was generated on 2020-07-03 15:46:47.
  */
 @Table(name = "`payment_order`")
-public interface PaymentOrder extends IBaseDomain {
+public class PaymentOrder extends BaseDomain {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`id`")
-    @FieldDef(label="id")
-    @EditMode(editor = FieldEditor.Number, required = true)
-    Long getId();
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    void setId(Long id);
-
+    /**
+     * 编号
+     */
     @Column(name = "`code`")
-    @FieldDef(label="编号", maxLength = 30)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getCode();
+    private String code;
 
-    void setCode(String code);
-
+    //创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`create_time`")
-    @FieldDef(label="创建时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    Date getCreateTime();
+    private LocalDateTime createTime;
 
-    void setCreateTime(Date createTime);
-
+    //修改时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`modify_time`")
-    @FieldDef(label="修改时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    Date getModifyTime();
+    private LocalDateTime modifyTime;
 
-    void setModifyTime(Date modifyTime);
-
+    /**
+     * 客户ID
+     */
     @Column(name = "`customer_id`")
-    @FieldDef(label="客户ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getCustomerId();
+    private Long customerId;
 
-    void setCustomerId(Long customerId);
-
+    /**
+     * 客户名称
+     */
     @Column(name = "`customer_name`")
-    @FieldDef(label="客户名称")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getCustomerName();
+    private String customerName;
 
-    void setCustomerName(String customerName);
 
+    /**
+     * 业务单ID
+     */
     @Column(name = "`business_id`")
-    @FieldDef(label="业务单ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getBusinessId();
+    private Long businessId;
 
-    void setBusinessId(Long businessId);
-
+    /**
+     * 业务单编号
+     */
     @Column(name = "`business_code`")
-    @FieldDef(label="业务单编号", maxLength = 30)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getBusinessCode();
+    private String businessCode;
 
-    void setBusinessCode(String businessCode);
-
+    /**
+     * 业务类型
+     */
     @Column(name = "`biz_type`")
-    @FieldDef(label="业务类型")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Integer getBizType();
+    private String bizType;
 
-    void setBizType(Integer bizType);
-
+    /**
+     * 状态
+     */
     @Column(name = "`state`")
-    @FieldDef(label="状态")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Integer getState();
+    private Integer state;
 
-    void setState(Integer state);
-
+    /**
+     * 业务是否结清（1：是 0：否）
+     */
     @Column(name = "`is_settle`")
-    @FieldDef(label="是否结清")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Integer getIsSettle();
+    private Integer isSettle;
 
-    void setIsSettle(Integer isSettle);
-
+    /**
+     * 金额
+     */
     @Column(name = "`amount`")
-    @FieldDef(label="金额")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getAmount();
+    private Long amount;
 
-    void setAmount(Long amount);
-
+    /**
+     * 创建人ID
+     */
     @Column(name = "`creator_id`")
-    @FieldDef(label="创建人ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Long getCreatorId();
+    private Long creatorId;
 
-    void setCreatorId(Long creatorId);
-
+    /**
+     * 创建人
+     */
     @Column(name = "`creator`")
-    @FieldDef(label="创建人", maxLength = 20)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getCreator();
+    private String creator;
 
-    void setCreator(String creator);
-
+    /**
+     * 交费时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`payed_time`")
-    @FieldDef(label="支付时间")
-    @EditMode(editor = FieldEditor.Datetime, required = false)
-    Date getPayedTime();
+    private LocalDateTime payedTime;
 
-    void setPayedTime(Date payedTime);
-
+    /**
+     * 结算编号
+     */
     @Column(name = "`settlement_code`")
-    @FieldDef(label="结算编号", maxLength = 30)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getSettlementCode();
+    private String settlementCode;
 
-    void setSettlementCode(String settlementCode);
-
+    /**
+     * 结算方式（冗余 来自结算）
+     */
     @Column(name = "`settlement_way`")
-    @FieldDef(label="结算方式（冗余 来自结算）")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    Integer getSettlementWay();
+    private Integer settlementWay;
 
-    void setSettlementWay(Integer settlementWay);
-
+    /**
+     * 结算员
+     */
     @Column(name = "`settlement_operator`")
-    @FieldDef(label="结算编号")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    String getSettlementOperator();
-
-    void setSettlementOperator(String settlementOperator);
+    private String settlementOperator;
 
     @Column(name = "`market_id`")
+    private Long marketId;
+
+    /**
+     * 市场编码
+     */
+    @Column(name = "`market_code`")
+    private String marketCode;
+
+    /**
+     * 乐观锁，版本号
+     */
+    @Version
+    @Column(name = "`version`")
+    private Integer version;
+
+    /**
+     * @return id
+     */
+    @FieldDef(label="id")
+    @EditMode(editor = FieldEditor.Number, required = true)
+    public Long getId() {
+        return id;
+    }
+
+    /**
+     * @param id
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     * 获取编号
+     *
+     * @return code - 编号
+     */
+    @FieldDef(label="编号", maxLength = 30)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getCode() {
+        return code;
+    }
+
+    /**
+     * 设置编号
+     *
+     * @param code 编号
+     */
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getModifyTime() {
+        return modifyTime;
+    }
+
+    public void setModifyTime(LocalDateTime modifyTime) {
+        this.modifyTime = modifyTime;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    /**
+     * 获取业务单ID
+     *
+     * @return business_id - 业务单ID
+     */
+    @FieldDef(label="业务单ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getBusinessId() {
+        return businessId;
+    }
+
+    /**
+     * 设置业务单ID
+     *
+     * @param businessId 业务单ID
+     */
+    public void setBusinessId(Long businessId) {
+        this.businessId = businessId;
+    }
+
+    /**
+     * 获取业务单编号
+     *
+     * @return business_code - 业务单编号
+     */
+    @FieldDef(label="业务单编号", maxLength = 30)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getBusinessCode() {
+        return businessCode;
+    }
+
+    /**
+     * 设置业务单编号
+     *
+     * @param businessCode 业务单编号
+     */
+    public void setBusinessCode(String businessCode) {
+        this.businessCode = businessCode;
+    }
+
+    /**
+     * 获取业务类型
+     *
+     * @return biz_type - 业务类型
+     */
+    @FieldDef(label="业务类型")
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getBizType() {
+        return bizType;
+    }
+
+    /**
+     * 设置业务类型
+     *
+     * @param bizType 业务类型
+     */
+    public void setBizType(String bizType) {
+        this.bizType = bizType;
+    }
+
+    /**
+     * 获取状态
+     *
+     * @return state - 状态
+     */
+    @FieldDef(label="状态")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getState() {
+        return state;
+    }
+
+    /**
+     * 设置状态
+     *
+     * @param state 状态
+     */
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
+    /**
+     * 获取业务是否结清（1：是 0：否）
+     *
+     * @return is_settle - 业务是否结清（1：是 0：否）
+     */
+    @FieldDef(label="业务是否结清（1：是 0：否）")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getIsSettle() {
+        return isSettle;
+    }
+
+    /**
+     * 设置业务是否结清（1：是 0：否）
+     *
+     * @param isSettle 业务是否结清（1：是 0：否）
+     */
+    public void setIsSettle(Integer isSettle) {
+        this.isSettle = isSettle;
+    }
+
+    /**
+     * 获取金额
+     *
+     * @return amount - 金额
+     */
+    @FieldDef(label="金额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getAmount() {
+        return amount;
+    }
+
+    /**
+     * 设置金额
+     *
+     * @param amount 金额
+     */
+    public void setAmount(Long amount) {
+        this.amount = amount;
+    }
+
+    /**
+     * 获取创建人ID
+     *
+     * @return creator_id - 创建人ID
+     */
+    @FieldDef(label="创建人ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    /**
+     * 设置创建人ID
+     *
+     * @param creatorId 创建人ID
+     */
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    /**
+     * 获取创建人
+     *
+     * @return creator - 创建人
+     */
+    @FieldDef(label="创建人", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getCreator() {
+        return creator;
+    }
+
+    /**
+     * 设置创建人
+     *
+     * @param creator 创建人
+     */
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
+    public LocalDateTime getPayedTime() {
+        return payedTime;
+    }
+
+    public void setPayedTime(LocalDateTime payedTime) {
+        this.payedTime = payedTime;
+    }
+
+    /**
+     * 获取结算编号
+     *
+     * @return settlement_code - 结算编号
+     */
+    @FieldDef(label="结算编号", maxLength = 30)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getSettlementCode() {
+        return settlementCode;
+    }
+
+    /**
+     * 设置结算编号
+     *
+     * @param settlementCode 结算编号
+     */
+    public void setSettlementCode(String settlementCode) {
+        this.settlementCode = settlementCode;
+    }
+
+    /**
+     * 获取结算方式（冗余 来自结算）
+     *
+     * @return settlement_way - 结算方式（冗余 来自结算）
+     */
+    @FieldDef(label="结算方式（冗余 来自结算）")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getSettlementWay() {
+        return settlementWay;
+    }
+
+    /**
+     * 设置结算方式（冗余 来自结算）
+     *
+     * @param settlementWay 结算方式（冗余 来自结算）
+     */
+    public void setSettlementWay(Integer settlementWay) {
+        this.settlementWay = settlementWay;
+    }
+
+    /**
+     * 获取结算员
+     *
+     * @return settlement_operator - 结算员
+     */
+    @FieldDef(label="结算员", maxLength = 40)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getSettlementOperator() {
+        return settlementOperator;
+    }
+
+    /**
+     * 设置结算员
+     *
+     * @param settlementOperator 结算员
+     */
+    public void setSettlementOperator(String settlementOperator) {
+        this.settlementOperator = settlementOperator;
+    }
+
+    /**
+     * @return market_id
+     */
     @FieldDef(label="marketId")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Long getMarketId();
+    public Long getMarketId() {
+        return marketId;
+    }
 
-    void setMarketId(Long marketId);
+    /**
+     * @param marketId
+     */
+    public void setMarketId(Long marketId) {
+        this.marketId = marketId;
+    }
 
-    @Column(name = "`market_code`")
-    @FieldDef(label="市场Code", maxLength = 20)
+    /**
+     * 获取市场编码
+     *
+     * @return market_code - 市场编码
+     */
+    @FieldDef(label="市场编码", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getMarketCode();
+    public String getMarketCode() {
+        return marketCode;
+    }
 
-    void setMarketCode(String marketCode);
+    /**
+     * 设置市场编码
+     *
+     * @param marketCode 市场编码
+     */
+    public void setMarketCode(String marketCode) {
+        this.marketCode = marketCode;
+    }
 
-    @Column(name = "`version`")
+    /**
+     * 获取乐观锁，版本号
+     *
+     * @return version - 乐观锁，版本号
+     */
     @FieldDef(label="乐观锁，版本号")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    @Version
-    Integer getVersion();
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public Integer getVersion() {
+        return version;
+    }
 
-    Integer setVersion(Integer version);
+    /**
+     * 设置乐观锁，版本号
+     *
+     * @param version 乐观锁，版本号
+     */
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 }

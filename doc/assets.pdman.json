@@ -179,6 +179,12 @@
               "notNull": false,
               "autoIncrement": false,
               "defaultValue": ""
+            },
+            {
+              "name": "business_type",
+              "type": "tinyint",
+              "remark": "1:摊位，2:冷库，3:公寓",
+              "chnname": "业务类型"
             }
           ],
           "indexs": [],
@@ -1379,7 +1385,7 @@
     ],
     "defaultFieldsType": "1",
     "javaConfig": {
-      "JAVA_HOME": "/Library/Java/JavaVirtualMachines/zulu-13.jdk/Contents/Home",
+      "JAVA_HOME": "/Library/Java/JavaVirtualMachines/zulu-14.jdk/Contents/Home",
       "DB_DRIVE": []
     },
     "sqlConfig": ";",
@@ -1389,7 +1395,7 @@
         "defaultDB": true,
         "properties": {
           "driver_class_name": "com.mysql.jdbc.Driver",
-          "url": "jdbc:mysql://10.28.10.116:3306/dili-assets?characterEncoding=UTF-8&useSSL=false&useUnicode=true&serverTimezone=UTC",
+          "url": "jdbc:mysql://10.28.10.116:3306/dili-basic-data?characterEncoding=UTF-8&useSSL=false&useUnicode=true&serverTimezone=UTC",
           "password": "123456",
           "username": "root"
         }

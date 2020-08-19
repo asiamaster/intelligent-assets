@@ -35,11 +35,11 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * */
     BaseOutput<EarnestTransferOrder> earnestTransfer(EarnestTransferOrder earnestTransferOrder, Long payerAccountVersion);
     /**
-     * 客户账户定金退款单创建
+     * 客户账户定金退款单创建 或者 修改
      * @param order
      * @return
      * */
-    BaseOutput addEarnestRefund(RefundOrder order);
+    BaseOutput saveOrUpdateRefundOrder(RefundOrder order);
     /**
      * 根据用户信息，新增客户账户
      * @param customerId 客户ID
@@ -142,4 +142,15 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @return
      * */
     void refundSuccessEarnest(Long customerId, Long marketId, Long amount);
+
+    /**
+     * 定金，转抵老数据处理 --- 清除【未交清】并且缴费过一次，【未退款】租赁单， 如果使用了定金 或者 转抵的钱，清楚租赁单 需要退还 使用的 【定金 或者 转抵的金额】
+     * @param orderId 订单Id
+     * @param customerId 客户ID
+     * @param marketId 市场ID
+     * @param earnestAmount 定金退还金额
+     * @param transferAmount 转抵退还金额
+     * @return
+     * */
+    void oldDataHandler(Long orderId, Long customerId, Long marketId, Long earnestAmount, Long transferAmount);
 }

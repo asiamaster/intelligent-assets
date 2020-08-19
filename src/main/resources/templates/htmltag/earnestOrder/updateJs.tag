@@ -23,7 +23,7 @@
     var boothAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
-        serviceUrl: '/booth/search.action',
+        serviceUrl: '/assets/searchAssets.action',
         transformResult: function (result) {
             if(result.success){
                 let data = result.data;
@@ -107,12 +107,13 @@
                     earnestOrderdetail[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
                 }
             });
-            earnestOrderdetails.push(earnestOrderdetail);
+            if (Object.keys(earnestOrderdetail).length) {
+                earnestOrderdetails.push(earnestOrderdetail);
+            }
         });
 
         $.extend(formData,{earnestOrderdetails,logContent:Log.buildUpdateContent()});
-        debugger
-        return formData;
+        return JSON.stringify(formData);
     }
 
     /**
@@ -156,6 +157,7 @@
             type: "POST",
             url: "${contextPath}/earnestOrder/doUpdate.action",
             data: buildFormData(),
+            contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (ret) {
                 bui.loading.hide();

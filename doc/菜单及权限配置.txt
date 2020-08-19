@@ -1,0 +1,51 @@
+租赁办理
+    摊位出租管理 http://ia.diligrp.com:8381/leaseOrder/1/index.html
+        新增 addBoothLeaseOrder
+        修改 updateBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/preSave.html)
+        取消 cancelBoothLeaseOrder
+        提交付款 submitPaymentBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/submitPayment.html)
+        提交审批 submitBoothLeaseOrderApplication
+        开票 invoiceBoothLeaseOrder
+        撤回 withdrawBoothLeaseOrder
+        补录 supplementBoothLeaseOrder
+        续租 renewBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/renew.html)
+        退款申请 refundApplyBoothLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/refundApply.html)
+        停租 stopRentBoothLeaseOrder
+    摊位退款单 http://ia.diligrp.com:8381/refundOrder/1/index.html
+        修改 updateBoothLeaseRefundOrder(内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        提交 submitBoothLeaseRefundOrder
+        撤回 withdrawBoothLeaseRefundOrder
+        取消 cancelBoothLeaseRefundOrder
+        提交审批 submitBoothLeaseRefundOrderApplication
+    审批人配置 http://ia.diligrp.com:8381/approverAssignment/index.html
+
+    开票记录 http://ia.diligrp.com:8381/invoiceRecord/index.html
+        修改 modifyInvoiceRecord
+        删除 deleteInvoiceRecord
+        导出 exportInvoiceRecord
+
+
+保证金：
+保证金管理  http://ia.diligrp.com:8381/depositOrder/index.html
+新增  addDepositOrder （内部链接：保证金管理--新增  http://ia.diligrp.com:8381/depositOrder/add.html）
+修改 updateDepositOrder  （内部链接： 保证金管理-修改  http://ia.diligrp.com:8381/depositOrder/update.html）
+提交 submitDepositOrder
+撤回  withdrawDepositOrder
+取消  cancelDepositOrder
+退款申请  refundApplyDepositOrder  （内部链接：保证金管理-退款申请  http://ia.diligrp.com:8381/depositOrder/refundApply.html）
+
+
+保证金统计 http://ia.diligrp.com:8381/depositBalance/index.html
+
+保证金退款单 http://ia.diligrp.com:8381/refundOrder/3/index.html
+修改   updateDepositRefundOrder （内部链接：修改页面  http://ia.diligrp.com:8381/refundOrder/update.html）
+提交  submitDepositRefundOrder
+撤回  withdrawDepositRefundOrder
+取消  cancelDepositRefundOrder
+
+定金 -- >
+定金退款单：http://ia.diligrp.com:8381/refundOrder/2/index.html
+修改   updateEarnestRefundOrder （内部链接：修改页面  http://ia.diligrp.com:8381/refundOrder/update.html）
+提交  submitEarnestRefundOrder
+撤回  withdrawEarnestRefundOrder
+取消  cancelEarnestRefundOrder

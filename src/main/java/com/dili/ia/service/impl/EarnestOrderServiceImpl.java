@@ -1,15 +1,15 @@
 package com.dili.ia.service.impl;
 
-import com.dili.assets.sdk.dto.BoothDTO;
+import com.dili.assets.sdk.dto.AssetsDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
-import com.dili.ia.domain.dto.EarnestOrderPrintDto;
 import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
-import com.dili.ia.rpc.AssetsRpc;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
@@ -23,7 +23,6 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
@@ -41,7 +40,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -101,12 +99,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.EARNEST_ORDER.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOGGER.info("编号生成失败!" + depOut.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成失败!");
-        }
-        earnestOrder.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+        earnestOrder.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_ORDER.getCode()));
         earnestOrder.setCreatorId(userTicket.getId());
         earnestOrder.setCreator(userTicket.getRealName());
         earnestOrder.setMarketId(userTicket.getFirmId());
@@ -125,6 +118,20 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
            }
         }
         return BaseOutput.success().setData(earnestOrder);
+    }
+
+    private String getBizNumber(String type){
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(type);
+        if(!bizNumberOutput.isSuccess()){
+            LOGGER.info("编号生成失败!" + bizNumberOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成失败!");
+        }
+        if (bizNumberOutput.getData() == null){
+            LOGGER.info("未获取到有效编号！检查是否配置编号类型type{}" + bizNumberOutput.getMessage(), type);
+            throw new BusinessException(ResultCode.DATA_ERROR, "未获取到有效编号！"+ bizNumberOutput.getMessage());
+        }
+
+        return bizNumberOutput.getData();
     }
     /**
      * 检查客户状态
@@ -150,11 +157,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
      * @param boothId
      */
     private void checkBoothState(Long boothId){
-        BaseOutput<BoothDTO> output = assetsRpc.getBoothById(boothId);
+        BaseOutput<AssetsDTO> output = assetsRpc.getBoothById(boothId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位接口调用异常 "+output.getMessage());
         }
-        BoothDTO booth = output.getData();
+        AssetsDTO booth = output.getData();
         if(null == booth){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位不存在，请核实和修改后再保存");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
@@ -184,9 +191,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (earnestOrder.getId() == null){
             return BaseOutput.failure("Id不能为空！");
         }
-
+        EarnestOrder oldDTO = this.get(earnestOrder.getId());
+        if (null == oldDTO || !oldDTO.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){
+            return BaseOutput.failure("修改失败，定金单状态已变更！");
+        }
         //修改有清空修改，所以使用update
-        if (this.update(this.buildUpdateDto(earnestOrder)) == 0){
+        if (this.update(this.buildUpdateDto(oldDTO, earnestOrder)) == 0){
             LOG.info("修改定金单失败,乐观锁生效【客户名称：{}】 【定金单ID:{}】", earnestOrder.getCustomerName(), earnestOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
@@ -197,7 +207,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     private void deleteEarnestOrderDetailByEarnestOrderId(Long earnestOrderId){
-        EarnestOrderDetail eod = DTOUtils.newDTO(EarnestOrderDetail.class);
+        EarnestOrderDetail eod = new EarnestOrderDetail();
         eod.setEarnestOrderId(earnestOrderId);
         List<EarnestOrderDetail> eodlist = earnestOrderDetailService.list(eod);
         if (CollectionUtils.isNotEmpty(eodlist)){
@@ -208,27 +218,26 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return;
     }
 
-    private EarnestOrder buildUpdateDto(EarnestOrder dto){
-        EarnestOrder earnestOrder = this.get(dto.getId());
+    private EarnestOrder buildUpdateDto(EarnestOrder oldDTO, EarnestOrder dto){
         BaseOutput<Department> depOut = departmentRpc.get(dto.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
-        earnestOrder.setDepartmentName(depOut.getData().getName());
-        earnestOrder.setCustomerId(dto.getCustomerId());
-        earnestOrder.setCustomerName(dto.getCustomerName());
-        earnestOrder.setCertificateNumber(dto.getCertificateNumber());
-        earnestOrder.setCustomerCellphone(dto.getCustomerCellphone());
-        earnestOrder.setStartTime(dto.getStartTime());
-        earnestOrder.setEndTime(dto.getEndTime());
-        earnestOrder.setDepartmentId(dto.getDepartmentId());
-        earnestOrder.setAmount(dto.getAmount());
-        earnestOrder.setNotes(dto.getNotes());
-        earnestOrder.setModifyTime(new Date());
-        earnestOrder.setVersion(dto.getVersion());
+        oldDTO.setDepartmentName(depOut.getData().getName());
+        oldDTO.setCustomerId(dto.getCustomerId());
+        oldDTO.setCustomerName(dto.getCustomerName());
+        oldDTO.setCertificateNumber(dto.getCertificateNumber());
+        oldDTO.setCustomerCellphone(dto.getCustomerCellphone());
+        oldDTO.setStartTime(dto.getStartTime());
+        oldDTO.setEndTime(dto.getEndTime());
+        oldDTO.setDepartmentId(dto.getDepartmentId());
+        oldDTO.setAmount(dto.getAmount());
+        oldDTO.setNotes(dto.getNotes());
+        oldDTO.setModifyTime(LocalDateTime.now());
+        oldDTO.setVersion(dto.getVersion());
 
-        return earnestOrder;
+        return oldDTO;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -245,7 +254,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         //检查客户状态
         checkCustomerState(ea.getCustomerId(),userTicket.getFirmId());
-        EarnestOrderDetail query = DTOUtils.newInstance(EarnestOrderDetail.class);
+        EarnestOrderDetail query = new EarnestOrderDetail();
         query.setEarnestOrderId(ea.getId());
         List<EarnestOrderDetail> detailList = earnestOrderDetailService.listByExample(query);
         if (CollectionUtils.isNotEmpty(detailList)){
@@ -260,7 +269,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setState(EarnestOrderStateEnum.SUBMITTED.getCode());
         ea.setSubmitterId(userTicket.getId());
         ea.setSubmitter(userTicket.getRealName());
-        ea.setSubDate(new Date());
+        ea.setSubDate(LocalDateTime.now());
         if (this.updateSelective(ea) == 0) {
             LOG.info("提交定金【修改定金单状态】失败 ,乐观锁生效！【定金单ID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -300,7 +309,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
-        settleOrder.setBusinessType(BizTypeEnum.EARNEST.getCode()); // 业务类型
+//        @TODO 结算单需要调整业务类型
+        settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.EARNEST.getCode())); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
@@ -310,13 +320,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     //组装缴费单 PaymentOrder
     private PaymentOrder buildPaymentOrder(UserTicket userTicket, EarnestOrder earnestOrder){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.PAYMENT_ORDER.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOG.info("编号生成器异常，{}】", bizNumberOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
-        }
-        pb.setCode(userTicket.getFirmCode().toUpperCase() + bizNumberOutput.getData());
+        PaymentOrder pb = new PaymentOrder();
+        pb.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + "_" +  BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
         pb.setAmount(earnestOrder.getAmount());
         pb.setBusinessId(earnestOrder.getId());
         pb.setBusinessCode(earnestOrder.getCode());
@@ -333,11 +338,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
-        PaymentOrder pb = DTOUtils.newDTO(PaymentOrder.class);
+        PaymentOrder pb = new PaymentOrder();
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
-        pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setMarketId(userTicket.getFirmId());
         pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
         PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
@@ -352,7 +356,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @Override
     public BaseOutput<EarnestOrder> withdrawEarnestOrder(Long earnestOrderId) {
         //改状态，删除缴费单，通知撤回结算中心缴费单
-        EarnestOrder ea = this.getActualDao().selectByPrimaryKey(earnestOrderId);
+        EarnestOrder ea = this.get(earnestOrderId);
         if (null == ea || !ea.getState().equals(EarnestOrderStateEnum.SUBMITTED.getCode())){
             return BaseOutput.failure("撤回失败，状态已变更！");
         }
@@ -387,7 +391,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (null == settleOrder){
             return BaseOutput.failure("回调参数为空！");
         }
-        PaymentOrder condition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder condition = new PaymentOrder();
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
         condition.setBizType(BizTypeEnum.EARNEST.getCode());
@@ -402,7 +406,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         //缴费单数据更新
         paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
-        paymentOrderPO.setPayedTime(DateUtils.localDateTimeToUdate(settleOrder.getOperateTime()));
+        paymentOrderPO.setPayedTime(settleOrder.getOperateTime());
         paymentOrderPO.setSettlementCode(settleOrder.getCode());
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
@@ -429,7 +433,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
-        PaymentOrder paymentOrderCondition = DTOUtils.newInstance(PaymentOrder.class);
+        PaymentOrder paymentOrderCondition = new PaymentOrder();
         paymentOrderCondition.setCode(orderCode);
         paymentOrderCondition.setBizType(BizTypeEnum.EARNEST.getCode());
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
@@ -442,13 +446,13 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
         EarnestOrder earnestOrder = get(paymentOrder.getBusinessId());
         EarnestOrderPrintDto earnestOrderPrintDto = new EarnestOrderPrintDto();
-        earnestOrderPrintDto.setPrintTime(new Date());
+        earnestOrderPrintDto.setPrintTime(DateUtils.format(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss"));
         earnestOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         earnestOrderPrintDto.setCode(earnestOrder.getCode());
         earnestOrderPrintDto.setCustomerName(earnestOrder.getCustomerName());
         earnestOrderPrintDto.setCustomerCellphone(earnestOrder.getCustomerCellphone());
-        earnestOrderPrintDto.setStartTime(earnestOrder.getStartTime());
-        earnestOrderPrintDto.setEndTime(earnestOrder.getEndTime());
+        earnestOrderPrintDto.setStartTime(DateUtils.format(earnestOrder.getStartTime(), "yyyy-MM-dd"));
+        earnestOrderPrintDto.setEndTime(DateUtils.format(earnestOrder.getEndTime(), "yyyy-MM-dd"));
         earnestOrderPrintDto.setNotes(earnestOrder.getNotes());
         earnestOrderPrintDto.setAmount(MoneyUtils.centToYuan(earnestOrder.getAmount()));
         earnestOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
@@ -456,7 +460,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrderPrintDto.setSubmitter(paymentOrder.getCreator());
         earnestOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
 
-        EarnestOrderDetail earnestOrderDetail = DTOUtils.newInstance(EarnestOrderDetail.class);
+        EarnestOrderDetail earnestOrderDetail = new EarnestOrderDetail();
         earnestOrderDetail.setEarnestOrderId(earnestOrder.getId());
         StringBuffer assetsItems = new StringBuffer();
         earnestOrderDetailService.list(earnestOrderDetail).forEach(o -> {
@@ -469,21 +473,35 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
         //组合支付需要显示结算详情
         StringBuffer settleWayDetails = new StringBuffer();
+        String settleWayDetailsStr = null;
         settleWayDetails.append("【");
         if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
+            //标记是否需要换行，默认标记不换行 ，结算详情中，如果未填备注和流水，则不换行；有备注或者流水，则每种支付方式单独换行；
+            Boolean  flag = true;
             BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
-            if (output.isSuccess() && CollectionUtils.isNotEmpty(output.getData())){
-                output.getData().forEach(o -> {
+            List<SettleWayDetail> swdList = output.getData();
+            if (output.isSuccess() && CollectionUtils.isNotEmpty(swdList)){
+                for(SettleWayDetail swd : swdList){
                     //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
-                    settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
-                    if (StringUtils.isNotEmpty(o.getSerialNumber())){
-                        settleWayDetails.append(",").append(o.getSerialNumber());
+                    settleWayDetails.append(SettleWayEnum.getNameByCode(swd.getWay())).append("  ").append(MoneyUtils.centToYuan(swd.getAmount()));
+                    if (StringUtils.isNotEmpty(swd.getSerialNumber())){
+                        settleWayDetails.append(",").append(swd.getSerialNumber());
+                        flag = false; //换行标记
                     }
-                    if (StringUtils.isNotEmpty(o.getNotes())){
-                        settleWayDetails.append(",").append("备注：").append(o.getNotes());
+                    if (StringUtils.isNotEmpty(swd.getNotes())){
+                        settleWayDetails.append(",").append("备注：").append(swd.getNotes());
+                        flag = false; //换行标记
                     }
                     settleWayDetails.append("\r\n");
-                });
+                }
+                //去掉最后一个换行符
+                settleWayDetails.replace(settleWayDetails.length()-2, settleWayDetails.length(), " ");
+                settleWayDetails.append("】");
+                settleWayDetailsStr = settleWayDetails.toString();
+                if (flag){ // 默认都是换行了的 ，标记flag = false, 不换行的话(flag=true)需要处理 换行符
+                    settleWayDetailsStr.replaceAll("\r\n", " ");
+                }
+
             }else {
                 LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
             }
@@ -501,12 +519,15 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
                         settleWayDetails.append(settleOrder.getNotes());
                     }
                 }
+                if (StringUtils.isNotEmpty(settleWayDetails)){
+                    settleWayDetailsStr = settleWayDetails.toString();
+                }
             }else {
                 LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
             }
         }
         settleWayDetails.append("】");
-        earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
+        earnestOrderPrintDto.setSettleWayDetails(settleWayDetailsStr);
 
         PrintDataDto<EarnestOrderPrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.EARNEST_ORDER.getCode());

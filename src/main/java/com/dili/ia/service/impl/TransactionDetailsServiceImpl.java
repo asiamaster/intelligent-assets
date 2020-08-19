@@ -36,8 +36,8 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
     FirmRpc firmRpc;
 
     @Override
-    public TransactionDetails buildByConditions(Integer sceneType, Integer bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId, Long operaterId, String operatorName) {
-        TransactionDetails tds = DTOUtils.newDTO(TransactionDetails.class);
+    public TransactionDetails buildByConditions(Integer sceneType, String bizType, Integer itemType, Long amount, Long orderId, String orderCode, Long customerId, String notes, Long marketId, Long operaterId, String operatorName) {
+        TransactionDetails tds = new TransactionDetails();
         BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
         if(!out.isSuccess()){
             LOGGER.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
@@ -64,17 +64,17 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
         //固定构建参数
         tds.setCreator(operatorName);
         tds.setCreatorId(operaterId);
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(BizNumberTypeEnum.TRANSACTION_CODE.getCode());
-        if(!bizNumberOutput.isSuccess()){
-            LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
-        }
         BaseOutput<Firm> marketOut = firmRpc.getById(marketId);
         if (!marketOut.isSuccess() || marketOut.getData() == null){
             LOGGER.info("获取市场code失败！市场ID{}",marketId);
             throw new BusinessException(ResultCode.DATA_ERROR ,"获取市场code失败！");
         }
-        tds.setCode(marketOut.getData().getCode().toUpperCase() + bizNumberOutput.getData());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(marketOut.getData().getCode() + "_" +  BizNumberTypeEnum.TRANSACTION_CODE.getCode());
+        if(!bizNumberOutput.isSuccess()){
+            LOGGER.info("编号生成器微服务异常！{}",bizNumberOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+        }
+        tds.setCode(bizNumberOutput.getData());
         return tds;
     }
 }

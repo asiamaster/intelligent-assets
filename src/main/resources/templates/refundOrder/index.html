@@ -9,12 +9,13 @@
                 <select id="state" name="state" class="form-control"></select>
                 <#bcomboProvider _id="state" _provider="refundOrderStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
-            <div class="form-group col">
-                <label for="bizType">业务类型:</label>
-                <select id="bizType" name="bizType" class="form-control"></select>
-                <#bcomboProvider _id="bizType" _provider="bizTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+<!--            <div class="form-group col">-->
+<!--                <label for="bizType">业务类型:</label>-->
+<!--                <select id="bizType" name="bizType" class="form-control"></select>-->
+<!--                <#bcomboProvider _id="bizType" _provider="bizTypeProvider" _queryParams='{emptyText:"&#45;&#45; 全部 &#45;&#45;"}'/>-->
 
-            </div>
+<!--            </div>-->
+            <input type="hidden" name="bizType" id="bizType" value="${bizType}"/>
             <div class="form-group col">
                 <label for="likeCustomerName">客户名称:</label>
                 <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
@@ -27,13 +28,13 @@
                 <label for="createdStart">创建时间:</label>
                 <div class="form-inline">
                     <div class="input-group">
-                        <input type="text" name="createdStart" id="createdStart" class="form-control date laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <input type="text" name="createdStart" id="createdStart" class="form-control date laydatetime laystart" value="${createdStart!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}"/>
                         <div class="input-group-append">
                             <label for="createdStart" class="input-group-text fa fa-calendar"></label>
                         </div>
                     </div>&nbsp;&nbsp;至&nbsp;&nbsp;
                     <div class="input-group" id="datetimepicker3">
-                        <input type="text" name="createdEnd" id="createdEnd" class="form-control date laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <input type="text" name="createdEnd" id="createdEnd" class="form-control date laydatetime layend" value="${createdEnd!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}"/>
                         <div class="input-group-append">
                             <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
                         </div>
@@ -53,13 +54,24 @@
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
                 <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
-                <#resource code="submitRefundOrder">
+                <#resource code="updateBoothLeaseRefundOrder,updateDepositRefundOrder,updateEarnestRefundOrder" checkMenu="true">
+                    <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
+                </#resource>
+                <#resource code="submitBoothLeaseRefundOrder,submitDepositRefundOrder,submitEarnestRefundOrder" checkMenu="true">
                     <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
                 </#resource>
-                <#resource code="withdrawRefundOrder">
+        <%//只有摊位租赁退款单可以查看和审批流程
+        if(bizType=="1"){%>
+                <#resource code="submitBoothLeaseRefundOrderApplication">
+                    <button id="btn_approval" type="button" class="btn btn-primary" onclick="submitRefundOrderApplication()"><i class="fa fa-paper-plane"></i> 提交审批</button>
+                </#resource>
+
+                <button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
+        <%}%>
+                <#resource code="withdrawBoothLeaseRefundOrder,withdrawDepositRefundOrder,withdrawEarnestRefundOrder" checkMenu="true">
                     <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
                 </#resource>
-                <#resource code="cancelRefundOrder">
+                <#resource code="cancelBoothLeaseRefundOrder,cancelDepositRefundOrder,cancelEarnestRefundOrder" checkMenu="true">
                     <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                 </#resource>
             </div>
@@ -82,6 +94,12 @@
         <th data-field="bizType" data-sortable="true" data-sort-name="biz_type" data-align="center" data-provider="bizTypeProvider">
             业务类型
         </th>
+        <%//摊位租赁退款单需要提交审批
+        if(bizType=="1"){%>
+        <th data-field="approvalState" data-sortable="true" data-align="center" data-sort-name="approval_state" data-provider="approvalStateProvider">
+            审批状态
+        </th>
+        <%}%>
         <th data-field="customerName" data-sortable="true" data-align="center">
             客户名称
         </th>

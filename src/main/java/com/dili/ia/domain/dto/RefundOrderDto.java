@@ -1,37 +1,25 @@
 package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
-import com.dili.ss.metadata.FieldEditor;
-import com.dili.ss.metadata.annotation.EditMode;
-import com.dili.ss.metadata.annotation.FieldDef;
 
 import javax.persistence.Column;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
 
 /**
  * 由MyBatis Generator工具自动生成
  * 租赁订单列表查询dto
  * This file was generated on 2020-02-11 15:54:49.
  */
-public interface RefundOrderDto extends RefundOrder {
+public class RefundOrderDto extends RefundOrder {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
-    Date getCreatedStart();
-    void setCreatedStart(Date createdStart);
+    private LocalDateTime createdStart;
 
     @Column(name = "`create_time`")
     @Operator(Operator.LITTLE_EQUAL_THAN)
-    Date getCreatedEnd();
-    void setCreatedEnd(Date createdEnd);
-
-    @Operator(Operator.IN)
-    @Column(name = "code")
-    List<String> getCodes();
-    void setCodes(List<String> codes);
+    private LocalDateTime createdEnd;
 
     /**
      * 昵称模糊查询
@@ -39,28 +27,29 @@ public interface RefundOrderDto extends RefundOrder {
      */
     @Column(name = "customer_name")
     @Like
-    String getLikeCustomerName();
-    void setLikeCustomerName(String likeCustomerName);
+    private String likeCustomerName;
 
-    @Operator(Operator.IN)
-    @Column(name = "id")
-    List<Long> getIds();
-    void setIds(List<Long> ids);
+    public LocalDateTime getCreatedStart() {
+        return createdStart;
+    }
 
-    //转抵扣
-    List<TransferDeductionItem> getTransferDeductionItems();
-    void setTransferDeductionItems(List<TransferDeductionItem> transferDeductionItems);
+    public void setCreatedStart(LocalDateTime createdStart) {
+        this.createdStart = createdStart;
+    }
 
-    //保证金
-    Long getDepositRefundAmount();
-    void setDepositRefundAmount(Long depositRefundAmount);
+    public LocalDateTime getCreatedEnd() {
+        return createdEnd;
+    }
 
-    //物管费
-    Long getManageRefundAmount();
-    void setManageRefundAmount(Long manageRefundAmount);
+    public void setCreatedEnd(LocalDateTime createdEnd) {
+        this.createdEnd = createdEnd;
+    }
 
-    //租金
-    Long getRentRefundAmount();
-    void setRentRefundAmount(Long rentRefundAmount);
+    public String getLikeCustomerName() {
+        return likeCustomerName;
+    }
 
+    public void setLikeCustomerName(String likeCustomerName) {
+        this.likeCustomerName = likeCustomerName;
+    }
 }

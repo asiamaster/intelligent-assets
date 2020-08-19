@@ -1,0 +1,80 @@
+<#bs4Body>
+
+<div class="container-fluid">
+    <#bs4nav>
+    <form id="queryForm" role="form" >
+        <div class="row row-cols-6">
+            <div class="form-group col">
+                <label for="likeCustomerName">客户名称:</label>
+                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
+            </div>
+            <div class="form-group col">
+                <label for="customerCellphone">联系电话:</label>
+                <input type="text" class="form-control" name="customerCellphone" id="customerCellphone" maxlength="50"/>
+            </div>
+            <div class="form-group col">
+                <label for="certificateNumber">证件号码:</label>
+                <input type="text" class="form-control" name="certificateNumber" id="certificateNumber" maxlength="50"/>
+            </div>
+            <div class="form-group col">
+                <label for="typeCode">保证金类型</label>
+                <select id="typeCode" name="typeCode" class="form-control"></select>
+                <#bcomboProvider _log="保证金类型" _id="typeCode" _provider="dataDictionaryValueProvider" _value="${depositOrder.typeCode!}" _queryParams='{dd_code:"deposit_type",emptyText:"-- 全部 --"}'/>
+            </div>
+            <div class="form-group col">
+                <label for="assetsName">对应编号:</label>
+                <input type="text" class="form-control" name="assetsName" id="assetsName" maxlength="50"/>
+            </div>
+            <div class="col align-self-center mt-3">
+                <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+            </div>
+        </div>
+
+    </form>
+
+</#bs4nav>
+    <hr>
+<h6 class="mt-2 position-absolute" id="totalBalance">合计：0.00</h6>
+    <div class="row">
+        <div class="col-12">
+            <table id="grid" data-toggle="table" data-title="保证金统计列表" class="table" data-toolbar="#toolbar"
+                   data-pagination="true" data-page-number="1" data-page-size="10"
+                   data-query-params="queryParams" data-side-pagination="server" data-method="POST"
+                   data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                   data-click-to-select="true" data-unique-id="id" data-sort-name="id"
+                   data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
+                <thead>
+                <tr>
+<!--                    <th data-radio="true"></th>-->
+                    <th data-field="customerName" data-sortable="true" data-align="center">
+                        客户名称
+                    </th>
+                    <th data-field="customerCellphone" data-sortable="true" data-align="center">
+                        联系电话
+                    </th>
+                    <th data-field="certificateNumber" data-sortable="true" data-align="center">
+                        证件号码
+                    </th>
+                    <th data-field="typeName" data-sortable="true" data-align="center" >
+                        保证金类型
+                    </th>
+                    <th data-field="assetsName" data-sortable="true" data-align="center">
+                        对应编号
+                    </th>
+                    <th data-field="balance" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                        保证金
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+
+</#bs4Body>
+<#depositBalance_indexJs />
+
+

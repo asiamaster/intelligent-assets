@@ -1,0 +1,75 @@
+<#bs4Body>
+
+<div class="container-fluid">
+    <form id="refundApplyForm" role="form">
+        <div class="row row-cols-4">
+            <div class="form-group col">
+                <label for="customerName">客户名称<i class="red">*</i></label>
+                <input type="text" class="form-control" id="customerName" name="customerName" value="${deposit.customerName!}" readonly/>
+            </div>
+            <div class="form-group col">
+                <label for="certificateNumber">证件号码<i class="red">*</i></label>
+                <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${deposit.certificateNumber!}" readonly/>
+            </div>
+            <div class="form-group col">
+                <label for="customerCellphone">联系电话<i class="red">*</i></label>
+                <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${deposit.customerCellphone!}" readonly/>
+            </div>
+        </div>
+        <div class="row row-cols-4">
+            <div class="form-group col">
+                <label for="totalRefundAmount" class="">罚款<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount"  required }/>
+            </div>
+            <div class="form-group col">
+                <label for="totalRefundAmount" class="">退款金额</label>
+                <input type="number" class="form-control" id="totalRefundAmount" name="totalRefundAmount" readonly }/>
+            </div>
+        </div>
+        <hr>
+        <div class="row row-cols-4">
+            <div class="form-group col">
+                <label for="payee">收款人<i class="red">*</i></label>
+                <#bautoCompleteProvider _hiddenDomainId="payeeId" _hiddenDomainName="payeeId" _displayDomainId="payee" _displayDomainName="payee" _validatorMethod="isSelected" _required="true" _optionVariable="customerNameAutoCompleteOption"/>
+            </div>
+            <div class="form-group col">
+                <label for="payeeCertificateNumber" class="">证件号<i class="red">*</i></label>
+                <input type="text" class="form-control" id="payeeCertificateNumber" readonly/>
+            </div>
+            <div class="form-group col">
+                <label for="payeeAmount" class="">金额<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve money" id="payeeAmount" name="payeeAmount" min="0" required/>
+            </div>
+            <div class="form-group col">
+                <label for="refundType" class="">退款方式<i class="red">*</i></label>
+                <select id="refundType" name="refundType" class="form-control" onchange="javascript:$('#bankInfo').toggle()"></select>
+                <#bcomboProvider _id="refundType" _provider="refundTypeProvider" _queryParams='{required:true}' _value=""/>
+            </div>
+        </div>
+        <div id="bankInfo" class="row row-cols-4" style="display: none;">
+            <div class="form-group col">
+                <label for="bank" class="">银行<i class="red">*</i></label>
+                <input type="text" class="form-control" id="bank"  name="bank" maxlength="50" required/>
+            </div>
+            <div class="form-group col">
+                <label for="bankCardNo" class="">银行卡号<i class="red">*</i></label>
+                <input type="text" class="form-control" id="bankCardNo" name="bankCardNo" maxlength="30" required/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-8">
+                <label for="refundReason">退款原因<i class="red">*</i></label>
+                <textarea class="form-control" id="refundReason" name="refundReason" rows="1" maxlength="100" required></textarea>
+            </div>
+        </div>
+        <div class="modal-footer-wrap">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary px-5" id="cancel" onclick="javascript:parent.closeDialog(parent.dia)">取消</button>
+                <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveFormHandler,1000,true)()">保存</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</#bs4Body>
+<#deposit_refundApplyJs />

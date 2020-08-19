@@ -1,18 +1,26 @@
 package com.dili.ia.service.impl;
 
+import com.dili.assets.sdk.dto.DistrictDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
+import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
+import com.dili.bpmc.sdk.domain.TaskMapping;
+import com.dili.bpmc.sdk.rpc.RuntimeRpc;
+import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.domain.ApprovalProcess;
+import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.PrintDataDto;
-import com.dili.ia.domain.dto.RefundOrderPrintDto;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.EarnestOrderStateEnum;
-import com.dili.ia.glossary.RefundOrderStateEnum;
-import com.dili.ia.glossary.RefundTypeEnum;
+import com.dili.ia.domain.dto.printDto.RefundOrderPrintDto;
+import com.dili.ia.glossary.*;
+import com.dili.ia.mapper.AssetsLeaseOrderItemMapper;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
+import com.dili.ia.service.ApprovalProcessService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.BeanMapUtil;
@@ -28,14 +36,16 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.AppException;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.exception.NotLoginException;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +56,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,15 +75,29 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     public RefundOrderMapper getActualDao() {
         return (RefundOrderMapper)getDao();
     }
-    @Autowired
-    SettlementRpc settlementRpc;
-    @Autowired
-    DepartmentRpc departmentRpc;
-    @Autowired
-    CustomerRpc customerRpc;
-    @Autowired
-    RefundOrderService refundOrderService;
 
+    @SuppressWarnings("all")
+    @Autowired
+    private AssetsLeaseOrderItemMapper assetsLeaseOrderItemMapper;
+    @Autowired
+    private SettlementRpc settlementRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    private DepartmentRpc departmentRpc;
+    @Autowired
+    private CustomerRpc customerRpc;
+    @Autowired
+    private RefundOrderService refundOrderService;
+    @SuppressWarnings("all")
+    @Autowired
+    private RuntimeRpc runtimeRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    private TaskRpc taskRpc;
+    @Autowired
+    private AssetsRpc assetsRpc;
+    @Autowired
+    private ApprovalProcessService approvalProcessService;
     @Value("${settlement.app-id}")
     private Long settlementAppId;
     @Value("${refundOrder.settlement.handler.url}")
@@ -82,11 +105,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
     @Autowired @Lazy
     private List<RefundOrderDispatcherService> refundBizTypes;
-    private Map<Integer,RefundOrderDispatcherService> refundBiz = new HashMap<>();
+    private Map<String,RefundOrderDispatcherService> refundBiz = new HashMap<>();
     @PostConstruct
     public void init() {
         for(RefundOrderDispatcherService service : refundBizTypes) {
-            for(Integer bizType : service.getBizType()) {
+            for(String bizType : service.getBizType()) {
                 this.refundBiz.put(bizType, service);
             }
 
@@ -110,6 +133,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         order.setMarketId(userTicket.getFirmId());
         order.setMarketCode(userTicket.getFirmCode());
         order.setState(RefundOrderStateEnum.CREATED.getCode());
+        order.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
         order.setVersion(0);
         refundOrderService.insertSelective(order);
         LoggerUtil.buildLoggerContext(order.getId(),order.getCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),null);
@@ -185,7 +209,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //检查收款人客户状态
         checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
         refundOrder.setState(RefundOrderStateEnum.SUBMITTED.getCode());
-        refundOrder.setSubmitTime(new Date());
+        refundOrder.setSubmitTime(LocalDateTime.now());
         refundOrder.setSubmitterId(userTicket.getId());
         refundOrder.setSubmitter(userTicket.getRealName());
         if (refundOrderService.updateSelective(refundOrder) == 0){
@@ -201,14 +225,12 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
             }
         }
-
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, refundOrder));
         if (!out.isSuccess()){
             LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException(ResultCode.DATA_ERROR, "提交到结算中心失败！" + out.getMessage());
         }
-
         return BaseOutput.success("提交成功");
     }
 
@@ -260,7 +282,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             settleOrder.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         }
         settleOrder.setSubmitTime(LocalDateTime.now());
-        settleOrder.setBusinessType(ro.getBizType()); // 业务类型
+        //@TODO 结算单需要调整类型，为String
+        settleOrder.setBusinessType(Integer.valueOf(ro.getBizType())); // 业务类型
         settleOrder.setAppId(settlementAppId);//应用ID
         settleOrder.setType(SettleTypeEnum.REFUND.getCode());// "结算类型  -- 退款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
@@ -284,6 +307,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         refundOrder.setState(RefundOrderStateEnum.CREATED.getCode());
         refundOrder.setWithdrawOperator(userTicket.getRealName());
         refundOrder.setWithdrawOperatorId(userTicket.getId());
+        //摊位租赁业务撤回需要改审核状态为【待审核】
+        if(refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+            refundOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
+        }
         if (refundOrderService.updateSelective(refundOrder) == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
         }
@@ -312,7 +339,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @GlobalTransactional
     @Override
     public BaseOutput<RefundOrder> doRefundSuccessHandler(SettleOrder settleOrder) {
-        RefundOrder condition = DTOUtils.newInstance(RefundOrder.class);
+        RefundOrder condition = new RefundOrder();
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
         RefundOrder refundOrder = this.listByExample(condition).stream().findFirst().orElse(null);
@@ -347,10 +374,31 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         return BaseOutput.success("退款成功！").setData(refundOrder);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public BaseOutput<RefundOrder> doUpdatedHandler(RefundOrder refundOrder) {
+        if (null == refundOrder || null == refundOrder.getId()){
+            return BaseOutput.failure("退款单修改，必要参数（ID）不能为空");
+        }
+        RefundOrder oldOrder = this.get(refundOrder.getId());
+        if (!oldOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
+            LOG.info("修改失败，退款单状态已变更！状态为：" + RefundOrderStateEnum.getRefundOrderStateEnum(refundOrder.getState()).getName() );
+            return BaseOutput.failure("退款单状态已变更！");
+        }
+        //检查客户状态
+        checkCustomerState(refundOrder.getPayeeId(), oldOrder.getMarketId());
+        refundOrder.setVersion(oldOrder.getVersion());
+        if (refundOrderService.updateSelective(refundOrder) == 0) {
+            LOG.info("退款单修改--更新退款单状态记录数为0，多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款单多人操作，请重试！");
+        }
+        return BaseOutput.success("退款成功！").setData(refundOrder);
+    }
+
     @Override
     public BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint) {
         try {
-            RefundOrder refundOrderCondition = DTOUtils.newDTO(RefundOrder.class);
+            RefundOrder refundOrderCondition = new RefundOrder();
             refundOrderCondition.setCode(orderCode);
             RefundOrder refundOrder = refundOrderService.list(refundOrderCondition).stream().findFirst().orElse(null);
             if (null == refundOrder){
@@ -386,9 +434,168 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
     }
 
+    @Override
+    public void submitForApproval(Long id) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new NotLoginException();
+        }
+        RefundOrder refundOrder = get(id);
+        if (!refundOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())
+                && (!ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode().equals(refundOrder.getApprovalState())
+                || !ApprovalStateEnum.APPROVAL_DENIED.getCode().equals(refundOrder.getApprovalState()))) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "状态已流转不能提交审批，请刷新后再试");
+        }
+        //根据第一个摊位的所属区域来确认审批人
+        AssetsLeaseOrderItem assetsLeaseOrderItem = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("districtId", assetsLeaseOrderItem.getDistrictId().toString());
+        /**
+         * 启动租赁审批流程
+         */
+        BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS, refundOrder.getCode(), userTicket.getId().toString(), variables);
+        if (!processInstanceMappingBaseOutput.isSuccess()) {
+            throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+        }
+        //设置流程定义和实例id，后面会更新到租赁单表
+        refundOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
+        refundOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
+        refundOrder.setApprovalState(ApprovalStateEnum.IN_REVIEW.getCode());
+        if (updateSelective(refundOrder) == 0) {
+            LOG.info("退款单提交状态更新失败 乐观锁生效 【退款单ID {}】", refundOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
+        }
+    }
+
+    @Override
+    public void approvedHandler(ApprovalParam approvalParam) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new NotLoginException();
+        }
+        RefundOrder condition = new RefundOrder();
+        condition.setCode(approvalParam.getBusinessKey());
+        RefundOrder refundOrder = getActualDao().selectOne(condition);
+        //只有创建状态的退款单才能提交审批任务
+        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款单状态不正确，请刷新后再试");
+        }
+        //保存流程审批记录
+        saveApprovalProcess(approvalParam, userTicket);
+        //最后一次审批，更新审批状态、租赁单状态，并且全量提交退款单到结算
+        //总经理审批通过需要更新审批状态
+        if ("generalManagerApproval".equals(approvalParam.getTaskDefinitionKey())) {
+            refundOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
+            //提交退款单
+            BaseOutput baseOutput = doSubmitDispatcher(refundOrder);
+            if(!baseOutput.isSuccess()){
+                throw new BusinessException(baseOutput.getCode(), baseOutput.getMessage());
+            }
+        }
+        //摊位的区域id，用于获取一级区域名称，在流程中进行判断
+        Long districtId = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId()).getDistrictId();
+        //提交审批任务
+        completeTask(approvalParam.getTaskId(), "true", getLevel1DistrictName(districtId));
+    }
+
+    @Override
+    public void approvedDeniedHandler (ApprovalParam approvalParam) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new NotLoginException();
+        }
+        RefundOrder condition = new RefundOrder();
+        condition.setCode(approvalParam.getBusinessKey());
+        RefundOrder refundOrder = getActualDao().selectOne(condition);
+        //只有创建状态的退款单才能提交审批任务
+        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款单状态不正确，请刷新后再试");
+        }
+        //更新退款单审批状态为拒绝
+        refundOrder.setApprovalState(ApprovalStateEnum.APPROVAL_DENIED.getCode());
+        if (updateSelective(refundOrder) == 0) {
+            LOG.info("退款单提交状态更新失败 乐观锁生效 【退款ID {}】", refundOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
+        }
+        //保存流程审批记录
+        saveApprovalProcess(approvalParam, userTicket);
+        //摊位的区域id，用于获取一级区域名称，在流程中进行判断
+        Long districtId = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId()).getDistrictId();
+        //提交审批任务
+        completeTask(approvalParam.getTaskId(), "false", getLevel1DistrictName(districtId));
+    }
+
+    /**
+     * 提交审批任务
+     *
+     * @param taskId
+     * @param agree
+     * @param districtName 街区名称, 一区或二区。 用于流程判断
+     */
+    private void completeTask(String taskId, String agree, String districtName) {
+        HashMap hashMap = new HashMap();
+        hashMap.put("agree", agree);
+        if(StringUtils.isNotEmpty(districtName)){
+            hashMap.put("districtName", districtName);
+        }
+        //非最后一次审批，只更新流程状态
+        BaseOutput baseOutput = taskRpc.complete(taskId, hashMap);
+        if (!baseOutput.isSuccess()) {
+            throw new BusinessException(ResultCode.APP_ERROR, baseOutput.getMessage());
+        }
+    }
+
+    /**
+     * 获取一级区域名称,用于流程判断
+     * @return
+     */
+    public String getLevel1DistrictName(Long districtId){
+        BaseOutput<DistrictDTO> districtOutput = assetsRpc.getDistrictById(districtId);
+        if(!districtOutput.isSuccess()){
+            throw new AppException(ResultCode.DATA_ERROR, districtOutput.getMessage());
+        }
+        //构建一级区域名称，用于流程流转
+        String districtName = null;
+        if(districtOutput.getData().getParentId() == 0L || "0".equals(districtOutput.getData().getParentId())){
+            return districtOutput.getData().getName();
+        }else{
+            BaseOutput<DistrictDTO> parentDistrictOutput = assetsRpc.getDistrictById(districtOutput.getData().getParentId());
+            if(!parentDistrictOutput.isSuccess()){
+                throw new AppException(ResultCode.DATA_ERROR, parentDistrictOutput.getMessage());
+            }
+            return parentDistrictOutput.getData().getName();
+        }
+    }
+
+    /**
+     * 保存流程审批记录
+     *
+     * @param approvalParam
+     */
+    private void saveApprovalProcess(ApprovalParam approvalParam, UserTicket userTicket) {
+        //构建流程审批记录
+        ApprovalProcess approvalProcess = new ApprovalProcess();
+        approvalProcess.setAssignee(userTicket.getId());
+        approvalProcess.setAssigneeName(userTicket.getRealName());
+        approvalProcess.setFirmId(userTicket.getFirmId());
+        approvalProcess.setProcessInstanceId(approvalParam.getProcessInstanceId());
+        approvalProcess.setBusinessKey(approvalParam.getBusinessKey());
+        approvalProcess.setOpinion(approvalParam.getOpinion());
+        approvalProcess.setTaskId(approvalParam.getTaskId());
+        BaseOutput<TaskMapping> taskMappingBaseOutput = taskRpc.getById(approvalParam.getTaskId());
+        if (!taskMappingBaseOutput.isSuccess()) {
+            throw new AppException("获取任务信息失败");
+        }
+        approvalProcess.setTaskName(taskMappingBaseOutput.getData().getName());
+        approvalProcess.setTaskTime(taskMappingBaseOutput.getData().getCreateTime());
+        approvalProcess.setResult(approvalParam.getResult());
+        //每次审批通过，保存流程审批记录(目前考虑性能，没有保存流程名称)
+        approvalProcessService.insertSelective(approvalProcess);
+    }
+
     private RefundOrderPrintDto buildCommonPrintDate(RefundOrder refundOrder, Integer reprint){
         RefundOrderPrintDto roPrintDto = new RefundOrderPrintDto();
-        roPrintDto.setPrintTime(new Date());
+        roPrintDto.setPrintTime(DateUtils.format(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss"));
         roPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         roPrintDto.setCode(refundOrder.getCode());
 
@@ -407,11 +614,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         return roPrintDto;
     }
 
-    public Map<Integer, RefundOrderDispatcherService> getRefundBiz() {
+    public Map<String, RefundOrderDispatcherService> getRefundBiz() {
         return refundBiz;
     }
 
-    public void setRefundBiz(Map<Integer, RefundOrderDispatcherService> refundBiz) {
+    public void setRefundBiz(Map<String, RefundOrderDispatcherService> refundBiz) {
         this.refundBiz = refundBiz;
     }
 }

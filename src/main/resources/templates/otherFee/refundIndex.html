@@ -1,0 +1,120 @@
+<#bs4Body>
+    <div class="container-fluid">
+        <#bs4nav>
+            <form id="queryForm" role="form">
+                <div class="row row-cols-6">
+                    <div class="form-group col">
+                        <label for="state">状态:</label>
+                        <select id="state" name="state" class="form-control"></select>
+                        <#bcomboProvider _id="state" _provider="earnestOrderStateProvider" _value=""
+                            _queryParams='{emptyText:"-- 全部 --"}' />
+                    </div>
+                    <div class="form-group col">
+                        <label for="likeCustomerName">客户名称:</label>
+                        <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName"
+                            maxlength="50" />
+                    </div>
+                    <div class="form-group col">
+                        <label for="customerCellphone">退款单编号:</label>
+                        <input type="text" class="form-control" name="customerCellphone" id=""
+                            maxlength="50" />
+                    </div>
+                    <div class="form-group col-auto">
+                        <label for="createdStart">创建时间:</label>
+                        <div class="form-inline">
+                            <div class="input-group">
+                                <input type="text" name="createdStart" id="createdStart"
+                                    class="form-control date laydatetime laystart"
+                                    value="${createdStart!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
+                                <div class="input-group-append">
+                                    <label for="createdStart" class="input-group-text fa fa-calendar"></label>
+                                </div>
+                            </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                            <div class="input-group" id="datetimepicker3">
+                                <input type="text" name="createdEnd" id="createdEnd"
+                                    class="form-control date laydatetime layend"
+                                    value="${createdEnd!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
+                                <div class="input-group-append">
+                                    <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col align-self-center mt-3">
+                        <button type="button" class="btn btn-outline-primary mr-2"
+                            onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i>
+                            清空</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i
+                                class="fa fa-search"></i> 查询</button>
+                    </div>
+                </div>
+
+            </form>
+
+        </#bs4nav>
+        <hr>
+
+        <div class="row">
+            <div class="col-12">
+                <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+                    <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
+                    <#resource code="addDepositOrder">
+                        <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
+                    </#resource>
+                    <#resource code="updateDepositOrder">
+                        <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
+                    </#resource>
+                    <#resource code="withdrawDepositOrder">
+                        <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
+                    </#resource>
+                    <#resource code="cancelDepositOrder">
+                        <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
+                    </#resource>
+
+                </div>
+                <table id="grid" data-toggle="table" data-title="退款申请单" class="table" data-toolbar="#toolbar"
+                    data-pagination="true" data-page-number="1" data-page-size="10" data-query-params="queryParams"
+                    data-side-pagination="server" data-method="POST"
+                    data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                    data-click-to-select="true" data-unique-id="id" data-sort-name="id" data-sort-order="desc"
+                    data-icons="bui.variable.icons" data-buttons-class="primary" data-show-refresh="true"
+                    data-show-fullscreen="true" data-show-columns="true">
+                    <thead>
+                        <tr>
+                            <th data-radio="true"></th>
+                            <th data-field="code" data-sortable="true" data-align="center" data-formatter="codeFormatter">
+                                退款单编号
+                            </th>
+                            <th data-field="" data-sortable="true" data-align="center" >
+                                对应业务单编号
+                            </th>
+                            <th data-field="customerName" data-sortable="true" data-align="center">
+                                客户名称
+                            </th>
+                            <th data-field="customerCellphone" data-sortable="true" data-align="center">
+                                联系电话
+                            </th>
+                            <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                                退款金额
+                            </th>
+                            <th data-field="state" data-sortable="true" data-provider="depositOrderStateProvider" data-align="center">
+                                状态
+                            </th>
+                            <th data-field="creator" data-sortable="true" data-align="center">
+                                创建人
+                            </th>
+                            <th data-field="createTime" data-sortable="true" data-provider="datetimeProvider" data-align="center">
+                                创建时间
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+</#bs4Body>
+
+<#depositOrder_indexJs />

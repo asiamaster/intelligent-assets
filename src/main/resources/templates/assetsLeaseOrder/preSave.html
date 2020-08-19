@@ -1,0 +1,267 @@
+<#bs4Body>
+
+    <div class="container-fluid">
+        <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.booth_lease'/>">
+        <form id="saveForm" role="form" novalidate>
+            <input type="hidden" id="id" name="id" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.id!}">
+            <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
+            <input type="hidden" name="isRenew" value="${isRenew!}">
+            <input type="hidden" id="assetsType" name="assetsType" value="${assetsType!}">
+            <div class="breadcrumb" >
+                客户信息 ${isNotEmpty(isRenew) && isRenew == 1?'':'<a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>'}
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
+                   aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-4 collapse show" id="customerInfo">
+                <div class="form-group col">
+                    <label for="customerName">客户名称<i class="red">*</i></label>
+                    <% if(isNotEmpty(isRenew) && isRenew == 1 ){%>
+                    <input type="text" class="form-control" id="customerName" name="customerName" value="${leaseOrder.customerName!}" placeholder="" _log="客户名称" required readonly autocomplete="off">
+                    <input type="hidden" name="customerId" id="customerId" value="${leaseOrder.customerId!}" text="${leaseOrder.customerName!}">
+                    <% }else{ %>
+                    <#bautoCompleteProvider _log="客户名称" _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName" _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _value="${leaseOrder.customerId!}" _text="${leaseOrder.customerName!}" _required="true" _optionVariable="customerNameAutoCompleteOption"/>
+                    <% } %>
+                </div>
+                <div class="form-group col">
+                    <label for="_certificateNumber">证件号码<i class="red">*</i></label>
+                    <% if(isNotEmpty(isRenew) && isRenew == 1 ){%>
+                    <input type="text" class="form-control" name="certificateNumber" id="certificateNumber" value="${leaseOrder.certificateNumber!}" placeholder="" _log="证件号码" required readonly autocomplete="off">
+                    <% }else{ %>
+                    <#bautoCompleteProvider _log="证件号码" _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" _displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected" _value="${leaseOrder.certificateNumber!}" _text="${leaseOrder.certificateNumber!}" _required="true" _readonly="${isNotEmpty(isRenew) && isRenew == 1?'true':'false'}" _optionVariable="certificateNumberAutoCompleteOption"/>
+                    <% } %>
+                </div>
+                <div class="form-group col">
+                    <label for="customerCellphone" _log>联系电话<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${leaseOrder.customerCellphone!}" required ${isNotEmpty(isRenew) && isRenew == 1?'readonly':''}/>
+                </div>
+            </div>
+            <div class="breadcrumb">
+                出租信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#leaseInfo" aria-expanded="true" aria-controls="leaseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="row row-cols-4 collapse show" id="leaseInfo">
+                <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
+                <div class="form-group col">
+                    <label for="engageCode">经营范围<i class="red">*</i></label>
+                    <select id="engageCode" name="engageCode" class="form-control" required></select>
+                    <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider" _value="${leaseOrder.engageCode!}" _queryParams='{dd_code:"engage"}'/>
+                </div>
+                <% } %>
+                <div class="form-group col">
+                    <label for="leaseTermCode">租赁期限<i class="red">*</i></label>
+                    <select id="leaseTermCode" name="leaseTermCode" class="form-control" required></select>
+                    <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${leaseOrder.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}'/>
+                </div>
+                <div class="form-group col">
+                    <label for="days" _log>租赁天数<i class="red">*</i></label>
+                    <input type="number" class="form-control isInt" id="days" name="days" oninput="daysChangeHandler()" value="${leaseOrder.days!}" min="1" max="99999" required/>
+                </div>
+                <div class="form-group col col">
+                    <label for="startTime" _log>开始日期<i class="red">*</i></label>
+                    <input type="text" id="startTime" name="startTime" class="form-control" oninput="startTimeChangeHandler()" value="${leaseOrder.startTime!,localDateTimeFormat='yyyy-MM-dd'}" autocomplete="off" required>
+                </div>
+                <div class="form-group col col">
+                    <label for="endTime" _log>结束日期<i class="red">*</i></label>
+                    <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()" value="${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}" autocomplete="off" required>
+                </div>
+                <div class="form-group col">
+                    <label for="contractNo" _log>合同编号</label>
+                    <input type="text" class="form-control" id="contractNo" name="contractNo" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.contractNo!}" maxlength="50"/>
+                </div>
+                <div class="form-group col">
+                    <label for="departmentId">业务所属部门<i class="red">*</i></label>
+                    <select id="departmentId"  name="departmentId" class="form-control" required></select>
+                    <#bcomboProvider _log="业务所属部门" _id="departmentId" _provider="authDepartmentProvider" _value="${leaseOrder.departmentId!}"/>
+
+                </div>
+                <% if(assetsType != @com.dili.ia.glossary.AssetsTypeEnum.LODGING.getCode()){%>
+                <div class="form-group col-9">
+                    <label for="categorys" _log>经营品类</label>
+                    <select id="categorys" name="categorys" multiple>
+                        <%
+                        if(isNotEmpty(leaseOrder.categoryId)){
+                        var categoryIds = strutil.split (leaseOrder.categoryId,",");
+                        var categoryNames = strutil.split (leaseOrder.categoryName,",");
+                        for(cid in categoryIds){
+                        %>
+                        <option value="${cid}">${categoryNames[cidLP.index-1]}</option>
+                        <%  }} %>
+                    </select>
+                    <#bselect2 _id="categorys" _mode="remote" _optionVariable="categoryAutoCompleteOption" _value="[${leaseOrder.categoryId!}]"/>
+                </div>
+                <% } %>
+            </div>
+            <div class="breadcrumb">
+                资产信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#assetInfo" aria-expanded="true" aria-controls="assetInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div id="assetInfo" class="collapse show" style="width: 100%;overflow: auto;">
+                <table class="table table-bordered table-hover table-striped" id="assetTable" _logTable="资产项" style="min-width: 1400px;">
+                    <thead>
+                    <tr>
+                        <th class="text-center" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
+                        <th style="font-weight:normal;width: 15rem;" >资产编号<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 7rem;">规格</th>
+                        <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+                        <th style="font-weight:normal;width: 7rem;">租赁数量<i class="red">*</i></th>
+                        <% } %>
+                        <th style="font-weight:normal;width: 5rem;">转角</th>
+                        <th style="font-weight:normal;width: 9rem;">单价<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 6rem;">应交月数<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 9rem;">优惠金额<i class="red">*</i></th>
+                        <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+                        for(item in chargeItems){
+                        %>
+                        <th style="font-weight:normal; ">${item.chargeItem!}<i class="red">*</i></th>
+                        <% } }%>
+                        <th style="font-weight:normal; min-width: 24rem;">保证金</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <%if(isNotEmpty(leaseOrderItems) && leaseOrderItems.~size>0){
+                    for(item in leaseOrderItems){
+                    %>
+                    <tr data-index="${itemLP.index}">
+                        <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
+                        <td style="padding: .25rem!important;">
+                            <input type="hidden" id="unitCode_${itemLP.index}" name="unitCode_${itemLP.index}" value="${item.unitCode!}">
+                            <input type="hidden" id="districtId_${itemLP.index}" name="districtId_${itemLP.index}" value="${item.districtId!}">
+                            <input type="hidden" id="districtName_${itemLP.index}" name="districtName_${itemLP.index}" value="${item.districtName!}">
+                            <input type="hidden" id="number_${itemLP.index}" name="number_${itemLP.index}" value="${item.number!}"/>
+                            <input type="hidden" id="unitName_${itemLP.index}" name="unitName_${itemLP.index}" value="${item.unitName!}"/>
+                            <#bautoCompleteProvider _log="资产编号" _hiddenDomainId="assetsId_${itemLP.index}" _hiddenDomainName="assetsId_${itemLP.index}" _hiddenDomainClass="assets" _displayDomainId="assetsName_${itemLP.index}" _displayDomainName="assetsName_${itemLP.index}" _value="${item.assetsId!}" _text="${item.assetsName!}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
+                        </td>
+                        <td style="padding: .25rem!important;"><input type="text" class="form-control" id="sku_${itemLP.index}" name="sku_${itemLP.index}" value="${item.number!}${item.unitName!}" readonly uncheck/></td>
+                        <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+                        <td style="padding: .25rem!important;"><input _log="租赁数量" type="number" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <% } %>
+                        <td style="padding: .25rem!important;"><input type="text" class="form-control" id="isCorner_${itemLP.index}" name="isCorner_${itemLP.index}" value="${item.isCorner!}" readonly uncheck/></td>
+                        <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_${itemLP.index}" name="unitPrice_${itemLP.index}" value="<#centToYuan value='${item.unitPrice!0}'/>" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_${itemLP.index}" name="paymentMonth_${itemLP.index}" value="${item.paymentMonth!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_${itemLP.index}" name="discountAmount_${itemLP.index}" value="<#centToYuan value='${item.discountAmount!0}'/>" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+                        for(chargeItem in chargeItems){
+                        %>
+                        <td style="padding: .25rem!important;"><input _log="${chargeItem.chargeItem!}" isCharge data-charge-item-name="${chargeItem.chargeItem!}" type="number" id="chargeItem_${chargeItem.id!}_${itemLP.index}" name="chargeItem_${chargeItem.id!}_${itemLP.index}" value="${item.businessChargeItem['chargeItemYuan'+chargeItem.id]!}" data-charge-item-id="${chargeItem.id!}" oninput="calcTotalAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <% } }%>
+                        <td style="padding: .25rem!important;">
+                            <div class="d-flex">
+                                <div class="input-group w-50">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">已交</span>
+                                    </div>
+                                    <input type="number" id="depositBalance_${itemLP.index}" name="depositBalance_${itemLP.index}" class="form-control" value="0.00" readonly>
+                                </div>
+                                <div class="input-group w-50 pl-1">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">补交</span>
+                                    </div>
+                                    <input type="number" id="depositMakeUpAmount_${itemLP.index}" name="depositMakeUpAmount_${itemLP.index}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <% } }%>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="breadcrumb">
+                金额信息
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="collapse show" id="moneyInfo">
+                <div class="row row-cols-4">
+                    <div class="form-group col">
+                        <label for="totalAmount" _log>合计金额<i class="red">*</i></label>
+                        <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>" readonly/>
+                    </div>
+                </div>
+                <div class="row row-cols-4">
+                    <div class="form-group col">
+                        <label for="earnestDeduction" _log>定金抵扣</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.earnestDeduction!}'/>" oninput="calcPayAmount()"/>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="earnestAmount">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col">
+                        <label for="transferDeduction" _log>转抵扣</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.transferDeduction!}'/>" oninput="calcPayAmount()"/>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="transferAmount">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col">
+                        <label for="payAmount" _log>实付金额<i class="red">*</i></label>
+                        <input type="number" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" min="0" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-8">
+                    <label for="notes" _log>备注</label>
+                    <textarea class="form-control" id="notes" name="notes"  rows="1" maxlength="100" uncheck>${leaseOrder.notes!}</textarea>
+                </div>
+            </div>
+            <div class="modal-footer-wrap">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-5" id="cancel" onclick="javascript:parent.dia.hide()">取消</button>
+                    <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveFormHandler,1000,true)()">保存</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</#bs4Body>
+<#js_customerAutocompleteJs/>
+<#assetsLeaseOrder_preSaveJs />
+<script  id="assetItem"  type="text/html">
+    <tr data-index="{{index}}">
+        <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
+        <td style="padding: .25rem!important;">
+            <input type="hidden" id="unitCode_{{index}}" name="unitCode_{{index}}">
+            <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}">
+            <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}">
+            <input type="hidden" id="number_{{index}}" name="number_{{index}}"/>
+            <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}"/>
+            <#bautoCompleteProvider _log="资产编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _hiddenDomainClass="assets" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
+        </td>
+        <td style="padding: .25rem!important;"><input type="text" class="form-control" id="sku_{{index}}" name="sku_{{index}}" readonly uncheck/></td>
+        <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+        <td style="padding: .25rem!important;"><input _log="租赁数量" type="number" id="leasesNum_{{index}}" name="leasesNum_{{index}}" value="{{leasesNum}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <% } %>
+        <td style="padding: .25rem!important;"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" readonly uncheck/></td>
+        <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_{{index}}" name="unitPrice_{{index}}" value="{{unitPrice}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_{{index}}" name="paymentMonth_{{index}}" value="{{discountAmount}}" value="{{paymentMonth}}"  class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_{{index}}" name="discountAmount_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+        for(item in chargeItems){
+        %>
+        <td style="padding: .25rem!important;"><input _log="${item.chargeItem!}" isCharge data-charge-item-name="${item.chargeItem!}" type="number" id="chargeItem_${item.id!}_{{index}}" name="chargeItem_${item.id!}_{{index}}" data-charge-item-id="${item.id!}" oninput="calcTotalAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <% } }%>
+        <td style="padding: .25rem!important;">
+            <div class="d-flex">
+                <div class="input-group w-50">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">已交</span>
+                    </div>
+                    <input type="number" id="depositBalance_{{index}}" name="depositBalance_{{index}}" class="form-control" value="0.00" readonly>
+                </div>
+                <div class="input-group w-50 pl-1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">补交</span>
+                    </div>
+                    <input type="number" id="depositMakeUpAmount_{{index}}" name="depositMakeUpAmount_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01">
+                </div>
+            </div>
+
+        </td>
+    </tr>
+</script>

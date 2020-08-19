@@ -9,14 +9,16 @@ package com.dili.ia.glossary;
  * @createTime 2020-02-17 18:51
  */
 public enum BizNumberTypeEnum {
-    LEASE_ORDER("leaseOrder", "摊位租赁"),
+    //编号规则 BizTypeEnum.enName + '_' + BizNumberTypeEnum.code
+    LEASE_ORDER("leaseOrder", "租赁单"),
+    //编号规则 BizTypeEnum.enName + '_' + BizNumberTypeEnum.code
     PAYMENT_ORDER("paymentOrder", "缴费单"),
+    //编号规则 BizTypeEnum.enName + '_' + BizNumberTypeEnum.code
     REFUND_ORDER("refundOrder", "退款单"),
     EARNEST_ORDER("earnestOrder", "定金业务单"),
-    EARNEST_REFUND_ORDER("earnesRefundtOrder", "定金退款单"),
-    LEASE_REFUND_ORDER("leaseRefundOrder", "租赁退款单"),
     EARNEST_TRANSFER_ORDER("earnestTransferOrder", "定金转移单"),
     TRANSACTION_CODE("transactionCode", "客户账户流水号"),
+    DEPOSIT_ORDER("depositOrder", "保证金业务单"),
     ;
 
     private String name;

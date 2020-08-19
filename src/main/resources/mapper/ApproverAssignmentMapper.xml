@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.ia.mapper.ApproverAssignmentMapper">
+  <resultMap id="BaseResultMap" type="com.dili.ia.domain.ApproverAssignment">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="district_id" jdbcType="BIGINT" property="districtId" />
+    <result column="assignee" jdbcType="BIGINT" property="assignee" />
+    <result column="task_definition_key" jdbcType="VARCHAR" property="taskDefinitionKey" />
+    <result column="process_definition_key" jdbcType="VARCHAR" property="processDefinitionKey" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, district_id, assignee, task_definition_key, process_definition_key, modify_time, 
+    create_time
+  </sql>
+  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from approver_assignment
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <update id="updateBy" parameterType="com.dili.ia.domain.ApproverAssignment">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update approver_assignment
+    <set>
+      <if test="districtId != null">
+        district_id = #{districtId,jdbcType=BIGINT},
+      </if>
+      <if test="assignee != null">
+        assignee = #{assignee,jdbcType=BIGINT},
+      </if>
+      <if test="taskDefinitionKey != null">
+        task_definition_key = #{taskDefinitionKey,jdbcType=VARCHAR},
+      </if>
+      <if test="processDefinitionKey != null">
+        process_definition_key = #{processDefinitionKey,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+</mapper>

@@ -1,7 +1,6 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.dto.RefundOrderPrintDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -15,6 +14,14 @@ import java.util.Set;
  */
 public interface RefundOrderDispatcherService extends BaseService<RefundOrder, Long> {
 
+    /**
+     * 退款单 --修改
+     * @param refundOrder 退款单
+     * @return BaseOutput
+     * */
+    default BaseOutput updateHandler(RefundOrder refundOrder){
+        return BaseOutput.success();
+    }
     /**
      * 退款单 --提交
      * @param refundOrder 退款单
@@ -52,5 +59,5 @@ public interface RefundOrderDispatcherService extends BaseService<RefundOrder, L
     /**
      * 退款单 --获取业务类型
      * */
-    Set<Integer> getBizType();
+    Set<String> getBizType();
 }

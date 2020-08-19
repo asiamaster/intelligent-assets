@@ -8,14 +8,13 @@
 
     <context id="Mysql" targetRuntime="MyBatis3" defaultModelType="flat">
 
-
         <!-- Mapper插件 -->
         <!-- mappers属性为*Mapper.java要继承的接口全名 -->
         <plugin type="${mapper.plugin}">
             <property name="beginningDelimiter" value="`"/>
             <property name="endingDelimiter" value="`"/>
             <property name="mappers" value="${mapper.Mapper}"/>
-            <property name="isDTO" value="true"/>
+            <property name="isDTO" value="false"/>
         </plugin>
 
         <!-- Mybatis配置文件生成插件 -->
@@ -103,7 +102,7 @@
 <!--        <table domainObjectName="TransferDeductionItem" tableName="transfer_deduction_item">-->
 <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
 <!--        </table>-->
-       <table domainObjectName="PrintTemplate" tableName="print_template">
+       <table tableName="invoice_record">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
 

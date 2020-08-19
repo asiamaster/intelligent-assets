@@ -46,7 +46,7 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     TransactionDetailsService transactionDetailsService;
 
     @Override
-    public Set<Integer> getBizType() {
+    public Set<String> getBizType() {
         return Sets.newHashSet(BizTypeEnum.EARNEST.getCode());
     }
 
@@ -55,7 +55,7 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     public BaseOutput submitHandler(RefundOrder refundOrder) {
         //冻结客户资金，写入冻结记录
         customerAccountService.frozenEarnest(refundOrder.getCustomerId(), refundOrder.getMarketId(), refundOrder.getPayeeAmount());
-        Integer bizType = BizTypeEnum.EARNEST.getCode();
+        String bizType = BizTypeEnum.EARNEST.getCode();
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
         Integer sceneType = TransactionSceneTypeEnum.FROZEN.getCode();
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -69,7 +69,7 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
         //解冻客户资金，写入解冻记录
         customerAccountService.unfrozenEarnest(refundOrder.getCustomerId(), refundOrder.getMarketId(), refundOrder.getPayeeAmount());
-        Integer bizType = BizTypeEnum.EARNEST.getCode();
+        String bizType = BizTypeEnum.EARNEST.getCode();
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
         Integer sceneType = TransactionSceneTypeEnum.UNFROZEN.getCode();
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -83,7 +83,7 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
         //解冻客户资金，扣除客户余额，写入解冻，扣除记录记录
         customerAccountService.refundSuccessEarnest(refundOrder.getCustomerId(), refundOrder.getMarketId(), refundOrder.getPayeeAmount());
-        Integer bizType = BizTypeEnum.EARNEST.getCode();
+        String bizType = BizTypeEnum.EARNEST.getCode();
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
         Integer sceneTypeUnfrozen = TransactionSceneTypeEnum.UNFROZEN.getCode();
         Integer sceneTypeRefund = TransactionSceneTypeEnum.REFUND.getCode();

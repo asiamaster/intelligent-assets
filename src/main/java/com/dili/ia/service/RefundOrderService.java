@@ -1,6 +1,7 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -33,6 +34,13 @@ public interface RefundOrderService extends BaseService<RefundOrder, Long> {
     BaseOutput doCancelDispatcher(RefundOrder refundOrder);
 
     /**
+     * 退款单 --修改
+     * @param refundOrder 退款单
+     * @return BaseOutput
+     * */
+    BaseOutput<RefundOrder> doUpdatedHandler(RefundOrder refundOrder);
+
+    /**
      * 退款单 --撤回
      * @param settleOrder 退款结算单
      * @return BaseOutput
@@ -52,5 +60,23 @@ public interface RefundOrderService extends BaseService<RefundOrder, Long> {
      * @return BaseOutput<PrintDataDto>
      */
     BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint);
+
+    /**
+     * 提交审批
+     * @param id 租赁单ID
+     */
+    void submitForApproval(Long id);
+
+    /**
+     * 审批通过
+     * @param approvalParam
+     */
+    void approvedHandler(ApprovalParam approvalParam);
+
+    /**
+     * 审批拒绝
+     * @param approvalParam
+     */
+    void approvedDeniedHandler (ApprovalParam approvalParam);
 
 }
