@@ -824,11 +824,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput batchAddOrUpdateDepositOrder(List<DepositOrder> depositOrderList) {
-        if (CollectionUtils.isEmpty(depositOrderList)){
-            return BaseOutput.success();
-        }
-        List<DepositOrder> oldList = this.queryDepositOrder(depositOrderList.get(0).getBizType(), depositOrderList.get(0).getBusinessId(), null);
+    public BaseOutput batchAddOrUpdateDepositOrder(String bizType, Long businessId, List<DepositOrder> depositOrderList) {
+        List<DepositOrder> oldList = this.queryDepositOrder(bizType, businessId, null);
         Map<Long, Long> assetsIdsMap = new HashMap<>();
         oldList.stream().forEach(o ->{
             assetsIdsMap.put(o.getAssetsId(), o.getId());
@@ -871,6 +868,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
 
         });
+
         assetsIdsMap.forEach((key, value) -> { //【取消】
             DepositOrder depositOrder = this.get(value);
             this.cancelDepositOrder(depositOrder);
