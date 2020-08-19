@@ -31,12 +31,12 @@
                 <select id="refundType" name="refundType" class="form-control" onchange="javascript:$('#bankInfo').toggle()"></select>
                 <#bcomboProvider _log="退款方式" _id="refundType" _provider="refundTypeProvider" _queryParams='{required:true}' _value="${refundOrder.refundType!}" />
             </div>
-            <div id="bankInfo"  class="col-6"  <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == @com.dili.ia.glossary.RefundTypeEnum.BANK.getCode()){ %> style="display: flex" <% } else {%>  style="display: none" <%}%> >
-                <div class="form-group col-6 pl-0">
+            <div id="bankInfo"  class="col-6 row pr-0 pl-0 ml-1"  <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == @com.dili.ia.glossary.RefundTypeEnum.BANK.getCode()){ %> style="display: flex" <% } else {%>  style="display: none" <%}%> >
+                <div class="form-group col-6">
                     <label for="bank" class="" _log>开户行<i class="red">*</i></label>
                     <input type="text" class="form-control" id="bank"  name="bank" value="${refundOrder.bank!}" maxlength="50" required/>
                 </div>
-                <div class="form-group col-6 pr-0">
+                <div class="form-group col-6">
                     <label for="bankCardNo" class="" _log>银行卡号<i class="red">*</i></label>
                     <input type="text" class="form-control" id="bankCardNo" name="bankCardNo" value="${refundOrder.bankCardNo!}" maxlength="30" required/>
                 </div>
