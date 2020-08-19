@@ -704,7 +704,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (assetsLeaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-        if (apportionRecordService.batchInsert(apportionRecords) != apportionRecords.size()) {
+        if (!apportionRecords.isEmpty() && apportionRecordService.batchInsert(apportionRecords) != apportionRecords.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "分摊明细写入失败！");
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
