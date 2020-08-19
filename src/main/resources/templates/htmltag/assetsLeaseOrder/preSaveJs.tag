@@ -95,7 +95,12 @@
     $(function () {
         //初始化刷卡
         initSwipeCard({
-            id:'getCustomer'
+            id:'getCustomer',
+            onLoadSuccess:function(customer){
+                //账户余额查询
+                queryCustomerAccount();
+                calcTotalAmount(true);
+            }
         });
 
         //监听客户注册
