@@ -600,8 +600,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //【更新/修改】保证金余额 --- 缴费成功保证金余额增加
         this.saveOrupdateDepositBalance(depositOrder, paymentOrderPO.getAmount());
-        //记录日志
-        msgService.sendBusinessLog(recordPayLog(settleOrder, depositOrder));
 
         return BaseOutput.success().setData(depositOrder);
     }
