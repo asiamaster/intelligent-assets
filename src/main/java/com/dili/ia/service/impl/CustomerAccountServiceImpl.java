@@ -335,11 +335,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         Customer customer = output.getData();
         if(null == customer){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实！");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实！");
         }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实！");
         }
     }
 

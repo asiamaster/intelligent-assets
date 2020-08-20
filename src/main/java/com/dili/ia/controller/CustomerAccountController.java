@@ -209,11 +209,11 @@ public class CustomerAccountController {
         }
         Customer customer = output.getData();
         if(null == customer){
-            return BaseOutput.failure("客户不存在，请核实和修改后再保存");
+            return BaseOutput.failure("客户不存在，请核实！");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
-            return BaseOutput.failure("客户已禁用，请核实和修改后再保存");
+            return BaseOutput.failure("客户已禁用，请核实！");
         }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
-            return BaseOutput.failure("客户已删除，请核实和修改后再保存");
+            return BaseOutput.failure("客户已删除，请核实！");
         }
         return BaseOutput.success();
     }
