@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.dto.LaborDto;
 import com.dili.ia.domain.dto.LaborQueryDto;
 import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.LaborActionEnum;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.LaborService;
 import com.dili.ia.util.LogBizTypeConst;
@@ -112,24 +114,27 @@ public class LaborController {
     @RequestMapping(value="/update.html", method = {RequestMethod.GET, RequestMethod.POST})
     public String update(ModelMap modelMap,String code, String type) {
     	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+    	// 判断业务类型
     	String businessChargeType = null;
-    	switch (type) {
-		case "renew": {	
+    	switch (LaborActionEnum.getLaborActionEnum(type)) {
+		case RENEW: {	
 			businessChargeType = BizTypeEnum.LABOR_VEST.getCode();
 			break;
 		}
-		case "remodel": {	
+		case REMODEL: {	
 			businessChargeType = BizTypeEnum.LABOR_VEST_REMODEL.getCode();
 			break;
 		}
-		case "rename": {	
+		case RENAME: {	
 			businessChargeType = BizTypeEnum.LABOR_VEST_RENAME.getCode();
 			break;
 		}
 		default:
+			businessChargeType = BizTypeEnum.LABOR_VEST.getCode();
+			break;
 		}
 
-    	if(StringUtils.isNotEmpty(businessChargeType)) {
+    	if(StringUtils.isNotEmpty(businessChargeType) && LaborActionEnum.UPDATE != LaborActionEnum.getLaborActionEnum(type)) {
     		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
     				queryBusinessChargeItemConfig(userTicket.getFirmId(), businessChargeType, YesOrNoEnum.YES.getCode());
         	modelMap.put("chargeItems", chargeItemDtos);
@@ -163,16 +168,16 @@ public class LaborController {
     @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput insert(@RequestBody @Validated LaborDto laborDto) {
     	try {
-    		switch (laborDto.getActionType()) {
-			case "rename": {
+    		switch (LaborActionEnum.getLaborActionEnum(laborDto.getActionType())) {
+			case RENAME: {
 				laborService.rename(laborDto);
 				break;
 			}
-			case "remodel": {
+			case REMODEL: {
 				laborService.remodel(laborDto);
 				break;
 			}
-			case "renew": {
+			case RENEW: {
 				laborService.renew(laborDto);
 				break;
 			}
@@ -313,10 +318,10 @@ public class LaborController {
     	try {
     		baseOutput.setData(laborService.getCost(laborDto));
     	}catch (BusinessException e) {
-			//LOG.error("费用{}计算异常！",laborDetailDto.getCode(), e);
+			LOG.error("费用{}计算异常！",JSON.toJSON(laborDto), e);
 			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
-			//LOG.error("费用{}计算异常！",laborDetailDto.getCode(), e);
+			LOG.error("费用{}计算异常！",JSON.toJSON(laborDto), e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
 		}
     	return baseOutput;
