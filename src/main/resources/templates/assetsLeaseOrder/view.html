@@ -21,6 +21,10 @@
                     <label>交费状态</label>
                     <input type="text" class="form-control" value="${@com.dili.ia.glossary.PayStateEnum.getPayStateEnum(leaseOrder.payState).getName()}" readonly/>
                 </div>
+                <div class="form-group col">
+                    <label>退款状态</label>
+                    <input type="text" class="form-control" value="${@com.dili.ia.glossary.LeaseRefundStateEnum.getRefundStateEnum(leaseOrder.refundState).getName()}" readonly/>
+                </div>
             </div>
             <div class="breadcrumb" >
                 客户信息
@@ -94,6 +98,10 @@
                     <tr>
                         <th class="text-center align-middle" style="font-weight:normal;">资产编号</th>
                         <th class="text-center align-middle" style="font-weight:normal;">规格</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">转角</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">单价</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">应交月数</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">优惠金额</th>
                         <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <th class="text-center align-middle" style="font-weight:normal;">租赁数量</th>
                         <% } %>
@@ -111,6 +119,10 @@
                     <tr>
                         <td class="text-center align-middle" title="${item.assetsName!}">${item.assetsName!}</td>
                         <td class="text-center align-middle" >${item.number!}${item.unitName!}</td>
+                        <td class="text-center align-middle" >${item.isCorner!}</td>
+                        <td class="text-center align-middle" ><#centToYuan value='${item.unitPrice!0}'/></td>
+                        <td class="text-center align-middle" >${item.paymentMonth!}</td>
+                        <td class="text-center align-middle" ><#centToYuan value='${item.discountAmount!0}'/></td>
                         <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <td style="padding: .25rem!important;"><input type="number" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" readonly></td>
                         <% } %>
