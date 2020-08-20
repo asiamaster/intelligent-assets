@@ -61,14 +61,18 @@
 	</div>
 	<div class="form-group col">
 		<label for="departmentId">马甲类型<i class="red">*</i></label> <select
-			id="laborType" name="laborType" class="form-control get-cost" required></select>
+			id="laborType" name="laborType" class="form-control get-cost" required>
+			<option value="">--请选择--</option>
+			</select>
 		<#bcomboProvider _id="laborType" _value="${labor.laborType!}"
 			_provider="dataDictionaryValueProvider"
 			_queryParams='{dd_code:"labor_vest_type", required:true}' />
 	</div>
 	<div class="form-group col">
 		<label for="departmentId">运营车型<i class="red">*</i></label> <select
-			id="models" name="models" class="form-control remodel get-cost" required></select>
+			id="models" name="models" class="form-control remodel get-cost" required>
+			<option value="">--请选择--</option>
+			</select>
 		<#bcomboProvider _id="models" _value="${labor.models!}"
 			_provider="dataDictionaryValueProvider"
 			_queryParams='{dd_code:"labor_car_type", required:true}' />
@@ -76,6 +80,7 @@
 	<div class="form-group col">
 		<label for="departmentId">办理周期<i class="red">*</i></label> <select
 			id="interval" name="interval" class="form-control renew" required>
+			<option value="">--请选择--</option>
 		</select>
 		<#bcomboProvider _id="interval" _value="${labor.interval!}"
 			_provider="dataDictionaryValueProvider"

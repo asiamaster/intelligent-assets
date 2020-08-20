@@ -123,7 +123,7 @@ $(function () {
 	let type = '${type!}';
 	if(type == "add"){
 		$('#startDate').val(moment().format("YYYY-MM-DD"));
-		$('#endDate').val(moment().add('month', 1).format('YYYY-MM-DD'));
+		//$('#endDate').val(moment().add('month', 1).format('YYYY-MM-DD'));
 	}
 	if(type == "renew"){
 		//续费  默认老单结束时间为新单开始时间
