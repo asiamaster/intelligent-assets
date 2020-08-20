@@ -500,7 +500,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         Long totalRefundAmount = depositRefundOrderDto.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getPaidAmount() < totalRefundAmount){
-            return BaseOutput.failure("退款金额不能大于订单已交费金额！");
+            return BaseOutput.failure("退款总金额不能大于订单已交费金额！");
         }
 
         //新增
