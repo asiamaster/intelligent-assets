@@ -86,7 +86,7 @@ public interface InvoiceRecord extends IBaseDomain {
   void setAmount(Long amount);
 
   /**
-   * 订单总金额，用于校验
+   * 订单总金额，用于校验开票金额不大于订单总金额
    * @return
    */
   @Cent2Yuan

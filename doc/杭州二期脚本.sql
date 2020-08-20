@@ -82,14 +82,14 @@ INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_settleOrder', 2020081200001, '杭州水产-结算单', '1');
 
 --  字段删除脚本（数据迁移完后执行）
-ALTER TABLE `lease_order`
+ALTER TABLE `assets_lease_order`
 DROP COLUMN `rent_amount`,
 DROP COLUMN `deposit_amount`,
 DROP COLUMN `manage_amount`,
 DROP COLUMN `deposit_deduction`;
 
 --  字段删除脚本（数据迁移完后执行）
-ALTER TABLE `lease_order_item`
+ALTER TABLE `assets_lease_order_item`
 DROP COLUMN `deposit_amount_flag`,
 DROP COLUMN `deposit_amount_source_id`,
 DROP COLUMN `deposit_amount`,

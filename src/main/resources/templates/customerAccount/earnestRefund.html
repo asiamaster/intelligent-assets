@@ -1,27 +1,27 @@
 <#bs4Body>
 
-<div class="container-fluid">
-    <form id="saveForm" role="form" action="">
+<div class="container-fluid pb-5">
+    <form id="saveForm" role="form" action="" class="pb-5">
         <div class="row row-cols-4">
             <input type="hidden" id="id" name="id" value="${refundOrder.id!}"/>
             <input type="hidden" name="customerId" value="${customerAccount.customerId!}">
             <input type="hidden" name="businessId" value="${customerAccount.id!}">
             <div class="form-group col">
-                <label for="" class="">客户姓名</label>
+                <label for="" class="" _log>客户姓名</label>
                 <input type="text" class="form-control" name="customerName" value="${customerAccount.customerName!}" readonly />
             </div>
             <div class="form-group col">
-                <label for="" class="">证件号码</label>
+                <label for="" class="" _log>证件号码</label>
                 <input type="text" class="form-control" name="certificateNumber" value="${customerAccount.certificateNumber!}" readonly />
             </div>
             <div class="form-group col">
-                <label for="" class="">手机号</label>
+                <label for="" class="" _log>手机号</label>
                 <input type="text" class="form-control" name="customerCellphone" value="${customerAccount.customerCellphone!}" readonly />
             </div>
         </div>
         <div class="row row-cols-4">
             <div class="form-group col">
-                <label for="payeeAmount" class="">退款金额<i class="red">*</i></label>
+                <label for="payeeAmount" class="" _log>退款金额<i class="red">*</i></label>
                 <input id="payeeAmount" type="number" class="form-control floatReserve money" range="0 9999999.99" max="<#centToYuan value='${customerAccount.earnestAvailableBalance!0}'/>" name="payeeAmount" placeholder="余额：<#centToYuan value='${customerAccount.earnestAvailableBalance!0}'/>" value="<#centToYuan value='${refundOrder.payeeAmount!0}'/>" required />
             </div>
         </div>
@@ -31,12 +31,12 @@
                 <select id="refundType" name="refundType" class="form-control" onchange="javascript:$('#bankInfo').toggle()"></select>
                 <#bcomboProvider _log="退款方式" _id="refundType" _provider="refundTypeProvider" _queryParams='{required:true}' _value="${refundOrder.refundType!}" />
             </div>
-            <div id="bankInfo"  class="col-6"  <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == @com.dili.ia.glossary.RefundTypeEnum.BANK.getCode()){ %> style="display: flex" <% } else {%>  style="display: none" <%}%> >
-                <div class="form-group col-6 pl-0">
+            <div id="bankInfo"  class="col-6 row pr-0 pl-0 ml-1"  <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == @com.dili.ia.glossary.RefundTypeEnum.BANK.getCode()){ %> style="display: flex" <% } else {%>  style="display: none" <%}%> >
+                <div class="form-group col-6">
                     <label for="bank" class="" _log>开户行<i class="red">*</i></label>
                     <input type="text" class="form-control" id="bank"  name="bank" value="${refundOrder.bank!}" maxlength="50" required/>
                 </div>
-                <div class="form-group col-6 pr-0">
+                <div class="form-group col-6">
                     <label for="bankCardNo" class="" _log>银行卡号<i class="red">*</i></label>
                     <input type="text" class="form-control" id="bankCardNo" name="bankCardNo" value="${refundOrder.bankCardNo!}" maxlength="30" required/>
                 </div>
@@ -44,13 +44,15 @@
         </div>
         <div class="row row-cols-1">
             <div class="form-group col">
-                <label for="">退款原因及详情<i class="red">*</i></label>
+                <label for="" _log>退款原因及详情<i class="red">*</i></label>
                 <textarea class="form-control" rows="1" name="refundReason"  maxlength="100" required>${refundOrder.refundReason!}</textarea>
             </div>
         </div>
-        <div class="text-right btn-r-b">
+        <div class="modal-footer-wrap">
+            <div class="modal-footer">
             <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
             <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doAddEarnestRefundHandler,1000,true)()" id="formSubmit">保存</button>
+        </div>
         </div>
     </form>
 </div>

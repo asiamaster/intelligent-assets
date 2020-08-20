@@ -22,10 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -118,6 +115,34 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         resultMap.put("assetsType", AssetsTypeEnum.getAssetsTypeEnum(depositOrder.getAssetsType()).getName());
         //资产名称
         resultMap.put("assetsName", depositOrder.getAssetsName());
+        buildTransferDeductionItems(refundOrder.getId(), resultMap);
         return BaseOutput.success().setData(resultMap);
+    }
+
+    /**
+     * 构建退款单转低打印数据
+     * @param refundOrderId
+     * @return
+     */
+    private void buildTransferDeductionItems(Long refundOrderId, Map<String, Object> resultMap) {
+        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+        transferDeductionItemCondition.setRefundOrderId(refundOrderId);
+        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
+        List<Map<String,Object>> transferMaps = new ArrayList<>();
+        StringBuilder stringBuilder = new StringBuilder();
+        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
+            for (TransferDeductionItem transferDeductionItem : transferDeductionItems) {
+                Map<String,Object> transferMap = new HashMap<>();
+                transferMap.put("payee",transferDeductionItem.getPayee());
+                transferMap.put("payeeAmount", MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount()));
+                transferMaps.add(transferMap);
+                stringBuilder.append(transferDeductionItem.getPayee()).append("  金额: ").append(MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount()));
+                if(transferDeductionItems.size() > 1){
+                    stringBuilder.append(";  ");
+                }
+            }
+        }
+        resultMap.put("transferDeductionItems", transferMaps);
+        resultMap.put("transferDeductionItemsStr", stringBuilder.toString());
     }
 }

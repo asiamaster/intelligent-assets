@@ -1,8 +1,8 @@
 <#bs4Body>
 
-    <div class="container-fluid">
+    <div class="container-fluid pb-5">
         <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.booth_lease'/>">
-        <form id="saveForm" role="form" novalidate>
+        <form id="saveForm" role="form" novalidate class="pb-5">
             <input type="hidden" id="id" name="id" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.id!}">
             <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
             <input type="hidden" name="isRenew" value="${isRenew!}">
@@ -178,8 +178,6 @@
                         <label for="totalAmount" _log>合计金额<i class="red">*</i></label>
                         <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>" readonly/>
                     </div>
-                </div>
-                <div class="row row-cols-4">
                     <div class="form-group col">
                         <label for="earnestDeduction" _log>定金抵扣</label>
                         <div class="input-group">

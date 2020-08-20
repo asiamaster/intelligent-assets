@@ -704,7 +704,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (assetsLeaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-        if (apportionRecordService.batchInsert(apportionRecords) != apportionRecords.size()) {
+        if (!apportionRecords.isEmpty() && apportionRecordService.batchInsert(apportionRecords) != apportionRecords.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "分摊明细写入失败！");
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
@@ -839,21 +839,34 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
         //组合支付需要显示结算详情
         StringBuffer settleWayDetails = new StringBuffer();
+        String settleWayDetailsStr = null;
         settleWayDetails.append("【");
         if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())) {
+            //标记是否需要换行，默认标记不换行 ，结算详情中，如果未填备注和流水，则不换行；有备注或者流水，则每种支付方式单独换行；
+            Boolean  flag = true;
             BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
-            if (output.isSuccess() && CollectionUtils.isNotEmpty(output.getData())) {
-                output.getData().forEach(o -> {
+            List<SettleWayDetail> swdList = output.getData();
+            if (output.isSuccess() && CollectionUtils.isNotEmpty(swdList)){
+                for(SettleWayDetail swd : swdList){
                     //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
-                    settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
-                    if (StringUtils.isNotEmpty(o.getSerialNumber())) {
-                        settleWayDetails.append(",").append(o.getSerialNumber());
+                    settleWayDetails.append(SettleWayEnum.getNameByCode(swd.getWay())).append("  ").append(MoneyUtils.centToYuan(swd.getAmount()));
+                    if (StringUtils.isNotEmpty(swd.getSerialNumber())){
+                        settleWayDetails.append(",").append(swd.getSerialNumber());
+                        flag = false; //换行标记
                     }
-                    if (StringUtils.isNotEmpty(o.getNotes())) {
-                        settleWayDetails.append(",").append("备注：").append(o.getNotes());
+                    if (StringUtils.isNotEmpty(swd.getNotes())){
+                        settleWayDetails.append(",").append("备注：").append(swd.getNotes());
+                        flag = false; //换行标记
                     }
                     settleWayDetails.append("\r\n");
-                });
+                }
+                //去掉最后一个换行符
+                settleWayDetails.replace(settleWayDetails.length()-2, settleWayDetails.length(), " ");
+                settleWayDetails.append("】");
+                settleWayDetailsStr = settleWayDetails.toString();
+                if (flag){ // 默认都是换行了的 ，标记flag = false, 不换行的话(flag=true)需要处理 换行符
+                    settleWayDetailsStr.replaceAll("\r\n", " ");
+                }
             } else {
                 LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}", output.getMessage());
             }
@@ -871,12 +884,15 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                         settleWayDetails.append(settleOrder.getNotes());
                     }
                 }
+                if (StringUtils.isNotEmpty(settleWayDetails)){
+                    settleWayDetailsStr = settleWayDetails.toString();
+                }
             } else {
                 LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}", output.getMessage());
             }
         }
         settleWayDetails.append("】");
-        leaseOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
+        leaseOrderPrintDto.setSettleWayDetails(settleWayDetailsStr);
 
         AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
@@ -1080,8 +1096,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new AppException(ResultCode.DATA_ERROR, districtOutput.getMessage());
         }
         //构建一级区域名称，用于流程流转
-        String districtName = null;
-        if ("0".equals(districtOutput.getData().getParentId())) {
+        if (districtOutput.getData().getParentId() == 0L || "0".equals(districtOutput.getData().getParentId())) {
             return districtOutput.getData().getName();
         } else {
             BaseOutput<DistrictDTO> parentDistrictOutput = assetsRpc.getDistrictById(districtOutput.getData().getParentId());
@@ -1366,10 +1381,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      * @param dto
      */
     private void saveOrUpdateDepositOrders(AssetsLeaseOrderListDto dto) {
-//        List<DataDictionaryValue> list = dataDictionaryRpc.listDataDictionaryValueByDdCode(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getTypeCode()).getData();
-//        if (org.apache.commons.collections4.CollectionUtils.isEmpty(list)) {
-//            return null;
-//        }
         List<DepositOrder> depositOrders = new ArrayList<>();
         dto.getLeaseOrderItems().stream().filter(o->o.getDepositMakeUpAmount() > 0).forEach(l -> {
             DepositOrder depositOrder = new DepositOrder();
@@ -1390,7 +1401,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             depositOrder.setBizType(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getBizType());
             depositOrders.add(depositOrder);
         });
-        depositOrderService.batchAddOrUpdateDepositOrder(depositOrders);
+        depositOrderService.batchAddOrUpdateDepositOrder(AssetsTypeEnum.getAssetsTypeEnum(dto.getAssetsType()).getBizType(), dto.getId(), depositOrders);
     }
 
     /**
