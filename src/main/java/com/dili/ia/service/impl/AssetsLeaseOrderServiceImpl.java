@@ -258,17 +258,24 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         Long districtId = leaseOrderItems.get(0).getDistrictId();
         Map<String, Object> variables = new HashMap<>();
         variables.put("districtId", districtId.toString());
-        /**
-         * 启动租赁审批流程
-         */
-        BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_RENTAL_APPROVAL_PROCESS, leaseOrder.getCode(), userTicket.getId().toString(), variables);
-        if (!processInstanceMappingBaseOutput.isSuccess()) {
-            throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
+            //发送消息通知流程
+            BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "reapply", null);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+            }
+        }else {
+            /**
+             * 启动租赁审批流程
+             */
+            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_RENTAL_APPROVAL_PROCESS, leaseOrder.getCode(), userTicket.getId().toString(), variables);
+            if (!processInstanceMappingBaseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+            }
+            //设置流程定义和实例id，后面会更新到租赁单表
+            leaseOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
+            leaseOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
         }
-        //设置流程定义和实例id，后面会更新到租赁单表
-        leaseOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
-        leaseOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
-
         try {
             /**
              * 冻结定金和转抵
@@ -296,9 +303,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
                 throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
             }
-        } catch (BusinessException e) {
+        } catch (Exception e) {
             //有业务异常时结束 启动的流程
-            runtimeRpc.stopProcessInstanceById(processInstanceMappingBaseOutput.getData().getProcessInstanceId(), e.getMessage());
+            runtimeRpc.stopProcessInstanceById(leaseOrder.getProcessInstanceId(), e.getMessage());
             throw e;
         }
     }
@@ -517,6 +524,11 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         leaseOrder.setCancelerId(userTicket.getId());
         leaseOrder.setCanceler(userTicket.getRealName());
 
+        //发送消息通知流程终止
+        BaseOutput<String> baseOutput = taskRpc.messageEventReceived("terminate", leaseOrder.getProcessInstanceId(), null);
+        if (!baseOutput.isSuccess()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+        }
         String formatNow = DateUtils.format(new Date(), "yyyyMMddHHmmssSSS");
         if (StringUtils.isNotBlank(leaseOrder.getContractNo())) {
             leaseOrder.setContractNo(leaseOrder.getContractNo() + "_" + formatNow);
@@ -589,6 +601,11 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //解冻摊位
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
         assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
+        //发送流程消息通知撤回
+        BaseOutput<String> baseOutput = taskRpc.messageEventReceived("withdraw", leaseOrder.getProcessInstanceId(), null);
+        if (!baseOutput.isSuccess()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+        }
         //日志上下文构建
         LoggerUtil.buildLoggerContext(leaseOrder.getId(), leaseOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success();
@@ -709,7 +726,14 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, "分摊明细写入失败！");
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
-
+        //通知流程结束
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
+            //发送消息通知流程
+            BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "confirmReceipt", null);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程结束消息发送失败");
+            }
+        }
         msgService.sendBusinessLog(recordPayLog(settleOrder, leaseOrder));
         return BaseOutput.success().setData(true);
     }
