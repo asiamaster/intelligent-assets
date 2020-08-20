@@ -1,14 +1,15 @@
 <#bs4Body>
 <div class="container-fluid">
     <!-- 租赁单详情 -->
-    <div id="assetsLeaseOrderDetail">
+    <div>
+        <iframe height="900" frameborder="0" width="100%" src="${contextPath}/leaseOrder/view.action?code=${businessKey}" ></iframe>
     </div>
-    <div align="center" id="approvalInfo" >
+    <div align="left" id="approvalInfo" >
         <%
         if(has(approvalProcesses)){
         %>
         <div class="col-8">
-            <table>
+            <table style="width: 100%;">
                 <%
                 for(approvalProcess in approvalProcesses){
                 %>
@@ -35,7 +36,4 @@
 
 </#bs4Body>
 <script>
-    $(function () {
-        $("#assetsLeaseOrderDetail").load("${contextPath}/leaseOrder/viewFragment.action?code=${businessKey}");
-    });
 </script>
