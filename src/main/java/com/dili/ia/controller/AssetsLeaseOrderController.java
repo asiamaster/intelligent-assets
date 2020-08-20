@@ -241,7 +241,7 @@ public class AssetsLeaseOrderController {
      */
     @GetMapping(value = "/viewFragment.action")
     public String viewFragment(ModelMap modelMap, Long id, String code, String orderCode) {
-        view(modelMap, id, code, orderCode);
+        view(modelMap, id, code, orderCode ,true);
         return "assetsLeaseOrder/viewFragment";
     }
 
@@ -251,10 +251,11 @@ public class AssetsLeaseOrderController {
      * @param modelMap
      * @param orderCode 缴费单CODE
      * @param code
+     * @param isShowDepositAmount 是否显示保证金
      * @return String
      */
     @GetMapping(value = "/view.action")
-    public String view(ModelMap modelMap, Long id, String code, String orderCode) {
+    public String view(ModelMap modelMap, Long id, String code, String orderCode, boolean isShowDepositAmount) {
         AssetsLeaseOrder leaseOrder = null;
         if (null != id) {
             leaseOrder = assetsLeaseOrderService.get(id);
@@ -280,6 +281,7 @@ public class AssetsLeaseOrderController {
         List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
+        modelMap.put("isShowDepositAmount", isShowDepositAmount);
         try {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
@@ -384,7 +386,7 @@ public class AssetsLeaseOrderController {
         }
 
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
-        if (CollectionUtils.isEmpty(departmentIdList)){
+        if (CollectionUtils.isEmpty(departmentIdList)) {
             return new EasyuiPageOutput(0, Collections.emptyList()).toString();
         }
         leaseOrder.setMarketId(userTicket.getFirmId());
@@ -394,7 +396,7 @@ public class AssetsLeaseOrderController {
             AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
             leaseOrderItemCondition.setAssetsName(leaseOrder.getAssetsName());
             leaseOrder.setIds(assetsLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
-            if(CollectionUtils.isEmpty(leaseOrder.getIds())){
+            if (CollectionUtils.isEmpty(leaseOrder.getIds())) {
                 return new EasyuiPageOutput(0, Collections.emptyList()).toString();
             }
         }
@@ -590,10 +592,10 @@ public class AssetsLeaseOrderController {
         try {
             BaseOutput output = assetsLeaseOrderService.createOrUpdateRefundOrder(refundOrderDto);
             if (output.isSuccess()) {
-                if(StringUtils.isNotBlank(refundOrderDto.getLogContent())){
+                if (StringUtils.isNotBlank(refundOrderDto.getLogContent())) {
                     LoggerContext.put("content", refundOrderDto.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
-                }else{
+                } else {
                     LoggerContext.put("content", MoneyUtils.centToYuan(refundOrderDto.getTotalRefundAmount()));
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
                 }
