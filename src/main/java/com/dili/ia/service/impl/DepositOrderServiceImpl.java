@@ -225,11 +225,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         Customer customer = output.getData();
         if(null == customer){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实！");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实！");
         }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实！");
         }
     }
 
@@ -500,7 +500,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         Long totalRefundAmount = depositRefundOrderDto.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getPaidAmount() < totalRefundAmount){
-            return BaseOutput.failure("退款金额不能大于订单已交费金额！");
+            return BaseOutput.failure("退款总金额不能大于订单已交费金额！");
         }
 
         //新增
@@ -864,8 +864,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 }
                 BusinessLog businessLog = this.buildCommonLog(o);
                 businessLog.setOperationType("edit");
-                //@TODO 修改内容记录
-//                businessLog.setContent(output.getData().getCode());
+                businessLog.setContent(this.buildUpdateLogContent(deList.get(0), o));
                 BList.add(businessLog);
             }
 
@@ -886,6 +885,37 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
 
         return BaseOutput.success();
+    }
+
+    private String buildUpdateLogContent(DepositOrder oldDo, DepositOrder newDo){
+        StringBuilder  contentLog = new StringBuilder();
+        if (!oldDo.getCustomerName().equals(newDo.getCustomerName())){
+            contentLog.append("【客户名称】：从‘").append(oldDo.getCustomerName()).append("’修改为‘").append(newDo.getCustomerName()).append("’\n");
+        }
+        if (!oldDo.getCertificateNumber().equals(newDo.getCertificateNumber())){
+            contentLog.append("【证件号码】：从‘").append(oldDo.getCertificateNumber()).append("’修改为‘").append(newDo.getCertificateNumber()).append("’\n");
+        }
+        if (!oldDo.getCustomerCellphone().equals(newDo.getCustomerCellphone())){
+            contentLog.append("【联系电话*】：从‘").append(oldDo.getCustomerCellphone()).append("’修改为‘").append(newDo.getCustomerCellphone()).append("’\n");
+        }
+        if (!oldDo.getAssetsType().equals(newDo.getAssetsType())){
+            String oldAssetsTypeName = AssetsTypeEnum.getAssetsTypeEnum(oldDo.getAssetsType()).getName();
+            String newAssetsTypeName = AssetsTypeEnum.getAssetsTypeEnum(newDo.getAssetsType()).getName();
+            contentLog.append("【资产类型*】：从‘").append(oldAssetsTypeName).append("’修改为‘").append(newAssetsTypeName).append("’\n");
+        }
+        if (!oldDo.getAssetsName().equals(newDo.getAssetsName())){
+            contentLog.append("【资产编号】：从‘").append(oldDo.getAssetsName()).append("’修改为‘").append(newDo.getAssetsName()).append("’\n");
+        }
+        if (!oldDo.getAmount().equals(newDo.getAmount())){
+            contentLog.append("【保证金金额*】：从‘").append(MoneyUtils.centToYuan(oldDo.getAmount())).append("’修改为‘").append(MoneyUtils.centToYuan(newDo.getAmount())).append("’\n");
+        }
+        if (!oldDo.getTypeName().equals(newDo.getTypeName())){
+            contentLog.append("【保证金类型】：从‘").append(oldDo.getTypeName()).append("’修改为‘").append(newDo.getTypeName()).append("’\n");
+        }
+        if (!oldDo.getDepartmentId().equals(newDo.getDepartmentId())){
+            contentLog.append("【业务所属部门】：从‘").append(oldDo.getDepartmentName()).append("’修改为‘").append(newDo.getDepartmentName()).append("’\n");
+        }
+        return contentLog != null ? contentLog.toString() : "";
     }
 
     private BusinessLog buildCommonLog(DepositOrder depositOrder){
