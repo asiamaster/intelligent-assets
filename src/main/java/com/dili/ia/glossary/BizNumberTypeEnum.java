@@ -36,6 +36,7 @@ public enum BizNumberTypeEnum {
     ELECTRICITY_CODE("electricity", "电费单"),
     // 通行证的证件类型,后续的小写补全直接是代码获取字段值
     PASSPORT_LICENSE_CODE("passport_", "通行证证件营运编号"),
+    OTHER_FEE("otherFee", "其他收费"),
     ;
 
     private String name;

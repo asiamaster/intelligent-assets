@@ -76,4 +76,23 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+
+  <select id="selectListByChargeItemId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List" />
+    from
+        department_charge_item
+    where
+        charge_item_id = #{chargeItemId,jdbcType=BIGINT}
+  </select>
+
+  <select id="getChargeItemsByDepartment" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List" />
+    from
+        department_charge_item
+    where
+        department_id = #{departmentId,jdbcType=BIGINT}
+  </select>
 </mapper>

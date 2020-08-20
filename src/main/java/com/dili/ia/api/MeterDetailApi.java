@@ -68,7 +68,6 @@ public class MeterDetailApi {
      * @param orderCode
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${code!}", operationType = "pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<PrintDataDto<MeterDetailPrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {

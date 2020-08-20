@@ -1,12 +1,17 @@
 package com.dili.ia.controller;
 
+import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.OtherFee;
+import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.dto.OtherFeeQuery;
+import com.dili.ia.domain.dto.OtherFeeDto;
+import com.dili.ia.domain.dto.OtherFeeRefundOrderDto;
+import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.OtherFeeStateEnum;
 import com.dili.ia.service.DataAuthService;
+import com.dili.ia.service.DepartmentChargeItemService;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.OtherFeeService;
 import com.dili.ia.service.PaymentOrderService;
@@ -16,6 +21,7 @@ import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
@@ -38,8 +44,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-05-20 17:29:10.
+ * @author:       xiaosa
+ * @date:         2020/8/18
+ * @version:      农批业务系统重构
+ * @description:  其他收费
  */
 @Controller
 @RequestMapping("/otherFee")
@@ -50,16 +58,19 @@ public class OtherFeeController {
     OtherFeeService otherFeeService;
 
     @Autowired
-    DepositOrderService depositOrderService;
+    DepartmentChargeItemService departmentChargeItemService;
+
     @Autowired
     PaymentOrderService paymentOrderService;
+
     @Autowired
     BusinessLogRpc businessLogRpc;
+
     @Autowired
     DataAuthService dataAuthService;
 
     /**
-     * 跳转到DepositOrder页面
+     * 跳转到导航页面
      * @param modelMap
      * @return String
      */
@@ -75,141 +86,6 @@ public class OtherFeeController {
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
         return "otherFee/index";
-    }
-
-    /**
-     * 分页查询otherFee，返回easyui分页信息
-     * @param otherFeeQuery
-     * @return String
-     * @throws Exception
-     */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(OtherFeeQuery otherFeeQuery) throws Exception {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
-        if (CollectionUtils.isEmpty(departmentIdList)){
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
-        }
-        otherFeeQuery.setMarketId(userTicket.getFirmId());
-        otherFeeQuery.setDepartmentIds(departmentIdList);
-        return otherFeeService.listEasyuiPageByExample(otherFeeQuery, true).toString();
-    }
-
-    /**
-     * 跳转到其它收费管理-退款申请页面
-     * @param modelMap
-     * @return String
-     */
-    @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
-    public String refundApply(ModelMap modelMap, Long id) {
-        if(null != id){
-            OtherFee otherFee = otherFeeService.get(id);
-            modelMap.put("otherFee",otherFee);
-        }
-        return "otherFee/refundApply";
-    }
-    /**
-     *其它收费退款
-     * @param order
-     * @return BaseOutput
-     */
-    @RequestMapping(value="/addRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doOtherFeeRefund(RefundOrder order) {
-        try {
-//            BaseOutput<RefundOrder> out = depositOrderService.addRefundOrder(order);
-//            return out;
-            return BaseOutput.success();
-        } catch (BusinessException e) {
-            LOG.error("定金创建退款失败！", e);
-            return BaseOutput.failure(e.getMessage());
-        } catch (Exception e) {
-            LOG.error("定金创建退款出错！", e);
-            return BaseOutput.failure("创建退款出错！");
-        }
-    }
-
-    /**
-     * 跳转到其它收费管理-新增页面
-     * @param modelMap
-     * @return String
-     */
-    @RequestMapping(value="/add.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap) {
-        return "otherFee/add";
-    }
-
-    /**
-     * 新增OtherFee
-     * @param otherFee
-     * @return BaseOutput
-     */
-    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput doAdd(OtherFee otherFee) {
-
-        try{
-//            BaseOutput<DepositOrder> output = depositOrderService.addDepositOrder(depositOrder);
-            //写业务日志
-//            if (output.isSuccess()){
-//                DepositOrder order = output.getData();
-//                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-//            }
-//            return output;
-            return BaseOutput.success();
-        }catch (BusinessException e){
-            LOG.error("保证金单保存异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }catch (Exception e){
-            LOG.error("保证金单保存异常！", e);
-            return BaseOutput.failure("保证金单保存异常！");
-        }
-    }
-
-
-    /**
-     * 跳转到其它收费管理-修改页面
-     * @param modelMap
-     * @return String
-     */
-    @RequestMapping(value="/update.html", method = RequestMethod.GET)
-    public String update(ModelMap modelMap, Long id) {
-        if(null != id){
-            OtherFee otherFee = otherFeeService.get(id);
-            modelMap.put("otherFee",otherFee);
-        }
-        return "otherFee/update";
-    }
-
-    /**
-     * 修改otherFee
-     * @param otherFee
-     * @return BaseOutput
-     */
-    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doUpdate(OtherFee otherFee) {
-        try{
-//            DepositOrder old = depositOrderService.get(depositOrder.getId());
-//            if (null != old && old.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
-//                return BaseOutput.failure("关联订单不能修改!");
-//            }
-//            BaseOutput<DepositOrder> output = depositOrderService.updateDepositOrder(depositOrder);
-//            //写业务日志
-//            if (output.isSuccess()){
-//                DepositOrder order = depositOrderService.get(depositOrder.getId());
-//                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getNotes());
-//            }
-//            return output;
-            return BaseOutput.success();
-        }catch (BusinessException e){
-            LOG.error("其它收费单修改异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }catch (Exception e){
-            LOG.error("其它收费单修改异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }
     }
 
     /**
@@ -239,30 +115,147 @@ public class OtherFeeController {
             if(businessLogOutput.isSuccess()){
                 modelMap.put("logs",businessLogOutput.getData());
             }
-        }catch (Exception e){
+        } catch (Exception e){
             LOG.error("日志服务查询异常",e);
         }
         return "otherFee/view";
     }
 
     /**
-     * 其它收费管理--提交
+     * 跳转到其它收费管理 - 新增页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/add.html", method = RequestMethod.GET)
+    public String add(ModelMap modelMap) {
+        return "otherFee/add";
+    }
+
+    /**
+     * 跳转到其它收费管理 - 修改页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/update.html", method = RequestMethod.GET)
+    public String update(ModelMap modelMap, Long id) {
+        if(null != id){
+            OtherFee otherFee = otherFeeService.get(id);
+            modelMap.put("otherFee",otherFee);
+        }
+        return "otherFee/update";
+    }
+
+    /**
+     * 跳转到其它收费管理 - 退款申请页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/refundApply.html", method = RequestMethod.GET)
+    public String refundApply(ModelMap modelMap, Long id) {
+        if(null != id){
+            OtherFee otherFee = otherFeeService.get(id);
+            modelMap.put("otherFee",otherFee);
+        }
+        return "otherFee/refundApply";
+    }
+
+    /**
+     * 分页查询otherFee，返回easyui分页信息
+     * @param otherFeeDto
+     * @return String
+     * @throws Exception
+     */
+    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody String listPage(OtherFeeDto otherFeeDto) throws Exception {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+        if (CollectionUtils.isEmpty(departmentIdList)){
+            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+        }
+        otherFeeDto.setMarketId(userTicket.getFirmId());
+        otherFeeDto.setDepartmentIds(departmentIdList);
+        return otherFeeService.listEasyuiPageByExample(otherFeeDto, true).toString();
+    }
+
+    /**
+     * 新增 其他收费
+     *
+     * @param  otherFeeDto
+     * @return BaseOutput
+     * @date   2020/8/18
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput doAdd(OtherFeeDto otherFeeDto) {
+        try{
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            BaseOutput<OtherFee> output = otherFeeService.addOtherFee(otherFeeDto, userTicket);
+
+            // 写业务日志
+            if (output.isSuccess()){
+                OtherFee otherFee = output.getData();
+                LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return output;
+        } catch (BusinessException e){
+            LOG.error("其他收费保存异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e){
+            LOG.error("其他收费保存异常！", e);
+            return BaseOutput.failure("其他收费保存异常！");
+        }
+    }
+
+    /**
+     * 修改 其他收费
+     *
+     * @param  otherFeeDto
+     * @return BaseOutput
+     * @date   2020/8/19
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput doUpdate(OtherFeeDto otherFeeDto) {
+        try{
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            BaseOutput<OtherFee> output = otherFeeService.updateOtherFee(otherFeeDto, userTicket);
+
+            // 写业务日志
+            if (output.isSuccess()){
+                OtherFee otherFee = output.getData();
+                LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return output;
+        } catch (BusinessException e){
+            LOG.error("其它收费单修改异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e){
+            LOG.error("其它收费单修改异常！", e);
+            return BaseOutput.failure("其它收费单修改异常");
+        }
+    }
+
+    /**
+     * 提交 其它收费
      * @param id
      * @return BaseOutput
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput submit(@RequestParam Long id, @RequestParam Long amount) {
+    public @ResponseBody BaseOutput submit(Long id) {
         try {
-//            BaseOutput<DepositOrder> output = depositOrderService.submitDepositOrder(id, amount, waitAmount);
-            //写业务日志
-//            if (output.isSuccess()){
-//                DepositOrder order = output.getData();
-//                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-//            }
-//            return output;
-            return BaseOutput.success();
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            BaseOutput<OtherFee> output = otherFeeService.submit(id, userTicket);
+
+            // 写业务日志，只是退款申请
+            if (output.isSuccess()){
+                OtherFee otherFee = output.getData();
+                LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return output;
         } catch (BusinessException e) {
             LOG.error("其它收费单提交失败！", e);
             return BaseOutput.failure(e.getMessage());
@@ -273,63 +266,82 @@ public class OtherFeeController {
     }
 
     /**
-     * 其它收费管理--撤回
-     * @param id
+     * 取消 其他收费
+     *
+     * @param
+     * @return
+     * @date 2020/7/27
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
+    @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput cancel(Long id) throws Exception {
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        BaseOutput<Passport> baseOutput = otherFeeService.cancel(id, userTicket);
+
+        // 写业务日志
+        if (baseOutput.isSuccess()) {
+            Passport passport = baseOutput.getData();
+            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        }
+
+        return baseOutput;
+    }
+
+    /**
+     * 撤回 其他消费
+     *
+     * @param  id
      * @return BaseOutput
+     * @date   2020/8/19
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
-//            BaseOutput<DepositOrder> output = depositOrderService.withdrawDepositOrder(id);
-//            if (output.isSuccess()){
-//                DepositOrder order = output.getData();
-//                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-//            }
-//            return output;
-            return BaseOutput.success();
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            BaseOutput<Passport> baseOutput = otherFeeService.withdraw(id, userTicket);
+
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                Passport passport = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
         } catch (BusinessException e) {
-            LOG.error("其它收费单撤回出错！", e);
-            return BaseOutput.failure(e.getMessage());
+            LOG.info("其他收费撤回异常！");
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            LOG.error("withdraw 其它收费单撤回出错!" ,e);
-            return BaseOutput.failure("撤回出错！");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "撤回出错");
         }
     }
 
     /**
-     * 其它收费管理--取消
-     * @param id
+     * 其他收费 退款
+     *
+     * @param  refundOrderDto
      * @return BaseOutput
+     * @date   2020/8/19
      */
-    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
-    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput cancel(Long id) {
-        OtherFee otherFee = otherFeeService.get(id);
-        if (!otherFee.getState().equals(OtherFeeStateEnum.CREATED.getCode())){
-            return BaseOutput.failure("取消失败，其它收费单状态已变更！");
-        }
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null){
-            return BaseOutput.failure("未登录！");
-        }
+    @RequestMapping(value="/addRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput addRefundOrder(OtherFeeRefundOrderDto refundOrderDto) {
         try {
-            otherFee.setCancelerId(userTicket.getId());
-            otherFee.setCanceler(userTicket.getRealName());
-            otherFee.setState(OtherFeeStateEnum.CANCELD.getCode());
-            if (otherFeeService.updateSelective(otherFee) == 0){
-                LOG.error("其它收费取消失败，乐观锁生效，取消保证金ID【{}】", id);
-                return BaseOutput.failure("取消失败！");
-            }
-
-            //记录业务日志
-            LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-
-            return BaseOutput.success("取消成功");
+            return otherFeeService.refund(refundOrderDto);
+        } catch (BusinessException e) {
+            LOG.error("其他收费创建退款失败！", e);
+            return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
-            LOG.error("cancel 其它收费单取消出错!" ,e);
-            return BaseOutput.failure("取消出错！");
+            LOG.error("其他收费创建退款出错！", e);
+            return BaseOutput.failure("创建退款出错！");
         }
     }
+    
+    /**
+     * 新增其他收费时根据费用项查询部门集合
+     * 
+     * @param
+     * @return 
+     * @date   2020/8/19
+     */
 }

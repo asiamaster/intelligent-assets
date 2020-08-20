@@ -23,7 +23,8 @@ public enum PrintTemplateEnum {
     ELECTRICITY_FEE("electricityFee", "电费"),
     BOUTIQUE_ENTRANCE("boutique_entrance", "精品停车费"),
     PASSPORT("passport", "通行证"),
-    LABOR_VEST_PAY("labor_vest_pay","劳务马甲收款单")
+    LABOR_VEST_PAY("labor_vest_pay","劳务马甲收款单"),
+    OTHER_FEE("otherFee","其他收费")
     ;
 
     private String name;
