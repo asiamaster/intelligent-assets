@@ -133,10 +133,10 @@ public class AssetsLeaseOrderController {
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
 
-        ApprovalProcess approvalProcess = new ApprovalProcess();
-        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
-        List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
-        modelMap.put("approvalProcesses", approvalProcesses);
+//        ApprovalProcess approvalProcess = new ApprovalProcess();
+//        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
+//        List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
+//        modelMap.put("approvalProcesses", approvalProcesses);
         return "assetsLeaseOrder/assetsApproval";
     }
 
@@ -293,6 +293,16 @@ public class AssetsLeaseOrderController {
             }
         } catch (Exception e) {
             LOG.error("日志服务查询异常", e);
+        }
+
+        if(leaseOrder.getProcessInstanceId() != null) {
+            //准备流程审批记录
+            ApprovalProcess approvalProcess = new ApprovalProcess();
+            approvalProcess.setProcessInstanceId(leaseOrder.getProcessInstanceId());
+            List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
+            if(!approvalProcesses.isEmpty()) {
+                modelMap.put("approvalProcesses", approvalProcesses);
+            }
         }
         return "assetsLeaseOrder/view";
     }
