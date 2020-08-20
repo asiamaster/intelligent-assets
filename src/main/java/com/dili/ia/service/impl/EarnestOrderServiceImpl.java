@@ -24,6 +24,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -39,6 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -330,6 +332,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setMarketCode(userTicket.getFirmCode());
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setState(PayStateEnum.NOT_PAID.getCode());
+        pb.setCustomerId(earnestOrder.getCustomerId());
+        pb.setCustomerName(earnestOrder.getCustomerName());
         pb.setVersion(0);
         return pb;
     }
@@ -443,13 +447,13 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
         EarnestOrder earnestOrder = get(paymentOrder.getBusinessId());
         EarnestOrderPrintDto earnestOrderPrintDto = new EarnestOrderPrintDto();
-        earnestOrderPrintDto.setPrintTime(LocalDateTime.now());
+        earnestOrderPrintDto.setPrintTime(DateUtils.format(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss"));
         earnestOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         earnestOrderPrintDto.setCode(earnestOrder.getCode());
         earnestOrderPrintDto.setCustomerName(earnestOrder.getCustomerName());
         earnestOrderPrintDto.setCustomerCellphone(earnestOrder.getCustomerCellphone());
-        earnestOrderPrintDto.setStartTime(earnestOrder.getStartTime());
-        earnestOrderPrintDto.setEndTime(earnestOrder.getEndTime());
+        earnestOrderPrintDto.setStartTime(DateUtils.format(earnestOrder.getStartTime(), "yyyy-MM-dd"));
+        earnestOrderPrintDto.setEndTime(DateUtils.format(earnestOrder.getEndTime(), "yyyy-MM-dd"));
         earnestOrderPrintDto.setNotes(earnestOrder.getNotes());
         earnestOrderPrintDto.setAmount(MoneyUtils.centToYuan(earnestOrder.getAmount()));
         earnestOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
@@ -472,43 +476,52 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         StringBuffer settleWayDetails = new StringBuffer();
         settleWayDetails.append("【");
         if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
+            //摊位租赁单据的交款时间，也就是结算时填写的时间，显示到结算详情中，显示内容为：支付方式（组合支付的，只显示该类型下的具体支付方式）、金额、收款日期、流水号、结算备注，每个字段间隔一个空格；如没填写的则不显示；
+            // 多个支付方式的，均在一行显示，当前行满之后换行，支付方式之间用;隔开；
             BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
-            if (output.isSuccess() && CollectionUtils.isNotEmpty(output.getData())){
-                output.getData().forEach(o -> {
-                    //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
-                    settleWayDetails.append(SettleWayEnum.getNameByCode(o.getWay())).append("  ").append(MoneyUtils.centToYuan(o.getAmount()));
-                    if (StringUtils.isNotEmpty(o.getSerialNumber())){
-                        settleWayDetails.append(",").append(o.getSerialNumber());
+            List<SettleWayDetail> swdList = output.getData();
+            if (output.isSuccess() && CollectionUtils.isNotEmpty(swdList)){
+                for(SettleWayDetail swd : swdList){
+                    //此循环字符串拼接顺序不可修改，组合支付样式 : 【微信 150.00 2020-08-19 4237458467568870 备注：微信付款150元;银行卡 150.00 2020-08-19 4237458467568870 备注：微信付款150元】
+                    settleWayDetails.append(SettleWayEnum.getNameByCode(swd.getWay())).append(" ").append(MoneyUtils.centToYuan(swd.getAmount()));
+                    if (null != swd.getChargeDate()){
+                        settleWayDetails.append(" ").append(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(swd.getChargeDate()));
                     }
-                    if (StringUtils.isNotEmpty(o.getNotes())){
-                        settleWayDetails.append(",").append("备注：").append(o.getNotes());
+                    if (StringUtils.isNotEmpty(swd.getSerialNumber())){
+                        settleWayDetails.append(" ").append(swd.getSerialNumber());
                     }
-                    settleWayDetails.append("\r\n");
-                });
+                    if (StringUtils.isNotEmpty(swd.getNotes())){
+                        settleWayDetails.append(" ").append("备注：").append(swd.getNotes());
+                    }
+                    settleWayDetails.append("；");
+                }
+                //去掉最后一个换行符
+                settleWayDetails.replace(settleWayDetails.length()-1, settleWayDetails.length(), " ");
+                settleWayDetails.append("】");
             }else {
                 LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
             }
-        }else{
+        }else{ //格式：【2020-08-19 4237458467568870 备注：微信付款150元】
             BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
             if(output.isSuccess()){
                 SettleOrder settleOrder = output.getData();
+                if (null != settleOrder.getChargeDate()){
+                    settleWayDetails.append(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(settleOrder.getChargeDate()));
+                }
                 if(StringUtils.isNotBlank(settleOrder.getSerialNumber())){
-                    settleWayDetails.append(settleOrder.getSerialNumber());
-                    if (StringUtils.isNotBlank(settleOrder.getNotes())){
-                        settleWayDetails.append(",").append(settleOrder.getNotes());
-                    }
-                }else {
-                    if (StringUtils.isNotBlank(settleOrder.getNotes())){
-                        settleWayDetails.append(settleOrder.getNotes());
-                    }
+                    settleWayDetails.append(" ").append(settleOrder.getSerialNumber());
+                }
+                if (StringUtils.isNotBlank(settleOrder.getNotes())){
+                    settleWayDetails.append(" ").append(settleOrder.getNotes());
                 }
             }else {
                 LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
             }
         }
         settleWayDetails.append("】");
-        earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
-
+        if (StringUtils.isNotEmpty(settleWayDetails)){
+            earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
+        }
         PrintDataDto<EarnestOrderPrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.EARNEST_ORDER.getCode());
         printDataDto.setItem(earnestOrderPrintDto);

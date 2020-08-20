@@ -23,9 +23,24 @@
                         <#bcomboProvider _id="state" _provider="leaseOrderStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
                     </div>
                     <div class="form-group col">
+                        <label for="approvalState">审批状态</label>
+                        <select id="approvalState" name="approvalState" class="form-control"></select>
+                        <#bcomboProvider _id="approvalState" _provider="approvalStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
+                    </div>
+                    <div class="form-group col">
                         <label for="payState">交费状态</label>
                         <select id="payState" name="payState" class="form-control"></select>
                         <#bcomboProvider _id="payState" _provider="payStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
+                    </div>
+                    <div class="form-group col">
+                        <label for="refundState">退款状态</label>
+                        <select id="refundState" name="refundState" class="form-control"></select>
+                        <#bcomboProvider _id="refundState" _provider="leaseRefundStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
+                    </div>
+                    <div class="form-group col">
+                        <label for="isInvoice">是否开票</label>
+                        <select id="isInvoice" name="isInvoice" class="form-control"></select>
+                        <#bcomboProvider _id="isInvoice" _provider="yesOrNoProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
                     </div>
                     <div class="form-group col">
                         <label for="likeCustomerName">客户名称</label>
@@ -52,15 +67,32 @@
                         <label for="createdStart">创建时间</label>
                         <div class="form-inline">
                             <div class="input-group">
-                                <input type="text" name="createdStart" id="createdStart" class="form-control date" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                                <input type="text" name="createdStart" id="createdStart" class="form-control laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
                                 <div class="input-group-append">
                                     <label for="createdStart"  class="input-group-text fa fa-calendar"></label>
                                 </div>
                             </div>&nbsp;&nbsp;至&nbsp;&nbsp;
                             <div class="input-group" id="datetimepicker3">
-                                <input type="text" name="createdEnd" id="createdEnd" class="form-control date" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                                <input type="text" name="createdEnd" id="createdEnd" class="form-control laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
                                 <div class="input-group-append">
                                     <label for="createdEnd"  class="input-group-text fa fa-calendar"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-auto">
+                        <label for="createdStart">开始日期</label>
+                        <div class="form-inline">
+                            <div class="input-group">
+                                <input type="text" name="startTimeStart" id="startTimeStart" class="form-control laydate laystart"/>
+                                <div class="input-group-append">
+                                    <label for="startTimeStart"  class="input-group-text fa fa-calendar"></label>
+                                </div>
+                            </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                            <div class="input-group">
+                                <input type="text" name="startTimeEnd" id="startTimeEnd" class="form-control laydate layend"/>
+                                <div class="input-group-append">
+                                    <label for="startTimeEnd"  class="input-group-text fa fa-calendar"></label>
                                 </div>
                             </div>
                         </div>
@@ -153,14 +185,11 @@
                     <th data-field="refundState" data-sortable="true" data-align="center" data-sort-name="refund_state" data-provider="leaseRefundStateProvider">
                         退款状态
                     </th>
-                    <th data-field="isInvoice" data-provider="yesOrNoProvider" data-sortable="true" data-align="center" data-sort-name="refund_state" data-provider="leaseRefundStateProvider">
+                    <th data-field="isInvoice" data-provider="yesOrNoProvider" data-sortable="true" data-align="center" data-sort-name="is_invoice">
                         是否开票
                     </th>
                     <th data-field="totalAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
                         合计金额
-                    </th>
-                    <th data-field="depositDeduction" data-sortable="true" data-align="center"  data-provider="moneyProvider">
-                        保证金抵扣
                     </th>
                     <th data-field="earnestDeduction" data-sortable="true" data-align="center"  data-provider="moneyProvider">
                         定金抵扣

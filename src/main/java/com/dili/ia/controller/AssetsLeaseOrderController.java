@@ -383,22 +383,21 @@ public class AssetsLeaseOrderController {
             }
         }
 
+        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+        if (CollectionUtils.isEmpty(departmentIdList)){
+            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+        }
+        leaseOrder.setMarketId(userTicket.getFirmId());
+        leaseOrder.setDepartmentIds(departmentIdList);
 
-//        List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
-//        if (CollectionUtils.isEmpty(departmentIdList)){
-//            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
-//        }
-//        leaseOrder.setMarketId(userTicket.getFirmId());
-//        leaseOrder.setDepartmentIds(departmentIdList);
-//
-//        if (StringUtils.isNotBlank(leaseOrder.getAssetsName())) {
-//            AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
-//            leaseOrderItemCondition.setAssetsName(leaseOrder.getAssetsName());
-//            leaseOrder.setIds(assetsLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
-//            if(CollectionUtils.isEmpty(leaseOrder.getIds())){
-//                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
-//            }
-//        }
+        if (StringUtils.isNotBlank(leaseOrder.getAssetsName())) {
+            AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
+            leaseOrderItemCondition.setAssetsName(leaseOrder.getAssetsName());
+            leaseOrder.setIds(assetsLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
+            if(CollectionUtils.isEmpty(leaseOrder.getIds())){
+                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+            }
+        }
         return assetsLeaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
     }
 

@@ -1,11 +1,5 @@
 package com.dili.ia.domain.dto.printDto;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
-
 /**
  * <B>Description</B>
  * 本软件源代码版权归农丰时代及其团队所有,未经许可不得任意复制与传播
@@ -16,9 +10,7 @@ import java.time.LocalDateTime;
  */
 public class RefundOrderPrintDto {
     //打印时间
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime printTime;
+    private String printTime;
 
     //补打标记
     private String reprint;
@@ -60,11 +52,11 @@ public class RefundOrderPrintDto {
         this.printTemplateCode = printTemplateCode;
     }
 
-    public LocalDateTime getPrintTime() {
+    public String getPrintTime() {
         return printTime;
     }
 
-    public void setPrintTime(LocalDateTime printTime) {
+    public void setPrintTime(String printTime) {
         this.printTime = printTime;
     }
 

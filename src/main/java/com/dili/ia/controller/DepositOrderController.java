@@ -217,8 +217,9 @@ public class DepositOrderController {
             if (depositOrder.getId() == null){
                 return BaseOutput.failure("Id不能为空！");
             }
-            DepositOrder old = depositOrderService.get(depositOrder.getId());
-            if (null != old && old.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+            //只能在这里验证，service 方法关联修改也调用了，所以不能再里面验证
+            DepositOrder oldDTO = depositOrderService.get(depositOrder.getId());
+            if (oldDTO.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
                 return BaseOutput.failure("关联订单不能修改!");
             }
             BaseOutput<DepositOrder> output = depositOrderService.updateDepositOrder(depositOrder);
@@ -276,7 +277,7 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(@RequestParam Long id, @RequestParam Long amount, @RequestParam Long waitAmount) {
         try {
@@ -289,6 +290,7 @@ public class DepositOrderController {
             if (output.isSuccess()){
                 DepositOrder order = output.getData();
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerContext.put("content", MoneyUtils.centToYuan(amount));
                 LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
             }
             return output;

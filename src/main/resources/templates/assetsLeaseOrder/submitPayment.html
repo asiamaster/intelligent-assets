@@ -1,7 +1,7 @@
 <#bs4Body>
 
-<div class="container-fluid">
-    <form id="saveForm">
+<div class="container-fluid pb-5">
+    <form id="saveForm" class="pb-5">
         <input type="hidden" id="leaseOrderId" name="leaseOrderId" value="${leaseOrder.id!}">
         <input type="hidden" class="money" id="leasePayAmount" name="leasePayAmount">
         <div class="row mb-3">
@@ -62,7 +62,7 @@
                     </td>
                     <% } }%>
                     <td style="padding: .25rem!important;">
-                        <input oninput="calcApportionAmount()" _log="保证金" type="number" isDeposit id="depositAmount_${itemLP.index}" name="depositAmount_${itemLP.index}" class="form-control money floatReserve" min="0" step="0.01" required>
+                        <input oninput="calcApportionAmount()" _log="保证金" type="number" isDeposit id="depositAmount_${itemLP.index}" name="depositAmount_${itemLP.index}" value="0" class="form-control money floatReserve" min="0" step="0.01" readonly required>
                     </td>
                 </tr>
                 <% } }%>

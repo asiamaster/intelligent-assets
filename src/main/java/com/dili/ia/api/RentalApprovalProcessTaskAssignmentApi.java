@@ -1,5 +1,6 @@
 package com.dili.ia.api;
 
+import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.TaskMapping;
@@ -13,20 +14,20 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 租赁审批流程任务分配接口
  * BPMC的动态任务分配调用
  */
 @RestController
+@RefreshScope
 @RequestMapping("/api/rentalApprovalProcessTaskAssignmentApi")
 public class RentalApprovalProcessTaskAssignmentApi {
     @Autowired
@@ -39,6 +40,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
      * 流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
      */
     @Value("${ia.bpm.exceptionHandlerId:1}")
+//    @NacosValue(value = "${ia.bpm.exceptionHandlerId:1}", autoRefreshed = true)
     private String exceptionHandlerId;
 
     /**
@@ -132,8 +134,8 @@ public class RentalApprovalProcessTaskAssignmentApi {
         //获取流程参数中的区域id，以确认审批人
         Long districtId = Long.parseLong((String)processVariables.get("districtId"));
         BaseOutput<DistrictDTO> districtById = assetsRpc.getDistrictById(districtId);
-        //查询失败，或者没有父区域，则返回默认处理人
-        if(!districtById.isSuccess() || districtById.getData().getParentId() == 0){
+        //查询失败，则返回默认处理人
+        if(!districtById.isSuccess()){
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return getExceptionHandlerAssignment();
         }
@@ -144,7 +146,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
         approverAssignment.setProcessDefinitionKey(taskMapping.getProcessDefinitionKey());
         approverAssignment.setTaskDefinitionKey(taskMapping.getTaskDefinitionKey());
         //如果当前区域是一级区域，则从其本身找审批人
-        if(districtById.getData().getParentId().equals(0)){
+        if(districtById.getData().getParentId().equals(0L)){
             //根据区域ID查询本身和子节点
             BaseOutput<List<DistrictDTO>> listBaseOutput = assetsRpc.listDistrictChild(districtId);
             if(!listBaseOutput.isSuccess()){

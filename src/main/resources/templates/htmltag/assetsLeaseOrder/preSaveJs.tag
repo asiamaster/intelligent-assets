@@ -25,7 +25,7 @@
     $.extend(certificateNumberAutoCompleteOption,{
         selectFn: function (suggestion) {
             $('#customerName').val(suggestion.name);
-            $('#customerId').val(suggestion.id);
+            $('#customerId').val(suggestion.customerId);
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#customerName,#customerCellphone").valid();
 
@@ -95,7 +95,12 @@
     $(function () {
         //初始化刷卡
         initSwipeCard({
-            id:'getCustomer'
+            id:'getCustomer',
+            onLoadSuccess:function(customer){
+                //账户余额查询
+                queryCustomerAccount();
+                calcTotalAmount(true);
+            }
         });
 
         //监听客户注册
@@ -537,6 +542,7 @@
     $(document).on('click', '.item-del', function () {
         if ($('#assetTable tr').length > 1) {
             $(this).closest('tr').remove();
+            calcTotalAmount(true);
         }
     });
 
