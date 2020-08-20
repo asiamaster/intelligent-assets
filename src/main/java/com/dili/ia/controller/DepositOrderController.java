@@ -277,7 +277,7 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content = "${content}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(@RequestParam Long id, @RequestParam Long amount, @RequestParam Long waitAmount) {
         try {

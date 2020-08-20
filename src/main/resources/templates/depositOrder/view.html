@@ -12,8 +12,16 @@
                 <input type="text" class="form-control" value="${depositOrder.code!}" disabled />
             </div>
             <div class="form-group col">
-                <label for="" class="">状态</label>
+                <label for="" class="">业务状态</label>
                 <input type="text" class="form-control" value="${@com.dili.ia.glossary.DepositOrderStateEnum.getDepositOrderStateEnum(depositOrder.state).getName()}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">交费状态</label>
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.DepositPayStateEnum.getDepositPayStateEnum(depositOrder.payState).getName()}" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="" class="">退款状态</label>
+                <input type="text" class="form-control" value="${@com.dili.ia.glossary.DepositRefundStateEnum.getDepositRefundStateEnum(depositOrder.refundState).getName()}" disabled />
             </div>
             <div class="form-group col">
                 <label for="" class="">保证金类型</label>
@@ -46,6 +54,8 @@
                 <input type="text" class="form-control" value="${depositOrder.customerCellphone!}" disabled />
             </div>
             <div class="form-group col">
+            </div>
+            <div class="form-group col">
                 <label for="">保证金金额</label>
                 <input type="text" class="form-control" value="<#centToYuan value='${depositOrder.amount!}'/>" disabled />
             </div>
@@ -56,6 +66,10 @@
             <div class="form-group col">
                 <label for="">待交金额</label>
                 <input type="text" class="form-control" value="<#centToYuan value='${depositOrder.waitAmount!}'/>" disabled />
+            </div>
+            <div class="form-group col">
+                <label for="">已退金额</label>
+                <input type="text" class="form-control" value="<#centToYuan value='${depositOrder.refundAmount!}'/>" disabled />
             </div>
             <div class="form-group col-12">
                 <label for="">备注</label>
