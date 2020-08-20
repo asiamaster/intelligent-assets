@@ -1,8 +1,8 @@
 <#bs4Body>
 
-    <div class="container-fluid">
+    <div class="container-fluid pb-5">
         <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.booth_lease'/>">
-        <form id="saveForm" role="form" novalidate>
+        <form id="saveForm" role="form" novalidate class="pb-5">
             <input type="hidden" id="id" name="id" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.id!}">
             <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
             <input type="hidden" name="isRenew" value="${isRenew!}">

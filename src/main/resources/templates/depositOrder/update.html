@@ -1,8 +1,8 @@
 <#bs4Body>
 <!--<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>-->
-<div class="container-fluid">
+<div class="container-fluid pb-5">
     <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.deposit_order'/>">
-    <form id="updateForm" role="form" novalidate>
+    <form id="updateForm" role="form" novalidate class="pb-5">
         <input type="hidden" name="id" value="${depositOrder.id!}">
         <input type="hidden" name="version" value="${depositOrder.version!}">
         <div class="breadcrumb" >
@@ -64,9 +64,11 @@
         </div>
 
 
-        <div class="text-right btn-r-b">
+        <div class="modal-footer-wrap">
+            <div class="modal-footer">
             <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
             <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doUpdateDepostHandler,1000,true)()" id="formSubmit">保存</button>
+        </div>
         </div>
     </form>
 </div>

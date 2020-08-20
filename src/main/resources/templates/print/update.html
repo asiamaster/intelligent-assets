@@ -1,5 +1,5 @@
-<div class="container-fluid">
-    <form id="editForm" role="form" method="post" enctype="multipart/form-data">
+<div class="container-fluid pb-5">
+    <form id="editForm" class="pb-5" role="form" method="post" enctype="multipart/form-data">
         <input type="hidden" name="id" value="${obj.id!}">
         <div class="row row-cols-1">
 
@@ -23,10 +23,12 @@
 
         </div>
 
-        <div class="text-right mt-2">
-            <button type="button" class="btn btn-light px-5" data-dismiss="modal">取消
+        <div class="modal-footer-wrap">
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary px-5" data-dismiss="modal">取消
             </button>
             <button type="button" class="btn btn-primary px-5" id="edit-form-submit">提交</button>
+        </div>
         </div>
     </form>
 </div>
