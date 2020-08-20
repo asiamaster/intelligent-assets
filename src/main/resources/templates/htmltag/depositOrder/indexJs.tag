@@ -166,15 +166,14 @@
                                 },
                                 dataType: "json",
                                 success : function(data) {
-                                    closeDialog(dia)
+                                    closeDialog(dia);
                                     bui.loading.hide();
-                                    queryDataHandler();
                                     if(!data.success){
                                         bs4pop.alert(data.result, {type: 'error'});
                                     }
                                 },
                                 error : function() {
-                                    closeDialog(dia)
+                                    closeDialog(dia);
                                     bui.loading.hide();
                                     bs4pop.alert('远程访问失败', {type: 'error'});
                                 }
@@ -193,7 +192,7 @@
      */
     function openWithdrawHandler() {
         if(isSelectRow()){
-            bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', {}, function (sure) {
+            dia=bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', {}, function (sure) {
                 if(sure){
                     bui.loading.show('努力提交中，请稍候。。。');
                     //获取选中行的数据
@@ -208,14 +207,14 @@
                         dataType: "json",
                         success : function(ret) {
                             bui.loading.hide();
-                            if(ret.success){
-                                queryDataHandler();
-                            }else{
+                            closeDialog(dia);
+                            if(!ret.success){
                                 bs4pop.alert(ret.message, {type: 'error'});
                             }
                         },
                         error : function() {
                             bui.loading.hide();
+                            closeDialog(dia);
                             bs4pop.alert('远程访问失败', {type: 'error'});
                         }
                     });
@@ -228,7 +227,7 @@
      */
     function openCancelHandler() {
         if(isSelectRow()){
-            bs4pop.confirm('确定取消该业务单？', {}, function (sure) {
+            dia=bs4pop.confirm('确定取消该业务单？', {}, function (sure) {
                 if(sure){
                     bui.loading.show('努力提交中，请稍候。。。');
                     //获取选中行的数据
@@ -243,14 +242,14 @@
                         dataType: "json",
                         success : function(ret) {
                             bui.loading.hide();
-                            if(ret.success){
-                                queryDataHandler();
-                            }else{
+                            closeDialog(dia);
+                            if(!ret.success){
                                 bs4pop.alert(ret.message, {type: 'error'});
                             }
                         },
                         error : function() {
                             bui.loading.hide();
+                            closeDialog(dia);
                             bs4pop.alert('远程访问失败', {type: 'error'});
                         }
                     });
