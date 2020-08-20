@@ -139,7 +139,7 @@
             return;
         }
 
-        bs4pop.dialog({
+        dia = bs4pop.dialog({
             title: '提交付款',
             content: template('submitPaymentTpl', {
                 waitAmount: rows[0].waitAmount,
@@ -166,6 +166,7 @@
                                 },
                                 dataType: "json",
                                 success : function(data) {
+                                    closeDialog(dia)
                                     bui.loading.hide();
                                     queryDataHandler();
                                     if(!data.success){
@@ -173,11 +174,13 @@
                                     }
                                 },
                                 error : function() {
+                                    closeDialog(dia)
                                     bui.loading.hide();
                                     bs4pop.alert('远程访问失败', {type: 'error'});
                                 }
                             });
                         },1000,true)();
+                        return false;
                     }
                 },
                 {label: '取消', className: 'btn-default', onClick(e) {}}
