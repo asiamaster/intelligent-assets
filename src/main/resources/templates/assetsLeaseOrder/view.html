@@ -21,6 +21,10 @@
                     <label>交费状态</label>
                     <input type="text" class="form-control" value="${@com.dili.ia.glossary.PayStateEnum.getPayStateEnum(leaseOrder.payState).getName()}" readonly/>
                 </div>
+                <div class="form-group col">
+                    <label>退款状态</label>
+                    <input type="text" class="form-control" value="${@com.dili.ia.glossary.LeaseRefundStateEnum.getRefundStateEnum(leaseOrder.refundState).getName()}" readonly/>
+                </div>
             </div>
             <div class="breadcrumb" >
                 客户信息
@@ -94,6 +98,10 @@
                     <tr>
                         <th class="text-center align-middle" style="font-weight:normal;">资产编号</th>
                         <th class="text-center align-middle" style="font-weight:normal;">规格</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">转角</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">单价</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">应交月数</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">优惠金额</th>
                         <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <th class="text-center align-middle" style="font-weight:normal;">租赁数量</th>
                         <% } %>
@@ -111,6 +119,10 @@
                     <tr>
                         <td class="text-center align-middle" title="${item.assetsName!}">${item.assetsName!}</td>
                         <td class="text-center align-middle" >${item.number!}${item.unitName!}</td>
+                        <td class="text-center align-middle" >${item.isCorner!}</td>
+                        <td class="text-center align-middle" ><#centToYuan value='${item.unitPrice!0}'/></td>
+                        <td class="text-center align-middle" >${item.paymentMonth!}</td>
+                        <td class="text-center align-middle" ><#centToYuan value='${item.discountAmount!0}'/></td>
                         <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <td style="padding: .25rem!important;"><input type="number" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" readonly></td>
                         <% } %>
@@ -127,6 +139,23 @@
             </div>
 
             <div class="breadcrumb">
+                抵扣项
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#deduction" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="collapse show" id="deduction">
+                <div class="row row-cols-4">
+                    <div class="form-group col">
+                        <label for="earnestDeduction" _log>定金抵扣</label>
+                        <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" value="<#centToYuan value='${leaseOrder.earnestDeduction!0}'/>" min="0" readonly/>
+                    </div>
+                    <div class="form-group col">
+                        <label for="transferDeduction" _log>转抵扣</label>
+                        <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" value="<#centToYuan value='${leaseOrder.transferDeduction!0}'/>" min="0" readonly/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="breadcrumb">
                 金额信息
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
@@ -136,29 +165,17 @@
                         <label for="totalAmount" _log>合计金额<i class="red">*</i></label>
                         <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>" readonly/>
                     </div>
-                </div>
-                <div class="row row-cols-4">
-                    <div class="form-group col">
-                        <label for="earnestDeduction" _log>定金抵扣</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.earnestDeduction!}'/>" readonly/>
-                            <div class="input-group-append">
-                                <span class="input-group-text" id="earnestAmount">0.00</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col">
-                        <label for="transferDeduction" _log>转抵扣</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.transferDeduction!}'/>" readonly/>
-                            <div class="input-group-append">
-                                <span class="input-group-text" id="transferAmount">0.00</span>
-                            </div>
-                        </div>
-                    </div>
                     <div class="form-group col">
                         <label for="payAmount" _log>实付金额<i class="red">*</i></label>
                         <input type="number" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" min="0" readonly/>
+                    </div>
+                    <div class="form-group col">
+                        <label for="earnestDeduction" _log>已付金额</label>
+                        <input type="number" class="form-control money" id="paidAmount" name="paidAmount" value="<#centToYuan value='${leaseOrder.paidAmount!0}'/>" min="0" readonly/>
+                    </div>
+                    <div class="form-group col">
+                        <label for="transferDeduction" _log>待付金额</label>
+                        <input type="number" class="form-control money" id="waitAmount" name="waitAmount" value="<#centToYuan value='${leaseOrder.waitAmount!0}'/>" min="0" readonly/>
                     </div>
                 </div>
             </div>
