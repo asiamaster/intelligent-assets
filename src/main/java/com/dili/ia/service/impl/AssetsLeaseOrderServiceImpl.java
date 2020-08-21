@@ -1083,9 +1083,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
         }
         //如果有流程实例id，则通知流程结束
-        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
+        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
             //发送消息通知流程
-            BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "confirmRefund", null);
+            BaseOutput<String> baseOutput = taskRpc.signal(refundOrder.getProcessInstanceId(), "confirmRefund", null);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程结束消息发送失败");
             }
