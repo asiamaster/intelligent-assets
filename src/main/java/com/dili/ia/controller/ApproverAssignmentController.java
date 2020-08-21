@@ -88,7 +88,7 @@ public class ApproverAssignmentController {
         if(!approverAssignmentService.list(approverAssignment).isEmpty()){
             return BaseOutput.failure("当前数据已存在");
         }
-        approverAssignmentService.insertSelective(approverAssignmentDto);
+        approverAssignmentService.insertExactSimple(approverAssignmentDto);
         return BaseOutput.success("新增成功");
     }
 

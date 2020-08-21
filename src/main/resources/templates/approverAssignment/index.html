@@ -111,12 +111,12 @@
         </div>
         {{else}}
         <div class="form-group row">
-            <label class="col-2 col-form-label text-right" for="_districtId">区域*</label>
+            <label class="col-2 col-form-label text-right" for="_districtId">区域</label>
             <div class="col-10">
-                <select id="_districtId" name="_districtId" class="form-control" required>
+                <select id="_districtId" name="_districtId"  class="form-control" >
                     <option value="{{$_districtId}}" selected>{{districtId}}</option>
                 </select>
-                <#bselect2 _escape="true" _id="_districtId" _provider="districtProvider" _mode="remote"  />
+                <#bselect2 _escape="true" _id="_districtId" _provider="districtProvider" _mode="remote" _option="allowClear:true, placeholderOption:'first',placeholder:'请选择'" />
             </div>
         </div>
         {{/if}}
