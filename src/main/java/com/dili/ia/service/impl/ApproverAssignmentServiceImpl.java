@@ -31,6 +31,7 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
     public void updateEx(ApproverAssignmentDto approverAssignmentDto) {
         //查询原始的分配数据，用于判断是否修改流程、任务和办理人
         ApproverAssignment originalApproverAssignment = get(approverAssignmentDto.getId());
+        //批量修改审批人配置
         if (approverAssignmentDto.getDistrictIds() != null){
             //如果修改了流程、任务和办理人，则抛异常
             if(!isProcessTaskAssigneeEqual(originalApproverAssignment, approverAssignmentDto)){
@@ -51,7 +52,7 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
             }
             //再重新进行批量插入
             batchInsert(approverAssignments);
-        }else {
+        }else {//单个修改审批人配置
             //如果修改了流程、任务和区域，则判断是否和已有的数据重复
             if(!isProcessTaskDistrictEqual(originalApproverAssignment, approverAssignmentDto)){
                 ApproverAssignment approverAssignmentCondition = DTOUtils.newInstance(ApproverAssignment.class);
@@ -63,10 +64,17 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
                 List<ApproverAssignment> select = getActualDao().select(approverAssignmentCondition);
                 //在相同的区域、流程和任务定义，不允许有不同的审批人(以后支持多实例/会签功能后，会调整)
                 if(!select.isEmpty()){
-                    throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
+                    ApproverAssignment approverAssignment = select.get(0);
+                    //这里的判断，主要是因为DistrictId可能为空，这里需要再次校验
+                    if(approverAssignmentDto.getDistrictId() == null && approverAssignment.getDistrictId() == null) {
+                        throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
+                    }
                 }
             }
-            updateSelective(approverAssignmentDto);
+            if(approverAssignmentDto.getDistrictId() == null){
+                approverAssignmentDto.aset("districtId", null);
+            }
+            updateExactSimple(approverAssignmentDto);
         }
     }
 
