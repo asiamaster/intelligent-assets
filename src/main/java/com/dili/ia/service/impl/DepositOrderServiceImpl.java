@@ -400,6 +400,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("保证金单编号【{}】已取消，不可以进行提交付款操作", depositOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "保证金单编号【" + depositOrder.getCode() + "】 已取消，不可以进行提交付款操作");
         }
+        if(DepositOrderStateEnum.REFUNDING.getCode().equals(depositOrder.getState())){
+            LOG.info("保证金单编号【{}】退款中，不可以进行提交付款操作", depositOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "保证金单编号【" + depositOrder.getCode() + "】 退款中，不可以进行提交付款操作");
+        }
         if (!amount.equals(0L) && waitAmount.equals(0L)) {
             throw new BusinessException(ResultCode.DATA_ERROR,"保证金单费用已结清");
         }
@@ -508,6 +512,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
             if (DepositRefundStateEnum.REFUNDED.getCode().equals(depositOrder.getRefundState())){
                 return BaseOutput.failure("创建失败，业务单已全额退款！");
+            }
+            //如果是关联保证金订单，发起退款申请需要解除关联关系
+            if (depositOrder.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                depositOrder.setState(YesOrNoEnum.NO.getCode());
             }
             depositOrder.setState(DepositOrderStateEnum.REFUNDING.getCode());
             if (this.updateSelective(depositOrder) == 0) {
