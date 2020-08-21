@@ -113,7 +113,7 @@ public class AssetsLeaseOrderItem extends BaseDomain {
     private Long discountAmount;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`stop_time`")
     private LocalDateTime stopTime;
 
