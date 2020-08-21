@@ -301,7 +301,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
         //新增
         if(null == refundOrder.getId()){
-            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_ORDER.getCode());
+            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode());
             if(!bizNumberOutput.isSuccess()){
                 LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
                 return BaseOutput.failure("编号生成器微服务异常");
