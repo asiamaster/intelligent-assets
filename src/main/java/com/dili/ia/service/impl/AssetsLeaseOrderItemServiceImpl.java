@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -92,8 +93,8 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
             //检查子项状态，看是否需要联动订单状态
             stopRentCascadeLeaseOrderState(leaseOrderItemOld);
         }else{//未来停租
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 23:59:59");
-            leaseOrderItem.setStopTime(LocalDateTime.parse(leaseOrderItem.getStopDate().format(formatter), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+            leaseOrderItem.setStopTime(LocalDateTime.parse(leaseOrderItem.getStopDate().format(formatter) + "T23:59:59", DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             leaseOrderItem.setStopRentState(StopRentStateEnum.WAIT_TIMER_EXE.getCode());
             leaseOrderItem.setVersion(leaseOrderItemOld.getVersion());
         }
