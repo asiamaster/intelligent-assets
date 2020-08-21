@@ -239,7 +239,38 @@
                     </tbody>
                 </table>
             </div>
-            <% }%>
+            <%}%>
+
+            <%
+            if(has(approvalProcesses)){
+            %>
+            <div class="breadcrumb" >
+                审批记录
+                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#approvalRecord" aria-expanded="true"
+                   aria-controls="approvalRecord">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            </div>
+            <div class="collapse show" id="approvalRecord">
+                <table style="width: 100%;" >
+                    <%
+                    for(approvalProcess in approvalProcesses){
+                    %>
+                    <tr>
+                        <td style="padding-right: 20px;">${approvalProcess.assigneeName} </td>
+                        <td style="padding-right: 20px;">${approvalProcess.result == 1 ? "审批通过":"审批拒绝"}</td>
+                        <%if(approvalProcess.opinion != null){%>
+                        <td style="padding-right: 20px;">${approvalProcess.opinion}</td>
+                        <%}else{%>
+                        <td style="padding-right: 20px;"></td>
+                        <%}%>
+                        <td>${approvalProcess.createTime, 'yyyy-MM-dd hh:mm:ss'}</td>
+                    </tr>
+                    <%
+                    }
+                    %>
+                </table>
+            </div>
+            <%
+            } //end of if(has(approvalProcesses)){%>
         </form>
     </div>
 

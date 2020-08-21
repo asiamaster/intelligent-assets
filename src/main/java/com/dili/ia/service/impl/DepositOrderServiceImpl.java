@@ -16,7 +16,6 @@ import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
-import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
@@ -38,7 +37,6 @@ import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
-import com.dili.uap.sdk.session.PermissionContext;
 import com.dili.uap.sdk.session.SessionContext;
 import com.dili.uap.sdk.util.WebContent;
 import org.apache.commons.collections.CollectionUtils;
@@ -864,8 +862,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 }
                 BusinessLog businessLog = this.buildCommonLog(o);
                 businessLog.setOperationType("edit");
-                //@TODO 修改内容记录
-//                businessLog.setContent(output.getData().getCode());
+                businessLog.setContent(this.buildUpdateLogContent(deList.get(0), o));
                 BList.add(businessLog);
             }
 
@@ -886,6 +883,37 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
 
         return BaseOutput.success();
+    }
+
+    private String buildUpdateLogContent(DepositOrder oldDo, DepositOrder newDo){
+        StringBuilder  contentLog = new StringBuilder();
+        if (!oldDo.getCustomerName().equals(newDo.getCustomerName())){
+            contentLog.append("【客户名称】：从‘").append(oldDo.getCustomerName()).append("’修改为‘").append(newDo.getCustomerName()).append("’\n");
+        }
+        if (!oldDo.getCertificateNumber().equals(newDo.getCertificateNumber())){
+            contentLog.append("【证件号码】：从‘").append(oldDo.getCertificateNumber()).append("’修改为‘").append(newDo.getCertificateNumber()).append("’\n");
+        }
+        if (!oldDo.getCustomerCellphone().equals(newDo.getCustomerCellphone())){
+            contentLog.append("【联系电话*】：从‘").append(oldDo.getCustomerCellphone()).append("’修改为‘").append(newDo.getCustomerCellphone()).append("’\n");
+        }
+        if (!oldDo.getAssetsType().equals(newDo.getAssetsType())){
+            String oldAssetsTypeName = AssetsTypeEnum.getAssetsTypeEnum(oldDo.getAssetsType()).getName();
+            String newAssetsTypeName = AssetsTypeEnum.getAssetsTypeEnum(newDo.getAssetsType()).getName();
+            contentLog.append("【资产类型*】：从‘").append(oldAssetsTypeName).append("’修改为‘").append(newAssetsTypeName).append("’\n");
+        }
+        if (!oldDo.getAssetsName().equals(newDo.getAssetsName())){
+            contentLog.append("【资产编号】：从‘").append(oldDo.getAssetsName()).append("’修改为‘").append(newDo.getAssetsName()).append("’\n");
+        }
+        if (!oldDo.getAmount().equals(newDo.getAmount())){
+            contentLog.append("【保证金金额*】：从‘").append(MoneyUtils.centToYuan(oldDo.getAmount())).append("’修改为‘").append(MoneyUtils.centToYuan(newDo.getAmount())).append("’\n");
+        }
+        if (!oldDo.getTypeName().equals(newDo.getTypeName())){
+            contentLog.append("【保证金类型】：从‘").append(oldDo.getTypeName()).append("’修改为‘").append(newDo.getTypeName()).append("’\n");
+        }
+        if (!oldDo.getDepartmentId().equals(newDo.getDepartmentId())){
+            contentLog.append("【业务所属部门】：从‘").append(oldDo.getDepartmentName()).append("’修改为‘").append(newDo.getDepartmentName()).append("’\n");
+        }
+        return contentLog != null ? contentLog.toString() : "";
     }
 
     private BusinessLog buildCommonLog(DepositOrder depositOrder){
@@ -917,6 +945,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchSubmitDepositOrder(String bizType, Long businessId, Map<Long, Long> map) {
+        //map key： assetsId  资产ID ; value: amount 付款金额
         if (map == null){
             return BaseOutput.success();
         }
@@ -937,7 +966,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 //日志构建
                 BusinessLog businessLog = this.buildCommonLog(output.getData());
                 businessLog.setOperationType("submit");
-                businessLog.setContent(output.getData().getCode());
+                businessLog.setContent(MoneyUtils.centToYuan(value));
                 BList.add(businessLog);
             }
         });
@@ -1009,7 +1038,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 // 日志构建
                 BusinessLog businessLog = this.buildCommonLog(output.getData());
                 businessLog.setOperationType("submit");
-                businessLog.setContent(output.getData().getCode());
+                businessLog.setContent(MoneyUtils.centToYuan(o.getAmount()));
                 BList.add(businessLog);
             });
         }

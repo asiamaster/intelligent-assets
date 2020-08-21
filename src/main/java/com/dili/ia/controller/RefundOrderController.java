@@ -188,7 +188,16 @@ public class RefundOrderController {
                     condition.setRefundOrderId(refundOrder.getId());
                     modelMap.put("refundFeeItems", refundFeeItemService.list(condition));
                 }
-
+                //审批记录显示
+                if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
+                    ApprovalProcess approvalProcess = new ApprovalProcess();
+                    approvalProcess.setProcessInstanceId(refundOrder.getProcessInstanceId());
+                    //查询审批记录
+                    List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
+                    if(!approvalProcesses.isEmpty()) {
+                        modelMap.put("approvalProcesses", approvalProcesses);
+                    }
+                }
                 return "refundOrder/leaseRefundOrderView";
             }
         }
