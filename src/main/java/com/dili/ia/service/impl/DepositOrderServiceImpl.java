@@ -16,7 +16,6 @@ import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
-import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
@@ -38,7 +37,6 @@ import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
-import com.dili.uap.sdk.session.PermissionContext;
 import com.dili.uap.sdk.session.SessionContext;
 import com.dili.uap.sdk.util.WebContent;
 import org.apache.commons.collections.CollectionUtils;
@@ -947,6 +945,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchSubmitDepositOrder(String bizType, Long businessId, Map<Long, Long> map) {
+        //map key： assetsId  资产ID ; value: amount 付款金额
         if (map == null){
             return BaseOutput.success();
         }
@@ -967,7 +966,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 //日志构建
                 BusinessLog businessLog = this.buildCommonLog(output.getData());
                 businessLog.setOperationType("submit");
-                businessLog.setContent(output.getData().getCode());
+                businessLog.setContent(MoneyUtils.centToYuan(value));
                 BList.add(businessLog);
             }
         });
@@ -1039,7 +1038,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 // 日志构建
                 BusinessLog businessLog = this.buildCommonLog(output.getData());
                 businessLog.setOperationType("submit");
-                businessLog.setContent(output.getData().getCode());
+                businessLog.setContent(MoneyUtils.centToYuan(o.getAmount()));
                 BList.add(businessLog);
             });
         }
