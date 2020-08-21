@@ -464,13 +464,13 @@
                 let now = moment(new Date()).format("YYYY-MM-DD");
                 let minDate = moment(now).isBefore(leaseOrder.startTime)?leaseOrder.startTime : now;
                 laydate.render({
-                        elem: '#stopTime',
+                        elem: '#stopDate',
                         type: 'date',
                         theme: '#007bff',
                         trigger:'click',
                         min : minDate,
                         done: function(value, date){
-                            $("#stopRentForm").validate().element($("#stopTime"));
+                            $("#stopRentForm").validate().element($("#stopDate"));
                         }
                 });
                 $('#stopWay').on('change',':radio',function () {
@@ -478,7 +478,7 @@
                 });
                 $('#stopRentForm').validate({
                     rules: {
-                        stopTime: {
+                        stopDate: {
                             required: true,
                             minDate: minDate,
                             maxDate: leaseOrder.endTime

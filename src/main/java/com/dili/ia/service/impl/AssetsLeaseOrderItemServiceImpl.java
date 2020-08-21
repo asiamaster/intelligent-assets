@@ -67,7 +67,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
     @Override
     @Transactional
     @GlobalTransactional
-    public BaseOutput stopRent(AssetsLeaseOrderItem leaseOrderItem) {
+    public BaseOutput stopRent(AssetsLeaseOrderItemListDto leaseOrderItem) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
@@ -93,7 +93,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
             stopRentCascadeLeaseOrderState(leaseOrderItemOld);
         }else{//未来停租
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 23:59:59");
-            leaseOrderItem.setStopTime(LocalDateTime.parse(leaseOrderItem.getStopTime().format(formatter), formatter));
+            leaseOrderItem.setStopTime(LocalDateTime.parse(leaseOrderItem.getStopDate().format(formatter), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             leaseOrderItem.setStopRentState(StopRentStateEnum.WAIT_TIMER_EXE.getCode());
             leaseOrderItem.setVersion(leaseOrderItemOld.getVersion());
         }
