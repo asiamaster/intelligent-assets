@@ -99,6 +99,6 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
     private boolean isProcessTaskDistrictEqual(ApproverAssignment originalApproverAssignment, ApproverAssignmentDto approverAssignmentDto){
         return originalApproverAssignment.getProcessDefinitionKey().equals(approverAssignmentDto.getProcessDefinitionKey())
                 && originalApproverAssignment.getTaskDefinitionKey().equals(approverAssignmentDto.getTaskDefinitionKey())
-                && originalApproverAssignment.getDistrictId().equals(approverAssignmentDto.getDistrictId());
+                && (originalApproverAssignment.getDistrictId() != null && originalApproverAssignment.getDistrictId().equals(approverAssignmentDto.getDistrictId()));
     }
 }

@@ -75,6 +75,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
         }
         leaseOrderItem.setStopOperatorId(userTicket.getId());
         leaseOrderItem.setStopOperatorName(userTicket.getRealName());
+        leaseOrderItem.setStopOperatorTime(LocalDateTime.now());
         AssetsLeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
         AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(leaseOrderItemOld.getLeaseOrderId());
 

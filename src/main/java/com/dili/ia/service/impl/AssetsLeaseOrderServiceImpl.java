@@ -657,7 +657,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
             assetsLeaseService.leaseAsset(leaseOrder);
         }
-
+        //记录原始状态，在后面流程引擎用到
+        Integer leaseOrderState = leaseOrder.getState();
         /***************************更新租赁单及其订单项相关字段 begin*********************/
         //根据租赁时间和当前时间比对，单子是未生效、已生效、还是已过期
         LocalDateTime now = LocalDateTime.now();
@@ -727,7 +728,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
         //如果是提交状态的租赁单(第一次提交付款)，并且有流程实例id，则通知流程结束
-        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId()) && LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId()) && leaseOrderState.equals(leaseOrder.getState())) {
             //发送消息通知流程
             BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "confirmReceipt", null);
             if (!baseOutput.isSuccess()) {
@@ -1081,7 +1082,14 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("释放关联保证金，让其单飞接口异常 【租赁单编号:{},资产编号:{}】", leaseOrder.getCode(),leaseOrderItem.getAssetsName());
             throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
         }
-
+        //如果有流程实例id，则通知流程结束
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
+            //发送消息通知流程
+            BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "confirmRefund", null);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程结束消息发送失败");
+            }
+        }
         //记录退款日志
         msgService.sendBusinessLog(recordRefundLog(refundOrder, leaseOrder));
         return BaseOutput.success();
