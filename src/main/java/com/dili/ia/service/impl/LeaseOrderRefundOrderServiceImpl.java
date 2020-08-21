@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
@@ -10,7 +11,9 @@ import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
@@ -41,7 +44,8 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     TransferDeductionItemService transferDeductionItemService;
     @Autowired
     private RefundFeeItemService refundFeeItemService;
-
+    @Autowired
+    private TaskRpc taskRpc;
     @Override
     public Set<String> getBizType() {
         return Sets.newHashSet(BizTypeEnum.BOOTH_LEASE.getCode());
@@ -62,7 +66,12 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-        return BaseOutput.success();
+        //发送流程消息通知撤回
+        BaseOutput<String> baseOutput = taskRpc.messageEventReceived("withdraw", refundOrder.getProcessInstanceId(), null);
+        if (!baseOutput.isSuccess()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+        }
+        return baseOutput;
     }
 
     @Override

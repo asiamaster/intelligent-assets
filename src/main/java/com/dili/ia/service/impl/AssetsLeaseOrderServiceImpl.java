@@ -1082,7 +1082,14 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("释放关联保证金，让其单飞接口异常 【租赁单编号:{},资产编号:{}】", leaseOrder.getCode(),leaseOrderItem.getAssetsName());
             throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
         }
-
+        //如果有流程实例id，则通知流程结束
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
+            //发送消息通知流程
+            BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "confirmRefund", null);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程结束消息发送失败");
+            }
+        }
         //记录退款日志
         msgService.sendBusinessLog(recordRefundLog(refundOrder, leaseOrder));
         return BaseOutput.success();

@@ -191,6 +191,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
             }
         }
+        //发送消息通知流程终止
+        BaseOutput<String> baseOutput = taskRpc.messageEventReceived("terminate", refundOrder.getProcessInstanceId(), null);
+        if (!baseOutput.isSuccess()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+        }
         return BaseOutput.success();
     }
 
@@ -450,16 +455,24 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         AssetsLeaseOrderItem assetsLeaseOrderItem = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId());
         Map<String, Object> variables = new HashMap<>();
         variables.put("districtId", assetsLeaseOrderItem.getDistrictId().toString());
-        /**
-         * 启动租赁审批流程
-         */
-        BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS, refundOrder.getCode(), userTicket.getId().toString(), variables);
-        if (!processInstanceMappingBaseOutput.isSuccess()) {
-            throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
+            //发送消息通知流程
+            BaseOutput<String> baseOutput = taskRpc.signal(refundOrder.getProcessInstanceId(), "reapply", null);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+            }
+        }else {
+            /**
+             * 启动租赁审批流程
+             */
+            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS, refundOrder.getCode(), userTicket.getId().toString(), variables);
+            if (!processInstanceMappingBaseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+            }
+            //设置流程定义和实例id，后面会更新到租赁单表
+            refundOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
+            refundOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
         }
-        //设置流程定义和实例id，后面会更新到租赁单表
-        refundOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
-        refundOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
         refundOrder.setApprovalState(ApprovalStateEnum.IN_REVIEW.getCode());
         if (updateSelective(refundOrder) == 0) {
             LOG.info("退款单提交状态更新失败 乐观锁生效 【退款单ID {}】", refundOrder.getId());
