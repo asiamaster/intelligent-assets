@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import bsh.StringUtil;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
@@ -193,10 +194,12 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
             }
         }
-        //发送消息通知流程终止
-        BaseOutput<String> baseOutput = taskRpc.messageEventReceived("terminate", refundOrder.getProcessInstanceId(), null);
-        if (!baseOutput.isSuccess()) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
+            //发送消息通知流程终止
+            BaseOutput<String> baseOutput = taskRpc.messageEventReceived("terminate", refundOrder.getProcessInstanceId(), null);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+            }
         }
         return BaseOutput.success();
     }
