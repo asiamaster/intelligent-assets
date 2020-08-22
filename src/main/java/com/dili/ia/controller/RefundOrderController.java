@@ -10,8 +10,10 @@ import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.IDTO;
@@ -260,6 +262,7 @@ public class RefundOrderController {
      * 审批通过处理
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, operationType = "checkPass", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
     @PostMapping(value="/approvedHandler.action")
     public @ResponseBody BaseOutput approvedHandler(@Validated ApprovalParam approvalParam){
         try{
@@ -267,6 +270,13 @@ public class RefundOrderController {
                 return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
             }
             refundOrderService.approvedHandler(approvalParam);
+            //写业务日志
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+            LoggerContext.put("logContent", approvalParam.getOpinion());
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("审批通过处理异常！", e);
@@ -282,6 +292,7 @@ public class RefundOrderController {
      * 审批拒绝处理
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, operationType = "checkFail", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
     @PostMapping(value="/approvedDeniedHandler.action")
     public @ResponseBody BaseOutput approvedDeniedHandler(@Validated ApprovalParam approvalParam){
         try{
@@ -290,6 +301,13 @@ public class RefundOrderController {
             }
             refundOrderService.
                     approvedDeniedHandler(approvalParam);
+            //写业务日志
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+            LoggerContext.put("logContent", approvalParam.getOpinion());
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("审批拒绝处理异常！", e);

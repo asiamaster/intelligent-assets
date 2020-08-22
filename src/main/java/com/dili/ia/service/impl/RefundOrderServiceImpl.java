@@ -27,6 +27,8 @@ import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.EditEnableEnum;
@@ -478,6 +480,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             LOG.info("退款单提交状态更新失败 乐观锁生效 【退款单ID {}】", refundOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
         }
+        //写业务日志
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
     }
 
     @Override

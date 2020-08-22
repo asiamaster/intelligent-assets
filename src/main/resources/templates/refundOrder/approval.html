@@ -2,9 +2,35 @@
 <div class="container-fluid">
     <!-- 退款单详情 -->
     <div>
-        <iframe height="680" frameborder="0" width="100%" src="${contextPath}/refundOrder/view.action?orderCode=${businessKey}" ></iframe>
+        <iframe height="500" frameborder="0" width="100%" src="${contextPath}/refundOrder/view.action?orderCode=${businessKey}" ></iframe>
     </div>
     <div align="left" id="approvalInfo" >
+        <%
+        if(has(approvalProcesses)){
+        %>
+        <div class="col-8">
+            <table style="width: 100%;" >
+                <%
+                for(approvalProcess in approvalProcesses){
+                %>
+                <tr>
+                    <td style="padding-right: 20px;">${approvalProcess.assigneeName} </td>
+                    <td style="padding-right: 20px;">${approvalProcess.result == 1 ? "审批通过":"审批拒绝"}</td>
+                    <%if(approvalProcess.opinion != null){%>
+                    <td style="padding-right: 20px;">${approvalProcess.opinion}</td>
+                    <%}else{%>
+                    <td style="padding-right: 20px;"></td>
+                    <%}%>
+                    <td>${approvalProcess.createTime, 'yyyy-MM-dd hh:mm:ss'}</td>
+                </tr>
+                <%
+                }
+                %>
+            </table>
+        </div>
+        <%
+        } //end of if(has(approvalProcesses)){
+        %>
         <div align="left" style="padding-left:20px;"  class="col-8">
             <label for="opinion">审批意见</label>
             <textarea class="form-control" name="opinion" id="opinion" rows="2" maxlength="20"></textarea>
