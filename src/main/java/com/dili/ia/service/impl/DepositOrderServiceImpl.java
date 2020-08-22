@@ -640,10 +640,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         params.setTypeCode(depositOrder.getTypeCode());
         params.setAssetsType(depositOrder.getAssetsType());
         params.setAssetsId(depositOrder.getAssetsId());
-        params.setAssetsName(depositOrder.getAssetsName());
         params.setMarketId(depositOrder.getMarketId());
-        params.setMarketCode(depositOrder.getMarketCode());
-        DepositBalance depositBalance = depositBalanceService.listByExample(params).stream().findFirst().orElse(null);
+        params.setAssetsName(depositOrder.getAssetsName());
+
+        DepositBalance depositBalance = depositBalanceService.listDepositBalanceExact(params).stream().findFirst().orElse(null);
         if (depositBalance == null){//创建客户账户余额
             params.setAssetsName(depositOrder.getAssetsName());
             params.setBalance(payAmount);
