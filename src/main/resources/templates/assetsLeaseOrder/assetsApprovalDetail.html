@@ -2,7 +2,35 @@
 <div class="container-fluid">
     <!-- 租赁单详情 -->
     <div>
-        <iframe height="1200" frameborder="0" width="100%" src="${contextPath}/leaseOrder/view.action?isShowDepositAmount=true&code=${businessKey}" ></iframe>
+        <iframe height="880" frameborder="0" width="100%" src="${contextPath}/leaseOrder/view.action?isShowDepositAmount=true&code=${businessKey}" ></iframe>
+    </div>
+    <div align="left" id="approvalInfo" >
+        <%
+        if(has(approvalProcesses)){
+        %>
+        <div class="col-8">
+            <table style="width: 100%;">
+                <%
+                for(approvalProcess in approvalProcesses){
+                %>
+                <tr>
+                    <td style="padding-right: 20px;">${approvalProcess.assigneeName} </td>
+                    <td style="padding-right: 20px;">${approvalProcess.result == 1 ? "审批通过":"审批拒绝"}</td>
+                    <%if(approvalProcess.opinion != null){%>
+                    <td style="padding-right: 20px;">${approvalProcess.opinion}</td>
+                    <%}else{%>
+                    <td style="padding-right: 20px;"></td>
+                    <%}%>
+                    <td>${approvalProcess.createTime, 'yyyy-MM-dd hh:mm:ss'}</td>
+                </tr>
+                <%
+                }
+                %>
+            </table>
+        </div>
+        <%
+        } //end of if(has(approvalProcesses)){
+        %>
     </div>
 </div>
 
