@@ -7,6 +7,9 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.exception.NotLoginException;
+import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -55,6 +58,11 @@ public class ApproverAssignmentController {
 //        columns.add("max(modify_time) modify_time");
 //        columns.add("max(create_time) create_time");
 //        approverAssignment.setSelectColumns(columns);
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if(userTicket == null){
+            throw new NotLoginException();
+        }
+        approverAssignment.setFirmId(userTicket.getFirmId());
         return approverAssignmentService.listEasyuiPageByExample(approverAssignment, true).toString();
     }
 
@@ -79,11 +87,16 @@ public class ApproverAssignmentController {
      */
     @PostMapping(value="/insert.action")
     public @ResponseBody BaseOutput insert(ApproverAssignmentDto approverAssignmentDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if(userTicket == null){
+            throw new NotLoginException();
+        }
         ApproverAssignment approverAssignment = DTOUtils.newInstance(ApproverAssignment.class);
         approverAssignment.setProcessDefinitionKey(approverAssignmentDto.getProcessDefinitionKey());
         approverAssignment.setTaskDefinitionKey(approverAssignmentDto.getTaskDefinitionKey());
         approverAssignment.setAssignee(approverAssignmentDto.getAssignee());
         approverAssignment.setDistrictId(approverAssignmentDto.getDistrictId());
+        approverAssignment.setFirmId(userTicket.getFirmId());
         approverAssignment.setRows(1);
         if(!approverAssignmentService.list(approverAssignment).isEmpty()){
             return BaseOutput.failure("当前数据已存在");
