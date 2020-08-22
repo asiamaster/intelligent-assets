@@ -533,10 +533,12 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         leaseOrder.setCancelerId(userTicket.getId());
         leaseOrder.setCanceler(userTicket.getRealName());
 
-        //发送消息通知流程终止
-        BaseOutput<String> baseOutput = taskRpc.messageEventReceived("terminate", leaseOrder.getProcessInstanceId(), null);
-        if (!baseOutput.isSuccess()) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
+            //发送消息通知流程终止
+            BaseOutput<String> baseOutput = taskRpc.messageEventReceived("terminate", leaseOrder.getProcessInstanceId(), null);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+            }
         }
         String formatNow = DateUtils.format(new Date(), "yyyyMMddHHmmssSSS");
         if (StringUtils.isNotBlank(leaseOrder.getContractNo())) {

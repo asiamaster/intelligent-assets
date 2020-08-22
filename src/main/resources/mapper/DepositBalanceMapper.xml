@@ -114,4 +114,61 @@
       AND assets_name=#{assetsName}
     </if>
   </select>
+
+
+  <select id="listDepositBalanceExact" parameterType="com.dili.ia.domain.DepositBalance" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from deposit_balance
+    WHERE 1 = 1
+    <choose>
+      <when test="customerId != null">
+        AND customer_id = #{customerId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        AND customer_id is null
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="typeCode != null and typeCode != ''">
+        AND type_code = #{typeCode,jdbcType=VARCHAR}
+      </when>
+      <otherwise>
+        AND type_code is null
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="assetsType != null and assetsType != ''">
+        AND assets_type = #{assetsType,jdbcType=VARCHAR}
+      </when>
+      <otherwise>
+        AND assets_type is null
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="assetsId != null">
+        AND assets_id = #{assetsId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        AND assets_id is null
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="assetsName != null and assetsName != ''">
+        AND assets_name = #{assetsName,jdbcType=VARCHAR}
+      </when>
+      <otherwise>
+        AND assets_name is null
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="marketId != null">
+        AND market_id = #{marketId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        AND market_id is null
+      </otherwise>
+    </choose>
+  </select>
+
 </mapper>

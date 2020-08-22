@@ -41,6 +41,16 @@ public interface ApproverAssignment extends IBaseDomain, IMybatisForceParams {
   void setDistrictId(Long districtId);
 
   /**
+   *  市场id
+   */
+  @Column(
+          name = "`firm_id`"
+  )
+  Long getFirmId();
+
+  void setFirmId(Long firmId);
+
+  /**
    *  办理用户id
    */
   @Column(
