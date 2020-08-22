@@ -1642,6 +1642,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private void withdrawBusinessChargeItemPaymentAmount(List<AssetsLeaseOrderItem> leaseOrderItems) {
         BusinessChargeItemListDto businessChargeItemCondition = new BusinessChargeItemListDto();
         businessChargeItemCondition.setBusinessIds(leaseOrderItems.stream().filter(o -> PayStateEnum.NOT_PAID.getCode().equals(o.getPayState())).map(o -> o.getId()).collect(Collectors.toList()));
+        businessChargeItemCondition.setBizType(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItems.get(0).getAssetsType()).getBizType());
         List<BusinessChargeItem> businessChargeItems = businessChargeItemService.listByExample(businessChargeItemCondition)
                 .stream().filter(bci -> bci.getPaymentAmount() > 0).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(businessChargeItems)) {
