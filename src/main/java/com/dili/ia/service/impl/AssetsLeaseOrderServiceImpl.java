@@ -446,7 +446,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
             //判断缴费单是否需要撤回 需要撤回则撤回
             if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
+                //撤回
                 withdrawPaymentOrder(leaseOrder.getPaymentId());
+                //撤回正在分摊中收费项金额
+                withdrawBusinessChargeItemPaymentAmount(leaseOrderItems);
             }
 
             //提交付款
@@ -582,13 +585,12 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (null != leaseOrder.getPaymentId() && 0L != leaseOrder.getPaymentId()) {
             withdrawPaymentOrder(leaseOrder.getPaymentId());
             leaseOrder.setPaymentId(0L);
+            //撤回正在分摊中收费项金额
+            withdrawBusinessChargeItemPaymentAmount(leaseOrderItems);
         }
         leaseOrder.setState(LeaseOrderStateEnum.CREATED.getCode());
         leaseOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
         cascadeUpdateLeaseOrderState(leaseOrder, leaseOrderItems, true, LeaseOrderItemStateEnum.CREATED);
-        leaseOrderItems.forEach(l -> {
-            businessChargeItemService.unityUpdatePaymentAmountByBusinessId(l.getId(), AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), 0L);
-        });
 
         //保证金撤回
         BaseOutput depositOutput = depositOrderService.batchWithdrawDepositOrder(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), id);
@@ -669,13 +671,15 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         Integer leaseOrderState = leaseOrder.getState();
         /***************************更新租赁单及其订单项相关字段 begin*********************/
         //根据租赁时间和当前时间比对，单子是未生效、已生效、还是已过期
-        LocalDateTime now = LocalDateTime.now();
-        if (!now.isBefore(leaseOrder.getStartTime()) && !now.isAfter(leaseOrder.getEndTime())) {
-            leaseOrder.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
-        } else if (now.isBefore(leaseOrder.getStartTime())) {
-            leaseOrder.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
-        } else if (now.isAfter(leaseOrder.getEndTime())) {
-            leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
+        if (!LeaseOrderStateEnum.RENTED_OUT.getCode().equals(leaseOrderState)) { //单子已停租 状态不做变化
+            LocalDateTime now = LocalDateTime.now();
+            if (!now.isBefore(leaseOrder.getStartTime()) && !now.isAfter(leaseOrder.getEndTime())) {
+                leaseOrder.setState(LeaseOrderStateEnum.EFFECTIVE.getCode());
+            } else if (now.isBefore(leaseOrder.getStartTime())) {
+                leaseOrder.setState(LeaseOrderStateEnum.NOT_ACTIVE.getCode());
+            } else if (now.isAfter(leaseOrder.getEndTime())) {
+                leaseOrder.setState(LeaseOrderStateEnum.EXPIRED.getCode());
+            }
         }
 
         if ((leaseOrder.getWaitAmount() - paymentOrderPO.getAmount()) == 0L) {
@@ -924,7 +928,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(leaseOrderItemCondition);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         leaseOrderPrintDto.setChargeItems(chargeItemDtos);
         List<AssetsLeaseOrderItemListDto> leaseOrderItemListDtos = assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos);
         List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
@@ -959,9 +963,14 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //新增
         if(null == refundOrderDto.getId()){
             AssetsLeaseOrder leaseOrder = get(leaseOrderItem.getLeaseOrderId());
+            AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
+            itemCondition.setLeaseOrderId(leaseOrder.getId());
+            List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
             //判断缴费单是否需要撤回 需要撤回则撤回
             if (null != leaseOrder.getPaymentId() && 0 != leaseOrder.getPaymentId()) {
                 withdrawPaymentOrder(leaseOrder.getPaymentId());
+                //撤回正在分摊中收费项金额
+                withdrawBusinessChargeItemPaymentAmount(leaseOrderItems);
             }
             //同步更新主单退款状态为【退款中】
             leaseOrder.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
@@ -1621,6 +1630,27 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         apportionRecord.setChargeItemName(bci.getChargeItemName());
         apportionRecord.setCreateTime(LocalDateTime.now());
         return apportionRecord;
+    }
+
+    /**
+     * 撤回正在分摊中收费项金额
+     * @param leaseOrderItems
+     */
+    private void withdrawBusinessChargeItemPaymentAmount(List<AssetsLeaseOrderItem> leaseOrderItems) {
+        BusinessChargeItemListDto businessChargeItemCondition = new BusinessChargeItemListDto();
+        businessChargeItemCondition.setBusinessIds(leaseOrderItems.stream().filter(o -> PayStateEnum.NOT_PAID.getCode().equals(o.getPayState())).map(o -> o.getId()).collect(Collectors.toList()));
+        businessChargeItemCondition.setBizType(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItems.get(0).getAssetsType()).getBizType());
+        List<BusinessChargeItem> businessChargeItems = businessChargeItemService.listByExample(businessChargeItemCondition)
+                .stream().filter(bci -> bci.getPaymentAmount() > 0).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(businessChargeItems)) {
+            businessChargeItems.forEach(bci -> {
+                bci.setPaymentAmount(0L);
+            });
+            if (businessChargeItemService.batchUpdateSelective(businessChargeItems) != businessChargeItems.size()) {
+                LOG.info("批量撤回正在分摊中的金额 【订单CODE{}】", leaseOrderItems.get(0).getLeaseOrderCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
+        }
     }
 
 }

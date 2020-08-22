@@ -90,7 +90,7 @@
         business_id;
     </select>
 
-    <select id="queryBusinessChargeItemMeta" parameterType="List" resultType="com.dili.assets.sdk.dto.BusinessChargeItemDto">
+    <select id="queryBusinessChargeItemMeta" resultType="com.dili.assets.sdk.dto.BusinessChargeItemDto">
         SELECT
             charge_item_id as id,
             charge_item_name as chargeItem
@@ -98,9 +98,10 @@
             `business_charge_item`
         WHERE
             business_id IN
-            <foreach collection="list" item="businessId" open="(" close=")" separator=",">
+            <foreach collection="businessIds" item="businessId" open="(" close=")" separator=",">
                 #{businessId}
             </foreach>
+        AND biz_type = #{bizType}
         GROUP BY
             charge_item_id
     </select>

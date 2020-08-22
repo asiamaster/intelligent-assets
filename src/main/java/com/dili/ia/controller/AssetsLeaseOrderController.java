@@ -237,7 +237,7 @@ public class AssetsLeaseOrderController {
             AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
             condition.setLeaseOrderId(leaseOrderId);
             List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
-            return BaseOutput.success().setData(businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList())));
+            return BaseOutput.success().setData(businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItems.get(0).getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList())));
         } catch (BusinessException e) {
             LOG.info("收费项meta信息查询异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -294,7 +294,7 @@ public class AssetsLeaseOrderController {
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
         modelMap.put("leaseOrder", leaseOrder);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
         modelMap.put("isShowDepositAmount", isShowDepositAmount);
@@ -370,7 +370,7 @@ public class AssetsLeaseOrderController {
         modelMap.put("leaseOrder", assetsLeaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
         if (null != refundOrderId) {
             modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
-            List<BusinessChargeItemDto> businessChargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(List.of(leaseOrderItemId));
+            List<BusinessChargeItemDto> businessChargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItem.getAssetsType()).getBizType(), List.of(leaseOrderItemId));
             modelMap.put("refundFeeItemMap", refundFeeItemService.queryRefundFeeItem(List.of(refundOrderId), businessChargeItemDtos).get(0));
             TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
             transferDeductionItemCondition.setRefundOrderId(refundOrderId);
@@ -549,7 +549,7 @@ public class AssetsLeaseOrderController {
         condition.setLeaseOrderId(id);
         condition.setRefundState(LeaseRefundStateEnum.WAIT_APPLY.getCode());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
         //【已创建】状态或【已提交】状态是没有进行抵扣的，当从【已提交】状态流转到【未生效】或【已生效】时则完成了抵扣分摊
