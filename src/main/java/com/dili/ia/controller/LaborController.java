@@ -112,30 +112,40 @@ public class LaborController {
      * @return BaseOutput
      */
     @RequestMapping(value="/update.html", method = {RequestMethod.GET, RequestMethod.POST})
-    public String update(ModelMap modelMap,String code, String type) {
-    	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-    	// 判断业务类型
-    	String businessChargeType = switch (LaborActionEnum.getLaborActionEnum(type)) {
-		case RENEW -> 
-			BizTypeEnum.LABOR_VEST.getCode();
-		case REMODEL -> 
-			BizTypeEnum.LABOR_VEST_REMODEL.getCode();
-		case RENAME -> 
-			BizTypeEnum.LABOR_VEST_RENAME.getCode();
-		default -> 
-			BizTypeEnum.LABOR_VEST.getCode();
-		};
+	public String update(ModelMap modelMap, String code, String type) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		// 判断业务类型
+		String businessChargeType = null;
+		switch (LaborActionEnum.getLaborActionEnum(type)) {
+		case RENEW: {
+			businessChargeType = BizTypeEnum.LABOR_VEST.getCode();
+			break;
+		}
+		case REMODEL: {
+			businessChargeType = BizTypeEnum.LABOR_VEST_REMODEL.getCode();
+			break;
+		}
+		case RENAME: {
+			businessChargeType = BizTypeEnum.LABOR_VEST_RENAME.getCode();
+			break;
+		}
+		default: {
+			businessChargeType = BizTypeEnum.LABOR_VEST.getCode();
+		}
+		}
+		;
 
-    	if(StringUtils.isNotEmpty(businessChargeType) && LaborActionEnum.UPDATE != LaborActionEnum.getLaborActionEnum(type)) {
-    		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
-    				queryBusinessChargeItemConfig(userTicket.getFirmId(), businessChargeType, YesOrNoEnum.YES.getCode());
-        	modelMap.put("chargeItems", chargeItemDtos);
-    	}
-    	modelMap.put("labor", laborService.getLabor(code));
-    	modelMap.put("type", type);
-    	modelMap.put("businessChargeType", businessChargeType);
-        return "labor/add";
-    }
+		if (StringUtils.isNotEmpty(businessChargeType)
+				&& LaborActionEnum.UPDATE != LaborActionEnum.getLaborActionEnum(type)) {
+			List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(
+					userTicket.getFirmId(), businessChargeType, YesOrNoEnum.YES.getCode());
+			modelMap.put("chargeItems", chargeItemDtos);
+		}
+		modelMap.put("labor", laborService.getLabor(code));
+		modelMap.put("type", type);
+		modelMap.put("businessChargeType", businessChargeType);
+		return "labor/add";
+	}
     
     /**
      * 分页查询labor，返回easyui分页信息
@@ -158,28 +168,39 @@ public class LaborController {
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody BaseOutput insert(@RequestBody @Validated LaborDto laborDto) {
-    	try {
-    		switch (LaborActionEnum.getLaborActionEnum(laborDto.getActionType())) {
-			case RENAME ->
+	public @ResponseBody BaseOutput insert(@RequestBody @Validated LaborDto laborDto) {
+		try {
+			switch (LaborActionEnum.getLaborActionEnum(laborDto.getActionType())) {
+			case RENAME: {
 				laborService.rename(laborDto);
-			case REMODEL ->
-				laborService.remodel(laborDto);
-			case RENEW ->
-				laborService.renew(laborDto);
-			default ->
-				laborService.create(laborDto);
+				break;
 			}
-		}catch (BusinessException e) {
+			case REMODEL: {
+				laborService.remodel(laborDto);
+				break;
+			}
+			case RENEW: {
+				laborService.renew(laborDto);
+				break;
+			}
+
+			default: {
+				laborService.create(laborDto);
+				break;
+			}
+
+			}
+		} catch (BusinessException e) {
 			LOG.error("劳务马甲单保存异常！", e);
 			return BaseOutput.failure(e.getCode(), e.getMessage());
-		}catch (Exception e) {
+		} catch (Exception e) {
 			LOG.error("劳务马甲单保存异常！", e);
-    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+			return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
 		}
-        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        return BaseOutput.success("新增成功");
-    }
+		// LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(),
+		// userTicket.getRealName(), userTicket.getFirmId(), null);
+		return BaseOutput.success("新增成功");
+	}
     
     /**
      * 修改labor
