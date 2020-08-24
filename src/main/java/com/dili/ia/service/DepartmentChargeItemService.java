@@ -53,4 +53,12 @@ public interface DepartmentChargeItemService extends BaseService<DepartmentCharg
      */
     List<DepartmentChargeItemDto> getChargeItemsByDepartment(Long departmentId);
 
+    /**
+     * 查询所有收费项
+     *
+     * @param
+     * @return
+     * @date   2020/8/24
+     */
+    String listNoParam();
 }

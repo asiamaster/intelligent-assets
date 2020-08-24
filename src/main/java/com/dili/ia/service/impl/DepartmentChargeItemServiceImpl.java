@@ -25,7 +25,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author:       xiaosa
@@ -206,6 +208,34 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
     public List<DepartmentChargeItemDto> getChargeItemsByDepartment(Long departmentId) {
         List<DepartmentChargeItemDto> itemDtoList = this.getActualDao().getChargeItemsByDepartment(departmentId);
         return itemDtoList;
+    }
+
+    /**
+     * 查询所有收费项
+     *
+     * @param
+     * @return
+     * @date   2020/8/24
+     */
+    @Override
+    public String listNoParam() {
+        DepartmentChargeItem departmentChargeItem = new DepartmentChargeItem();
+        List<DepartmentChargeItem> departmentChargeItemList = this.list(departmentChargeItem);
+        if (departmentChargeItemList != null && departmentChargeItemList.size() > 0) {
+            HashSet ItemIdSet = new HashSet();
+            for (DepartmentChargeItem itemInfo : departmentChargeItemList) {
+                ItemIdSet.add(itemInfo.getChargeItemId());
+            }
+
+            // 遍历
+            for (Object Item : ItemIdSet) {
+
+            }
+
+        }
+
+
+        return null;
     }
 
 }
