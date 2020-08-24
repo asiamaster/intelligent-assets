@@ -20,7 +20,7 @@ import java.util.Map;
  * @author qinkelan
  * @createTime 2020-02-24 15:49
  */
-@FeignClient(name = "settlement-service")
+@FeignClient(name = "settlement-service", url="${SettleRpc.url:}")
 public interface SettlementRpc {
 
     /**
