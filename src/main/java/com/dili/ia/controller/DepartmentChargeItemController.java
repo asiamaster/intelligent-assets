@@ -66,7 +66,7 @@ public class DepartmentChargeItemController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(DepartmentChargeItem departmentChargeItem) throws Exception {
-        return departmentChargeItemService.listEasyuiPageByExample(departmentChargeItem, true).toString();
+        return departmentChargeItemService.listNoParam();
     }
 
     /**

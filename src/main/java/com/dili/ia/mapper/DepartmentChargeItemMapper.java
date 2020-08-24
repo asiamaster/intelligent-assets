@@ -34,4 +34,13 @@ public interface DepartmentChargeItemMapper extends MyMapper<DepartmentChargeIte
      * @date   2020/8/24
      */
     void deleteEntityListByChargeItemIds(List<String> chargeItemIdListInTable);
+
+    /**
+     * 根据 chargeItemId 分组获取集合
+     * 
+     * @param
+     * @return 
+     * @date   2020/8/24
+     */
+    List<DepartmentChargeItem> listGroupByChargeItemId();
 }

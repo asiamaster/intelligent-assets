@@ -22,10 +22,10 @@
                     <thead>
                         <tr>
                             <th data-radio="true"></th>
-                            <th data-field="code" data-sortable="true" data-align="center" data-formatter="codeFormatter">
+                            <th data-field="chargeItemName" data-sortable="true" data-align="center">
                                 收费项
                             </th>
-                            <th data-field="" data-sortable="true" data-align="center" >
+                            <th data-field="departmentName" data-sortable="true" data-align="center" data-formatter="codeFormatter">
                                 关联部门
                             </th>
                         </tr>
@@ -40,3 +40,12 @@
 </#bs4Body>
 
 <#otherFee_departmentIndexJs />
+
+<script>
+    function codeFormatter(value,row,index,filed) {
+
+debugger
+
+        return '<a href="javascript:openViewHandler('+row.id+')">'+value+'</a>';
+    }
+</script>

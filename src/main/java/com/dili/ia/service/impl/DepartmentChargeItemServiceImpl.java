@@ -8,15 +8,19 @@ import com.dili.ia.mapper.DepartmentChargeItemMapper;
 import com.dili.ia.service.DepartmentChargeItemService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
+import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.DataDictionaryValue;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DataDictionaryRpc;
+import com.github.pagehelper.Page;
 import com.google.common.collect.Lists;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 /**
  * @author:       xiaosa
@@ -221,21 +226,40 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
     public String listNoParam() {
         DepartmentChargeItem departmentChargeItem = new DepartmentChargeItem();
         List<DepartmentChargeItem> departmentChargeItemList = this.list(departmentChargeItem);
+        List<DepartmentChargeItem> groupList = this.getActualDao().listGroupByChargeItemId();
         if (departmentChargeItemList != null && departmentChargeItemList.size() > 0) {
-            HashSet ItemIdSet = new HashSet();
+
+            // 将收费项id去重
+            TreeSet ItemIdSet = new TreeSet();
             for (DepartmentChargeItem itemInfo : departmentChargeItemList) {
                 ItemIdSet.add(itemInfo.getChargeItemId());
             }
 
-            // 遍历
             for (Object Item : ItemIdSet) {
+                // 将相同收费项的部门名称放一起
+                StringBuffer departmentNameStrB = new StringBuffer();
+                for (DepartmentChargeItem itemInfo : departmentChargeItemList) {
+                    if (itemInfo.getChargeItemId().equals(Item) && StringUtils.isNotEmpty(itemInfo.getDepartmentName())) {
+                        departmentNameStrB.append(itemInfo.getDepartmentName()).append("，");
+                    }
+                }
 
+                // 给收费项的部门设置值
+                String departmentName = "";
+                if (StringUtils.isNotEmpty(departmentNameStrB.toString())) {
+                    departmentName = departmentNameStrB.toString().substring(0, departmentNameStrB.toString().length() - 1);
+                }
+
+                for (DepartmentChargeItem itemInfo : groupList) {
+                    if (itemInfo.getChargeItemId().equals(Item)) {
+                        itemInfo.setDepartmentName(departmentName);
+                    }
+                }
             }
-
         }
 
-
-        return null;
+        long total = groupList instanceof Page ? ((Page)groupList).getTotal() : (long)groupList.size();
+        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), groupList).toString();
     }
 
 }

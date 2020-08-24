@@ -106,4 +106,13 @@
         #{item,jdbcType=VARCHAR}
       </foreach>
   </delete>
+
+  <select id="listGroupByChargeItemId" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List" />
+    from
+        department_charge_item
+    group by
+        charge_item_id
+  </select>
 </mapper>
