@@ -20,6 +20,7 @@ import com.dili.ia.mapper.LaborMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BusinessChargeItemService;
+import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.LaborService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
@@ -94,6 +95,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	
 	@Autowired
 	private ChargeRuleRpc chargeRuleRpc;
+	
+	@Autowired
+	private CustomerAccountService customerAccountService;
 	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -327,7 +331,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	}
 	
 	@Override
-	@Transactional
+	@GlobalTransactional
 	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 		String code = refundOrder.getBusinessCode();
 		Labor labor = getLaborByCode(code);
@@ -336,6 +340,21 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		}
 		Labor domain = new Labor();
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.REFUNDED);
+		//转抵扣充值
+        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
+        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
+        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
+            transferDeductionItems.forEach(o -> {
+                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
+                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
+                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
+                if (!accountOutput.isSuccess()) {
+                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
+                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
+                }
+            });
+        }
 		
 	}
 	

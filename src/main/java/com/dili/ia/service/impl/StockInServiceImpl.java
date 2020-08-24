@@ -32,6 +32,7 @@ import com.dili.ia.domain.Stock;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockWeighmanRecord;
+import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
@@ -52,12 +53,14 @@ import com.dili.ia.mapper.StockInMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BusinessChargeItemService;
+import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.StockInDetailService;
 import com.dili.ia.service.StockInService;
 import com.dili.ia.service.StockService;
 import com.dili.ia.service.StockWeighmanRecordService;
+import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
@@ -113,6 +116,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	@Autowired
 	private DepartmentRpc departmentRpc;
+	
+	@Autowired
+	private TransferDeductionItemService transferDeductionItemService;
+	
+	@Autowired
+	private CustomerAccountService customerAccountService;
 	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -488,6 +497,21 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		details.forEach(detail -> {
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), refundOrder.getCode());
 		});
+		//转抵扣充值
+        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
+        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
+        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
+            transferDeductionItems.forEach(o -> {
+                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
+                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
+                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
+                if (!accountOutput.isSuccess()) {
+                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
+                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
+                }
+            });
+        }
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
 
 	}
