@@ -398,7 +398,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //检查客户状态
         checkCustomerState(refundOrder.getPayeeId(), oldOrder.getMarketId());
         refundOrder.setVersion(oldOrder.getVersion());
-        if (refundOrderService.updateSelective(refundOrder) == 0) {
+        //全部修改，为空字段会修改为空
+        if (refundOrderService.update(refundOrder) == 0) {
             LOG.info("退款单修改--更新退款单状态记录数为0，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "退款单多人操作，请重试！");
         }

@@ -613,26 +613,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return BaseOutput.success().setData(depositOrder);
     }
 
-    /**
-     * 记录交费日志
-     *
-     * @param settleOrder 结算单
-     * @param depositOrder 保证金业务单
-     */
-    private BusinessLog recordPayLog(SettleOrder settleOrder, DepositOrder depositOrder) {
-        BusinessLog businessLog = new BusinessLog();
-        businessLog.setBusinessId(depositOrder.getId());
-        businessLog.setBusinessCode(depositOrder.getCode());
-        businessLog.setContent(settleOrder.getCode());
-        businessLog.setOperationType("pay");
-        businessLog.setMarketId(settleOrder.getMarketId());
-        businessLog.setOperatorId(settleOrder.getOperatorId());
-        businessLog.setOperatorName(settleOrder.getOperatorName());
-        businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
-        return businessLog;
-    }
-
     private BaseOutput<String> saveOrupdateDepositBalance(DepositOrder depositOrder, Long payAmount){
         DepositBalance params = new DepositBalance();
         // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称
