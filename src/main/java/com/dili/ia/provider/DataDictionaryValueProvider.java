@@ -1,12 +1,15 @@
 package com.dili.ia.provider;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
 import com.dili.ss.metadata.provider.BatchDisplayTextProviderAdaptor;
 import com.dili.uap.sdk.domain.DataDictionaryValue;
+import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DataDictionaryRpc;
+import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +37,12 @@ public class DataDictionaryValueProvider extends BatchDisplayTextProviderAdaptor
             return Lists.newArrayList();
         }
         String code = JSONObject.parseObject(queryParams.toString()).getString(DD_CODE_KEY);
-        List<DataDictionaryValue> list = dataDictionaryRpc.listDataDictionaryValueByDdCode(code).getData();
+
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        DataDictionaryValue dto = DTOUtils.newInstance(DataDictionaryValue.class);
+        dto.setDdCode(DD_CODE_KEY);
+        dto.setFirmId(userTicket.getFirmId());
+        List<DataDictionaryValue> list = dataDictionaryRpc.listDataDictionaryValue(dto).getData();
         if (CollectionUtils.isEmpty(list)) {
             return null;
         }
