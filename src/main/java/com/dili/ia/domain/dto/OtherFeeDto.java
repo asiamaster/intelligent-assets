@@ -16,7 +16,7 @@ import java.util.List;
  * @author qinkelan
  * @createTime 2020-02-18 15:28
  */
-public class OtherFeeQuery extends OtherFee {
+public class OtherFeeDto extends OtherFee {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)
     private LocalDateTime createdStart;

@@ -109,10 +109,11 @@ public interface PassportService extends BaseService<Passport, Long> {
      * 退款申请
      *
      * @param passportRefundOrderDto
+     * @param userTicket
      * @return BaseOutput
      * @date   2020/7/27
      */
-    BaseOutput<Passport> refund(PassportRefundOrderDto passportRefundOrderDto);
+    BaseOutput<Passport> refund(PassportRefundOrderDto passportRefundOrderDto, UserTicket userTicket);
 
     /**
      * 定时任务，刷新状态

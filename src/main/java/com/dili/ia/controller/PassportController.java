@@ -166,11 +166,9 @@ public class PassportController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput add(@RequestBody PassportDto passportDto) throws Exception {
+    public @ResponseBody BaseOutput add(@RequestBody PassportDto passportDto) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
         BaseOutput<Passport> baseOutput = passportService.addPassport(passportDto, userTicket);
 
         // 写业务日志
@@ -191,11 +189,9 @@ public class PassportController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput update(@RequestBody PassportDto passportDto) throws Exception {
+    public @ResponseBody BaseOutput update(@RequestBody PassportDto passportDto) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
         BaseOutput<Passport> baseOutput = passportService.updatePassport(passportDto, userTicket);
 
         // 写业务日志
@@ -216,11 +212,9 @@ public class PassportController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput submit(Long id) throws Exception {
+    public @ResponseBody BaseOutput submit(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
         BaseOutput<Passport> baseOutput = passportService.submit(id, userTicket);
 
         // 写业务日志
@@ -241,11 +235,9 @@ public class PassportController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput cancel(Long id) throws Exception {
+    public @ResponseBody BaseOutput cancel(Long id) throws Exception {
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
         BaseOutput<Passport> baseOutput = passportService.cancel(id, userTicket);
 
         // 写业务日志
@@ -266,28 +258,24 @@ public class PassportController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput withdraw(Long id) throws Exception {
-
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        BaseOutput<Passport> baseOutput = null;
-
+    public @ResponseBody BaseOutput withdraw(Long id) {
         try {
-            baseOutput = passportService.withdraw(id, userTicket);
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            BaseOutput<Passport> baseOutput = passportService.withdraw(id, userTicket);
+
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                Passport passport = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
         } catch (BusinessException e) {
             logger.info("精品停车撤回异常！");
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "精品停车撤回错误");
         }
-
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            Passport passport = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        }
-
-        return baseOutput;
     }
 
     /**
@@ -298,12 +286,18 @@ public class PassportController {
      * @date 2020/7/27
      */
     @RequestMapping(value = "/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput refund(@RequestBody PassportRefundOrderDto passportRefundOrderDto) {
-
+    public @ResponseBody BaseOutput refund(@RequestBody PassportRefundOrderDto passportRefundOrderDto) {
         try {
-            passportService.refund(passportRefundOrderDto);
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            BaseOutput<Passport> baseOutput = passportService.refund(passportRefundOrderDto, userTicket);
 
+            // 写业务日志，只是退款申请
+            if (baseOutput.isSuccess()) {
+                Passport passport = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
         } catch (BusinessException e) {
             logger.error("通行证{}退款申请异常！", passportRefundOrderDto.getBusinessCode(), e);
             return BaseOutput.failure(e.getCode(), e.getMessage());
@@ -311,6 +305,5 @@ public class PassportController {
             logger.error("通行证{}退款申请异常！", passportRefundOrderDto.getBusinessCode(), e);
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-        return BaseOutput.success("退款成功");
     }
 }

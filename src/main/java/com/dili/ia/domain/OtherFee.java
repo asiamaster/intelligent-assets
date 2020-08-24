@@ -7,7 +7,7 @@ import com.dili.ss.metadata.annotation.FieldDef;
 import tk.mybatis.mapper.annotation.Version;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -25,13 +25,13 @@ public class OtherFee extends BaseDomain {
      * 创建时间
      */
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     /**
      * 业务编号
@@ -109,13 +109,13 @@ public class OtherFee extends BaseDomain {
      * 开始时间
      */
     @Column(name = "`start_time`")
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 结束时间
      */
     @Column(name = "`end_time`")
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /**
      * 品类id
@@ -209,29 +209,13 @@ public class OtherFee extends BaseDomain {
     private Integer version;
 
     /**
-     * @return id
-     */
-    @FieldDef(label="id")
-    @EditMode(editor = FieldEditor.Number, required = true)
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * @param id
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
      * 获取创建时间
      *
      * @return create_time - 创建时间
      */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -240,7 +224,7 @@ public class OtherFee extends BaseDomain {
      *
      * @param createTime 创建时间
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -251,7 +235,7 @@ public class OtherFee extends BaseDomain {
      */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -260,7 +244,7 @@ public class OtherFee extends BaseDomain {
      *
      * @param modifyTime 修改时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -511,7 +495,7 @@ public class OtherFee extends BaseDomain {
      */
     @FieldDef(label="开始时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
@@ -520,7 +504,7 @@ public class OtherFee extends BaseDomain {
      *
      * @param startTime 开始时间
      */
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
@@ -531,7 +515,7 @@ public class OtherFee extends BaseDomain {
      */
     @FieldDef(label="结束时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
@@ -540,7 +524,7 @@ public class OtherFee extends BaseDomain {
      *
      * @param endTime 结束时间
      */
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
