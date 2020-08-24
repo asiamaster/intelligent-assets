@@ -13,6 +13,7 @@ import com.dili.ia.service.EarnestTransferOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransactionDetailsService;
 import com.dili.ia.util.ResultCodeConst;
+import com.dili.ia.util.SpringUtil;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -314,6 +315,12 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常;" + output.getMessage());
             }
         }else { // 修改
+            RefundOrder oldRefundOrder = refundOrderService.get(refundOrder.getId());
+            SpringUtil.copyPropertiesIgnoreNull(refundOrder, oldRefundOrder);
+            if (!RefundTypeEnum.BANK.getCode().equals(refundOrder.getRefundType())) {
+                oldRefundOrder.setBank(null);
+                oldRefundOrder.setBankCardNo(null);
+            }
             BaseOutput<RefundOrder> output = refundOrderService.doUpdatedHandler(refundOrder);
             if (!output.isSuccess()) {
                 LOG.info("客户账户定金退款【业务ID：{}】退款修改接口异常,原因：{}", refundOrder.getBusinessId(), output.getMessage());
