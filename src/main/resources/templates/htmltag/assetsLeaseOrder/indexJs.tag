@@ -202,7 +202,7 @@
                         });
                     }
                 },
-                {label: '取消', className: 'btn-default', onClick(e) {}}
+                {label: '取消', className: 'btn-secondary', onClick(e) {}}
             ]
         });
 
@@ -251,7 +251,7 @@
                         });
                     }
                 },
-                {label: '取消', className: 'btn-default', onClick(e) {}}
+                {label: '取消', className: 'btn-secondary', onClick(e) {}}
             ]
         });
     }
@@ -515,7 +515,7 @@
                         return false;
                     }
                 },
-                {label: '取消', className: 'btn-default', onClick(e) {}}
+                {label: '取消', className: 'btn-secondary', onClick(e) {}}
             ]
         });
     }
@@ -654,9 +654,7 @@
             let state = row.$_state;
             $('#toolbar'+index+' button').attr('disabled', true);
             //（未生效 || 已生效）&& 已交清方可停租
-            if ((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
-                || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
-                && row.stopRentState == ${@com.dili.ia.glossary.StopRentStateEnum.NO_APPLY.getCode()}
+            if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}
             ) {
                 $('#btn_stop_rent'+index).attr('disabled', false);
             }
