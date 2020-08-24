@@ -79,8 +79,8 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
         AssetsLeaseOrderItem leaseOrderItemOld = get(leaseOrderItem.getId());
         AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(leaseOrderItemOld.getLeaseOrderId());
 
-        if(!StopRentStateEnum.NO_APPLY.getCode().equals(leaseOrderItemOld.getStopRentState())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"已发起过停租，不能多次发起停租");
+        if(StopRentStateEnum.RENTED_OUT.getCode().equals(leaseOrderItemOld.getStopRentState())){
+            throw new BusinessException(ResultCode.DATA_ERROR,"摊位已停租，不能多次发起停租");
         }
         if(!(LeaseOrderItemStateEnum.NOT_ACTIVE.getCode().equals(leaseOrderItemOld.getState()) || LeaseOrderItemStateEnum.EFFECTIVE.getCode().equals(leaseOrderItemOld.getState()))){
             throw new BusinessException(ResultCode.DATA_ERROR,"状态已变更，不能进行停租操作");
