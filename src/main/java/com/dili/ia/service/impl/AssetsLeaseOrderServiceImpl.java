@@ -183,7 +183,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             if (!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + oldLeaseOrder.getCode() + "】 状态已变更，不可以进行修改操作");
             }
-            dto.setVersion(oldLeaseOrder.getVersion());
             dto.setWaitAmount(dto.getPayAmount());
             SpringUtil.copyPropertiesIgnoreNull(dto, oldLeaseOrder);
             oldLeaseOrder.setContractNo(dto.getContractNo());
@@ -993,7 +992,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
 
         }else{ //修改
-            if (!refundOrderService.doUpdatedHandler(refundOrderDto).isSuccess()) {
+            RefundOrder oldRefundOrder = refundOrderService.get(refundOrderDto.getId());
+            SpringUtil.copyPropertiesIgnoreNull(refundOrderDto, oldRefundOrder);
+            if (!refundOrderService.doUpdatedHandler(oldRefundOrder).isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款修改接口异常", refundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
             }
