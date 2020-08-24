@@ -96,12 +96,12 @@ public class ApproverAssignmentController {
         approverAssignment.setTaskDefinitionKey(approverAssignmentDto.getTaskDefinitionKey());
         approverAssignment.setAssignee(approverAssignmentDto.getAssignee());
         approverAssignment.setDistrictId(approverAssignmentDto.getDistrictId());
-        approverAssignment.setFirmId(userTicket.getFirmId());
         approverAssignment.setRows(1);
         if(!approverAssignmentService.list(approverAssignment).isEmpty()){
             return BaseOutput.failure("当前数据已存在");
         }
-        approverAssignmentService.insertExactSimple(approverAssignmentDto);
+        approverAssignmentDto.setFirmId(userTicket.getFirmId());
+        approverAssignmentService.insertSelective(approverAssignmentDto);
         return BaseOutput.success("新增成功");
     }
 
