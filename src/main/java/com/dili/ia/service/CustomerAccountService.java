@@ -100,6 +100,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName);
     /**
      * 摊位租赁【退款转抵成功】-- 客户账户转抵余额加， 及相应流水变动记录
+     * @param bizType 业务类型，取自枚举【BizTypeEnum】 的 code
      * @param orderId 产生转抵金额的【租赁退款单】订单ID
      * @param orderCode 产生转抵金额的【租赁退款单】订单编号
      * @param customerId 客户ID
@@ -109,7 +110,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param operatorName 操作员名字
      * @return BaseOutput
      * */
-    BaseOutput leaseOrderRechargTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
+    BaseOutput rechargTransfer(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
     /**
      * 客户账户 -- 冻结定金， 定金【冻结金额】加，【可用余额】减，【余额】不变
      * @param customerId 客户ID

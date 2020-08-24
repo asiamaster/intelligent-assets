@@ -514,7 +514,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     //租赁单退款调用接口--充值转抵金，另起事务使其不影响原有事务
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput leaseOrderRechargTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
+    public BaseOutput rechargTransfer(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
         if (null == amount || amount < 0){
             return BaseOutput.failure("转抵充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
         }
@@ -527,7 +527,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         this.rechargeTransfer(customerId, amount, marketId);
         Integer sceneType = TransactionSceneTypeEnum.TRANSFER_IN.getCode();
-        String bizType = BizTypeEnum.BOOTH_LEASE.getCode();
         Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
         TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
         transactionDetailsService.insertSelective(detail);
