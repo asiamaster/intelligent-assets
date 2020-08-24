@@ -95,4 +95,15 @@
     where
         department_id = #{departmentId,jdbcType=BIGINT}
   </select>
+
+  <delete id="deleteEntityListByChargeItemIds" parameterType="java.util.List">
+    delete from
+        department_charge_item
+    where
+        charge_item_id
+      in
+      <foreach item="item" collection="list" open="(" separator="," close=")">
+        #{item,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
 </mapper>

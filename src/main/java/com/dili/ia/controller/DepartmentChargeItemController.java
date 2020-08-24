@@ -4,14 +4,20 @@ import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.dto.BoutiqueFreeSetsDto;
 import com.dili.ia.domain.dto.DepartmentChargeItemDto;
 import com.dili.ia.domain.dto.OtherFeeDto;
+import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.service.BoutiqueFreeSetsService;
 import com.dili.ia.service.DepartmentChargeItemService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.metadata.ValuePair;
+import com.dili.ss.metadata.ValuePairImpl;
+import com.dili.uap.sdk.domain.DataDictionaryValue;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.session.SessionContext;
-import org.apache.commons.collections.CollectionUtils;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,11 +48,13 @@ public class DepartmentChargeItemController {
 
     /**
      * 跳转到其它收费管理 - 部门与收费项绑定列表
-     *
-     * @date   2020/8/19
+     * 并且去拉取数据字典中其他收费的收费项，更新表
      */
     @RequestMapping(value="/department.html", method = RequestMethod.GET)
     public String department(ModelMap modelMap) {
+
+        departmentChargeItemService.batchUpdateChargeItems();
+
         return "otherFee/department";
     }
 

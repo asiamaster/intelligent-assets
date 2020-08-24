@@ -49,7 +49,7 @@ public class DepartmentChargeItem extends BaseDomain {
      * 收费项ID
      */
     @Column(name = "`charge_item_id`")
-    private Long chargeItemId;
+    private String chargeItemId;
 
     /**
      * 收费项名称
@@ -173,8 +173,8 @@ public class DepartmentChargeItem extends BaseDomain {
      * @return charge_item_id - 收费项ID
      */
     @FieldDef(label="收费项ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getChargeItemId() {
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getChargeItemId() {
         return chargeItemId;
     }
 
@@ -183,7 +183,7 @@ public class DepartmentChargeItem extends BaseDomain {
      *
      * @param chargeItemId 收费项ID
      */
-    public void setChargeItemId(Long chargeItemId) {
+    public void setChargeItemId(String chargeItemId) {
         this.chargeItemId = chargeItemId;
     }
 

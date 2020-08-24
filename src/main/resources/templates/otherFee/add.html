@@ -19,9 +19,11 @@
                 </div>
             
                 <div class="form-group col">
-                    <label for="">联系电话<i class="red">*</i></label>
+                    <label for="customerCellphone">联系电话<i class="red">*</i></label>
                     <input type="text" class="form-control isMobile" id="customerCellphone" name="customerCellphone" required />
                 </div>
+
+                <input type="hidden" id="customerId" name="customerId">
             </div>
             <div class="breadcrumb">
                 基础信息
@@ -34,9 +36,8 @@
                     <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider"/>
                 </div>
                 <div class="form-group col">
-                    <label for="typeCode">收费项目<i class="red">*</i></label>
-                    <select id="" name="" class="form-control"></select>
-                    <#bcomboProvider _log="收费项目" _id="typeCode" _provider="dataDictionaryValueProvider" _value="${depositOrder.typeCode!}" _queryParams='{dd_code:"deposit_type"}'/>
+                    <label for="chargeItemId">收费项目<i class="red">*</i></label>
+                    <input id="chargeItemId" type="chargeItemId" class="form-control"name="chargeItemId" required />
                 </div>
                 <div class="form-group col">
                     <label for="assetsType">费用类型<i class="red">*</i></label>
@@ -44,17 +45,20 @@
                     <#bcomboProvider _id="assetsType" _provider
                     ="assetsTypeProvider"/>
                 </div>
+
                 <div class="form-group col">
                     <label for="assetsName" class="">费用地址</label>
                     <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption"/>
                 </div>
+                <input type="hidden" id="assetsId" name="assetsId">
+
                 <div class="form-group col">
-                    <label for="startDate">开始日期</label>
-                    <input type="text" name="" class="form-control laydate laystart" >
+                    <label for="startTime">开始日期</label>
+                    <input type="text" id="startTime" name="startTime" class="form-control laydate laystart" >
                 </div>
                 <div class="form-group col">
-                    <label for="endDate">结束日期</label>
-                    <input type="text" name="" class="form-control laydate layend" >
+                    <label for="endTime">结束日期</label>
+                    <input type="text" id="endTime" name="endTime" class="form-control laydate layend" >
                 </div>
                 <div class="form-group col">
                     <label for="categoryId" _log>经营品类</label>
@@ -72,7 +76,7 @@
             <div class="modal-footer-wrap">
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
-                    <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doAddDepartmentHandler,1000,true)()" id="formSubmit">确定</button>
+                    <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doAddOtherFeeHandler,1000,true)()" id="formSubmit">确定</button>
                 </div>
             </div>
         </form>

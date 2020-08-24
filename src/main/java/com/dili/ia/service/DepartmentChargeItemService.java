@@ -16,6 +16,15 @@ import java.util.List;
 public interface DepartmentChargeItemService extends BaseService<DepartmentChargeItem, Long> {
 
     /**
+     * 打开其他收费 - 收费项绑定部门的页面，更新数据表
+     *
+     * @param
+     * @return
+     * @date   2020/8/24
+     */
+    void batchUpdateChargeItems();
+
+    /**
      * 根据收费项查询相关部门
      * 
      * @param  chargeItemId
@@ -43,4 +52,5 @@ public interface DepartmentChargeItemService extends BaseService<DepartmentCharg
      * @date   2020/8/20
      */
     List<DepartmentChargeItemDto> getChargeItemsByDepartment(Long departmentId);
+
 }
