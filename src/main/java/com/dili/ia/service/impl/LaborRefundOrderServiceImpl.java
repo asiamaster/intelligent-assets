@@ -55,8 +55,8 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 
 	@Override
 	public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
-		laborService.receiptRefundPrintData(refundOrder.getCode(), "reprint");
-		return BaseOutput.success();
+		
+		return BaseOutput.success().setData(laborService.receiptRefundPrintData(refundOrder.getCode(), "reprint"));
 	}
 
 	@Override

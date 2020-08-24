@@ -117,10 +117,6 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增马甲单");
 	}
 	
-	private void updateOldLabor(String code,String actionType) {
-		
-	}
-	
 	private List<BusinessChargeItem> buildBusinessCharge(List<BusinessChargeItem> businessChargeItems,Long businessId,String businessCode){
 		businessChargeItems.stream().forEach(item -> {
 			item.setBizType(BizTypeEnum.LABOR_VEST.getCode());

@@ -115,24 +115,16 @@ public class LaborController {
     public String update(ModelMap modelMap,String code, String type) {
     	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
     	// 判断业务类型
-    	String businessChargeType = null;
-    	switch (LaborActionEnum.getLaborActionEnum(type)) {
-		case RENEW: {	
-			businessChargeType = BizTypeEnum.LABOR_VEST.getCode();
-			break;
-		}
-		case REMODEL: {	
-			businessChargeType = BizTypeEnum.LABOR_VEST_REMODEL.getCode();
-			break;
-		}
-		case RENAME: {	
-			businessChargeType = BizTypeEnum.LABOR_VEST_RENAME.getCode();
-			break;
-		}
-		default:
-			businessChargeType = BizTypeEnum.LABOR_VEST.getCode();
-			break;
-		}
+    	String businessChargeType = switch (LaborActionEnum.getLaborActionEnum(type)) {
+		case RENEW -> 
+			BizTypeEnum.LABOR_VEST.getCode();
+		case REMODEL -> 
+			BizTypeEnum.LABOR_VEST_REMODEL.getCode();
+		case RENAME -> 
+			BizTypeEnum.LABOR_VEST_RENAME.getCode();
+		default -> 
+			BizTypeEnum.LABOR_VEST.getCode();
+		};
 
     	if(StringUtils.isNotEmpty(businessChargeType) && LaborActionEnum.UPDATE != LaborActionEnum.getLaborActionEnum(type)) {
     		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
@@ -169,19 +161,13 @@ public class LaborController {
     public @ResponseBody BaseOutput insert(@RequestBody @Validated LaborDto laborDto) {
     	try {
     		switch (LaborActionEnum.getLaborActionEnum(laborDto.getActionType())) {
-			case RENAME: {
+			case RENAME ->
 				laborService.rename(laborDto);
-				break;
-			}
-			case REMODEL: {
+			case REMODEL ->
 				laborService.remodel(laborDto);
-				break;
-			}
-			case RENEW: {
+			case RENEW ->
 				laborService.renew(laborDto);
-				break;
-			}
-			default:
+			default ->
 				laborService.create(laborDto);
 			}
 		}catch (BusinessException e) {
