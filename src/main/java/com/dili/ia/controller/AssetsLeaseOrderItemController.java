@@ -67,9 +67,9 @@ public class AssetsLeaseOrderItemController {
      * @param leaseOrderItem
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${assetsName} ${isNotEmpty(stopTime)?'停租时间:'+stopTime : ''}",operationType="stopLease",systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE,content = "${assetsName} ${isNotEmpty(stopDate)?'停租时间:'+stopDate : ''}",operationType="stopLease",systemCode = "INTELLIGENT_ASSETS")
     @PostMapping(value="/stopRent.action")
-    public @ResponseBody BaseOutput stopRent(AssetsLeaseOrderItem leaseOrderItem){
+    public @ResponseBody BaseOutput stopRent(AssetsLeaseOrderItemListDto leaseOrderItem){
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             if (userTicket == null) {
@@ -78,7 +78,7 @@ public class AssetsLeaseOrderItemController {
             if(null == leaseOrderItem.getStopWay()|| null == leaseOrderItem.getId()){
                 return BaseOutput.failure("参数错误");
             }
-            if(StopWayEnum.TIMING.getCode().equals(leaseOrderItem.getStopWay()) && null == leaseOrderItem.getStopTime()){
+            if(StopWayEnum.TIMING.getCode().equals(leaseOrderItem.getStopWay()) && null == leaseOrderItem.getStopDate()){
                 return BaseOutput.failure("参数错误");
             }
             BaseOutput output = assetsLeaseOrderItemService.stopRent(leaseOrderItem);

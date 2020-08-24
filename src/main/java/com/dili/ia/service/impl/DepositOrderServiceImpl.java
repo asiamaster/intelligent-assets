@@ -16,7 +16,6 @@ import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
-import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
@@ -38,7 +37,6 @@ import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
-import com.dili.uap.sdk.session.PermissionContext;
 import com.dili.uap.sdk.session.SessionContext;
 import com.dili.uap.sdk.util.WebContent;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,6 +49,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -224,11 +223,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         Customer customer = output.getData();
         if(null == customer){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实！");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实！");
         }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实！");
         }
     }
 
@@ -401,6 +400,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("保证金单编号【{}】已取消，不可以进行提交付款操作", depositOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "保证金单编号【" + depositOrder.getCode() + "】 已取消，不可以进行提交付款操作");
         }
+        if(DepositOrderStateEnum.REFUNDING.getCode().equals(depositOrder.getState())){
+            LOG.info("保证金单编号【{}】退款中，不可以进行提交付款操作", depositOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "保证金单编号【" + depositOrder.getCode() + "】 退款中，不可以进行提交付款操作");
+        }
         if (!amount.equals(0L) && waitAmount.equals(0L)) {
             throw new BusinessException(ResultCode.DATA_ERROR,"保证金单费用已结清");
         }
@@ -499,7 +502,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         Long totalRefundAmount = depositRefundOrderDto.getPayeeAmount() + depositOrder.getRefundAmount();
         if (depositOrder.getPaidAmount() < totalRefundAmount){
-            return BaseOutput.failure("退款金额不能大于订单已交费金额！");
+            return BaseOutput.failure("退款总金额不能大于订单已交费金额！");
         }
 
         //新增
@@ -509,6 +512,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
             if (DepositRefundStateEnum.REFUNDED.getCode().equals(depositOrder.getRefundState())){
                 return BaseOutput.failure("创建失败，业务单已全额退款！");
+            }
+            //如果是关联保证金订单，发起退款申请需要解除关联关系
+            if (depositOrder.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                depositOrder.setState(YesOrNoEnum.NO.getCode());
             }
             depositOrder.setState(DepositOrderStateEnum.REFUNDING.getCode());
             if (this.updateSelective(depositOrder) == 0) {
@@ -535,6 +542,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
         if (CollectionUtils.isNotEmpty(depositRefundOrderDto.getTransferDeductionItems())) {
             depositRefundOrderDto.getTransferDeductionItems().forEach(o -> {
+                //检查转抵客户状态
+                checkCustomerState(o.getPayeeId(), userTicket.getFirmId());
                 o.setRefundOrderId(depositRefundOrderDto.getId());
                 transferDeductionItemService.insertSelective(o);
             });
@@ -631,10 +640,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         params.setTypeCode(depositOrder.getTypeCode());
         params.setAssetsType(depositOrder.getAssetsType());
         params.setAssetsId(depositOrder.getAssetsId());
-        params.setAssetsName(depositOrder.getAssetsName());
         params.setMarketId(depositOrder.getMarketId());
-        params.setMarketCode(depositOrder.getMarketCode());
-        DepositBalance depositBalance = depositBalanceService.listByExample(params).stream().findFirst().orElse(null);
+        params.setAssetsName(depositOrder.getAssetsName());
+
+        DepositBalance depositBalance = depositBalanceService.listDepositBalanceExact(params).stream().findFirst().orElse(null);
         if (depositBalance == null){//创建客户账户余额
             params.setAssetsName(depositOrder.getAssetsName());
             params.setBalance(payAmount);
@@ -687,54 +696,54 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         dePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(settlementWay));
         dePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
 
-        //组合支付需要显示结算详情.票据的资产类型和编号，如果有填写，就显示，没填写就不显示,银行卡、POS、微信、支付宝等支付方式均如此显示，现金则不显示流水号,如果是园区卡付款，则显示对应卡号和开卡人姓名
-        StringBuilder settleWayDetails = new StringBuilder();
-        String settleWayDetailsStr = null;
+        //组合支付需要显示结算详情
+        StringBuffer settleWayDetails = new StringBuffer();
+        settleWayDetails.append("【");
         if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
-            //标记是否需要换行，默认标记不换行 ，结算详情中，如果未填备注和流水，则不换行；有备注或者流水，则每种支付方式单独换行；
-            Boolean  flag = true;
-            settleWayDetails.append("【");
+            //摊位租赁单据的交款时间，也就是结算时填写的时间，显示到结算详情中，显示内容为：支付方式（组合支付的，只显示该类型下的具体支付方式）、金额、收款日期、流水号、结算备注，每个字段间隔一个空格；如没填写的则不显示；
+            // 多个支付方式的，均在一行显示，当前行满之后换行，支付方式之间用;隔开；
             BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
             List<SettleWayDetail> swdList = output.getData();
             if (output.isSuccess() && CollectionUtils.isNotEmpty(swdList)){
                 for(SettleWayDetail swd : swdList){
-                    //此循环字符串拼接顺序不可修改，样式 微信  150.00，4237458467568870，备注：微信付款150元
-                    settleWayDetails.append(SettleWayEnum.getNameByCode(swd.getWay())).append("  ").append(MoneyUtils.centToYuan(swd.getAmount()));
+                    //此循环字符串拼接顺序不可修改，组合支付样式 : 【微信 150.00 2020-08-19 4237458467568870 备注：微信付款150元;银行卡 150.00 2020-08-19 4237458467568870 备注：微信付款150元】
+                    settleWayDetails.append(SettleWayEnum.getNameByCode(swd.getWay())).append(" ").append(MoneyUtils.centToYuan(swd.getAmount()));
+                    if (null != swd.getChargeDate()){
+                        settleWayDetails.append(" ").append(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(swd.getChargeDate()));
+                    }
                     if (StringUtils.isNotEmpty(swd.getSerialNumber())){
-                        settleWayDetails.append(",").append(swd.getSerialNumber());
-                        flag = false; //换行标记
+                        settleWayDetails.append(" ").append(swd.getSerialNumber());
                     }
                     if (StringUtils.isNotEmpty(swd.getNotes())){
-                        settleWayDetails.append(",").append("备注：").append(swd.getNotes());
-                        flag = false; //换行标记
+                        settleWayDetails.append(" ").append("备注：").append(swd.getNotes());
                     }
-                    settleWayDetails.append("\r\n");
+                    settleWayDetails.append("；");
                 }
-                //去掉最后一个换行符
-                settleWayDetails.replace(settleWayDetails.length()-2, settleWayDetails.length(), " ");
-                settleWayDetails.append("】");
-                settleWayDetailsStr = settleWayDetails.toString();
-                if (flag){ // 默认都是换行了的 ，标记flag = false, 不换行的话(flag=true)需要处理 换行符
-                    settleWayDetailsStr.replaceAll("\r\n", " ");
-                }
+                //去掉最后一个; 符
+                settleWayDetails.replace(settleWayDetails.length()-1, settleWayDetails.length(), " ");
             }else {
-                LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}", output.getMessage());
+                LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
             }
-        }else if ( !settlementWay.equals(SettleWayEnum.CASH.getCode())){
+        }else{ //格式：【2020-08-19 4237458467568870 备注：微信付款150元】
             BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
             if(output.isSuccess()){
                 SettleOrder settleOrder = output.getData();
+                if (null != settleOrder.getChargeDate()){
+                    settleWayDetails.append(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(settleOrder.getChargeDate()));
+                }
                 if(StringUtils.isNotBlank(settleOrder.getSerialNumber())){
-                    settleWayDetails.append("流水号：");
-                    settleWayDetails.append(settleOrder.getSerialNumber());
-                    settleWayDetailsStr = settleWayDetails.toString();
+                    settleWayDetails.append(" ").append(settleOrder.getSerialNumber());
+                }
+                if (StringUtils.isNotBlank(settleOrder.getNotes())){
+                    settleWayDetails.append(" ").append("备注：").append(settleOrder.getNotes());
                 }
             }else {
                 LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
             }
         }
-        if (null != settleWayDetailsStr){
-            dePrintDto.setSettleWayDetails(settleWayDetailsStr);
+        settleWayDetails.append("】");
+        if (StringUtils.isNotEmpty(settleWayDetails)){
+            dePrintDto.setSettleWayDetails(settleWayDetails.toString());
         }
 
         PrintDataDto printDataDto = new PrintDataDto();
@@ -863,8 +872,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 }
                 BusinessLog businessLog = this.buildCommonLog(o);
                 businessLog.setOperationType("edit");
-                //@TODO 修改内容记录
-//                businessLog.setContent(output.getData().getCode());
+                businessLog.setContent(this.buildUpdateLogContent(deList.get(0), o));
                 BList.add(businessLog);
             }
 
@@ -885,6 +893,37 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
 
         return BaseOutput.success();
+    }
+
+    private String buildUpdateLogContent(DepositOrder oldDo, DepositOrder newDo){
+        StringBuilder  contentLog = new StringBuilder();
+        if (!oldDo.getCustomerName().equals(newDo.getCustomerName())){
+            contentLog.append("【客户名称】：从‘").append(oldDo.getCustomerName()).append("’修改为‘").append(newDo.getCustomerName()).append("’\n");
+        }
+        if (!oldDo.getCertificateNumber().equals(newDo.getCertificateNumber())){
+            contentLog.append("【证件号码】：从‘").append(oldDo.getCertificateNumber()).append("’修改为‘").append(newDo.getCertificateNumber()).append("’\n");
+        }
+        if (!oldDo.getCustomerCellphone().equals(newDo.getCustomerCellphone())){
+            contentLog.append("【联系电话*】：从‘").append(oldDo.getCustomerCellphone()).append("’修改为‘").append(newDo.getCustomerCellphone()).append("’\n");
+        }
+        if (!oldDo.getAssetsType().equals(newDo.getAssetsType())){
+            String oldAssetsTypeName = AssetsTypeEnum.getAssetsTypeEnum(oldDo.getAssetsType()).getName();
+            String newAssetsTypeName = AssetsTypeEnum.getAssetsTypeEnum(newDo.getAssetsType()).getName();
+            contentLog.append("【资产类型*】：从‘").append(oldAssetsTypeName).append("’修改为‘").append(newAssetsTypeName).append("’\n");
+        }
+        if (!oldDo.getAssetsName().equals(newDo.getAssetsName())){
+            contentLog.append("【资产编号】：从‘").append(oldDo.getAssetsName()).append("’修改为‘").append(newDo.getAssetsName()).append("’\n");
+        }
+        if (!oldDo.getAmount().equals(newDo.getAmount())){
+            contentLog.append("【保证金金额*】：从‘").append(MoneyUtils.centToYuan(oldDo.getAmount())).append("’修改为‘").append(MoneyUtils.centToYuan(newDo.getAmount())).append("’\n");
+        }
+        if (!oldDo.getTypeName().equals(newDo.getTypeName())){
+            contentLog.append("【保证金类型】：从‘").append(oldDo.getTypeName()).append("’修改为‘").append(newDo.getTypeName()).append("’\n");
+        }
+        if (!oldDo.getDepartmentId().equals(newDo.getDepartmentId())){
+            contentLog.append("【业务所属部门】：从‘").append(oldDo.getDepartmentName()).append("’修改为‘").append(newDo.getDepartmentName()).append("’\n");
+        }
+        return contentLog != null ? contentLog.toString() : "";
     }
 
     private BusinessLog buildCommonLog(DepositOrder depositOrder){
@@ -916,6 +955,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchSubmitDepositOrder(String bizType, Long businessId, Map<Long, Long> map) {
+        //map key： assetsId  资产ID ; value: amount 付款金额
         if (map == null){
             return BaseOutput.success();
         }
@@ -936,7 +976,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 //日志构建
                 BusinessLog businessLog = this.buildCommonLog(output.getData());
                 businessLog.setOperationType("submit");
-                businessLog.setContent(output.getData().getCode());
+                businessLog.setContent(MoneyUtils.centToYuan(value));
                 BList.add(businessLog);
             }
         });
@@ -1008,7 +1048,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 // 日志构建
                 BusinessLog businessLog = this.buildCommonLog(output.getData());
                 businessLog.setOperationType("submit");
-                businessLog.setContent(output.getData().getCode());
+                businessLog.setContent(MoneyUtils.centToYuan(o.getAmount()));
                 BList.add(businessLog);
             });
         }

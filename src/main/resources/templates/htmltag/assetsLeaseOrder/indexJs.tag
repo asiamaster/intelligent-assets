@@ -414,7 +414,7 @@
             return;
         }
         let selectedRow = rows[0];
-        bs4pop.confirm('确定提交审批？', undefined, function (sure) {
+        bs4pop.confirm('即将进入审批流程，在审批过程中，业务单不可更改，确定提交审批？', undefined, function (sure) {
             if(sure){
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
@@ -464,13 +464,13 @@
                 let now = moment(new Date()).format("YYYY-MM-DD");
                 let minDate = moment(now).isBefore(leaseOrder.startTime)?leaseOrder.startTime : now;
                 laydate.render({
-                        elem: '#stopTime',
+                        elem: '#stopDate',
                         type: 'date',
                         theme: '#007bff',
                         trigger:'click',
                         min : minDate,
                         done: function(value, date){
-                            $("#stopRentForm").validate().element($("#stopTime"));
+                            $("#stopRentForm").validate().element($("#stopDate"));
                         }
                 });
                 $('#stopWay').on('change',':radio',function () {
@@ -478,7 +478,7 @@
                 });
                 $('#stopRentForm').validate({
                     rules: {
-                        stopTime: {
+                        stopDate: {
                             required: true,
                             minDate: minDate,
                             maxDate: leaseOrder.endTime

@@ -33,10 +33,12 @@ public interface BusinessChargeItemService extends BaseService<BusinessChargeIte
 
     /**
      * 查询业务资产项的所产生的收费项元信息
+     *
+     * @param bizType
      * @param businessIds
      * @return
      */
-    List<BusinessChargeItemDto> queryBusinessChargeItemMeta(List<Long> businessIds);
+    List<BusinessChargeItemDto> queryBusinessChargeItemMeta(String bizType, List<Long> businessIds);
 
     /**
      * 根据业务ID、Code、Type 删除旧有的动态收费项

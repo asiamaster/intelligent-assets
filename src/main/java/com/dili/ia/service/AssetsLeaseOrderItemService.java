@@ -19,7 +19,7 @@ public interface AssetsLeaseOrderItemService extends BaseService<AssetsLeaseOrde
      * @param leaseOrderItem
      * @return
      */
-    BaseOutput stopRent(AssetsLeaseOrderItem leaseOrderItem);
+    BaseOutput stopRent(AssetsLeaseOrderItemListDto leaseOrderItem);
     /**
      * 停租摊位租赁
      * @param assetsLeaseOrderItem

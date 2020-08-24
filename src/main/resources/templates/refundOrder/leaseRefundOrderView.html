@@ -13,7 +13,7 @@
                 </div>
                 <div class="form-group col">
                     <label for="" class="">对应订单编号</label>
-                    <input type="text" class="form-control" value="${refundOrder.businessCode!}" disabled />
+                    <span class="form-control" readonly><a href="/leaseOrder/view.action?isShowDepositAmount=true&id=${refundOrder.businessId!}">${refundOrder.businessCode!}</a></span>
                 </div>
                 <div class="form-group col">
                     <label for="" class="">状态</label>
@@ -158,6 +158,7 @@
                   </table>
             </div>
             <% }%>
+
         </form>
     </div>
 

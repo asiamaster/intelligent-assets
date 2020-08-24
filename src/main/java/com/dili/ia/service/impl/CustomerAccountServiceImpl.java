@@ -301,7 +301,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
         //新增
         if(null == refundOrder.getId()){
-            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_ORDER.getCode());
+            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode());
             if(!bizNumberOutput.isSuccess()){
                 LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
                 return BaseOutput.failure("编号生成器微服务异常");
@@ -335,11 +335,11 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         Customer customer = output.getData();
         if(null == customer){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实！");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实！");
         }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实！");
         }
     }
 

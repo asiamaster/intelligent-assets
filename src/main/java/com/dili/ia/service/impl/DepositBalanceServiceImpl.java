@@ -7,6 +7,8 @@ import com.dili.ia.service.DepositBalanceService;
 import com.dili.ss.base.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-06-29 15:15:26.
@@ -21,5 +23,10 @@ public class DepositBalanceServiceImpl extends BaseServiceImpl<DepositBalance, L
     @Override
     public Long sumBalance(DepositBalanceQuery depositBalanceQuery) {
         return this.getActualDao().sumBalance(depositBalanceQuery);
+    }
+
+    @Override
+    public List<DepositBalance> listDepositBalanceExact(DepositBalance depositBalance) {
+        return this.getActualDao().listDepositBalanceExact(depositBalance);
     }
 }

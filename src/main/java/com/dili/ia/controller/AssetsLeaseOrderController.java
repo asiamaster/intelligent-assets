@@ -167,6 +167,7 @@ public class AssetsLeaseOrderController {
      *
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkPass", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
     @PostMapping(value = "/approvedHandler.action")
     public @ResponseBody
     BaseOutput approvedHandler(@Validated ApprovalParam approvalParam) {
@@ -175,6 +176,13 @@ public class AssetsLeaseOrderController {
                 return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
             }
             assetsLeaseOrderService.approvedHandler(approvalParam);
+            //写业务日志
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+            LoggerContext.put("logContent", approvalParam.getOpinion());
             return BaseOutput.success();
         } catch (BusinessException e) {
             LOG.info("审批通过处理异常！", e);
@@ -190,6 +198,7 @@ public class AssetsLeaseOrderController {
      *
      * @return
      */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkFail", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
     @PostMapping(value = "/approvedDeniedHandler.action")
     public @ResponseBody
     BaseOutput approvedDeniedHandler(@Validated ApprovalParam approvalParam) {
@@ -199,6 +208,13 @@ public class AssetsLeaseOrderController {
             }
             assetsLeaseOrderService.
                     approvedDeniedHandler(approvalParam);
+            //写业务日志
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+            LoggerContext.put("logContent", approvalParam.getOpinion());
             return BaseOutput.success();
         } catch (BusinessException e) {
             LOG.info("审批拒绝处理异常！", e);
@@ -221,7 +237,7 @@ public class AssetsLeaseOrderController {
             AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
             condition.setLeaseOrderId(leaseOrderId);
             List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
-            return BaseOutput.success().setData(businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList())));
+            return BaseOutput.success().setData(businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItems.get(0).getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList())));
         } catch (BusinessException e) {
             LOG.info("收费项meta信息查询异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -241,7 +257,7 @@ public class AssetsLeaseOrderController {
      */
     @GetMapping(value = "/viewFragment.action")
     public String viewFragment(ModelMap modelMap, Long id, String code, String orderCode) {
-        view(modelMap, id, code, orderCode);
+        view(modelMap, id, code, orderCode ,true);
         return "assetsLeaseOrder/viewFragment";
     }
 
@@ -251,10 +267,11 @@ public class AssetsLeaseOrderController {
      * @param modelMap
      * @param orderCode 缴费单CODE
      * @param code
+     * @param isShowDepositAmount 是否显示保证金
      * @return String
      */
     @GetMapping(value = "/view.action")
-    public String view(ModelMap modelMap, Long id, String code, String orderCode) {
+    public String view(ModelMap modelMap, Long id, String code, String orderCode, boolean isShowDepositAmount) {
         AssetsLeaseOrder leaseOrder = null;
         if (null != id) {
             leaseOrder = assetsLeaseOrderService.get(id);
@@ -277,9 +294,10 @@ public class AssetsLeaseOrderController {
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
         modelMap.put("leaseOrder", leaseOrder);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
+        modelMap.put("isShowDepositAmount", isShowDepositAmount);
         try {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
@@ -291,6 +309,16 @@ public class AssetsLeaseOrderController {
             }
         } catch (Exception e) {
             LOG.error("日志服务查询异常", e);
+        }
+
+        if(leaseOrder.getProcessInstanceId() != null) {
+            //准备流程审批记录
+            ApprovalProcess approvalProcess = new ApprovalProcess();
+            approvalProcess.setProcessInstanceId(leaseOrder.getProcessInstanceId());
+            List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
+            if(!approvalProcesses.isEmpty()) {
+                modelMap.put("approvalProcesses", approvalProcesses);
+            }
         }
         return "assetsLeaseOrder/view";
     }
@@ -342,7 +370,7 @@ public class AssetsLeaseOrderController {
         modelMap.put("leaseOrder", assetsLeaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
         if (null != refundOrderId) {
             modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
-            List<BusinessChargeItemDto> businessChargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(List.of(leaseOrderItemId));
+            List<BusinessChargeItemDto> businessChargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItem.getAssetsType()).getBizType(), List.of(leaseOrderItemId));
             modelMap.put("refundFeeItemMap", refundFeeItemService.queryRefundFeeItem(List.of(refundOrderId), businessChargeItemDtos).get(0));
             TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
             transferDeductionItemCondition.setRefundOrderId(refundOrderId);
@@ -384,7 +412,7 @@ public class AssetsLeaseOrderController {
         }
 
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
-        if (CollectionUtils.isEmpty(departmentIdList)){
+        if (CollectionUtils.isEmpty(departmentIdList)) {
             return new EasyuiPageOutput(0, Collections.emptyList()).toString();
         }
         leaseOrder.setMarketId(userTicket.getFirmId());
@@ -394,7 +422,7 @@ public class AssetsLeaseOrderController {
             AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
             leaseOrderItemCondition.setAssetsName(leaseOrder.getAssetsName());
             leaseOrder.setIds(assetsLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
-            if(CollectionUtils.isEmpty(leaseOrder.getIds())){
+            if (CollectionUtils.isEmpty(leaseOrder.getIds())) {
                 return new EasyuiPageOutput(0, Collections.emptyList()).toString();
             }
         }
@@ -521,7 +549,7 @@ public class AssetsLeaseOrderController {
         condition.setLeaseOrderId(id);
         condition.setRefundState(LeaseRefundStateEnum.WAIT_APPLY.getCode());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
         //【已创建】状态或【已提交】状态是没有进行抵扣的，当从【已提交】状态流转到【未生效】或【已生效】时则完成了抵扣分摊
@@ -590,10 +618,10 @@ public class AssetsLeaseOrderController {
         try {
             BaseOutput output = assetsLeaseOrderService.createOrUpdateRefundOrder(refundOrderDto);
             if (output.isSuccess()) {
-                if(StringUtils.isNotBlank(refundOrderDto.getLogContent())){
+                if (StringUtils.isNotBlank(refundOrderDto.getLogContent())) {
                     LoggerContext.put("content", refundOrderDto.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
-                }else{
+                } else {
                     LoggerContext.put("content", MoneyUtils.centToYuan(refundOrderDto.getTotalRefundAmount()));
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
                 }
