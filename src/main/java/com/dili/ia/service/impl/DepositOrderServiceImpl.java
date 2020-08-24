@@ -797,9 +797,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                     LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
                     throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
                 }
-                //写入转抵转入流水
-                TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.TRANSFER_IN.getCode(), BizTypeEnum.DEPOSIT_ORDER.getCode(), TransactionItemTypeEnum.TRANSFER.getCode(), o.getPayeeAmount(), refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), refundOrder.getCode(), refundOrder.getMarketId(), refundOrder.getCreatorId(), refundOrder.getCreator());
-                transactionDetailsService.insertSelective(transactionDetails);
             });
         }
 
