@@ -81,8 +81,8 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 
 	@Override
 	public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
-		// TODO Auto-generated method stub
-		return BaseOutput.success();
+		
+		return BaseOutput.success().setData(stockInService.receiptPaymentData(refundOrder.getBusinessCode(), "reprint"));
 	}
 
 	@Override

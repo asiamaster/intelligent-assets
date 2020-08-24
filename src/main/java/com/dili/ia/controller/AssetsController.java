@@ -20,6 +20,8 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -38,6 +40,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/assets")
 public class AssetsController {
+    private final static Logger LOG = LoggerFactory.getLogger(AssetsController.class);
 
     @Autowired
     private AssetsRpc assetsRpc;
@@ -69,6 +72,7 @@ public class AssetsController {
             }
             return BaseOutput.success().setData(result);
         } catch (Exception e) {
+            LOG.error("资产查询接口异常",e);
             return BaseOutput.success().setData(new ArrayList<>());
         }
 
@@ -91,6 +95,7 @@ public class AssetsController {
         try {
             return assetsRpc.list(categoryDTO);
         } catch (Exception e) {
+            LOG.error("品类查询接口异常",e);
             return BaseOutput.success().setData(new ArrayList<>());
         }
     }

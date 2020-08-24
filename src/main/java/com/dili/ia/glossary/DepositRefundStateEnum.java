@@ -23,7 +23,7 @@ public enum DepositRefundStateEnum {
         this.name = name;
     }
 
-    public static DepositRefundStateEnum getRefundStateEnum(Integer code) {
+    public static DepositRefundStateEnum getDepositRefundStateEnum(Integer code) {
         for (DepositRefundStateEnum anEnum : DepositRefundStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;

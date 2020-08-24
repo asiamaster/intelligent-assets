@@ -15,13 +15,13 @@ public interface ApproverAssignmentDto extends ApproverAssignment {
 
     @Column(name = "`id`")
     @Operator(Operator.IN)
-    public List<Long> getIds();
+    List<Long> getIds();
 
-    public void setIds(List<Long> ids);
+    void setIds(List<Long> ids);
 
     @Operator(Operator.IN)
     @Column(name = "`district_id`")
-    public List<Long> getDistrictIds();
+    List<Long> getDistrictIds();
 
-    public void setDistrictIds(List<Long> districtIds);
+    void setDistrictIds(List<Long> districtIds);
 }

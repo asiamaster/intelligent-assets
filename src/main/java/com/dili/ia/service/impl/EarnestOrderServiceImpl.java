@@ -146,11 +146,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         Customer customer = output.getData();
         if(null == customer){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实！");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已禁用，请核实！");
         }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实！");
         }
     }
     /**
@@ -452,8 +452,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrderPrintDto.setCode(earnestOrder.getCode());
         earnestOrderPrintDto.setCustomerName(earnestOrder.getCustomerName());
         earnestOrderPrintDto.setCustomerCellphone(earnestOrder.getCustomerCellphone());
-        earnestOrderPrintDto.setStartTime(DateUtils.format(earnestOrder.getStartTime(), "yyyy-MM-dd"));
-        earnestOrderPrintDto.setEndTime(DateUtils.format(earnestOrder.getEndTime(), "yyyy-MM-dd"));
+        earnestOrderPrintDto.setStartTime(earnestOrder.getStartTime() != null ? DateUtils.format(earnestOrder.getStartTime(), "yyyy-MM-dd"): "");
+        earnestOrderPrintDto.setEndTime(earnestOrder.getEndTime() != null ? DateUtils.format(earnestOrder.getEndTime(), "yyyy-MM-dd"): "");
         earnestOrderPrintDto.setNotes(earnestOrder.getNotes());
         earnestOrderPrintDto.setAmount(MoneyUtils.centToYuan(earnestOrder.getAmount()));
         earnestOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
@@ -495,9 +495,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
                     }
                     settleWayDetails.append("；");
                 }
-                //去掉最后一个换行符
+                //去掉最后一个; 符
                 settleWayDetails.replace(settleWayDetails.length()-1, settleWayDetails.length(), " ");
-                settleWayDetails.append("】");
             }else {
                 LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
             }
@@ -512,7 +511,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
                     settleWayDetails.append(" ").append(settleOrder.getSerialNumber());
                 }
                 if (StringUtils.isNotBlank(settleOrder.getNotes())){
-                    settleWayDetails.append(" ").append(settleOrder.getNotes());
+                    settleWayDetails.append(" ").append("备注：").append(settleOrder.getNotes());
                 }
             }else {
                 LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());

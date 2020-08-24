@@ -139,6 +139,29 @@ public class RentalApprovalProcessTaskAssignmentApi {
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return getExceptionHandlerAssignment();
         }
+        //审批人分配(现在不需要根据区域获取审批人，这里注释掉)
+//        List<ApproverAssignment> approverAssignments = listApproverAssignmentByDistrict(districtById.getData(), taskMapping);
+
+        //根据流程和任务查询审批人分配
+        ApproverAssignmentDto approverAssignment = DTOUtils.newInstance(ApproverAssignmentDto.class);
+        approverAssignment.setProcessDefinitionKey(taskMapping.getProcessDefinitionKey());
+        approverAssignment.setTaskDefinitionKey(taskMapping.getTaskDefinitionKey());
+        List<ApproverAssignment> approverAssignments = approverAssignmentService.listByExample(approverAssignment);
+        //如果未找到审批人
+        if(CollectionUtils.isEmpty(approverAssignments)){
+            //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
+            return getExceptionHandlerAssignment();
+        }
+        return getHandlerAssignment(approverAssignments.get(0).getAssignee().toString());
+    }
+
+    /**
+     * 根据区域构建审批人分配
+     * @param districtDTO
+     * @param taskMapping
+     * @return
+     */
+    private List<ApproverAssignment> listApproverAssignmentByDistrict( DistrictDTO districtDTO, TaskMapping taskMapping){
         //审批人分配
         List<ApproverAssignment> approverAssignments = null;
         //审批人分配查询条件
@@ -146,28 +169,22 @@ public class RentalApprovalProcessTaskAssignmentApi {
         approverAssignment.setProcessDefinitionKey(taskMapping.getProcessDefinitionKey());
         approverAssignment.setTaskDefinitionKey(taskMapping.getTaskDefinitionKey());
         //如果当前区域是一级区域，则从其本身找审批人
-        if(districtById.getData().getParentId().equals(0L)){
+        if(districtDTO.getParentId().equals(0L)){
             //根据区域ID查询本身和子节点
-            BaseOutput<List<DistrictDTO>> listBaseOutput = assetsRpc.listDistrictChild(districtId);
+            BaseOutput<List<DistrictDTO>> listBaseOutput = assetsRpc.listDistrictChild(districtDTO.getId());
             if(!listBaseOutput.isSuccess()){
-                //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
-                return getExceptionHandlerAssignment();
+                return null;
             }
 //            //区域id列表
 //            List<Long> districtIds = listBaseOutput.getData().stream().map(t -> t.getId()).collect(Collectors.toList());
-            approverAssignment.setDistrictId(districtId);
+            approverAssignment.setDistrictId(districtDTO.getId());
             //查询审批人分配，只要业务类型(可理解为流程定义)，任务定义和区域id满足，则认为第一条数据的用户是任务执行人
             approverAssignments = approverAssignmentService.listByExample(approverAssignment);
         }else{//如果是二级区域，则从当前区域和其上级区域找审批人
-            approverAssignment.setDistrictIds(Lists.newArrayList(districtId, districtById.getData().getParentId()));
+            approverAssignment.setDistrictIds(Lists.newArrayList(districtDTO.getId(), districtDTO.getParentId()));
             approverAssignments = approverAssignmentService.listByExample(approverAssignment);
         }
-        //如果未找到审批人
-        if(CollectionUtils.isEmpty(approverAssignments)){
-            //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
-            return getExceptionHandlerAssignment();
-        }
-        return getHandlerAssignment(approverAssignments.get(0).getAssignee().toString());
+        return approverAssignments;
     }
 
 }

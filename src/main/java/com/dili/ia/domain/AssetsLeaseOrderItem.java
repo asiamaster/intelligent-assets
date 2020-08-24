@@ -113,7 +113,7 @@ public class AssetsLeaseOrderItem extends BaseDomain {
     private Long discountAmount;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`stop_time`")
     private LocalDateTime stopTime;
 
@@ -125,6 +125,12 @@ public class AssetsLeaseOrderItem extends BaseDomain {
 
     @Column(name = "`stop_operator_name`")
     private String stopOperatorName;
+
+    //停租操作时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "`stop_operator_time`")
+    private LocalDateTime stopOperatorTime;
 
     /**
      * 1:立即 2：定时
@@ -376,6 +382,14 @@ public class AssetsLeaseOrderItem extends BaseDomain {
 
     public void setStopOperatorName(String stopOperatorName) {
         this.stopOperatorName = stopOperatorName;
+    }
+
+    public LocalDateTime getStopOperatorTime() {
+        return stopOperatorTime;
+    }
+
+    public void setStopOperatorTime(LocalDateTime stopOperatorTime) {
+        this.stopOperatorTime = stopOperatorTime;
     }
 
     public Integer getStopWay() {

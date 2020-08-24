@@ -3,9 +3,12 @@ package com.dili.ia.domain.dto;
 import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ss.domain.annotation.Operator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +69,12 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
      */
     @Transient
     private Long depositMakeUpAmount;
+
+    //停租日期
+    @Transient
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate stopDate;
 
     public LocalDateTime getCreatedStart() {
         return createdStart;
@@ -161,5 +170,13 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
 
     public void setDepositMakeUpAmount(Long depositMakeUpAmount) {
         this.depositMakeUpAmount = depositMakeUpAmount;
+    }
+
+    public LocalDate getStopDate() {
+        return stopDate;
+    }
+
+    public void setStopDate(LocalDate stopDate) {
+        this.stopDate = stopDate;
     }
 }

@@ -24,6 +24,6 @@ public interface BusinessChargeItemMapper extends MyMapper<BusinessChargeItem> {
      * @param businessIds
      * @return
      */
-    List<BusinessChargeItemDto> queryBusinessChargeItemMeta(List<Long> businessIds);
+    List<BusinessChargeItemDto> queryBusinessChargeItemMeta(@Param("bizType") String bizType, @Param("businessIds") List<Long> businessIds);
 
 }
