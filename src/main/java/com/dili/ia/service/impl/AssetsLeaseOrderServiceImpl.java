@@ -720,6 +720,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             //业务收费项完成分摊
             businessChargeItems.stream().filter(bci -> bci.getPaymentAmount() > 0L).forEach(bci -> {
                 ApportionRecord apportionRecord = buildApportionRecord( o, bci);
+                apportionRecord.setPaymentOrderId(paymentOrderPO.getId());
                 apportionRecords.add(apportionRecord);
 
                 bci.setWaitAmount(bci.getWaitAmount() - bci.getPaymentAmount());
