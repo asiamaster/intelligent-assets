@@ -163,7 +163,7 @@
             content: bui.util.HTMLDecode(template('invoiceTpl', param)),
             closeBtn: true,
             backdrop : 'static',
-            width: '40%',
+            width: '600px',
             onShowEnd: function(){
                 laydate.render({
                     elem: "#_invoiceDate",
