@@ -40,7 +40,7 @@ public class DataDictionaryValueProvider extends BatchDisplayTextProviderAdaptor
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         DataDictionaryValue dto = DTOUtils.newInstance(DataDictionaryValue.class);
-        dto.setDdCode(DD_CODE_KEY);
+        dto.setDdCode(code);
         dto.setFirmId(userTicket.getFirmId());
         List<DataDictionaryValue> list = dataDictionaryRpc.listDataDictionaryValue(dto).getData();
         if (CollectionUtils.isEmpty(list)) {
