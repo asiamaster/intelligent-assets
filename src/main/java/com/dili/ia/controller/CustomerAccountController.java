@@ -121,16 +121,16 @@ public class CustomerAccountController {
             BaseOutput<RefundOrder> out = customerAccountService.saveOrUpdateRefundOrder(order);
             if (out.isSuccess()) {
                 if(StringUtils.isNotBlank(order.getLogContent())){
-                    LoggerContext.put("businessType", LogBizTypeConst.REFUND_ORDER);
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
                     LoggerContext.put("content", order.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
                     LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
                 }else{
-                    LoggerContext.put("businessType", LogBizTypeConst.CUSTOMER_ACCOUNT);
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.CUSTOMER_ACCOUNT);
                     LoggerContext.put("content", MoneyUtils.centToYuan(order.getTotalRefundAmount()));
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
+                    LoggerUtil.buildLoggerContext(order.getBusinessId(), order.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
                 }
-                LoggerUtil.buildLoggerContext(order.getBusinessId(), order.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
             }
             return out;
         } catch (BusinessException e) {

@@ -135,12 +135,12 @@ public class DepositOrderController {
             BaseOutput<RefundOrder> out = depositOrderService.saveOrUpdateRefundOrder(orderDto);
             if (out.isSuccess()) {
                 if(StringUtils.isNotBlank(orderDto.getLogContent())){
-                    LoggerContext.put("businessType", LogBizTypeConst.REFUND_ORDER);
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
                     LoggerContext.put("content", orderDto.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
                     LoggerUtil.buildLoggerContext(orderDto.getId(), orderDto.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), orderDto.getRefundReason());
                 }else{
-                    LoggerContext.put("businessType", LogBizTypeConst.DEPOSIT_ORDER);
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.DEPOSIT_ORDER);
                     LoggerContext.put("content", MoneyUtils.centToYuan(orderDto.getTotalRefundAmount()));
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
                     LoggerUtil.buildLoggerContext(orderDto.getBusinessId(), orderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), orderDto.getRefundReason());
