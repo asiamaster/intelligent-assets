@@ -180,7 +180,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             //租赁单修改
             checkContractNo(dto.getId(), dto.getContractNo(), false);//合同编号验证重复
             AssetsLeaseOrder oldLeaseOrder = get(dto.getId());
-            if (!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())) {
+            if (!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())
+                    || ApprovalStateEnum.APPROVED.getCode().equals(oldLeaseOrder.getApprovalState())
+                    || ApprovalStateEnum.IN_REVIEW.getCode().equals(oldLeaseOrder.getApprovalState())) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + oldLeaseOrder.getCode() + "】 状态已变更，不可以进行修改操作");
             }
             dto.setWaitAmount(dto.getPayAmount());
