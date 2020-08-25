@@ -16,6 +16,7 @@ import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.SpringUtil;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
@@ -530,7 +531,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
             }
         }else { // 修改
-            if (!refundOrderService.doUpdatedHandler(depositRefundOrderDto).isSuccess()) {
+            RefundOrder oldRefundOrder = refundOrderService.get(depositRefundOrderDto.getId());
+            SpringUtil.copyPropertiesIgnoreNull(depositRefundOrderDto, oldRefundOrder);
+            if (!RefundTypeEnum.BANK.getCode().equals(depositRefundOrderDto.getRefundType())) {
+                oldRefundOrder.setBank(null);
+                oldRefundOrder.setBankCardNo(null);
+            }
+            if (!refundOrderService.doUpdatedHandler(oldRefundOrder).isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款修改接口异常", depositRefundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
             }
@@ -611,26 +618,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         this.saveOrupdateDepositBalance(depositOrder, paymentOrderPO.getAmount());
 
         return BaseOutput.success().setData(depositOrder);
-    }
-
-    /**
-     * 记录交费日志
-     *
-     * @param settleOrder 结算单
-     * @param depositOrder 保证金业务单
-     */
-    private BusinessLog recordPayLog(SettleOrder settleOrder, DepositOrder depositOrder) {
-        BusinessLog businessLog = new BusinessLog();
-        businessLog.setBusinessId(depositOrder.getId());
-        businessLog.setBusinessCode(depositOrder.getCode());
-        businessLog.setContent(settleOrder.getCode());
-        businessLog.setOperationType("pay");
-        businessLog.setMarketId(settleOrder.getMarketId());
-        businessLog.setOperatorId(settleOrder.getOperatorId());
-        businessLog.setOperatorName(settleOrder.getOperatorName());
-        businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
-        return businessLog;
     }
 
     private BaseOutput<String> saveOrupdateDepositBalance(DepositOrder depositOrder, Long payAmount){

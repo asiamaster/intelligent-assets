@@ -124,7 +124,7 @@ public class DepositOrderController {
      * @param orderDto
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content = "${content}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(content = "${content}", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput saveOrUpdateRefundOrder(@RequestBody DepositRefundOrderDto orderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -135,13 +135,16 @@ public class DepositOrderController {
             BaseOutput<RefundOrder> out = depositOrderService.saveOrUpdateRefundOrder(orderDto);
             if (out.isSuccess()) {
                 if(StringUtils.isNotBlank(orderDto.getLogContent())){
+                    LoggerContext.put("businessType", LogBizTypeConst.REFUND_ORDER);
                     LoggerContext.put("content", orderDto.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+                    LoggerUtil.buildLoggerContext(orderDto.getId(), orderDto.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), orderDto.getRefundReason());
                 }else{
+                    LoggerContext.put("businessType", LogBizTypeConst.DEPOSIT_ORDER);
                     LoggerContext.put("content", MoneyUtils.centToYuan(orderDto.getTotalRefundAmount()));
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
+                    LoggerUtil.buildLoggerContext(orderDto.getBusinessId(), orderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), orderDto.getRefundReason());
                 }
-                LoggerUtil.buildLoggerContext(orderDto.getBusinessId(), orderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), orderDto.getRefundReason());
             }
             return out;
         } catch (BusinessException e) {
