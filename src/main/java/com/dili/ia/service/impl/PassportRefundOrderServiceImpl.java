@@ -75,28 +75,30 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 
         Passport passportInfo = passportService.getPassportByCode(refundOrder.getBusinessCode());
+        if (passportInfo != null ){
+            if (!PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+            }
 
-        if (!PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+            this.updateState(refundOrder.getBusinessCode(), passportInfo.getVersion(), PassportStateEnum.REFUNDED);
+
+            //转抵扣充值
+            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+            transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
+            List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
+            if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
+                transferDeductionItems.forEach(o -> {
+                    BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
+                            refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
+                            refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
+                    if (!accountOutput.isSuccess()) {
+                        logger.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
+                        throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
+                    }
+                });
+            }
         }
 
-        this.updateState(refundOrder.getBusinessCode(), passportInfo.getVersion(), PassportStateEnum.REFUNDED);
-
-        //转抵扣充值
-        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
-        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
-            transferDeductionItems.forEach(o -> {
-                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
-                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
-                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
-                if (!accountOutput.isSuccess()) {
-                    logger.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
-                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
-                }
-            });
-        }
 
         return BaseOutput.success();
     }
@@ -112,23 +114,23 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     public BaseOutput cancelHandler(RefundOrder refundOrder) {
 
         Passport passportInfo = passportService.getPassportByCode(refundOrder.getBusinessCode());
+        if (passportInfo != null ) {
+            if (!PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+            }
 
-        if (!PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+            PassportStateEnum state = PassportStateEnum.NOT_START;
+            if (passportInfo.getStartTime() != null && passportInfo.getEndTime() != null && passportInfo.getStartTime().isBefore(LocalDateTime.now())
+                    && LocalDateTime.now().isBefore(passportInfo.getEndTime())) {
+                // 已生效
+                state = PassportStateEnum.IN_FORCE;
+            } else if (passportInfo.getEndTime() != null && passportInfo.getEndTime().isBefore(LocalDateTime.now())) {
+                // 已过期
+                state = PassportStateEnum.EXPIRED;
+            }
+
+            this.updateState(refundOrder.getBusinessCode(), passportInfo.getVersion(), state);
         }
-
-        PassportStateEnum state = PassportStateEnum.NOT_START;
-        if (passportInfo.getStartTime() != null && passportInfo.getEndTime() != null && passportInfo.getStartTime().isBefore(LocalDateTime.now())
-                && LocalDateTime.now().isBefore(passportInfo.getEndTime())){
-            // 已生效
-            state= PassportStateEnum.IN_FORCE;
-        } else if (passportInfo.getEndTime() != null && passportInfo.getEndTime().isBefore(LocalDateTime.now())) {
-            // 已过期
-            state = PassportStateEnum.EXPIRED;
-        }
-
-        this.updateState(refundOrder.getBusinessCode(), passportInfo.getVersion(), state);
-
         return BaseOutput.success();
     }
 
