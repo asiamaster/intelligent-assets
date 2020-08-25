@@ -955,7 +955,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
         leaseOrderItem.setExitTime(refundOrderDto.getExitTime());
         leaseOrderItem.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
-        if (assetsLeaseOrderItemService.updateSelective(leaseOrderItem) == 0) {
+        if (assetsLeaseOrderItemService.update(leaseOrderItem) == 0) {
             LOG.info("摊位租赁订单项退款申请异常 更新乐观锁生效 【租赁单项ID {}】", leaseOrderItem.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
