@@ -412,7 +412,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             return BaseOutput.success();
         }
         if (customerAccount == null){
-            return BaseOutput.failure().setCode(ResultCodeConst.CUSTOMER_ACCOUNT_ERROR).setMessage("客户在该市场不存在客户余额！");
+            return BaseOutput.failure().setCode(ResultCodeConst.CUSTOMER_ACCOUNT_ERROR).setMessage("客户在该市场不存在客户余额账户！");
         }
         if (sceneType.equals(TransactionSceneTypeEnum.UNFROZEN.getCode())){
             if (null != earnestDeduction && customerAccount.getEarnestFrozenAmount() < earnestDeduction){
@@ -447,7 +447,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     public void submitChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId,Long operaterId,String operatorName) {
-        //写入 定金，转抵，保证金的【冻结】流水
+        //写入 定金，转抵的【冻结】流水
         this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, marketId, operaterId, operatorName );
         if (null == ca){ //如果【客户账户】不存在，就不用修改客户账户金额信息
             return;
@@ -472,7 +472,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     public void withdrawChangeCustomerAmountAndDetails(Integer sceneType, Long orderId, String orderCode, CustomerAccount ca,Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId,Long operaterId,String operatorName) {
-        //写入 定金，转抵，保证金的【冻结】流水
+        //写入 定金，转抵的【冻结】流水
         this.addTransactionDetails(sceneType,orderId, orderCode, customerId, earnestDeduction, transferDeduction, marketId, operaterId, operatorName );
         if (null == ca){ //如果【客户账户】不存在，就不用修改客户账户金额信息
             return;
@@ -520,7 +520,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
     }
 
-    //租赁单退款调用接口--充值转抵金，另起事务使其不影响原有事务
+    //退款调用接口，退款成功，退款到转抵--充值转抵金，另起事务使其不影响原有事务
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput rechargTransfer(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
