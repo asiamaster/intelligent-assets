@@ -607,7 +607,7 @@ public class AssetsLeaseOrderController {
      * @param refundOrderDto
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${content}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(content = "${content}", systemCode = "INTELLIGENT_ASSETS")
     @PostMapping(value = "/createOrUpdateRefundOrder.action")
     public @ResponseBody
     BaseOutput createRefundOrder(@RequestBody LeaseRefundOrderDto refundOrderDto) {
@@ -621,11 +621,14 @@ public class AssetsLeaseOrderController {
                 if (StringUtils.isNotBlank(refundOrderDto.getLogContent())) {
                     LoggerContext.put("content", refundOrderDto.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
+                    LoggerUtil.buildLoggerContext(refundOrderDto.getId(), refundOrderDto.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
                 } else {
                     LoggerContext.put("content", MoneyUtils.centToYuan(refundOrderDto.getTotalRefundAmount()));
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.BOOTH_LEASE);
+                    LoggerUtil.buildLoggerContext(refundOrderDto.getBusinessId(), refundOrderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
                 }
-                LoggerUtil.buildLoggerContext(refundOrderDto.getBusinessId(), refundOrderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
             }
             return output;
         } catch (BusinessException e) {
