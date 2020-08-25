@@ -331,11 +331,16 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
         //只有创建状态的订单才能提交审批任务
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
-            //保存流程审批记录
-            saveApprovalProcess(approvalParam, userTicket);
             //最后一次审批，更新审批状态、租赁单状态，并且全量提交租赁单到结算
             //总经理审批通过需要更新审批状态
             if ("generalManagerApproval".equals(approvalParam.getTaskDefinitionKey())) {
+                AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
+                //检查客户状态
+                checkCustomerState(leaseOrder.getCustomerId(), leaseOrder.getMarketId());
+                leaseOrderItems.forEach(o -> {
+                    //检查资产状态
+                    assetsLeaseService.checkAssetState(o.getAssetsId());
+                });
                 //提交付款
                 Long paymentId = submitPay(leaseOrder, leaseOrder.getPayAmount());
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
@@ -354,6 +359,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                     throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
                 }
             }
+            //保存流程审批记录
+            saveApprovalProcess(approvalParam, userTicket);
             //第一个摊位的区域id，用于获取一级区域名称，在流程中进行判断
             Long districtId = leaseOrderItems.get(0).getDistrictId();
             //提交审批任务

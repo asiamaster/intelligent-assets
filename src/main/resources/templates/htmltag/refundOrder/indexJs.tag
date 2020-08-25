@@ -254,7 +254,7 @@
             return;
         }
         let selectedRow = rows[0];
-        bs4pop.confirm('确定提交审批？', undefined, function (sure) {
+        bs4pop.confirm('即将进入审批流程，在审批过程中，业务单不可更改，确定提交审批？', undefined, function (sure) {
             if(sure){
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({
