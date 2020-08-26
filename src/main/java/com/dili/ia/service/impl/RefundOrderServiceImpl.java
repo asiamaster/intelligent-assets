@@ -531,6 +531,13 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         saveApprovalProcess(approvalParam, userTicket);
         //摊位的区域id，用于获取一级区域名称，在流程中进行判断
         Long districtId = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId()).getDistrictId();
+        //写业务日志
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+        LoggerContext.put("logContent", approvalParam.getOpinion());
         //提交审批任务
         completeTask(approvalParam.getTaskId(), "true", getLevel1DistrictName(districtId));
     }
@@ -558,6 +565,13 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         saveApprovalProcess(approvalParam, userTicket);
         //摊位的区域id，用于获取一级区域名称，在流程中进行判断
         Long districtId = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId()).getDistrictId();
+        //写业务日志
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+        LoggerContext.put("logContent", approvalParam.getOpinion());
         //提交审批任务
         completeTask(approvalParam.getTaskId(), "false", getLevel1DistrictName(districtId));
     }

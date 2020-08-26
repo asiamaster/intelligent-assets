@@ -270,13 +270,6 @@ public class RefundOrderController {
                 return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
             }
             refundOrderService.approvedHandler(approvalParam);
-            //写业务日志
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-            LoggerContext.put("logContent", approvalParam.getOpinion());
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("审批通过处理异常！", e);
@@ -301,13 +294,6 @@ public class RefundOrderController {
             }
             refundOrderService.
                     approvedDeniedHandler(approvalParam);
-            //写业务日志
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-            LoggerContext.put("logContent", approvalParam.getOpinion());
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("审批拒绝处理异常！", e);
