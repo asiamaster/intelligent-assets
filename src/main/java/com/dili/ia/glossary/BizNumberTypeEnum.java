@@ -38,6 +38,8 @@ public enum BizNumberTypeEnum {
     PASSPORT_LICENSE_CODE("passport_", "通行证证件营运编号"),
     OTHER_FEE("otherFee", "其他收费"),
     OTHER_FEE_CHARGE_ITEM("charge_item", "其他收费的数据字典的键"),
+    
+    MESSAGEFEE("messageFee", "信息费"),
     ;
 
     private String name;

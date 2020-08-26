@@ -21,6 +21,7 @@ public enum BizTypeEnum {
     LABOR_VEST("11", "劳务马甲", "laborVest"),
     LABOR_VEST_RENAME("12", "劳务马甲更名费", "laborVestRename"),
     LABOR_VEST_REMODEL("13", "劳务马甲更型费", "laborVestRemodel"),
+    MESSAGEFEE("14", "信息费", "messageFee"),
     ;
 
     private String name;

@@ -9,6 +9,7 @@ import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.LaborDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.RefundInfoDto;
+import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
 import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
@@ -32,12 +33,15 @@ import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.SettleStateEnum;
+import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 
 import cn.hutool.core.bean.BeanUtil;
@@ -98,6 +102,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	
 	@Autowired
 	private CustomerAccountService customerAccountService;
+	
+	@Autowired
+	private DepartmentRpc departmentRpc;
 	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -208,7 +215,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		paymentOrder.setBusinessId(labor.getId());
 		paymentOrderService.insertSelective(paymentOrder);
 		// 结算服务
-		SettleOrderDto settleOrderDto = settlementRpcResolver.buildSettleOrderDto(userTicket,
+		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket,
 				labor, paymentOrder.getCode(), paymentOrder.getAmount(), BizTypeEnum.LABOR_VEST);
 		settleOrderDto.setReturnUrl(settlerHandlerUrl);
 		settlementRpcResolver.submit(settleOrderDto);
@@ -642,5 +649,23 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		});
 		BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
 		return batchQueryFee.getData();
+	}
+	
+	private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, Labor labor,String orderCode,Long amount,BizTypeEnum bizTypeEnum) {
+		SettleOrderInfoDto settleOrderInfoDto = 
+				new SettleOrderInfoDto(userTicket, bizTypeEnum,SettleTypeEnum.PAY,SettleStateEnum.WAIT_DEAL);
+		settleOrderInfoDto.setBusinessCode(labor.getCode());
+		settleOrderInfoDto.setOrderCode(orderCode);
+		settleOrderInfoDto.setAmount(amount);
+		settleOrderInfoDto.setBusinessDepId(labor.getDepartmentId());
+		settleOrderInfoDto.setBusinessDepName(labor.getDepartmentName());
+		settleOrderInfoDto.setCustomerId(labor.getCustomerId());
+		settleOrderInfoDto.setCustomerName(labor.getCustomerName());
+		settleOrderInfoDto.setCustomerPhone(labor.getCustomerCellphone());
+		if (userTicket.getDepartmentId() != null){
+            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
+            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+        }
+		return settleOrderInfoDto;
 	}
 }

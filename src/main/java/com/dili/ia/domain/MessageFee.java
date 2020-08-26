@@ -4,6 +4,9 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.dili.uap.sdk.domain.UserTicket;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -14,6 +17,15 @@ import javax.persistence.*;
  */
 @Table(name = "`message_fee`")
 public class MessageFee extends BaseDomain {
+	
+	public MessageFee() {
+		super();
+	}
+	public MessageFee(UserTicket userTicket) {
+		this.operatorId = userTicket.getId();
+		this.operatorName = userTicket.getRealName();
+	}
+	
     @Id
     @Column(name = "`id`")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,13 +41,13 @@ public class MessageFee extends BaseDomain {
      * 创建时间
      */
     @Column(name = "`create_time`")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
     @Column(name = "`modify_time`")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
     @Column(name = "`customer_id`")
     private Long customerId;
@@ -43,8 +55,8 @@ public class MessageFee extends BaseDomain {
     @Column(name = "`customer_name`")
     private String customerName;
 
-    @Column(name = "`customer_phone`")
-    private String customerPhone;
+    @Column(name = "`customer_cellphone`")
+    private String customerCellphone;
 
     /**
      * 客户证件号
@@ -62,13 +74,13 @@ public class MessageFee extends BaseDomain {
      * 开始时间
      */
     @Column(name = "`start_date`")
-    private Date startDate;
+    private LocalDateTime startDate;
 
     /**
      * 结束时间
      */
     @Column(name = "`end_date`")
-    private Date endDate;
+    private LocalDateTime endDate;
 
     /**
      * 收费金额
@@ -97,15 +109,15 @@ public class MessageFee extends BaseDomain {
     /**
      * 状态
      */
-    @Column(name = "`status`")
-    private Byte status;
+    @Column(name = "`state`")
+    private Integer state;
 
     /**
      * 推送消息中心状态
      */
     @Column(name = "`sync_status`")
-    private Byte syncStatus;
-
+    private Integer syncStatus;
+    
     /**
      * 缴费单号
      */
@@ -140,7 +152,7 @@ public class MessageFee extends BaseDomain {
     private String creatorName;
 
     /**
-     * 作废操作人
+     * 撤回操作人
      */
     @Column(name = "`canceler_id`")
     private Long cancelerId;
@@ -149,7 +161,7 @@ public class MessageFee extends BaseDomain {
     private String cancelerName;
 
     /**
-     * 作废原因
+     * 撤回原因
      */
     @Column(name = "`canceler_notes`")
     private String cancelerNotes;
@@ -212,7 +224,7 @@ public class MessageFee extends BaseDomain {
      */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = true)
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
@@ -221,7 +233,7 @@ public class MessageFee extends BaseDomain {
      *
      * @param createTime 创建时间
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
@@ -232,7 +244,7 @@ public class MessageFee extends BaseDomain {
      */
     @FieldDef(label="更新时间")
     @EditMode(editor = FieldEditor.Datetime, required = true)
-    public Date getModifyTime() {
+    public LocalDateTime getModifyTime() {
         return modifyTime;
     }
 
@@ -241,7 +253,7 @@ public class MessageFee extends BaseDomain {
      *
      * @param modifyTime 更新时间
      */
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(LocalDateTime modifyTime) {
         this.modifyTime = modifyTime;
     }
 
@@ -280,17 +292,17 @@ public class MessageFee extends BaseDomain {
     /**
      * @return customer_phone
      */
-    @FieldDef(label="customerPhone", maxLength = 20)
+    @FieldDef(label="customerCellphone", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
-    public String getCustomerPhone() {
-        return customerPhone;
+    public String getCustomerCellphone() {
+        return customerCellphone;
     }
 
     /**
      * @param customerPhone
      */
-    public void setCustomerPhone(String customerPhone) {
-        this.customerPhone = customerPhone;
+    public void setCustomerCellphone(String customerCellphone) {
+        this.customerCellphone = customerCellphone;
     }
 
     /**
@@ -352,7 +364,7 @@ public class MessageFee extends BaseDomain {
      */
     @FieldDef(label="开始时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getStartDate() {
+    public LocalDateTime getStartDate() {
         return startDate;
     }
 
@@ -361,7 +373,7 @@ public class MessageFee extends BaseDomain {
      *
      * @param startDate 开始时间
      */
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
     }
 
@@ -372,7 +384,7 @@ public class MessageFee extends BaseDomain {
      */
     @FieldDef(label="结束时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    public Date getEndDate() {
+    public LocalDateTime getEndDate() {
         return endDate;
     }
 
@@ -381,7 +393,7 @@ public class MessageFee extends BaseDomain {
      *
      * @param endDate 结束时间
      */
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
     }
 
@@ -472,8 +484,8 @@ public class MessageFee extends BaseDomain {
      */
     @FieldDef(label="状态")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getStatus() {
-        return status;
+    public Integer getState() {
+        return state;
     }
 
     /**
@@ -481,8 +493,8 @@ public class MessageFee extends BaseDomain {
      *
      * @param status 状态
      */
-    public void setStatus(Byte status) {
-        this.status = status;
+    public void setState(Integer state) {
+        this.state = state;
     }
 
     /**
@@ -492,7 +504,7 @@ public class MessageFee extends BaseDomain {
      */
     @FieldDef(label="推送消息中心状态")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getSyncStatus() {
+    public Integer getSyncStatus() {
         return syncStatus;
     }
 
@@ -501,7 +513,7 @@ public class MessageFee extends BaseDomain {
      *
      * @param syncStatus 推送消息中心状态
      */
-    public void setSyncStatus(Byte syncStatus) {
+    public void setSyncStatus(Integer syncStatus) {
         this.syncStatus = syncStatus;
     }
 

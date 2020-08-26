@@ -114,31 +114,4 @@ public class SettlementRpcResolver {
         }
 		return result.getData();
     };
-    
-    /**
-     * 
-     * 
-     * @param
-     * @return 
-     * @date   2020/8/6
-     */
-    public SettleOrderDto buildSettleOrderDto(UserTicket userTicket, Labor labor,String orderCode,Long amount,BizTypeEnum bizTypeEnum) {
-		SettleOrderInfoDto settleOrderInfoDto = 
-				new SettleOrderInfoDto(userTicket, bizTypeEnum,SettleTypeEnum.PAY,SettleStateEnum.WAIT_DEAL);
-		settleOrderInfoDto.setBusinessCode(labor.getCode());
-		settleOrderInfoDto.setOrderCode(orderCode);
-		settleOrderInfoDto.setAmount(amount);
-		//settleOrderInfoDto.setAppId(settlementAppId);
-		settleOrderInfoDto.setBusinessDepId(labor.getDepartmentId());
-		settleOrderInfoDto.setBusinessDepName(labor.getDepartmentName());
-		settleOrderInfoDto.setCustomerId(labor.getCustomerId());
-		settleOrderInfoDto.setCustomerName(labor.getCustomerName());
-		settleOrderInfoDto.setCustomerPhone(labor.getCustomerCellphone());
-		//settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
-		if (userTicket.getDepartmentId() != null){
-            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
-            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
-        }
-		return settleOrderInfoDto;
-	}
 }

@@ -8,11 +8,15 @@ import org.springframework.stereotype.Service;
 
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.rpc.SettlementRpc;
+import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.LaborService;
 import com.dili.ia.service.RefundOrderDispatcherService;
+import com.dili.ia.service.TransactionDetailsService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.google.common.collect.Sets;
 
 /**
@@ -33,18 +37,18 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 	@Override
 	public BaseOutput submitHandler(RefundOrder refundOrder) {
 		//laborService.refundSubmitHandler(refundOrder);
-		return BaseOutput.success();
+		return defaultSubmitHandler(refundOrder, BizTypeEnum.LABOR_VEST);
 	}
 
 	@Override
 	public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-		return BaseOutput.success();
+		return defaultWithdrawHandler(refundOrder, BizTypeEnum.LABOR_VEST);
 	}
 
 	@Override
 	public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 		laborService.refundSuccessHandler(settleOrder, refundOrder);
-		return BaseOutput.success();
+		return defaultRefundSuccessHandler(settleOrder, refundOrder, BizTypeEnum.LABOR_VEST);
 	}
 
 	@Override
