@@ -186,6 +186,11 @@
         _grid.bootstrapTable('refreshOptions', {url: '/invoiceRecord/listPage.action'});
     }
 
+    function clearForm() {
+        $('#queryForm .form-control').val('');
+        $("#type").empty();
+    }
+
     /**
      * table参数组装
      * 可修改queryParams向服务器发送其余的参数
