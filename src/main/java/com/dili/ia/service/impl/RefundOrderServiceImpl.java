@@ -499,6 +499,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
         LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
         LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
         LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
