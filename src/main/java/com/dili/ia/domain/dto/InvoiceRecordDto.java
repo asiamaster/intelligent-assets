@@ -1,6 +1,7 @@
 package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.InvoiceRecord;
+import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
 
 import javax.persistence.Column;
@@ -13,6 +14,20 @@ import java.time.LocalDateTime;
  *  This file was generated on 2020-07-30 11:20:01.
  */
 public interface InvoiceRecordDto extends InvoiceRecord {
+
+  /**
+   *  开票主体
+   */
+  @Override
+  @Column(
+          name = "`target`"
+  )
+  @Like
+  String getTarget();
+
+  @Override
+  void setTarget(String target);
+
   /**
    *  开票开始日期
    */
