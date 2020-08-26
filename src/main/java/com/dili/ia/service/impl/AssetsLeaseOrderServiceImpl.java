@@ -312,6 +312,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, leaseOrder.getCode());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, leaseOrder.getId());
         LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
         LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
         LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
@@ -328,9 +329,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseOrder condition = new AssetsLeaseOrder();
         condition.setCode(approvalParam.getBusinessKey());
         AssetsLeaseOrder leaseOrder = getActualDao().selectOne(condition);
-        AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
-        itemCondition.setLeaseOrderId(leaseOrder.getId());
-        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
+
         //只有创建状态的订单才能提交审批任务
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
             //最后一次审批，更新审批状态、租赁单状态，并且全量提交租赁单到结算
@@ -339,6 +338,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
                 //检查客户状态
                 checkCustomerState(leaseOrder.getCustomerId(), leaseOrder.getMarketId());
+                AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
+                itemCondition.setLeaseOrderId(leaseOrder.getId());
+                List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
                 leaseOrderItems.forEach(o -> {
                     //检查资产状态
                     assetsLeaseService.checkAssetState(o.getAssetsId());
@@ -363,10 +365,18 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
             //保存流程审批记录
             saveApprovalProcess(approvalParam, userTicket);
+            //写业务日志
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, leaseOrder.getId());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+            LoggerContext.put("logContent", approvalParam.getOpinion());
             //第一个摊位的区域id，用于获取一级区域名称，在流程中进行判断
-            Long districtId = leaseOrderItems.get(0).getDistrictId();
-            //提交审批任务
-            completeTask(approvalParam.getTaskId(), "true", getLevel1DistrictName(districtId));
+//            Long districtId = leaseOrderItems.get(0).getDistrictId();
+            //提交审批任务(现在不需要根据区域名称来判断流程)
+//            completeTask(approvalParam.getTaskId(), "true", getLevel1DistrictName(districtId));
+            completeTask(approvalParam.getTaskId(), "true", null);
         } else {
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态不正确");
         }
@@ -408,14 +418,22 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         saveApprovalProcess(approvalParam, userTicket);
 
         //查第一个摊位，用于获取一级区域，进行流程判断
-        AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
-        itemCondition.setLeaseOrderId(leaseOrder.getId());
-        itemCondition.setPage(1);
-        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
+//        AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
+//        itemCondition.setLeaseOrderId(leaseOrder.getId());
+//        itemCondition.setPage(1);
+//        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
         //第一个摊位的区域id，用于获取一级区域名称，在流程中进行判断
-        Long districtId = leaseOrderItems.get(0).getDistrictId();
-        //提交审批任务
-        completeTask(approvalParam.getTaskId(), "false", getLevel1DistrictName(districtId));
+//        Long districtId = leaseOrderItems.get(0).getDistrictId();
+        //写业务日志
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, leaseOrder.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+        LoggerContext.put("logContent", approvalParam.getOpinion());
+        //提交审批任务(现在不需要根据区域名称来判断流程)
+//        completeTask(approvalParam.getTaskId(), "false", getLevel1DistrictName(districtId));
+        completeTask(approvalParam.getTaskId(), "false", null);
     }
 
 
@@ -1247,7 +1265,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         approvalProcess.setTaskId(approvalParam.getTaskId());
         BaseOutput<TaskMapping> taskMappingBaseOutput = taskRpc.getById(approvalParam.getTaskId());
         if (!taskMappingBaseOutput.isSuccess()) {
-            throw new AppException("获取任务信息失败");
+            throw new AppException(taskMappingBaseOutput.getMessage());
         }
         approvalProcess.setTaskName(taskMappingBaseOutput.getData().getName());
         approvalProcess.setTaskTime(taskMappingBaseOutput.getData().getCreateTime());

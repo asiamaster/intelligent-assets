@@ -84,9 +84,9 @@ public class InvoiceRecordController {
      * @return BaseOutput
      */
     @PostMapping(value="/delete.action")
-    public @ResponseBody BaseOutput delete(Long id) {
+    public @ResponseBody BaseOutput delete(@RequestParam Long id, @RequestParam String businessKey) {
         try {
-            invoiceRecordService.delete(id);
+            invoiceRecordService.delete(id, businessKey);
             return BaseOutput.success("删除成功");
         } catch (Exception e) {
             return BaseOutput.failure("删除失败:"+e.getMessage());

@@ -159,7 +159,7 @@
                 $.ajax({
                     type: "POST",
                     url: "${contextPath}/invoiceRecord/delete.action",
-                    data: {id: selectedRow.id},
+                    data: {id: selectedRow.id, businessKey:selectedRow.businessKey},
                     dataType: "json",
                     async : true,
                     success : function(data) {
@@ -184,6 +184,11 @@
      */
     function queryDataHandler() {
         _grid.bootstrapTable('refreshOptions', {url: '/invoiceRecord/listPage.action'});
+    }
+
+    function clearForm() {
+        $('#queryForm .form-control').val('');
+        $("#type").empty();
     }
 
     /**

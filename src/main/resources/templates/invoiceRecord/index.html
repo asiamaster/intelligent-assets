@@ -1,5 +1,4 @@
 <#bs4Body>
-
 <div class="container-fluid">
 <#bs4nav>
     <form id="queryForm" role="form" novalidate>
@@ -11,8 +10,8 @@
                 <#bselect2 _id="type"  _provider="invoiceTypeProvider" _mode="remote" _optionVariable="invoiceTypeOption" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
-                <label for="business_key" >业务单号:</label>
-                <input type="text" class="form-control" name="business_key" id="business_key"/>
+                <label for="businessKey" >业务单号:</label>
+                <input type="text" class="form-control" name="businessKey" id="businessKey"/>
             </div>
             <div class="form-group col">
                 <label for="target" >开票主体:</label>
@@ -53,7 +52,7 @@
                 </div>
             </div>
             <div class="col align-self-center mt-3">
-                <button id="clear" type="button" class="btn btn-outline-primary mr-2" onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                <button id="clear" type="button" class="btn btn-outline-primary mr-2" onclick="clearForm();"><i class="fa fa-refresh"></i> 清空</button>
                 <button id="query" type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
             </div>
         </div>
