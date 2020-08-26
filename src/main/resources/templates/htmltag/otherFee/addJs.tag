@@ -138,5 +138,32 @@
         });
     }
 
+    $('#departmentId').on('change', function () {
+        let departmentId = $(this).val();
+        $('#chargeItemId option').remove();
+        $('#chargeItemName').val('')
+        $.ajax({
+            type: 'get',
+            dataType: "json",
+            data: {departmentId: departmentId},
+            url: '/departmentChargeItem/getChargeItemsByDepartment.action',
+            success: function(res){
+                debugger
+                if (res.success) {
+                    for (let i=0; i<res.data.length; i++ ) {
+                        $('#chargeItemId').append('<option value="' + res.data[i].chargeItemId + '" data-type="' + res.data[i].chargeItemName + '">' + res.data[i].chargeItemName + '</option>')
+                    }
+                }
+            },
+            error: function (error) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        })
+    })
+    $('#chargeItemId').on('change',  function () {
+        $('#chargeItemName').val($(this.data('chargeItemName')))
+    })
+
+
 
 </script>

@@ -18,7 +18,7 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '${contextPath}/otherFee/listPage.action', pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '${contextPath}/departmentChargeItem/listPage.action', pageSize: parseInt(size)});
     });
 
 
@@ -61,9 +61,9 @@
      */
     function openAddDepartmentHandler() {
         dia = bs4pop.dialog({
-            title: '新增其他收费',//对话框title
+            title: '设置绑定',//对话框title
             content: '${contextPath}/departmentChargeItem/addDepartment.html', //对话框内容，可以是 string、element，$object
-            width: '800px',//宽度
+            width: '900px',//宽度
             height: '680px',//高度
             isIframe: true,//默认是页面层，非iframe
         });
@@ -73,16 +73,19 @@
     function doAddDepartmentHandler(){
         let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
-            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
-            $('.collapse:not(.show)').addClass('show');
             return false;
         }
         bui.loading.show('努力提交中，请稍候。。。');
-        // let _formData = new FormData($('#saveForm')[0]);
+        let department  = []
+        $.each($('[name="department"]:checked'), function (index, element) {
+            department.push([{departmentId: $(element).val(), departmentName: $(element).siblings('.custom-control-label').text()}])
+        })
+        let data =  $.extend({}, $('#chargeItemId').serializeObject(), {departmentList: department})
+        debugger
         $.ajax({
             type: "POST",
             url: "${contextPath}/departmentChargeItem/doAddDepartment.action",
-            data: buildFormData(),
+            data: data,
             dataType: "json",
             success: function (ret) {
                 bui.loading.hide();
@@ -123,5 +126,14 @@
     _grid.on('uncheck.bs.table', function (e, row, $element) {
         currentSelectRowIndex = undefined;
     });
+
+    $("#checkAll").click(function(){
+        $('#department-group :checkbox').not(this).prop('checked', this.checked);
+    });
+    $(document).on('change', '#department-group :checkbox', function(){
+        $("#checkAll").prop('checked', '');
+    });
+
+
 
 </script>

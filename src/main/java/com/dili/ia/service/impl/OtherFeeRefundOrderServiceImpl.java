@@ -1,17 +1,15 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.BoutiqueEntranceRecord;
-import com.dili.ia.domain.BoutiqueFeeOrder;
+import com.dili.ia.domain.DepartmentChargeItem;
+import com.dili.ia.domain.OtherFee;
+import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.TransferDeductionItem;
-import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.BoutiqueOrderStateEnum;
-import com.dili.ia.glossary.StockInStateEnum;
-import com.dili.ia.service.BoutiqueEntranceRecordService;
-import com.dili.ia.service.BoutiqueFeeOrderService;
+import com.dili.ia.glossary.OtherFeeStateEnum;
+import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.service.CustomerAccountService;
+import com.dili.ia.service.OtherFeeService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.settlement.domain.SettleOrder;
@@ -19,9 +17,6 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
-import com.dili.uap.sdk.domain.User;
-import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -35,16 +30,12 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
-public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> implements RefundOrderDispatcherService {
+public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> implements RefundOrderDispatcherService {
 
-    private final static Logger logger = LoggerFactory.getLogger(BoutiqueRefundOrderServiceImpl.class);
-
-
-    @Autowired
-    private BoutiqueFeeOrderService boutiqueFeeOrderService;
+    private final static Logger logger = LoggerFactory.getLogger(OtherFeeRefundOrderServiceImpl.class);
 
     @Autowired
-    private BoutiqueEntranceRecordService boutiqueEntranceRecordService;
+    private OtherFeeService otherFeeService;
 
     @Autowired
     private TransferDeductionItemService transferDeductionItemService;
@@ -53,7 +44,7 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     private CustomerAccountService customerAccountService;
 
     /**
-     * 退款单 -- 提交(退款的提交无需改变通行证缴费单的信息)
+     * 退款单 -- 提交(无需改变通行证缴费单的状态)
      * 
      * @param
      * @return 
@@ -65,7 +56,7 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     }
 
     /**
-     * 退款单 -- 撤回(退款的撤回无需改变通行证缴费单的信息)
+     * 退款单 -- 撤回(无需改变通行证缴费单的状态)
      *
      * @param
      * @return
@@ -77,7 +68,7 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     }
 
     /**
-     * 退款单 -- 退款成功回调(精品停车的交费单状态由退款中修改为已退款)
+     * 退款单 -- 退款成功回调(将通行证缴费单的状态由退款中修改为已退款)
      *
      * @param
      * @return
@@ -86,13 +77,15 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     @Override
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 
-        BoutiqueFeeOrderDto orderDto = boutiqueEntranceRecordService.getBoutiqueAndOrderByCode(refundOrder.getBusinessCode());
-        if (orderDto != null) {
-            if (!BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode().equals(orderDto.getState())) {
+        OtherFee otherFee = new OtherFee();
+        otherFee.setCode(refundOrder.getBusinessCode());
+        OtherFee otherFeeInfo = otherFeeService.selectByExample(otherFee).get(0);
+        if (otherFeeInfo != null) {
+            if (OtherFeeStateEnum.SUBMITTED.getCode().equals(otherFeeInfo.getState())) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
             }
 
-            this.updateState(refundOrder.getBusinessCode(), orderDto.getVersion(), BoutiqueOrderStateEnum.REFUNDED);
+            this.updateState(refundOrder.getBusinessCode(), otherFeeInfo.getVersion(), OtherFeeStateEnum.REFUND);
 
             //转抵扣充值
             TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
@@ -110,12 +103,11 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
                 });
             }
         }
-
         return BaseOutput.success();
     }
 
     /**
-     * 退款单 -- 取消(精品停车的交费单状态由退款中修改为已缴费)
+     * 退款单 -- 取消(将通行证缴费单的状态由退款中还原原状态 - 未生效/已生效/已过期)
      *
      * @param
      * @return
@@ -124,13 +116,15 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     @Override
     public BaseOutput cancelHandler(RefundOrder refundOrder) {
 
-        BoutiqueFeeOrderDto orderDto = boutiqueEntranceRecordService.getBoutiqueAndOrderByCode(refundOrder.getBusinessCode());
-        if (orderDto != null) {
-            if (!BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode().equals(orderDto.getState())) {
+        OtherFee otherFee = new OtherFee();
+        otherFee.setCode(refundOrder.getBusinessCode());
+        OtherFee otherFeeInfo = otherFeeService.selectByExample(otherFee).get(0);
+        if (otherFeeInfo != null) {
+            if (!PassportStateEnum.SUBMITTED_REFUND.getCode().equals(otherFeeInfo.getState())) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
             }
 
-            this.updateState(refundOrder.getBusinessCode(), orderDto.getVersion(), BoutiqueOrderStateEnum.PAID);
+            this.updateState(refundOrder.getBusinessCode(), otherFeeInfo.getVersion(), OtherFeeStateEnum.PAID);
         }
         return BaseOutput.success();
     }
@@ -156,22 +150,22 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
      */
     @Override
     public Set<String> getBizType() {
-        return Sets.newHashSet(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
+        return Sets.newHashSet(BizTypeEnum.OTHER_FEE.getCode());
     }
 
-    private void updateState(String code, Integer version, BoutiqueOrderStateEnum state) {
+    private void updateState(String code, Integer version, OtherFeeStateEnum state) {
 
-        BoutiqueFeeOrder domain = new BoutiqueFeeOrder();
+        OtherFee domain = new OtherFee();
         domain.setVersion(version + 1);
         domain.setState(state.getCode());
         domain.setModifyTime(LocalDateTime.now());
 
-        BoutiqueFeeOrder condition = new BoutiqueFeeOrder();
+        OtherFee condition = new OtherFee();
         condition.setCode(code);
         condition.setVersion(version);
 
-        // 修改精品停车交费单状态
-        int row = boutiqueFeeOrderService.updateSelectiveByExample(domain, condition);
+        // 修改通行证交费单状态
+        int row = otherFeeService.updateSelectiveByExample(domain, condition);
         if (row != 1) {
             throw new BusinessException(ResultCode.DATA_ERROR, "业务繁忙,稍后再试");
         }
