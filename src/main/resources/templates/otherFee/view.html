@@ -1,6 +1,6 @@
 <#bs4Body>
     <div class="container-fluid pb-5">
-        <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.earnest_order'/>">
+        <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.otherFee'/>">
         <form id="saveForm" role="form" novalidate class="pb-5">
             <div class="breadcrumb">
                 基础信息
@@ -8,75 +8,99 @@
             </div>
             <div class="row row-cols-4 collapse show" id="baseInfo">
                 <div class="form-group col">
-                    <label for="">业务单号<i class="red">*</i></label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="code">业务单号<i class="red">*</i></label>
+                    <input type="text" class="form-control isMobile" value="${otherFee.code}" disabled />
                 </div>
                 <div class="form-group col">
-                    <label for="">状态<i class="red">*</i></label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="state">状态<i class="red">*</i></label>
+                    <select id="state"  name="state" class="form-control" readonly></select>
+                    <#bcomboProvider _log="状态" _id="state" _provider="otherFeeStateProvider" _value="${otherFee.state!}"/>
                 </div>
                 <div class="form-group col">
-                    <label for="">收费项目<i class="red">*</i></label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="chargeItemName">收费项目<i class="red">*</i></label>
+                    <input type="text" class="form-control isMobile" value="${otherFee.chargeItemName}" disabled />
                 </div>
                 <div class="form-group col">
-                    <label for="">业务所属部门<i class="red">*</i></label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="departmentName">业务所属部门<i class="red">*</i></label>
+                    <input type="text" class="form-control isMobile" value="${otherFee.departmentName}" disabled />
                 </div>
 
                 <div class="form-group col">
-                    <label for="">客户名称<i class="red">*</i></label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="customerName">客户名称<i class="red">*</i></label>
+                    <input type="text" class="form-control isMobile" value="${otherFee.customerName}" disabled />
                 </div>
                 <div class="form-group col">
-                    <label for="">证件号码<i class="red">*</i></label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="certificateNumber">证件号码<i class="red">*</i></label>
+                    <input type="text" class="form-control isMobile" value="${otherFee.certificateNumber}" disabled />
                 </div>
                 <div class="form-group col">
-                    <label for="">联系电话<i class="red">*</i></label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="customerCellphone">联系电话<i class="red">*</i></label>
+                    <input type="text" class="form-control isMobile" value="${otherFee.customerCellphone}" disabled />
                 </div>
                 <div class="form-group col">
-                    <label for="">费用类型<i class="red">*</i></label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="assetsType">费用类型<i class="red">*</i></label>
+                    <select id="assetsType"  name="assetsType" class="form-control" disabled></select>
+                    <#bcomboProvider _log="状态" _id="assetsType" _provider="assetsTypeProvider" _value="${otherFee.assetsType!}"/>
                 </div>
                 <div class="form-group col">
-                    <label for="">费用地址</label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="assetsName">费用地址</label>
+                    <input type="text" class="form-control isMobile" value="${otherFee.assetsName}" disabled />
                 </div>
                 <div class="form-group col">
-                    <label for="startDate">开始时间</label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="startTime">开始时间</label>
+                    <input type="text" class="form-control isMobile" value="${otherFee.startTime,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" disabled />
                 </div>
                 <div class="form-group col">
-                    <label for="endDate">结束时间</label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="endTime">结束时间</label>
+                    <input type="text" class="form-control isMobile" value="${otherFee.endTime,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" disabled />
                 </div>
                 <div class="form-group col">
-                    <label for="">经营品类</label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <label for="categoryName">经营品类</label>
+                    <input type="text" class="form-control isMobile" value="${otherFee.categoryName}" disabled />
                 </div>
                 <div class="form-group col">
                     <label for="">金额</label>
-                    <input type="text" class="form-control isMobile" value="" disabled />
+                    <input type="text" class="form-control isMobile" value="<#centToYuan value='${otherFee.amount!}'/>" disabled />
                 </div>
                 <div class="form-group col-12">
                     <label for="notes">备注</label>
-                    <textarea id="notes" class="form-control" rows="2" maxlength="100" disabled></textarea>
+                    <input id="notes" class="form-control" rows="2" maxlength="100" value="${otherFee.notes}" disabled></textarea>
                 </div>
             </div>
-            <div class="breadcrumb">
-                业务记录
-                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#otherInfo" aria-expanded="true" aria-controls="otherInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
-            </div>
-            <div class="row row-cols-4 collapse show" id="otherInfo">
-            </div>
-            <div class="modal-footer-wrap">
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
-                    <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doAddXXXHandler,1000,true)()" id="formSubmit">确定</button>
-                </div>
-            </div>
+
+
+        <%if(isNotEmpty(logs) && logs.~size>0){ %>
+        <div class="breadcrumb">
+            业务记录
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#recordInfo" aria-expanded="true" aria-controls="recordInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+        </div>
+        <div class="collapse" id="recordInfo">
+            <table data-toggle="table">
+                <thead>
+                <tr>
+                    <th data-align="center">时间</th>
+                    <th data-align="center">操作</th>
+                    <th data-align="center">详情</th>
+                    <th data-align="center">补充信息</th>
+                    <th data-align="center">工作员</th>
+                </tr>
+                </thead>
+                <tbody>
+                <%
+                for(log in logs){%>
+                <tr>
+                    <td class="text-center align-middle" >${log.createTime!}</td>
+                    <td class="text-center align-middle" >${log.operationTypeText!}</td>
+                    <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.content!}" >${log.content!}</td>
+                    <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.notes!}" >${log.notes!}</td>
+                    <td class="text-center align-middle" >${log.operatorName!}</td>
+                </tr>
+                <% }%>
+                </tbody>
+            </table>
+        </div>
+        <% }%>
+
         </form>
     </div>
 

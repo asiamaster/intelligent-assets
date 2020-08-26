@@ -74,7 +74,6 @@
         displayFieldName: 'name',
         serviceUrl: '/assets/searchAssets.action',
         transformResult: function (result) {
-            debugger
             if(result.success){
                 let data = result.data;
                 return {
@@ -100,9 +99,16 @@
         // let formData = new FormData($('#saveForm')[0]);
         let formData = $("input:not(table input),textarea,select").serializeObject();
         let typeName = $('#typeCode').find("option:selected").text();
+        // 部门名称
+        let departmentName = $('#departmentId').find("option:selected").text();
+        formData.departmentName = departmentName;
+        // 收费项名称
+        let chargeItemName = $('#chargeItemId').find("option:selected").text();
+        formData.chargeItemName = chargeItemName;
+
         bui.util.yuanToCentForMoneyEl(formData);
         $.extend(formData,{typeName});
-        return formData;
+        return JSON.stringify(formData);
     }
 
     // 提交保存
@@ -123,6 +129,7 @@
             url: "${contextPath}/otherFee/doAdd.action",
             data: buildFormData(),
             dataType: "json",
+            contentType: "application/json",
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
@@ -148,7 +155,6 @@
             data: {departmentId: departmentId},
             url: '/departmentChargeItem/getChargeItemsByDepartment.action',
             success: function(res){
-                debugger
                 if (res.success) {
                     for (let i=0; i<res.data.length; i++ ) {
                         $('#chargeItemId').append('<option value="' + res.data[i].chargeItemId + '" data-type="' + res.data[i].chargeItemName + '">' + res.data[i].chargeItemName + '</option>')

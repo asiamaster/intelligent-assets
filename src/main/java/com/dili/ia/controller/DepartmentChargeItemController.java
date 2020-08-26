@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -77,7 +78,7 @@ public class DepartmentChargeItemController {
      * @date   2020/8/19
      */
     @RequestMapping(value="/addDepartment.html", method = RequestMethod.GET)
-    public String addDepartment(ModelMap modelMap, Long chargeItemId) {
+    public String addDepartment(ModelMap modelMap, String chargeItemId) {
         // 根据类型查询
         DepartmentChargeItemDto itemDto = departmentChargeItemService.selectListByChargeItemId(chargeItemId);
         modelMap.put("departmentChargeItem", itemDto);
@@ -93,7 +94,7 @@ public class DepartmentChargeItemController {
      * @date   2020/8/19
      */
     @RequestMapping(value="/doAddDepartment.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput addDepartmentCharge(@ModelAttribute DepartmentChargeItemDto departmentChargeItemDto) throws Exception {
+    public @ResponseBody BaseOutput addDepartmentCharge(@RequestBody DepartmentChargeItemDto departmentChargeItemDto) throws Exception {
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             departmentChargeItemService.addDepartmentChargeItems(departmentChargeItemDto, userTicket);

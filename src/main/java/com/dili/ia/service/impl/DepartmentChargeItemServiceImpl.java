@@ -125,7 +125,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
      * @date   2020/8/19
      */
     @Override
-    public DepartmentChargeItemDto selectListByChargeItemId(Long chargeItemId) {
+    public DepartmentChargeItemDto selectListByChargeItemId(String chargeItemId) {
         List<DepartmentByOtherFeeDto> departmentDtoList = new ArrayList<>();
         DepartmentChargeItemDto itemDto = new DepartmentChargeItemDto();
 
@@ -155,45 +155,33 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
      */
     @Override
     public void addDepartmentChargeItems(DepartmentChargeItemDto departmentChargeItemDto, UserTicket userTicket) throws Exception {
-        // 先根据费用类型查询
-        List<DepartmentChargeItem> itemList = this.getActualDao().selectListByChargeItemId(departmentChargeItemDto.getId());
+
+        List<DepartmentChargeItem> itemList = this.getActualDao().selectListByChargeItemId(departmentChargeItemDto.getChargeItemId());
         if (itemList == null || itemList.size() == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "收费项已不存在");
         }
 
-        // 拿到表中同一 chargeItemId 的部门id集合
-        List<Long> departmentIdListByTable = new ArrayList<>();
-        for (DepartmentChargeItem itemInfo : itemList) {
-            departmentIdListByTable.add(itemInfo.getDepartmentId());
-        }
+        // 根据 chargeItemId 删除原有的，插入新增的
+        List<String> chargeItemIds = new ArrayList<>();
+        chargeItemIds.add(departmentChargeItemDto.getChargeItemId());
+        // 根据 chargeItemId 删除原有的，插入新增的
+        this.getActualDao().deleteEntityListByChargeItemIds(chargeItemIds);
 
-        // 拿到参数中的部门id集合
-        List<Long> departmentIdListByParam = new ArrayList<>();
         List<DepartmentByOtherFeeDto> departmentList = departmentChargeItemDto.getDepartmentList();
-        for (DepartmentByOtherFeeDto departmentInfo : departmentList) {
-            departmentIdListByParam.add(departmentInfo.getDepartmentId());
-        }
-
-        // 得到两个集合中，参数集合中有，表集合中没有的部门ids
-        departmentIdListByParam.removeAll(departmentIdListByTable);
-
-        if (departmentIdListByParam != null && departmentIdListByParam.size() > 0) {
-            // 参数中的部门集合，排除了表中含有的部门集合，剩下的是要插入数据库中的
+        if (departmentList != null && departmentList.size() > 0) {
             List<DepartmentChargeItem> itemParamList = new ArrayList<>();
             for (DepartmentByOtherFeeDto departmentInfo : departmentList) {
-                if (departmentIdListByParam.contains(departmentInfo.getDepartmentId())) {
-                    DepartmentChargeItem itemParam = new DepartmentChargeItem();
-                    itemParam.setCreateTime(LocalDateTime.now());
-                    itemParam.setModifyTime(LocalDateTime.now());
-                    itemParam.setMarketId(userTicket.getFirmId());
-                    itemParam.setCreator(userTicket.getRealName());
-                    itemParam.setMarketCode(userTicket.getFirmCode());
-                    itemParam.setChargeItemId(departmentChargeItemDto.getChargeItemId());
-                    itemParam.setChargeItemName(departmentChargeItemDto.getChargeItemName());
-                    itemParam.setDepartmentId(departmentInfo.getDepartmentId());
-                    itemParam.setDepartmentName(departmentInfo.getDepartmentName());
-                    itemParamList.add(itemParam);
-                }
+                DepartmentChargeItem itemParam = new DepartmentChargeItem();
+                itemParam.setCreateTime(LocalDateTime.now());
+                itemParam.setModifyTime(LocalDateTime.now());
+                itemParam.setMarketId(userTicket.getFirmId());
+                itemParam.setCreator(userTicket.getRealName());
+                itemParam.setMarketCode(userTicket.getFirmCode());
+                itemParam.setChargeItemId(departmentChargeItemDto.getChargeItemId());
+                itemParam.setChargeItemName(itemList.get(0).getChargeItemName());
+                itemParam.setDepartmentId(departmentInfo.getDepartmentId());
+                itemParam.setDepartmentName(departmentInfo.getDepartmentName());
+                itemParamList.add(itemParam);
             }
 
             if (this.batchInsert(itemParamList) == 0) {
@@ -204,6 +192,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
 
     /**
      * 新增其他收费的时候，选择部门，查询相关联的收费项
+     *
      *
      * @param  departmentId
      * @return List

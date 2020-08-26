@@ -1,13 +1,10 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.OtherFee;
-import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.OtherFeeStateEnum;
-import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.OtherFeeService;
 import com.dili.ia.service.RefundOrderDispatcherService;
@@ -81,7 +78,7 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         otherFee.setCode(refundOrder.getBusinessCode());
         OtherFee otherFeeInfo = otherFeeService.selectByExample(otherFee).get(0);
         if (otherFeeInfo != null) {
-            if (OtherFeeStateEnum.SUBMITTED.getCode().equals(otherFeeInfo.getState())) {
+            if (OtherFeeStateEnum.REFUNDING.getCode().equals(otherFeeInfo.getState())) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
             }
 
@@ -120,7 +117,7 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         otherFee.setCode(refundOrder.getBusinessCode());
         OtherFee otherFeeInfo = otherFeeService.selectByExample(otherFee).get(0);
         if (otherFeeInfo != null) {
-            if (!PassportStateEnum.SUBMITTED_REFUND.getCode().equals(otherFeeInfo.getState())) {
+            if (!OtherFeeStateEnum.REFUNDING.getCode().equals(otherFeeInfo.getState())) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
             }
 

@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.BoutiqueFreeSets;
-import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
@@ -560,7 +559,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             printDto.setCustomerName(recordInfo.getCustomerName());
             printDto.setRefundReason(refundOrder.getRefundReason());
             printDto.setSettlementOperator(order.getOperatorName());
-            printDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
+            printDto.setBusinessType(BizTypeEnum.BOUTIQUE_ENTRANCE.getName());
             printDto.setAmount(String.valueOf(orderInfo.getAmount()));
             printDto.setCustomerCellphone(recordInfo.getCustomerCellphone());
             //TODO 判断支付方式

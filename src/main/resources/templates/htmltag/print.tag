@@ -24,7 +24,6 @@ function print(url,temp){
           }
           var paramStr ="";
           var data=loadPrintData(url);
-          debugger;
           if(!data){
               return;
           }
