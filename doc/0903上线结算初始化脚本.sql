@@ -37,8 +37,8 @@ INSERT INTO `application_config` (`app_id`, `group_code`, `code`, `val`, `state`
 
 -- v1.1.0版本新增组合方式脚本
 INSERT INTO `settle_config` (`group_code`, `code`, `val`, `state`, `notes`) VALUES
-	(101, 6, '组合支付', 1, '初始数据(101支付方式)'),
-	(101, 7, '虚拟支付', 1, '初始数据(101支付方式)');
+	(101, 6, '组合支付', 1, '初始数据(101支付方式)');
+--,(101, 7, '虚拟支付', 1, '初始数据(101支付方式)');
 
 -- 增加保证金业务类型相关脚本
 INSERT INTO `application_config` (`app_id`, `group_code`, `code`, `val`, `state`, `notes`) VALUES
