@@ -45,4 +45,15 @@ public class InvoiceRecordServiceImpl extends BaseServiceImpl<InvoiceRecord, Lon
         condition.setCode(invoiceRecord.getBusinessKey());
         assetsLeaseOrderService.updateSelectiveByExample(assetsLeaseOrder, condition);
     }
+
+    @Override
+    @Transactional
+    public void delete(Long id, String businessKey) {
+        delete(id);
+        AssetsLeaseOrder assetsLeaseOrder = new AssetsLeaseOrder();
+        assetsLeaseOrder.setIsInvoice(0);
+        AssetsLeaseOrder condition = new AssetsLeaseOrder();
+        condition.setCode(businessKey);
+        assetsLeaseOrderService.updateSelectiveByExample(assetsLeaseOrder, condition);
+    }
 }
