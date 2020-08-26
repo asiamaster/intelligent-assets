@@ -1,7 +1,7 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.DepositOrder;
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;

@@ -2,7 +2,7 @@ package com.dili.ia.api;
 
 import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
