@@ -263,6 +263,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         Map<String, Object> variables = new HashMap<>();
         variables.put("districtId", districtId.toString());
         variables.put("businessKey", leaseOrder.getCode());
+        variables.put("firmId", userTicket.getFirmId());
         if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
             //发送消息通知流程
             BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "reapply", null);

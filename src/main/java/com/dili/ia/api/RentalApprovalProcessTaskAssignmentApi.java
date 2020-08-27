@@ -146,6 +146,10 @@ public class RentalApprovalProcessTaskAssignmentApi {
         ApproverAssignmentDto approverAssignment = DTOUtils.newInstance(ApproverAssignmentDto.class);
         approverAssignment.setProcessDefinitionKey(taskMapping.getProcessDefinitionKey());
         approverAssignment.setTaskDefinitionKey(taskMapping.getTaskDefinitionKey());
+        Object firmId = taskMapping.getProcessVariables().get("firmId");
+        if(firmId != null) {
+            approverAssignment.setFirmId(Long.parseLong(firmId.toString()));
+        }
         List<ApproverAssignment> approverAssignments = approverAssignmentService.listByExample(approverAssignment);
         //如果未找到审批人
         if(CollectionUtils.isEmpty(approverAssignments)){
