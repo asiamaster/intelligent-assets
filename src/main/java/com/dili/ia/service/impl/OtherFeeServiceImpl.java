@@ -84,6 +84,18 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/otherFee/settlementDealHandler";
 
     /**
+     * 根据code查询数据实例
+     *
+     * @param  code
+     * @return
+     * @date   2020/8/27
+     */
+    @Override
+    public OtherFee getOtherFeeByCode(String code) {
+        return this.getActualDao().getOtherFeeByCode(code);
+    }
+
+    /**
      * 新增其他收费
      *
      * @param otherFeeDto

@@ -34,10 +34,10 @@
         强制离场 forceLeaveBoutique
         查看 viewBoutique
     精品停车退款 http://ia.diligrp.com:8381/refundOrder/6/index.html
-        提交 submitRefundOrder
-        撤回 withdrawRefundOrder
-        修改 updateRefundOrder   (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
-        取消 cancelRefundOrder
+        提交 submitBoutiqueRefundOrder
+        撤回 withdrawBoutiqueRefundOrder
+        修改 updateBoutiqueRefundOrder   (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        取消 cancelBoutiqueRefundOrder
     精品停车时长设置 http://ia.diligrp.com:8381/boutiqueFreeSets/set.html
         新增 addBoutiqueSets
 
@@ -64,10 +64,10 @@
         退款 refundLaborVest (内部链接:http://ia.diligrp.com:8381/labor/vest/refundApply.html)
         打印 printLaborVest
     通行证退款 http://ia.diligrp.com:8381/refundOrder/7/index.html
-        提交 submitRefundOrder
-        撤回 withdrawRefundOrder
-        修改 updateRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
-        取消 cancelRefundOrder
+        提交 submitPassportRefundOrder
+        撤回 withdrawPassportRefundOrder
+        修改 updatePassportRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        取消 cancelPassportRefundOrder
     马甲退款 http://ia.diligrp.com:8381/refundOrder/11/index.html
         提交 submitRefundOrder
         撤回 withdrawRefundOrder
@@ -107,6 +107,21 @@
     存储周期 http://ia.diligrp.com:8381/stock/categoryCycle/list.html
         查看品类列表 CATEGORY_TABLE (内部链接 :http://ia.diligrp.com:8381/stock/categoryCycle/table.html)
         修改周期 EDIT_CATEGORY_CYCLE
+
+其他收费
+    其他收费 http://ia.diligrp.com:8381/otherFee/index.html
+        新增 addOtherFee      (内部链接：http://ia.diligrp.com:8381/otherFee/add.html)
+        修改 updateOtherFee   (内部链接：http://ia.diligrp.com:8381/otherFee/update.html)
+        提交 submitOtherFee
+        撤回 withdrawOtherFee
+        取消 cancelOtherFee
+        退款申请 refundApplyOtherFee (内部链接：http://ia.diligrp.com:8381/otherFee/refundApply.html)
+
+    其他收费退款 http://ia.diligrp.com:8381/refundOrder/10/index.html
+        提交 submitOtherFeeRefundOrder
+        撤回 withdrawOtherFeeRefundOrder
+        修改 updateOtherFeeRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        取消 cancelOtherFeeRefundOrder
 
 数据字典
     通行证车类型 passport_car_type

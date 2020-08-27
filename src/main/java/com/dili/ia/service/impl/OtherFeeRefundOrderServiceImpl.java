@@ -74,11 +74,9 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     @Override
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 
-        OtherFee otherFee = new OtherFee();
-        otherFee.setCode(refundOrder.getBusinessCode());
-        OtherFee otherFeeInfo = otherFeeService.selectByExample(otherFee).get(0);
+        OtherFee otherFeeInfo = otherFeeService.getOtherFeeByCode(refundOrder.getBusinessCode());
         if (otherFeeInfo != null) {
-            if (OtherFeeStateEnum.REFUNDING.getCode().equals(otherFeeInfo.getState())) {
+            if (!OtherFeeStateEnum.REFUNDING.getCode().equals(otherFeeInfo.getState())) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
             }
 

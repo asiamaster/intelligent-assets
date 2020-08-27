@@ -333,8 +333,7 @@ public class OtherFeeController {
      * @date 2020/8/19
      */
     @RequestMapping(value = "/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput addRefundOrder(OtherFeeRefundOrderDto refundOrderDto) {
+    public @ResponseBody BaseOutput addRefundOrder(@RequestBody OtherFeeRefundOrderDto refundOrderDto) {
         try {
             return otherFeeService.refund(refundOrderDto);
         } catch (BusinessException e) {

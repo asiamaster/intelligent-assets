@@ -20,6 +20,15 @@ import com.dili.uap.sdk.domain.UserTicket;
 public interface OtherFeeService extends BaseService<OtherFee, Long> {
 
     /**
+     * 根据code查询数据实例
+     *
+     * @param  code
+     * @return
+     * @date   2020/8/27
+     */
+    OtherFee getOtherFeeByCode(String code);
+
+    /**
      * 新增其他收费
      *
      * @param  otherFeeDto

@@ -286,6 +286,12 @@
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_refund').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.OtherFeeStateEnum.REFUNDING.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.OtherFeeStateEnum.REFUND.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
         }
     });
 
