@@ -49,7 +49,7 @@
                 <%if(isNotEmpty(refundOrder.businessItemId)){ %>
                 <div class="row row-cols-4">
                     <div class="form-group col">
-                        <label for="assetsName" class="">摊位编号</label>
+                        <label for="assetsName" class="">${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItem.assetsType).getName()}编号</label>
                         <input type="text" class="form-control" id="assetsName" name="assetsName" value="${leaseOrderItem.assetsName}" disabled/>
                     </div>
                     <%if(isNotEmpty(refundFeeItems) && refundFeeItems.~size>0){

@@ -52,7 +52,7 @@
         <% if(isNotEmpty(leaseOrderItem)){ %>
         <div class="row row-cols-4">
             <div class="form-group col">
-                <label for="assetsName">摊位编号<i class="red">*</i></label>
+                <label for="assetsName">${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.assetsType).getName()}编号<i class="red">*</i></label>
                 <input type="text" class="form-control" id="assetsName" name="assetsName" value="${leaseOrderItem.assetsName}" required readonly/>
             </div>
             <%if(isNotEmpty(businessChargeItems) && businessChargeItems.~size>0){

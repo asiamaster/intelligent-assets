@@ -1,4 +1,4 @@
-package com.dili.ia.domain.dto;
+package com.dili.ia.domain.dto.printDto;
 
 /**
  * 打印数据传输对象

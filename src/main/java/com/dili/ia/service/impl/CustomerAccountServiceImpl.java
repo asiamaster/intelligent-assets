@@ -323,7 +323,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
                 oldRefundOrder.setBank(null);
                 oldRefundOrder.setBankCardNo(null);
             }
-            BaseOutput<RefundOrder> output = refundOrderService.doUpdatedHandler(refundOrder);
+            BaseOutput<RefundOrder> output = refundOrderService.doUpdatedHandler(oldRefundOrder);
             if (!output.isSuccess()) {
                 LOG.info("客户账户定金退款【业务ID：{}】退款修改接口异常,原因：{}", refundOrder.getBusinessId(), output.getMessage());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常;" + output.getMessage());
