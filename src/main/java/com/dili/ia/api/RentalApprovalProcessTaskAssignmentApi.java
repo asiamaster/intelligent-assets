@@ -130,15 +130,15 @@ public class RentalApprovalProcessTaskAssignmentApi {
      * @return
      */
     private Assignment buildApprovalAssignment(TaskMapping taskMapping){
-        Map<String, Object> processVariables = taskMapping.getProcessVariables();
+//        Map<String, Object> processVariables = taskMapping.getProcessVariables();
         //获取流程参数中的区域id，以确认审批人
-        Long districtId = Long.parseLong((String)processVariables.get("districtId"));
-        BaseOutput<DistrictDTO> districtById = assetsRpc.getDistrictById(districtId);
-        //查询失败，则返回默认处理人
-        if(!districtById.isSuccess()){
-            //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
-            return getExceptionHandlerAssignment();
-        }
+//        Long districtId = Long.parseLong((String)processVariables.get("districtId"));
+//        BaseOutput<DistrictDTO> districtById = assetsRpc.getDistrictById(districtId);
+//        //查询失败，则返回默认处理人
+//        if(!districtById.isSuccess()){
+//            //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
+//            return getExceptionHandlerAssignment();
+//        }
         //审批人分配(现在不需要根据区域获取审批人，这里注释掉)
 //        List<ApproverAssignment> approverAssignments = listApproverAssignmentByDistrict(districtById.getData(), taskMapping);
 

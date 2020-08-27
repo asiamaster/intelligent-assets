@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -54,21 +55,38 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
             batchInsert(approverAssignments);
         }else {//单个修改审批人配置
             //如果修改了流程、任务和区域，则判断是否和已有的数据重复
-            if(!isProcessTaskDistrictEqual(originalApproverAssignment, approverAssignmentDto)){
-                ApproverAssignment approverAssignmentCondition = DTOUtils.newInstance(ApproverAssignment.class);
+//            if(!isProcessTaskDistrictEqual(originalApproverAssignment, approverAssignmentDto)){
+//                ApproverAssignment approverAssignmentCondition = DTOUtils.newInstance(ApproverAssignment.class);
+//                approverAssignmentCondition.setTaskDefinitionKey(approverAssignmentDto.getTaskDefinitionKey());
+//                approverAssignmentCondition.setProcessDefinitionKey(approverAssignmentDto.getProcessDefinitionKey());
+//                approverAssignmentCondition.setDistrictId(approverAssignmentDto.getDistrictId());
 //                approverAssignmentCondition.setAssignee(approverAssignmentDto.getAssignee());
+//                List<ApproverAssignment> select = getActualDao().select(approverAssignmentCondition);
+//                //在相同的区域、流程和任务定义，不允许有不同的审批人(以后支持多实例/会签功能后，会调整)
+//                if(!select.isEmpty()){
+//                    ApproverAssignment approverAssignment = select.get(0);
+//                    //这里的判断，主要是因为DistrictId可能为空，这里需要再次校验
+//                    if(approverAssignmentDto.getDistrictId() == null && approverAssignment.getDistrictId() == null) {
+//                        throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
+//                    }
+//                }
+//            }
+            //如果没有修改，则直接返回
+            if(isApproverAssignmentEqual(originalApproverAssignment, approverAssignmentDto)){
+                return;
+            }
+            ApproverAssignment approverAssignmentCondition = DTOUtils.newInstance(ApproverAssignment.class);
+                approverAssignmentCondition.setAssignee(approverAssignmentDto.getAssignee());
                 approverAssignmentCondition.setTaskDefinitionKey(approverAssignmentDto.getTaskDefinitionKey());
                 approverAssignmentCondition.setProcessDefinitionKey(approverAssignmentDto.getProcessDefinitionKey());
                 approverAssignmentCondition.setDistrictId(approverAssignmentDto.getDistrictId());
-                approverAssignmentCondition.setAssignee(approverAssignmentDto.getAssignee());
                 List<ApproverAssignment> select = getActualDao().select(approverAssignmentCondition);
-                //在相同的区域、流程和任务定义，不允许有不同的审批人(以后支持多实例/会签功能后，会调整)
-                if(!select.isEmpty()){
-                    ApproverAssignment approverAssignment = select.get(0);
-                    //这里的判断，主要是因为DistrictId可能为空，这里需要再次校验
-                    if(approverAssignmentDto.getDistrictId() == null && approverAssignment.getDistrictId() == null) {
-                        throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
-                    }
+            //在相同的区域、流程和任务定义，不允许有不同的审批人(以后支持多实例/会签功能后，会调整)
+            if(!select.isEmpty()){
+                ApproverAssignment approverAssignment = select.get(0);
+                //这里的判断，主要是因为DistrictId可能为空，这里需要再次校验
+                if(approverAssignmentDto.getDistrictId() == null && approverAssignment.getDistrictId() == null) {
+                    throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
                 }
             }
             if(approverAssignmentDto.getDistrictId() == null){
@@ -100,5 +118,18 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
         return originalApproverAssignment.getProcessDefinitionKey().equals(approverAssignmentDto.getProcessDefinitionKey())
                 && originalApproverAssignment.getTaskDefinitionKey().equals(approverAssignmentDto.getTaskDefinitionKey())
                 && (originalApproverAssignment.getDistrictId() != null && originalApproverAssignment.getDistrictId().equals(approverAssignmentDto.getDistrictId()));
+    }
+
+    /**
+     * 判断任务审批人对象完全相同
+     * @param originalApproverAssignment
+     * @param approverAssignmentDto
+     * @return
+     */
+    private boolean isApproverAssignmentEqual(ApproverAssignment originalApproverAssignment, ApproverAssignmentDto approverAssignmentDto){
+        return originalApproverAssignment.getProcessDefinitionKey().equals(approverAssignmentDto.getProcessDefinitionKey())
+                && originalApproverAssignment.getTaskDefinitionKey().equals(approverAssignmentDto.getTaskDefinitionKey())
+                && originalApproverAssignment.getAssignee().equals(approverAssignmentDto.getAssignee())
+                && Objects.equals(originalApproverAssignment.getDistrictId(), approverAssignmentDto.getDistrictId());
     }
 }
