@@ -495,6 +495,7 @@ public class AssetsLeaseOrderController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 23:59:59");
         DateTimeFormatter formatterDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         leaseOrder.setEndTime(LocalDateTime.parse(leaseOrder.getEndTime().format(formatter), formatterDateTime));
+        Long id = leaseOrder.getId();
         try {
             BaseOutput output = assetsLeaseOrderService.saveLeaseOrder(leaseOrder);
             //写业务日志
@@ -505,7 +506,7 @@ public class AssetsLeaseOrderController {
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
                 LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, StringUtils.isBlank(leaseOrder.getLogContent()) ? "add" : "edit");
+                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, null == id ? "add" : "edit");
                 LoggerContext.put("notes", leaseOrder.getNotes());
             }
             return output;
@@ -601,10 +602,11 @@ public class AssetsLeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
+        Long id = refundOrderDto.getId();
         try {
             BaseOutput output = assetsLeaseOrderService.createOrUpdateRefundOrder(refundOrderDto);
             if (output.isSuccess()) {
-                if (StringUtils.isNotBlank(refundOrderDto.getLogContent())) {
+                if (null != id) {
                     LoggerContext.put("content", refundOrderDto.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
                     LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
