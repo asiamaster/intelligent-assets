@@ -484,7 +484,9 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             /**
              * 启动租赁审批流程
              */
-            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS, refundOrder.getCode(), userTicket.getId().toString(), new HashMap(1));
+            Map<String, Object> variables = new HashMap<>(4);
+            variables.put("businessKey", refundOrder.getCode());
+            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS, refundOrder.getCode(), userTicket.getId().toString(), variables);
             if (!processInstanceMappingBaseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
             }
