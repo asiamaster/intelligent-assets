@@ -1,13 +1,36 @@
 package com.dili.ia.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.MessageFee;
+import com.dili.ia.domain.dto.MessageFeeDto;
+import com.dili.ia.domain.dto.RefundInfoDto;
+import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.MessageFeeService;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.valid.LaborGetCost;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.rpc.BusinessLogRpc;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
+
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,10 +40,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * This file was generated on 2020-08-24 16:16:50.
  */
 @Controller
-@RequestMapping("/messageFee")
+@RequestMapping("/fee/message")
 public class MessageFeeController {
+	
+	private final static Logger LOG = LoggerFactory.getLogger(MessageFeeController.class);
+
+	
     @Autowired
-    MessageFeeService messageFeeService;
+    private MessageFeeService messageFeeService;
+    
+    @Autowired
+    private  BusinessChargeItemService businessChargeItemService;
+    
+    @Autowired
+    private BusinessLogRpc businessLogRpc;
 
     /**
      * 跳转到messageFee页面
@@ -31,7 +64,55 @@ public class MessageFeeController {
     public String index(ModelMap modelMap) {
         return "messageFee/index";
     }
+    
+    /**
+     * 跳转到messageFee页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/add.html", method = RequestMethod.GET)
+    public String add(ModelMap modelMap) {
+    	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+    	List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
+				queryBusinessChargeItemConfig(1L, BizTypeEnum.MESSAGEFEE.getCode(), YesOrNoEnum.YES.getCode());
+        modelMap.put("chargeItems", chargeItemDtos);
+        return "messageFee/add";
+    }
+    
+    /**
+     * 跳转到messageFee页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/update.html", method = RequestMethod.GET)
+    public String update(ModelMap modelMap,String code) {
+    	modelMap.put("messageFee", messageFeeService.view(code));
+        return "messageFee/add";
+    }
 
+    /**
+     * 跳转到messageFee页面
+     * @param modelMap
+     * @return String
+     */
+    @RequestMapping(value="/view.html", method = RequestMethod.GET)
+    public String view(ModelMap modelMap,String code) {
+    	modelMap.put("messageFee", messageFeeService.view(code));
+    	try{
+            //日志查询
+            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+            businessLogQueryInput.setBusinessCode(code);
+            businessLogQueryInput.setBusinessType(LogBizTypeConst.STOCK);
+            BaseOutput<BusinessLog> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            if(businessLogOutput.isSuccess()){
+                modelMap.put("logs",businessLogOutput.getData());
+            }
+        }catch (Exception e){
+            LOG.error("日志服务查询异常",e);
+        }
+        return "messageFee/view";
+    }
+    
     /**
      * 分页查询messageFee，返回easyui分页信息
      * @param messageFee
@@ -49,8 +130,8 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute MessageFee messageFee) {
-        messageFeeService.insertSelective(messageFee);
+    public @ResponseBody BaseOutput insert(@RequestBody @Validated MessageFeeDto messageFee) {
+        messageFeeService.create(messageFee);
         return BaseOutput.success("新增成功");
     }
 
@@ -60,8 +141,8 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute MessageFee messageFee) {
-        messageFeeService.updateSelective(messageFee);
+    public @ResponseBody BaseOutput update(@RequestBody @Validated MessageFeeDto messageFee) {
+        messageFeeService.update(messageFee);
         return BaseOutput.success("修改成功");
     }
 
@@ -70,9 +151,102 @@ public class MessageFeeController {
      * @param id
      * @return BaseOutput
      */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        messageFeeService.delete(id);
-        return BaseOutput.success("删除成功");
+    @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput delete(String code) {
+        messageFeeService.cancel(code);
+        return BaseOutput.success("取消成功");
     }
+    
+    /**
+     * 提交
+     * @param labor
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput submit(String code) {
+        try {
+            messageFeeService.submit(code);
+    	}catch (BusinessException e) {
+			LOG.error("劳务马甲单{}提交异常！",code, e);
+			return BaseOutput.failure(e.getCode(), e.getMessage());
+		}catch (Exception e) {
+			LOG.error("劳务马甲单{}提交异常！",code, e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+        //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        return BaseOutput.success("提交成功");
+    }
+    
+    /**
+     * 撤回
+     * @param labor
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput withdraw(String code) {
+        try {
+        	messageFeeService.withdraw(code);
+    	}catch (BusinessException e) {
+			LOG.error("劳务马甲单{}撤回异常！",code, e);
+			return BaseOutput.failure(e.getCode(), e.getMessage());
+		}catch (Exception e) {
+			LOG.error("劳务马甲单{}撤回异常！",code, e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}//LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        return BaseOutput.success("撤回成功");
+    }
+    
+    /**
+     * 退款申请
+     * @param labor
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/refundApply.html", method = {RequestMethod.GET, RequestMethod.POST})
+    public String refundApply(ModelMap modelMap,String code) {	        
+    	modelMap.put("messageFee", messageFeeService.view(code));
+    	return "messageFee/refundApply";
+    }
+    
+    /**
+     * 退款申请
+     * @param labor
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput refund(@RequestBody @Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
+    	try {
+    		messageFeeService.refund(refundInfoDto);
+    	}catch (BusinessException e) {
+			LOG.error("劳务马甲单{}退款申请异常！",refundInfoDto.getCode(), e);
+			return BaseOutput.failure(e.getCode(), e.getMessage());
+		}catch (Exception e) {
+			LOG.error("劳务马甲单{}退款申请异常！",refundInfoDto.getCode(), e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+    	return BaseOutput.success("退款成功");
+    }
+    
+    /**
+     * 通过计费规则算取费用
+     * @param labor
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/getCost.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput getCost(@RequestBody @Validated(LaborGetCost.class) MessageFeeDto messageFeeDto) {	        //throw new BusinessException("2000", "errorCode");
+    	BaseOutput baseOutput = BaseOutput.success();
+    	try {
+    		baseOutput.setData(messageFeeService.getCost(messageFeeDto));
+    	}catch (BusinessException e) {
+			LOG.error("费用{}计算异常！",JSON.toJSON(messageFeeDto), e);
+			return BaseOutput.failure(e.getCode(), e.getMessage());
+		}catch (Exception e) {
+			LOG.error("费用{}计算异常！",JSON.toJSON(messageFeeDto), e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+    	return baseOutput;
+    }
+    
 }

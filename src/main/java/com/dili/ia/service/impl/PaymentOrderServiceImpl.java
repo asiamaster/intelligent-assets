@@ -62,7 +62,7 @@ public class PaymentOrderServiceImpl extends BaseServiceImpl<PaymentOrder, Long>
 	@Override
 	public PaymentOrder buildPaymentOrder(UserTicket userTicket, BizTypeEnum biz) {
 		PaymentOrder paymentOrder = new PaymentOrder();
-		paymentOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
+		paymentOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+biz.getEnName()+"_"+BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
 		paymentOrder.setCreateTime(LocalDateTime.now());
 		paymentOrder.setCreator(userTicket.getUserName());
 		paymentOrder.setCreatorId(userTicket.getId());

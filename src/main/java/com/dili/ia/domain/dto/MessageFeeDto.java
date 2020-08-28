@@ -1,13 +1,15 @@
 package com.dili.ia.domain.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 
+import com.dili.ia.domain.BusinessChargeItem;
+
 /**
- * <B>Description</B>
- * 本软件源代码版权归农丰时代及其团队所有,未经许可不得任意复制与传播
- * <B>农丰时代科技有限公司</B>
+ * <B>Description</B> 本软件源代码版权归农丰时代及其团队所有,未经许可不得任意复制与传播 <B>农丰时代科技有限公司</B>
  *
  * @Description TODO(用一句话描述该文件做什么)
  * @author yangfan
@@ -16,65 +18,72 @@ import javax.validation.constraints.NotNull;
 public class MessageFeeDto {
 
 	/**
-     * 业务编号
-     */
-    private String code;
+	 * 业务编号
+	 */
+	private String code;
 
-    @NotNull(message = "客户信息不能为空!")
-    private Long customerId;
+	@NotNull(message = "客户信息不能为空!")
+	private Long customerId;
 
-    private String customerName;
+	private String customerName;
 
-    private String customerPhone;
+	private String customerCellphone;
 
-    /**
-     * 客户证件号
-     */
-    private String customerCertificateNumber;
+	/**
+	 * 客户证件号
+	 */
+	private String customerCertificateNumber;
+	
+	private Long departmentId;
 
+	private String departmentName;
 
-    /**
-     * 开始时间
-     */
-    @NotNull(message = "开始时间不能为空!")
-    private LocalDateTime startDate;
+	/**
+	 * 开始时间
+	 */
+	@NotNull(message = "开始时间不能为空!")
+	private LocalDateTime startDate;
 
-    /**
-     * 结束时间
-     */
-    @NotNull(message = "结算时间不能为空!")
-    private LocalDateTime endDate;
+	/**
+	 * 结束时间
+	 */
+	@NotNull(message = "结算时间不能为空!")
+	private LocalDateTime endDate;
 
-    /**
-     * 收费金额
-     */
-    @NotNull(message = "收费金额不能为空!")
-    private Long amount;
+	/**
+	 * 收费金额
+	 */
+	@NotNull(message = "收费金额不能为空!")
+	private Long amount;
 
-    /**
-     * 转抵扣金额
-     */
-    private Long transactionAmount;
+	/**
+	 * 转抵扣金额
+	 */
+	private Long transactionAmount;
 
-    /**
-     * 支付金额
-     */
-    private Long payAmount;
+	/**
+	 * 支付金额
+	 */
+	private Long payAmount;
 
-    /**
-     * 备注
-     */
-    private String notes;
+	/**
+	 * 备注
+	 */
+	private String notes;
 
-    /**
-     * 缴费单号
-     */
-    private String paymentOrderCode;
+	/**
+	 * 缴费单号
+	 */
+	private String paymentOrderCode;
 
-    /**
-     * 作废原因
-     */
-    private String cancelerNotes;
+	/**
+	 * 作废原因
+	 */
+	private String cancelerNotes;
+	
+	private Integer state;
+
+	private List<BusinessChargeItem> businessChargeItems;
 
 	public String getCode() {
 		return code;
@@ -100,12 +109,12 @@ public class MessageFeeDto {
 		this.customerName = customerName;
 	}
 
-	public String getCustomerPhone() {
-		return customerPhone;
+	public String getCustomerCellphone() {
+		return customerCellphone;
 	}
 
-	public void setCustomerPhone(String customerPhone) {
-		this.customerPhone = customerPhone;
+	public void setCustomerCellphone(String customerCellphone) {
+		this.customerCellphone = customerCellphone;
 	}
 
 	public String getCustomerCertificateNumber() {
@@ -179,7 +188,39 @@ public class MessageFeeDto {
 	public void setCancelerNotes(String cancelerNotes) {
 		this.cancelerNotes = cancelerNotes;
 	}
+
+	public List<BusinessChargeItem> getBusinessChargeItems() {
+		return businessChargeItems;
+	}
+
+	public void setBusinessChargeItems(List<BusinessChargeItem> businessChargeItems) {
+		this.businessChargeItems = businessChargeItems;
+	}
+
+	public Long getDepartmentId() {
+		return departmentId;
+	}
+
+	public void setDepartmentId(Long departmentId) {
+		this.departmentId = departmentId;
+	}
+
+	public String getDepartmentName() {
+		return departmentName;
+	}
+
+	public void setDepartmentName(String departmentName) {
+		this.departmentName = departmentName;
+	}
+
+	public Integer getState() {
+		return state;
+	}
+
+	public void setState(Integer state) {
+		this.state = state;
+	}
+
 	
-    
-    
+	
 }

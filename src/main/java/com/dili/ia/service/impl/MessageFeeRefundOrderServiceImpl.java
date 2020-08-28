@@ -43,18 +43,18 @@ public class MessageFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 	@Override
 	public BaseOutput submitHandler(RefundOrder refundOrder) {
 		//冻结客户资金，写入冻结记录
-		return defaultSubmitHandler(refundOrder, BizTypeEnum.MESSAGEFEE);
+		return BaseOutput.success();
 	}
 
 	@Override
 	public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-		return defaultWithdrawHandler(refundOrder, BizTypeEnum.MESSAGEFEE);
+		return BaseOutput.success();
 	}
 
 	@Override
 	public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 		messageFeeService.refundSuccessHandler(settleOrder, refundOrder);
-		return defaultRefundSuccessHandler(settleOrder, refundOrder, BizTypeEnum.MESSAGEFEE);
+		return BaseOutput.success();
 	}
 
 	@Override

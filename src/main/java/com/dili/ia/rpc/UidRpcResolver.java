@@ -1,11 +1,13 @@
 package com.dili.ia.rpc;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.service.impl.CustomerAccountServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -38,8 +40,8 @@ public class UidRpcResolver {
 	 */
 	public String bizNumber(String type){
 		BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(type);
-        if(!bizNumberOutput.isSuccess()){
-        	LOG.info("编号生成失败!" + type);
+        if(!bizNumberOutput.isSuccess() || StringUtils.isEmpty(bizNumberOutput.getData())){
+        	LOG.info("编号生成失败!" + type+";bizNumberOutput = "+JSON.toJSONString(bizNumberOutput));
             throw new BusinessException(ResultCode.APP_ERROR, "编号生成失败!");
         }
 		return bizNumberOutput.getData();	

@@ -37,18 +37,18 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 	@Override
 	public BaseOutput submitHandler(RefundOrder refundOrder) {
 		//laborService.refundSubmitHandler(refundOrder);
-		return defaultSubmitHandler(refundOrder, BizTypeEnum.LABOR_VEST);
+		return BaseOutput.success();
 	}
 
 	@Override
 	public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-		return defaultWithdrawHandler(refundOrder, BizTypeEnum.LABOR_VEST);
+		return BaseOutput.success();
 	}
 
 	@Override
 	public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 		laborService.refundSuccessHandler(settleOrder, refundOrder);
-		return defaultRefundSuccessHandler(settleOrder, refundOrder, BizTypeEnum.LABOR_VEST);
+		return BaseOutput.success();
 	}
 
 	@Override

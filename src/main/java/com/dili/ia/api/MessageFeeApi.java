@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.ia.service.MessageFeeService;
 import com.dili.settlement.domain.SettleOrder;
@@ -22,6 +23,8 @@ import com.dili.ss.exception.BusinessException;
  * @author yangfan
  * @date 2020年8月25日
  */
+@RestController
+@RequestMapping("/api/fee/message")
 public class MessageFeeApi {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(MessageFeeApi.class);

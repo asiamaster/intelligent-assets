@@ -109,7 +109,7 @@ public class SettlementRpcResolver {
     public SettleOrder get(Long appId, String businessCode){
     	BaseOutput<SettleOrder> result = settlementRpc.get(appId,businessCode);
         if(!result.isSuccess()){
-        	LOG.info("获取结算单失败!业务号:" + businessCode);
+        	LOG.info("获取结算单失败!业务号:" + businessCode+",result:"+JSON.toJSONString(result));
             throw new BusinessException(ResultCode.APP_ERROR, "获取结算单失败!");
         }
 		return result.getData();
