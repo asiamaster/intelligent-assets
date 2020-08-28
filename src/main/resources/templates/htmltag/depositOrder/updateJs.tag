@@ -47,17 +47,20 @@
       /******************************驱动执行区 begin***************************/
     $(function () {
         registerMsg();
-        $('#assetsType').trigger('change')
+        $('#assetsId, #assetsName, #assetsNameInput').hide();
+
     });
 
     $('#assetsType').on('change', function(){
-        $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
+        $('#assetsId, #assetsName, #assetsNameInput').val('').removeClass('d-block');
         $('#assetsName-error').remove();
         $('#assetsNameInput').attr('name', '');
+        debugger
+
         if($(this).val() == 1 ) {
-            $('#assetsName').show();
+            $('#assetsName').addClass('d-block');
         } else {
-            $('#assetsNameInput').attr('name', 'assetsName').show();
+            $('#assetsNameInput').attr('name', 'assetsName').addClass('d-block');
         }
     })
 
