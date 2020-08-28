@@ -80,7 +80,7 @@
     // 添加摊位
     $('#addBooth').on('click', function () {
         if ($('#boothTable tr').length < 11) {
-            debugger
+
             addBoothItem();
         } else {
             bs4pop.notice('最多10个摊位', {position: 'leftcenter', type: 'warning'})
