@@ -52,11 +52,10 @@
     });
 
     $('#assetsType').on('change', function(){
-        $('#assetsId, #assetsName, #assetsNameInput').val('').removeClass('d-block');
+        $('#assetsId, #assetsName, #assetsNameInput').val('');
+        $('#assetsName, #assetsNameInput').removeClass('d-block');
         $('#assetsName-error').remove();
         $('#assetsNameInput').attr('name', '');
-        debugger
-
         if($(this).val() == 1 ) {
             $('#assetsName').addClass('d-block');
         } else {
