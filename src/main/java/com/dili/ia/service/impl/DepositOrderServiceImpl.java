@@ -1128,10 +1128,12 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, assetsId);
         deList.stream().forEach(o -> {
-            o.setIsRelated(YesOrNoEnum.NO.getCode());
-            if (this.updateSelective(o) == 0) {
-                LOG.info("修改保证金【解除关联操作】失败 ,乐观锁生效！【保证金单ID:{}】", o.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            if (o.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                o.setIsRelated(YesOrNoEnum.NO.getCode());
+                if (this.updateSelective(o) == 0) {
+                    LOG.info("修改保证金【解除关联操作】失败 ,乐观锁生效！【保证金单ID:{}】", o.getId());
+                    throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+                }
             }
         });
         return BaseOutput.success();
