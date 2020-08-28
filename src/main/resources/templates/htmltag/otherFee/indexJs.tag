@@ -237,6 +237,26 @@
         }
     }
 
+    /**
+     打开退款窗口
+     */
+    function openRefundHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        let url = '/otherFee/refundApply.html?id=' + rows[0].id;
+        dia = bs4pop.dialog({
+            title: '退款申请',
+            content: url,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '95%',
+            height : '95%',
+            btns: []
+        });
+
+    }
+
     //选中行事件
     _grid.on('uncheck.bs.table', function (e, row, $element) {
         currentSelectRowIndex = undefined;
@@ -265,6 +285,13 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_refund').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.OtherFeeStateEnum.REFUNDING.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
+        } else if (state == ${@com.dili.ia.glossary.OtherFeeStateEnum.REFUND.getCode()}) {
+            $('#toolbar button').attr('disabled', true);
+            $('#btn_view').attr('disabled', false);
         }
     });
 

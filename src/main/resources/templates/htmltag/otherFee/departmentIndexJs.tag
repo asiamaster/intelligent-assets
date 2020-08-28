@@ -18,9 +18,8 @@
         });
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
-        _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '${contextPath}/departmentChargeItem/listPage.action', pageSize: parseInt(size)});
+        _grid.bootstrapTable('refreshOptions', {url: '${contextPath}/departmentChargeItem/listPage.action', pageSize: parseInt(size)});
     });
-
 
     /******************************驱动执行区 end****************************/
 
@@ -78,15 +77,16 @@
         bui.loading.show('努力提交中，请稍候。。。');
         let department  = []
         $.each($('[name="department"]:checked'), function (index, element) {
-            department.push([{departmentId: $(element).val(), departmentName: $(element).siblings('.custom-control-label').text()}])
+            department.push({departmentId: $(element).val(), departmentName: $(element).siblings('.custom-control-label').text()})
         })
         let data =  $.extend({}, $('#chargeItemId').serializeObject(), {departmentList: department})
-        debugger
+
         $.ajax({
             type: "POST",
             url: "${contextPath}/departmentChargeItem/doAddDepartment.action",
-            data: data,
+            data:  JSON.stringify(data),
             dataType: "json",
+            contentType: "application/json",
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
@@ -101,6 +101,7 @@
             }
         });
     }
+
 
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);

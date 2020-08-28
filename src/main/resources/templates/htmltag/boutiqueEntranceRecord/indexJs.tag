@@ -129,7 +129,6 @@
      */
     function openRefundHandler(id) {
         //获取选中行的数据
-        debugger
         if(!id){
             //获取选中行的数据
             // let rows = _grid.bootstrapTable('getSelections');
@@ -171,7 +170,6 @@
             var id = rows[0]['0'];
         }
             bs4pop.confirm('确定取消该业务单？', {}, function (sure) {
-                debugger
                 let data = JSON.stringify({id: id});
                 if(sure){
                     $.ajax({

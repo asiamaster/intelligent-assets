@@ -20,6 +20,15 @@ import com.dili.uap.sdk.domain.UserTicket;
 public interface OtherFeeService extends BaseService<OtherFee, Long> {
 
     /**
+     * 根据code查询数据实例
+     *
+     * @param  code
+     * @return
+     * @date   2020/8/27
+     */
+    OtherFee getOtherFeeByCode(String code);
+
+    /**
      * 新增其他收费
      *
      * @param  otherFeeDto
@@ -53,7 +62,7 @@ public interface OtherFeeService extends BaseService<OtherFee, Long> {
      * @return BaseOutput
      * @date   2020/8/19
      */
-    BaseOutput<Passport> cancel(Long id, UserTicket userTicket);
+    BaseOutput<OtherFee> cancel(Long id, UserTicket userTicket);
 
     /**
      * 撤回其他收费
@@ -62,7 +71,7 @@ public interface OtherFeeService extends BaseService<OtherFee, Long> {
      * @return BaseOutput
      * @date   2020/8/19
      */
-    BaseOutput<Passport> withdraw(Long id, UserTicket userTicket) throws Exception;
+    BaseOutput<OtherFee> withdraw(Long id, UserTicket userTicket) throws Exception;
 
     /**
      * 其他收费 退款
@@ -71,7 +80,7 @@ public interface OtherFeeService extends BaseService<OtherFee, Long> {
      * @return BaseOutput
      * @date   2020/8/19
      */
-    BaseOutput<Passport> refund(OtherFeeRefundOrderDto refundOrderDto) throws Exception;
+    BaseOutput<OtherFee> refund(OtherFeeRefundOrderDto refundOrderDto) throws Exception;
 
     /**
      * 缴费成功回调

@@ -435,7 +435,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
         // 查询相关数据
         Passport passportInfo = this.get(passportRefundOrderDto.getBusinessId());
-        if (PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
+        if (passportInfo != null && PassportStateEnum.SUBMITTED_REFUND.getCode().equals(passportInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
 

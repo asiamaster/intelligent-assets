@@ -2,7 +2,6 @@ package com.dili.ia.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.dili.ia.domain.OtherFee;
-import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
@@ -11,11 +10,9 @@ import com.dili.ia.domain.dto.OtherFeeRefundOrderDto;
 import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.OtherFeePrintDto;
-import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.OtherFeeStateEnum;
-import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.OtherFeeMapper;
@@ -25,7 +22,6 @@ import com.dili.ia.service.OtherFeeService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
-import com.dili.ia.util.LoggerUtil;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -86,6 +82,18 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     private Long settlementAppId;
 
     private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/otherFee/settlementDealHandler";
+
+    /**
+     * 根据code查询数据实例
+     *
+     * @param  code
+     * @return
+     * @date   2020/8/27
+     */
+    @Override
+    public OtherFee getOtherFeeByCode(String code) {
+        return this.getActualDao().getOtherFeeByCode(code);
+    }
 
     /**
      * 新增其他收费
@@ -172,7 +180,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         }
 
         // 修改其他交费状态为已提交
-        otherFeeInfo.setState(PassportStateEnum.SUBMITTED.getCode());
+        otherFeeInfo.setState(OtherFeeStateEnum.SUBMITTED.getCode());
         otherFeeInfo.setModifyTime(LocalDateTime.now());
         if (this.updateSelective(otherFeeInfo) == 0) {
             logger.info("多人提交通行证付款!");
@@ -202,7 +210,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
      * @date   2020/8/19
      */
     @Override
-    public BaseOutput<Passport> cancel(Long id, UserTicket userTicket) {
+    public BaseOutput<OtherFee> cancel(Long id, UserTicket userTicket) {
         // 先查询
         OtherFee otherFeeInfo = this.get(id);
         if (otherFeeInfo == null) {
@@ -217,7 +225,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         otherFeeInfo.setCancelerId(userTicket.getId());
         otherFeeInfo.setCanceler(userTicket.getRealName());
         otherFeeInfo.setModifyTime(LocalDateTime.now());
-        otherFeeInfo.setState(PassportStateEnum.CANCELLED.getCode());
+        otherFeeInfo.setState(OtherFeeStateEnum.CANCELD.getCode());
         if (this.updateSelective(otherFeeInfo) == 0) {
             return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
@@ -234,7 +242,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
      */
     @Override
     @GlobalTransactional
-    public BaseOutput<Passport> withdraw(Long id, UserTicket userTicket) throws Exception {
+    public BaseOutput<OtherFee> withdraw(Long id, UserTicket userTicket) throws Exception {
         // 先查询
         OtherFee otherFeeInfo = this.get(id);
         if (otherFeeInfo == null) {
@@ -248,7 +256,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         otherFeeInfo.setWithdrawOperatorId(userTicket.getId());
         otherFeeInfo.setWithdrawOperator(userTicket.getRealName());
-        otherFeeInfo.setState(PassportStateEnum.CREATED.getCode());
+        otherFeeInfo.setState(OtherFeeStateEnum.CREATED.getCode());
         if (this.updateSelective(otherFeeInfo) == 0) {
             logger.info("撤回其他收费【修改为已创建】失败.");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -269,19 +277,19 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     }
 
     /**
-     * 其他收费 退款
+     * 其他收费 退款申请
      *
      * @param  refundOrderDto
      * @return BaseOutput
      * @date   2020/8/19
      */
     @Override
-    public BaseOutput<Passport> refund(OtherFeeRefundOrderDto refundOrderDto) throws Exception {
+    public BaseOutput<OtherFee> refund(OtherFeeRefundOrderDto refundOrderDto) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 查询相关数据
         OtherFee otherFeeInfo = this.get(refundOrderDto.getBusinessId());
-        if (PassportStateEnum.SUBMITTED_REFUND.getCode().equals(otherFeeInfo.getState())) {
+        if (otherFeeInfo != null && !OtherFeeStateEnum.PAID.getCode().equals(otherFeeInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
 
@@ -290,7 +298,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         // 修改状态
         otherFeeInfo.setModifyTime(LocalDateTime.now());
-        otherFeeInfo.setState(PassportStateEnum.SUBMITTED_REFUND.getCode());
+        otherFeeInfo.setState(OtherFeeStateEnum.REFUNDING.getCode());
         if (this.updateSelective(otherFeeInfo) == 0) {
             logger.info("多人对 其他收费 退款!");
             return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");

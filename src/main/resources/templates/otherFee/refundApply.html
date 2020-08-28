@@ -1,29 +1,35 @@
 <#bs4Body>
 
-<div class="container-fluid pb-5">
-    <form id="refundApplyForm" role="form" class="pb-5">
+<div class="container-fluid">
+    <form id="refundApplyForm" role="form">
+        <input type="hidden" name="businessId" value="${otherFee.id}"/>
+        <input type="hidden" name="businessCode" value="${otherFee.code!}"/>
+        <input type="hidden" name="departmentId" value="${otherFee.departmentId!}"/>
+        <input type="hidden" name="departmentName" value="${otherFee.departmentName!}"/>
+        <input type="hidden" name="customerId" value="${otherFee.customerId!}"/>
         <div class="row row-cols-4">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
-                <input type="text" class="form-control" id="customerName" name="customerName" value="${deposit.customerName!}" readonly/>
+                <input type="text" class="form-control" id="customerName" name="customerName" value="${otherFee.customerName!}" readonly/>
             </div>
             <div class="form-group col">
                 <label for="certificateNumber">证件号码<i class="red">*</i></label>
-                <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${deposit.certificateNumber!}" readonly/>
+                <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${otherFee.certificateNumber!}" readonly/>
             </div>
             <div class="form-group col">
                 <label for="customerCellphone">联系电话<i class="red">*</i></label>
-                <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${deposit.customerCellphone!}" readonly/>
+                <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${otherFee.customerCellphone!}" readonly/>
             </div>
         </div>
         <div class="row row-cols-4">
-            <div class="form-group col">
-                <label for="totalRefundAmount" class="">罚款<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount"  required }/>
+            <div class="form-group col align-items-end">
+                <label for="amount" class="">费用<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve money" id="amount"  name="amount" oninput="calcTotalRefundAmount()" placeholder="可退<#centToYuan value='${otherFee.amount!}'/>" min="0" max="<#centToYuan value='${otherFee.amount!}'/>" required/>
             </div>
-            <div class="form-group col">
-                <label for="totalRefundAmount" class="">退款金额</label>
-                <input type="number" class="form-control" id="totalRefundAmount" name="totalRefundAmount" readonly }/>
+
+            <div class="form-group col align-items-end">
+                <label for="totalRefundAmount" class="">退款金额<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount" min="0" readonly/>
             </div>
         </div>
         <hr>
@@ -34,8 +40,11 @@
             </div>
             <div class="form-group col">
                 <label for="payeeCertificateNumber" class="">证件号<i class="red">*</i></label>
-                <input type="text" class="form-control" id="payeeCertificateNumber" readonly/>
+                <input type="text" class="form-control" id="payeeCertificateNumber" name="payeeCertificateNumber" readonly/>
             </div>
+
+            <input type="hidden" class="form-control" id="payeeCellphone" name="payeeCellphone">
+
             <div class="form-group col">
                 <label for="payeeAmount" class="">金额<i class="red">*</i></label>
                 <input type="number" class="form-control floatReserve money" id="payeeAmount" name="payeeAmount" min="0" required/>
@@ -45,6 +54,7 @@
                 <select id="refundType" name="refundType" class="form-control" onchange="javascript:$('#bankInfo').toggle()"></select>
                 <#bcomboProvider _id="refundType" _provider="refundTypeProvider" _queryParams='{required:true}' _value=""/>
             </div>
+
         </div>
         <div id="bankInfo" class="row row-cols-4" style="display: none;">
             <div class="form-group col">
@@ -55,21 +65,50 @@
                 <label for="bankCardNo" class="">银行卡号<i class="red">*</i></label>
                 <input type="text" class="form-control" id="bankCardNo" name="bankCardNo" maxlength="30" required/>
             </div>
+
         </div>
-        <div class="row">
+
+        <div class="breadcrumb">
+            转抵信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#transferInfo" aria-expanded="true" aria-controls="transferInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+        </div>
+        <div id="transferInfo" class="collapse">
+            <table class="table table-bordered table-hover table-striped" id="transferTable">
+                <thead>
+                <tr>
+                    <th class="text-center align-middle" style="width: 5%"><a id="addTransfer" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
+                    <th style="font-weight:normal;" >收款人<i class="red">*</i></th>
+                    <th style="font-weight:normal;" >证件号<i class="red">*</i></th>
+                    <th style="font-weight:normal; ">收款金额<i class="red">*</i></th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row mt-1">
             <div class="form-group col-8">
-                <label for="refundReason">退款原因<i class="red">*</i></label>
+                <label for="refundReason">退款原因及详情<i class="red">*</i></label>
                 <textarea class="form-control" id="refundReason" name="refundReason" rows="1" maxlength="100" required></textarea>
             </div>
         </div>
-        <div class="modal-footer-wrap">
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary px-5" id="cancel" onclick="javascript:parent.closeDialog(parent.dia)">取消</button>
-                <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveFormHandler,1000,true)()">保存</button>
-            </div>
+        <div class="text-right">
+            <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
+            <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveFormHandler,1000,true)()">保存</button>
         </div>
     </form>
 </div>
 
 </#bs4Body>
-<#deposit_refundApplyJs />
+<#otherFee_refundApplyJs/>
+<script id="transferItemTpl" type="text/html">
+    <tr data-index="{{index}}">
+        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
+        <td style="padding: .25rem!important;">
+            <#bautoCompleteProvider _escape="true" _hiddenDomainId="payeeId_{{index}}" _hiddenDomainName="payeeId_{{index}}" _displayDomainId="payee_{{index}}" _displayDomainName="payee_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="customerNameTableAutoCompleteOption"/>
+        </td>
+        <td style="padding: .25rem!important;" class="text-center align-middle"><input type="text" class="form-control" id="certificateNumber_{{index}}" name="certificateNumber_{{index}}" readonly uncheck/></td>
+        <td style="padding: .25rem!important;"><input type="number" id="payeeAmount_{{index}}" name="payeeAmount_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+    </tr>
+</script>

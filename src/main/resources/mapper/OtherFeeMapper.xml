@@ -15,7 +15,7 @@
     <result column="customer_cellphone" jdbcType="VARCHAR" property="customerCellphone" />
     <result column="department_id" jdbcType="BIGINT" property="departmentId" />
     <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
-    <result column="charge_item_id" jdbcType="BIGINT" property="chargeItemId" />
+    <result column="charge_item_id" jdbcType="VARCHAR" property="chargeItemId" />
     <result column="charge_item_name" jdbcType="VARCHAR" property="chargeItemName" />
     <result column="assets_type" jdbcType="INTEGER" property="assetsType" />
     <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
@@ -91,7 +91,7 @@
         department_name = #{departmentName,jdbcType=VARCHAR},
       </if>
       <if test="chargeItemId != null">
-        charge_item_id = #{chargeItemId,jdbcType=BIGINT},
+        charge_item_id = #{chargeItemId,jdbcType=VARCHAR},
       </if>
       <if test="chargeItemName != null">
         charge_item_name = #{chargeItemName,jdbcType=VARCHAR},
@@ -159,4 +159,14 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+
+  <select id="getOtherFeeByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List" />
+    from
+        other_fee
+    where
+        code = #{code,jdbcType=VARCHAR}
+  </select>
 </mapper>
