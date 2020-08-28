@@ -609,6 +609,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setState(DepositOrderStateEnum.PAID.getCode());
         depositOrder.setPaidAmount(paidAmount);
         depositOrder.setWaitAmount(waitAmount);
+        //为了避免和租赁结算成功修改 关联关系的操作覆盖，所以此时要设置为null ,避免修改此字段。
+        depositOrder.setIsRelated(null);
 
         if (this.updateSelective(depositOrder) == 0) {
             LOG.info("缴费单成功回调 -- 更新【保证金单】状态,乐观锁生效！【保证金单DepositOrderID:{}】", depositOrder.getId());
@@ -1117,6 +1119,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return depositBalanceService.listByExample(depositBalance).stream().findFirst().orElse(null);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchReleaseRelated(String bizType, Long businessId, Long assetsId) {
         if (businessId == null){
@@ -1127,10 +1130,12 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, assetsId);
         deList.stream().forEach(o -> {
-            o.setIsRelated(YesOrNoEnum.NO.getCode());
-            if (this.updateSelective(o) == 0) {
-                LOG.info("修改保证金【解除关联操作】失败 ,乐观锁生效！【保证金单ID:{}】", o.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            if (o.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                o.setIsRelated(YesOrNoEnum.NO.getCode());
+                if (this.getActualDao().updateRelatedState(o) == 0) {
+                    LOG.info("修改保证金【解除关联操作】失败 ,修改记录为 0！【保证金单ID:{}】", o.getId());
+                    throw new BusinessException(ResultCode.DATA_ERROR, "修改保证金【解除关联操作】失败 ,修改记录为 0！");
+                }
             }
         });
         return BaseOutput.success();

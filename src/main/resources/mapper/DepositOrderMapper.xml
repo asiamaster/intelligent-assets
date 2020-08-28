@@ -197,4 +197,16 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
+
+  <update id="updateRelatedState" parameterType="com.dili.ia.domain.DepositOrder">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update deposit_order
+    <set>
+        is_related = #{isRelated,jdbcType=BIT}
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
 </mapper>
