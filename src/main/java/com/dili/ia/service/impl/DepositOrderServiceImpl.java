@@ -1117,6 +1117,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return depositBalanceService.listByExample(depositBalance).stream().findFirst().orElse(null);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchReleaseRelated(String bizType, Long businessId, Long assetsId) {
         if (businessId == null){
