@@ -144,7 +144,7 @@ public class MeterController {
             logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
-            logger.info("修改表信息异常！", e);
+            logger.info("新增表信息异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
     }
@@ -206,7 +206,7 @@ public class MeterController {
             logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
-            logger.info("修改表信息异常！", e);
+            logger.info("查询未绑定的表集合异常！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
 
