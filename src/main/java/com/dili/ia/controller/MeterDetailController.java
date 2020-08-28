@@ -6,6 +6,7 @@ import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.MeterDetailService;
+import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -212,29 +213,31 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput insert(@RequestBody MeterDetailDto meterDetailDto) throws Exception {
-
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+    public @ResponseBody BaseOutput add(@RequestBody MeterDetailDto meterDetailDto) throws Exception {
         BaseOutput<MeterDetail> baseOutput = null;
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
+            // 参数校验
+            this.ParamValidate(meterDetailDto);
+
+            // 新增水电费
             baseOutput = meterDetailService.addMeterDetail(meterDetailDto, userTicket);
+
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                MeterDetail meterDetail = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
         } catch (BusinessException e) {
-            logger.info("新增水电费单异常！");
+            logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            MeterDetail meterDetail = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        }
-
-        return baseOutput;
     }
-
 
     /**
      * 提交水电费单(生缴费单和结算单)
@@ -245,21 +248,30 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput submit(String ids) throws Exception {
-        List<Long> list = Arrays.stream(ids.split(",")).map(Long::valueOf)
-                .collect(Collectors.toList());
+    public @ResponseBody BaseOutput submit(String ids) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            // 参数校验
+            AssertUtils.notEmpty(ids, "主键不能为空");
 
-        BaseOutput<List<MeterDetail>> baseOutput = meterDetailService.submit(list, userTicket);
+            // 提交操作
+            List<Long> list = Arrays.stream(ids.split(",")).map(Long::valueOf).collect(Collectors.toList());
+            BaseOutput<List<MeterDetail>> baseOutput = meterDetailService.submit(list, userTicket);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            List<MeterDetail> meterDetailList = baseOutput.getData();
-            meterDetailList.forEach(meterDetail -> LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null));
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                List<MeterDetail> meterDetailList = baseOutput.getData();
+                meterDetailList.forEach(meterDetail -> LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null));
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-
-        return baseOutput;
     }
 
     /**
@@ -271,21 +283,31 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/submitAll.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput submitAll(Integer metertype) throws Exception {
+    public @ResponseBody BaseOutput submitAll(Integer metertype) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            // 参数校验
+            AssertUtils.notNull(metertype, "表类型不能为空");
 
-        BaseOutput<List<MeterDetailDto>> baseOutput = meterDetailService.submitAll(userTicket, metertype);
+            // 全部提交操作
+            BaseOutput<List<MeterDetailDto>> baseOutput = meterDetailService.submitAll(userTicket, metertype);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            List<MeterDetailDto> meterDetailList = baseOutput.getData();
-            if (meterDetailList != null && meterDetailList.size() > 0) {
-                meterDetailList.forEach(meterDetail -> LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null));
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                List<MeterDetailDto> meterDetailList = baseOutput.getData();
+                if (meterDetailList != null && meterDetailList.size() > 0) {
+                    meterDetailList.forEach(meterDetail -> LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null));
+                }
             }
-        }
 
-        return baseOutput;
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+        }
     }
 
     /**
@@ -297,20 +319,29 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput withdraw(Long id) throws Exception {
-
+    public @ResponseBody BaseOutput withdraw(Long id) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            // 参数校验
+            AssertUtils.notNull(id, "主键不能为空");
 
-        BaseOutput<MeterDetail> baseOutput = meterDetailService.withdraw(id, userTicket);
+            // 撤回操作
+            BaseOutput<MeterDetail> baseOutput = meterDetailService.withdraw(id, userTicket);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            MeterDetail meterDetail = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                MeterDetail meterDetail = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-
-        return baseOutput;
     }
 
     /**
@@ -322,20 +353,28 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput cancel(Long id) {
-
+    public @ResponseBody BaseOutput cancel(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            AssertUtils.notNull(id, "主键不能为空");
 
-        BaseOutput<MeterDetail> baseOutput = meterDetailService.cancel(id, userTicket);
+            // 取消操作
+            BaseOutput<MeterDetail> baseOutput = meterDetailService.cancel(id, userTicket);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            MeterDetail meterDetail = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                MeterDetail meterDetail = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-
-        return baseOutput;
     }
 
     /**
@@ -347,20 +386,30 @@ public class MeterDetailController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput update(@RequestBody MeterDetailDto meterDetailDto) {
-
+    public @ResponseBody BaseOutput update(@RequestBody MeterDetailDto meterDetailDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            // 参数校验
+            AssertUtils.notNull(meterDetailDto.getId(), "主键不能为空");
+            this.ParamValidate(meterDetailDto);
 
-        BaseOutput<MeterDetail> baseOutput = meterDetailService.updateMeterDetail(meterDetailDto);
+            // 修改操作
+            BaseOutput<MeterDetail> baseOutput = meterDetailService.updateMeterDetail(meterDetailDto);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            MeterDetail meterDetail = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                MeterDetail meterDetail = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-
-        return baseOutput;
     }
 
     /**
@@ -374,6 +423,21 @@ public class MeterDetailController {
     public @ResponseBody
     BaseOutput getLastAmount(Long meterId) {
         return meterDetailService.getLastAmount(meterId);
+    }
+
+    /**
+     *  参数校验抽取
+     * @param meterDetailDto
+     */
+    private void ParamValidate(MeterDetailDto meterDetailDto) {
+        AssertUtils.notNull(meterDetailDto.getUsageTime(), "截止月份不能为空");
+        AssertUtils.notNull(meterDetailDto.getDepartmentId(), "部门不能为空");
+        AssertUtils.notEmpty(meterDetailDto.getNumber(), "表编号不能为空");
+        AssertUtils.notNull(meterDetailDto.getCustomerId(), "客户不能为空");
+        AssertUtils.notNull(meterDetailDto.getAssetsName(), "表地址不能为空");
+        AssertUtils.notNull(meterDetailDto.getAssetsType(), "表类别不能为空");
+        AssertUtils.notEmpty(meterDetailDto.getCustomerCellphone(), "客户联系电话不能为空");
+        AssertUtils.notNull(meterDetailDto.getThisAmount(), "本期指数不能为空");
     }
 
     /**

@@ -139,12 +139,13 @@ public class MeterController {
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
                 LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增水电表信息");
             }
+
             return baseOutput;
         } catch (BusinessException e) {
             logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
-            logger.info("新增表信息异常！", e);
+            logger.info("服务器内部错误！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
     }
@@ -178,12 +179,13 @@ public class MeterController {
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
                 LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "修改水电表信息");
             }
+
             return baseOutput;
         } catch (BusinessException e) {
             logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
-            logger.info("修改表信息异常！", e);
+            logger.info("服务器内部错误！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
     }
@@ -198,15 +200,18 @@ public class MeterController {
     @RequestMapping(value="/listUnbindMetersByType.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput listUnbindMetersByType(Integer type, String keyword) {
         try {
+            // 参数校验
             AssertUtils.notNull(type, "表类型不能为空");
+
             // 查询
             List<Meter> meterList = meterService.listUnbindMetersByType(type, keyword);
+
             return BaseOutput.success().setData(meterList);
         } catch (BusinessException e) {
             logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
-            logger.info("查询未绑定的表集合异常！", e);
+            logger.info("服务器内部错误！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
 

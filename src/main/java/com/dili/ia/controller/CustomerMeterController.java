@@ -151,7 +151,7 @@ public class CustomerMeterController {
             logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
-            logger.info("绑定表用户信息异常！", e);
+            logger.info("服务器内部错误！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
     }
@@ -188,7 +188,7 @@ public class CustomerMeterController {
             logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
-            logger.info("绑定表用户信息异常！", e);
+            logger.info("服务器内部错误！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
     }

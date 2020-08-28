@@ -298,7 +298,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date 2020/7/6
      */
     @Override
-    @Transactional
+    @GlobalTransactional
     public BaseOutput<List<MeterDetail>> submit(List<Long> ids, UserTicket userTicket) throws Exception {
         List<MeterDetail> meterDetailList = new ArrayList<>();
         // 多个提交
@@ -431,6 +431,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
      * @date 2020/7/6
      */
     @Override
+    @GlobalTransactional
     public BaseOutput<MeterDetail> settlementDealHandler(SettleOrder settleOrder) throws Exception {
 
         // 修改缴费单相关数据
