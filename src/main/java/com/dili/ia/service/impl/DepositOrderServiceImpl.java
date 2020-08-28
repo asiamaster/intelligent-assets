@@ -516,7 +516,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
             //如果是关联保证金订单，发起退款申请需要解除关联关系
             if (depositOrder.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
-                depositOrder.setState(YesOrNoEnum.NO.getCode());
+                depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
             }
             depositOrder.setState(DepositOrderStateEnum.REFUNDING.getCode());
             if (this.updateSelective(depositOrder) == 0) {
