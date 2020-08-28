@@ -58,7 +58,7 @@
     // 添加摊位
     $('#addsubitem').on('click', function () {
         if ($('.subitem-box').length < 11) {
-            debugger
+
             addSubitem();
         } else {
             bs4pop.notice('最多10个子单', {position: 'leftcenter', type: 'warning'})

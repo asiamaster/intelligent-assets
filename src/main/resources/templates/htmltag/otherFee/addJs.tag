@@ -22,7 +22,7 @@
         displayFieldName: 'name',
         serviceUrl: '/assets/searchAssets.action',
         transformResult: function (result) {
-            debugger
+
             if(result.success){
                 let data = result.data;
                 return {

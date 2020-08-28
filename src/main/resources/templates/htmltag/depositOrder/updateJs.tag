@@ -47,8 +47,7 @@
       /******************************驱动执行区 begin***************************/
     $(function () {
         registerMsg();
-        $('#assetsNameInput').hide();
-
+        $('#assetsType').trigger('change')
     });
 
     $('#assetsType').on('change', function(){

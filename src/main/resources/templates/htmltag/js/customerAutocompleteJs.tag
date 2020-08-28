@@ -176,7 +176,7 @@
     function registerMsg(fn, isBackShow = true, other){
         window.addEventListener('message', function (e) {
             // 是否回显客户信息
-            debugger
+
             if (isBackShow) {
                 let msgData = JSON.parse(e.data);
                 if(msgData.topic == 'customerRegister'){
