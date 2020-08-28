@@ -24,7 +24,7 @@
                     <div class="form-group col">
                         <label for="typeCode">保证金类型:</label>
                         <select id="typeCode" name="typeCode" class="form-control"></select>
-                        <#bcomboProvider _id="typeCode" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"deposit_type"}' />
+                        <#bcomboProvider _id="typeCode" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"deposit_type",emptyText:"-- 全部 --"}' />
                     </div>
                     <div class="form-group col">
                         <label for="departmentId">业务所属部门:</label>
