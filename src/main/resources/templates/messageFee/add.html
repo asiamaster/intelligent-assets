@@ -1,0 +1,113 @@
+<#bs4Body> <!--<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>-->
+<div class="container-fluid">
+	<form id="saveForm" role="form" novalidate>
+		<input type="hidden" id="code" name="code" value="${messageFee.code!}" />
+		<div class="breadcrumb">
+		 客户信息
+		<%if(isNotEmpty(messageFee)){%>
+			 <a href="javascript:;" class="ml-2"
+			id="getCustomer">刷卡获取</a>
+		<% } %>
+		 
+			<a href="javascript:;" class="ml-auto"
+			data-toggle="collapse" data-target="#customerInfo"
+			aria-expanded="true" aria-controls="customerInfo">收起 <i
+			class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+			</div>
+			<div class="row row-cols-4 collapse show" id="customerInfo">
+				<div class="form-group col">
+					<label for="customerName">客户名称<i class="red">*</i></label>
+					<#bautoCompleteProvider _hiddenDomainId="customerId"
+						_hiddenDomainName="customerId" _displayDomainId="customerName"
+						_displayDomainName="customerName" _placeholder=""
+						_validatorMethod="isSelected"
+						_optionVariable="customerNameAutoCompleteOption" _value="${messageFee.customerId!}"  _text="${messageFee.customerName!}"  _required="true" />
+				</div>
+			
+				<div class="form-group col">
+					<label for="_customerCertificateNumber">证件号码<i class="red">*</i></label> <input
+						type="text" class="form-control" id="certificateNumber"
+						name="customerCertificateNumber" value="${messageFee.customerCertificateNumber!}" required readonly/>
+				</div>
+				<div class="form-group col">
+						<label for="">联系电话<i class="red">*</i></label> <input type="text"
+							class="form-control isMobile rename" id="customerCellphone"
+							name="customerCellphone" value="${messageFee.customerCellphone!}"
+							required />
+				</div>
+				
+			</div>
+		
+<div class="breadcrumb">
+	业务信息 <a href="javascript:;" class="ml-auto" data-toggle="collapse"
+		data-target="#otherInfo" aria-expanded="true"
+		aria-controls="otherInfo">收起 <i class="fa fa-angle-double-up"
+		aria-hidden="true"></i></a>
+</div>
+<div class="collapse show" id="otherInfo">
+<div class="row row-cols-4" >
+	
+	<div class="form-group col">
+		<label for="startTime">开始日期<i class="red">*</i></label> <input
+			type="text" id="startDate" name="startDate"
+			class="form-control laydate laystart renew " value="${messageFee.startDate!,localDateTimeFormat='yyyy-MM-dd'}"
+			required>
+	</div>
+	<div class="form-group col">
+		<label for="endTime">结束日期<i class="red">*</i></label> <input
+			type="text" id="endDate" name="endDate"
+			class="form-control laydate layend renew " value="${messageFee.endDate!,localDateTimeFormat='yyyy-MM-dd'}"
+			required>
+	</div>
+	<div class="form-group col">
+		<label for="departmentId">业务所属部门<i class="red">*</i></label> <select
+			id="departmentId" name="departmentId" class="form-control" required></select>
+		<#bcomboProvider _id="departmentId" _value="${messageFee.departmentId!}"
+			_provider="authDepartmentProvider" />
+	</div>
+	
+	<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+		        for(item in chargeItems){
+		        %>		        
+		        <div class="form-group col">
+					<label for="amount" class="">${item.chargeItem!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}" type="number" class="form-control chargeItem money"
+					 name="chargeItem_${item.id!}" chargeItem="${item.chargeItem!}" range="0 9999999.99" required  />				
+		        </div>
+		        <% } }%>
+	<%if(isNotEmpty(messageFee.businessChargeItems) && messageFee.businessChargeItems.~size>0){
+		        for(item in messageFee.businessChargeItems){
+		        %>		        
+		        <div class="form-group col">
+					<label for="amount" class="">${item.chargeItemName!}<i class="red">*</i></label> <input id="chargeItem_${item.chargeItemId!}" type="number" class="form-control chargeItem money"
+					 name="chargeItem_${item.chargeItemId!}" item-id="${item.id!}" chargeItem-version="${item.version!}" chargeItem="${item.chargeItemName!}" value = "<#centToYuan value='${item.amount!}'/>" range="0 9999999.99" required  />				
+		        </div>
+		        <% } }%>
+	<div class="form-group col">
+		<label for="amount">总金额<i class="red">*</i></label>
+		<input type="number" value="${messageFee.amount!}" class="form-control amount money" name="amount" id="amount" range="0 9999999.99" readonly /> 
+	</div>
+	<div class="form-group col">
+		<label for="transactionAmount">转抵扣<i class="red">*</i></label>
+		<input type="number" value="${messageFee.transactionAmount!}" class="form-control amount money" name="transactionAmount" id="transactionAmount" value=0 range="0 9999999.99"/> 
+	</div>
+	<div class="form-group col">
+		<label for="payAmount">实付金额<i class="red">*</i></label>
+		<input type="number" value="${messageFee.payAmount!}" class="form-control amount money" name="payAmount" id="payAmount" range="0 9999999.99" readonly="readonly" /> 
+	</div>
+	
+</div>
+<div class="row">
+	<div class="form-group col-8">
+		<label for="notes">备注</label>
+		<textarea id="notes" class="form-control renew remodel rename" name="notes" rows="1"
+			maxlength="100">${messageFee.notes!}</textarea>
+	</div>
+</div>
+</div>
+
+
+</form>
+</div>
+</#bs4Body>
+<#js_customerAutocompleteJs />
+<#messageFee_addJs />

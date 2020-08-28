@@ -1,9 +1,12 @@
 package com.dili.ia.service;
 
+import java.util.List;
+
 import com.dili.ia.domain.MessageFee;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.MessageFeeDto;
 import com.dili.ia.domain.dto.RefundInfoDto;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 
@@ -57,7 +60,7 @@ public interface MessageFeeService extends BaseService<MessageFee, Long> {
 	 * @param code
 	 * @throws
 	 */
-	MessageFee view(String code);
+	MessageFeeDto view(String code);
 	
 	/**
 	 * @Title refund
@@ -91,4 +94,12 @@ public interface MessageFeeService extends BaseService<MessageFee, Long> {
 	 * @throws
 	 */
 	void cancleRefund(RefundOrder refundOrder);
+	
+	/**
+	 * @Title getCost
+	 * @Description 获取动态收费项
+	 * @param messageFeeDto
+	 * @throws
+	 */
+	List<QueryFeeOutput> getCost(MessageFeeDto messageFeeDto);
 }

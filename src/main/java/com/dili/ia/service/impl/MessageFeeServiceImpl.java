@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.MessageFee;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -14,12 +15,16 @@ import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.mapper.MessageFeeMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.MessageFeeService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.ia.util.ResultCodeConst;
+import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
+import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -29,6 +34,7 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
@@ -36,15 +42,20 @@ import com.dili.uap.sdk.session.SessionContext;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import io.seata.spring.annotation.GlobalTransactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,9 +90,17 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	@Autowired
 	private TransferDeductionItemService transferDeductionItemService;
 	
-	private String settlerHandlerUrl;
+	@Autowired
+	private ChargeRuleRpc chargeRuleRpc;
 	
-	private Long settlementAppId;
+	@Autowired
+	private BusinessChargeItemService businessChargeItemService;
+	
+	//TODO
+	private String settlerHandlerUrl = "http://10.28.1.187:8381/api/fee/message/settlementDealHandler";
+	
+	@Value("${settlement.app-id}")
+    private Long settlementAppId;
 	
     public MessageFeeMapper getActualDao() {
         return (MessageFeeMapper)getDao();
@@ -108,6 +127,20 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 			throw new BusinessException(ResultCode.DATA_ERROR, "业务繁忙,稍后再试");
 		}
 	}
+    
+    private List<BusinessChargeItem> buildBusinessCharge(List<BusinessChargeItem> businessChargeItems,Long businessId,String businessCode){
+		businessChargeItems.stream().forEach(item -> {
+			item.setBizType(BizTypeEnum.MESSAGEFEE.getCode());
+			item.setBusinessId(businessId);
+			item.setBusinessCode(businessCode);
+			item.setPaidAmount(0L);
+			item.setWaitAmount(item.getAmount());
+			item.setPaymentAmount(item.getAmount());
+			item.setCreateTime(LocalDateTime.now());
+			item.setVersion(0);
+		});
+		return businessChargeItems;
+	}
 
 	@Override
 	@Transactional
@@ -115,6 +148,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		MessageFee messageFee = new MessageFee(userTicket);
 		BeanUtil.copyProperties(messageFeeDto, messageFee);
+		messageFee.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.MESSAGEFEE.getEnName()));
 		messageFee.setCreatorId(userTicket.getId());
 		messageFee.setCreatorName(userTicket.getRealName());
 		messageFee.setMarketCode(userTicket.getFirmCode());
@@ -122,8 +156,14 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		messageFee.setCreateTime(LocalDateTime.now());
 		messageFee.setVersion(1);
 		messageFee.setState(MessageFeeStateEnum.CREATED.getCode());
-		// 转抵信息
 		this.insertSelective(messageFee);
+		// 动态收费项
+		List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(messageFeeDto.getBusinessChargeItems(), messageFee.getId(), messageFee.getCode());
+		if(CollectionUtil.isNotEmpty(businessChargeItems)) {
+			businessChargeItemService.batchInsert(businessChargeItems);
+		}
+		// 转抵信息
+		
 	}
 
 	@Override
@@ -138,6 +178,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		messageFee.setOperatorName(userTicket.getRealName());
 		BeanUtil.copyProperties(messageFeeDto, messageFee, CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));
 		update(messageFee, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.CREATED);
+		List<BusinessChargeItem> businessChargeItems = messageFeeDto.getBusinessChargeItems();
+		businessChargeItemService.batchUpdateSelective(businessChargeItems);
 	}
 
 	@Override
@@ -148,10 +190,6 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		if (messageFee.getState() != MessageFeeStateEnum.CREATED.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		MessageFee domain = new MessageFee(userTicket);
-		domain.setSubmitorName(userTicket.getRealName());
-		domain.setSubmitterId(userTicket.getId());
-		update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.CREATED);
 
 		// 冻结定金和转抵
 		BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
@@ -168,16 +206,22 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		}
 
 		// 提交结算单
-		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.LABOR_VEST);
+		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.MESSAGEFEE);
 		paymentOrder.setBusinessCode(code);
 		paymentOrder.setAmount(messageFee.getAmount());
 		paymentOrder.setBusinessId(messageFee.getId());
 		paymentOrderService.insertSelective(paymentOrder);
 		// 结算服务
 		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, messageFee,
-				paymentOrder.getCode(), paymentOrder.getAmount(), BizTypeEnum.LABOR_VEST);
+				paymentOrder.getCode(), paymentOrder.getAmount(), BizTypeEnum.MESSAGEFEE);
 		settleOrderDto.setReturnUrl(settlerHandlerUrl);
 		settlementRpcResolver.submit(settleOrderDto);
+		
+		MessageFee domain = new MessageFee(userTicket);
+		domain.setSubmitorName(userTicket.getRealName());
+		domain.setSubmitterId(userTicket.getId());
+		domain.setPaymentOrderCode(paymentOrder.getCode());
+		update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.SUBMITTED_PAY);
 
 	}
 
@@ -217,24 +261,30 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	}
 
 	@Override
-	public MessageFee view(String code) {
-		return getMessageFeeByCode(code);
+	public MessageFeeDto view(String code) {
+		MessageFee messageFee = getMessageFeeByCode(code);
+		MessageFeeDto messageFeeDto = new MessageFeeDto();
+		BeanUtil.copyProperties(messageFee, messageFeeDto);
+		BusinessChargeItem condtion = new BusinessChargeItem();
+		condtion.setBusinessCode(messageFee.getCode());
+		messageFeeDto.setBusinessChargeItems(businessChargeItemService.list(condtion));
+		return messageFeeDto;
 	}
 
 	@Override
 	@GlobalTransactional
 	public void refund(RefundInfoDto refundInfoDto) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-		MessageFee messageFee = getMessageFeeByCode(refundInfoDto.getBusinessCode());
+		MessageFee messageFee = getMessageFeeByCode(refundInfoDto.getCode());
 		if (messageFee.getState() != MessageFeeStateEnum.IN_EFFECTIVE.getCode()
-				|| messageFee.getState() != MessageFeeStateEnum.NOT_STARTED.getCode()
-				|| messageFee.getState() != MessageFeeStateEnum.EXPIRED.getCode()) {
+				&& messageFee.getState() != MessageFeeStateEnum.NOT_STARTED.getCode()
+				&& messageFee.getState() != MessageFeeStateEnum.EXPIRED.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		MessageFee domain = new MessageFee(userTicket);
 		update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.SUBMITTED_REFUND);
 		// 获取结算单
-		SettleOrder order = settlementRpcResolver.get(settlementAppId, messageFee.getCode());
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, messageFee.getPaymentOrderCode());
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, messageFee, order);
 		
 		// 转抵信息
@@ -250,12 +300,11 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	@Override
 	@Transactional
 	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
-		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		MessageFee messageFee = getMessageFeeByCode(refundOrder.getBusinessCode());
 		if (messageFee.getState() != MessageFeeStateEnum.SUBMITTED_REFUND.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		MessageFee domain = new MessageFee(userTicket);
+		MessageFee domain = new MessageFee();
 		update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.REFUNDED);
 		
 		//转抵扣充值
@@ -339,11 +388,11 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		refundOrder.setTotalRefundAmount(refundInfoDto.getTotalRefundAmount());
 		refundOrder.setPayeeAmount(refundInfoDto.getPayeeAmount());
 		refundOrder.setRefundReason(refundInfoDto.getNotes());
-		refundOrder.setBizType(BizTypeEnum.LABOR_VEST.getCode());
+		refundOrder.setBizType(BizTypeEnum.MESSAGEFEE.getCode());
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
-		refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.LABOR_VEST.getEnName()
+		refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.MESSAGEFEE.getEnName()
 				+"_"+BizNumberTypeEnum.REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
 			LOG.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
@@ -359,7 +408,6 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		MessageFee domain = new MessageFee();
-		update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.REFUNDED);
 		// 更新信息费单
 		if(LocalDateTime.now().isAfter(messageFee.getEndDate())){
             update(new MessageFee(), messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.EXPIRED);
@@ -368,5 +416,25 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		} else {
 	        update(new MessageFee(), messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.NOT_STARTED);
 		}
+	}
+
+	@Override
+	public List<QueryFeeOutput> getCost(MessageFeeDto messageFeeDto) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		List<QueryFeeInput> queryFeeInputs = new ArrayList<>();
+		long day = DateUtil.betweenDay(DateUtils.localDateTimeToUdate(messageFeeDto.getStartDate()), 
+				DateUtils.localDateTimeToUdate(messageFeeDto.getEndDate()), true);
+		messageFeeDto.getBusinessChargeItems().forEach(itme -> {
+			QueryFeeInput queryFeeInput =new QueryFeeInput();
+			queryFeeInput.setMarketId(userTicket.getFirmId());
+			queryFeeInput.setBusinessType(BizTypeEnum.MESSAGEFEE.getCode());
+			queryFeeInput.setChargeItem(itme.getChargeItemId());
+			Map<String, Object> calcParams = new HashMap<String, Object>();
+			calcParams.put("day", day);
+			queryFeeInput.setCalcParams(calcParams);
+			queryFeeInputs.add(queryFeeInput);
+		});
+		BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
+		return batchQueryFee.getData();
 	}
 }

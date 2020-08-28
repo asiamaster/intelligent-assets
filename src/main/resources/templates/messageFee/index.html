@@ -1,0 +1,132 @@
+<#bs4Body>
+<div class="container-fluid">
+    <#bs4nav>
+    <form id="queryForm" role="form" >
+        <div class="row row-cols-6">
+           
+            <div class="form-group col">
+                <label for="state">劳务状态</label>
+                <select id="state" name="state" class="form-control" >
+                </select>
+            </div>
+           	<div class="form-group col">
+                <label for="syncState">推送白名单</label>
+                <select id="syncState" name="syncState" class="form-control" >
+                <option value="">--全部--</option>
+                <option value="1">成功</option>
+                <option value="2">失败</option>
+                </select>
+            </div>
+           	
+            <div class="form-group col">
+                <label for="likeCustomerName">客户名称</label>
+                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
+            </div>
+            <div class="form-group col">
+                <label for="workCard">费用单号</label>
+                <input type="text" class="form-control" name="code" id="code" maxlength="20"/>
+            </div>
+            <div class="form-group col">
+                <label for="customerCellphone">客户手机号</label>
+                <input type="text" class="form-control" name="customerCellphone" id="customerCellphone" maxlength="50"/>
+            </div>
+         
+            <div class="form-group col-auto">
+                <label for="createdStart">创建时间</label>
+                <div class="form-inline">
+                    <div class="input-group">
+                        <input type="text" name="createdStart" id="createdStart" class="form-control laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <div class="input-group-append">
+                            <label for="createdStart" class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>&nbsp;&nbsp;至&nbsp;&nbsp;
+                    <div class="input-group" id="datetimepicker3">
+                        <input type="text" name="createdEnd" id="createdEnd" class="form-control date laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <div class="input-group-append">
+                            <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col align-self-center mt-3">
+                <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                <button type="button" class="btn btn-outline-primary" onclick="queryDataHandler()"><i class="fa fa-search"></i> 查询</button>
+            </div>
+        </div>
+    </form>
+</#bs4nav>
+
+    <div class="row">
+        <div class="col-12">
+            <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+                <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
+                <#resource code="addMessageFee">
+                <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler('add')"><i class="fa fa-plus"></i> 新增</button>
+                </#resource>
+                <#resource code="updateMessageFee">
+                <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler('update')"><i class="fa fa-pencil-square-o"></i> 修改</button>
+                </#resource>
+                <#resource code="submitMessageFee">
+                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交付款</button>
+                </#resource>
+                <#resource code="withdrawMessageFee">
+                <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
+                </#resource>
+                <#resource code="cancelMessageFee">
+                <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
+                </#resource>
+                <#resource code="refundMessageFee">
+                <button id="btn_refund" type="button" class="btn btn-primary" onclick="openRefundHandler()"><i class="fa fa-reply"></i> 退款申请</button>
+                </#resource>
+            </div>
+            <table id="grid" data-toggle="table" data-title="信息费列表" class="table" data-toolbar="#toolbar"
+                   data-pagination="true" data-page-number="1" data-page-size="10"
+                   data-query-params="queryParams" data-side-pagination="server" data-method="POST"
+                   data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+                   data-click-to-select="true" data-unique-id="id" data-sort-name="id"
+                   data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
+                   data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
+                <thead>
+                <tr>
+                    <th data-radio="true"></th>
+                    <th data-field="code" data-sortable="true" data-align="center" data-formatter="codeFormatter">
+                        业务单号
+                    </th>
+                    <th data-field="departmentName" data-sortable="true" data-align="center">
+                        业务所属部门
+                    </th>
+                    <th data-field="customerName" data-sortable="true" data-align="center">
+                        客户名称
+                    </th>
+                    <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                        信息费
+                    </th>
+                    <th data-field="transactionAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                        转抵扣
+                    </th>
+                    <th data-field="payAmount" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                        实付金额
+                    </th>
+                    <th data-field="state" data-sortable="true"  data-align="center"  data-provider="messageFeeStateProvider">
+                        业务状态
+                    </th>
+                    <th data-field="startDate" data-sortable="true" data-provider="dateProvider" data-align="center">
+                        开始日期
+                    </th>
+                    <th data-field="endDate" data-sortable="true" data-provider="dateProvider" data-align="center">
+                        结束日期
+                    </th>
+                    <th data-field="creatorName" data-sortable="true" data-align="center" >
+                        创建人
+                    </th>
+                    <th data-field="createTime" data-sortable="true" data-provider="datetimeProvider" data-align="center">
+                        创建时间
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+</#bs4Body>
+<#messageFee_indexJs />
