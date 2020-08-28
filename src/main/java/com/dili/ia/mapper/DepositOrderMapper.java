@@ -6,4 +6,5 @@ import com.dili.ss.base.MyMapper;
 import java.util.List;
 
 public interface DepositOrderMapper extends MyMapper<DepositOrder> {
+    Integer updateRelatedState(DepositOrder depositOrder);
 }
