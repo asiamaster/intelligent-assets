@@ -90,14 +90,14 @@
             </div>
 
             <div class="breadcrumb">
-                对应资产
+                对应${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.assetsType).getName()}
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#assetInfo" aria-expanded="true" aria-controls="assetInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
             <div id="assetInfo" class="collapse show">
                 <table class="table table-bordered table-hover table-striped" id="assetTable">
                     <thead>
                     <tr>
-                        <th class="text-center align-middle" style="font-weight:normal;">资产编号</th>
+                        <th class="text-center align-middle" style="font-weight:normal;">${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.assetsType).getName()}编号</th>
                         <th class="text-center align-middle" style="font-weight:normal;">规格</th>
                         <th class="text-center align-middle" style="font-weight:normal;">转角</th>
                         <th class="text-center align-middle" style="font-weight:normal;">单价</th>

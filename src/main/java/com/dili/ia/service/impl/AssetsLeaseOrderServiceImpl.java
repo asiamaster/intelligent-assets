@@ -262,6 +262,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         Long districtId = leaseOrderItems.get(0).getDistrictId();
         Map<String, Object> variables = new HashMap<>();
         variables.put("districtId", districtId.toString());
+        variables.put("businessKey", leaseOrder.getCode());
+        variables.put("firmId", userTicket.getFirmId());
         if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
             //发送消息通知流程
             BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "reapply", null);
@@ -1064,9 +1066,25 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     public BaseOutput cancelRefundOrderHandler(Long leaseOrderItemId) {
         //订单项退款申请
         AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(leaseOrderItemId);
+        AssetsLeaseOrder leaseOrder = get(leaseOrderItem.getLeaseOrderId());
         if (!LeaseRefundStateEnum.REFUNDING.getCode().equals(leaseOrderItem.getRefundState())) {
             LOG.info("租赁单【编号：{}】退款状态已发生变更，不能取消退款", leaseOrderItem.getLeaseOrderCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "退款状态已发生变更，不能取消退款");
+        }
+
+        //级联检查其他订单项状态，如果全部为已退款，则需联动更新订单状态为已退款
+        AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
+        condition.setLeaseOrderId(leaseOrderItem.getLeaseOrderId());
+        condition.setRefundState(LeaseRefundStateEnum.REFUNDED.getCode());
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
+        if (CollectionUtils.isNotEmpty(leaseOrderItems)) {
+            leaseOrder.setRefundState(LeaseRefundStateEnum.PARTIAL_REFUND.getCode());
+        } else {
+            leaseOrder.setRefundState(LeaseRefundStateEnum.WAIT_APPLY.getCode());
+        }
+        if (updateSelective(leaseOrder) == 0) {
+            LOG.info("摊位租赁单订单项取消退款 主单退款状态同步 乐观锁生效 【订单编号 {}】", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         leaseOrderItem.setRefundState(LeaseRefundStateEnum.WAIT_APPLY.getCode());
@@ -1074,6 +1092,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("摊位租赁单订单项取消退款申请异常 更新租赁单订单项乐观锁生效 【摊位租赁订单项ID {}】", leaseOrderItem.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
+
+
         return BaseOutput.success();
     }
 

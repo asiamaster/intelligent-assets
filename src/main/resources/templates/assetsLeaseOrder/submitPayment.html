@@ -34,7 +34,7 @@
             <table class="table table-bordered table-hover table-striped" id="apportionTable" _logTable="金额分摊明细">
                 <thead>
                 <tr>
-                    <th style="font-weight:normal;" >资产编号</th>
+                    <th style="font-weight:normal;" >${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.assetsType).getName()}编号</th>
                     <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                     for(item in chargeItems){
                     %>
