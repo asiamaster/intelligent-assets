@@ -5,6 +5,7 @@ import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.service.PassportService;
+import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -66,7 +67,7 @@ public class PassportController {
      * @return String
      */
     @RequestMapping(value = "/view.action", method = RequestMethod.GET)
-    public String view(ModelMap modelMap, long id) {
+    public String view(ModelMap modelMap, long id) throws Exception {
 
         Passport passport = passportService.get(id);
         modelMap.put("passport", passport);
@@ -166,18 +167,29 @@ public class PassportController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput add(@RequestBody PassportDto passportDto) throws Exception {
-
+    public @ResponseBody BaseOutput add(@RequestBody PassportDto passportDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        BaseOutput<Passport> baseOutput = passportService.addPassport(passportDto, userTicket);
+        try {
+            // 参数校验
+            this.ParamValidate(passportDto);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            Passport passport = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            // 新增通行证
+            BaseOutput<Passport> baseOutput = passportService.addPassport(passportDto, userTicket);
+
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                Passport passport = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-
-        return baseOutput;
     }
 
     /**
@@ -189,18 +201,29 @@ public class PassportController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@RequestBody PassportDto passportDto) throws Exception {
-
+    public @ResponseBody BaseOutput update(@RequestBody PassportDto passportDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        BaseOutput<Passport> baseOutput = passportService.updatePassport(passportDto, userTicket);
+        try {
+            // 参数校验
+            AssertUtils.notNull(passportDto.getId(), "主键不能为空");
+            this.ParamValidate(passportDto);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            Passport passport = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            BaseOutput<Passport> baseOutput = passportService.updatePassport(passportDto, userTicket);
+
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                Passport passport = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-
-        return baseOutput;
     }
 
     /**
@@ -212,18 +235,29 @@ public class PassportController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput submit(Long id) throws Exception {
-
+    public @ResponseBody BaseOutput submit(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        BaseOutput<Passport> baseOutput = passportService.submit(id, userTicket);
+        try {
+            // 参数校验
+            AssertUtils.notNull(id, "主键不能为空");
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            Passport passport = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            // 提交操作
+            BaseOutput<Passport> baseOutput = passportService.submit(id, userTicket);
+
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                Passport passport = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-
-        return baseOutput;
     }
 
     /**
@@ -235,18 +269,29 @@ public class PassportController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput cancel(Long id) throws Exception {
-
+    public @ResponseBody BaseOutput cancel(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        BaseOutput<Passport> baseOutput = passportService.cancel(id, userTicket);
+        try {
+            // 参数校验
+            AssertUtils.notNull(id, "主键不能为空");
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            Passport passport = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            // 撤销操作
+            BaseOutput<Passport> baseOutput = passportService.cancel(id, userTicket);
+
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                Passport passport = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-
-        return baseOutput;
     }
 
     /**
@@ -259,8 +304,12 @@ public class PassportController {
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            // 参数校验
+            AssertUtils.notNull(id, "主键不能为空");
+
+            // 撤回操作
             BaseOutput<Passport> baseOutput = passportService.withdraw(id, userTicket);
 
             // 写业务日志
@@ -271,10 +320,11 @@ public class PassportController {
 
             return baseOutput;
         } catch (BusinessException e) {
-            logger.info("精品停车撤回异常！");
+            logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            return BaseOutput.failure(ResultCode.APP_ERROR, "精品停车撤回错误");
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
@@ -287,8 +337,12 @@ public class PassportController {
      */
     @RequestMapping(value = "/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput refund(@RequestBody PassportRefundOrderDto passportRefundOrderDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            // 参数校验
+            AssertUtils.notNull(passportRefundOrderDto.getBusinessId(), "业务编号不能为空");
+
+            // 退款
             BaseOutput<Passport> baseOutput = passportService.refund(passportRefundOrderDto, userTicket);
 
             // 写业务日志，只是退款申请
@@ -299,11 +353,30 @@ public class PassportController {
 
             return baseOutput;
         } catch (BusinessException e) {
-            logger.error("通行证{}退款申请异常！", passportRefundOrderDto.getBusinessCode(), e);
+            logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            logger.error("通行证{}退款申请异常！", passportRefundOrderDto.getBusinessCode(), e);
+            logger.info("服务器内部错误！", e);
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
+    }
+
+    /**
+     * 参数校验
+     *
+     * @param passportDto
+     */
+    private void ParamValidate(PassportDto passportDto) {
+        AssertUtils.notEmpty(passportDto.getCustomerName(), "客户名称不能为空");
+        AssertUtils.notEmpty(passportDto.getCertificateNumber(), "证件号码不能为空");
+        AssertUtils.notEmpty(passportDto.getCustomerCellphone(), "联系电话不能为空");
+        AssertUtils.notNull(passportDto.getCarType(), "车型不能为空");
+        AssertUtils.notNull(passportDto.getEndTime(), "结束日期不能为空");
+        AssertUtils.notEmpty(passportDto.getCarNumber(), "车牌号不能为空");
+        AssertUtils.notNull(passportDto.getStartTime(), "开始日期不能为空");
+        AssertUtils.notNull(passportDto.getValidPeriod(), "有效期不能为空");
+        AssertUtils.notEmpty(passportDto.getLicenseCode(), "证件类型不能为空");
+        AssertUtils.notNull(passportDto.getDepartmentId(), "业务所属部门不能为空");
+        AssertUtils.notNull(passportDto.getTollAmount(), "通行费不能为空");
     }
 }

@@ -284,6 +284,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
      * @date   2020/8/19
      */
     @Override
+    @GlobalTransactional
     public BaseOutput<OtherFee> refund(OtherFeeRefundOrderDto refundOrderDto) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
@@ -414,6 +415,13 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         return printDataDto;
     }
 
+    /**
+     * 退款成功票据打印
+     *
+     * @param
+     * @return
+     * @date   2020/8/28
+     */
     @Override
     public PrintDataDto<OtherFeePrintDto> receiptRefundPrintData(String orderCode, String reprint) {
         RefundOrder condtion = new RefundOrder();
@@ -458,7 +466,6 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             return printDataDto;
         }
     }
-
 
     /**
      * 构建退款项

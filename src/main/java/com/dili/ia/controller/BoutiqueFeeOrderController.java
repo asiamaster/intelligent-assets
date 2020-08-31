@@ -4,6 +4,7 @@ import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.domain.dto.BoutiqueFeeRefundOrderDto;
 import com.dili.ia.service.BoutiqueFeeOrderService;
+import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -64,15 +65,20 @@ public class BoutiqueFeeOrderController {
     public @ResponseBody
     BaseOutput refund(@RequestBody BoutiqueFeeRefundOrderDto refundOrderDto) {
         try {
+            // 参数校验
+            AssertUtils.notNull(refundOrderDto.getBusinessId(), "业务编号不能为空");
+
+            // 退款申请
             boutiqueFeeOrderService.refund(refundOrderDto);
+
+            return BaseOutput.success("退款成功");
         } catch (BusinessException e) {
-            logger.error("精品停车{}退款申请异常！", refundOrderDto.getBusinessCode(), e);
-            return BaseOutput.failure(e.getCode(), e.getMessage());
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
-            logger.error("精品停车{}退款申请异常！", refundOrderDto.getBusinessCode(), e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }
-        return BaseOutput.success("退款成功");
     }
 
     /**
@@ -84,19 +90,27 @@ public class BoutiqueFeeOrderController {
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_FEE_ORDER, content = "${businessCode!}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody
-    BaseOutput cancel(Long id) throws Exception {
-
+    BaseOutput cancel(Long id){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            // 参数校验
+            AssertUtils.notNull(id, "主键不能为空");
 
-        BaseOutput<BoutiqueFeeOrder> baseOutput = boutiqueFeeOrderService.cancel(id, userTicket);
+            BaseOutput<BoutiqueFeeOrder> baseOutput = boutiqueFeeOrderService.cancel(id, userTicket);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            BoutiqueFeeOrder order = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                BoutiqueFeeOrder order = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }
-
-        return baseOutput;
     }
-
 }

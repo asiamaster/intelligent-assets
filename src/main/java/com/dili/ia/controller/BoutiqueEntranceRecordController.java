@@ -4,6 +4,7 @@ import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
+import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -88,30 +89,6 @@ public class BoutiqueEntranceRecordController {
     }
 
     /**
-     * 确认计费
-     *
-     * @param boutiqueEntranceRecord
-     * @return BaseOutput
-     * @date 2020/7/13
-     */
-    @RequestMapping(value = "/confirm.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "confirm", systemCode = "INTELLIGENT_ASSETS")
-    public @ResponseBody
-    BaseOutput confirm(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) throws Exception {
-
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
-        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.confirm(boutiqueEntranceRecord, userTicket);
-
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        }
-        return baseOutput;
-    }
-
-    /**
      * 跳转到交费页面
      *
      * @param id 精品停车主键
@@ -131,6 +108,39 @@ public class BoutiqueEntranceRecordController {
     }
 
     /**
+     * 确认计费
+     *
+     * @param boutiqueEntranceRecord
+     * @return BaseOutput
+     * @date 2020/7/13
+     */
+    @RequestMapping(value = "/confirm.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "confirm", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput confirm(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            // 参数校验
+            AssertUtils.notNull(boutiqueEntranceRecord.getId(), "主键不能为空");
+
+            // 确认计费操作
+            BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.confirm(boutiqueEntranceRecord, userTicket);
+
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
+        }
+    }
+
+    /**
      * 交费
      *
      * @param feeOrder 交费单
@@ -140,19 +150,27 @@ public class BoutiqueEntranceRecordController {
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_FEE_ORDER, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody
-    BaseOutput submit(@RequestBody BoutiqueFeeOrder feeOrder) throws Exception {
-
+    BaseOutput submit(@RequestBody BoutiqueFeeOrder feeOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            // 参数校验
+            AssertUtils.notNull(feeOrder.getId(), "主键不能为空");
+            BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.submit(feeOrder, userTicket);
 
-        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.submit(feeOrder, userTicket);
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }
-
-        return baseOutput;
     }
 
     /**
@@ -165,19 +183,29 @@ public class BoutiqueEntranceRecordController {
     @RequestMapping(value = "/leave.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "leave", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody
-    BaseOutput leave(Long id) throws Exception {
-
+    BaseOutput leave(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            // 参数校验
+            AssertUtils.notNull(id, "主键不能为空");
 
-        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.leave(id, userTicket);
+            // 离场操作
+            BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.leave(id, userTicket);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
-            BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
-            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            // 写业务日志
+            if (baseOutput.isSuccess()) {
+                BoutiqueEntranceRecord boutiqueEntranceRecordInfo = baseOutput.getData();
+                LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }
-
-        return baseOutput;
     }
 
     /**
@@ -190,11 +218,13 @@ public class BoutiqueEntranceRecordController {
     @RequestMapping(value = "/forceLeave.action", method = {RequestMethod.GET, RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "forceLeave", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody
-    BaseOutput forceLeave(Long id) throws Exception {
-
+    BaseOutput forceLeave(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
         try {
+            // 参数校验
+            AssertUtils.notNull(id, "主键不能为空");
+
+            // 强制离场操作
             BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceRecordService.forceLeave(id, userTicket);
 
             // 写业务日志
@@ -204,14 +234,13 @@ public class BoutiqueEntranceRecordController {
             }
             return baseOutput;
         } catch (BusinessException e) {
-            logger.error("精品停车强制离场异常！", e);
+            logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
-            logger.error("精品停车强制离场异常！", e);
+            logger.info("服务器内部错误！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
     }
-
 
     /**
      * 分页查询精品停车列表，返回easyui分页信息
@@ -237,7 +266,18 @@ public class BoutiqueEntranceRecordController {
     @RequestMapping(value = "/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput update(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) {
-        boutiqueEntranceRecordService.updateSelective(boutiqueEntranceRecord);
-        return BaseOutput.success("修改成功");
+        try {
+            // 参数校验
+            AssertUtils.notNull(boutiqueEntranceRecord.getId(), "主键不能为空");
+
+            boutiqueEntranceRecordService.updateSelective(boutiqueEntranceRecord);
+            return BaseOutput.success("修改成功");
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
+        }
     }
 }

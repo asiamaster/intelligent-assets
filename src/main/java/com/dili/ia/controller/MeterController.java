@@ -3,11 +3,13 @@ package com.dili.ia.controller;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ia.service.MeterService;
+import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
@@ -119,18 +121,33 @@ public class MeterController {
     @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput addMeter(@ModelAttribute MeterDto meterDto) {
+        try {
+            // 参数校验
+            AssertUtils.notNull(meterDto.getType(), "表类型不能为空");
+            AssertUtils.notNull(meterDto.getPrice(), "单价不能为空");
+            AssertUtils.notEmpty(meterDto.getNumber(), "表编号不能为空");
+            AssertUtils.notNull(meterDto.getAssetsId(), "表地址不能为空");
+            AssertUtils.notNull(meterDto.getThisAmount(), "表编号不能为空");
+            AssertUtils.notNull(meterDto.getAssetsType(), "表类别不能为空");
 
-        // 新增
-        BaseOutput<Meter> baseOutput = meterService.addMeter(meterDto);
+            // 新增
+            BaseOutput<Meter> baseOutput = meterService.addMeter(meterDto);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()){
-            Meter meter = baseOutput.getData();
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增水电表信息");
+            // 写业务日志
+            if (baseOutput.isSuccess()){
+                Meter meter = baseOutput.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增水电表信息");
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }
-
-        return baseOutput;
     }
 
     /**
@@ -143,18 +160,34 @@ public class MeterController {
     @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput updateMeter(@ModelAttribute MeterDto meterDto) {
+        try {
+            // 参数校验
+            AssertUtils.notNull(meterDto.getId(), "表主键不能为空");
+            AssertUtils.notNull(meterDto.getType(), "表类型不能为空");
+            AssertUtils.notNull(meterDto.getPrice(), "单价不能为空");
+            AssertUtils.notEmpty(meterDto.getNumber(), "表编号不能为空");
+            AssertUtils.notNull(meterDto.getAssetsId(), "表地址不能为空");
+            AssertUtils.notNull(meterDto.getThisAmount(), "表编号不能为空");
+            AssertUtils.notNull(meterDto.getAssetsType(), "表类别不能为空");
 
-        // 修改
-        BaseOutput<Meter> baseOutput = meterService.updateMeter(meterDto);
+            // 修改
+            BaseOutput<Meter> baseOutput = meterService.updateMeter(meterDto);
 
-        // 写业务日志
-        if (baseOutput.isSuccess()){
-            Meter meter = baseOutput.getData();
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "修改水电表信息");
+            // 写业务日志
+            if (baseOutput.isSuccess()){
+                Meter meter = baseOutput.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "修改水电表信息");
+            }
+
+            return baseOutput;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }
-
-        return baseOutput;
     }
 
     /**
@@ -166,27 +199,21 @@ public class MeterController {
      */
     @RequestMapping(value="/listUnbindMetersByType.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput listUnbindMetersByType(Integer type, String keyword) {
+        try {
+            // 参数校验
+            AssertUtils.notNull(type, "表类型不能为空");
 
-        List<Meter> meterList = meterService.listUnbindMetersByType(type, keyword);
+            // 查询
+            List<Meter> meterList = meterService.listUnbindMetersByType(type, keyword);
 
-        return BaseOutput.success().setData(meterList);
+            return BaseOutput.success().setData(meterList);
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
+        }
 
     }
-
-    /**
-     * 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
-     *
-     * @param  type   表类型,有枚举 meterTypeEnum
-     * @param  keyword 表编号
-     * @return meterList
-     * @date   2020/6/28
-     */
-//    @RequestMapping(value="/listMeterLikeNumber.action", method = {RequestMethod.GET, RequestMethod.POST})
-//    public @ResponseBody BaseOutput listMeterLikeNumber(Integer type, String keyword) throws Exception {
-//
-//        List<Meter> meterList = meterService.listMetersLikeNumber(type, keyword);
-//
-//        return BaseOutput.success().setData(meterList);
-//    }
-
 }

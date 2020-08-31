@@ -8,12 +8,14 @@ import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.glossary.MeterTypeEnum;
 import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.service.MeterDetailService;
+import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.domain.BaseOutput;
 
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.ibatis.annotations.Param;
@@ -126,18 +128,32 @@ public class CustomerMeterController {
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput add(@ModelAttribute CustomerMeterDto customerMeterDto) {
+        try {
+            // 参数校验
+            AssertUtils.notNull(customerMeterDto.getType(), "表类型不能为空");
+            AssertUtils.notEmpty(customerMeterDto.getNumber(), "表编号不能为空");
+            AssertUtils.notNull(customerMeterDto.getAssetsId(), "表地址不能为空");
+            AssertUtils.notNull(customerMeterDto.getCustomerId(), "客户不能为空");
+            AssertUtils.notEmpty(customerMeterDto.getCustomerCellphone(), "客户联系电话不能为空");
 
-        // 新增
-        BaseOutput<CustomerMeter> output = customerMeterService.addCustomerMeter(customerMeterDto);
+            // 新增
+            BaseOutput<CustomerMeter> output = customerMeterService.addCustomerMeter(customerMeterDto);
 
-        // 写业务日志
-        if (output.isSuccess()) {
-            CustomerMeter customerMeter = output.getData();
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            // 写业务日志
+            if (output.isSuccess()) {
+                CustomerMeter customerMeter = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+
+            return output;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }
-
-        return output;
     }
 
     /**
@@ -150,25 +166,35 @@ public class CustomerMeterController {
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value="/unbind.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput unbind(Long id) {
-        CustomerMeterDto customerMeterDto = new CustomerMeterDto();
+        try {
+            // 参数校验
+            AssertUtils.notNull(id, "主键不能为空");
 
-        // 解绑
-        customerMeterDto.setId(id);
-        customerMeterDto.setState(CustomerMeterStateEnum.CANCELD.getCode());
-        BaseOutput<CustomerMeter> output = customerMeterService.updateCustomerMeter(customerMeterDto);
+            // 解绑
+            CustomerMeterDto customerMeterDto = new CustomerMeterDto();
+            customerMeterDto.setId(id);
+            customerMeterDto.setState(CustomerMeterStateEnum.CANCELD.getCode());
+            BaseOutput<CustomerMeter> output = customerMeterService.updateCustomerMeter(customerMeterDto);
 
-        // 写业务日志
-        if (output.isSuccess()) {
-            CustomerMeter customerMeter = output.getData();
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "解绑");
+            // 写业务日志
+            if (output.isSuccess()) {
+                CustomerMeter customerMeter = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "解绑");
+            }
+
+            return output;
+        } catch (BusinessException e) {
+            logger.info(e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+        } catch (Exception e) {
+            logger.info("服务器内部错误！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
         }
-
-        return output;
     }
 
     /**
-     * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)
+     * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)(查询水表)
      *
      * @param  keyword 输入编号
      * @return 表客户List
@@ -182,7 +208,7 @@ public class CustomerMeterController {
     }
 
     /**
-     * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)
+     * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)(查询电表)
      *
      * @param  keyword 输入编号
      * @return 表客户List
