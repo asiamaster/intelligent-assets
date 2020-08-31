@@ -130,6 +130,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput insert(@RequestBody @Validated MessageFeeDto messageFee) {
         messageFeeService.create(messageFee);
         return BaseOutput.success("新增成功");
@@ -141,6 +142,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput update(@RequestBody @Validated MessageFeeDto messageFee) {
         messageFeeService.update(messageFee);
         return BaseOutput.success("修改成功");
@@ -152,6 +154,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "cancle", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput delete(String code) {
         messageFeeService.cancel(code);
         return BaseOutput.success("取消成功");
@@ -163,15 +166,15 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput submit(String code) {
         try {
             messageFeeService.submit(code);
     	}catch (BusinessException e) {
-			LOG.error("劳务马甲单{}提交异常！",code, e);
+			LOG.error("信息费单{}提交异常！",code, e);
 			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
-			LOG.error("劳务马甲单{}提交异常！",code, e);
+			LOG.error("信息费单{}提交异常！",code, e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
 		}
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
@@ -184,15 +187,15 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput withdraw(String code) {
         try {
         	messageFeeService.withdraw(code);
     	}catch (BusinessException e) {
-			LOG.error("劳务马甲单{}撤回异常！",code, e);
+			LOG.error("信息费单{}撤回异常！",code, e);
 			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
-			LOG.error("劳务马甲单{}撤回异常！",code, e);
+			LOG.error("信息费单{}撤回异常！",code, e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
 		}//LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success("撤回成功");
@@ -215,15 +218,15 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
     public @ResponseBody BaseOutput refund(@RequestBody @Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
     	try {
     		messageFeeService.refund(refundInfoDto);
     	}catch (BusinessException e) {
-			LOG.error("劳务马甲单{}退款申请异常！",refundInfoDto.getCode(), e);
+			LOG.error("信息费单{}退款申请异常！",refundInfoDto.getCode(), e);
 			return BaseOutput.failure(e.getCode(), e.getMessage());
 		}catch (Exception e) {
-			LOG.error("劳务马甲单{}退款申请异常！",refundInfoDto.getCode(), e);
+			LOG.error("信息费单{}退款申请异常！",refundInfoDto.getCode(), e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
 		}
     	return BaseOutput.success("退款成功");
@@ -248,5 +251,26 @@ public class MessageFeeController {
 		}
     	return baseOutput;
     }
+    
+    /**
+     * 同步消息系统
+     * @param labor
+     * @return BaseOutput
+     */
+    @RequestMapping(value="/syncState.action", method = {RequestMethod.GET, RequestMethod.POST})
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "update", systemCode = "INTELLIGENT_ASSETS")
+    public @ResponseBody BaseOutput syncState(String code,Integer syncState) {
+        try {
+        	messageFeeService.syncState(code, syncState);
+    	}catch (BusinessException e) {
+			LOG.error("信息费单{}同步异常！",code, e);
+			return BaseOutput.failure(e.getCode(), e.getMessage());
+		}catch (Exception e) {
+			LOG.error("信息费单{}同步异常！",code, e);
+    		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}//LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+        return BaseOutput.success("撤回成功");
+    }
+    
     
 }

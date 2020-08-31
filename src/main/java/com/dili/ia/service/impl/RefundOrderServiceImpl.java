@@ -103,8 +103,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     private ApprovalProcessService approvalProcessService;
     @Value("${settlement.app-id}")
     private Long settlementAppId;
-    @Value("${refundOrder.settlement.handler.url}")
-    private String settlerHandlerUrl;
+    //@Value("${refundOrder.settlement.handler.url}")
+    private String settlerHandlerUrl ="http://10.28.1.187:8381/api/refundOrder/settlementDealHandler";
 
     @Autowired @Lazy
     private List<RefundOrderDispatcherService> refundBizTypes;

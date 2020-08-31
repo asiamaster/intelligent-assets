@@ -102,4 +102,13 @@ public interface MessageFeeService extends BaseService<MessageFee, Long> {
 	 * @throws
 	 */
 	List<QueryFeeOutput> getCost(MessageFeeDto messageFeeDto);
+	
+	/**
+	 * @Title syncState
+	 * @Description 同步消息系统
+	 * @param code
+	 * @param syncStatus
+	 * @throws
+	 */
+	void syncState(String code,Integer syncStatus);
 }

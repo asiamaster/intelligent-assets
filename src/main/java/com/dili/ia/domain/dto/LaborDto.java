@@ -5,7 +5,11 @@ import java.util.Date;
 import java.util.List;
 
 import javax.validation.GroupSequence;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Length;
 
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.valid.LaborGetCost;
@@ -28,7 +32,8 @@ public class LaborDto {
     /**
      * 运营车型
      */
-    @NotNull(message = "运营车型不能为空",groups = {LaborGetCost.class})
+    @NotBlank(message = "运营车型不能为空",groups = {LaborGetCost.class})
+    @Length(max = 40)
     private String models;
 
     /**
@@ -99,19 +104,22 @@ public class LaborDto {
     /**
      * 客户姓名
      */
-    @NotNull(message = "客户姓名不能为空")
+    @NotBlank(message = "客户姓名不能为空")
+    @Length(max = 40)
     private String customerName;
 
     /**
      * 客户手机号
      */
-    @NotNull(message = "客户手机号不能为空")
+    @NotBlank(message = "客户手机号不能为空")
+    @Length(max = 40)
     private String customerCellphone;
     
     /**
      * 证件号
      */
-    @NotNull(message = "客户证件号不能为空")
+    @NotBlank(message = "客户证件号不能为空")
+    @Length(max = 40)
     private String certificateNumber;
 
     /**
@@ -127,7 +135,8 @@ public class LaborDto {
     /**
      * 劳务类型(1:马甲证,2:自用证)
      */
-    @NotNull(message = "劳务车型不能为空",groups = {LaborGetCost.class})
+    @NotBlank(message = "劳务车型不能为空",groups = {LaborGetCost.class})
+    @Length(max = 40)
     private String laborType;
 
     /**

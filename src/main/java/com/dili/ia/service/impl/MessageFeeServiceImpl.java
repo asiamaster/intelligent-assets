@@ -13,6 +13,7 @@ import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.MessageFeeStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.mapper.MessageFeeMapper;
+import com.dili.ia.rpc.MessageFeeRpc;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BusinessChargeItemService;
@@ -21,6 +22,7 @@ import com.dili.ia.service.MessageFeeService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.ResultCodeConst;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
@@ -96,6 +98,9 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	@Autowired
 	private BusinessChargeItemService businessChargeItemService;
 	
+	@Autowired
+	private MessageFeeRpc messageFeeRpc;
+	
 	//TODO
 	private String settlerHandlerUrl = "http://10.28.1.187:8381/api/fee/message/settlementDealHandler";
 	
@@ -162,8 +167,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		if(CollectionUtil.isNotEmpty(businessChargeItems)) {
 			businessChargeItemService.batchInsert(businessChargeItems);
 		}
-		// 转抵信息
-		
+		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增信息费单");
 	}
 
 	@Override
@@ -180,6 +184,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		update(messageFee, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.CREATED);
 		List<BusinessChargeItem> businessChargeItems = messageFeeDto.getBusinessChargeItems();
 		businessChargeItemService.batchUpdateSelective(businessChargeItems);
+		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "修改信息费单");
 	}
 
 	@Override
@@ -208,7 +213,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		// 提交结算单
 		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.MESSAGEFEE);
 		paymentOrder.setBusinessCode(code);
-		paymentOrder.setAmount(messageFee.getAmount());
+		// 需要支付的金额 总金额-转抵
+		paymentOrder.setAmount(messageFee.getAmount()-messageFee.getTransactionAmount());
 		paymentOrder.setBusinessId(messageFee.getId());
 		paymentOrderService.insertSelective(paymentOrder);
 		// 结算服务
@@ -222,6 +228,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		domain.setSubmitterId(userTicket.getId());
 		domain.setPaymentOrderCode(paymentOrder.getCode());
 		update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.SUBMITTED_PAY);
+		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "提交信息费单");
 
 	}
 
@@ -235,6 +242,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		}
 		MessageFee domain = new MessageFee(userTicket);
 		update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.CANCELLED);
+		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "取消信息费单");
+
 	}
 
 	@Override
@@ -257,7 +266,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
             LOG.info("租赁单撤回 解冻定金、转抵异常【编号：{},MSG:{}】", messageFee.getCode(), customerAccountOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
         }
-		
+		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "撤回信息费单");
+
 	}
 
 	@Override
@@ -294,7 +304,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 				transferDeductionItemService.insertSelective(o);
 			});
 		}
-		
+		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "退款申请信息费单");
+
 	}
 
 	@Override
@@ -321,6 +332,10 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
                     throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
                 }
             });
+        }
+        // 通知消息系统
+        if(messageFeeRpc.postRefundMessageFeeCustomer(messageFee)) {
+        	syncState(messageFee.getCode(), 2);
         }
 		
 	}
@@ -355,7 +370,23 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
             throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
         }
         
-        // TODO 通知消息系统
+        // 通知消息系统
+        if(messageFeeRpc.postPaySuccessMessageFeeCustomer(messageFee)) {
+        	syncState(messageFee.getCode(), 1);
+        }
+	}
+	
+	@Override
+	public void syncState(String code,Integer syncStatus) {
+		MessageFee messageFee = getMessageFeeByCode(code);
+		if (messageFee.getState() != MessageFeeStateEnum.IN_EFFECTIVE.getCode()
+				&& messageFee.getState() != MessageFeeStateEnum.NOT_STARTED.getCode()
+				&& messageFee.getState() != MessageFeeStateEnum.EXPIRED.getCode()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "信息单未缴费!");
+		}
+		MessageFee domain = new MessageFee();
+		domain.setSyncStatus(syncStatus);
+        update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.getMessageFeeStateEnum(messageFee.getSyncStatus()));
 	}
 	
 	private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, MessageFee messageFee,String orderCode,Long amount,BizTypeEnum bizTypeEnum) {

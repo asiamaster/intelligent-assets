@@ -28,22 +28,13 @@ public enum MessageFeeStateEnum {
         this.name = name;
     }
 
-    public static MessageFeeStateEnum getMeterDetailStateEnum(Integer code) {
+    public static MessageFeeStateEnum getMessageFeeStateEnum(Integer code) {
         for (MessageFeeStateEnum anEnum : MessageFeeStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }
         }
         return null;
-    }
-
-    public static String getMessageFeeStateEnum(Integer code) {
-        for (MessageFeeStateEnum r : MessageFeeStateEnum.values()) {
-            if (r.getCode().equals(code)) {
-                return r.getName();
-            }
-        }
-        return "";
     }
 
     public Integer getCode() {
