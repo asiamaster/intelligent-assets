@@ -515,7 +515,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             }
         }
         settleWayDetails.append("】");
-        if (StringUtils.isNotEmpty(settleWayDetails)){
+        if (StringUtils.isNotEmpty(settleWayDetails) && settleWayDetails.length() > 2){ // 长度大于2 是因为，避免内容为空，显示成 【】
             earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
         }
         PrintDataDto<EarnestOrderPrintDto> printDataDto = new PrintDataDto<>();

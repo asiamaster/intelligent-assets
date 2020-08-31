@@ -952,7 +952,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
         }
         settleWayDetails.append("】");
-        if (StringUtils.isNotEmpty(settleWayDetails)){
+        if (StringUtils.isNotEmpty(settleWayDetails) && settleWayDetails.length() > 2){ // 长度大于2 是因为，避免内容为空，显示成 【】
             leaseOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
         }
 
