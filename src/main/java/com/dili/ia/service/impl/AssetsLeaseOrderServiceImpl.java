@@ -984,15 +984,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //摊位订单项退款申请条件检查
         checkRufundApplyWithLeaseOrderItem(refundOrderDto, leaseOrderItem, userTicket);
 
-        leaseOrderItem.setExitTime(refundOrderDto.getExitTime());
-        leaseOrderItem.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
-        if (assetsLeaseOrderItemService.update(leaseOrderItem) == 0) {
-            LOG.info("摊位租赁订单项退款申请异常 更新乐观锁生效 【租赁单项ID {}】", leaseOrderItem.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-
         //新增
-        if(null == refundOrderDto.getId()){
+        if (null == refundOrderDto.getId()) {
             AssetsLeaseOrder leaseOrder = get(leaseOrderItem.getLeaseOrderId());
             AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
             itemCondition.setLeaseOrderId(leaseOrder.getId());
@@ -1022,8 +1015,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
             }
 
-        }else{ //修改
+        } else { //修改
             RefundOrder oldRefundOrder = refundOrderService.get(refundOrderDto.getId());
+            if (ApprovalStateEnum.APPROVED.getCode().equals(oldRefundOrder.getApprovalState())
+                    || ApprovalStateEnum.IN_REVIEW.getCode().equals(oldRefundOrder.getApprovalState())) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款单编号【" + oldRefundOrder.getCode() + "】 状态已变更，不可以进行修改操作");
+            }
+
             SpringUtil.copyPropertiesIgnoreNull(refundOrderDto, oldRefundOrder);
             if (!RefundTypeEnum.BANK.getCode().equals(refundOrderDto.getRefundType())) {
                 oldRefundOrder.setBank(null);
@@ -1043,6 +1041,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
             transferDeductionItemCondition.setRefundOrderId(refundOrderDto.getId());
             transferDeductionItemService.deleteByExample(transferDeductionItemCondition);
+        }
+
+        leaseOrderItem.setExitTime(refundOrderDto.getExitTime());
+        leaseOrderItem.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
+        if (assetsLeaseOrderItemService.update(leaseOrderItem) == 0) {
+            LOG.info("摊位租赁订单项退款申请异常 更新乐观锁生效 【租赁单项ID {}】", leaseOrderItem.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         //退款费用项设置
