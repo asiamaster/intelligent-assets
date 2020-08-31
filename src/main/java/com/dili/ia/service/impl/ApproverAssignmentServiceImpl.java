@@ -8,6 +8,9 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.exception.NotLoginException;
+import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,10 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
     @Override
     @Transactional
     public void updateEx(ApproverAssignmentDto approverAssignmentDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if(userTicket == null){
+            throw new NotLoginException();
+        }
         //查询原始的分配数据，用于判断是否修改流程、任务和办理人
         ApproverAssignment originalApproverAssignment = get(approverAssignmentDto.getId());
         //批量修改审批人配置
@@ -80,14 +87,16 @@ public class ApproverAssignmentServiceImpl extends BaseServiceImpl<ApproverAssig
                 approverAssignmentCondition.setTaskDefinitionKey(approverAssignmentDto.getTaskDefinitionKey());
                 approverAssignmentCondition.setProcessDefinitionKey(approverAssignmentDto.getProcessDefinitionKey());
                 approverAssignmentCondition.setDistrictId(approverAssignmentDto.getDistrictId());
+                approverAssignmentCondition.setFirmId(userTicket.getFirmId());
                 List<ApproverAssignment> select = getActualDao().select(approverAssignmentCondition);
             //在相同的区域、流程和任务定义，不允许有不同的审批人(以后支持多实例/会签功能后，会调整)
             if(!select.isEmpty()){
-                ApproverAssignment approverAssignment = select.get(0);
-                //这里的判断，主要是因为DistrictId可能为空，这里需要再次校验
-                if(approverAssignmentDto.getDistrictId() == null && approverAssignment.getDistrictId() == null) {
-                    throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
-                }
+                throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
+//                ApproverAssignment approverAssignment = select.get(0);
+//                //这里的判断，主要是因为DistrictId可能为空，这里需要再次校验
+//                if(approverAssignmentDto.getDistrictId() == null && approverAssignment.getDistrictId() == null) {
+//                    throw new BusinessException(ResultCode.DATA_ERROR, "已存在相同的审批人分配");
+//                }
             }
             if(approverAssignmentDto.getDistrictId() == null){
                 approverAssignmentDto.aset("districtId", null);
