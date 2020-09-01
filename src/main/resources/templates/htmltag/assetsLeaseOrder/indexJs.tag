@@ -153,11 +153,12 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-        var param = rows[0];
+        var param =  $.extend({}, rows[0]);
         param["targetId"] = param["customerId"];
         param["target"] = param["customerName"];
         param["amount"] = param["totalAmount"];
         param["invoiceDate"] = moment().format("YYYY-MM-DD");
+        param["notes"] = null;
         bs4pop.dialog({
             title: "开票",
             content: bui.util.HTMLDecode(template('invoiceTpl', param)),
