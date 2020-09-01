@@ -70,8 +70,6 @@ public class RefundOrderController {
         LocalDateTime createdEnd = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() , 23, 59 ,59);
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
-        modelMap.put("createdStart", createdStart);
-        modelMap.put("createdEnd", createdEnd);
         modelMap.put("bizType", bizType);
         return "refundOrder/index";
     }
