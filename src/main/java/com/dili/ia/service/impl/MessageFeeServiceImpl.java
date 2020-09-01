@@ -6,6 +6,7 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.MessageFeeDto;
+import com.dili.ia.domain.dto.MessageFeeQuery;
 import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
@@ -334,10 +335,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
             });
         }
         // 通知消息系统
-        if(messageFeeRpc.postRefundMessageFeeCustomer(messageFee)) {
-        	syncState(messageFee.getCode(), 2);
-        }
-		
+        syncState(messageFee.getCode(), 2);		
 	}
 
 	@Override
@@ -369,11 +367,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
             LOG.info("结算成功，消费定金、转抵接口异常 【租赁单编号:{},定金:{},转抵:{}】", messageFee.getCode(), 0L, messageFee.getTransactionAmount());
             throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
         }
-        
         // 通知消息系统
-        if(messageFeeRpc.postPaySuccessMessageFeeCustomer(messageFee)) {
-        	syncState(messageFee.getCode(), 1);
-        }
+        syncState(messageFee.getCode(), 1);
 	}
 	
 	@Override
@@ -386,6 +381,12 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		}
 		MessageFee domain = new MessageFee();
 		domain.setSyncStatus(syncStatus);
+		if (syncStatus == 1) {
+			// 通知消息系统
+			messageFeeRpc.postPaySuccessMessageFeeCustomer(messageFee);
+		}else {
+			messageFeeRpc.postRefundMessageFeeCustomer(messageFee);
+		}
         update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.getMessageFeeStateEnum(messageFee.getSyncStatus()));
 	}
 	
@@ -438,7 +439,6 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		if (messageFee.getState() != MessageFeeStateEnum.SUBMITTED_REFUND.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		MessageFee domain = new MessageFee();
 		// 更新信息费单
 		if(LocalDateTime.now().isAfter(messageFee.getEndDate())){
             update(new MessageFee(), messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.EXPIRED);
@@ -467,5 +467,24 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		});
 		BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
 		return batchQueryFee.getData();
+	}
+
+	@Override
+	public void scanEffective() {
+		// 过期扫描
+		MessageFeeQuery condition = new MessageFeeQuery();
+		condition.setState(MessageFeeStateEnum.IN_EFFECTIVE.getCode());
+		condition.setExpireStart(LocalDateTime.now());
+		MessageFeeQuery domain = new MessageFeeQuery();
+		domain.setState(MessageFeeStateEnum.EXPIRED.getCode());
+		this.updateSelectiveByExample(domain, condition);
+		
+		// 生效扫描
+		MessageFeeQuery condition1 = new MessageFeeQuery();
+		condition1.setState(MessageFeeStateEnum.NOT_STARTED.getCode());
+		condition1.setStartDate(LocalDateTime.now());
+		MessageFeeQuery domain1 = new MessageFeeQuery();
+		domain1.setState(MessageFeeStateEnum.IN_EFFECTIVE.getCode());
+		this.updateSelectiveByExample(domain1, condition1);
 	}
 }

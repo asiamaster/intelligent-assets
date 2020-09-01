@@ -51,4 +51,18 @@ public class MessageFeeApi {
             return BaseOutput.failure("信息费结算回调异常！").setData(false);
         }
     }
+    
+    /**
+	 * 
+	 * @Title scanEffective
+	 * @Description 定时任务扫描失效,待生效马甲单
+	 * @throws
+	 */
+	@RequestMapping(value = "/scanEffective", method = { RequestMethod.GET, RequestMethod.POST })
+	public void scanEffective() {
+		LOG.info("--信息费单定时任务开始--");
+		messageFeeService.scanEffective();
+		LOG.info("--信息费单定时任务结束--");
+	}
+    
 }

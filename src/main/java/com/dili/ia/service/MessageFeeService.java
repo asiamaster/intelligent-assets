@@ -111,4 +111,12 @@ public interface MessageFeeService extends BaseService<MessageFee, Long> {
 	 * @throws
 	 */
 	void syncState(String code,Integer syncStatus);
+	
+	/**
+	 * 
+	 * @Title scanEffective
+	 * @Description 定时扫描过期信息单
+	 * @throws
+	 */
+	void scanEffective();
 }
