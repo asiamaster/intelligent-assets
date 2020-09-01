@@ -8,10 +8,12 @@
                 <label for="state">劳务状态</label>
                 <select id="state" name="state" class="form-control" >
                 </select>
+                <#bcomboProvider _id="state" _provider="messageFeeStateProvider" />
+                
             </div>
            	<div class="form-group col">
                 <label for="syncState">推送白名单</label>
-                <select id="syncState" name="syncState" class="form-control" >
+                <select id="syncStatus" name="syncStatus" class="form-control" >
                 <option value="">--全部--</option>
                 <option value="1">成功</option>
                 <option value="2">失败</option>
@@ -23,8 +25,8 @@
                 <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="workCard">费用单号</label>
-                <input type="text" class="form-control" name="code" id="code" maxlength="20"/>
+                <label for="workCard">业务单号</label>
+                <input type="text" class="form-control" name="code" id="code" maxlength="30"/>
             </div>
             <div class="form-group col">
                 <label for="customerCellphone">客户手机号</label>

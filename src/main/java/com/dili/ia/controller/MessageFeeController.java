@@ -5,6 +5,7 @@ import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.MessageFee;
 import com.dili.ia.domain.dto.MessageFeeDto;
+import com.dili.ia.domain.dto.MessageFeeQuery;
 import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.service.BusinessChargeItemService;
@@ -120,7 +121,7 @@ public class MessageFeeController {
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute MessageFee messageFee) throws Exception {
+    public @ResponseBody String listPage(@ModelAttribute MessageFeeQuery messageFee) throws Exception {
         return messageFeeService.listEasyuiPageByExample(messageFee, true).toString();
     }
 

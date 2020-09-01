@@ -27,13 +27,15 @@ public class MessageFeeQuery extends MessageFee {
 	@Operator(Operator.LITTLE_EQUAL_THAN)
 	private LocalDateTime createdEnd;
 	
-	@Column(name = "`expire_date`")
-	@Operator(Operator.GREAT_EQUAL_THAN)
-	private LocalDateTime expireStart;
 	
-	@Column(name = "`expire_date`")
+	@Column(name = "`start_date`")
+	@Operator(Operator.GREAT_EQUAL_THAN)
+	private LocalDateTime gtStartDate;
+	
+	@Column(name = "`end_date`")
 	@Operator(Operator.LITTLE_EQUAL_THAN)
-	private LocalDateTime expireEnd;
+	private LocalDateTime gtEndDate;
+	
 	@Column(name = "`customer_name`")
 	@Like
 	private String likeCustomerName;
@@ -49,23 +51,23 @@ public class MessageFeeQuery extends MessageFee {
 	public void setCreatedEnd(LocalDateTime createdEnd) {
 		this.createdEnd = createdEnd;
 	}
-	public LocalDateTime getExpireStart() {
-		return expireStart;
-	}
-	public void setExpireStart(LocalDateTime expireStart) {
-		this.expireStart = expireStart;
-	}
-	public LocalDateTime getExpireEnd() {
-		return expireEnd;
-	}
-	public void setExpireEnd(LocalDateTime expireEnd) {
-		this.expireEnd = expireEnd;
-	}
 	public String getLikeCustomerName() {
 		return likeCustomerName;
 	}
 	public void setLikeCustomerName(String likeCustomerName) {
 		this.likeCustomerName = likeCustomerName;
+	}
+	public LocalDateTime getGtStartDate() {
+		return gtStartDate;
+	}
+	public void setGtStartDate(LocalDateTime gtStartDate) {
+		this.gtStartDate = gtStartDate;
+	}
+	public LocalDateTime getGtEndDate() {
+		return gtEndDate;
+	}
+	public void setGtEndDate(LocalDateTime gtEndDate) {
+		this.gtEndDate = gtEndDate;
 	}
 	
 	

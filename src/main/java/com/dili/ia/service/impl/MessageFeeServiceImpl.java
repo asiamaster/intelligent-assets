@@ -474,7 +474,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		// 过期扫描
 		MessageFeeQuery condition = new MessageFeeQuery();
 		condition.setState(MessageFeeStateEnum.IN_EFFECTIVE.getCode());
-		condition.setExpireStart(LocalDateTime.now());
+		condition.setGtEndDate(LocalDateTime.now());
 		MessageFeeQuery domain = new MessageFeeQuery();
 		domain.setState(MessageFeeStateEnum.EXPIRED.getCode());
 		this.updateSelectiveByExample(domain, condition);
@@ -482,7 +482,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		// 生效扫描
 		MessageFeeQuery condition1 = new MessageFeeQuery();
 		condition1.setState(MessageFeeStateEnum.NOT_STARTED.getCode());
-		condition1.setStartDate(LocalDateTime.now());
+		condition1.setGtStartDate(LocalDateTime.now());
 		MessageFeeQuery domain1 = new MessageFeeQuery();
 		domain1.setState(MessageFeeStateEnum.IN_EFFECTIVE.getCode());
 		this.updateSelectiveByExample(domain1, condition1);
