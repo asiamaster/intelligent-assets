@@ -127,5 +127,6 @@
             }
         });
     }
-
+    //防抖
+    $('#formSubmit').on('click', bui.util.debounce(doUpdateDepostHandler,1000,true));
 </script>
