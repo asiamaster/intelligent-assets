@@ -150,37 +150,35 @@
             width: '550px',
             btns: [
                 {
-                    label: '确定', className: 'btn-primary', onClick(e) {
-                        bui.util.debounce(function () {
-                            if (!$('#submitPaymentForm').valid()) {
-                                return false;
-                            }
-                            bui.loading.show('努力提交中，请稍候。。。');
-                            $.ajax({
-                                type: "POST",
-                                url: "${contextPath}/depositOrder/submit.action",
-                                data: {
-                                    id: rows[0].id,
-                                    waitAmount: rows[0].$_waitAmount,
-                                    amount: Number($('#amount').val()).mul(100)
-                                },
-                                dataType: "json",
-                                success : function(data) {
-                                    closeDialog(dia);
-                                    bui.loading.hide();
-                                    if(!data.success){
-                                        bs4pop.alert(data.result, {type: 'error'});
-                                    }
-                                },
-                                error : function() {
-                                    closeDialog(dia);
-                                    bui.loading.hide();
-                                    bs4pop.alert('远程访问失败', {type: 'error'});
+                    label: '确定', className: 'btn-primary', onClick : bui.util.debounce(function () {
+                        if (!$('#submitPaymentForm').valid()) {
+                            return false;
+                        }
+                        bui.loading.show('努力提交中，请稍候。。。');
+                        $.ajax({
+                            type: "POST",
+                            url: "${contextPath}/depositOrder/submit.action",
+                            data: {
+                                id: rows[0].id,
+                                waitAmount: rows[0].$_waitAmount,
+                                amount: Number($('#amount').val()).mul(100)
+                            },
+                            dataType: "json",
+                            success : function(data) {
+                                closeDialog(dia);
+                                bui.loading.hide();
+                                if(!data.success){
+                                    bs4pop.alert(data.result, {type: 'error'});
                                 }
-                            });
-                        },1000,true)();
+                            },
+                            error : function() {
+                                closeDialog(dia);
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
                         return false;
-                    }
+                    },1000,true)
                 },
                 {label: '取消', className: 'btn-default', onClick(e) {}}
             ]

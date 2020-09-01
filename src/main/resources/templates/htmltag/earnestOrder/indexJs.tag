@@ -133,36 +133,35 @@
      */
     function openSubmitHandler() {
         if(isSelectRow()){
-            bs4pop.confirm('提交后该信息不可更改，并且可进行缴费，确认提交？', {}, function (sure) {
-                if(sure){
-                    bui.util.debounce(function () {
-                        bui.loading.show('努力提交中，请稍候。。。');
-                        //获取选中行的数据
-                        let rows = _grid.bootstrapTable('getSelections');
-                        let selectedRow = rows[0];
+            bs4pop.confirm('提交后该信息不可更改，并且可进行缴费，确认提交？', {}, bui.util.debounce(function (sure) {
+                if (sure) {
+                    debugger;
+                    bui.loading.show('努力提交中，请稍候。。。');
+                    //获取选中行的数据
+                    let rows = _grid.bootstrapTable('getSelections');
+                    let selectedRow = rows[0];
 
-                        $.ajax({
-                            type: "POST",
-                            url: "${contextPath}/earnestOrder/submit.action",
-                            data: {id: selectedRow.id},
-                            processData:true,
-                            dataType: "json",
-                            success : function(ret) {
-                                bui.loading.hide();
-                                if(ret.success){
-                                    queryDataHandler();
-                                }else{
-                                    bs4pop.alert(ret.message, {type: 'error'});
-                                }
-                            },
-                            error : function() {
-                                bui.loading.hide();
-                                bs4pop.alert('远程访问失败', {type: 'error'});
+                    $.ajax({
+                        type: "POST",
+                        url: "${contextPath}/earnestOrder/submit.action",
+                        data: {id: selectedRow.id},
+                        processData:true,
+                        dataType: "json",
+                        success : function(ret) {
+                            bui.loading.hide();
+                            if(ret.success){
+                                queryDataHandler();
+                            }else{
+                                bs4pop.alert(ret.message, {type: 'error'});
                             }
-                        });
-                    },1000,true)();
+                        },
+                        error : function() {
+                            bui.loading.hide();
+                            bs4pop.alert('远程访问失败', {type: 'error'});
+                        }
+                    });
                 }
-            })
+            },1000,true))
         }
     }
 
