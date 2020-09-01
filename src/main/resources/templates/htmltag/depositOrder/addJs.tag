@@ -106,4 +106,6 @@
             }
         });
     }
+
+    $('#save').on('click', bui.util.debounce(doAddDepositHandler,1000,true));
 </script>

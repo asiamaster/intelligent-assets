@@ -6,8 +6,8 @@ import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
-import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
@@ -465,7 +465,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             assetsItems.append(o.getAssetsName()).append(",");
         });
         if (assetsItems != null && assetsItems.length() > 1){
-            assetsItems.substring(0, assetsItems.length() - 1);
+            //去掉最后一个， 符
+            assetsItems.replace(assetsItems.length()-1, assetsItems.length(), " ");
         }
         earnestOrderPrintDto.setAssetsItems(assetsItems.toString());
 

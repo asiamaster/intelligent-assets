@@ -1377,7 +1377,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      */
     private LeaseOrderItemPrintDto leaseOrderItem2PrintDto(AssetsLeaseOrderItemListDto leaseOrderItem) {
         LeaseOrderItemPrintDto leaseOrderItemPrintDto = new LeaseOrderItemPrintDto();
-        leaseOrderItemPrintDto.setBoothName(leaseOrderItem.getAssetsName());
+        leaseOrderItemPrintDto.setAssetsName(leaseOrderItem.getAssetsName());
         leaseOrderItemPrintDto.setDistrictName(leaseOrderItem.getDistrictName());
         leaseOrderItemPrintDto.setNumber(leaseOrderItem.getNumber().toString());
         leaseOrderItemPrintDto.setUnitName(leaseOrderItem.getUnitName());

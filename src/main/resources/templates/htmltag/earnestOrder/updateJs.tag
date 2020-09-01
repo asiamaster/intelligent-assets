@@ -49,11 +49,11 @@
         <% if(isNotEmpty(earnestOrderDetails)){ %>
         let earnestOrderDetails = JSON.parse('${earnestOrderDetails}');
         for (let earnestOrderDetail of earnestOrderDetails){
-            initBoothItem($.extend(earnestOrderDetail,{index: ++itemIndex}));
+            boothItem($.extend(earnestOrderDetail,{index: ++itemIndex}));
         }
         <% }else{%>
         while (itemIndex<1) {
-            initBoothItem({index: ++itemIndex});
+            boothItem({index: ++itemIndex});
         }
         <% }%>
 
@@ -65,8 +65,8 @@
      * 添加摊位
      * @param leaseOrderItem
      */
-    function initBoothItem(earnestOrderDetail){
-        $('#boothTable tbody').append(bui.util.HTMLDecode(template('initBoothItem',earnestOrderDetail)))
+    function boothItem(earnestOrderDetail){
+        $('#boothTable tbody').append(bui.util.HTMLDecode(template('boothItem',earnestOrderDetail)))
     }
 
     /**
@@ -174,4 +174,6 @@
         });
     }
 
+    //防抖
+    $('#formSubmit').on('click', bui.util.debounce(doUpdateEarnestHandler,1000,true));
 </script>

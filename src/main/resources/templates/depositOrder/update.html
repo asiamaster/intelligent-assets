@@ -64,7 +64,7 @@
         <div class="modal-footer-wrap">
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
-            <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doUpdateDepostHandler,1000,true)()" id="formSubmit">保存</button>
+            <button type="button" class="btn btn-primary px-5" id="formSubmit">保存</button>
         </div>
         </div>
     </form>
@@ -76,14 +76,4 @@
 <#js_customerAutocompleteJs/>
 
 <#depositOrder_updateJs />
-
-<script  id="boothItem"  type="text/html">
-    <tr data-index="{{index}}">
-        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
-        <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _log="摊位编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}"  _valueField="id" _textField="name" _value="{{boothId}}" _text="{{boothName}}" _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
-        </td>
-
-    </tr>
-</script>
 

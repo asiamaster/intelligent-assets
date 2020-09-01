@@ -45,6 +45,7 @@
         }
     }
 
+    $('#save').on('click', bui.util.debounce(doEarnestTransferHandler,1000,true));
 </script>
 
 

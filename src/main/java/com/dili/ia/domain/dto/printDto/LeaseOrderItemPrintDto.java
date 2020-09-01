@@ -3,8 +3,8 @@ package com.dili.ia.domain.dto.printDto;
 import java.util.Map;
 
 public class LeaseOrderItemPrintDto {
-    //摊位名称
-    private String boothName;
+    //资产名称
+    private String assetsName;
     //区域名称
     private String districtName;
     //数量
@@ -35,12 +35,12 @@ public class LeaseOrderItemPrintDto {
     //业务收费项
     private Map<String,String> businessChargeItem;
 
-    public String getBoothName() {
-        return boothName;
+    public String getAssetsName() {
+        return assetsName;
     }
 
-    public void setBoothName(String boothName) {
-        this.boothName = boothName;
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
     }
 
     public String getDistrictName() {
