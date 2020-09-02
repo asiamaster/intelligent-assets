@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -53,6 +54,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
         return Sets.newHashSet(BizTypeEnum.BOOTH_LEASE.getCode());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
         TransferDeductionItem condition = new TransferDeductionItem();

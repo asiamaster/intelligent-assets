@@ -50,6 +50,7 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         return Sets.newHashSet(BizTypeEnum.DEPOSIT_ORDER.getCode());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
         TransferDeductionItem condition = new TransferDeductionItem();
