@@ -154,28 +154,13 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public BaseOutput<CustomerAccount> addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber){
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null) {
-            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登录");
-        }
-        BaseOutput<Customer> out= customerRpc.get(customerId, userTicket.getFirmId());
-        if(!out.isSuccess()){
-            LOG.info("客户微服务调用返回失败！【customerId={}; marketId={}】,{}", customerId, userTicket.getFirmId(), out.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
-        }
-        Customer customer = out.getData();
-        if (null == customer){
-            LOG.info("客户不存在！【customerId={}; marketId={}】", customerId,userTicket.getFirmId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
-        }
-
+    public BaseOutput<CustomerAccount> addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber, Long marketId){
         CustomerAccount customerAccount = new CustomerAccount();
-        customerAccount.setMarketId(userTicket.getFirmId());
+        customerAccount.setMarketId(marketId);
         customerAccount.setCustomerId(customerId);
-        customerAccount.setCustomerCellphone(customer.getContactsPhone());
-        customerAccount.setCertificateNumber(customer.getCertificateNumber());
-        customerAccount.setCustomerName(customer.getName());
+        customerAccount.setCustomerCellphone(customerCellphone);
+        customerAccount.setCertificateNumber(certificateNumber);
+        customerAccount.setCustomerName(customerName);
         customerAccount.setEarnestBalance(0L);
         customerAccount.setEarnestAvailableBalance(0L);
         customerAccount.setEarnestFrozenAmount(0L);
@@ -197,7 +182,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         //判断转入方客户账户是否存在,不存在先创建客户账户
         if (!this.checkCustomerAccountExist(etDto.getCustomerId(), userTicket.getFirmId())){
-            this.addCustomerAccountByCustomerInfo(etDto.getCustomerId(), etDto.getCustomerName(), etDto.getCustomerCellphone(), etDto.getCertificateNumber());
+            this.addCustomerAccountByCustomerInfo(etDto.getCustomerId(), etDto.getCustomerName(), etDto.getCustomerCellphone(), etDto.getCertificateNumber(), userTicket.getFirmId());
         }
         //创建定金转移单
         BaseOutput<EarnestTransferOrder> output = this.addEarnestTransferOrder(etDto, userTicket);
@@ -543,20 +528,20 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     public void executeRechargeTransfer(Long customerId, Long amount, Long marketId){
+        BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
+        if(!out.isSuccess()){
+            LOG.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
+        }
+        Customer customer = out.getData();
+        if (null == customer){
+            LOG.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
+        }
+
         CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
         //判断转入方客户账户是否存在,不存在先创建客户账户
         if (null == ca){
-            BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
-            if(!out.isSuccess()){
-                LOG.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
-                throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
-            }
-            Customer customer = out.getData();
-            if (null == customer){
-                LOG.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
-                throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
-            }
-
             CustomerAccount customerAccount = new CustomerAccount();
             customerAccount.setMarketId(marketId);
             customerAccount.setCustomerId(customerId);
