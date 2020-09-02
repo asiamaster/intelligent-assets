@@ -630,7 +630,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             upDep.setId(depositBalance.getId());
             upDep.setBalance(depositBalance.getBalance() + payAmount);
             upDep.setVersion(depositBalance.getVersion());
-            depositBalanceService.updateSelective(upDep);
+            if (depositBalanceService.updateSelective(upDep) == 0) {
+                LOG.info("缴费单成功回调 -- 更新【保证金余额】失败,乐观锁生效！【保证金单DepositOrderID:{}】", depositOrder.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
         }
         return BaseOutput.success();
     }
