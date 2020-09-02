@@ -543,20 +543,20 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     public void executeRechargeTransfer(Long customerId, Long amount, Long marketId){
+        BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
+        if(!out.isSuccess()){
+            LOG.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
+        }
+        Customer customer = out.getData();
+        if (null == customer){
+            LOG.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
+        }
+
         CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
         //判断转入方客户账户是否存在,不存在先创建客户账户
         if (null == ca){
-            BaseOutput<Customer> out= customerRpc.get(customerId, marketId);
-            if(!out.isSuccess()){
-                LOG.info("客户微服务异常！【customerId={}; marketId={}】{}", customerId, marketId, out.getMessage());
-                throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
-            }
-            Customer customer = out.getData();
-            if (null == customer){
-                LOG.info("客户不存在！【customerId={}; marketId={}】", customerId, marketId);
-                throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在！");
-            }
-
             CustomerAccount customerAccount = new CustomerAccount();
             customerAccount.setMarketId(marketId);
             customerAccount.setCustomerId(customerId);

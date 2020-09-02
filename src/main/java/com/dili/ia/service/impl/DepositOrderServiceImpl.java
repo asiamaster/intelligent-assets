@@ -318,6 +318,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         PaymentOrder pb = this.buildPaymentOrder(userTicket, de, amount);
         paymentOrderService.insertSelective(pb);
 
+        DepositBalance depositBalance = this.findDepositBalanceExact(de.getCustomerId(), de.getTypeCode(), de.getAssetsType(), de.getAssetsId(), de.getMarketId(), de.getAssetsName());
+        if (depositBalance == null) {//创建客户账户余额
+            this.createDepositBalanceAccount(de, 0L);
+        }
+
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, de, pb, amount));
         if (!out.isSuccess()){
@@ -616,24 +621,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     private BaseOutput<String> saveOrupdateDepositBalance(DepositOrder depositOrder, Long payAmount){
-        DepositBalance params = new DepositBalance();
-        // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称
-        params.setCustomerId(depositOrder.getCustomerId());
-        params.setTypeCode(depositOrder.getTypeCode());
-        params.setAssetsType(depositOrder.getAssetsType());
-        params.setAssetsId(depositOrder.getAssetsId());
-        params.setMarketId(depositOrder.getMarketId());
-        params.setAssetsName(depositOrder.getAssetsName());
-
-        DepositBalance depositBalance = depositBalanceService.listDepositBalanceExact(params).stream().findFirst().orElse(null);
+        DepositBalance depositBalance = this.findDepositBalanceExact(depositOrder.getCustomerId(), depositOrder.getTypeCode(), depositOrder.getAssetsType(), depositOrder.getAssetsId(), depositOrder.getMarketId(), depositOrder.getAssetsName());
         if (depositBalance == null){//创建客户账户余额
-            params.setAssetsName(depositOrder.getAssetsName());
-            params.setBalance(payAmount);
-            params.setCertificateNumber(depositOrder.getCertificateNumber());
-            params.setCustomerCellphone(depositOrder.getCustomerCellphone());
-            params.setCustomerName(depositOrder.getCustomerName());
-            params.setTypeName(depositOrder.getTypeName());
-            depositBalanceService.insertSelective(params);
+            this.createDepositBalanceAccount(depositOrder, payAmount);
         }else {
             DepositBalance upDep = new DepositBalance();
             upDep.setId(depositBalance.getId());
@@ -642,6 +632,49 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             depositBalanceService.updateSelective(upDep);
         }
         return BaseOutput.success();
+    }
+
+    /**
+     * 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称，市场ID
+     * @param customerId 客户ID
+     * @param typeCode 保证金类型
+     * @param assetsType 资产类型
+     * @param assetsId 资产ID
+     * @param marketId 市场ID
+     * @param assetsName 资产编号/名称
+     *
+     * */
+    private DepositBalance findDepositBalanceExact(Long customerId, String typeCode, Integer assetsType, Long assetsId, Long marketId, String assetsName){
+        DepositBalance params = new DepositBalance();
+        // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称
+        params.setCustomerId(customerId);
+        params.setTypeCode(typeCode);
+        params.setAssetsType(assetsType);
+        params.setAssetsId(assetsId);
+        params.setMarketId(marketId);
+        params.setAssetsName(assetsName);
+
+        DepositBalance depositBalance = depositBalanceService.listDepositBalanceExact(params).stream().findFirst().orElse(null);
+        return depositBalance;
+    }
+
+    private DepositBalance createDepositBalanceAccount(DepositOrder depositOrder, Long balance){
+        DepositBalance params = new DepositBalance();
+        // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称
+        params.setCustomerId(depositOrder.getCustomerId());
+        params.setTypeCode(depositOrder.getTypeCode());
+        params.setAssetsType(depositOrder.getAssetsType());
+        params.setAssetsId(depositOrder.getAssetsId());
+        params.setMarketId(depositOrder.getMarketId());
+        params.setAssetsName(depositOrder.getAssetsName());
+        params.setBalance(balance);
+        params.setCertificateNumber(depositOrder.getCertificateNumber());
+        params.setCustomerCellphone(depositOrder.getCustomerCellphone());
+        params.setCustomerName(depositOrder.getCustomerName());
+        params.setTypeName(depositOrder.getTypeName());
+        depositBalanceService.insertSelective(params);
+
+        return params;
     }
 
     @Override
