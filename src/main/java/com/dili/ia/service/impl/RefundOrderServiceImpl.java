@@ -119,7 +119,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
 
     @Override
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER,operationType="add",systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER,operationType="add",systemCode = "IA")
     public BaseOutput doAddHandler(RefundOrder order) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {

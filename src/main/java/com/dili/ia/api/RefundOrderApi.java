@@ -58,7 +58,7 @@ public class RefundOrderApi {
      * @param settleOrder 结算单
      * @return BaseOutput<Boolean>
      */
-    @BusinessLogger(businessType="refund_order", content="${code!}", operationType="refund", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="refund_order", content="${code!}", operationType="refund", systemCode = "IA")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         if (null == settleOrder){

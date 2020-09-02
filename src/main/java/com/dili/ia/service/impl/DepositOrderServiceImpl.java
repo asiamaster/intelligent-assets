@@ -804,7 +804,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         businessLog.setOperatorId(refundOrder.getRefundOperatorId());
         businessLog.setOperatorName(refundOrder.getRefundOperator());
         businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        businessLog.setSystemCode("IA");
         return businessLog;
     }
 
@@ -910,7 +910,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         businessLog.setRemoteIp(RequestUtils.getIpAddress(WebContent.getRequest()));
         businessLog.setServerIp(WebContent.getRequest().getLocalAddr());
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        businessLog.setSystemCode("IA");
         businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
         businessLog.setBusinessCode(depositOrder.getCode());
         businessLog.setBusinessId(depositOrder.getId());

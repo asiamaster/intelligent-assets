@@ -1652,7 +1652,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         businessLog.setOperatorId(settleOrder.getOperatorId());
         businessLog.setOperatorName(settleOrder.getOperatorName());
         businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        businessLog.setSystemCode("IA");
         return businessLog;
     }
 
@@ -1672,7 +1672,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         businessLog.setOperatorId(refundOrder.getRefundOperatorId());
         businessLog.setOperatorName(refundOrder.getRefundOperator());
         businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        businessLog.setSystemCode("IA");
         return businessLog;
     }
 

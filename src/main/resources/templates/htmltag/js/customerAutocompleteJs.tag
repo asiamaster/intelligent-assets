@@ -146,7 +146,7 @@
         let http = '<#config name="customer.origin"/>';
         let sourceSystem = '<#config name="ia.source.system"/>';
 
-        // let url = 'http://customer.diligrp.com:8382/customer/register.action?sourceSystem=INTELLIGENT_ASSETS&sourceChannel=bg_create';
+        // let url = 'http://customer.diligrp.com:8382/customer/register.action?sourceSystem=IA&sourceChannel=bg_create';
         let url = http + '/customer/register.action?sourceSystem=' + sourceSystem + '&sourceChannel=' + sourceChannel;
         registerDia = bs4pop.dialog({
             title: '新增客户',

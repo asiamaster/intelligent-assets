@@ -167,7 +167,7 @@ public class AssetsLeaseOrderController {
      *
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkPass", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkPass", content = "${logContent!}", systemCode = "IA")
     @PostMapping(value = "/approvedHandler.action")
     public @ResponseBody
     BaseOutput approvedHandler(@Validated ApprovalParam approvalParam) {
@@ -191,7 +191,7 @@ public class AssetsLeaseOrderController {
      *
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkFail", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkFail", content = "${logContent!}", systemCode = "IA")
     @PostMapping(value = "/approvedDeniedHandler.action")
     public @ResponseBody
     BaseOutput approvedDeniedHandler(@Validated ApprovalParam approvalParam) {
@@ -289,6 +289,7 @@ public class AssetsLeaseOrderController {
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(leaseOrder.getId());
             businessLogQueryInput.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
+            businessLogQueryInput.setSystemCode("IA");
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if (businessLogOutput.isSuccess()) {
                 modelMap.put("logs", businessLogOutput.getData());
@@ -421,7 +422,7 @@ public class AssetsLeaseOrderController {
      * @param leaseOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${contractNo}", operationType = "reNumber", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${contractNo}", operationType = "reNumber", systemCode = "IA")
     @PostMapping(value = "/supplement.action")
     public @ResponseBody
     BaseOutput supplement(AssetsLeaseOrder leaseOrder) {
@@ -444,7 +445,7 @@ public class AssetsLeaseOrderController {
      * @param id 订单ID
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "cancel", systemCode = "IA")
     @PostMapping(value = "/cancelOrder.action")
     public @ResponseBody
     BaseOutput cancelOrder(Long id) {
@@ -467,7 +468,7 @@ public class AssetsLeaseOrderController {
      * @param id 订单ID
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "withdraw", systemCode = "IA")
     @PostMapping(value = "/withdrawOrder.action")
     public @ResponseBody
     BaseOutput withdrawOrder(Long id) {
@@ -488,7 +489,7 @@ public class AssetsLeaseOrderController {
      * @param leaseOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${logContent!}", systemCode = "IA")
     @PostMapping(value = "/saveLeaseOrder.action")
     public @ResponseBody
     BaseOutput saveLeaseOrder(@RequestBody AssetsLeaseOrderListDto leaseOrder) {
@@ -551,7 +552,7 @@ public class AssetsLeaseOrderController {
      * @param assetsLeaseSubmitPaymentDto
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${leasePayAmountStr}", operationType = "submitPayment", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${leasePayAmountStr}", operationType = "submitPayment", systemCode = "IA")
     @PostMapping(value = "/submitPayment.action")
     public @ResponseBody
     BaseOutput submitPayment(@RequestBody AssetsLeaseSubmitPaymentDto assetsLeaseSubmitPaymentDto) {
@@ -572,7 +573,7 @@ public class AssetsLeaseOrderController {
      * @param id
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "submitForApproval", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "submitForApproval", systemCode = "IA")
     @PostMapping(value = "/submitForApproval.action")
     public @ResponseBody
     BaseOutput submitForApproval(@RequestParam Long id) {
@@ -594,7 +595,7 @@ public class AssetsLeaseOrderController {
      * @param refundOrderDto
      * @return BaseOutput
      */
-    @BusinessLogger(content = "${content}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(content = "${content}", systemCode = "IA")
     @PostMapping(value = "/createOrUpdateRefundOrder.action")
     public @ResponseBody
     BaseOutput createRefundOrder(@RequestBody LeaseRefundOrderDto refundOrderDto) {

@@ -37,7 +37,7 @@ public class EarnestOrderApi {
      * @param settleOrder 结算单
      * @return BaseOutput<Boolean>
      */
-    @BusinessLogger(businessType="earnest_order", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="earnest_order", content="${code!}", operationType="pay", systemCode = "IA")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{

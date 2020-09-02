@@ -128,7 +128,7 @@ public class DepositOrderController {
      * @param orderDto
      * @return BaseOutput
      */
-    @BusinessLogger(content = "${content}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(content = "${content}", systemCode = "IA")
     @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput saveOrUpdateRefundOrder(@RequestBody DepositRefundOrderDto orderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -175,7 +175,7 @@ public class DepositOrderController {
 //     * @param depositOrderListDto
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="add", systemCode = "IA")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput doAdd(DepositOrder depositOrder) {
 
@@ -217,7 +217,7 @@ public class DepositOrderController {
      * @param depositOrder
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${logContent!}", operationType="edit", systemCode = "IA")
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doUpdate(DepositOrder depositOrder) {
         try{
@@ -269,6 +269,7 @@ public class DepositOrderController {
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(id);
             businessLogQueryInput.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
+            businessLogQueryInput.setSystemCode("IA");
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if(businessLogOutput.isSuccess()){
                 modelMap.put("logs",businessLogOutput.getData());
@@ -284,7 +285,7 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content = "${content}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content = "${content}", operationType="submit", systemCode = "IA")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(@RequestParam Long id, @RequestParam Long amount, @RequestParam Long waitAmount) {
         try {
@@ -315,7 +316,7 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "IA")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -344,7 +345,7 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "IA")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         DepositOrder depositOrder = depositOrderService.get(id);

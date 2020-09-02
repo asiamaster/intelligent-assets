@@ -168,6 +168,7 @@ public class RefundOrderController {
                 BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
                 businessLogQueryInput.setBusinessId(id);
                 businessLogQueryInput.setBusinessType(LogBizTypeConst.REFUND_ORDER);
+                businessLogQueryInput.setSystemCode("IA");
                 BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
                 if(businessLogOutput.isSuccess()){
                     modelMap.put("logs",businessLogOutput.getData());
@@ -216,7 +217,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="submit", systemCode = "IA")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
@@ -247,7 +248,7 @@ public class RefundOrderController {
      * @param id
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER,operationType="submitForApproval",systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER,operationType="submitForApproval",systemCode = "IA")
     @PostMapping(value="/submitForApproval.action")
     public @ResponseBody BaseOutput submitForApproval(@RequestParam Long id){
         try{
@@ -267,7 +268,7 @@ public class RefundOrderController {
      * 审批通过处理
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, operationType = "checkPass", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, operationType = "checkPass", content = "${logContent!}", systemCode = "IA")
     @PostMapping(value="/approvedHandler.action")
     public @ResponseBody BaseOutput approvedHandler(@Validated ApprovalParam approvalParam){
         try{
@@ -290,7 +291,7 @@ public class RefundOrderController {
      * 审批拒绝处理
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, operationType = "checkFail", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, operationType = "checkFail", content = "${logContent!}", systemCode = "IA")
     @PostMapping(value="/approvedDeniedHandler.action")
     public @ResponseBody BaseOutput approvedDeniedHandler(@Validated ApprovalParam approvalParam){
         try{
@@ -314,7 +315,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "IA")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -343,7 +344,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "IA")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         try {
