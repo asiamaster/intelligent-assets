@@ -210,7 +210,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * @param marketId
      */
     @Override
-    public void checkCustomerState(Long customerId,Long marketId){
+    public Customer checkCustomerState(Long customerId,Long marketId){
         BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 "+output.getMessage());
@@ -223,6 +223,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实！");
         }
+        return customer;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -319,7 +320,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         paymentOrderService.insertSelective(pb);
 
         DepositBalance depositBalance = this.findDepositBalanceExact(de.getCustomerId(), de.getTypeCode(), de.getAssetsType(), de.getAssetsId(), de.getMarketId(), de.getAssetsName());
-        if (depositBalance == null) {//创建客户账户余额
+        if (depositBalance == null) {//创建客户余额账户
             this.createDepositBalanceAccount(de, 0L);
         }
 

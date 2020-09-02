@@ -45,9 +45,10 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param customerName 客户名字
      * @param customerCellphone 客户电话
      * @param certificateNumber 客户证件号码
+     * @param marketId 市场ID
      * @return BaseOutput<CustomerAccount> 客户账户信息
      * */
-    BaseOutput<CustomerAccount> addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber);
+    BaseOutput<CustomerAccount> addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber, Long marketId);
 
     /**
      * 摊位租赁【提交】-- 客户账户金额[冻结]及流水变动记录
