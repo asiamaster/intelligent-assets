@@ -1,8 +1,8 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.Passport;
-import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.PassportPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;

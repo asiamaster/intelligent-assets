@@ -1,20 +1,15 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.OtherFee;
-import com.dili.ia.domain.Passport;
-import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.OtherFeePrintDto;
-import com.dili.ia.domain.dto.printDto.PassportPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.service.OtherFeeService;
-import com.dili.ia.service.PassportService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
-import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +43,8 @@ public class OtherFeeApi {
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${code!}", operationType = "pay", systemCode = "INTELLIGENT_ASSETS")
     @RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
+    public @ResponseBody
+    BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
         try {
             BaseOutput<OtherFee> output = otherFeeService.settlementDealHandler(settleOrder);
             if (output.isSuccess()) {
@@ -73,7 +69,8 @@ public class OtherFeeApi {
      * @return
      */
     @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<PrintDataDto<OtherFeePrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {
+    public @ResponseBody
+    BaseOutput<PrintDataDto<OtherFeePrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {
         try {
             if (StringUtils.isBlank(orderCode) || null == reprint) {
                 return BaseOutput.failure("参数错误");
@@ -95,7 +92,8 @@ public class OtherFeeApi {
      * @return
      */
     @RequestMapping(value = "/refundOrder/queryPrintData", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<PrintDataDto<OtherFeePrintDto>> queryRefundPrintData(String orderCode, String reprint) {
+    public @ResponseBody
+    BaseOutput<PrintDataDto<OtherFeePrintDto>> queryRefundPrintData(String orderCode, String reprint) {
         try {
             return BaseOutput.success().setData(otherFeeService.receiptRefundPrintData(orderCode, reprint));
         } catch (BusinessException e) {

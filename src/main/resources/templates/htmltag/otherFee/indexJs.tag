@@ -7,6 +7,10 @@
     let _form = $('#_form');
     let currentSelectRowIndex;
     var dia;
+    let duration = 2;
+    let timeUnit = "day"
+    $("#createdStart").attr("value", moment().subtract(duration, timeUnit).startOf('day').format('YYYY-MM-DD HH:mm:ss'));
+    $("#createdEnd").attr("value", moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'));
 
     /*********************变量定义区 end***************/
 
