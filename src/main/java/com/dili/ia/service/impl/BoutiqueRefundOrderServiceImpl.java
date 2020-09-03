@@ -100,9 +100,9 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
             List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
             if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
                 transferDeductionItems.forEach(o -> {
-                    BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
-                            refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
-                            refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
+                    BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode(), refundOrder.getId(),
+                            refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(), refundOrder.getMarketId(), refundOrder.getRefundOperatorId(),
+                            refundOrder.getRefundOperator());
                     if (!accountOutput.isSuccess()) {
                         logger.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
                         throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());

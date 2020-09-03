@@ -88,7 +88,7 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
             List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
             if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
                 transferDeductionItems.forEach(o -> {
-                    BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
+                    BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.PASSPORT.getCode(),
                             refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
                             refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
                     if (!accountOutput.isSuccess()) {

@@ -325,7 +325,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
             transferDeductionItems.forEach(o -> {
-                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
+                BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.MESSAGEFEE.getCode(),
                         refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
                         refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
                 if (!accountOutput.isSuccess()) {
