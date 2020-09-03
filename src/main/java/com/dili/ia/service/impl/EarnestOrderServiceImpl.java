@@ -6,8 +6,8 @@ import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
-import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
@@ -109,15 +109,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setAssetsType(AssetsTypeEnum.BOOTH.getCode());
         earnestOrder.setVersion(0L);
         this.insertSelective(earnestOrder);
-        insertEarnestOrderDetails(earnestOrder);
-
-        if (!customerAccountService.checkCustomerAccountExist(earnestOrder.getCustomerId(), userTicket.getFirmId())){
-            //如果客户账户不存在，创建客户账户
-           BaseOutput<CustomerAccount> addCusOut = customerAccountService.addCustomerAccountByCustomerInfo(earnestOrder.getCustomerId(), earnestOrder.getCustomerName(), earnestOrder.getCustomerCellphone(), earnestOrder.getCertificateNumber());
-           if (!addCusOut.isSuccess()){
-               return BaseOutput.failure(addCusOut.getMessage());
-           }
-        }
+        this.insertEarnestOrderDetails(earnestOrder);
         return BaseOutput.success().setData(earnestOrder);
     }
 
@@ -275,10 +267,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOG.info("提交定金【修改定金单状态】失败 ,乐观锁生效！【定金单ID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-
         PaymentOrder pb = this.buildPaymentOrder(userTicket, ea);
         paymentOrderService.insertSelective(pb);
-
+        //如果客户账户不存在，创建客户账户
+        if (!customerAccountService.checkCustomerAccountExist(ea.getCustomerId(), userTicket.getFirmId())){
+            customerAccountService.addCustomerAccountByCustomerInfo(ea.getCustomerId(), ea.getCustomerName(), ea.getCustomerCellphone(), ea.getCertificateNumber(), ea.getMarketId());
+        }
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, ea, pb));
         if (!out.isSuccess()){
@@ -310,7 +304,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
-//        @TODO 结算单需要调整业务类型
+        //结算单业务类型 为 Integer
         settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.EARNEST.getCode())); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
@@ -468,7 +462,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             assetsItems.append(o.getAssetsName()).append(",");
         });
         if (assetsItems != null && assetsItems.length() > 1){
-            assetsItems.substring(0, assetsItems.length() - 1);
+            //去掉最后一个， 符
+            assetsItems.replace(assetsItems.length()-1, assetsItems.length(), " ");
         }
         earnestOrderPrintDto.setAssetsItems(assetsItems.toString());
 
@@ -518,7 +513,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             }
         }
         settleWayDetails.append("】");
-        if (StringUtils.isNotEmpty(settleWayDetails)){
+        if (StringUtils.isNotEmpty(settleWayDetails) && settleWayDetails.length() > 2){ // 长度大于2 是因为，避免内容为空，显示成 【】
             earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
         }
         PrintDataDto<EarnestOrderPrintDto> printDataDto = new PrintDataDto<>();

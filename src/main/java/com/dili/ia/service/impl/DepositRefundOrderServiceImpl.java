@@ -1,10 +1,10 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.DepositOrder;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ia.domain.*;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.RefundOrderMapper;
+import com.dili.ia.rpc.CustomerRpc;
+import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.TransferDeductionItemService;
@@ -40,12 +40,17 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     DepositOrderService depositOrderService;
     @Autowired
     TransferDeductionItemService transferDeductionItemService;
+    @Autowired
+    CustomerAccountService customerAccountService;
+    @Autowired
+    CustomerRpc customerRpc;
 
     @Override
     public Set<String> getBizType() {
         return Sets.newHashSet(BizTypeEnum.DEPOSIT_ORDER.getCode());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
         TransferDeductionItem condition = new TransferDeductionItem();
@@ -53,7 +58,12 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(condition);
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){
             transferDeductionItems.forEach(o->{
-                depositOrderService.checkCustomerState(o.getPayeeId(),refundOrder.getMarketId());
+                Customer customer = depositOrderService.checkCustomerState(o.getPayeeId(),refundOrder.getMarketId());
+                CustomerAccount ca = customerAccountService.getCustomerAccountByCustomerId(o.getPayeeId(), refundOrder.getMarketId());
+                //判断转入方客户账户是否存在,不存在先创建客户账户
+                if (null == ca){
+                    customerAccountService.addCustomerAccountByCustomerInfo(customer.getId(), customer.getName(), customer.getContactsPhone(), customer.getCertificateNumber(), refundOrder.getMarketId());
+                }
             });
         }
         return BaseOutput.success();

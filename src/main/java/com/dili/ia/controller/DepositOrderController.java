@@ -34,7 +34,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,12 +69,14 @@ public class DepositOrderController {
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
-        LocalDateTime nowTime = LocalDateTime.now();
-        LocalDateTime createdStart = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() -2 , 0, 0 ,0);
-        LocalDateTime createdEnd = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() , 23, 59 ,59);
-        modelMap.put("createdStart", createdStart);
-        modelMap.put("createdEnd", createdEnd);
+        Calendar c = Calendar.getInstance();
+        c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        c.add(Calendar.DAY_OF_MONTH, -2);
+        Date createdStart = c.getTime();
 
+        Calendar ce = Calendar.getInstance();
+        ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
+        Date createdEnd = ce.getTime();
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
         return "depositOrder/index";
@@ -124,7 +128,7 @@ public class DepositOrderController {
      * @param orderDto
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content = "${content}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(content = "${content}", systemCode = "IA")
     @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput saveOrUpdateRefundOrder(@RequestBody DepositRefundOrderDto orderDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -135,13 +139,16 @@ public class DepositOrderController {
             BaseOutput<RefundOrder> out = depositOrderService.saveOrUpdateRefundOrder(orderDto);
             if (out.isSuccess()) {
                 if(StringUtils.isNotBlank(orderDto.getLogContent())){
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
                     LoggerContext.put("content", orderDto.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+                    LoggerUtil.buildLoggerContext(orderDto.getId(), orderDto.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), orderDto.getRefundReason());
                 }else{
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.DEPOSIT_ORDER);
                     LoggerContext.put("content", MoneyUtils.centToYuan(orderDto.getTotalRefundAmount()));
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
+                    LoggerUtil.buildLoggerContext(orderDto.getBusinessId(), orderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), orderDto.getRefundReason());
                 }
-                LoggerUtil.buildLoggerContext(orderDto.getBusinessId(), orderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), orderDto.getRefundReason());
             }
             return out;
         } catch (BusinessException e) {
@@ -168,7 +175,7 @@ public class DepositOrderController {
 //     * @param depositOrderListDto
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="add", systemCode = "IA")
     @RequestMapping(value="/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput doAdd(DepositOrder depositOrder) {
 
@@ -210,7 +217,7 @@ public class DepositOrderController {
      * @param depositOrder
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${logContent!}", operationType="edit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${logContent!}", operationType="edit", systemCode = "IA")
     @RequestMapping(value="/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doUpdate(DepositOrder depositOrder) {
         try{
@@ -262,6 +269,7 @@ public class DepositOrderController {
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(id);
             businessLogQueryInput.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
+            businessLogQueryInput.setSystemCode("IA");
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if(businessLogOutput.isSuccess()){
                 modelMap.put("logs",businessLogOutput.getData());
@@ -277,7 +285,7 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content = "${content}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content = "${content}", operationType="submit", systemCode = "IA")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(@RequestParam Long id, @RequestParam Long amount, @RequestParam Long waitAmount) {
         try {
@@ -308,7 +316,7 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "IA")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -337,7 +345,7 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "IA")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         DepositOrder depositOrder = depositOrderService.get(id);

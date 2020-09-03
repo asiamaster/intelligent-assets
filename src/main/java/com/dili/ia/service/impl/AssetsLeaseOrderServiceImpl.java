@@ -12,7 +12,9 @@ import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
+import com.dili.ia.domain.dto.printDto.LeaseOrderItemPrintDto;
 import com.dili.ia.domain.dto.printDto.LeaseOrderPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
@@ -180,10 +182,11 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             //租赁单修改
             checkContractNo(dto.getId(), dto.getContractNo(), false);//合同编号验证重复
             AssetsLeaseOrder oldLeaseOrder = get(dto.getId());
-            if (!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())) {
+            if (!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())
+                    || ApprovalStateEnum.APPROVED.getCode().equals(oldLeaseOrder.getApprovalState())
+                    || ApprovalStateEnum.IN_REVIEW.getCode().equals(oldLeaseOrder.getApprovalState())) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + oldLeaseOrder.getCode() + "】 状态已变更，不可以进行修改操作");
             }
-            dto.setVersion(oldLeaseOrder.getVersion());
             dto.setWaitAmount(dto.getPayAmount());
             SpringUtil.copyPropertiesIgnoreNull(dto, oldLeaseOrder);
             oldLeaseOrder.setContractNo(dto.getContractNo());
@@ -259,6 +262,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         Long districtId = leaseOrderItems.get(0).getDistrictId();
         Map<String, Object> variables = new HashMap<>();
         variables.put("districtId", districtId.toString());
+        variables.put("businessKey", leaseOrder.getCode());
+        variables.put("firmId", userTicket.getFirmId().toString());
         if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
             //发送消息通知流程
             BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "reapply", null);
@@ -311,6 +316,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, leaseOrder.getCode());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, leaseOrder.getId());
         LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
         LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
         LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
@@ -327,16 +333,22 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseOrder condition = new AssetsLeaseOrder();
         condition.setCode(approvalParam.getBusinessKey());
         AssetsLeaseOrder leaseOrder = getActualDao().selectOne(condition);
-        AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
-        itemCondition.setLeaseOrderId(leaseOrder.getId());
-        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
+
         //只有创建状态的订单才能提交审批任务
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
-            //保存流程审批记录
-            saveApprovalProcess(approvalParam, userTicket);
             //最后一次审批，更新审批状态、租赁单状态，并且全量提交租赁单到结算
             //总经理审批通过需要更新审批状态
             if ("generalManagerApproval".equals(approvalParam.getTaskDefinitionKey())) {
+                AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
+                //检查客户状态
+                checkCustomerState(leaseOrder.getCustomerId(), leaseOrder.getMarketId());
+                AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
+                itemCondition.setLeaseOrderId(leaseOrder.getId());
+                List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
+                leaseOrderItems.forEach(o -> {
+                    //检查资产状态
+                    assetsLeaseService.checkAssetState(o.getAssetsId());
+                });
                 //提交付款
                 Long paymentId = submitPay(leaseOrder, leaseOrder.getPayAmount());
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
@@ -355,10 +367,20 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                     throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
                 }
             }
+            //保存流程审批记录
+            saveApprovalProcess(approvalParam, userTicket);
+            //写业务日志
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, leaseOrder.getId());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+            LoggerContext.put("logContent", approvalParam.getOpinion());
             //第一个摊位的区域id，用于获取一级区域名称，在流程中进行判断
-            Long districtId = leaseOrderItems.get(0).getDistrictId();
-            //提交审批任务
-            completeTask(approvalParam.getTaskId(), "true", getLevel1DistrictName(districtId));
+//            Long districtId = leaseOrderItems.get(0).getDistrictId();
+            //提交审批任务(现在不需要根据区域名称来判断流程)
+//            completeTask(approvalParam.getTaskId(), "true", getLevel1DistrictName(districtId));
+            completeTask(approvalParam.getTaskId(), "true", null);
         } else {
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态不正确");
         }
@@ -400,14 +422,22 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         saveApprovalProcess(approvalParam, userTicket);
 
         //查第一个摊位，用于获取一级区域，进行流程判断
-        AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
-        itemCondition.setLeaseOrderId(leaseOrder.getId());
-        itemCondition.setPage(1);
-        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
+//        AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
+//        itemCondition.setLeaseOrderId(leaseOrder.getId());
+//        itemCondition.setPage(1);
+//        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
         //第一个摊位的区域id，用于获取一级区域名称，在流程中进行判断
-        Long districtId = leaseOrderItems.get(0).getDistrictId();
-        //提交审批任务
-        completeTask(approvalParam.getTaskId(), "false", getLevel1DistrictName(districtId));
+//        Long districtId = leaseOrderItems.get(0).getDistrictId();
+        //写业务日志
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, leaseOrder.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
+        LoggerContext.put("logContent", approvalParam.getOpinion());
+        //提交审批任务(现在不需要根据区域名称来判断流程)
+//        completeTask(approvalParam.getTaskId(), "false", getLevel1DistrictName(districtId));
+        completeTask(approvalParam.getTaskId(), "false", null);
     }
 
 
@@ -720,6 +750,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             //业务收费项完成分摊
             businessChargeItems.stream().filter(bci -> bci.getPaymentAmount() > 0L).forEach(bci -> {
                 ApportionRecord apportionRecord = buildApportionRecord( o, bci);
+                apportionRecord.setPaymentOrderId(paymentOrderPO.getId());
                 apportionRecords.add(apportionRecord);
 
                 bci.setWaitAmount(bci.getWaitAmount() - bci.getPaymentAmount());
@@ -740,7 +771,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
         //如果是提交状态的租赁单(第一次提交付款)，并且有流程实例id，则通知流程结束
-        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId()) && leaseOrderState.equals(leaseOrder.getState())) {
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId()) && leaseOrderState.equals(LeaseOrderStateEnum.SUBMITTED.getCode())) {
             //发送消息通知流程
             BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "confirmReceipt", null);
             if (!baseOutput.isSuccess()) {
@@ -921,7 +952,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
         }
         settleWayDetails.append("】");
-        if (StringUtils.isNotEmpty(settleWayDetails)){
+        if (StringUtils.isNotEmpty(settleWayDetails) && settleWayDetails.length() > 2){ // 长度大于2 是因为，避免内容为空，显示成 【】
             leaseOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
         }
 
@@ -953,15 +984,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //摊位订单项退款申请条件检查
         checkRufundApplyWithLeaseOrderItem(refundOrderDto, leaseOrderItem, userTicket);
 
-        leaseOrderItem.setExitTime(refundOrderDto.getExitTime());
-        leaseOrderItem.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
-        if (assetsLeaseOrderItemService.updateSelective(leaseOrderItem) == 0) {
-            LOG.info("摊位租赁订单项退款申请异常 更新乐观锁生效 【租赁单项ID {}】", leaseOrderItem.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-
         //新增
-        if(null == refundOrderDto.getId()){
+        if (null == refundOrderDto.getId()) {
             AssetsLeaseOrder leaseOrder = get(leaseOrderItem.getLeaseOrderId());
             AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
             itemCondition.setLeaseOrderId(leaseOrder.getId());
@@ -991,8 +1015,20 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
             }
 
-        }else{ //修改
-            if (!refundOrderService.doUpdatedHandler(refundOrderDto).isSuccess()) {
+        } else { //修改
+            RefundOrder oldRefundOrder = refundOrderService.get(refundOrderDto.getId());
+            if (ApprovalStateEnum.APPROVED.getCode().equals(oldRefundOrder.getApprovalState())
+                    || ApprovalStateEnum.IN_REVIEW.getCode().equals(oldRefundOrder.getApprovalState())) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款单编号【" + oldRefundOrder.getCode() + "】 状态已变更，不可以进行修改操作");
+            }
+
+            SpringUtil.copyPropertiesIgnoreNull(refundOrderDto, oldRefundOrder);
+            if (!RefundTypeEnum.BANK.getCode().equals(refundOrderDto.getRefundType())) {
+                oldRefundOrder.setBank(null);
+                oldRefundOrder.setBankCardNo(null);
+            }
+
+            if (!refundOrderService.doUpdatedHandler(oldRefundOrder).isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款修改接口异常", refundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
             }
@@ -1005,6 +1041,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
             transferDeductionItemCondition.setRefundOrderId(refundOrderDto.getId());
             transferDeductionItemService.deleteByExample(transferDeductionItemCondition);
+        }
+
+        leaseOrderItem.setExitTime(refundOrderDto.getExitTime());
+        leaseOrderItem.setRefundState(LeaseRefundStateEnum.REFUNDING.getCode());
+        if (assetsLeaseOrderItemService.update(leaseOrderItem) == 0) {
+            LOG.info("摊位租赁订单项退款申请异常 更新乐观锁生效 【租赁单项ID {}】", leaseOrderItem.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         //退款费用项设置
@@ -1028,9 +1071,25 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     public BaseOutput cancelRefundOrderHandler(Long leaseOrderItemId) {
         //订单项退款申请
         AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(leaseOrderItemId);
+        AssetsLeaseOrder leaseOrder = get(leaseOrderItem.getLeaseOrderId());
         if (!LeaseRefundStateEnum.REFUNDING.getCode().equals(leaseOrderItem.getRefundState())) {
             LOG.info("租赁单【编号：{}】退款状态已发生变更，不能取消退款", leaseOrderItem.getLeaseOrderCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "退款状态已发生变更，不能取消退款");
+        }
+
+        //级联检查其他订单项状态，如果全部为已退款，则需联动更新订单状态为已退款
+        AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
+        condition.setLeaseOrderId(leaseOrderItem.getLeaseOrderId());
+        condition.setRefundState(LeaseRefundStateEnum.REFUNDED.getCode());
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
+        if (CollectionUtils.isNotEmpty(leaseOrderItems)) {
+            leaseOrder.setRefundState(LeaseRefundStateEnum.PARTIAL_REFUND.getCode());
+        } else {
+            leaseOrder.setRefundState(LeaseRefundStateEnum.WAIT_APPLY.getCode());
+        }
+        if (updateSelective(leaseOrder) == 0) {
+            LOG.info("摊位租赁单订单项取消退款 主单退款状态同步 乐观锁生效 【订单编号 {}】", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         leaseOrderItem.setRefundState(LeaseRefundStateEnum.WAIT_APPLY.getCode());
@@ -1038,6 +1097,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("摊位租赁单订单项取消退款申请异常 更新租赁单订单项乐观锁生效 【摊位租赁订单项ID {}】", leaseOrderItem.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
+
+
         return BaseOutput.success();
     }
 
@@ -1083,7 +1144,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
             transferDeductionItems.forEach(o -> {
-                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
+                BaseOutput accountOutput = customerAccountService.rechargTransfer(refundOrder.getBizType(),
                         refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
                         refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
                 if (!accountOutput.isSuccess()) {
@@ -1231,7 +1292,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         approvalProcess.setTaskId(approvalParam.getTaskId());
         BaseOutput<TaskMapping> taskMappingBaseOutput = taskRpc.getById(approvalParam.getTaskId());
         if (!taskMappingBaseOutput.isSuccess()) {
-            throw new AppException("获取任务信息失败");
+            throw new AppException(taskMappingBaseOutput.getMessage());
         }
         approvalProcess.setTaskName(taskMappingBaseOutput.getData().getName());
         approvalProcess.setTaskTime(taskMappingBaseOutput.getData().getCreateTime());
@@ -1316,7 +1377,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      */
     private LeaseOrderItemPrintDto leaseOrderItem2PrintDto(AssetsLeaseOrderItemListDto leaseOrderItem) {
         LeaseOrderItemPrintDto leaseOrderItemPrintDto = new LeaseOrderItemPrintDto();
-        leaseOrderItemPrintDto.setBoothName(leaseOrderItem.getAssetsName());
+        leaseOrderItemPrintDto.setAssetsName(leaseOrderItem.getAssetsName());
         leaseOrderItemPrintDto.setDistrictName(leaseOrderItem.getDistrictName());
         leaseOrderItemPrintDto.setNumber(leaseOrderItem.getNumber().toString());
         leaseOrderItemPrintDto.setUnitName(leaseOrderItem.getUnitName());
@@ -1591,7 +1652,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         businessLog.setOperatorId(settleOrder.getOperatorId());
         businessLog.setOperatorName(settleOrder.getOperatorName());
         businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        businessLog.setSystemCode("IA");
         return businessLog;
     }
 
@@ -1611,7 +1672,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         businessLog.setOperatorId(refundOrder.getRefundOperatorId());
         businessLog.setOperatorName(refundOrder.getRefundOperator());
         businessLog.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        businessLog.setSystemCode("IA");
         return businessLog;
     }
 

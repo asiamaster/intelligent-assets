@@ -110,7 +110,7 @@ public class CustomerAccountController {
      * @param order
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_ACCOUNT, content = "${content}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(content = "${content}", systemCode = "IA")
     @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput saveOrUpdateRefundOrder(@RequestBody EarnestRefundOrderDto order) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -121,13 +121,16 @@ public class CustomerAccountController {
             BaseOutput<RefundOrder> out = customerAccountService.saveOrUpdateRefundOrder(order);
             if (out.isSuccess()) {
                 if(StringUtils.isNotBlank(order.getLogContent())){
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
                     LoggerContext.put("content", order.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+                    LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
                 }else{
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.CUSTOMER_ACCOUNT);
                     LoggerContext.put("content", MoneyUtils.centToYuan(order.getTotalRefundAmount()));
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
+                    LoggerUtil.buildLoggerContext(order.getBusinessId(), order.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
                 }
-                LoggerUtil.buildLoggerContext(order.getBusinessId(), order.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), order.getRefundReason());
             }
             return out;
         } catch (BusinessException e) {
@@ -141,52 +144,37 @@ public class CustomerAccountController {
 
     /**
      * CustomerAccount --- 定金转移
-     * @param efDto
+     * @param etDto 前端参数
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_ACCOUNT, content="${businessCode}客户【${payerName}】转移给客户【${customerName}】${amountYuan}元", operationType="transfer", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_ACCOUNT, content="${businessCode}客户【${payerName}】转移给客户【${customerName}】${amountYuan}元", operationType="transfer", systemCode = "IA")
     @RequestMapping(value="/doEarnestTransfer.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferDto efDto) {
+    public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferDto etDto) {
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             if (null == userTicket){
                 return BaseOutput.failure("未登录！");
             }
-            if (efDto.getPayerId().equals(efDto.getCustomerId())){
+            if (etDto.getPayerId().equals(etDto.getCustomerId())){
                 return BaseOutput.failure("转移失败，不能转移给自己！");
             }
             //检查收款人客户状态
-            BaseOutput checkResult  = checkCustomerState(efDto.getCustomerId(), userTicket.getFirmId());
-            //检查付款款人客户状态
-            BaseOutput checkResultPayer  = checkCustomerState(efDto.getPayerId(), userTicket.getFirmId());
+            BaseOutput checkResult  = checkCustomerState(etDto.getCustomerId(), userTicket.getFirmId());
             if (!checkResult.isSuccess()){
                 return checkResult;
             }
+            //检查付款款人客户状态
+            BaseOutput checkResultPayer  = checkCustomerState(etDto.getPayerId(), userTicket.getFirmId());
             if (!checkResultPayer.isSuccess()){
                 return checkResultPayer;
             }
-            //判断转入方客户账户是否存在,不存在先创建客户账户
-            if (!customerAccountService.checkCustomerAccountExist(efDto.getCustomerId(), userTicket.getFirmId())){
-                BaseOutput<CustomerAccount> cusOut = customerAccountService.addCustomerAccountByCustomerInfo(efDto.getCustomerId(), efDto.getCustomerName(), efDto.getCustomerCellphone(), efDto.getCertificateNumber());
-                if (!cusOut.isSuccess()){
-                    return cusOut;
-                }
-            }
-            BaseOutput<EarnestTransferOrder> output = customerAccountService.addEarnestTransferOrder(efDto);
-            if (!output.isSuccess()){
-                return output;
-            }
-            BaseOutput<EarnestTransferOrder> transOutput = customerAccountService.earnestTransfer(output.getData(), efDto.getPayerAccountVersion());
-            if (!transOutput.isSuccess()){
-                return transOutput;
-            }
+            BaseOutput<EarnestTransferOrder> transOutput = customerAccountService.earnestTransfer(etDto);
             if (transOutput.isSuccess()){
-                LoggerContext.put("amountYuan", MoneyUtils.centToYuan(efDto.getAmount()));
+                LoggerContext.put("amountYuan", MoneyUtils.centToYuan(etDto.getAmount()));
                 //记录业务日志
-                LoggerUtil.buildLoggerContext(transOutput.getData().getId(), transOutput.getData().getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), efDto.getTransferReason());
+                LoggerUtil.buildLoggerContext(transOutput.getData().getId(), transOutput.getData().getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), etDto.getTransferReason());
 
             }
-
             return BaseOutput.success("转移成功！");
         } catch (BusinessException e) {
             LOG.error("定金转移失败!", e);

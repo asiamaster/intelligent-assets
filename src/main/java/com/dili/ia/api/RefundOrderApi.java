@@ -1,7 +1,7 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -58,7 +58,7 @@ public class RefundOrderApi {
      * @param settleOrder 结算单
      * @return BaseOutput<Boolean>
      */
-    @BusinessLogger(businessType="refund_order", content="${code!}", operationType="refund", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="refund_order", content="${code!}", operationType="refund", systemCode = "IA")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         if (null == settleOrder){

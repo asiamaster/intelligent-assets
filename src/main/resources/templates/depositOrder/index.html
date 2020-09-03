@@ -24,7 +24,7 @@
                     <div class="form-group col">
                         <label for="typeCode">保证金类型:</label>
                         <select id="typeCode" name="typeCode" class="form-control"></select>
-                        <#bcomboProvider _id="typeCode" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"deposit_type"}' />
+                        <#bcomboProvider _id="typeCode" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"deposit_type",emptyText:"-- 全部 --"}' />
                     </div>
                     <div class="form-group col">
                         <label for="departmentId">业务所属部门:</label>
@@ -47,13 +47,13 @@
                         <label for="createdStart">创建时间:</label>
                         <div class="form-inline">
                             <div class="input-group">
-                                <input type="text" name="createdStart" id="createdStart" class="form-control date laydatetime laystart" value="${createdStart!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
+                                <input type="text" name="createdStart" id="createdStart" class="form-control date laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}" />
                                 <div class="input-group-append">
                                     <label for="createdStart" class="input-group-text fa fa-calendar"></label>
                                 </div>
                             </div>&nbsp;&nbsp;至&nbsp;&nbsp;
                             <div class="input-group" id="datetimepicker3">
-                                <input type="text" name="createdEnd" id="createdEnd" class="form-control date laydatetime layend" value="${createdEnd!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" />
+                                <input type="text" name="createdEnd" id="createdEnd" class="form-control date laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}" />
                                 <div class="input-group-append">
                                     <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
                                 </div>

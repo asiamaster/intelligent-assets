@@ -42,6 +42,9 @@ public class EarnestOrderListDto extends EarnestOrder {
     @Transient
     private List<EarnestOrderDetail> earnestOrderdetails;
 
+    @Transient
+    private String logContent;
+
     public LocalDateTime getCreatedStart() {
         return createdStart;
     }
@@ -80,5 +83,13 @@ public class EarnestOrderListDto extends EarnestOrder {
 
     public void setEarnestOrderdetails(List<EarnestOrderDetail> earnestOrderdetails) {
         this.earnestOrderdetails = earnestOrderdetails;
+    }
+
+    public String getLogContent() {
+        return logContent;
+    }
+
+    public void setLogContent(String logContent) {
+        this.logContent = logContent;
     }
 }

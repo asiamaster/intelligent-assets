@@ -112,37 +112,32 @@
      */
     function openSubmitHandler() {
         if(isSelectRow()){
-            bs4pop.confirm('提交之后信息不可更改，并可在结算中心办理退款，确定提交？', {}, function (sure) {
-                if(sure){
-                    bui.util.debounce(function () {
-                        bui.loading.show('努力提交中，请稍候。。。');
-                        //获取选中行的数据
-                        let rows = _grid.bootstrapTable('getSelections');
-                        let selectedRow = rows[0];
+            bs4pop.confirm('提交之后信息不可更改，并可在结算中心办理退款，确定提交？', {}, bui.util.debounce(function (sure) {
+                bui.loading.show('努力提交中，请稍候。。。');
+                //获取选中行的数据
+                let rows = _grid.bootstrapTable('getSelections');
+                let selectedRow = rows[0];
 
-                        $.ajax({
-                            type: "POST",
-                            url: "${contextPath}/refundOrder/submit.action",
-                            data: {id: selectedRow.id},
-                            processData:true,
-                            dataType: "json",
-                            success : function(data) {
-                                bui.loading.hide();
-                                if(data.success){
-                                    _grid.bootstrapTable('refresh');
-                                }else{
-                                    bs4pop.alert(data.message, {type: 'error'});
-                                }
-                            },
-                            error : function() {
-                                bui.loading.hide();
-                                bs4pop.alert('远程访问失败', {type: 'error'});
-                            }
-                        });
-                    },1000,true)();
-
-                }
-            })
+                $.ajax({
+                    type: "POST",
+                    url: "${contextPath}/refundOrder/submit.action",
+                    data: {id: selectedRow.id},
+                    processData:true,
+                    dataType: "json",
+                    success : function(data) {
+                        bui.loading.hide();
+                        if(data.success){
+                            _grid.bootstrapTable('refresh');
+                        }else{
+                            bs4pop.alert(data.message, {type: 'error'});
+                        }
+                    },
+                    error : function() {
+                        bui.loading.hide();
+                        bs4pop.alert('远程访问失败', {type: 'error'});
+                    }
+                });
+            },1000,true))
         }
     }
 
@@ -254,7 +249,7 @@
             return;
         }
         let selectedRow = rows[0];
-        bs4pop.confirm('确定提交审批？', undefined, function (sure) {
+        bs4pop.confirm('即将进入审批流程，在审批过程中，业务单不可更改，确定提交审批？', undefined, function (sure) {
             if(sure){
                 bui.loading.show('努力提交中，请稍候。。。');
                 $.ajax({

@@ -159,4 +159,6 @@
             }
         });
     }
+
+    $('#save').on('click', bui.util.debounce(doAddEarnestHandler,1000,true));
 </script>

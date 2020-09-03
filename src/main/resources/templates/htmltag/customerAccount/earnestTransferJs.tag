@@ -17,7 +17,6 @@
 
     // 定金转移保存
     function doEarnestTransferHandler(){
-        console.log(123)
         if (!$('#saveForm').valid()) {
             return false;
         } else {
@@ -30,7 +29,9 @@
                 dataType: "json",
                 success: function (ret) {
                     if(!ret.success){
-                        bs4pop.alert(ret.message, {type: 'error'});
+                        bs4pop.alert(ret.message, {type: 'error'},function () {
+                            parent.closeDialog(parent.dia);
+                        });
                     }else{
                         parent.closeDialog(parent.dia);
                     }
@@ -44,6 +45,7 @@
         }
     }
 
+    $('#save').on('click', bui.util.debounce(doEarnestTransferHandler,1000,true));
 </script>
 
 

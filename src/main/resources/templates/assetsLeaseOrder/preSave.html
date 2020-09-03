@@ -92,15 +92,15 @@
                 <% } %>
             </div>
             <div class="breadcrumb">
-                资产信息
+                ${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}信息
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#assetInfo" aria-expanded="true" aria-controls="assetInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
             <div id="assetInfo" class="collapse show" style="width: 100%;overflow: auto;">
-                <table class="table table-bordered table-hover table-striped" id="assetTable" _logTable="资产项" style="min-width: 1400px;">
+                <table class="table table-bordered table-hover table-striped" id="assetTable" _logTable="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}项" style="min-width: 1400px;">
                     <thead>
                     <tr>
                         <th class="text-center" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
-                        <th style="font-weight:normal;width: 15rem;" >资产编号<i class="red">*</i></th>
+                        <th style="font-weight:normal;width: 15rem;" >${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号<i class="red">*</i></th>
                         <th style="font-weight:normal;width: 7rem;">规格</th>
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <th style="font-weight:normal;width: 7rem;">租赁数量<i class="red">*</i></th>
@@ -129,7 +129,7 @@
                             <input type="hidden" id="districtName_${itemLP.index}" name="districtName_${itemLP.index}" value="${item.districtName!}">
                             <input type="hidden" id="number_${itemLP.index}" name="number_${itemLP.index}" value="${item.number!}"/>
                             <input type="hidden" id="unitName_${itemLP.index}" name="unitName_${itemLP.index}" value="${item.unitName!}"/>
-                            <#bautoCompleteProvider _log="资产编号" _hiddenDomainId="assetsId_${itemLP.index}" _hiddenDomainName="assetsId_${itemLP.index}" _hiddenDomainClass="assets" _displayDomainId="assetsName_${itemLP.index}" _displayDomainName="assetsName_${itemLP.index}" _value="${item.assetsId!}" _text="${item.assetsName!}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
+                            <#bautoCompleteProvider _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" _hiddenDomainId="assetsId_${itemLP.index}" _hiddenDomainName="assetsId_${itemLP.index}" _hiddenDomainClass="assets" _displayDomainId="assetsName_${itemLP.index}" _displayDomainName="assetsName_${itemLP.index}" _value="${item.assetsId!}" _text="${item.assetsName!}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
                         </td>
                         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="sku_${itemLP.index}" name="sku_${itemLP.index}" value="${item.number!}${item.unitName!}" readonly uncheck/></td>
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
@@ -156,7 +156,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">补交</span>
                                     </div>
-                                    <input type="number" id="depositMakeUpAmount_${itemLP.index}" name="depositMakeUpAmount_${itemLP.index}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01">
+                                    <input _log="保证金补交" type="number" id="depositMakeUpAmount_${itemLP.index}" name="depositMakeUpAmount_${itemLP.index}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01">
                                 </div>
                             </div>
                         </td>
@@ -211,7 +211,7 @@
             <div class="modal-footer-wrap">
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary px-5" id="cancel" onclick="javascript:parent.dia.hide()">取消</button>
-                    <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(saveFormHandler,1000,true)()">保存</button>
+                    <button id="save" type="button" class="btn btn-primary px-5">保存</button>
                 </div>
             </div>
         </form>
@@ -229,7 +229,7 @@
             <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}">
             <input type="hidden" id="number_{{index}}" name="number_{{index}}"/>
             <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}"/>
-            <#bautoCompleteProvider _log="资产编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _hiddenDomainClass="assets" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
+            <#bautoCompleteProvider _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _hiddenDomainClass="assets" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
         </td>
         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="sku_{{index}}" name="sku_{{index}}" readonly uncheck/></td>
         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>

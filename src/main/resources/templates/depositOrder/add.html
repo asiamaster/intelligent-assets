@@ -42,7 +42,7 @@
                 <div class="form-group col">
                     <label for="assetsType">资产类型<i class="red">*</i></label>
                     <select id="assetsType"  name="assetsType" class="form-control" required></select>
-                    <#bcomboProvider _id="assetsType" _provider="assetsTypeProvider" _value="${depositOrder.assetsType!}" _queryParams='{emptyText:"-- 全部 --"}'/>
+                    <#bcomboProvider _id="assetsType" _provider="assetsTypeProvider" _value="${depositOrder.assetsType!}" _queryParams='{emptyText:"-- 请选择 --"}'/>
                 </div>
                 <div class="form-group col">
                     <label for="assetsName" class="">资产编号</label>
@@ -63,7 +63,7 @@
             <div class="modal-footer-wrap">
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
-                    <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doAddDepositHandler,1000,true)()" id="formSubmit">保存</button>
+                    <button type="button" class="btn btn-primary px-5" id="save">保存</button>
                 </div>
             </div>
         </form>

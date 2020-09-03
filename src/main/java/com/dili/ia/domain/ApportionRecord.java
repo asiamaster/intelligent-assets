@@ -30,16 +30,22 @@ public class ApportionRecord extends BaseDomain {
     private LocalDateTime createTime;
 
     /**
+     * 订单项ID
+     */
+    @Column(name = "`lease_order_item_id`")
+    private Long leaseOrderItemId;
+
+    /**
      * 订单ID
      */
     @Column(name = "`lease_order_id`")
     private Long leaseOrderId;
 
     /**
-     * 订单项ID
+     * 缴费单单ID
      */
-    @Column(name = "`lease_order_item_id`")
-    private Long leaseOrderItemId;
+    @Column(name = "`payment_order_id`")
+    private Long paymentOrderId;
 
     /**
      * 收费项ID
@@ -89,6 +95,14 @@ public class ApportionRecord extends BaseDomain {
 
     public void setLeaseOrderId(Long leaseOrderId) {
         this.leaseOrderId = leaseOrderId;
+    }
+
+    public Long getPaymentOrderId() {
+        return paymentOrderId;
+    }
+
+    public void setPaymentOrderId(Long paymentOrderId) {
+        this.paymentOrderId = paymentOrderId;
     }
 
     public Long getLeaseOrderItemId() {

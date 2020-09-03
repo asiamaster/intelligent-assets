@@ -43,12 +43,12 @@
             <div class="form-group col">
                 <label for="assetsType">资产类型<i class="red">*</i></label>
                 <select id="assetsType"  name="assetsType" class="form-control" required></select>
-                <#bcomboProvider _log="资产类型" _id="assetsType" _provider="assetsTypeProvider" _value="${depositOrder.assetsType!}" _queryParams='{emptyText:"-- 全部 --"}'/>
+                <#bcomboProvider _log="资产类型" _id="assetsType" _provider="assetsTypeProvider" _value="${depositOrder.assetsType!}" _queryParams='{emptyText:"-- 请选择 --"}'/>
             </div>
             <div class="form-group col">
                 <label for="assetsName" class="" >资产编号</label>
-                <#bautoCompleteProvider _log="资产编号" _value="${depositOrder.assetsId!}" _text="${depositOrder.assetsName!}" _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption"/>
-                <input id="assetsNameInput" type="text" class="form-control"/>
+                <#bautoCompleteProvider _log="资产编号"  _displayDomainClass="${depositOrder.assetsType == 1? 'd-block' : ''}"  _value="${depositOrder.assetsId!}" _text="${depositOrder.assetsName!}" _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption"/>
+                <input id="assetsNameInput" type="text" class="form-control <%if (depositOrder.assetsType == 100){%> d-block"  <%} else {%>   "  <%}%> value="${depositOrder.assetsName!}"  />
             </div>
             <div class="form-group col">
                 <label for="amount" _log class="">保证金金额<i class="red">*</i></label>
@@ -64,7 +64,7 @@
         <div class="modal-footer-wrap">
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
-            <button type="button" class="btn btn-primary px-5" onclick="bui.util.debounce(doUpdateDepostHandler,1000,true)()" id="formSubmit">保存</button>
+            <button type="button" class="btn btn-primary px-5" id="formSubmit">保存</button>
         </div>
         </div>
     </form>
@@ -76,14 +76,4 @@
 <#js_customerAutocompleteJs/>
 
 <#depositOrder_updateJs />
-
-<script  id="boothItem"  type="text/html">
-    <tr data-index="{{index}}">
-        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
-        <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _log="摊位编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}"  _valueField="id" _textField="name" _value="{{boothId}}" _text="{{boothName}}" _placeholder="" _validatorMethod="isSelected"  _optionVariable="boothAutoCompleteOption"/>
-        </td>
-
-    </tr>
-</script>
 

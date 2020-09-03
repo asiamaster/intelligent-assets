@@ -67,7 +67,7 @@
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);
         let formData = $("input:not(table input),textarea,select").serializeObject();
-        debugger
+
         let typeName = $('#typeCode').find("option:selected").text();
         bui.util.yuanToCentForMoneyEl(formData);
         $.extend(formData,{typeName});
@@ -106,4 +106,6 @@
             }
         });
     }
+
+    $('#save').on('click', bui.util.debounce(doAddDepositHandler,1000,true));
 </script>

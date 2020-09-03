@@ -1,13 +1,11 @@
 package com.dili.ia.service.impl;
 
 import com.dili.bpmc.sdk.rpc.TaskRpc;
-import com.dili.ia.domain.AssetsLeaseOrderItem;
-import com.dili.ia.domain.RefundFeeItem;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ia.domain.*;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
+import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
@@ -21,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -46,11 +45,16 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     private RefundFeeItemService refundFeeItemService;
     @Autowired
     private TaskRpc taskRpc;
+    @Autowired
+    private CustomerAccountService customerAccountService;
+    @Autowired
+    CustomerRpc customerRpc;
     @Override
     public Set<String> getBizType() {
         return Sets.newHashSet(BizTypeEnum.BOOTH_LEASE.getCode());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
         TransferDeductionItem condition = new TransferDeductionItem();
@@ -59,6 +63,13 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
         if(CollectionUtils.isNotEmpty(transferDeductionItems)){
             transferDeductionItems.forEach(o->{
                 assetsLeaseOrderService.checkCustomerState(o.getPayeeId(),refundOrder.getMarketId());
+                CustomerAccount ca = customerAccountService.getCustomerAccountByCustomerId(o.getPayeeId(), refundOrder.getMarketId());
+                //判断转入方客户账户是否存在,不存在先创建客户账户
+                if (null == ca){
+                    BaseOutput<Customer> output = customerRpc.get(o.getPayeeId(), refundOrder.getMarketId());
+                    Customer customer = output.getData();
+                    customerAccountService.addCustomerAccountByCustomerInfo(customer.getId(), customer.getName(), customer.getContactsPhone(), customer.getCertificateNumber(), refundOrder.getMarketId());
+                }
             });
         }
         return BaseOutput.success();

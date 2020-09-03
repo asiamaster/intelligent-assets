@@ -47,18 +47,19 @@
       /******************************驱动执行区 begin***************************/
     $(function () {
         registerMsg();
-        $('#assetsNameInput').hide();
+        $('#assetsId, #assetsName, #assetsNameInput').hide();
 
     });
 
     $('#assetsType').on('change', function(){
-        $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
+        $('#assetsId, #assetsName, #assetsNameInput').val('');
+        $('#assetsName, #assetsNameInput').removeClass('d-block');
         $('#assetsName-error').remove();
         $('#assetsNameInput').attr('name', '');
         if($(this).val() == 1 ) {
-            $('#assetsName').show();
+            $('#assetsName').addClass('d-block');
         } else {
-            $('#assetsNameInput').attr('name', 'assetsName').show();
+            $('#assetsNameInput').attr('name', 'assetsName').addClass('d-block');
         }
     })
 
@@ -126,5 +127,6 @@
             }
         });
     }
-
+    //防抖
+    $('#formSubmit').on('click', bui.util.debounce(doUpdateDepostHandler,1000,true));
 </script>

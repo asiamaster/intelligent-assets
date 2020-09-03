@@ -30,6 +30,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,11 +67,14 @@ public class RefundOrderController {
     @GetMapping(value="/{bizType}/index.html")
     public String index(ModelMap modelMap, @PathVariable("bizType") String bizType) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
-        LocalDateTime nowTime = LocalDateTime.now();
-        LocalDateTime createdStart = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() -2 , 0, 0 ,0);
-        LocalDateTime createdEnd = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() , 23, 59 ,59);
-        modelMap.put("createdStart", createdStart);
-        modelMap.put("createdEnd", createdEnd);
+        Calendar c = Calendar.getInstance();
+        c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        c.add(Calendar.DAY_OF_MONTH, -2);
+        Date createdStart = c.getTime();
+
+        Calendar ce = Calendar.getInstance();
+        ce.set(ce.get(Calendar.YEAR), ce.get(Calendar.MONTH), ce.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
+        Date createdEnd = ce.getTime();
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
         modelMap.put("bizType", bizType);
@@ -163,6 +168,7 @@ public class RefundOrderController {
                 BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
                 businessLogQueryInput.setBusinessId(id);
                 businessLogQueryInput.setBusinessType(LogBizTypeConst.REFUND_ORDER);
+                businessLogQueryInput.setSystemCode("IA");
                 BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
                 if(businessLogOutput.isSuccess()){
                     modelMap.put("logs",businessLogOutput.getData());
@@ -217,7 +223,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="submit", systemCode = "IA")
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         try {
@@ -248,7 +254,7 @@ public class RefundOrderController {
      * @param id
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER,operationType="submitForApproval",systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER,operationType="submitForApproval",systemCode = "IA")
     @PostMapping(value="/submitForApproval.action")
     public @ResponseBody BaseOutput submitForApproval(@RequestParam Long id){
         try{
@@ -268,7 +274,7 @@ public class RefundOrderController {
      * 审批通过处理
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, operationType = "checkPass", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, operationType = "checkPass", content = "${logContent!}", systemCode = "IA")
     @PostMapping(value="/approvedHandler.action")
     public @ResponseBody BaseOutput approvedHandler(@Validated ApprovalParam approvalParam){
         try{
@@ -276,13 +282,6 @@ public class RefundOrderController {
                 return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
             }
             refundOrderService.approvedHandler(approvalParam);
-            //写业务日志
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-            LoggerContext.put("logContent", approvalParam.getOpinion());
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("审批通过处理异常！", e);
@@ -298,7 +297,7 @@ public class RefundOrderController {
      * 审批拒绝处理
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, operationType = "checkFail", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, operationType = "checkFail", content = "${logContent!}", systemCode = "IA")
     @PostMapping(value="/approvedDeniedHandler.action")
     public @ResponseBody BaseOutput approvedDeniedHandler(@Validated ApprovalParam approvalParam){
         try{
@@ -307,13 +306,6 @@ public class RefundOrderController {
             }
             refundOrderService.
                     approvedDeniedHandler(approvalParam);
-            //写业务日志
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-            LoggerContext.put("logContent", approvalParam.getOpinion());
             return BaseOutput.success();
         }catch (BusinessException e){
             LOG.info("审批拒绝处理异常！", e);
@@ -329,7 +321,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="withdraw", systemCode = "IA")
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         try {
@@ -358,7 +350,7 @@ public class RefundOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="cancel", systemCode = "IA")
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         try {

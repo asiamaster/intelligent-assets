@@ -6,8 +6,8 @@ import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
-import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.DepositOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
@@ -16,6 +16,7 @@ import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.SpringUtil;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
@@ -114,7 +115,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //检查客户状态
         checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
-        //检查摊位状态 @TODO 检查公寓，冷库状态
+        //检查摊位状态
         if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) && depositOrder.getAssetsId() != null){
             checkBoothState(depositOrder.getAssetsId());
         }
@@ -164,13 +165,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (depositOrder.getAssetsType() == null){
             return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产类型不能为空");
         }
-        //资产编号可以为空
-//        if (!depositOrder.getAssetsType().equals(AssetsTypeEnum.OTHER.getCode()) && depositOrder.getAssetsId() == null){
-//            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产ID不能为空");
-//        }
-//        if (!depositOrder.getAssetsType().equals(AssetsTypeEnum.OTHER.getCode()) && depositOrder.getAssetsName() == null){
-//            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "资产名称不能为空");
-//        }
         if (depositOrder.getAmount() == null){
             return BaseOutput.failure(ResultCode.PARAMS_ERROR, "保证金金额不能为空");
         }
@@ -216,7 +210,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * @param marketId
      */
     @Override
-    public void checkCustomerState(Long customerId,Long marketId){
+    public Customer checkCustomerState(Long customerId,Long marketId){
         BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 "+output.getMessage());
@@ -229,6 +223,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }else if(YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户已删除，请核实！");
         }
+        return customer;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -245,7 +240,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //检查客户状态
         checkCustomerState(depositOrder.getCustomerId(),oldDTO.getMarketId());
-        //检查摊位状态 @TODO 检查公寓，冷库状态
+        //检查摊位状态
         if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) && depositOrder.getAssetsId() != null){
             checkBoothState(depositOrder.getAssetsId());
         }
@@ -301,7 +296,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //检查客户状态
         checkCustomerState(de.getCustomerId(),de.getMarketId());
-        //检查摊位状态 @TODO 检查公寓，冷库状态
+        //检查摊位状态
         if(AssetsTypeEnum.BOOTH.getCode().equals(de.getAssetsType()) && de.getAssetsId() != null){
             checkBoothState(de.getAssetsId());
         }
@@ -323,6 +318,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         PaymentOrder pb = this.buildPaymentOrder(userTicket, de, amount);
         paymentOrderService.insertSelective(pb);
+
+        DepositBalance depositBalance = this.findDepositBalanceExact(de.getCustomerId(), de.getTypeCode(), de.getAssetsType(), de.getAssetsId(), de.getMarketId(), de.getAssetsName());
+        if (depositBalance == null) {//创建客户余额账户
+            this.createDepositBalanceAccount(de, 0L);
+        }
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, de, pb, amount));
@@ -515,7 +515,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
             //如果是关联保证金订单，发起退款申请需要解除关联关系
             if (depositOrder.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
-                depositOrder.setState(YesOrNoEnum.NO.getCode());
+                depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
             }
             depositOrder.setState(DepositOrderStateEnum.REFUNDING.getCode());
             if (this.updateSelective(depositOrder) == 0) {
@@ -530,7 +530,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
             }
         }else { // 修改
-            if (!refundOrderService.doUpdatedHandler(depositRefundOrderDto).isSuccess()) {
+            RefundOrder oldRefundOrder = refundOrderService.get(depositRefundOrderDto.getId());
+            SpringUtil.copyPropertiesIgnoreNull(depositRefundOrderDto, oldRefundOrder);
+            if (!RefundTypeEnum.BANK.getCode().equals(depositRefundOrderDto.getRefundType())) {
+                oldRefundOrder.setBank(null);
+                oldRefundOrder.setBankCardNo(null);
+            }
+            if (!refundOrderService.doUpdatedHandler(oldRefundOrder).isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款修改接口异常", depositRefundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
             }
@@ -602,6 +608,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setState(DepositOrderStateEnum.PAID.getCode());
         depositOrder.setPaidAmount(paidAmount);
         depositOrder.setWaitAmount(waitAmount);
+        //为了避免和租赁结算成功修改 关联关系的操作覆盖，所以此时要设置为null ,避免修改此字段。
+        depositOrder.setIsRelated(null);
 
         if (this.updateSelective(depositOrder) == 0) {
             LOG.info("缴费单成功回调 -- 更新【保证金单】状态,乐观锁生效！【保证金单DepositOrderID:{}】", depositOrder.getId());
@@ -613,27 +621,48 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return BaseOutput.success().setData(depositOrder);
     }
 
-    /**
-     * 记录交费日志
-     *
-     * @param settleOrder 结算单
-     * @param depositOrder 保证金业务单
-     */
-    private BusinessLog recordPayLog(SettleOrder settleOrder, DepositOrder depositOrder) {
-        BusinessLog businessLog = new BusinessLog();
-        businessLog.setBusinessId(depositOrder.getId());
-        businessLog.setBusinessCode(depositOrder.getCode());
-        businessLog.setContent(settleOrder.getCode());
-        businessLog.setOperationType("pay");
-        businessLog.setMarketId(settleOrder.getMarketId());
-        businessLog.setOperatorId(settleOrder.getOperatorId());
-        businessLog.setOperatorName(settleOrder.getOperatorName());
-        businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
-        return businessLog;
+    private BaseOutput<String> saveOrupdateDepositBalance(DepositOrder depositOrder, Long payAmount){
+        DepositBalance depositBalance = this.findDepositBalanceExact(depositOrder.getCustomerId(), depositOrder.getTypeCode(), depositOrder.getAssetsType(), depositOrder.getAssetsId(), depositOrder.getMarketId(), depositOrder.getAssetsName());
+        if (depositBalance == null){//创建客户账户余额
+            this.createDepositBalanceAccount(depositOrder, payAmount);
+        }else {
+            DepositBalance upDep = new DepositBalance();
+            upDep.setId(depositBalance.getId());
+            upDep.setBalance(depositBalance.getBalance() + payAmount);
+            upDep.setVersion(depositBalance.getVersion());
+            if (depositBalanceService.updateSelective(upDep) == 0) {
+                LOG.info("缴费单成功回调 -- 更新【保证金余额】失败,乐观锁生效！【保证金单DepositOrderID:{}；code:{}】", depositOrder.getId(),depositOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
+        }
+        return BaseOutput.success();
     }
 
-    private BaseOutput<String> saveOrupdateDepositBalance(DepositOrder depositOrder, Long payAmount){
+    /**
+     * 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称，市场ID
+     * @param customerId 客户ID
+     * @param typeCode 保证金类型
+     * @param assetsType 资产类型
+     * @param assetsId 资产ID
+     * @param marketId 市场ID
+     * @param assetsName 资产编号/名称
+     *
+     * */
+    private DepositBalance findDepositBalanceExact(Long customerId, String typeCode, Integer assetsType, Long assetsId, Long marketId, String assetsName){
+        DepositBalance params = new DepositBalance();
+        // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称
+        params.setCustomerId(customerId);
+        params.setTypeCode(typeCode);
+        params.setAssetsType(assetsType);
+        params.setAssetsId(assetsId);
+        params.setMarketId(marketId);
+        params.setAssetsName(assetsName);
+
+        DepositBalance depositBalance = depositBalanceService.listDepositBalanceExact(params).stream().findFirst().orElse(null);
+        return depositBalance;
+    }
+
+    private DepositBalance createDepositBalanceAccount(DepositOrder depositOrder, Long balance){
         DepositBalance params = new DepositBalance();
         // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称
         params.setCustomerId(depositOrder.getCustomerId());
@@ -642,24 +671,14 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         params.setAssetsId(depositOrder.getAssetsId());
         params.setMarketId(depositOrder.getMarketId());
         params.setAssetsName(depositOrder.getAssetsName());
+        params.setBalance(balance);
+        params.setCertificateNumber(depositOrder.getCertificateNumber());
+        params.setCustomerCellphone(depositOrder.getCustomerCellphone());
+        params.setCustomerName(depositOrder.getCustomerName());
+        params.setTypeName(depositOrder.getTypeName());
+        depositBalanceService.insertSelective(params);
 
-        DepositBalance depositBalance = depositBalanceService.listDepositBalanceExact(params).stream().findFirst().orElse(null);
-        if (depositBalance == null){//创建客户账户余额
-            params.setAssetsName(depositOrder.getAssetsName());
-            params.setBalance(payAmount);
-            params.setCertificateNumber(depositOrder.getCertificateNumber());
-            params.setCustomerCellphone(depositOrder.getCustomerCellphone());
-            params.setCustomerName(depositOrder.getCustomerName());
-            params.setTypeName(depositOrder.getTypeName());
-            depositBalanceService.insertSelective(params);
-        }else {
-            DepositBalance upDep = new DepositBalance();
-            upDep.setId(depositBalance.getId());
-            upDep.setBalance(depositBalance.getBalance() + payAmount);
-            upDep.setVersion(depositBalance.getVersion());
-            depositBalanceService.updateSelective(upDep);
-        }
-        return BaseOutput.success();
+        return params;
     }
 
     @Override
@@ -742,7 +761,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
         }
         settleWayDetails.append("】");
-        if (StringUtils.isNotEmpty(settleWayDetails)){
+        if (StringUtils.isNotEmpty(settleWayDetails) && settleWayDetails.length() > 2){ // 长度大于2 是因为，避免内容为空，显示成 【】
             dePrintDto.setSettleWayDetails(settleWayDetails.toString());
         }
 
@@ -790,16 +809,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
             transferDeductionItems.forEach(o -> {
-                BaseOutput accountOutput = customerAccountService.leaseOrderRechargTransfer(
+                BaseOutput accountOutput = customerAccountService.rechargTransfer(refundOrder.getBizType(),
                         refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
                         refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
                 if (!accountOutput.isSuccess()) {
                     LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
                     throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
                 }
-                //写入转抵转入流水
-                TransactionDetails transactionDetails = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.TRANSFER_IN.getCode(), BizTypeEnum.DEPOSIT_ORDER.getCode(), TransactionItemTypeEnum.TRANSFER.getCode(), o.getPayeeAmount(), refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), refundOrder.getCode(), refundOrder.getMarketId(), refundOrder.getCreatorId(), refundOrder.getCreator());
-                transactionDetailsService.insertSelective(transactionDetails);
             });
         }
 
@@ -825,7 +841,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         businessLog.setOperatorId(refundOrder.getRefundOperatorId());
         businessLog.setOperatorName(refundOrder.getRefundOperator());
         businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        businessLog.setSystemCode("IA");
         return businessLog;
     }
 
@@ -931,7 +947,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         businessLog.setRemoteIp(RequestUtils.getIpAddress(WebContent.getRequest()));
         businessLog.setServerIp(WebContent.getRequest().getLocalAddr());
-        businessLog.setSystemCode("INTELLIGENT_ASSETS");
+        businessLog.setSystemCode("IA");
         businessLog.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
         businessLog.setBusinessCode(depositOrder.getCode());
         businessLog.setBusinessId(depositOrder.getId());
@@ -1133,6 +1149,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return depositBalanceService.listByExample(depositBalance).stream().findFirst().orElse(null);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchReleaseRelated(String bizType, Long businessId, Long assetsId) {
         if (businessId == null){
@@ -1143,10 +1160,12 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, assetsId);
         deList.stream().forEach(o -> {
-            o.setIsRelated(YesOrNoEnum.NO.getCode());
-            if (this.updateSelective(o) == 0) {
-                LOG.info("修改保证金【解除关联操作】失败 ,乐观锁生效！【保证金单ID:{}】", o.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            if (o.getIsRelated().equals(YesOrNoEnum.YES.getCode())){
+                o.setIsRelated(YesOrNoEnum.NO.getCode());
+                if (this.getActualDao().updateRelatedState(o) == 0) {
+                    LOG.info("修改保证金【解除关联操作】失败 ,修改记录为 0！【保证金单ID:{}】", o.getId());
+                    throw new BusinessException(ResultCode.DATA_ERROR, "修改保证金【解除关联操作】失败 ,修改记录为 0！");
+                }
             }
         });
         return BaseOutput.success();

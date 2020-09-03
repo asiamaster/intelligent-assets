@@ -167,7 +167,7 @@ public class AssetsLeaseOrderController {
      *
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkPass", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkPass", content = "${logContent!}", systemCode = "IA")
     @PostMapping(value = "/approvedHandler.action")
     public @ResponseBody
     BaseOutput approvedHandler(@Validated ApprovalParam approvalParam) {
@@ -176,13 +176,6 @@ public class AssetsLeaseOrderController {
                 return BaseOutput.failure(approvalParam.aget(IDTO.ERROR_MSG_KEY).toString());
             }
             assetsLeaseOrderService.approvedHandler(approvalParam);
-            //写业务日志
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-            LoggerContext.put("logContent", approvalParam.getOpinion());
             return BaseOutput.success();
         } catch (BusinessException e) {
             LOG.info("审批通过处理异常！", e);
@@ -198,7 +191,7 @@ public class AssetsLeaseOrderController {
      *
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkFail", content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkFail", content = "${logContent!}", systemCode = "IA")
     @PostMapping(value = "/approvedDeniedHandler.action")
     public @ResponseBody
     BaseOutput approvedDeniedHandler(@Validated ApprovalParam approvalParam) {
@@ -208,13 +201,6 @@ public class AssetsLeaseOrderController {
             }
             assetsLeaseOrderService.
                     approvedDeniedHandler(approvalParam);
-            //写业务日志
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-            LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
-            LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
-            LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-            LoggerContext.put("logContent", approvalParam.getOpinion());
             return BaseOutput.success();
         } catch (BusinessException e) {
             LOG.info("审批拒绝处理异常！", e);
@@ -303,6 +289,7 @@ public class AssetsLeaseOrderController {
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(leaseOrder.getId());
             businessLogQueryInput.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
+            businessLogQueryInput.setSystemCode("IA");
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if (businessLogOutput.isSuccess()) {
                 modelMap.put("logs", businessLogOutput.getData());
@@ -435,7 +422,7 @@ public class AssetsLeaseOrderController {
      * @param leaseOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${contractNo}", operationType = "reNumber", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${contractNo}", operationType = "reNumber", systemCode = "IA")
     @PostMapping(value = "/supplement.action")
     public @ResponseBody
     BaseOutput supplement(AssetsLeaseOrder leaseOrder) {
@@ -458,7 +445,7 @@ public class AssetsLeaseOrderController {
      * @param id 订单ID
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "cancel", systemCode = "IA")
     @PostMapping(value = "/cancelOrder.action")
     public @ResponseBody
     BaseOutput cancelOrder(Long id) {
@@ -481,7 +468,7 @@ public class AssetsLeaseOrderController {
      * @param id 订单ID
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "withdraw", systemCode = "IA")
     @PostMapping(value = "/withdrawOrder.action")
     public @ResponseBody
     BaseOutput withdrawOrder(Long id) {
@@ -502,13 +489,14 @@ public class AssetsLeaseOrderController {
      * @param leaseOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${logContent!}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${logContent!}", systemCode = "IA")
     @PostMapping(value = "/saveLeaseOrder.action")
     public @ResponseBody
     BaseOutput saveLeaseOrder(@RequestBody AssetsLeaseOrderListDto leaseOrder) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 23:59:59");
         DateTimeFormatter formatterDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         leaseOrder.setEndTime(LocalDateTime.parse(leaseOrder.getEndTime().format(formatter), formatterDateTime));
+        Long id = leaseOrder.getId();
         try {
             BaseOutput output = assetsLeaseOrderService.saveLeaseOrder(leaseOrder);
             //写业务日志
@@ -519,7 +507,7 @@ public class AssetsLeaseOrderController {
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
                 LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
-                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, StringUtils.isBlank(leaseOrder.getLogContent()) ? "add" : "edit");
+                LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, null == id ? "add" : "edit");
                 LoggerContext.put("notes", leaseOrder.getNotes());
             }
             return output;
@@ -564,7 +552,7 @@ public class AssetsLeaseOrderController {
      * @param assetsLeaseSubmitPaymentDto
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${leasePayAmountStr}", operationType = "submitPayment", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${leasePayAmountStr}", operationType = "submitPayment", systemCode = "IA")
     @PostMapping(value = "/submitPayment.action")
     public @ResponseBody
     BaseOutput submitPayment(@RequestBody AssetsLeaseSubmitPaymentDto assetsLeaseSubmitPaymentDto) {
@@ -585,7 +573,7 @@ public class AssetsLeaseOrderController {
      * @param id
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "submitForApproval", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "submitForApproval", systemCode = "IA")
     @PostMapping(value = "/submitForApproval.action")
     public @ResponseBody
     BaseOutput submitForApproval(@RequestParam Long id) {
@@ -607,7 +595,7 @@ public class AssetsLeaseOrderController {
      * @param refundOrderDto
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${content}", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(content = "${content}", systemCode = "IA")
     @PostMapping(value = "/createOrUpdateRefundOrder.action")
     public @ResponseBody
     BaseOutput createRefundOrder(@RequestBody LeaseRefundOrderDto refundOrderDto) {
@@ -615,17 +603,21 @@ public class AssetsLeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
+        Long id = refundOrderDto.getId();
         try {
             BaseOutput output = assetsLeaseOrderService.createOrUpdateRefundOrder(refundOrderDto);
             if (output.isSuccess()) {
-                if (StringUtils.isNotBlank(refundOrderDto.getLogContent())) {
+                if (null != id) {
                     LoggerContext.put("content", refundOrderDto.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
+                    LoggerUtil.buildLoggerContext(refundOrderDto.getId(), refundOrderDto.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
                 } else {
                     LoggerContext.put("content", MoneyUtils.centToYuan(refundOrderDto.getTotalRefundAmount()));
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.BOOTH_LEASE);
+                    LoggerUtil.buildLoggerContext(refundOrderDto.getBusinessId(), refundOrderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
                 }
-                LoggerUtil.buildLoggerContext(refundOrderDto.getBusinessId(), refundOrderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
             }
             return output;
         } catch (BusinessException e) {

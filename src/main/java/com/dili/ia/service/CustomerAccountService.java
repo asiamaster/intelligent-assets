@@ -29,11 +29,10 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
 
     /**
      * 客户账户 -- 定金转移
-     * @param earnestTransferOrder
-     * @param payerAccountVersion 定金转移打开页面时付款客户账户（发起转移客户账户）的版本号，乐观锁控制
+     * @param etDto 前端传入参数
      * @return
      * */
-    BaseOutput<EarnestTransferOrder> earnestTransfer(EarnestTransferOrder earnestTransferOrder, Long payerAccountVersion);
+    BaseOutput<EarnestTransferOrder> earnestTransfer(EarnestTransferDto etDto);
     /**
      * 客户账户定金退款单创建 或者 修改
      * @param order
@@ -46,16 +45,10 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param customerName 客户名字
      * @param customerCellphone 客户电话
      * @param certificateNumber 客户证件号码
+     * @param marketId 市场ID
      * @return BaseOutput<CustomerAccount> 客户账户信息
      * */
-    BaseOutput<CustomerAccount> addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber);
-
-    /**
-     * 根据用户信息，新增客户账户
-     * @param efDto EarnestTransferDto
-     * @return EarnestTransferOrder 转移单
-     * */
-    BaseOutput<EarnestTransferOrder> addEarnestTransferOrder(EarnestTransferDto efDto);
+    BaseOutput<CustomerAccount> addCustomerAccountByCustomerInfo(Long customerId, String customerName, String customerCellphone, String certificateNumber, Long marketId);
 
     /**
      * 摊位租赁【提交】-- 客户账户金额[冻结]及流水变动记录
@@ -100,6 +93,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName);
     /**
      * 摊位租赁【退款转抵成功】-- 客户账户转抵余额加， 及相应流水变动记录
+     * @param bizType 业务类型，取自枚举【BizTypeEnum】 的 code
      * @param orderId 产生转抵金额的【租赁退款单】订单ID
      * @param orderCode 产生转抵金额的【租赁退款单】订单编号
      * @param customerId 客户ID
@@ -109,7 +103,7 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param operatorName 操作员名字
      * @return BaseOutput
      * */
-    BaseOutput leaseOrderRechargTransfer(Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
+    BaseOutput rechargTransfer(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
     /**
      * 客户账户 -- 冻结定金， 定金【冻结金额】加，【可用余额】减，【余额】不变
      * @param customerId 客户ID

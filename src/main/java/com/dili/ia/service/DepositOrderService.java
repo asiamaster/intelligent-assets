@@ -1,11 +1,8 @@
 package com.dili.ia.service;
 
-import com.dili.ia.domain.DepositBalance;
-import com.dili.ia.domain.DepositOrder;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -145,8 +142,9 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * 检查当前市场客户状态
      * @param customerId 客户ID
      * @param marketId 当前市场ID
+     * @return Customer 客户
      */
-    void checkCustomerState(Long customerId,Long marketId);
+    Customer checkCustomerState(Long customerId, Long marketId);
 
     /**
      * 批量【新增】,【已交费】的保证金单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】

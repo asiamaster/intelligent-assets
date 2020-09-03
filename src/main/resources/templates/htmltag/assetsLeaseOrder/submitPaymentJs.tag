@@ -170,4 +170,10 @@
 
         return $.extend(formData,{businessChargeItems,depositAmountMap})
     }
+
+/*****************************************自定义事件区 begin************************************/
+    //保存事件
+    $('#save').on('click', bui.util.debounce(saveFormHandler,1000,true));
+
+/*****************************************自定义事件区 end**************************************/
 </script>

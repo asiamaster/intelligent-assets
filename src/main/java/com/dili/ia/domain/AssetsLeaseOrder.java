@@ -209,15 +209,6 @@ public class AssetsLeaseOrder extends BaseDomain {
     private Integer isRenew;
 
     /**
-     * 是否删除
-     */
-    @Column(name = "`is_delete`")
-    private Integer isDelete;
-
-    @Column(name = "`is_show`")
-    private Integer isShow;
-
-    /**
      * 市场
      */
     @Column(name = "`market_id`")
@@ -569,22 +560,6 @@ public class AssetsLeaseOrder extends BaseDomain {
 
     public void setIsRenew(Integer isRenew) {
         this.isRenew = isRenew;
-    }
-
-    public Integer getIsDelete() {
-        return isDelete;
-    }
-
-    public void setIsDelete(Integer isDelete) {
-        this.isDelete = isDelete;
-    }
-
-    public Integer getIsShow() {
-        return isShow;
-    }
-
-    public void setIsShow(Integer isShow) {
-        this.isShow = isShow;
     }
 
     public Long getMarketId() {

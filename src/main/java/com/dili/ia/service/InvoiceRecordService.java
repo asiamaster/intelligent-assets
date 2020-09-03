@@ -14,4 +14,11 @@ public interface InvoiceRecordService extends BaseService<InvoiceRecord, Long> {
      * @param invoiceRecord
      */
     void insertInvoiceRecord(InvoiceRecord invoiceRecord);
+
+    /**
+     * 删除开票记录，并将原业务单改为“未开票”
+     * @param id
+     * @param businessKey
+     */
+    void delete(Long id, String businessKey);
 }

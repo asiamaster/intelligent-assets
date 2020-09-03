@@ -153,17 +153,18 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
-        var param = rows[0];
+        var param =  $.extend({}, rows[0]);
         param["targetId"] = param["customerId"];
         param["target"] = param["customerName"];
         param["amount"] = param["totalAmount"];
         param["invoiceDate"] = moment().format("YYYY-MM-DD");
+        param["notes"] = null;
         bs4pop.dialog({
             title: "开票",
             content: bui.util.HTMLDecode(template('invoiceTpl', param)),
             closeBtn: true,
             backdrop : 'static',
-            width: '40%',
+            width: '600px',
             onShowEnd: function(){
                 laydate.render({
                     elem: "#_invoiceDate",
@@ -202,7 +203,7 @@
                         });
                     }
                 },
-                {label: '取消', className: 'btn-default', onClick(e) {}}
+                {label: '取消', className: 'btn-secondary', onClick(e) {}}
             ]
         });
 
@@ -251,7 +252,7 @@
                         });
                     }
                 },
-                {label: '取消', className: 'btn-default', onClick(e) {}}
+                {label: '取消', className: 'btn-secondary', onClick(e) {}}
             ]
         });
     }
@@ -515,7 +516,7 @@
                         return false;
                     }
                 },
-                {label: '取消', className: 'btn-default', onClick(e) {}}
+                {label: '取消', className: 'btn-secondary', onClick(e) {}}
             ]
         });
     }
@@ -654,9 +655,7 @@
             let state = row.$_state;
             $('#toolbar'+index+' button').attr('disabled', true);
             //（未生效 || 已生效）&& 已交清方可停租
-            if ((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
-                || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
-                && row.stopRentState == ${@com.dili.ia.glossary.StopRentStateEnum.NO_APPLY.getCode()}
+            if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}
             ) {
                 $('#btn_stop_rent'+index).attr('disabled', false);
             }
