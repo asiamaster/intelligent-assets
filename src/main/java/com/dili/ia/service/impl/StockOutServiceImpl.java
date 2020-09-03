@@ -1,7 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.StockOut;
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
@@ -14,7 +14,6 @@ import com.dili.ss.exception.BusinessException;
 import cn.hutool.core.bean.BeanUtil;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;

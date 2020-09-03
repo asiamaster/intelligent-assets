@@ -37,7 +37,7 @@ public class MessageFeeApi {
      * @param settleOrder
      * @return
      */
-    //@BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    //@BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "IA")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{

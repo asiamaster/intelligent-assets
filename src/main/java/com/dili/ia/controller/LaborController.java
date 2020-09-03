@@ -167,7 +167,7 @@ public class LaborController {
      * @return BaseOutput
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "add", systemCode = "IA")
 	public @ResponseBody BaseOutput insert(@RequestBody @Validated LaborDto laborDto) {
 		try {
 			switch (LaborActionEnum.getLaborActionEnum(laborDto.getActionType())) {
@@ -208,7 +208,7 @@ public class LaborController {
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "edit", systemCode = "IA")
     public @ResponseBody BaseOutput update(@RequestBody @Validated LaborDto laborDto) {
     	try {
     		laborService.update(laborDto);
@@ -228,7 +228,7 @@ public class LaborController {
      * @return BaseOutput
      */
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "cancel", systemCode = "IA")
     public @ResponseBody BaseOutput cancel(String code) {
         try {
             laborService.cancel(code);
@@ -248,7 +248,7 @@ public class LaborController {
      * @return BaseOutput
      */
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "submit", systemCode = "IA")
     public @ResponseBody BaseOutput submit(String code) {
         try {
             laborService.submit(code);
@@ -269,7 +269,7 @@ public class LaborController {
      * @return BaseOutput
      */
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "${code}", operationType = "withdraw", systemCode = "IA")
     public @ResponseBody BaseOutput withdraw(String code) {
         try {
         	laborService.withdraw(code);
@@ -300,7 +300,7 @@ public class LaborController {
      * @return BaseOutput
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "refund", systemCode = "IA")
     public @ResponseBody BaseOutput refund(@RequestBody @Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
     	try {
     		laborService.refund(refundInfoDto);

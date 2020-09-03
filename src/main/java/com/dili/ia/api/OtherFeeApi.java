@@ -41,7 +41,7 @@ public class OtherFeeApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${code!}", operationType = "pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${code!}", operationType = "pay", systemCode = "IA")
     @RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {

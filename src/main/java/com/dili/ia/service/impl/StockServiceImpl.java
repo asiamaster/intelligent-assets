@@ -5,11 +5,8 @@ import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockOut;
 import com.dili.ia.domain.StockRecord;
-import com.dili.ia.domain.dto.PrintDataDto;
 import com.dili.ia.domain.dto.StockDto;
-import com.dili.ia.domain.dto.StockInDetailQueryDto;
 import com.dili.ia.domain.dto.StockQueryDto;
-import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.StockRecordTypeEnum;
 import com.dili.ia.mapper.StockMapper;
@@ -29,15 +26,11 @@ import cn.hutool.core.bean.BeanUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

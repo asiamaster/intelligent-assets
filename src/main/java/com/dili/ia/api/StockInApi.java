@@ -1,6 +1,6 @@
 package com.dili.ia.api;
 
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class StockInApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "IA")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
@@ -65,7 +65,7 @@ public class StockInApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "IA")
     @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput<PrintDataDto<StockInPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
         try{
@@ -84,7 +84,7 @@ public class StockInApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "IA")
     @RequestMapping(value="/queryPrintData/stock_out", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput<PrintDataDto<StockOutPrintDto>> queryStockOutPrintData(String orderCode, String reprint){
         try{

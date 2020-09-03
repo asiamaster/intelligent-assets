@@ -165,7 +165,7 @@ public class PassportController {
      * @return
      * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "add", systemCode = "IA")
     @RequestMapping(value = "/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput add(@RequestBody PassportDto passportDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -199,7 +199,7 @@ public class PassportController {
      * @return
      * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "edit", systemCode = "IA")
     @RequestMapping(value = "/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(@RequestBody PassportDto passportDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -233,7 +233,7 @@ public class PassportController {
      * @return BaseOutput
      * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "submit", systemCode = "IA")
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -267,7 +267,7 @@ public class PassportController {
      * @return
      * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "cancel", systemCode = "IA")
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput cancel(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -301,7 +301,7 @@ public class PassportController {
      * @return BaseOutput
      * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${businessCode!}", operationType = "withdraw", systemCode = "IA")
     @RequestMapping(value = "/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

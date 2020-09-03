@@ -125,7 +125,7 @@ public class CustomerMeterController {
      * @return 是否成功
      * @date   2020/6/16
      */
-    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="add", systemCode = "IA")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput add(@ModelAttribute CustomerMeterDto customerMeterDto) {
         try {
@@ -163,7 +163,7 @@ public class CustomerMeterController {
      * @return 是否成功
      * @date   2020/6/16
      */
-    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "IA")
     @RequestMapping(value="/unbind.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput unbind(Long id) {
         try {

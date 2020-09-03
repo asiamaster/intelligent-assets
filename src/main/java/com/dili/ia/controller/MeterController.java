@@ -118,7 +118,7 @@ public class MeterController {
      * @return 是否成功
      * @date   2020/6/16
      */
-    @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="add", systemCode = "IA")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput addMeter(@ModelAttribute MeterDto meterDto) {
         try {
@@ -157,7 +157,7 @@ public class MeterController {
      * @return 是否成功
      * @date   2020/6/29
      */
-    @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="update", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="update", systemCode = "IA")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput updateMeter(@ModelAttribute MeterDto meterDto) {
         try {

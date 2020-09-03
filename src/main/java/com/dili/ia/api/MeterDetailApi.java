@@ -41,7 +41,7 @@ public class MeterDetailApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${code!}", operationType = "pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${code!}", operationType = "pay", systemCode = "IA")
     @RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {

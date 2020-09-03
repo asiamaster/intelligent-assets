@@ -115,7 +115,7 @@ public class BoutiqueEntranceRecordController {
      * @date 2020/7/13
      */
     @RequestMapping(value = "/confirm.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "confirm", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "confirm", systemCode = "IA")
     public @ResponseBody BaseOutput confirm(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
@@ -148,7 +148,7 @@ public class BoutiqueEntranceRecordController {
      * @date 2020/7/13
      */
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_FEE_ORDER, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_FEE_ORDER, content = "${businessCode!}", operationType = "submit", systemCode = "IA")
     public @ResponseBody
     BaseOutput submit(@RequestBody BoutiqueFeeOrder feeOrder) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -181,7 +181,7 @@ public class BoutiqueEntranceRecordController {
      * @date 2020/7/13
      */
     @RequestMapping(value = "/leave.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "leave", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "leave", systemCode = "IA")
     public @ResponseBody
     BaseOutput leave(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -216,7 +216,7 @@ public class BoutiqueEntranceRecordController {
      * @date 2020/7/13
      */
     @RequestMapping(value = "/forceLeave.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "forceLeave", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "forceLeave", systemCode = "IA")
     public @ResponseBody
     BaseOutput forceLeave(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

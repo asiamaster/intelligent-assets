@@ -7,7 +7,7 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.OtherFeeDto;
 import com.dili.ia.domain.dto.OtherFeeRefundOrderDto;
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.OtherFeePrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;

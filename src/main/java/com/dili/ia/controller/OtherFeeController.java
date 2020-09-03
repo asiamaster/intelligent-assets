@@ -188,7 +188,7 @@ public class OtherFeeController {
      * @return BaseOutput
      * @date 2020/8/18
      */
-    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "add", systemCode = "IA")
     @RequestMapping(value = "/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput doAdd(@RequestBody OtherFeeDto otherFeeDto) {
@@ -223,7 +223,7 @@ public class OtherFeeController {
      * @return BaseOutput
      * @date 2020/8/19
      */
-    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${logContent!}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${logContent!}", operationType = "edit", systemCode = "IA")
     @RequestMapping(value = "/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput doUpdate(OtherFeeDto otherFeeDto) {
@@ -258,7 +258,7 @@ public class OtherFeeController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "submit", systemCode = "IA")
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput submit(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -292,7 +292,7 @@ public class OtherFeeController {
      * @return
      * @date 2020/7/27
      */
-    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "cancel", systemCode = "IA")
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput cancel(Long id) throws Exception {
@@ -327,7 +327,7 @@ public class OtherFeeController {
      * @return BaseOutput
      * @date 2020/8/19
      */
-    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "withdraw", systemCode = "IA")
     @RequestMapping(value = "/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput withdraw(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

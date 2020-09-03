@@ -211,9 +211,10 @@ public class MeterDetailController {
      * @return 是否成功
      * @date 2020/6/28
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "add", systemCode = "IA")
     @RequestMapping(value = "/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput add(@RequestBody MeterDetailDto meterDetailDto) throws Exception {
+    public @ResponseBody
+    BaseOutput add(@RequestBody MeterDetailDto meterDetailDto) throws Exception {
         BaseOutput<MeterDetail> baseOutput = null;
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
@@ -246,9 +247,10 @@ public class MeterDetailController {
      * @return 是否成功
      * @date 2020/7/6
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "submit", systemCode = "IA")
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput submit(String ids) throws Exception {
+    public @ResponseBody
+    BaseOutput submit(String ids) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
@@ -281,9 +283,10 @@ public class MeterDetailController {
      * @return 是否成功
      * @date 2020/7/29
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "submit", systemCode = "IA")
     @RequestMapping(value = "/submitAll.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput submitAll(Integer metertype) throws Exception {
+    public @ResponseBody
+    BaseOutput submitAll(Integer metertype) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
@@ -317,9 +320,10 @@ public class MeterDetailController {
      * @return 是否成功
      * @date 2020/7/6
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "withdraw", systemCode = "IA")
     @RequestMapping(value = "/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput withdraw(Long id) throws Exception {
+    public @ResponseBody
+    BaseOutput withdraw(Long id) throws Exception {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
@@ -351,9 +355,10 @@ public class MeterDetailController {
      * @return 是否成功
      * @date 2020/7/6
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "cancel", systemCode = "IA")
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput cancel(Long id) {
+    public @ResponseBody
+    BaseOutput cancel(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             AssertUtils.notNull(id, "主键不能为空");
@@ -384,9 +389,10 @@ public class MeterDetailController {
      * @return 是否成功
      * @date 2020/6/29
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "update", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "update", systemCode = "IA")
     @RequestMapping(value = "/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@RequestBody MeterDetailDto meterDetailDto) {
+    public @ResponseBody
+    BaseOutput update(@RequestBody MeterDetailDto meterDetailDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
@@ -426,7 +432,8 @@ public class MeterDetailController {
     }
 
     /**
-     *  参数校验抽取
+     * 参数校验抽取
+     *
      * @param meterDetailDto
      */
     private void ParamValidate(MeterDetailDto meterDetailDto) {

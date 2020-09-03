@@ -9,7 +9,7 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;

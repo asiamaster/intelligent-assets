@@ -131,7 +131,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "", operationType = "add", systemCode = "IA")
     public @ResponseBody BaseOutput insert(@RequestBody @Validated MessageFeeDto messageFee) {
         messageFeeService.create(messageFee);
         return BaseOutput.success("新增成功");
@@ -143,7 +143,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "edit", systemCode = "IA")
     public @ResponseBody BaseOutput update(@RequestBody @Validated MessageFeeDto messageFee) {
         messageFeeService.update(messageFee);
         return BaseOutput.success("修改成功");
@@ -155,7 +155,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "cancle", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "cancle", systemCode = "IA")
     public @ResponseBody BaseOutput delete(String code) {
         messageFeeService.cancel(code);
         return BaseOutput.success("取消成功");
@@ -167,7 +167,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "submit", systemCode = "IA")
     public @ResponseBody BaseOutput submit(String code) {
         try {
             messageFeeService.submit(code);
@@ -188,7 +188,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "withdraw", systemCode = "IA")
     public @ResponseBody BaseOutput withdraw(String code) {
         try {
         	messageFeeService.withdraw(code);
@@ -219,7 +219,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "", operationType = "refund", systemCode = "IA")
     public @ResponseBody BaseOutput refund(@RequestBody @Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
     	try {
     		messageFeeService.refund(refundInfoDto);
@@ -259,7 +259,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/syncState.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "update", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "${code}", operationType = "update", systemCode = "IA")
     public @ResponseBody BaseOutput syncState(String code,Integer syncState) {
         try {
         	messageFeeService.syncState(code, syncState);

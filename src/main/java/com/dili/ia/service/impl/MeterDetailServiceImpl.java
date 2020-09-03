@@ -6,7 +6,7 @@ import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.MeterDetailDto;
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
@@ -54,7 +54,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

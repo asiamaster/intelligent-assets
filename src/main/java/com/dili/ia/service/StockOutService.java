@@ -1,7 +1,7 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.StockOut;
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.StockOutPrintDto;
 import com.dili.ss.base.BaseService;
 

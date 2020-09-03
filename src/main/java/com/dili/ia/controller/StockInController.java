@@ -88,7 +88,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/view.html", method = {RequestMethod.GET, RequestMethod.POST})
-    //@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    //@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "IA")
     public String view(ModelMap modelMap,String code) {
     	StockInDto stockInDto = stockInService.view(code);
     	modelMap.put("stockIn",stockInDto);
@@ -140,7 +140,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "IA")
     public @ResponseBody BaseOutput insert(@RequestBody @Validated StockInDto stockInDto) {
     	try {
     		stockInService.createStockIn(stockInDto);
@@ -161,7 +161,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "edit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "edit", systemCode = "IA")
     public @ResponseBody BaseOutput update(@RequestBody @Validated StockInDto stockIn) {
     	try {
     		stockInService.updateStockIn(stockIn);
@@ -181,7 +181,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "cancel", systemCode = "IA")
     public @ResponseBody BaseOutput cancel(String code) {
         try {
             stockInService.cancel(code);
@@ -201,7 +201,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "submit", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "submit", systemCode = "IA")
     public @ResponseBody BaseOutput submit(String code) {
         try {
             stockInService.submit(code);
@@ -222,7 +222,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/remove.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "withdraw", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "withdraw", systemCode = "IA")
     public @ResponseBody BaseOutput remove(String code) {
         try {
         	stockInService.withdraw(code);
@@ -242,7 +242,7 @@ public class StockInController {
      * @return BaseOutput
      */
 	/*@RequestMapping(value="/pay.action", method = {RequestMethod.GET, RequestMethod.POST})
-	@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "INTELLIGENT_ASSETS")
+	@BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "add", systemCode = "IA")
 	public @ResponseBody BaseOutput pay(@Validated PayInfoDto payInfoDto) {
 	    stockInService.pay(payInfoDto);
 	    return BaseOutput.success("支付成功");
@@ -265,7 +265,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "refund", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "refund", systemCode = "IA")
     public @ResponseBody BaseOutput refund(@RequestBody @Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
     	try {
     		stockInService.refund(refundInfoDto);

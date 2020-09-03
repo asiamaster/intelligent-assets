@@ -1,6 +1,6 @@
 package com.dili.ia.api;
 
-import com.dili.ia.domain.dto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
 import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import org.slf4j.Logger;

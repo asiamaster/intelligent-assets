@@ -118,7 +118,7 @@ public class StockController {
      * @return BaseOutput
      */
     @RequestMapping(value="/stockOut.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "out", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "out", systemCode = "IA")
     public @ResponseBody BaseOutput stockOut(Long stockId,Long weight,Long quantity,String notes) {
     	try {
         	stockService.stockOut(stockId, weight, quantity,notes);

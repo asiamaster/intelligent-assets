@@ -45,7 +45,7 @@ public class BoutiqueEntranceApi {
      * @date 2020/7/13
      */
     @RequestMapping(value = "/add.action", method = {RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "confirm", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "confirm", systemCode = "IA")
     public @ResponseBody
     BaseOutput add(@RequestBody BoutiqueEntranceRecordDto recordDto) throws Exception {
 
@@ -67,7 +67,7 @@ public class BoutiqueEntranceApi {
      * @date 2020/8/5
      */
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "cancel", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "cancel", systemCode = "IA")
     public @ResponseBody
     BaseOutput cancel(@RequestBody BoutiqueEntranceRecordDto recordDto) throws Exception {
 
@@ -87,7 +87,7 @@ public class BoutiqueEntranceApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${code!}", operationType = "pay", systemCode = "INTELLIGENT_ASSETS")
+    @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${code!}", operationType = "pay", systemCode = "IA")
     @RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
