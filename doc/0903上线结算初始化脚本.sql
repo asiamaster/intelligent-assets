@@ -10,8 +10,11 @@ INSERT INTO `fund_account` (`market_id`, `app_id`, `amount`, `version`) VALUES
 	(8, 101, 0, 1),
 	(9, 101, 0, 1),
 	(10, 101, 0, 1),
-	(11, 101, 0, 1),
-	(12, 101, 0, 1);
+	(12, 101, 0, 1),
+	(13, 101, 0, 1),
+	(14, 101, 0, 1),
+	(15, 101, 0, 1),
+	(16, 101, 0, 1);
 
 INSERT INTO `settle_config` (`group_code`, `code`, `val`, `state`, `notes`) VALUES
 	(101, 1, '现金', 1, '初始数据(101支付方式)'),
