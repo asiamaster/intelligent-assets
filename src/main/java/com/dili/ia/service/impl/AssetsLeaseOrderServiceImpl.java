@@ -1326,10 +1326,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("租赁单编号【{}】已取消，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已取消，不可以进行提交付款操作");
         }
-
-        if (amount.equals(0L) && !leaseOrder.getWaitAmount().equals(0L)) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位租赁单付款必须大于0");
-        }
         if (amount > leaseOrder.getWaitAmount()) {
             LOG.info("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());
             throw new BusinessException(ResultCode.DATA_ERROR, "支付金额大于待付金额");
