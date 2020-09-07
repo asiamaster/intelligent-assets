@@ -44,6 +44,7 @@ import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.exception.NotLoginException;
+import com.dili.uap.sdk.redis.UserResourceRedis;
 import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
@@ -124,6 +125,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private ApprovalProcessService approvalProcessService;
     @Autowired
     private ApportionRecordService apportionRecordService;
+    @Autowired
+    private UserResourceRedis userResourceRedis;
 
     @Autowired
     @Lazy
@@ -1309,11 +1312,15 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      * @param leaseOrder
      */
     private void checkSubmitPayment(Long id, Long amount, AssetsLeaseOrder leaseOrder) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
-//        if (!ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
-//            LOG.info("租赁单编号【{}】 未审批，不可以进行提交付款操作", leaseOrder.getCode());
-//            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 未审批，不可以进行提交付款操作");
-//        }
+        if (userResourceRedis.checkUserResourceRight(userTicket.getId(), "isNeedApproval") && !ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
+            LOG.info("租赁单编号【{}】 未审批，不可以进行提交付款操作", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 未审批，不可以进行提交付款操作");
+        }
         if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
             LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已交清，不可以进行提交付款操作");

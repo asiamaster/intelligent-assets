@@ -234,18 +234,19 @@ public class AssetsLeaseOrderController {
     }
 
     /**
-     * 跳转到LeaseOrder查看页面片段， 用于审批查看
+     * 跳转到LeaseOrder审批查看页面
      *
      * @param modelMap
-     * @param orderCode 缴费单CODE
+     * @param code     订单号
      * @param code
      * @return String
      */
-    @GetMapping(value = "/viewFragment.action")
-    public String viewFragment(ModelMap modelMap, Long id, String code, String orderCode) {
-        view(modelMap, id, code, orderCode ,true);
-        return "assetsLeaseOrder/viewFragment";
+    @GetMapping(value = "/approvalView.action")
+    public String approvalView(ModelMap modelMap, String code) {
+        view(modelMap, null, code, null);
+        return "assetsLeaseOrder/approvalView";
     }
+
 
     /**
      * 跳转到LeaseOrder查看页面
@@ -253,11 +254,10 @@ public class AssetsLeaseOrderController {
      * @param modelMap
      * @param orderCode 缴费单CODE
      * @param code
-     * @param isShowDepositAmount 是否显示保证金
      * @return String
      */
     @GetMapping(value = "/view.action")
-    public String view(ModelMap modelMap, Long id, String code, String orderCode, boolean isShowDepositAmount) {
+    public String view(ModelMap modelMap, Long id, String code, String orderCode) {
         AssetsLeaseOrder leaseOrder = null;
         if (null != id) {
             leaseOrder = assetsLeaseOrderService.get(id);
@@ -283,7 +283,6 @@ public class AssetsLeaseOrderController {
         List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
         modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
-        modelMap.put("isShowDepositAmount", isShowDepositAmount);
         try {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
@@ -298,12 +297,12 @@ public class AssetsLeaseOrderController {
             LOG.error("日志服务查询异常", e);
         }
 
-        if(leaseOrder.getProcessInstanceId() != null) {
+        if (leaseOrder.getProcessInstanceId() != null) {
             //准备流程审批记录
             ApprovalProcess approvalProcess = new ApprovalProcess();
             approvalProcess.setProcessInstanceId(leaseOrder.getProcessInstanceId());
             List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
-            if(!approvalProcesses.isEmpty()) {
+            if (!approvalProcesses.isEmpty()) {
                 modelMap.put("approvalProcesses", approvalProcesses);
             }
         }
