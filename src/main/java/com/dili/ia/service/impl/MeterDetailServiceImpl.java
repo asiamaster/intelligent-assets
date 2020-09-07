@@ -205,9 +205,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         Long lastAmount = (Long) lastAmountReturn.getData();
 
         Meter meter = meterService.get(meterDetailDto.getMeterId());
-        String MeterTypeCode = BizNumberTypeEnum.WATER_CODE.getCode();
+        String MeterTypeCode = BizTypeEnum.WATER.getEnName();
         if (MeterTypeEnum.ELECTRIC_METER.getCode().equals(meter.getType())) {
-            MeterTypeCode = BizNumberTypeEnum.ELECTRICITY_CODE.getCode();
+            MeterTypeCode = BizTypeEnum.ELECTRICITY.getEnName();
         }
 
         // 生成水或者电费单号的 code(和其他业务生成 code 不一样，因为水电费的业务类型bizType没有拆分为水费和电费)
@@ -317,7 +317,13 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
             }
 
             // 创建缴费单
-            PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.WATER_ELECTRICITY);
+            Meter meter = meterService.get(meterDetailInfo.getMeterId());
+            BizTypeEnum bizTypeEnum = BizTypeEnum.WATER;
+            if (MeterTypeEnum.ELECTRIC_METER.getCode().equals(meter.getType())) {
+                bizTypeEnum = BizTypeEnum.ELECTRICITY;
+            }
+
+            PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, bizTypeEnum);
             paymentOrder.setBusinessId(meterDetailInfo.getId());
             paymentOrder.setBusinessCode(meterDetailInfo.getCode());
             paymentOrder.setAmount(meterDetailInfo.getAmount());
@@ -440,7 +446,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         PaymentOrder condition = new PaymentOrder();
         //结算单code唯一
         condition.setCode(settleOrder.getOrderCode());
-        condition.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
+//        condition.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
         MeterDetail meterDetailInfo = this.get(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) { //如果已支付，直接返回
@@ -495,7 +501,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         PrintDataDto<MeterDetailPrintDto> printDataDto = new PrintDataDto<>();
 
         paymentOrderCondition.setCode(orderCode);
-        paymentOrderCondition.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
+//        paymentOrderCondition.setBizType(BizTypeEnum.WATER_ELECTRICITY.getCode());
         PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
         if (null == paymentOrder) {
             throw new RuntimeException("businessCode无效");

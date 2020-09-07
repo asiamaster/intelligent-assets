@@ -10,6 +10,17 @@
         id:'getCustomer',
     });
 
+    $('#assetsType').on('change', function(){
+        $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
+        $('#assetsName-error').remove();
+        $('#assetsNameInput').attr('name', '');
+        if($(this).val() == 1 ) {
+            $('#assetsName').show();
+        } else {
+            $('#assetsNameInput').attr('name', 'assetsName').show();
+        }
+    })
+
     // //品类搜索自动完成
     // var categoryAutoCompleteOption = {
     //     width: '100%',

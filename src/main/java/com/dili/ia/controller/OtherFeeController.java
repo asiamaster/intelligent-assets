@@ -354,7 +354,7 @@ public class OtherFeeController {
     }
 
     /**
-     * 其他收费 退款
+     * 其他收费 退款(查出动态收费项)
      *
      * @param refundOrderDto
      * @return BaseOutput
@@ -387,7 +387,6 @@ public class OtherFeeController {
         AssertUtils.notEmpty(otherFeeDto.getCustomerCellphone(), "联系电话不能为空");
         AssertUtils.notNull(otherFeeDto.getAssetsType(), "费用类型不能为空");
         AssertUtils.notEmpty(otherFeeDto.getChargeItemId(), "收费项目不能为空");
-        AssertUtils.notNull(otherFeeDto.getAssetsId(), "费用地址不能为空");
         AssertUtils.notNull(otherFeeDto.getDepartmentId(), "业务所属部门不能为空");
         AssertUtils.notNull(otherFeeDto.getAmount(), "金额不能为空");
     }
