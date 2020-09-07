@@ -139,4 +139,7 @@
         });
     }
 
+    $('#save').on('click', bui.util.debounce(saveOrUpdateSetHandler,1000,true));
+
+
 </script>

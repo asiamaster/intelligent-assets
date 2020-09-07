@@ -41,7 +41,7 @@ public class LogBizTypeConst {
     /**
      * 精品停车
      */
-    public static final String BOUTIQUE_ENTRANCE="boutique_entrance";
+    public static final String BOUTIQUE_ENTRANCE="boutique";
 
     /**
      * 精品停车缴费单
@@ -53,7 +53,9 @@ public class LogBizTypeConst {
      */
     public static final String PASSPORT = "passport";
 
-    // 其它收费
+    /**
+     * 其它收费
+     */
     public static final String OTHER_FEE="other_fee";
     // 劳务马甲
     public static final String LABOR_VEST="labor_vest";

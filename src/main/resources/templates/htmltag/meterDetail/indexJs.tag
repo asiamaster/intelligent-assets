@@ -132,15 +132,6 @@
             width: '80%',//宽度
             height: '500px',//高度
             isIframe: true,//默认是页面层，非iframe
-            //按钮放在父页面用此处的 btns 选项。也可以放在页面里直接在页面写div。
-            btns: [{label: '取消',className: 'btn-secondary',onClick(e, $iframe){
-                }
-            }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
-                    let diaWindow = $iframe[0].contentWindow;
-                    bui.util.debounce(diaWindow.saveOrUpdateHandler,1000,true)()
-                    return false;
-                }
-            }]
         });
     }
 
@@ -161,15 +152,6 @@
             width: '80%',//宽度
             height: '500px',//高度
             isIframe: true,//默认是页面层，非iframe
-            //按钮放在父页面用此处的 btns 选项。也可以放在页面里直接在页面写div。
-            btns: [{label: '取消',className: 'btn-secondary',onClick(e, $iframe){
-                }
-            }, {label: '确定',className: 'btn-primary',onClick(e, $iframe){
-                    let diaWindow = $iframe[0].contentWindow;
-                    bui.util.debounce(diaWindow.saveOrUpdateHandler,1000,true)()
-                    return false;
-                }
-            }]
         });
     }
 

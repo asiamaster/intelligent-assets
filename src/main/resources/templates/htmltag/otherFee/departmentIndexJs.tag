@@ -135,6 +135,7 @@
         $("#checkAll").prop('checked', '');
     });
 
+    $('#save').on('click', bui.util.debounce(doAddDepartmentHandler,1000,true));
 
 
 </script>
