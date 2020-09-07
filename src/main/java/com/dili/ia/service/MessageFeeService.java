@@ -6,6 +6,9 @@ import com.dili.ia.domain.MessageFee;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.MessageFeeDto;
 import com.dili.ia.domain.dto.RefundInfoDto;
+import com.dili.ia.domain.dto.printDto.MessageFeePayPrintDto;
+import com.dili.ia.domain.dto.printDto.MessageFeeRefundPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -119,4 +122,22 @@ public interface MessageFeeService extends BaseService<MessageFee, Long> {
 	 * @throws
 	 */
 	void scanEffective();
+	
+	/**
+	 * 
+	 * @Title receiptPaymentData
+	 * @Description 信息费缴费票据打印
+	 * @throws
+	 */
+	PrintDataDto<MessageFeePayPrintDto> receiptPaymentData(String orderCode, String reprint);
+	
+	/**
+	 * 
+	 * @Title receiptRefundPrintData
+	 * @Description 信息系费退款票据打印
+	 * @param orderCode
+	 * @param reprint
+	 * @throws
+	 */
+	PrintDataDto<MessageFeeRefundPrintDto> receiptRefundPrintData(String orderCode, String reprint);
 }

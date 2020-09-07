@@ -9,6 +9,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
+import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
+import com.dili.ia.domain.dto.printDto.MessageFeePayPrintDto;
+import com.dili.ia.domain.dto.printDto.MessageFeeRefundPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.service.MessageFeeService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
@@ -65,4 +70,40 @@ public class MessageFeeApi {
 		LOG.info("--信息费单定时任务结束--");
 	}
     
+	/**
+     * 信息费结算票据打印
+     * @param settleOrder
+     * @return
+     */
+    @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<LaborPayPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
+        try{
+            return BaseOutput.success().setData(messageFeeService.receiptPaymentData(orderCode, reprint));
+        }catch (BusinessException e){
+            LOG.error("信息费结算票据打印异常！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
+        }catch (Exception e){
+            LOG.error("信息费结算票据打印异常！", e);
+            return BaseOutput.failure("信息费票据打印异常！").setData(false);
+        }
+    }
+    
+    /**
+     * 信息费退款票据打印
+     * @param settleOrder
+     * @return
+     */
+    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.POST})
+    public @ResponseBody BaseOutput<PrintDataDto<MessageFeeRefundPrintDto>> queryRefundPrintData(String orderCode, String reprint){
+        try{
+            return BaseOutput.success().setData(messageFeeService.receiptRefundPrintData(orderCode, reprint));
+        }catch (BusinessException e){
+            LOG.error("信息费结算票据打印异常！", e);
+            return BaseOutput.failure(e.getMessage()).setData(false);
+        }catch (Exception e){
+            LOG.error("信息费结算票据打印异常！", e);
+            return BaseOutput.failure("信息费票据打印异常！").setData(false);
+        }
+    }
+	
 }

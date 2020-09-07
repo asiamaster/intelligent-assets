@@ -105,7 +105,10 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
     
-	private String settlerHandlerUrl = "http://10.28.1.187:8381/api/labor/vest/settlementDealHandler";
+	@Value("${settlement.handler.host}")
+	private String settlerHandlerHost;
+	
+	private String settlerHandlerUrl = settlerHandlerHost+"/api/labor/vest/settlementDealHandler";
 	
     public LaborMapper getActualDao() {
         return (LaborMapper)getDao();
@@ -602,7 +605,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		condtion.setRefundOrderId(refundOrder.getId());
 		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
 		PrintDataDto<LaborRefundPrintDto> printDataDto = new PrintDataDto<>();
-		printDataDto.setName(PrintTemplateEnum.LABOR_VEST_PAY.getName());
+		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getName());
 		printDataDto.setItem(printDto);
 		return printDataDto;	
 	}
