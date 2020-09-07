@@ -170,6 +170,7 @@
         $('#chargeItemName').val($(this.data('chargeItemName')))
     })
 
+    $('#save').on('click', bui.util.debounce(doAddOtherFeeHandler,1000,true));
 
 
 </script>
