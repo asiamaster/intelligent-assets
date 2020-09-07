@@ -745,28 +745,30 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             List<BusinessChargeItem> businessChargeItems = businessChargeItemService.list(chargeItemCondition);
 
             Long itemPaymentAmount = businessChargeItems.stream().mapToLong(BusinessChargeItem::getPaymentAmount).sum();
-            o.setWaitAmount(o.getWaitAmount() - itemPaymentAmount);
-            o.setPaidAmount(o.getPaidAmount() + itemPaymentAmount);
             o.setState(leaseOrder.getState());
             if ((o.getWaitAmount() - itemPaymentAmount) == 0L) {
                 o.setPayState(PayStateEnum.PAID.getCode());
             }
 
-            //业务收费项完成分摊
-            businessChargeItems.stream().filter(bci -> bci.getPaymentAmount() > 0L).forEach(bci -> {
-                ApportionRecord apportionRecord = buildApportionRecord( o, bci);
-                apportionRecord.setPaymentOrderId(paymentOrderPO.getId());
-                apportionRecords.add(apportionRecord);
+            if (itemPaymentAmount > 0L) {
+                o.setWaitAmount(o.getWaitAmount() - itemPaymentAmount);
+                o.setPaidAmount(o.getPaidAmount() + itemPaymentAmount);
 
-                bci.setWaitAmount(bci.getWaitAmount() - bci.getPaymentAmount());
-                bci.setPaidAmount(bci.getPaidAmount() + bci.getPaymentAmount());
-                bci.setPaymentAmount(0L);
-            });
-            if (businessChargeItemService.batchUpdateSelective(businessChargeItems) != businessChargeItems.size()) {
-                LOG.info("结算成功完成分摊 【businessId:{},bizType:{}】", o.getId(), bizType);
-                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+                //业务收费项完成分摊
+                businessChargeItems.stream().filter(bci -> bci.getPaymentAmount() > 0L).forEach(bci -> {
+                    ApportionRecord apportionRecord = buildApportionRecord( o, bci);
+                    apportionRecord.setPaymentOrderId(paymentOrderPO.getId());
+                    apportionRecords.add(apportionRecord);
+
+                    bci.setWaitAmount(bci.getWaitAmount() - bci.getPaymentAmount());
+                    bci.setPaidAmount(bci.getPaidAmount() + bci.getPaymentAmount());
+                    bci.setPaymentAmount(0L);
+                });
+                if (businessChargeItemService.batchUpdateSelective(businessChargeItems) != businessChargeItems.size()) {
+                    LOG.info("结算成功完成分摊 【businessId:{},bizType:{}】", o.getId(), bizType);
+                    throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+                }
             }
-
         });
         if (assetsLeaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
