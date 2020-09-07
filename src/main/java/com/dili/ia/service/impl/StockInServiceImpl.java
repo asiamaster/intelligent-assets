@@ -118,7 +118,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
     
-    private String settlerHandlerUrl = "http://10.28.1.187:8381/api/stockIn/settlementDealHandler";
+	@Value("${settlement.handler.host}")
+	private String settlerHandlerHost;
+	
+    private String settlerHandlerUrl = settlerHandlerHost+"/api/stockIn/settlementDealHandler";
 	
     public StockInMapper getActualDao() {
         return (StockInMapper)getDao();

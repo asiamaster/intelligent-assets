@@ -23,6 +23,9 @@ public enum PrintTemplateEnum {
     BOUTIQUE_ENTRANCE("boutique_entrance", "精品停车费"),
     PASSPORT("passport", "通行证"),
     LABOR_VEST_PAY("labor_vest_pay","劳务马甲收款单"),
+    LABOR_VEST_REFUND("labor_vest_refund","劳务马甲退款单"),
+    MESSAGEFEE_PAY("messageFee_pay","信息费收款单"),
+    MESSAGEFEE_REFUND("messageFee_refund","信息费退款单"),
     OTHER_FEE("otherFee","其他收费")
     ;
 

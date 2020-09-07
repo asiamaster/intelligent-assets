@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.BusinessChargeItem;
+import com.dili.ia.domain.Labor;
 import com.dili.ia.domain.MessageFee;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -9,10 +10,16 @@ import com.dili.ia.domain.dto.MessageFeeDto;
 import com.dili.ia.domain.dto.MessageFeeQuery;
 import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
+import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
+import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
+import com.dili.ia.domain.dto.printDto.MessageFeePayPrintDto;
+import com.dili.ia.domain.dto.printDto.MessageFeeRefundPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.MessageFeeStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
+import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.MessageFeeMapper;
 import com.dili.ia.rpc.MessageFeeRpc;
 import com.dili.ia.rpc.SettlementRpcResolver;
@@ -49,6 +56,7 @@ import cn.hutool.core.date.DateUtil;
 import io.seata.spring.annotation.GlobalTransactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,8 +110,10 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	@Autowired
 	private MessageFeeRpc messageFeeRpc;
 	
-	//TODO
-	private String settlerHandlerUrl = "http://10.28.1.187:8381/api/fee/message/settlementDealHandler";
+	@Value("${settlement.handler.host}")
+	private String settlerHandlerHost;
+	
+	private String settlerHandlerUrl = settlerHandlerHost+"/api/fee/message/settlementDealHandler";
 	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -487,4 +497,83 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		domain1.setState(MessageFeeStateEnum.IN_EFFECTIVE.getCode());
 		this.updateSelectiveByExample(domain1, condition1);
 	}
+
+	@Override
+	public PrintDataDto<MessageFeePayPrintDto> receiptPaymentData(String orderCode, String reprint) {
+
+		PaymentOrder paymentOrder = paymentOrderService.getByCode(orderCode);
+		if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
+		}
+		MessageFee messageFee = getMessageFeeByCode(paymentOrder.getBusinessCode());
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, messageFee.getCode());
+		MessageFeePayPrintDto messageFeePrint = new MessageFeePayPrintDto();
+		messageFeePrint.setPrintTime(LocalDateTime.now());
+		messageFeePrint.setReprint(reprint);
+		messageFeePrint.setBusinessType(BizTypeEnum.LABOR_VEST.getName());
+		messageFeePrint.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
+		messageFeePrint.setCustomerCellphone(messageFee.getCustomerCellphone());
+		messageFeePrint.setCustomerName(messageFee.getCustomerName());
+		messageFeePrint.setSettlementOperator(paymentOrder.getSettlementOperator());
+		DateTimeFormatter sdf1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		messageFeePrint.setEffectiveDate(sdf1.format(messageFee.getStartDate())+"至"+sdf1.format(messageFee.getEndDate()));
+		messageFeePrint.setNotes(messageFee.getNotes());
+		messageFeePrint.setSubmitter(messageFee.getSubmitorName());
+		messageFeePrint.setSettlementOperator(order.getOperatorName());
+		
+		messageFeePrint.setPayWay(order.getWayName());
+		//TODO 判断支付方式
+		//园区卡号
+		messageFeePrint.setCardNo(order.getAccountNumber());
+		//流水号
+		messageFeePrint.setSerialNumber(order.getSerialNumber());
+		PrintDataDto<MessageFeePayPrintDto> printDataDto = new PrintDataDto<>();
+		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_PAY.getName());
+		return printDataDto;	
+	}
+
+	@Override
+	public PrintDataDto<MessageFeeRefundPrintDto> receiptRefundPrintData(String orderCode, String reprint) {
+
+		RefundOrder refundOrder = getOrderByCode(orderCode);
+		MessageFee messageFee = getMessageFeeByCode(refundOrder.getBusinessCode());
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, messageFee.getCode());
+		LaborRefundPrintDto printDto = new LaborRefundPrintDto();
+		printDto.setPrintTime(LocalDateTime.now());
+		printDto.setReprint(reprint);
+		printDto.setBusinessType(BizTypeEnum.LABOR_VEST.getName());
+		printDto.setTotalAmount(String.valueOf(messageFee.getAmount()));
+		printDto.setCustomerCellphone(messageFee.getCustomerCellphone());
+		printDto.setCustomerName(messageFee.getCustomerName());
+		printDto.setSettlementOperator(order.getOperatorName());
+		printDto.setSubmitter(messageFee.getSubmitorName());
+		printDto.setNotes(messageFee.getNotes());
+		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
+		//TODO 判断支付方式
+		//园区卡号
+		printDto.setAccountCardNo(order.getAccountNumber());
+		//银行卡号
+		printDto.setBankName(refundOrder.getBank());
+		printDto.setBankNo(refundOrder.getBankCardNo());
+		// 获取转抵信息
+		TransferDeductionItem condtion = new TransferDeductionItem();
+		condtion.setRefundOrderId(refundOrder.getId());
+		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
+		PrintDataDto<MessageFeeRefundPrintDto> printDataDto = new PrintDataDto<>();
+		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getName());
+		return printDataDto;	
+	
+	}
+	
+	private RefundOrder getOrderByCode(String code) {
+		RefundOrder condtion = new RefundOrder();
+		condtion.setCode(code);
+		List<RefundOrder> refundOrders = refundOrderService.list(condtion);
+		if(CollectionUtil.isNotEmpty(refundOrders)) {
+			return refundOrders.get(0);
+		}
+		throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
+
+	}
+	
 }
