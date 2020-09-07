@@ -75,4 +75,6 @@
         });
     }
 
+    $('#save').on('click', bui.util.debounce(saveOrUpdateHandler,1000,true));
+
 </script>
