@@ -97,6 +97,7 @@ public class StockInController {
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessCode(code);
             businessLogQueryInput.setBusinessType(LogBizTypeConst.STOCK);
+            businessLogQueryInput.setSystemCode("IA");
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if(businessLogOutput.isSuccess()){
                 modelMap.put("logs",businessLogOutput.getData());

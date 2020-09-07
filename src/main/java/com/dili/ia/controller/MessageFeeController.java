@@ -104,6 +104,7 @@ public class MessageFeeController {
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessCode(code);
             businessLogQueryInput.setBusinessType(LogBizTypeConst.STOCK);
+            businessLogQueryInput.setSystemCode("IA");
             BaseOutput<BusinessLog> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if(businessLogOutput.isSuccess()){
                 modelMap.put("logs",businessLogOutput.getData());
