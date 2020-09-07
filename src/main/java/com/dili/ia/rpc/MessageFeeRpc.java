@@ -32,6 +32,14 @@ public class MessageFeeRpc {
     @Value("${message.encode}")
     private String charset;
 
+    /**
+     * 
+     * @Title postPaySuccessMessageFeeCustomer
+     * @Description 成功-推送到消息中心
+     * @param messageFee
+     * @return
+     * @throws
+     */
     public boolean postPaySuccessMessageFeeCustomer(MessageFee messageFee) {
         try {
             String url=messageHttp+"/messageApi/whitelistCustomer.api";
@@ -53,7 +61,14 @@ public class MessageFeeRpc {
         }
     }
 
-
+    /**
+     * 
+     * @Title postRefundMessageFeeCustomer
+     * @Description 取消-推送消息中心
+     * @param messageFee
+     * @return
+     * @throws
+     */
     public boolean postRefundMessageFeeCustomer(MessageFee messageFee) {
         try {
             String url=messageHttp+"/messageApi/delWhitelistCustomer.api";
