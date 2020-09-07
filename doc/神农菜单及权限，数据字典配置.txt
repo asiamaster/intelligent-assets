@@ -136,7 +136,7 @@
         超市上货车辆      CS   (值可修改)
         业主出场上货车辆   YZ   (值可修改)
 
-     其他收费-收费项主键 charge_item
+    其他收费-收费项主键 charge_item
 
 
     劳务办理周期 labor_interval
@@ -155,5 +155,12 @@
      劳务马甲类型 labor_vest_type
          自用车辆 ZY
          运营车型 YY
-    
 
+    日志
+        表管理             meter
+        表用户关系          customer_meter
+        水电费             water_electricity
+        精品停车           boutique
+        精品停车缴费单      boutique_fee_order
+        通行证             passport
+        其它收费           other_fee
