@@ -1319,7 +1319,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new RuntimeException("未登录");
         }
         //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
-        if (userResourceRedis.checkUserResourceRight(userTicket.getId(), "isNeedApproval") && !ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
+        if (!userResourceRedis.checkUserResourceRight(userTicket.getId(), "skipApproval") && !ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
             LOG.info("租赁单编号【{}】 未审批，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 未审批，不可以进行提交付款操作");
         }
