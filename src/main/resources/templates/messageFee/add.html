@@ -1,5 +1,7 @@
 <#bs4Body> <!--<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>-->
 <div class="container-fluid">
+	<input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.messageFee'/>">
+
 	<form id="saveForm" role="form" novalidate>
 		<input type="hidden" id="code" name="code" value="${messageFee.code!}" />
 		<div class="breadcrumb">

@@ -77,8 +77,7 @@ function openStockOutHandler() {
 				label: '确定',
 				className: 'btn btn-primary',
 				onClick(e) {
-					bui.util.debounce(stockOut, 1000, true)()
-					//return false;
+					return bui.util.debounce(stockOut, 1000, true)();
 				}
 			}]
 		});
@@ -90,6 +89,9 @@ function openStockOutHandler() {
  */
 function stockOut() {
 	let formData = $('#saveForm').serializeObject();
+	if(!$("#saveForm").validate().form()){
+		return false;
+	}
 	$.ajax({
 		type: "POST",
 		url: "${contextPath}/stock/stock/stockOut.action",

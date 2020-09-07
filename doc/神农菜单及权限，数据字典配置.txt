@@ -123,6 +123,19 @@
         修改 updateOtherFeeRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
         取消 cancelOtherFeeRefundOrder
 
+信息费
+    信息费 http://ia.diligrp.com:8381/fee/message/index.html
+        新增 addMessageFee (http://ia.diligrp.com:8381/fee/message/add.html)
+        修改 updateMessageFee (http://ia.diligrp.com:8381/fee/message/update.html)
+        取消 cancelMessageFee
+        提交 submitMessageFee
+        退款 refundMessageFee (http://ia.diligrp.com:8381/fee/message/refundApply.html)
+        查看 viewMessageFee (http://ia.diligrp.com:8381/fee/message/view.html)
+        同步 syncMessageFee
+        撤回 withdrawMessageFee
+    信息费退款单 http://ia.diligrp.com:8381/refundOrder/14/index.html
+
+
 数据字典
     通行证车类型 passport_car_type
         微型面包车 1 (值可修改)
@@ -164,3 +177,6 @@
         精品停车缴费单      boutique_fee_order
         通行证             passport
         其它收费           other_fee
+        劳务马甲	labor_vest
+        信息费		message_fee
+        冷库入库	stock

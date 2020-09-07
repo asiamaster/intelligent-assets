@@ -62,11 +62,11 @@ function getDistrict(obj,parent){
 					return obj;
 				});
 				if (array.length == 0) {
-					obj.html('<option value="" selected="">-- 请选择 --</option>');
+					obj.html('<option value="" selected="">-- 全部--</option>');
 				} else {
 					//部门变动 触发全部index更新
-					obj.html('<option value="" selected="">-- 请选择--</option>');
-					var htmlConent = '<option value="" selected>-- 请选择 --</option>';
+					obj.html('<option value="" selected="">-- 全部--</option>');
+					var htmlConent = '<option value="" selected>-- 全部--</option>';
 					for (let item of array) {
 						htmlConent = htmlConent+'<option value="'+item.id+'" >'+item.text+'</option>';
 					}
@@ -92,11 +92,11 @@ function getAssets(obj,districtId){
 					return obj;
 				});
 				if (array.length == 0) {
-					obj.html('<option value="" selected="">-- 请选择 --</option>');
+					obj.html('<option value="" selected="">-- 全部--</option>');
 				} else {
 					//部门变动 触发全部index更新
-					obj.html('<option value="" selected="">-- 请选择--</option>');
-					var htmlConent = '<option value="" selected>-- 请选择 --</option>';
+					obj.html('<option value="" selected="">-- 全部--</option>');
+					var htmlConent = '<option value="" selected>-- 全部--</option>';
 					for (let item of array) {
 						htmlConent = htmlConent+'<option value="'+item.id+'" >'+item.text+'</option>';
 					}

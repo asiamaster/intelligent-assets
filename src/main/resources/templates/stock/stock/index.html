@@ -6,29 +6,29 @@
             <div class="form-group col">
                 <label for="departmentId">部门</label>
                 <select id="departmentId" name="departmentId" class="form-control"></select>
-               <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" />
+               <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
              <div class="form-group col-4">
                 <label for="">区域</label>
                 <div class="input-group">
                     <select class="form-control" id="district-one" name="area" required>
-
+						<option value="">--全部--</option>
                     </select>
                     <select class="form-control" id="district-two" name="districtId">
-                        <option value="">-- 全部 --</option>
+                        <option value="">--全部--</option>
                     </select>
                 </div>
             </div>
             <div class="form-group col">
                 <label for="assetsId">冷库编号</label>
                 <select id="assetsId" name="assetsId" class="form-control" required>
-                      <option value="">-- 请选择区域 --</option>
+                      <option value="">--全部 --</option>
                 </select>
             </div>
             <div class="form-group col">
                 <label for="categoryId">品类<i class="red">*</i></label>
                 <select id="categoryId" name="categoryId" class="form-control" >
-                <option value="">--请选择--</option>
+                <option value="">--全部--</option>
                 </select>
                 <#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption"  />
             </div>

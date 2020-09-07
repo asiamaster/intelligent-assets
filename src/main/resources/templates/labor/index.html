@@ -6,24 +6,30 @@
         <div class="row row-cols-6">
             <div class="form-group col">
                 <label for="laborType">马甲类型</label>
-                <select id="laborType" name="laborType" class="form-control"></select>
-                <#bcomboProvider _id="laborType" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"labor_vest_type"}' />
+                <select id="laborType" name="laborType" class="form-control">
+                <option value="">-- 全部 --</option>
+                </select>
+                <#bcomboProvider _id="laborType" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"labor_vest_type", required:true}' />
             </div>
             <div class="form-group col">
                 <label for="state">劳务状态</label>
                 <select id="state" name="state" class="form-control" >
                 </select>
-                <#bcomboProvider _id="state" _provider="laborVestStateProvider" />
+                <#bcomboProvider _id="state" _provider="laborVestStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
                 <label for="interval">办理周期</label>
-                <select id="interval" name="interval" class="form-control"></select>
-                <#bcomboProvider _id="interval" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"labor_interval"}' />
+                <select id="interval" name="interval" class="form-control">
+                <option value="">-- 全部 --</option>
+                </select>
+                <#bcomboProvider _id="interval" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"labor_interval",required:true}' />
             </div>
             <div class="form-group col">
                 <label for="models">运营车型</label>
-                <select id="models" name="models" class="form-control"></select>
-                <#bcomboProvider _id="models" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"labor_car_type"}' />
+                <select id="models" name="models" class="form-control">
+                <option value="">-- 全部 --</option>
+                </select>
+                <#bcomboProvider _id="models" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"labor_car_type",required:true}' />
             </div>
             <div class="form-group col">
                 <label for="likeCustomerName">客户名称</label>
