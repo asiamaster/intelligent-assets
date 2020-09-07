@@ -69,10 +69,10 @@
         修改 updatePassportRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
         取消 cancelPassportRefundOrder
     马甲退款 http://ia.diligrp.com:8381/refundOrder/11/index.html
-        提交 submitRefundOrder
-        撤回 withdrawRefundOrder
-        修改 updateRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
-        取消 cancelRefundOrder
+        提交 submitLaborVestRefundOrder
+        撤回 withdrawLaborVestRefundOrder
+        修改 updateLaborVestRefundOrder    (内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        取消 cancelLaborVestRefundOrder
 
 冷库出入库
     入库首页 http://ia.diligrp.com:8381/stock/stockIn/index.html
@@ -100,10 +100,10 @@
         下载 doExport
         查看 viewStockInDetail (内部链接:http://ia.diligrp.com:8381/stock/stockInDetail/view.html)
     退款单 http://ia.diligrp.com:8381/refundOrder/8/index.html
-        撤回 withdrawRefundOrder
-        提交 submitRefundOrder
-        修改 updateRefundOrder
-        取消 cancelRefundOrder
+        撤回 withdrawStockInRefundOrder
+        提交 submitStockInRefundOrder
+        修改 updateStockInRefundOrder
+        取消 cancelStockInRefundOrder
     存储周期 http://ia.diligrp.com:8381/stock/categoryCycle/list.html
         查看品类列表 CATEGORY_TABLE (内部链接 :http://ia.diligrp.com:8381/stock/categoryCycle/table.html)
         修改周期 EDIT_CATEGORY_CYCLE
@@ -134,7 +134,10 @@
         同步 syncMessageFee
         撤回 withdrawMessageFee
     信息费退款单 http://ia.diligrp.com:8381/refundOrder/14/index.html
-
+        撤回 withdrawMessageFeeRefundOrder
+        提交 submitMessageFeeRefundOrder
+        修改 updateMessageFeeRefundOrder
+        取消 cancelMessageFeeRefundOrder
 
 数据字典
     通行证车类型 passport_car_type
