@@ -508,6 +508,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
                 //提交付款
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
+                //让其审批通过
+                leaseOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
                 //更新摊位租赁单状态
                 cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
             } else {
