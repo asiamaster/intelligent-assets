@@ -1,6 +1,6 @@
 <#bs4Body> <!--<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>-->
 <div class="container-fluid">
-	<input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.labour_order'/>">
+	<input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.labor_vest'/>">
 	<form id="saveForm" role="form" novalidate>
 		<input type="hidden" id="code" name="code" value="${labor.code!}" />
 		<input type="hidden" id="actionType" name="actionType" value="add" />
@@ -40,7 +40,7 @@
 				</div>
 				<div class="form-group col">
 					<label >性别</label> 
-					<select class="form-control" id="customerGender" name="customerGender" disabled required > </select>
+					<select class="form-control" id="customerGender" name="customerGender"  > </select>
                     <#bcomboProvider _id="customerGender" _provider="customerSexProvider" _value="${labor.customerGender!}"/>
 					
 				</div>

@@ -12,6 +12,8 @@ import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,6 +138,9 @@ public class CategoryStorageCycleController {
             categoryDTO.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
             categoryDTO.setState(EnabledStateEnum.ENABLED.getCode());
             categoryDTO.setKeyword(keyword);
+            if (StringUtils.isEmpty(keyword)) {
+            	return BaseOutput.success().setData(null);
+			}
             //根据关键词查询品类
             return BaseOutput.success().setData(assetsRpc.list(categoryDTO).getData());
         } catch (Exception e) {

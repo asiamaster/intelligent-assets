@@ -6,32 +6,28 @@
             <div class="form-group col">
                 <label for="departmentId">部门</label>
                 <select id="departmentId" name="departmentId" class="form-control"></select>
-                <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" />
+                <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
                 <label for="type">入库类型</label>
                 <select id="type" name="type" class="form-control">
-                    <!-- <option selected >--请选择--</option>
-                    <option value="1">整车入库</option>
-                    <option value="2">零散入库</option>
-                    <option value="3">司磅入库</option> -->
                 </select>
-                <#bcomboProvider _id="type" _provider="stockInTypeProvider" />
+                
+                <#bcomboProvider _id="type" _provider="stockInTypeProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
                 
             </div>
             <div class="form-group col">
                 <label for="categoryId">品类</label>
                 <select id="categoryId" name="categoryId" class="form-control" required >
-                <option value="">--请选择--</option>
+                <option value="">--全部--</option>
                 </select>
                 <#bselect2 _id="categoryId" _mode="remote" _optionVariable="categoryAutoCompleteOption" />
             </div>
             <div class="form-group col">
                 <label for="state">状态</label>
-                
                 <select id="state" name="state" class="form-control" >
                 </select>
-                <#bcomboProvider _id="state" _provider="stockInStateProvider" />
+                <#bcomboProvider _id="state" _provider="stockInStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
                 <label for="likeCustomerName">客户姓名</label>
