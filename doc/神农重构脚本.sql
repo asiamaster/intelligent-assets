@@ -4,8 +4,11 @@ INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_wate
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-电费业务单', 'hzsc_electricity', 'HZSCDF', 'yyyyMMdd', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_electricity', 2020081200001, '杭州水产-电费业务单', '1');
 
-INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-水电费缴费单', 'hzsc_waterElectricity_paymentOrder', 'HZSCSF', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-水费缴费单', 'hzsc_water_paymentOrder', 'HZSCSF', 'yyyyMMdd', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_water_paymentOrder', 2020081200001, '杭州水产-水费缴费单', '1');
+
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-水电费缴费单', 'hzsc_electricity_paymentOrder', 'HZSCDF', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_electricity_paymentOrder', 2020081200001, '杭州水产-水费缴费单', '1');
 
 
 

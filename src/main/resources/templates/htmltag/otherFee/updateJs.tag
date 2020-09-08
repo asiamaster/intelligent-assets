@@ -44,12 +44,24 @@
     /**
      * 摊位选择事件Handler
      * */
-      /******************************驱动执行区 begin***************************/
+    /******************************驱动执行区 begin***************************/
     $(function () {
         registerMsg();
+        $('#assetsId, #assetsName, #assetsNameInput').hide();
+
     });
 
-
+    $('#assetsType').on('change', function(){
+        $('#assetsId, #assetsName, #assetsNameInput').val('');
+        $('#assetsName, #assetsNameInput').removeClass('d-block');
+        $('#assetsName-error').remove();
+        $('#assetsNameInput').attr('name', '');
+        if($(this).val() == 1 ) {
+            $('#assetsName').addClass('d-block');
+        } else {
+            $('#assetsNameInput').attr('name', 'assetsName').addClass('d-block');
+        }
+    })
 
     var boothAutoCompleteOption = {
         paramName: 'keyword',
@@ -81,26 +93,37 @@
         // let formData = new FormData($('#saveForm')[0]);
         let formData = $("input:not(table input),textarea,select").serializeObject();
         let typeName = $('#typeCode').find("option:selected").text();
+        // 部门名称
+        let departmentName = $('#departmentId').find("option:selected").text();
+        formData.departmentName = departmentName;
+        // 收费项名称
+        let chargeItemName = $('#chargeItemId').find("option:selected").text();
+        formData.chargeItemName = chargeItemName;
+
         bui.util.yuanToCentForMoneyEl(formData);
-        $.extend(formData,{typeName,logContent:Log.buildUpdateContent()});
-        return formData;
+        $.extend(formData,{typeName});
+        return JSON.stringify(formData);
     }
 
     // 提交保存
-    function doUpdateDepostHandler(){
-        let validator = $('#updateForm').validate({ignore:''})
+    function doAddOtherFeeHandler(){
+        let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
+            /*$(this).find('.collapse').each(function (index, element) {
+                $(element).trigger('show.bs.collapse');
+            });*/
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
             $('.collapse:not(.show)').addClass('show');
             return false;
         }
         bui.loading.show('努力提交中，请稍候。。。');
-        // let _formData = new FormData($('#updateForm')[0]);
+        // let _formData = new FormData($('#saveForm')[0]);
         $.ajax({
             type: "POST",
-            url: "${contextPath}/depositOrder/doUpdate.action",
+            url: "${contextPath}/otherFee/doUpdate.action",
             data: buildFormData(),
             dataType: "json",
+            contentType: "application/json",
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
@@ -115,5 +138,33 @@
             }
         });
     }
+
+    $('#departmentId').on('change', function () {
+        let departmentId = $(this).val();
+        $('#chargeItemId option').remove();
+        $('#chargeItemName').val('')
+        $.ajax({
+            type: 'get',
+            dataType: "json",
+            data: {departmentId: departmentId},
+            url: '/departmentChargeItem/getChargeItemsByDepartment.action',
+            success: function(res){
+                if (res.success) {
+                    for (let i=0; i<res.data.length; i++ ) {
+                        $('#chargeItemId').append('<option value="' + res.data[i].chargeItemId + '" data-type="' + res.data[i].chargeItemName + '">' + res.data[i].chargeItemName + '</option>')
+                    }
+                }
+            },
+            error: function (error) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        })
+    })
+    $('#chargeItemId').on('change',  function () {
+        $('#chargeItemName').val($(this.data('chargeItemName')))
+    })
+
+    $('#save').on('click', bui.util.debounce(doAddOtherFeeHandler,1000,true));
+
 
 </script>

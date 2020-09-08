@@ -74,7 +74,7 @@
     }
 
     /**
-     打开新增窗口
+     打开修改窗口
      */
     function openUpdateHandler() {
         //获取选中行的数据
@@ -291,8 +291,8 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_refund').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.OtherFeeStateEnum.REFUNDING.getCode()}) {
-            $('#btn_add').attr('disabled', false);
             $('#toolbar button').attr('disabled', true);
+            $('#btn_add').attr('disabled', false);
             $('#btn_view').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.OtherFeeStateEnum.REFUND.getCode()}) {
             $('#toolbar button').attr('disabled', true);
