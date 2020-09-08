@@ -84,7 +84,7 @@ public class AssetsLeaseOrderListDto extends AssetsLeaseOrder {
     @Operator(Operator.LITTLE_EQUAL_THAN)
     private LocalDateTime startTimeLT;
 
-    @Column(name = "`start_time`")
+    @Column(name = "`end_time`")
     @Operator(Operator.LITTLE_EQUAL_THAN)
     private LocalDateTime endTimeLT;
 
