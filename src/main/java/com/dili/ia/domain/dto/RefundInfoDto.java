@@ -64,6 +64,16 @@ public class RefundInfoDto {
 	 * 退款类型
 	 */
 	private Integer refundType;
+	
+	/**
+	 * 银行
+	 */
+	private String bank;
+	
+	/**
+	 * 银行卡号
+	 */
+	private String bankCardNo;
 
 	/**
 	 * 转抵扣
@@ -157,5 +167,23 @@ public class RefundInfoDto {
 	public void setPayeeId(Long payeeId) {
 		this.payeeId = payeeId;
 	}
+
+	public String getBank() {
+		return bank;
+	}
+
+	public void setBank(String bank) {
+		this.bank = bank;
+	}
+
+	public String getBankCardNo() {
+		return bankCardNo;
+	}
+
+	public void setBankCardNo(String bankCardNo) {
+		this.bankCardNo = bankCardNo;
+	}
+	
+	
 
 }

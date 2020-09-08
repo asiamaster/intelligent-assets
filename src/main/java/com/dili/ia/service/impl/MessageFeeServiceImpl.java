@@ -20,6 +20,7 @@ import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.MessageFeeStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
+import com.dili.ia.glossary.RefundTypeEnum;
 import com.dili.ia.mapper.MessageFeeMapper;
 import com.dili.ia.rpc.MessageFeeRpc;
 import com.dili.ia.rpc.SettlementRpcResolver;
@@ -434,6 +435,10 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
+		if(RefundTypeEnum.BANK.getCode().equals(refundInfoDto.getRefundType())) {
+			refundOrder.setBank(refundInfoDto.getBank());
+			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
+		}
 		refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.MESSAGEFEE.getEnName()
 				+"_"+BizNumberTypeEnum.REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {

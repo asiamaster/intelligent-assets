@@ -16,6 +16,7 @@ import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.LaborStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
+import com.dili.ia.glossary.RefundTypeEnum;
 import com.dili.ia.mapper.LaborMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
@@ -478,6 +479,10 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
+		if(RefundTypeEnum.BANK.getCode().equals(refundInfoDto.getRefundType())) {
+			refundOrder.setBank(refundInfoDto.getBank());
+			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
+		}
 		refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.LABOR_VEST.getEnName()
 				+"_"+BizNumberTypeEnum.REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {

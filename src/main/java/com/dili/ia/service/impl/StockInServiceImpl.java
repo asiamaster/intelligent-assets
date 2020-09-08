@@ -41,6 +41,7 @@ import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
+import com.dili.ia.glossary.RefundTypeEnum;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.glossary.StockInTypeEnum;
 import com.dili.ia.mapper.StockInMapper;
@@ -473,6 +474,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		// 获取结算单
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, stockIn.getCode());
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, stockIn,order);
+		if (CollectionUtils.isNotEmpty(refundInfoDto.getTransferDeductionItems())) {
+			refundInfoDto.getTransferDeductionItems().forEach(o -> {
+                o.setRefundOrderId(refundOrder.getId());
+                transferDeductionItemService.insertSelective(o);
+            });
+        }
 		// refundOrderService.doSubmitDispatcher(refundOrder);
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
@@ -565,6 +572,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
+		if(RefundTypeEnum.BANK.getCode().equals(refundInfoDto.getRefundType())) {
+			refundOrder.setBank(refundInfoDto.getBank());
+			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
+		}
 		refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.STOCKIN.getEnName()
 				+"_"+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
