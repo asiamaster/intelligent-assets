@@ -59,9 +59,18 @@
      打开绑定部门与收费项
      */
     function openAddDepartmentHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        var chargeItemId = rows[0].chargeItemId;
+
         dia = bs4pop.dialog({
             title: '设置绑定',//对话框title
-            content: '${contextPath}/departmentChargeItem/addDepartment.html', //对话框内容，可以是 string、element，$object
+            content: '${contextPath}/departmentChargeItem/addDepartment.html?chargeItemId='+rows[0].chargeItemId,
             width: '900px',//宽度
             height: '680px',//高度
             isIframe: true,//默认是页面层，非iframe
