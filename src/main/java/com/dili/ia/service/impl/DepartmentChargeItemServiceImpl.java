@@ -43,8 +43,6 @@ import java.util.TreeSet;
 @Service
 public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentChargeItem, Long> implements DepartmentChargeItemService {
 
-    private final static Logger logger = LoggerFactory.getLogger(DepartmentChargeItemServiceImpl.class);
-
     public DepartmentChargeItemMapper getActualDao() {
         return (DepartmentChargeItemMapper)getDao();
     }

@@ -62,12 +62,12 @@ public class DepartmentChargeItemController {
 
     /**
      * 分页查询otherFee，返回easyui分页信息
-     * @param departmentChargeItem
+     *
      * @return String
-     * @throws Exception
+     * @date   2020/8/19
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(DepartmentChargeItem departmentChargeItem) throws Exception {
+    public @ResponseBody String listPage(){
         return departmentChargeItemService.listNoParam();
     }
 
