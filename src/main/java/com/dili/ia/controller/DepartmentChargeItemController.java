@@ -7,6 +7,7 @@ import com.dili.ia.domain.dto.OtherFeeDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.service.BoutiqueFreeSetsService;
 import com.dili.ia.service.DepartmentChargeItemService;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
@@ -81,6 +82,7 @@ public class DepartmentChargeItemController {
     public String addDepartment(ModelMap modelMap, String chargeItemId) {
         // 根据类型查询
         DepartmentChargeItemDto itemDto = departmentChargeItemService.selectListByChargeItemId(chargeItemId);
+
         modelMap.put("departmentChargeItem", itemDto);
 
         return "otherFee/addDepartment";
@@ -94,18 +96,19 @@ public class DepartmentChargeItemController {
      * @date   2020/8/19
      */
     @RequestMapping(value="/doAddDepartment.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput addDepartmentCharge(@RequestBody DepartmentChargeItemDto departmentChargeItemDto) throws Exception {
+    public @ResponseBody BaseOutput addDepartmentCharge(@RequestBody DepartmentChargeItemDto departmentChargeItemDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            // 绑定操作
             departmentChargeItemService.addDepartmentChargeItems(departmentChargeItemDto, userTicket);
 
             return BaseOutput.success("收费项绑定部门成功");
         } catch (BusinessException e){
-            LOG.error("收费项绑定部门异常！", e);
+            LOG.info("收费项绑定部门异常:{}", e.getMessage());
             return BaseOutput.failure(e.getMessage());
         } catch (Exception e){
-            LOG.error("收费项绑定部门异常！", e);
-            return BaseOutput.failure("收费项绑定部门异常！");
+            LOG.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 

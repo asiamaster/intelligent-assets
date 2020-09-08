@@ -29,7 +29,6 @@ import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -48,8 +47,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-07-21 18:08:01.
+ * @author:       xiaosa
+ * @date:         2020/8/18
+ * @version:      农批业务系统重构
+ * @description:  其他收费实现类
  */
 @Service
 public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> implements OtherFeeService {
@@ -87,7 +88,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
      * 根据code查询数据实例
      *
      * @param  code
-     * @return
+     * @return OtherFee
      * @date   2020/8/27
      */
     @Override
@@ -96,19 +97,20 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     }
 
     /**
-     * 新增其他收费
+     * 新增 其他收费
      *
-     * @param otherFeeDto
-     * @return BaseOutput
-     * @date 2020/8/18
+     * @param  otherFeeDto
+     * @param  userTicket
+     * @return OtherFee
+     * @date   2020/8/18
      */
     @Override
     @GlobalTransactional
-    public BaseOutput<OtherFee> addOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket) throws Exception {
+    public OtherFee addOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket){
         OtherFee otherFeeParam = new OtherFee();
         BeanUtils.copyProperties(otherFeeDto, otherFeeParam);
 
-        // 生成其他收费的业务 code
+        // 生成 其他收费 code
         String otherFeeCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.OTHER_FEE.getCode());
         otherFeeParam.setVersion(0);
         otherFeeParam.setCode(otherFeeCode);
@@ -122,19 +124,22 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         this.getActualDao().insertSelective(otherFeeParam);
 
-        return BaseOutput.success().setData(otherFeeParam);
+        return otherFeeParam;
     }
 
     /**
-     * 修改其他收费
+     * 修改 其他收费
      *
      * @param  otherFeeDto
-     * @return BaseOutput
+     * @param  userTicket
+     * @return OtherFee
      * @date   2020/8/19
      */
     @Override
-    public BaseOutput<OtherFee> updateOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket) throws Exception {
+    @GlobalTransactional
+    public OtherFee updateOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket) throws BusinessException {
         OtherFee otherFeeParam = new OtherFee();
+        BeanUtils.copyProperties(otherFeeDto, otherFeeParam);
 
         OtherFee otherFeeInfo = this.get(otherFeeDto.getId());
         if (otherFeeInfo == null) {
@@ -143,48 +148,46 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         // 已创建状态才能修改
         if (!OtherFeeStateEnum.CREATED.getCode().equals(otherFeeInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改。");
         }
 
-        BeanUtils.copyProperties(otherFeeDto, otherFeeParam);
+        // 修改操作
         otherFeeParam.setModifyTime(LocalDateTime.now());
         otherFeeParam.setVersion(otherFeeInfo.getVersion() + 1);
 
         if (this.updateSelective(otherFeeParam) == 0) {
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
 
-        return BaseOutput.success().setData(otherFeeInfo);
+        return otherFeeInfo;
     }
 
     /**
-     * 提交其他收费
-     *
+     * 提交 其他收费
      *
      * @param  id
-     * @return BaseOutput
+     * @param  userTicket
+     * @return OtherFee
      * @date   2020/8/19
      */
     @Override
     @GlobalTransactional
-    public BaseOutput<OtherFee> submit(Long id, UserTicket userTicket) throws Exception {
-        // 先查询
+    public OtherFee submit(Long id, UserTicket userTicket) throws BusinessException {
         OtherFee otherFeeInfo = this.get(id);
         if (otherFeeInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，修改失败。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，提交失败。");
         }
 
         // 已创建状态才能提交
         if (!OtherFeeStateEnum.CREATED.getCode().equals(otherFeeInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能提交");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能提交。");
         }
 
         // 修改其他交费状态为已提交
         otherFeeInfo.setState(OtherFeeStateEnum.SUBMITTED.getCode());
         otherFeeInfo.setModifyTime(LocalDateTime.now());
         if (this.updateSelective(otherFeeInfo) == 0) {
-            logger.info("多人提交通行证付款!");
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
 
         // 创建缴费单
@@ -196,30 +199,31 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         paymentOrderService.insertSelective(paymentOrder);
 
         // 调用结算接口,缴费
-        SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, otherFeeInfo, paymentOrder.getCode(), paymentOrder.getAmount());
+        SettleOrderDto settleOrderDto = this.buildSettleOrderDto(userTicket, otherFeeInfo, paymentOrder.getCode(), paymentOrder.getAmount());
         settlementRpcResolver.submit(settleOrderDto);
 
-        return BaseOutput.success().setData(otherFeeInfo);
+        return otherFeeInfo;
     }
 
     /**
-     * 取消其他收费
+     * 取消 其他收费
      *
      * @param  id
-     * @return BaseOutput
+     * @param  userTicket
+     * @return OtherFee
      * @date   2020/8/19
      */
     @Override
-    public BaseOutput<OtherFee> cancel(Long id, UserTicket userTicket) {
-        // 先查询
+    @GlobalTransactional
+    public OtherFee cancel(Long id, UserTicket userTicket) throws BusinessException{
         OtherFee otherFeeInfo = this.get(id);
         if (otherFeeInfo == null) {
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "该记录已删除，修改失败。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，取消失败。");
         }
 
         // 已创建状态才能取消
         if (!OtherFeeStateEnum.CREATED.getCode().equals(otherFeeInfo.getState())) {
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消。");
         }
 
         otherFeeInfo.setCancelerId(userTicket.getId());
@@ -227,38 +231,37 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         otherFeeInfo.setModifyTime(LocalDateTime.now());
         otherFeeInfo.setState(OtherFeeStateEnum.CANCELD.getCode());
         if (this.updateSelective(otherFeeInfo) == 0) {
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
 
-        return BaseOutput.success().setData(otherFeeInfo);
+        return otherFeeInfo;
     }
 
     /**
      * 撤回 其他收费
      *
      * @param  id
-     * @return BaseOutput
+     * @param  userTicket
+     * @return OtherFee
      * @date   2020/8/19
      */
     @Override
     @GlobalTransactional
-    public BaseOutput<OtherFee> withdraw(Long id, UserTicket userTicket) throws Exception {
-        // 先查询
+    public OtherFee withdraw(Long id, UserTicket userTicket) throws BusinessException {
         OtherFee otherFeeInfo = this.get(id);
         if (otherFeeInfo == null) {
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "该记录已删除，修改失败。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，撤回失败。");
         }
 
         // 已创建状态才能取消
         if (!OtherFeeStateEnum.SUBMITTED.getCode().equals(otherFeeInfo.getState())) {
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已提交，不能撤回");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能撤回。");
         }
 
         otherFeeInfo.setWithdrawOperatorId(userTicket.getId());
         otherFeeInfo.setWithdrawOperator(userTicket.getRealName());
         otherFeeInfo.setState(OtherFeeStateEnum.CREATED.getCode());
         if (this.updateSelective(otherFeeInfo) == 0) {
-            logger.info("撤回其他收费【修改为已创建】失败.");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
@@ -273,36 +276,34 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         // 撤回结算单多人操作已判断
         settlementRpcResolver.cancel(settlementAppId, paymentOrder.getCode());
 
-        return BaseOutput.success().setData(otherFeeInfo);
+        return otherFeeInfo;
     }
 
     /**
      * 其他收费 退款申请
      *
      * @param  refundOrderDto
-     * @return BaseOutput
+     * @param userTicket
+     * @return OtherFee
      * @date   2020/8/19
      */
     @Override
     @GlobalTransactional
-    public BaseOutput<OtherFee> refund(OtherFeeRefundOrderDto refundOrderDto) throws Exception {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
-        // 查询相关数据
+    public OtherFee refund(OtherFeeRefundOrderDto refundOrderDto, UserTicket userTicket) throws BusinessException {
+        // 根据业务主键查询相关数据
         OtherFee otherFeeInfo = this.get(refundOrderDto.getBusinessId());
         if (otherFeeInfo != null && !OtherFeeStateEnum.PAID.getCode().equals(otherFeeInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
 
         // 构建退款单以及新增
-        buildRefundOrderDto(userTicket, otherFeeInfo, refundOrderDto);
+        this.buildRefundOrderDto(userTicket, otherFeeInfo, refundOrderDto);
 
         // 修改状态
         otherFeeInfo.setModifyTime(LocalDateTime.now());
         otherFeeInfo.setState(OtherFeeStateEnum.REFUNDING.getCode());
         if (this.updateSelective(otherFeeInfo) == 0) {
-            logger.info("多人对 其他收费 退款!");
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         // 转抵信息
@@ -313,23 +314,22 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             });
         }
 
-        return BaseOutput.success().setData(otherFeeInfo);
+        return otherFeeInfo;
     }
 
     /**
      * 缴费成功回调
      *
      * @param  settleOrder
-     * @return
+     * @return OtherFee
      * @date   2020/8/19
      */
     @Override
     @GlobalTransactional
-    public BaseOutput<OtherFee> settlementDealHandler(SettleOrder settleOrder) {
-
+    public OtherFee settlementDealHandler(SettleOrder settleOrder) throws BusinessException {
         // 修改缴费单相关数据
         if (null == settleOrder) {
-            return BaseOutput.failure(ResultCode.PARAMS_ERROR, "回调参数为空！");
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "回调参数为空！");
         }
         PaymentOrder paymentOrder = new PaymentOrder();
         // 结算单code唯一
@@ -339,11 +339,11 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         OtherFee otherFeeInfo = this.get(paymentOrderPO.getBusinessId());
         // 如果已支付，直接返回
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) {
-            return BaseOutput.success().setData(otherFeeInfo);
+            return otherFeeInfo;
         }
         if (!paymentOrderPO.getState().equals(PaymentOrderStateEnum.NOT_PAID.getCode())) {
             logger.info("缴费单状态已变更！状态为：" + PaymentOrderStateEnum.getPaymentOrderStateEnum(paymentOrderPO.getState()).getName());
-            return BaseOutput.failure("缴费单状态已变更！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "缴费单状态已变更！");
         }
 
         // 缴费单数据更新
@@ -354,29 +354,30 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
         if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
             logger.info("缴费单成功回调 -- 更新【缴费单】,乐观锁生效！【付款单paymentOrderID:{}】", paymentOrderPO.getId());
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
         // 修改其他收费状态
         otherFeeInfo.setModifyTime(LocalDateTime.now());
         otherFeeInfo.setState(OtherFeeStateEnum.PAID.getCode());
         if (this.updateSelective(otherFeeInfo) == 0) {
-            logger.info("多人对 其他收费 缴费成功回调!");
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        return BaseOutput.success().setData(otherFeeInfo);
+        return otherFeeInfo;
     }
 
     /**
      * 缴费成功票据打印
      *
-     * @param
-     * @return
+     * @param  orderCode
+     * @param  reprint
+     * @return PrintDataDto
      * @date   2020/8/19
      */
     @Override
-    public PrintDataDto<OtherFeePrintDto> receiptPaymentData(String orderCode, Integer reprint) {
+    @GlobalTransactional
+    public PrintDataDto<OtherFeePrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException {
         PaymentOrder paymentOrderCondition = new PaymentOrder();
 
         paymentOrderCondition.setCode(orderCode);
@@ -418,20 +419,22 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     /**
      * 退款成功票据打印
      *
-     * @param
-     * @return
+     * @param  orderCode
+     * @param  reprint
+     * @return PrintDataDto
      * @date   2020/8/28
      */
     @Override
-    public PrintDataDto<OtherFeePrintDto> receiptRefundPrintData(String orderCode, String reprint) {
-        RefundOrder condtion = new RefundOrder();
-        condtion.setCode(orderCode);
-        List<RefundOrder> refundOrders = refundOrderService.list(condtion);
+    @GlobalTransactional
+    public PrintDataDto<OtherFeePrintDto> receiptRefundPrintData(String orderCode, String reprint) throws BusinessException {
+        RefundOrder refundOrder = new RefundOrder();
+        refundOrder.setCode(orderCode);
+        List<RefundOrder> refundOrders = refundOrderService.list(refundOrder);
         if (CollectionUtil.isEmpty(refundOrders)) {
             throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
         } else {
-            RefundOrder refundOrder = refundOrders.get(0);
-            OtherFee otherFeeInfo = this.get(refundOrder.getBusinessId());
+            RefundOrder refundOrderInfo = refundOrders.get(0);
+            OtherFee otherFeeInfo = this.get(refundOrderInfo.getBusinessId());
             SettleOrder order = settlementRpcResolver.get(settlementAppId, otherFeeInfo.getCode());
 
             // 组装退款单信息
@@ -439,9 +442,9 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             printDto.setReprint(reprint);
             printDto.setNotes(otherFeeInfo.getNotes());
             printDto.setPrintTime(LocalDateTime.now());
-            printDto.setPayeeAmount(refundOrder.getPayeeAmount());
+            printDto.setPayeeAmount(refundOrderInfo.getPayeeAmount());
             printDto.setCustomerName(otherFeeInfo.getCustomerName());
-            printDto.setRefundReason(refundOrder.getRefundReason());
+            printDto.setRefundReason(refundOrderInfo.getRefundReason());
             printDto.setSettlementOperator(order.getOperatorName());
             printDto.setBusinessType(BizTypeEnum.OTHER_FEE.getName());
             printDto.setAmount(String.valueOf(otherFeeInfo.getAmount()));
@@ -450,12 +453,12 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             //园区卡号
             printDto.setAccountCardNo(order.getAccountNumber());
             //银行卡号
-            printDto.setBankName(refundOrder.getBank());
-            printDto.setBankNo(refundOrder.getBankCardNo());
+            printDto.setBankName(refundOrderInfo.getBank());
+            printDto.setBankNo(refundOrderInfo.getBankCardNo());
 
             // 获取转抵信息
             TransferDeductionItem transferDeductionItemQuery = new TransferDeductionItem();
-            transferDeductionItemQuery.setRefundOrderId(refundOrder.getId());
+            transferDeductionItemQuery.setRefundOrderId(refundOrderInfo.getId());
             printDto.setTransferDeductionItems(transferDeductionItemService.list(transferDeductionItemQuery));
 
             // 打印最外层
@@ -470,7 +473,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     /**
      * 构建退款项
      */
-    private RefundOrder buildRefundOrderDto(UserTicket userTicket, OtherFee otherFeeInfo, OtherFeeRefundOrderDto refundOrderDto) {
+    private RefundOrder buildRefundOrderDto(UserTicket userTicket, OtherFee otherFeeInfo, OtherFeeRefundOrderDto refundOrderDto) throws BusinessException {
         //退款单
         RefundOrder refundOrder = new RefundOrder();
 
@@ -539,8 +542,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     /**
      * 构建撤销缴费单
      */
-    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode) {
-
+    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode) throws BusinessException {
         PaymentOrder pb = new PaymentOrder();
 
         pb.setBizType(BizTypeEnum.OTHER_FEE.getCode());
@@ -548,12 +550,12 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         pb.setBusinessCode(businessCode);
         pb.setMarketId(userTicket.getFirmId());
         pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
-        PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
-        if (null == order) {
+        PaymentOrder paymentOrder = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
+        if (null == paymentOrder) {
             logger.info("没有查询到付款单PaymentOrder【业务单businessId：{}】 【业务单businessCode:{}】", businessId, businessCode);
             throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到付款单！");
         }
 
-        return order;
+        return paymentOrder;
     }
 }

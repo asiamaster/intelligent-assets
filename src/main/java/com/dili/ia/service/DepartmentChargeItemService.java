@@ -3,6 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.dto.DepartmentChargeItemDto;
 import com.dili.ss.base.BaseService;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public interface DepartmentChargeItemService extends BaseService<DepartmentCharg
      * @return
      * @date   2020/8/19
      */
-    void addDepartmentChargeItems(DepartmentChargeItemDto departmentChargeItemDto, UserTicket userTicket) throws Exception;
+    void addDepartmentChargeItems(DepartmentChargeItemDto departmentChargeItemDto, UserTicket userTicket) throws BusinessException;
 
     /**
      * 新增其他收费的时候，选择部门，查询相关联的收费项

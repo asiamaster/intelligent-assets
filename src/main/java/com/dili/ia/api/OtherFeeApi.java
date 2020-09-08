@@ -36,25 +36,24 @@ public class OtherFeeApi {
     private OtherFeeService otherFeeService;
 
     /**
-     * 其他收费缴费成功回调
+     * 其他收费 缴费成功回调
      *
-     * @param settleOrder
-     * @return
+     * @param  settleOrder
+     * @return BaseOutput
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${code!}", operationType = "pay", systemCode = "IA")
     @RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
         try {
-            BaseOutput<OtherFee> output = otherFeeService.settlementDealHandler(settleOrder);
-            if (output.isSuccess()) {
-                //记录业务日志
-                LoggerUtil.buildLoggerContext(output.getData().getId(), output.getData().getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), output.getData().getMarketId(), null);
-                return BaseOutput.success().setData(true);
-            }
-            return BaseOutput.failure(output.getMessage());
+            OtherFee otherFee = otherFeeService.settlementDealHandler(settleOrder);
+
+            //记录业务日志
+            LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), otherFee.getMarketId(), null);
+
+            return BaseOutput.success().setData(true);
         } catch (BusinessException e) {
-            LOG.error("其他收费缴费回调异常！", e);
+            LOG.info("其他收费缴费成功回调失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
             LOG.error("其他收费缴费回调异常！", e);
@@ -63,10 +62,11 @@ public class OtherFeeApi {
     }
 
     /**
-     * 其他收费缴费票据打印
+     * 其他收费 缴费票据打印
      *
-     * @param orderCode
-     * @return
+     * @param  orderCode
+     * @param  reprint
+     * @return BaseOutput
      */
     @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST})
     public @ResponseBody
@@ -77,7 +77,7 @@ public class OtherFeeApi {
             }
             return BaseOutput.success().setData(otherFeeService.receiptPaymentData(orderCode, reprint));
         } catch (BusinessException e) {
-            LOG.error("其他收费缴费票据打印异常！", e);
+            LOG.info("其他收费缴费票据打印失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
             LOG.error("其他收费缴费票据打印异常！", e);
@@ -86,7 +86,7 @@ public class OtherFeeApi {
     }
 
     /**
-     * 通行证退款票据打印
+     * 其他收费 退款票据打印
      *
      * @param orderCode
      * @return
@@ -97,12 +97,11 @@ public class OtherFeeApi {
         try {
             return BaseOutput.success().setData(otherFeeService.receiptRefundPrintData(orderCode, reprint));
         } catch (BusinessException e) {
-            LOG.error("其他收费退款票据打印异常！", e);
+            LOG.info("其他收费退款票据打印失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
             LOG.error("其他收费退款票据打印异常！", e);
             return BaseOutput.failure("其他收费退款票据打印异常！").setData(false);
         }
     }
-
 }

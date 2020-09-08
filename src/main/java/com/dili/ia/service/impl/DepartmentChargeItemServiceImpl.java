@@ -53,16 +53,13 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
     DataDictionaryRpc dataDictionaryRpc;
 
     /**
-     * 打开其他收费 - 收费项绑定部门的页面，更新数据表
+     * 打开 其他收费 - 收费项绑定部门 页面，更新数据表
      *
-     * @param
-     * @return
      * @date   2020/8/24
      */
     @Override
     @GlobalTransactional
     public void batchUpdateChargeItems() {
-
         // 根据数据字典的键查询相关 其他收费项 的相关数据
         List<DataDictionaryValue> list = dataDictionaryRpc.listDataDictionaryValueByDdCode(BizNumberTypeEnum.OTHER_FEE_CHARGE_ITEM.getCode()).getData();
         if (!CollectionUtils.isEmpty(list)) {
@@ -73,7 +70,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                 valuePairs.add(new ValuePairImpl(dataDictionaryValue.getName(), dataDictionaryValue.getCode()));
             }
 
-            // 查询表，数据字典中不存在，则删除，数据字典多出来的，则添加
+            // 查询表中的收费项，数据字典中不存在，则从表中删除，数据字典多出来的，则添加到表中
             List<DepartmentChargeItem> itemInfoList = this.list(new DepartmentChargeItem());
             List<String> chargeItemIdListInTable = new ArrayList<>();
             List<String> chargeItemIdListInTableToAdd = new ArrayList<>();
@@ -82,20 +79,20 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                 chargeItemIdListInTableToAdd.add(itemInfo.getChargeItemId());
             }
 
-            // 数据字典的收费项id集合
+            // 数据字典的收费项 ids
             List<String> chargeItemIdListByDate = new ArrayList<>();
             for (ValuePair<?> valuePair : valuePairs) {
                 String chargeItemId = (String) valuePair.getValue();
                 chargeItemIdListByDate.add(chargeItemId);
             }
 
-            // 求出表中有的，数据字典没有收费项 ids，然后删除这些 ids
+            // 求出表中有的，数据字典没有收费项 ids，然后删除表中的这些 ids
             chargeItemIdListInTable.removeAll(chargeItemIdListByDate);
             if (chargeItemIdListInTable != null && chargeItemIdListInTable.size() > 0) {
                 this.getActualDao().deleteEntityListByChargeItemIds(chargeItemIdListInTable);
             }
 
-            // 求出数据字典中游，表中没有的 ids，然后添加这些 ids
+            // 求出数据字典中有，表中没有的 ids，然后添加这些 ids 到表中
             chargeItemIdListByDate.removeAll(chargeItemIdListInTableToAdd);
             if (chargeItemIdListByDate != null && chargeItemIdListByDate.size() > 0) {
                 List<DepartmentChargeItem> departmentChargeItemList = new ArrayList<>();
@@ -121,13 +118,13 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
      * 根据收费项查询相关部门
      *
      * @param  chargeItemId
-     * @return list
+     * @return DepartmentChargeItemDto
      * @date   2020/8/19
      */
     @Override
     public DepartmentChargeItemDto selectListByChargeItemId(String chargeItemId) {
         List<DepartmentByOtherFeeDto> departmentDtoList = new ArrayList<>();
-        DepartmentChargeItemDto itemDto = new DepartmentChargeItemDto();
+        DepartmentChargeItemDto departmentChargeItemDto = new DepartmentChargeItemDto();
 
         List<DepartmentChargeItem> itemList = this.getActualDao().selectListByChargeItemId(chargeItemId);
         if (itemList != null && itemList.size() > 0) {
@@ -137,34 +134,31 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                 departmentDto.setDepartmentName(item.getDepartmentName());
                 departmentDtoList.add(departmentDto);
             }
-            BeanUtils.copyProperties(itemList.get(0), itemDto);
-            itemDto.setDepartmentList(departmentDtoList);
+            BeanUtils.copyProperties(itemList.get(0), departmentChargeItemDto);
+            departmentChargeItemDto.setDepartmentList(departmentDtoList);
         }
 
-
-        return itemDto;
+        return departmentChargeItemDto;
     }
 
     /**
      * 新增绑定(也叫修改)
      *
-     * @param
+     * @param departmentChargeItemDto
      * @param userTicket
-     * @return
-     * @date   2020/8/19
+     * @date  2020/8/19
      */
     @Override
-    public void addDepartmentChargeItems(DepartmentChargeItemDto departmentChargeItemDto, UserTicket userTicket) throws Exception {
-
+    public void addDepartmentChargeItems(DepartmentChargeItemDto departmentChargeItemDto, UserTicket userTicket) throws BusinessException {
+        // 根据收费项查询关联的部门集合
         List<DepartmentChargeItem> itemList = this.getActualDao().selectListByChargeItemId(departmentChargeItemDto.getChargeItemId());
         if (itemList == null || itemList.size() == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "收费项已不存在");
         }
 
-        // 根据 chargeItemId 删除原有的，插入新增的
+        // 根据 chargeItemId 删除原有关联的部门，插入新增的部门
         List<String> chargeItemIds = new ArrayList<>();
         chargeItemIds.add(departmentChargeItemDto.getChargeItemId());
-        // 根据 chargeItemId 删除原有的，插入新增的
         this.getActualDao().deleteEntityListByChargeItemIds(chargeItemIds);
 
         List<DepartmentByOtherFeeDto> departmentList = departmentChargeItemDto.getDepartmentList();
@@ -183,7 +177,6 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                 itemParam.setDepartmentName(departmentInfo.getDepartmentName());
                 itemParamList.add(itemParam);
             }
-
             if (this.batchInsert(itemParamList) == 0) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "多人操作");
             }
@@ -192,7 +185,6 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
 
     /**
      * 新增其他收费的时候，选择部门，查询相关联的收费项
-     *
      *
      * @param  departmentId
      * @return List
@@ -214,10 +206,10 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
     @Override
     public String listNoParam() {
         DepartmentChargeItem departmentChargeItem = new DepartmentChargeItem();
-        List<DepartmentChargeItem> departmentChargeItemList = this.list(departmentChargeItem);
-        List<DepartmentChargeItem> groupList = this.getActualDao().listGroupByChargeItemId();
-        if (departmentChargeItemList != null && departmentChargeItemList.size() > 0) {
 
+        List<DepartmentChargeItem> departmentChargeItemList = this.list(departmentChargeItem);
+        List<DepartmentChargeItem> chargeItemListByGroup = this.getActualDao().listGroupByChargeItemId();
+        if (departmentChargeItemList != null && departmentChargeItemList.size() > 0) {
             // 将收费项id去重
             TreeSet ItemIdSet = new TreeSet();
             for (DepartmentChargeItem itemInfo : departmentChargeItemList) {
@@ -226,20 +218,21 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
 
             for (Object Item : ItemIdSet) {
                 // 将相同收费项的部门名称放一起
-                StringBuffer departmentNameStrB = new StringBuffer();
+                StringBuffer departmentNameStrBuff = new StringBuffer();
                 for (DepartmentChargeItem itemInfo : departmentChargeItemList) {
                     if (itemInfo.getChargeItemId().equals(Item) && StringUtils.isNotEmpty(itemInfo.getDepartmentName())) {
-                        departmentNameStrB.append(itemInfo.getDepartmentName()).append("，");
+                        departmentNameStrBuff.append(itemInfo.getDepartmentName()).append("，");
                     }
                 }
 
-                // 给收费项的部门设置值
+                // 给收费项的部门名称设置值
                 String departmentName = "";
-                if (StringUtils.isNotEmpty(departmentNameStrB.toString())) {
-                    departmentName = departmentNameStrB.toString().substring(0, departmentNameStrB.toString().length() - 1);
+                if (StringUtils.isNotEmpty(departmentNameStrBuff.toString())) {
+                    departmentName = departmentNameStrBuff.toString().substring(0, departmentNameStrBuff.toString().length() - 1);
                 }
 
-                for (DepartmentChargeItem itemInfo : groupList) {
+                // 给每一个收费项设置关联的部门名称
+                for (DepartmentChargeItem itemInfo : chargeItemListByGroup) {
                     if (itemInfo.getChargeItemId().equals(Item)) {
                         itemInfo.setDepartmentName(departmentName);
                     }
@@ -247,8 +240,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
             }
         }
 
-        long total = groupList instanceof Page ? ((Page)groupList).getTotal() : (long)groupList.size();
-        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), groupList).toString();
+        long total = chargeItemListByGroup instanceof Page ? ((Page)chargeItemListByGroup).getTotal() : (long)chargeItemListByGroup.size();
+        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), chargeItemListByGroup).toString();
     }
-
 }
