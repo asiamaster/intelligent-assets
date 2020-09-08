@@ -104,6 +104,11 @@ public class RentalApprovalProcessTaskAssignmentApi {
         }
     }
 
+    /**
+     * 摊位租赁审批, 摊位退款审批 -> 总经理审批
+     * @param taskMapping 任务代理对象
+     * @return
+     */
     @PostMapping(value="/generalManagerApprovalAssignment")
     public BaseOutput<Assignment> generalManagerApprovalAssignment(TaskMapping taskMapping) {
         try {
