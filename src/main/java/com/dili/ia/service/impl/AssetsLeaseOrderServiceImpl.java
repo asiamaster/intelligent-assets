@@ -1309,7 +1309,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             return;
         }
         BaseOutput<TaskMapping> taskMappingBaseOutput = taskRpc.getById(approvalParam.getTaskId());
-        if (taskMappingBaseOutput.isSuccess()) {
+        if (!taskMappingBaseOutput.isSuccess()) {
             throw new AppException(taskMappingBaseOutput.getMessage());
         }
         approvalProcess.setTaskName(taskMappingBaseOutput.getData().getName());
