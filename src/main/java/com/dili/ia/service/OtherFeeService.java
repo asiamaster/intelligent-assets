@@ -7,7 +7,7 @@ import com.dili.ia.domain.dto.printDto.OtherFeePrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
-import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 
 /**
@@ -19,65 +19,70 @@ public interface OtherFeeService extends BaseService<OtherFee, Long> {
     /**
      * 根据code查询数据实例
      *
-     * @param code
-     * @return
-     * @date 2020/8/27
+     * @param  code
+     * @return OtherFee
+     * @date   2020/8/27
      */
     OtherFee getOtherFeeByCode(String code);
 
     /**
      * 新增其他收费
      *
-     * @param otherFeeDto
-     * @return BaseOutput
-     * @date 2020/8/18
+     * @param  otherFeeDto
+     * @param  userTicket
+     * @return OtherFee
+     * @date   2020/8/18
      */
-    BaseOutput<OtherFee> addOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket) throws Exception;
+    OtherFee addOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket);
 
     /**
      * 修改其他收费
      *
-     * @param otherFeeDto
-     * @return BaseOutput
-     * @date 2020/8/19
+     * @param  otherFeeDto
+     * @param  userTicket
+     * @return OtherFee
+     * @date   2020/8/19
      */
-    BaseOutput<OtherFee> updateOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket) throws Exception;
+    OtherFee updateOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket) throws BusinessException;
 
     /**
      * 提交其他收费
      *
      * @param id
-     * @return BaseOutput
+     * @return OtherFee
      * @date 2020/8/19
      */
-    BaseOutput<OtherFee> submit(Long id, UserTicket userTicket) throws Exception;
+    OtherFee submit(Long id, UserTicket userTicket) throws BusinessException;
 
     /**
      * 取消其他收费
      *
      * @param id
-     * @return BaseOutput
+     * @param userTicket
+     * @return OtherFee
      * @date 2020/8/19
      */
-    BaseOutput<OtherFee> cancel(Long id, UserTicket userTicket);
+    OtherFee cancel(Long id, UserTicket userTicket) throws BusinessException;
 
     /**
      * 撤回其他收费
      *
      * @param id
-     * @return BaseOutput
+     * @param userTicket
+     * @return OtherFee
      * @date 2020/8/19
      */
-    BaseOutput<OtherFee> withdraw(Long id, UserTicket userTicket) throws Exception;
+    OtherFee withdraw(Long id, UserTicket userTicket) throws BusinessException;
 
     /**
      * 其他收费 退款
      *
      * @param refundOrderDto
-     * @return BaseOutput
+     * @param userTicket
+     * @return OtherFee
      * @date 2020/8/19
      */
-    BaseOutput<OtherFee> refund(OtherFeeRefundOrderDto refundOrderDto) throws Exception;
+    OtherFee refund(OtherFeeRefundOrderDto refundOrderDto, UserTicket userTicket) throws BusinessException;
 
     /**
      * 缴费成功回调
@@ -86,7 +91,7 @@ public interface OtherFeeService extends BaseService<OtherFee, Long> {
      * @return
      * @date 2020/8/19
      */
-    BaseOutput<OtherFee> settlementDealHandler(SettleOrder settleOrder);
+    OtherFee settlementDealHandler(SettleOrder settleOrder) throws BusinessException;
 
     /**
      * 缴费成功票据打印
@@ -95,7 +100,7 @@ public interface OtherFeeService extends BaseService<OtherFee, Long> {
      * @return
      * @date 2020/8/19
      */
-    PrintDataDto<OtherFeePrintDto> receiptPaymentData(String orderCode, Integer reprint);
+    PrintDataDto<OtherFeePrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException ;
 
     /**
      * 退款票据打印
@@ -104,5 +109,5 @@ public interface OtherFeeService extends BaseService<OtherFee, Long> {
      * @return
      * @date 2020/8/19
      */
-    PrintDataDto<OtherFeePrintDto> receiptRefundPrintData(String orderCode, String reprint);
+    PrintDataDto<OtherFeePrintDto> receiptRefundPrintData(String orderCode, String reprint) throws BusinessException;
 }

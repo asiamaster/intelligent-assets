@@ -1,11 +1,9 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.OtherFee;
-import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.OtherFeeDto;
 import com.dili.ia.domain.dto.OtherFeeRefundOrderDto;
-import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.DepartmentChargeItemService;
@@ -36,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,41 +52,30 @@ public class OtherFeeController {
     OtherFeeService otherFeeService;
 
     @Autowired
-    DepartmentChargeItemService departmentChargeItemService;
-
-    @Autowired
-    PaymentOrderService paymentOrderService;
-
-    @Autowired
     BusinessLogRpc businessLogRpc;
 
     @Autowired
     DataAuthService dataAuthService;
 
+    @Autowired
+    PaymentOrderService paymentOrderService;
+
+    @Autowired
+    DepartmentChargeItemService departmentChargeItemService;
+
     /**
      * 跳转到导航页面
-     *
-     * @param modelMap
-     * @return String
      */
     @RequestMapping(value = "/index.html", method = RequestMethod.GET)
     public String index(ModelMap modelMap) {
-        //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
-//        LocalDateTime nowTime = LocalDateTime.now();
-//        LocalDateTime createdStart = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth() - 2, 0, 0, 0);
-//        LocalDateTime createdEnd = LocalDateTime.of(nowTime.getYear(), nowTime.getMonth(), nowTime.getDayOfMonth(), 23, 59, 59);
-//        modelMap.put("createdStart", createdStart);
-//        modelMap.put("createdEnd", createdEnd);
-//
-//        modelMap.put("createdStart", createdStart);
-//        modelMap.put("createdEnd", createdEnd);
         return "otherFee/index";
     }
 
     /**
      * 跳转到其它收费管理-查看页面
      *
-     * @param modelMap
+     * @param id
+     * @param orderCode
      * @return String
      */
     @RequestMapping(value = "/view.action", method = RequestMethod.GET)
@@ -191,27 +177,24 @@ public class OtherFeeController {
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "add", systemCode = "IA")
     @RequestMapping(value = "/doAdd.action", method = {RequestMethod.POST})
     public @ResponseBody
-    BaseOutput doAdd(@RequestBody OtherFeeDto otherFeeDto) {
+    BaseOutput<OtherFee> addOtherFee(@RequestBody OtherFeeDto otherFeeDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
             this.ParamValidate(otherFeeDto);
 
             // 新增其他收费
-            BaseOutput<OtherFee> output = otherFeeService.addOtherFee(otherFeeDto, userTicket);
+            OtherFee otherFee = otherFeeService.addOtherFee(otherFeeDto, userTicket);
 
             // 写业务日志
-            if (output.isSuccess()) {
-                OtherFee otherFee = output.getData();
-                LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-            }
+            LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
-            return output;
+            return BaseOutput.success().setData(otherFee);
         } catch (BusinessException e) {
-            logger.info(e.getMessage());
+            logger.info("新增其他收费失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            logger.info("服务器内部错误！", e);
+            logger.error("服务器内部错误！", e);
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
@@ -226,7 +209,7 @@ public class OtherFeeController {
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${logContent!}", operationType = "edit", systemCode = "IA")
     @RequestMapping(value = "/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
-    BaseOutput doUpdate(OtherFeeDto otherFeeDto) {
+    BaseOutput<OtherFee> doUpdate(OtherFeeDto otherFeeDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
@@ -234,20 +217,17 @@ public class OtherFeeController {
             this.ParamValidate(otherFeeDto);
 
             // 修改其他收费
-            BaseOutput<OtherFee> output = otherFeeService.updateOtherFee(otherFeeDto, userTicket);
+            OtherFee otherFee = otherFeeService.updateOtherFee(otherFeeDto, userTicket);
 
             // 写业务日志
-            if (output.isSuccess()) {
-                OtherFee otherFee = output.getData();
-                LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-            }
+            LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
-            return output;
+            return BaseOutput.success().setData(otherFee);
         } catch (BusinessException e) {
-            logger.info(e.getMessage());
+            logger.info("修改其他收费失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            logger.info("服务器内部错误！", e);
+            logger.error("服务器内部错误！", e);
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
@@ -260,27 +240,25 @@ public class OtherFeeController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "submit", systemCode = "IA")
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput submit(Long id) {
+    public @ResponseBody
+    BaseOutput<OtherFee> submit(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
             AssertUtils.notNull(id, "主键不能为空");
 
             // 提交操作
-            BaseOutput<OtherFee> output = otherFeeService.submit(id, userTicket);
+            OtherFee otherFee = otherFeeService.submit(id, userTicket);
 
             // 写业务日志，只是退款申请
-            if (output.isSuccess()) {
-                OtherFee otherFee = output.getData();
-                LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-            }
+            LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
-            return output;
+            return BaseOutput.success().setData(otherFee);
         } catch (BusinessException e) {
-            logger.info(e.getMessage());
+            logger.info("提交其他收费失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            logger.info("服务器内部错误！", e);
+            logger.error("服务器内部错误！", e);
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
@@ -295,27 +273,24 @@ public class OtherFeeController {
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "cancel", systemCode = "IA")
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
-    BaseOutput cancel(Long id) throws Exception {
+    BaseOutput<OtherFee> cancel(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
             AssertUtils.notNull(id, "主键不能为空");
 
             // 取消其他收费
-            BaseOutput<OtherFee> baseOutput = otherFeeService.cancel(id, userTicket);
+            OtherFee otherFee = otherFeeService.cancel(id, userTicket);
 
             // 写业务日志
-            if (baseOutput.isSuccess()) {
-                OtherFee otherFee = baseOutput.getData();
-                LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-            }
+            LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
-            return baseOutput;
+            return BaseOutput.success().setData(otherFee);
         } catch (BusinessException e) {
-            logger.info(e.getMessage());
+            logger.info("取消其他收费失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            logger.info("服务器内部错误！", e);
+            logger.error("服务器内部错误！", e);
             return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
@@ -329,50 +304,51 @@ public class OtherFeeController {
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "withdraw", systemCode = "IA")
     @RequestMapping(value = "/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput withdraw(Long id) {
+    public @ResponseBody
+    BaseOutput<OtherFee> withdraw(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
             AssertUtils.notNull(id, "主键不能为空");
 
             // 撤回其他收费
-            BaseOutput<OtherFee> baseOutput = otherFeeService.withdraw(id, userTicket);
+            OtherFee otherFee = otherFeeService.withdraw(id, userTicket);
 
             // 写业务日志
-            if (baseOutput.isSuccess()) {
-                OtherFee otherFee = baseOutput.getData();
-                LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-            }
+            LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
-            return baseOutput;
+            return BaseOutput.success().setData(otherFee);
         } catch (BusinessException e) {
-            logger.info("其他收费撤回异常！");
+            logger.info("撤回其他收费失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            return BaseOutput.failure(ResultCode.APP_ERROR, "撤回出错");
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
     /**
-     * 其他收费 退款
+     * 其他收费 退款(查出动态收费项)
      *
      * @param refundOrderDto
      * @return BaseOutput
      * @date 2020/8/19
      */
     @RequestMapping(value = "/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput addRefundOrder(@RequestBody OtherFeeRefundOrderDto refundOrderDto) {
+    public @ResponseBody
+    BaseOutput<OtherFee> addRefundOrder(@RequestBody OtherFeeRefundOrderDto refundOrderDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
             AssertUtils.notNull(refundOrderDto.getBusinessId(), "业务编号不能为空");
 
-            return otherFeeService.refund(refundOrderDto);
+            return BaseOutput.success().setData(otherFeeService.refund(refundOrderDto, userTicket));
         } catch (BusinessException e) {
-            logger.error("其他收费创建退款失败！", e);
+            logger.info("其他收费申请退款失败：{}", e.getMessage());
             return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
-            logger.error("其他收费创建退款出错！", e);
-            return BaseOutput.failure("创建退款出错！");
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
@@ -387,7 +363,6 @@ public class OtherFeeController {
         AssertUtils.notEmpty(otherFeeDto.getCustomerCellphone(), "联系电话不能为空");
         AssertUtils.notNull(otherFeeDto.getAssetsType(), "费用类型不能为空");
         AssertUtils.notEmpty(otherFeeDto.getChargeItemId(), "收费项目不能为空");
-        AssertUtils.notNull(otherFeeDto.getAssetsId(), "费用地址不能为空");
         AssertUtils.notNull(otherFeeDto.getDepartmentId(), "业务所属部门不能为空");
         AssertUtils.notNull(otherFeeDto.getAmount(), "金额不能为空");
     }

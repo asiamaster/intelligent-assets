@@ -7,6 +7,8 @@ import com.dili.ia.domain.dto.OtherFeeDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.service.BoutiqueFreeSetsService;
 import com.dili.ia.service.DepartmentChargeItemService;
+import com.dili.ia.util.AssertUtils;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
@@ -18,6 +20,7 @@ import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,12 +64,12 @@ public class DepartmentChargeItemController {
 
     /**
      * 分页查询otherFee，返回easyui分页信息
-     * @param departmentChargeItem
+     *
      * @return String
-     * @throws Exception
+     * @date   2020/8/19
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(DepartmentChargeItem departmentChargeItem) throws Exception {
+    public @ResponseBody String listPage(){
         return departmentChargeItemService.listNoParam();
     }
 
@@ -79,9 +82,12 @@ public class DepartmentChargeItemController {
      */
     @RequestMapping(value="/addDepartment.html", method = RequestMethod.GET)
     public String addDepartment(ModelMap modelMap, String chargeItemId) {
-        // 根据类型查询
-        DepartmentChargeItemDto itemDto = departmentChargeItemService.selectListByChargeItemId(chargeItemId);
-        modelMap.put("departmentChargeItem", itemDto);
+
+        if (StringUtils.isNotEmpty(chargeItemId)) {
+            // 根据类型查询
+            DepartmentChargeItemDto itemDto = departmentChargeItemService.selectListByChargeItemId(chargeItemId);
+            modelMap.put("departmentChargeItem", itemDto);
+        }
 
         return "otherFee/addDepartment";
     }
@@ -94,18 +100,22 @@ public class DepartmentChargeItemController {
      * @date   2020/8/19
      */
     @RequestMapping(value="/doAddDepartment.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput addDepartmentCharge(@RequestBody DepartmentChargeItemDto departmentChargeItemDto) throws Exception {
+    public @ResponseBody BaseOutput addDepartmentCharge(@RequestBody DepartmentChargeItemDto departmentChargeItemDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
-            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            // 参数校验
+            AssertUtils.notEmpty(departmentChargeItemDto.getChargeItemId(), "收费项 id 不能为空");
+
+            // 绑定操作
             departmentChargeItemService.addDepartmentChargeItems(departmentChargeItemDto, userTicket);
 
             return BaseOutput.success("收费项绑定部门成功");
         } catch (BusinessException e){
-            LOG.error("收费项绑定部门异常！", e);
+            LOG.info("收费项绑定部门异常:{}", e.getMessage());
             return BaseOutput.failure(e.getMessage());
         } catch (Exception e){
-            LOG.error("收费项绑定部门异常！", e);
-            return BaseOutput.failure("收费项绑定部门异常！");
+            LOG.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
@@ -118,6 +128,10 @@ public class DepartmentChargeItemController {
      */
     @RequestMapping(value="/getChargeItemsByDepartment.action", method = RequestMethod.GET)
     public @ResponseBody BaseOutput getChargeItemsByDepartment(Long departmentId) {
+        if (departmentId == null) {
+            return BaseOutput.failure("部门 id 不能为空");
+        }
+
         // 根据类型查询
         List<DepartmentChargeItemDto> departmentChargeItemDtoList = departmentChargeItemService.getChargeItemsByDepartment(departmentId);
         return BaseOutput.success().setData(departmentChargeItemDtoList);

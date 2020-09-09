@@ -32,8 +32,8 @@ public enum BizNumberTypeEnum {
 
     BOUTIQUE_ENTRANCE("boutique", "精品停车单"),
     PASSPORT("passport", "通行证"),
-    WATER_CODE("water", "水费单"),
-    ELECTRICITY_CODE("electricity", "电费单"),
+    WATER("water", "水费单"),
+    ELECTRICITY("electricity", "电费单"),
     // 通行证的证件类型,后续的小写补全直接是代码获取字段值
     PASSPORT_LICENSE_CODE("passport_", "通行证证件营运编号"),
     OTHER_FEE("otherFee", "其他收费"),

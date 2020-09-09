@@ -1,12 +1,15 @@
 <#bs4Body>
     <div class="container-fluid pb-5">
+        <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.departmentChargeItem'/>">
         <form id="saveForm" role="form" novalidate class="pb-5">
             <div class="row row-cols-4">
                 <div class="form-group col">
-                    <label for="chargeItemId">费用类型<i class="red">*</i></label>
-                    <select id="chargeItemId" name="chargeItemId" class="form-control" required></select>
-                    <#bcomboProvider _log="费用类型" _id="chargeItemId" _provider="dataDictionaryValueProvider" _queryParams='{dd_code:"charge_item"}'/>
+                    <label for="chargeItemName">费用类型<i class="red">*</i></label>
+                    <input id="chargeItemName" name="chargeItemName" class="form-control" value="${departmentChargeItem.chargeItemName}"  disabled />
                 </div>
+
+                <input hidden id="chargeItemId" name="chargeItemId" value="${departmentChargeItem.chargeItemId}">
+
                 <div class="form-group col-12">
                     <label for="chargeItemId">部门设置<i class="red">*</i></label>
                     <div class="custom-control custom-checkbox">
