@@ -158,6 +158,10 @@
     function codeFormatter(value,row,index) {
         return '<a href="javascript:openViewHandler(\''+row.code+'\')">'+value+'</a>';
     }
+    
+    function syncFormatter(value,row,index){
+    	return value == 1 ? "成功" : (value == 2 ? "失败":"未同步");
+    }
 
     /**
      提交处理
@@ -268,6 +272,42 @@
         }
     }
     
+    /**
+    同步消息中心
+    */
+   function openSyncHandler() {
+       if(isSelectRow()){
+           bs4pop.confirm('确定同步信息到消息中心？', {}, function (sure) {
+               if(sure){
+                   bui.loading.show('努力提交中，请稍候。。。');
+                   //获取选中行的数据
+                   let rows = _grid.bootstrapTable('getSelections');
+                   let selectedRow = rows[0];
+
+                   $.ajax({
+                       type: "POST",
+                       url: "${contextPath}/fee/message/syncState.action",
+                       data: {code: selectedRow.code,syncState: 1},
+                       processData:true,
+                       dataType: "json",
+                       success : function(ret) {
+                           bui.loading.hide();
+                           if(ret.success){
+                               queryDataHandler();
+                           }else{
+                               bs4pop.alert(ret.message, {type: 'error'});
+                           }
+                       },
+                       error : function() {
+                           bui.loading.hide();
+                           bs4pop.alert('远程访问失败', {type: 'error'});
+                       }
+                   });
+               }
+           })
+       }
+   }
+    
     function openRefundHandler(){
     	if(isSelectRow()){
     		let rows = _grid.bootstrapTable('getSelections');
@@ -296,6 +336,7 @@
     //选中行事件 -- 可操作按钮控制
     _grid.on('check.bs.table', function (e, row, $element) {
         let state = row.$_state;
+        let sync = row.syncStatus;
         if (state == ${@com.dili.ia.glossary.MessageFeeStateEnum.CREATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
@@ -318,11 +359,17 @@
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_refund').attr('disabled', false);
+            if(sync == 2){
+            	$('#btn_sync').attr('disabled', false);
+            }
         } else if (state == ${@com.dili.ia.glossary.MessageFeeStateEnum.SUBMITTED_REFUND.getCode()}
         || state == ${@com.dili.ia.glossary.MessageFeeStateEnum.REFUNDED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            if(sync == 2){
+            	$('#btn_sync').attr('disabled', false);
+            }
         } else if (state == ${@com.dili.ia.glossary.MessageFeeStateEnum.EXPIRED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);

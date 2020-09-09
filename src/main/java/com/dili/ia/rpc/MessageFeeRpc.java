@@ -40,25 +40,38 @@ public class MessageFeeRpc {
      * @return
      * @throws
      */
-    public boolean postPaySuccessMessageFeeCustomer(MessageFee messageFee) {
+    public void postPaySuccessMessageFeeCustomer(MessageFee messageFee) {
         try {
             String url=messageHttp+"/messageApi/whitelistCustomer.api";
-            String result= HttpClientUtil.doPost(url, messageFee,charset);
+            String result= HttpClientUtil.doPost(url, buildPay(messageFee),charset);
             if(result==null || "".equals(result)){
                 LOG.error("---消息中心【白名单推送】接口调用异常！返回为空 ---" + messageFee);
-                return false;
+                throw new BusinessException(ResultCode.APP_ERROR, "【白名单推送】接口调用异常!");
+ 
             }
             JSONObject parseObject = JSON.parseObject(result);
             if("200".equals(parseObject.getString("code"))){
-            	LOG.info("同步成功！"+messageFee.getCode());
-            	return true;
+            	LOG.info("新增白名单同步成功！"+messageFee.getCode());
+            	return;
             }
             LOG.info(parseObject.getString("result") + messageFee );
-            return false;
+            throw new BusinessException(ResultCode.APP_ERROR, "【白名单推送】接口调用异常!");
         }catch (Exception e){
             LOG.error("---消息中心【白名单推送】接口调用异常！ ---" + messageFee,e);
-            return false;
+            throw new BusinessException(ResultCode.APP_ERROR, "【白名单推送】接口调用异常!");
         }
+    }
+    
+    private JSONObject buildPay(MessageFee messageFee) {
+    	JSONObject json = new JSONObject();
+    	json.put("customerName", messageFee.getCustomerName());
+    	json.put("cellphone", messageFee.getCustomerCellphone());
+    	json.put("startDate", messageFee.getStartDate());
+    	json.put("endDate", messageFee.getEndDate());
+    	//json.put("sysNum", messageFee.getpa);
+    	json.put("marketCode", messageFee.getMarketCode());
+    	json.put("id", messageFee.getId());
+		return json;
     }
 
     /**
@@ -69,24 +82,27 @@ public class MessageFeeRpc {
      * @return
      * @throws
      */
-    public boolean postRefundMessageFeeCustomer(MessageFee messageFee) {
+    public void postRefundMessageFeeCustomer(MessageFee messageFee) {
         try {
             String url=messageHttp+"/messageApi/delWhitelistCustomer.api";
-            String result= HttpClientUtil.doPost(url, messageFee,charset);
+            JSONObject json = new JSONObject();
+            json.put("id", messageFee.getId());
+        	json.put("marketCode", messageFee.getMarketCode());
+            String result= HttpClientUtil.doPost(url, json,charset);
             if(result==null || "".equals(result)){
                 LOG.error("---消息中心【白名单推送】接口调用异常！返回为空 ---" + messageFee);
-                return false;
+                throw new BusinessException(ResultCode.APP_ERROR, "【白名单推送】接口调用异常!");
             }
             JSONObject parseObject = JSON.parseObject(result);
             if("200".equals(parseObject.getString("code"))){
-            	LOG.info("同步成功！"+messageFee.getCode());
-            	return true;
+            	LOG.info("删除白名单同步成功！"+messageFee.getCode());
+            	return;
             }
             LOG.info(parseObject.getString("result") + messageFee );
-            return false;
+            throw new BusinessException(ResultCode.APP_ERROR, "【白名单推送】接口调用异常!");
         }catch (Exception e){
             LOG.error("---消息中心【白名单退款】接口调用异常！ ---" + messageFee,e);
-            return false;
+            throw new BusinessException(ResultCode.APP_ERROR, "【白名单推送】接口调用异常!");
         }
     }
 

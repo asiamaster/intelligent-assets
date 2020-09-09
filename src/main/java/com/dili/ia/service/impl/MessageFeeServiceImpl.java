@@ -42,7 +42,6 @@ import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
@@ -328,6 +327,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 		MessageFee domain = new MessageFee();
+		domain.setSyncStatus(2);//默认同步信息中心失败
 		update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.REFUNDED);
 		
 		//转抵扣充值
@@ -345,8 +345,12 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
                 }
             });
         }
-        // 通知消息系统
-        syncState(messageFee.getCode(), 2);		
+     // 通知消息系统
+        try {
+        	syncState(messageFee.getCode(), 2);
+		} catch (Exception e) {
+            LOG.error("【白名单推送】接口调用异常!");
+		}	
 	}
 
 	@Override
@@ -366,10 +370,12 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		paymentOrderService.updateSelective(paymentOrder);
 		
 		// 更新信息费单
+		MessageFee mesFee = new MessageFee();
+		mesFee.setSyncStatus(2); // 默认同步信息费失败
         if (LocalDateTime.now().isAfter(messageFee.getStartDate())) {
-            update(new MessageFee(), messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.IN_EFFECTIVE);
+            update(mesFee, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.IN_EFFECTIVE);
 		} else {
-	        update(new MessageFee(), messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.NOT_STARTED);
+	        update(mesFee, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.NOT_STARTED);
 		}
         
 		// 转抵扣除
@@ -379,26 +385,34 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
             throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
         }
         // 通知消息系统
-        syncState(messageFee.getCode(), 1);
+        try {
+        	syncState(messageFee.getCode(), 1);
+		} catch (Exception e) {
+            LOG.error("【白名单推送】接口调用异常!");
+		}
 	}
 	
 	@Override
-	public void syncState(String code,Integer syncStatus) {
+	public void syncState(String code,Integer syncAction) {
 		MessageFee messageFee = getMessageFeeByCode(code);
 		if (messageFee.getState() != MessageFeeStateEnum.IN_EFFECTIVE.getCode()
 				&& messageFee.getState() != MessageFeeStateEnum.NOT_STARTED.getCode()
-				&& messageFee.getState() != MessageFeeStateEnum.EXPIRED.getCode()) {
+				&& messageFee.getState() != MessageFeeStateEnum.EXPIRED.getCode()
+				&& messageFee.getState() != MessageFeeStateEnum.REFUNDED.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "信息单未缴费!");
 		}
+		if (messageFee.getState() == MessageFeeStateEnum.REFUNDED.getCode()) {
+			syncAction = 2;
+		}
 		MessageFee domain = new MessageFee();
-		domain.setSyncStatus(syncStatus);
-		if (syncStatus == 1) {
+		domain.setSyncStatus(1);
+		if (syncAction == 1) {
 			// 通知消息系统
 			messageFeeRpc.postPaySuccessMessageFeeCustomer(messageFee);
 		}else {
 			messageFeeRpc.postRefundMessageFeeCustomer(messageFee);
 		}
-        update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.getMessageFeeStateEnum(messageFee.getSyncStatus()));
+        update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.getMessageFeeStateEnum(messageFee.getState()));
 	}
 	
 	private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, MessageFee messageFee,String orderCode,Long amount,BizTypeEnum bizTypeEnum) {
