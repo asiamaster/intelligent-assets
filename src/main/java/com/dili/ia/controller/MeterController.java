@@ -7,6 +7,7 @@ import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 
 import com.dili.ss.exception.BusinessException;
@@ -43,7 +44,7 @@ public class MeterController {
      * 跳转到欢迎页面
      *
      * @param  modelMap
-     * @return 欢迎页面地址
+     * @return String
      * @date   2020/6/16
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
@@ -55,7 +56,7 @@ public class MeterController {
      * 跳转到新增页面
      *
      * @param  modelMap
-     * @return 新增页面地址
+     * @return String
      * @date   2020/6/16
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
@@ -66,18 +67,16 @@ public class MeterController {
     /**
      * 跳转到复制页面
      *
-     * @param  id 表主键
-     * @return 查看页面地址
+     * @param  id
+     * @return String
      * @date   2020/6/16
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap, Long id) {
-        Meter meter = null;
         if (id != null) {
-            meter = meterService.get(id);
+            Meter meter = meterService.get(id);
+            modelMap.put("meter", meter);
         }
-        logger.info(meter.toString());
-        modelMap.put("meter", meter);
         return "meter/view";
     }
 
@@ -90,12 +89,10 @@ public class MeterController {
      */
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
     public String update(ModelMap modelMap, Long id) {
-        Meter meter = null;
         if (id != null) {
-            meter = meterService.get(id);
+            Meter meter = meterService.get(id);
+            modelMap.put("meter", meter);
         }
-        logger.info(meter.toString());
-        modelMap.put("meter", meter);
         return "meter/update";
     }
 
@@ -115,12 +112,13 @@ public class MeterController {
      * 新增表信息
      *
      * @param  meterDto
-     * @return 是否成功
+     * @return BaseOutput
      * @date   2020/6/16
      */
     @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="add", systemCode = "IA")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput addMeter(@ModelAttribute MeterDto meterDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
             AssertUtils.notNull(meterDto.getType(), "表类型不能为空");
@@ -131,22 +129,19 @@ public class MeterController {
             AssertUtils.notNull(meterDto.getAssetsType(), "表类别不能为空");
 
             // 新增
-            BaseOutput<Meter> baseOutput = meterService.addMeter(meterDto);
+            Meter meter = meterService.addMeter(meterDto, userTicket);
 
             // 写业务日志
-            if (baseOutput.isSuccess()){
-                Meter meter = baseOutput.getData();
-                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增水电表信息");
-            }
+            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(),
+                    userTicket.getFirmId(), "新增水电表信息");
 
-            return baseOutput;
+            return BaseOutput.success().setData(meter);
         } catch (BusinessException e) {
-            logger.info(e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            logger.info("新增表信息失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
@@ -154,12 +149,14 @@ public class MeterController {
      * 修改表信息
      *
      * @param  meterDto
-     * @return 是否成功
+     * @return BaseOutput
      * @date   2020/6/29
      */
     @BusinessLogger(businessType = LogBizTypeConst.METER, content="${businessCode!}", operationType="update", systemCode = "IA")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput updateMeter(@ModelAttribute MeterDto meterDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
         try {
             // 参数校验
             AssertUtils.notNull(meterDto.getId(), "表主键不能为空");
@@ -171,22 +168,19 @@ public class MeterController {
             AssertUtils.notNull(meterDto.getAssetsType(), "表类别不能为空");
 
             // 修改
-            BaseOutput<Meter> baseOutput = meterService.updateMeter(meterDto);
+            Meter meter = meterService.updateMeter(meterDto);
 
             // 写业务日志
-            if (baseOutput.isSuccess()){
-                Meter meter = baseOutput.getData();
-                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "修改水电表信息");
-            }
+            LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(),
+                    userTicket.getFirmId(), "修改水电表信息");
 
-            return baseOutput;
+            return BaseOutput.success().setData(meter);
         } catch (BusinessException e) {
-            logger.info(e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            logger.info("修改表信息失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
@@ -207,9 +201,6 @@ public class MeterController {
             List<Meter> meterList = meterService.listUnbindMetersByType(type, keyword);
 
             return BaseOutput.success().setData(meterList);
-        } catch (BusinessException e) {
-            logger.info(e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
             logger.info("服务器内部错误！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);

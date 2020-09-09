@@ -27,16 +27,16 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * 根据表 meterId、用户 customerId 查询未缴费记录的数量
      *
      * @param  meterDetailDto
-     * @return 未缴费单的数量
+     * @return List
      * @date   2020/6/29
      */
     List<Long> countUnPayByMeterAndCustomer(MeterDetailDto meterDetailDto);
 
     /**
-     * 根据 meterId 查询最近的一次已交费的记录的实际值/本期指数值
+     * 根据 meterId 查询最近的一次已交费的记录的 实际值/本期指数值
      *
      * @param  meterDetailDto
-     * @return 实际值/本期指数值
+     * @return Long
      * @date   2020/6/30
      */
     Long getLastAmountByMeterId(MeterDetailDto meterDetailDto);
@@ -45,7 +45,7 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * 根据 meterId 查询是否有未缴费的缴费单记录(某月份)
      *
      * @param  meterDetailDto
-     * @return 缴费集合
+     * @return List
      * @date   2020/6/30
      */
     List<MeterDetailDto> listUnPayUnSubmitByMeter(MeterDetailDto meterDetailDto);
@@ -62,7 +62,7 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
     /**
      * 根据 code 查询实体
      * 
-     * @param  code
+     * @param  id
      * @return MeterDetailDto
      * @date   2020/7/10
      */
@@ -72,7 +72,7 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * 根据 code 查询实体
      *
      * @param  meterDetailDto
-     * @return MeterDetailDto
+     * @return List
      * @date   2020/7/10
      */
     List<MeterDetailDto> listMeterDetailByUnPayBusiness(MeterDetailDto meterDetailDto);

@@ -17,8 +17,8 @@ public interface MeterMapper extends MyMapper<Meter> {
     /**
      * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)
      *
-     * @param meterDto
-     * @return meterList
+     * @param  meterDto
+     * @return List
      * @date   2020/6/16
      */
     List<Meter> listUnbindMetersByType(MeterDto meterDto);
@@ -27,7 +27,7 @@ public interface MeterMapper extends MyMapper<Meter> {
      * 根据表类型 type、表编号 number 查询表信息(新增缴水电费时页面回显)
      *
      * @param  meterDto
-     * @return meterList
+     * @return List
      * @date   2020/6/28
      */
     List<Meter> listMetersLikeNumber(MeterDto meterDto);

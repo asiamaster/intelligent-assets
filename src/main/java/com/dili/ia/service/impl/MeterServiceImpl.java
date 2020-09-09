@@ -6,7 +6,9 @@ import com.dili.ia.mapper.MeterMapper;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.service.MeterService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
@@ -46,27 +48,24 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * 新增表信息
      *
      * @param  meterDto
-     * @return 是否成功
+     * @param userTicket
+     * @return Meter
      * @date   2020/6/16
      */
     @Override
-    public BaseOutput<Meter> addMeter(MeterDto meterDto) {
+    public Meter addMeter(MeterDto meterDto, UserTicket userTicket) throws BusinessException {
         Meter meter = new Meter();
-
-        // 校验用户是否登陆
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if(null == userTicket){
-            return BaseOutput.failure("表信息新增失败,未登录");
-        }
 
         // 根据表编号查询是否已存在
         meter.setNumber(meterDto.getNumber());
         List<Meter> meterList = this.getActualDao().select(meter);
         if (meterList != null && meterList.size() > 0) {
-            return BaseOutput.failure("表信息新增失败,表编号已存在！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "表信息新增失败,表编号已存在！");
         }
 
         // 设置相关属性值
+        meterDto.setVersion(0);
+
         meterDto.setCreatorId(userTicket.getId());
         meterDto.setCreateTime(LocalDateTime.now());
         meterDto.setModifyTime(LocalDateTime.now());
@@ -74,35 +73,28 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         meterDto.setCreator(userTicket.getUserName());
         meterDto.setMarketCode(userTicket.getFirmCode());
         meterDto.setCreatorDepId(userTicket.getDepartmentId());
-        meterDto.setVersion(1);
-
         BeanUtils.copyProperties(meterDto, meter);
+
         this.insertSelective(meter);
 
-        return BaseOutput.success().setData(meter);
+        return meter;
     }
 
     /**
      * 修改表信息
      *
      * @param  meterDto
-     * @return 是否成功
+     * @return Meter
      * @date   2020/6/29
      */
     @Override
-    public BaseOutput<Meter> updateMeter(MeterDto meterDto) {
+    public Meter updateMeter(MeterDto meterDto) throws BusinessException {
         Meter meter = new Meter();
-
-        // 校验用户是否登陆, 并设置相关信息
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if(null == userTicket){
-            return BaseOutput.failure("表信息修改失败,未登录");
-        }
 
         // 根据表 meterId、用户 customerId 查询未缴费的记录数量
         Integer count = meterDetailService.countUnPayByMeterAndCustomer(meterDto.getId(), null);
         if (count > 0) {
-            return BaseOutput.failure("该表存在待交费单，不能修改");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该表存在待交费单，不能修改");
         }
 
         // 根据表编号查询是否已存在
@@ -111,7 +103,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         if (CollectionUtils.isNotEmpty(meterList)) {
             for (Meter meterRe : meterList) {
                 if (!meterRe.getId().equals(meterDto.getId())) {
-                    return BaseOutput.failure("表信息修改失败,表编号已存在");
+                    throw new BusinessException(ResultCode.DATA_ERROR, "表信息修改失败,表编号已存在");
                 }
             }
         }
@@ -122,19 +114,19 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
 
         //修改操作
         BeanUtils.copyProperties(meterDto, meter);
-        int code = this.updateSelective(meter);
-        if (code == 0) {
-            return BaseOutput.failure("当前数据正在被其他用户操作，提交失败！请关闭当前弹窗重新选择操作");
+        if (this.updateSelective(meter) == 0) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
+
         }
 
-        return BaseOutput.success().setData(meter);
+        return meter;
     }
 
     /**
      * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)
      *
      * @param  type 表类型,有枚举 meterTypeEnum
-     * @param keyword
+     * @param  keyword
      * @return meterList
      * @date   2020/6/16
      */
@@ -147,27 +139,6 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
             meterDto.setKeyword(keyword);
         }
         List<Meter> meterList = this.getActualDao().listUnbindMetersByType(meterDto);
-
-        return meterList;
-    }
-
-    /**
-     * 根据表类型、表编号查询表信息(新增缴水电费时页面回显)
-     *
-     * @param  type   表类型,有枚举 meterTypeEnum
-     * @param  keyword 表编号
-     * @return meterList
-     * @date   2020/6/28
-     */
-    @Override
-    public List<Meter> listMetersLikeNumber(Integer type, String keyword) {
-        MeterDto meterDto = new MeterDto();
-
-        meterDto.setType(type);
-        if (StringUtils.isNotEmpty(keyword)) {
-            meterDto.setKeyword(keyword);
-        }
-        List<Meter> meterList = this.getActualDao().listMetersLikeNumber(meterDto);
 
         return meterList;
     }
