@@ -38,9 +38,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author: xiaosa
- * @date: 2020/8/18
- * @version: 农批业务系统重构
+ * @author:      xiaosa
+ * @date:        2020/8/18
+ * @version:     农批业务系统重构
  * @description: 其他收费
  */
 @Controller
@@ -74,8 +74,8 @@ public class OtherFeeController {
     /**
      * 跳转到其它收费管理-查看页面
      *
-     * @param id
-     * @param orderCode
+     * @param  id
+     * @param  orderCode
      * @return String
      */
     @RequestMapping(value = "/view.action", method = RequestMethod.GET)
@@ -109,7 +109,7 @@ public class OtherFeeController {
     /**
      * 跳转到其它收费管理 - 新增页面
      *
-     * @param modelMap
+     * @param  modelMap
      * @return String
      */
     @RequestMapping(value = "/add.html", method = RequestMethod.GET)
@@ -120,7 +120,7 @@ public class OtherFeeController {
     /**
      * 跳转到其它收费管理 - 修改页面
      *
-     * @param modelMap
+     * @param  modelMap
      * @return String
      */
     @RequestMapping(value = "/update.html", method = RequestMethod.GET)
@@ -135,7 +135,7 @@ public class OtherFeeController {
     /**
      * 跳转到其它收费管理 - 退款申请页面
      *
-     * @param modelMap
+     * @param  modelMap
      * @return String
      */
     @RequestMapping(value = "/refundApply.html", method = RequestMethod.GET)
@@ -152,7 +152,6 @@ public class OtherFeeController {
      *
      * @param otherFeeDto
      * @return String
-     * @throws Exception
      */
     @RequestMapping(value = "/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
@@ -170,9 +169,9 @@ public class OtherFeeController {
     /**
      * 新增 其他收费
      *
-     * @param otherFeeDto
+     * @param  otherFeeDto
      * @return BaseOutput
-     * @date 2020/8/18
+     * @date   2020/8/18
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "add", systemCode = "IA")
     @RequestMapping(value = "/doAdd.action", method = {RequestMethod.POST})
@@ -202,9 +201,9 @@ public class OtherFeeController {
     /**
      * 修改 其他收费
      *
-     * @param otherFeeDto
+     * @param  otherFeeDto
      * @return BaseOutput
-     * @date 2020/8/19
+     * @date   2020/8/19
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${logContent!}", operationType = "edit", systemCode = "IA")
     @RequestMapping(value = "/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -235,8 +234,9 @@ public class OtherFeeController {
     /**
      * 提交 其它收费
      *
-     * @param id
+     * @param  id
      * @return BaseOutput
+     * @date   2020/8/19
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "submit", systemCode = "IA")
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -266,9 +266,9 @@ public class OtherFeeController {
     /**
      * 取消 其他收费
      *
-     * @param
-     * @return
-     * @date 2020/7/27
+     * @param  id
+     * @return BaseOutput
+     * @date   2020/7/27
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "cancel", systemCode = "IA")
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -298,9 +298,9 @@ public class OtherFeeController {
     /**
      * 撤回 其他消费
      *
-     * @param id
+     * @param  id
      * @return BaseOutput
-     * @date 2020/8/19
+     * @date   2020/8/19
      */
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${businessCode!}", operationType = "withdraw", systemCode = "IA")
     @RequestMapping(value = "/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -330,9 +330,9 @@ public class OtherFeeController {
     /**
      * 其他收费 退款(查出动态收费项)
      *
-     * @param refundOrderDto
+     * @param  refundOrderDto
      * @return BaseOutput
-     * @date 2020/8/19
+     * @date   2020/8/19
      */
     @RequestMapping(value = "/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
