@@ -110,10 +110,10 @@ public interface MessageFeeService extends BaseService<MessageFee, Long> {
 	 * @Title syncState
 	 * @Description 同步消息系统
 	 * @param code
-	 * @param syncStatus
+	 * @param syncAction 1-添加白名单,2-取消白名单
 	 * @throws
 	 */
-	void syncState(String code,Integer syncStatus);
+	void syncState(String code,Integer syncAction);
 	
 	/**
 	 * 

@@ -80,6 +80,9 @@
                 <#resource code="refundMessageFee">
                 <button id="btn_refund" type="button" class="btn btn-primary" onclick="openRefundHandler()"><i class="fa fa-reply"></i> 退款申请</button>
                 </#resource>
+                 <#resource code="syncMessageFee">
+                <button id="btn_sync" type="button" class="btn btn-primary" onclick="openSyncHandler()"><i class="fa fa-reply"></i> 同步</button>
+                </#resource>
             </div>
             <table id="grid" data-toggle="table" data-title="信息费列表" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"
@@ -117,6 +120,9 @@
                     </th>
                     <th data-field="endDate" data-sortable="true" data-provider="dateProvider" data-align="center">
                         结束日期
+                    </th>
+                    <th data-field="syncStatus" data-sortable="true"  data-align="center"  data-formatter="syncFormatter">
+                        推送白名单
                     </th>
                     <th data-field="creatorName" data-sortable="true" data-align="center" >
                         创建人
