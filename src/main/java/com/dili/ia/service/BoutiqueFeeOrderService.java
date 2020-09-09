@@ -33,13 +33,12 @@ public interface BoutiqueFeeOrderService extends BaseService<BoutiqueFeeOrder, L
      * @return BoutiqueFeeOrderDto
      * @date   2020/7/31
      */
-    BoutiqueFeeOrderDto getBoutiqueFeeOrderDtoById(Long orderId) throws Exception;
+    BoutiqueFeeOrderDto getBoutiqueFeeOrderDtoById(Long orderId);
 
     /**
      * 退款申请
      *
-     * @param refundOrderDto
-     * @return BaseOutput
+     * @param  refundOrderDto
      * @date   2020/7/23
      */
     void refund(BoutiqueFeeRefundOrderDto refundOrderDto) throws Exception;
@@ -48,9 +47,9 @@ public interface BoutiqueFeeOrderService extends BaseService<BoutiqueFeeOrder, L
      * 取消交费单
      *
      * @param  id
-     * @param userTicket
-     * @return BaseOutput
+     * @param  userTicket
+     * @return BoutiqueFeeOrder
      * @date   2020/7/31
      */
-    BaseOutput<BoutiqueFeeOrder> cancel(Long id, UserTicket userTicket) throws Exception;
+    BoutiqueFeeOrder cancel(Long id, UserTicket userTicket) throws Exception;
 }

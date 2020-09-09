@@ -10,6 +10,7 @@ import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
@@ -23,10 +24,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author: xiaosa
- * @date: 2020/7/14
- * @version: 农批业务系统重构
- * @description: 精品停车回调
+ * @author:         xiaosa
+ * @date:           2020/7/14
+ * @version:        农批业务系统重构
+ * @description:    精品停车回调
  */
 @RestController
 @RequestMapping("/api/boutiqueEntrance")
@@ -47,16 +48,14 @@ public class BoutiqueEntranceApi {
     @RequestMapping(value = "/add.action", method = {RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "confirm", systemCode = "IA")
     public @ResponseBody
-    BaseOutput add(@RequestBody BoutiqueEntranceRecordDto recordDto) throws Exception {
+    BaseOutput add(@RequestBody BoutiqueEntranceRecordDto recordDto){
 
-        BaseOutput<BoutiqueEntranceRecord> baseOutput = boutiqueEntranceService.addBoutique(recordDto);
+        BoutiqueEntranceRecord recordInfo = boutiqueEntranceService.addBoutique(recordDto);
 
         // 写业务日志
-        if (baseOutput.isSuccess()) {
-            LoggerUtil.buildLoggerContext(recordDto.getId(), null, recordDto.getOperatorId(), recordDto.getOperatorName(), recordDto.getMarketId(), null);
-        }
+        LoggerUtil.buildLoggerContext(recordDto.getId(), null, recordDto.getOperatorId(), recordDto.getOperatorName(), recordDto.getMarketId(), null);
 
-        return baseOutput;
+        return BaseOutput.success().setData(recordInfo);
     }
 
     /**
@@ -70,49 +69,56 @@ public class BoutiqueEntranceApi {
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "cancel", systemCode = "IA")
     public @ResponseBody
     BaseOutput cancel(@RequestBody BoutiqueEntranceRecordDto recordDto) throws Exception {
+        try {
+            BoutiqueEntranceRecord boutiqueFeeOrder = boutiqueEntranceService.cancel(recordDto);
 
-        BaseOutput<BoutiqueFeeOrder> baseOutput = boutiqueEntranceService.cancel(recordDto);
-
-        // 写业务日志
-        if (baseOutput.isSuccess()) {
+            // 写业务日志
             LoggerUtil.buildLoggerContext(recordDto.getId(), null, recordDto.getOperatorId(), recordDto.getOperatorName(), recordDto.getMarketId(), null);
-        }
 
-        return baseOutput;
+            return BaseOutput.success().setData(boutiqueFeeOrder);
+        } catch (BusinessException e) {
+            LOG.info("进门系统取消精品停车失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            LOG.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+        }
     }
 
     /**
      * 精品停车缴费成功回调
      *
-     * @param settleOrder
-     * @return
+     * @param  settleOrder
+     * @return BaseOutput
+     * @date   2020/7/13
      */
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${code!}", operationType = "pay", systemCode = "IA")
     @RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
         try {
-            BaseOutput<BoutiqueFeeOrder> output = boutiqueEntranceService.settlementDealHandler(settleOrder);
-            if (output.isSuccess()) {
-                //记录业务日志
-                LoggerUtil.buildLoggerContext(output.getData().getId(), output.getData().getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), output.getData().getMarketId(), null);
-                return BaseOutput.success().setData(true);
-            }
-            return BaseOutput.failure(output.getMessage());
+            BoutiqueFeeOrder boutiqueFeeOrder = boutiqueEntranceService.settlementDealHandler(settleOrder);
+
+            //记录业务日志
+            LoggerUtil.buildLoggerContext(boutiqueFeeOrder.getId(), boutiqueFeeOrder.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), boutiqueFeeOrder.getMarketId(), null);
+
+            return BaseOutput.success().setData(true);
         } catch (BusinessException e) {
-            LOG.error("精品停车缴费回调异常！", e);
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            LOG.info("精品停车缴费成功回调失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            LOG.error("精品停车缴费回调异常！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            LOG.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
     /**
      * 精品停车缴费票据打印
      *
-     * @param orderCode
-     * @return
+     * @param  orderCode
+     * @param  reprint
+     * @return BaseOutput
+     * @date   2020/7/13
      */
     @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST})
     public @ResponseBody
@@ -123,19 +129,21 @@ public class BoutiqueEntranceApi {
             }
             return BaseOutput.success().setData(boutiqueEntranceService.receiptPaymentData(orderCode, reprint));
         } catch (BusinessException e) {
-            LOG.error("精品停车缴费票据打印异常！", e);
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            LOG.info("精品停车缴费票据打印失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            LOG.error("精品停车缴费票据打印异常！", e);
-            return BaseOutput.failure("精品停车缴费票据打印异常！").setData(false);
+            LOG.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
     /**
      * 精品停车退款票据打印
      *
-     * @param orderCode
-     * @return
+     * @param  orderCode
+     * @param  reprint
+     * @return BaseOutput
+     * @date   2020/7/13
      */
     @RequestMapping(value = "/refundOrder/queryPrintData", method = {RequestMethod.POST})
     public @ResponseBody
@@ -143,12 +151,11 @@ public class BoutiqueEntranceApi {
         try {
             return BaseOutput.success().setData(boutiqueEntranceService.receiptRefundPrintData(orderCode, reprint));
         } catch (BusinessException e) {
-            LOG.error("精品停车退款票据打印异常！", e);
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            LOG.info("精品停车退款票据打印失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            LOG.error("精品停车退款票据打印异常！", e);
-            return BaseOutput.failure("精品停车退款票据打印异常！").setData(false);
+            LOG.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
-
 }

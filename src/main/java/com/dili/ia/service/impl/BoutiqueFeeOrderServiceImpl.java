@@ -33,9 +33,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * @author: xiaosa
- * @date: 2020/7/13
- * @version: 农批业务系统重构
+ * @author:      xiaosa
+ * @date:        2020/7/13
+ * @version:     农批业务系统重构
  * @description: 缴费单
  */
 @Service
@@ -62,9 +62,9 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     /**
      * 根据精品停车主键 recordId 查询缴费单列表
      *
-     * @param recordId 精品停车主键
+     * @param  recordId
      * @return list
-     * @date 2020/7/13
+     * @date   2020/7/13
      */
     @Override
     public List<BoutiqueFeeOrderDto> listByRecordId(Long recordId) {
@@ -75,12 +75,12 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     /**
      * 根据主键查询精品停车单和精品停车相关信息
      *
-     * @param orderId
+     * @param  orderId
      * @return BoutiqueFeeOrderDto
-     * @date 2020/7/31
+     * @date   2020/7/31
      */
     @Override
-    public BoutiqueFeeOrderDto getBoutiqueFeeOrderDtoById(Long orderId) throws Exception {
+    public BoutiqueFeeOrderDto getBoutiqueFeeOrderDtoById(Long orderId){
         BoutiqueFeeOrderDto boutiqueFeeOrderDto = new BoutiqueFeeOrderDto();
         BoutiqueFeeOrder orderInfo = this.get(orderId);
         if (orderInfo != null) {
@@ -102,13 +102,13 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     /**
      * 退款申请
      *
-     * @param refundDto
+     * @param  refundDto
      * @return BaseOutput
-     * @date 2020/7/23
+     * @date   2020/7/23
      */
     @Override
     @GlobalTransactional
-    public void refund(BoutiqueFeeRefundOrderDto refundDto) throws Exception {
+    public void refund(BoutiqueFeeRefundOrderDto refundDto) throws BusinessException {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 
         // 查询相关数据
@@ -135,17 +135,24 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
         }
     }
 
+    /**
+     * 取消精品停车的交费
+     * 
+     * @param  id
+     * @param  userTicket
+     * @return BoutiqueFeeOrder
+     * @date   2020/9/9
+     */
     @Override
-    public BaseOutput<BoutiqueFeeOrder> cancel(Long id, UserTicket userTicket) throws Exception {
+    public BoutiqueFeeOrder cancel(Long id, UserTicket userTicket) throws BusinessException {
         BoutiqueFeeOrder orderInfo = this.get(id);
-
         if (orderInfo == null) {
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
         }
 
         // 精品停车缴费，缴费单就是已提交状态
         if (!BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode().equals(orderInfo.getState())) {
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能取消");
         }
 
         orderInfo.setCancelerId(userTicket.getId());
@@ -154,16 +161,17 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
         orderInfo.setVersion(orderInfo.getVersion() + 1);
         orderInfo.setState(BoutiqueOrderStateEnum.CANCELLED.getCode());
         if (this.updateSelective(orderInfo) == 0) {
-            return BaseOutput.failure(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        return BaseOutput.success().setData(orderInfo);
+        return orderInfo;
     }
 
     /**
      * 构建退款
      */
-    private RefundOrder buildRefundOrderDto(UserTicket userTicket, BoutiqueFeeRefundOrderDto refundOrderDto, BoutiqueFeeOrderDto orderDto) {
+    private RefundOrder buildRefundOrderDto(UserTicket userTicket, BoutiqueFeeRefundOrderDto refundOrderDto, BoutiqueFeeOrderDto orderDto)
+            throws BusinessException {
         //退款单
         RefundOrder refundOrder = new RefundOrder();
 

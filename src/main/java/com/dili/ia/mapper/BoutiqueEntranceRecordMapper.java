@@ -13,8 +13,8 @@ public interface BoutiqueEntranceRecordMapper extends MyMapper<BoutiqueEntranceR
     /**
      * 根据code获取相关信息
      *
-     * @param
-     * @return
+     * @param  code
+     * @return BoutiqueFeeOrderDto
      * @date   2020/7/23
      */
     BoutiqueFeeOrderDto getBoutiqueAndOrderByCode(String code);
@@ -22,8 +22,8 @@ public interface BoutiqueEntranceRecordMapper extends MyMapper<BoutiqueEntranceR
     /**
      * 列表查询
      * 
-     * @param
-     * @return 
+     * @param  boutiqueDto
+     * @return list
      * @date   2020/8/17
      */
     List<BoutiqueEntranceRecordDto> listBoutiques(BoutiqueEntranceRecordDto boutiqueDto);

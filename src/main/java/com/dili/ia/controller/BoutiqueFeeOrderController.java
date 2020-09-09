@@ -40,26 +40,25 @@ public class BoutiqueFeeOrderController {
     /**
      * 跳转到退款页面(跳转到精品停车目录)
      *
-     * @param id 精品停车主键
-     * @return 查看页面地址
-     * @date 2020/7/13
+     * @param  id
+     * @return String
+     * @date   2020/7/13
      */
     @RequestMapping(value = "/refundApply.html", method = RequestMethod.GET)
-    public String refundApply(ModelMap modelMap, Long id) throws Exception {
-        BoutiqueFeeOrderDto boutiqueFeeOrderDto = null;
+    public String refundApply(ModelMap modelMap, Long id){
         if (id != null) {
-            boutiqueFeeOrderDto = boutiqueFeeOrderService.getBoutiqueFeeOrderDtoById(id);
+            BoutiqueFeeOrderDto boutiqueFeeOrderDto = boutiqueFeeOrderService.getBoutiqueFeeOrderDtoById(id);
+            modelMap.put("boutiqueFeeOrder", boutiqueFeeOrderDto);
         }
-        modelMap.put("boutiqueFeeOrder", boutiqueFeeOrderDto);
         return "boutiqueEntranceRecord/refundApply";
     }
 
     /**
      * 退款申请
      *
-     * @param refundOrderDto
+     * @param  refundOrderDto
      * @return BaseOutput
-     * @date 2020/7/23
+     * @date   2020/7/23
      */
     @RequestMapping(value = "/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
@@ -73,11 +72,11 @@ public class BoutiqueFeeOrderController {
 
             return BaseOutput.success("退款成功");
         } catch (BusinessException e) {
-            logger.info(e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            logger.info("精品停车退款申请失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
@@ -96,15 +95,12 @@ public class BoutiqueFeeOrderController {
             // 参数校验
             AssertUtils.notNull(id, "主键不能为空");
 
-            BaseOutput<BoutiqueFeeOrder> baseOutput = boutiqueFeeOrderService.cancel(id, userTicket);
+            BoutiqueFeeOrder boutiqueFeeOrder = boutiqueFeeOrderService.cancel(id, userTicket);
 
             // 写业务日志
-            if (baseOutput.isSuccess()) {
-                BoutiqueFeeOrder order = baseOutput.getData();
-                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-            }
+            LoggerUtil.buildLoggerContext(boutiqueFeeOrder.getId(), boutiqueFeeOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
-            return baseOutput;
+            return BaseOutput.success().setData(boutiqueFeeOrder);
         } catch (BusinessException e) {
             logger.info(e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);

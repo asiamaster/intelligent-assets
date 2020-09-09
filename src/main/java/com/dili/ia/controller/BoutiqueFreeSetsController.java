@@ -1,11 +1,10 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.BoutiqueFreeSets;
 import com.dili.ia.domain.dto.BoutiqueFreeSetsDto;
 import com.dili.ia.service.BoutiqueFreeSetsService;
 import com.dili.ia.util.AssertUtils;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import java.util.List;
 
 import com.dili.ss.exception.BusinessException;
 import org.slf4j.Logger;
@@ -19,15 +18,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-07-13 10:49:05.
+ * @author:       xiaosa
+ * @date:         2020/7/15
+ * @version:      农批业务系统重构
+ * @description:  精品停车免费时长
  */
 @Controller
 @RequestMapping("/boutiqueFreeSets")
 public class BoutiqueFreeSetsController {
 
     private final static Logger logger = LoggerFactory.getLogger(BoutiqueFreeSetsController.class);
-
 
     @Autowired
     BoutiqueFreeSetsService boutiqueFreeSetsService;
@@ -47,29 +47,30 @@ public class BoutiqueFreeSetsController {
     }
 
     /**
-     * 修改BoutiqueFreeSets
-     * @param boutiqueFreeSetsDto
+     * 修改免费时长
+     *
+     * @param  boutiqueFreeSetsDto
      * @return BaseOutput
+     * @date   2020/7/15
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(@ModelAttribute BoutiqueFreeSetsDto boutiqueFreeSetsDto) {
         try {
             // 参数校验
-            AssertUtils.notNull(boutiqueFreeSetsDto.getTrailer(), "挂车时长不能为空");
             AssertUtils.notNull(boutiqueFreeSetsDto.getTruck(), "柜车时长不能为空");
+            AssertUtils.notNull(boutiqueFreeSetsDto.getTrailer(), "挂车时长不能为空");
 
             // 操作
             boutiqueFreeSetsService.updateFeeSets(boutiqueFreeSetsDto);
 
             return BaseOutput.success("修改成功");
         } catch (BusinessException e) {
-            logger.info(e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            logger.info("修改免费时长失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
-
     }
 
 }

@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-07-13 10:49:05.
+ * @author:       xiaosa
+ * @date:         2020/7/15
+ * @version:      农批业务系统重构
+ * @description:  精品停车免费时长
  */
 @Service
 public class BoutiqueFreeSetsServiceImpl extends BaseServiceImpl<BoutiqueFreeSets, Long> implements BoutiqueFreeSetsService {
@@ -21,7 +23,12 @@ public class BoutiqueFreeSetsServiceImpl extends BaseServiceImpl<BoutiqueFreeSet
         return (BoutiqueFreeSetsMapper)getDao();
     }
 
-
+    /**
+     * 获取不同车型的免费时长
+     *
+     * @return BoutiqueFreeSetsDto
+     * @date   2020/8/11
+     */
     @Override
     public BoutiqueFreeSetsDto getHour() {
         BoutiqueFreeSetsDto boutiqueFreeSetsDto = new BoutiqueFreeSetsDto();
@@ -42,8 +49,7 @@ public class BoutiqueFreeSetsServiceImpl extends BaseServiceImpl<BoutiqueFreeSet
     /**
      * 修改免费时长
      *
-     * @param
-     * @return
+     * @param  boutiqueFreeSetsDto
      * @date   2020/8/11
      */
     @Override

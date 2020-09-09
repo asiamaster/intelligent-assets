@@ -11,7 +11,7 @@ public interface BoutiqueFeeOrderMapper extends MyMapper<BoutiqueFeeOrder> {
     /**
      * 根据精品停车主键 recordId 查询缴费单列表
      *
-     * @param  recordId 精品停车主键
+     * @param  recordId
      * @return list
      * @date   2020/7/13
      */
