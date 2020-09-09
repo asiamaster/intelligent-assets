@@ -347,6 +347,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         pb.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
         pb.setState(PayStateEnum.NOT_PAID.getCode());
         pb.setVersion(0);
+        pb.setCustomerId(depositOrder.getCustomerId());
+        pb.setCustomerName(depositOrder.getCustomerName());
+        pb.setIsSettle(YesOrNoEnum.NO.getCode());
+
         return pb;
     }
     //组装 -- 结算中心缴费单 SettleOrder
@@ -593,6 +597,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         paymentOrderPO.setSettlementCode(settleOrder.getCode());
         paymentOrderPO.setSettlementOperator(settleOrder.getOperatorName());
         paymentOrderPO.setSettlementWay(settleOrder.getWay());
+        if (depositOrder.getWaitAmount().equals(paymentOrderPO.getAmount())) {
+            paymentOrderPO.setIsSettle(YesOrNoEnum.YES.getCode());
+        }
         if (paymentOrderService.updateSelective(paymentOrderPO) == 0) {
             LOG.info("缴费单成功回调 -- 更新【缴费单】,乐观锁生效！【付款单paymentOrderID:{}】", paymentOrderPO.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
