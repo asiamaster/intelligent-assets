@@ -9,7 +9,7 @@ public interface OtherFeeMapper extends MyMapper<OtherFee> {
      * 根据code查询数据实例
      *
      * @param  code
-     * @return
+     * @return OtherFee
      * @date   2020/8/27
      */
     OtherFee getOtherFeeByCode(String code);

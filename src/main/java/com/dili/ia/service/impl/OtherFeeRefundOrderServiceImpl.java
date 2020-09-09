@@ -43,8 +43,8 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     /**
      * 退款单 -- 提交(无需改变通行证缴费单的状态)
      * 
-     * @param
-     * @return 
+     * @param  refundOrder
+     * @return BaseOutput
      * @date   2020/7/21
      */
     @Override
@@ -55,8 +55,8 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     /**
      * 退款单 -- 撤回(无需改变通行证缴费单的状态)
      *
-     * @param
-     * @return
+     * @param  refundOrder
+     * @return BaseOutput
      * @date   2020/7/21
      */
     @Override
@@ -67,13 +67,13 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     /**
      * 退款单 -- 退款成功回调(将通行证缴费单的状态由退款中修改为已退款)
      *
-     * @param
-     * @return
+     * @param  settleOrder
+     * @param  refundOrder
+     * @return BaseOutput
      * @date   2020/7/21
      */
     @Override
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
-
         OtherFee otherFeeInfo = otherFeeService.getOtherFeeByCode(refundOrder.getBusinessCode());
         if (otherFeeInfo != null) {
             if (!OtherFeeStateEnum.REFUNDING.getCode().equals(otherFeeInfo.getState())) {
@@ -98,19 +98,19 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
                 });
             }
         }
+
         return BaseOutput.success();
     }
 
     /**
      * 退款单 -- 取消(将通行证缴费单的状态由退款中还原原状态 - 未生效/已生效/已过期)
      *
-     * @param
-     * @return
+     * @param  refundOrder
+     * @return BaseOutput
      * @date   2020/7/21
      */
     @Override
     public BaseOutput cancelHandler(RefundOrder refundOrder) {
-
         OtherFee otherFee = new OtherFee();
         otherFee.setCode(refundOrder.getBusinessCode());
         OtherFee otherFeeInfo = otherFeeService.selectByExample(otherFee).get(0);
@@ -121,14 +121,15 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
 
             this.updateState(refundOrder.getBusinessCode(), otherFeeInfo.getVersion(), OtherFeeStateEnum.PAID);
         }
+
         return BaseOutput.success();
     }
 
     /**
      * 退款单 -- 业务数据加载
      *
-     * @param
-     * @return
+     * @param  refundOrder
+     * @return BaseOutput
      * @date   2020/7/21
      */
     @Override
@@ -139,8 +140,7 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     /**
      * 退款单 -- 获取业务类型
      *
-     * @param
-     * @return
+     * @return Set
      * @date   2020/7/21
      */
     @Override
@@ -148,6 +148,9 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         return Sets.newHashSet(BizTypeEnum.OTHER_FEE.getCode());
     }
 
+    /**
+     * 具体的修改操作
+     */
     private void updateState(String code, Integer version, OtherFeeStateEnum state) {
 
         OtherFee domain = new OtherFee();

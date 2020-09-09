@@ -8,6 +8,7 @@ import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
@@ -21,9 +22,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author: xiaosa
- * @date: 2020/7/27
- * @version: 农批业务系统重构
+ * @author:      xiaosa
+ * @date:        2020/7/27
+ * @version:     农批业务系统重构
  * @description: 通行证回调
  */
 @RestController
@@ -38,35 +39,37 @@ public class PassportApi {
     /**
      * 通行证缴费成功回调
      *
-     * @param settleOrder
-     * @return
+     * @param  settleOrder
+     * @return BaseOutput
+     * @date   2020/7/27
      */
     @BusinessLogger(businessType = LogBizTypeConst.PASSPORT, content = "${code!}", operationType = "pay", systemCode = "IA")
     @RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
         try {
-            BaseOutput<Passport> output = passportService.settlementDealHandler(settleOrder);
-            if (output.isSuccess()) {
-                //记录业务日志
-                LoggerUtil.buildLoggerContext(output.getData().getId(), output.getData().getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), output.getData().getMarketId(), null);
-                return BaseOutput.success().setData(true);
-            }
-            return BaseOutput.failure(output.getMessage());
+            Passport passport = passportService.settlementDealHandler(settleOrder);
+
+            //记录业务日志
+            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), passport.getMarketId(), null);
+
+            return BaseOutput.success().setData(true);
         } catch (BusinessException e) {
-            LOG.error("通行证缴费回调异常！", e);
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            LOG.info("通行证缴费回调异常：{}", e);
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            LOG.error("通行证缴费回调异常！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            LOG.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
     /**
      * 通行证缴费票据打印
      *
-     * @param orderCode
-     * @return
+     * @param  orderCode
+     * @param  reprint
+     * @return BaseOutput
+     * @date   2020/7/27
      */
     @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST})
     public @ResponseBody
@@ -77,19 +80,20 @@ public class PassportApi {
             }
             return BaseOutput.success().setData(passportService.receiptPaymentData(orderCode, reprint));
         } catch (BusinessException e) {
-            LOG.error("通行证缴费票据打印异常！", e);
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            LOG.info("通行证打印票据异常：{}", e);
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            LOG.error("通行证缴费票据打印异常！", e);
-            return BaseOutput.failure("通行证缴费票据打印异常！").setData(false);
+            LOG.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
     /**
      * 通行证退款票据打印
      *
-     * @param orderCode
-     * @return
+     * @param  orderCode
+     * @return BaseOutput
+     * @date   2020/7/27
      */
     @RequestMapping(value = "/refundOrder/queryPrintData", method = {RequestMethod.POST})
     public @ResponseBody
@@ -97,11 +101,11 @@ public class PassportApi {
         try {
             return BaseOutput.success().setData(passportService.receiptRefundPrintData(orderCode, reprint));
         } catch (BusinessException e) {
-            LOG.error("通行证退款票据打印异常！", e);
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            LOG.info("通行证退款票据打印异常：{}", e);
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            LOG.error("通行证退款票据打印异常！", e);
-            return BaseOutput.failure("通行证退款票据打印异常！").setData(false);
+            LOG.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 

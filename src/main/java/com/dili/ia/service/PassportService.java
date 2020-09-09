@@ -9,6 +9,7 @@ import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 
 /**
@@ -30,105 +31,107 @@ public interface PassportService extends BaseService<Passport, Long> {
     EasyuiPageOutput listPassports(PassportDto passportDto, boolean useProvider) throws Exception;
 
     /**
-     * 新增通行证
+     * 新增 通行证
      *
-     * @param passportDto
-     * @return BaseOutput
-     * @date 2020/7/27
+     * @param  passportDto
+     * @param  userTicket
+     * @return Passport
+     * @date   2020/7/27
      */
-    BaseOutput<Passport> addPassport(PassportDto passportDto, UserTicket userTicket) throws Exception;
+    Passport addPassport(PassportDto passportDto, UserTicket userTicket) throws BusinessException;
 
     /**
-     * 修改通行证
+     * 修改 通行证
      *
-     * @param passportDto
-     * @return BaseOutput
-     * @date 2020/7/27
+     * @param  passportDto
+     * @param  userTicket
+     * @return Passport
+     * @date   2020/7/27
      */
-    BaseOutput<Passport> updatePassport(PassportDto passportDto, UserTicket userTicket) throws Exception;
+    Passport updatePassport(PassportDto passportDto, UserTicket userTicket) throws BusinessException;
 
     /**
-     * 取消通行证付款
+     * 取消 通行证
      *
-     * @param id
-     * @param userTicket
-     * @return BaseOutput
-     * @date 2020/7/27
+     * @param  id
+     * @param  userTicket
+     * @return Passport
+     * @date   2020/7/27
      */
-    BaseOutput<Passport> cancel(Long id, UserTicket userTicket) throws Exception;
+    Passport cancel(Long id, UserTicket userTicket) throws BusinessException;
 
     /**
-     * 提交通行证缴费
+     * 提交 通行证缴费
      *
-     * @param id
-     * @param userTicket
-     * @return BaseOutput
-     * @date 2020/7/27
+     * @param  id
+     * @param  userTicket
+     * @return Passport
+     * @date   2020/7/27
      */
-    BaseOutput<Passport> submit(Long id, UserTicket userTicket) throws Exception;
+    Passport submit(Long id, UserTicket userTicket) throws BusinessException;
 
     /**
-     * 撤回通行证缴费
+     * 撤回 通行证缴费
      *
-     * @param id
-     * @param userTicket
-     * @return BaseOutput
-     * @date 2020/7/27
+     * @param  id
+     * @param  userTicket
+     * @return Passport
+     * @date   2020/7/27
      */
-    BaseOutput<Passport> withdraw(Long id, UserTicket userTicket) throws Exception;
+    Passport withdraw(Long id, UserTicket userTicket) throws BusinessException;
 
     /**
-     * 通行证交费成功回调
+     * 通行证缴费成功回调
      *
-     * @param settleOrder
-     * @return BaseOutput
-     * @date 2020/7/27
+     * @param  settleOrder
+     * @return Passport
+     * @date   2020/7/27
      */
-    BaseOutput<Passport> settlementDealHandler(SettleOrder settleOrder);
+    Passport settlementDealHandler(SettleOrder settleOrder);
 
     /**
      * 通行证打印票据
      *
-     * @param orderCode
-     * @return BaseOutput
-     * @date 2020/7/27
+     * @param  orderCode
+     * @param  reprint
+     * @return PrintDataDto
+     * @date   2020/7/27
      */
-    PrintDataDto<PassportPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws Exception;
+    PrintDataDto<PassportPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException;
 
     /**
-     * 退款单 查询
+     * 根据 code 查询数据
      *
-     * @param code
-     * @return PassportDto
-     * @date 2020/7/27
+     * @param  code
+     * @return Passport
+     * @date   2020/7/27
      */
     Passport getPassportByCode(String code);
 
     /**
      * 退款申请
      *
-     * @param passportRefundOrderDto
-     * @param userTicket
-     * @return BaseOutput
-     * @date 2020/7/27
+     * @param  passportRefundOrderDto
+     * @param  userTicket
+     * @return Passport
+     * @date   2020/7/27
      */
-    BaseOutput<Passport> refund(PassportRefundOrderDto passportRefundOrderDto, UserTicket userTicket);
-
-    /**
-     * 定时任务，刷新状态
-     *
-     * @param
-     * @return
-     * @date 2020/8/6
-     */
-    void passportTasking();
+    Passport refund(PassportRefundOrderDto passportRefundOrderDto, UserTicket userTicket);
 
     /**
      * 退款票据打印
      *
-     * @param
-     * @return
-     * @date 2020/8/11
+     * @param  orderCode
+     * @param  reprint
+     * @return PrintDataDto
+     * @date   2020/8/11
      */
     PrintDataDto<PassportPrintDto> receiptRefundPrintData(String orderCode, String reprint);
+
+    /**
+     * 定时任务，刷新状态
+     *
+     * @date 2020/8/6
+     */
+    void passportTasking();
 }

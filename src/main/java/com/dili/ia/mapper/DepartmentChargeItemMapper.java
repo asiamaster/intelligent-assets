@@ -30,7 +30,7 @@ public interface DepartmentChargeItemMapper extends MyMapper<DepartmentChargeIte
      * 根据字段删除数据
      *
      * @param  chargeItemIdListInTable
-     * @return
+     * @return void
      * @date   2020/8/24
      */
     void deleteEntityListByChargeItemIds(List<String> chargeItemIdListInTable);
@@ -39,7 +39,7 @@ public interface DepartmentChargeItemMapper extends MyMapper<DepartmentChargeIte
      * 根据 chargeItemId 分组获取集合
      * 
      * @param
-     * @return 
+     * @return List
      * @date   2020/8/24
      */
     List<DepartmentChargeItem> listGroupByChargeItemId();
@@ -47,8 +47,8 @@ public interface DepartmentChargeItemMapper extends MyMapper<DepartmentChargeIte
     /**
      * 根据 chargeItemId 删除
      * 
-     * @param
-     * @return 
+     * @param  chargeItemId
+     * @return int
      * @date   2020/8/26
      */
     int deleteListByChargeItemId(String chargeItemId);
