@@ -1,24 +1,20 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.CustomerMeter;
-import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.glossary.MeterTypeEnum;
 import com.dili.ia.service.CustomerMeterService;
-import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 
-import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +46,7 @@ public class CustomerMeterController {
      * 跳转到欢迎页面
      *
      * @param  modelMap
-     * @return 欢迎页面地址
+     * @return
      * @date   2020/6/16
      */
     @RequestMapping(value="/index.html", method = RequestMethod.GET)
@@ -62,7 +58,7 @@ public class CustomerMeterController {
      * 跳转到新增页面
      *
      * @param  modelMap
-     * @return 新增页面地址
+     * @return
      * @date   2020/6/16
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
@@ -73,8 +69,8 @@ public class CustomerMeterController {
     /**
      * 跳转到查看页面
      *
-     * @param  id 表用户关系主键
-     * @return 查看页面地址
+     * @param  id
+     * @return
      * @date   2020/6/16
      */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
@@ -91,8 +87,8 @@ public class CustomerMeterController {
     /**
      * 跳转到修改页面
      *
-     * @param  id 表用户关系主键
-     * @return 修改页面地址
+     * @param  id
+     * @return
      * @date   2020/6/16
      */
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
@@ -110,7 +106,7 @@ public class CustomerMeterController {
      * 查询表用户关系的集合(分页)
      *
      * @param  customerMeterDto
-     * @return customerMeterDtoList
+     * @return String
      * @date   2020/6/17
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -122,12 +118,13 @@ public class CustomerMeterController {
      * 新增表用户关系
      * 
      * @param  customerMeterDto
-     * @return 是否成功
+     * @return BaseOutput
      * @date   2020/6/16
      */
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="add", systemCode = "IA")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput add(@ModelAttribute CustomerMeterDto customerMeterDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
             AssertUtils.notNull(customerMeterDto.getType(), "表类型不能为空");
@@ -137,67 +134,54 @@ public class CustomerMeterController {
             AssertUtils.notEmpty(customerMeterDto.getCustomerCellphone(), "客户联系电话不能为空");
 
             // 新增
-            BaseOutput<CustomerMeter> output = customerMeterService.addCustomerMeter(customerMeterDto);
+            CustomerMeter customerMeter = customerMeterService.addCustomerMeter(customerMeterDto, userTicket);
 
             // 写业务日志
-            if (output.isSuccess()) {
-                CustomerMeter customerMeter = output.getData();
-                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-            }
+            LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
-            return output;
-        } catch (BusinessException e) {
-            logger.info(e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            return BaseOutput.success().setData(customerMeter);
         } catch (Exception e) {
-            logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
     /**
      * 解绑表用户关系
      *
-     * @param  id 表用户关系主键
-     * @return 是否成功
+     * @param  id
+     * @return BaseOutput
      * @date   2020/6/16
      */
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_METER, content="${businessCode!}", operationType="update", systemCode = "IA")
     @RequestMapping(value="/unbind.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput unbind(Long id) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
             AssertUtils.notNull(id, "主键不能为空");
 
-            // 解绑
-            CustomerMeterDto customerMeterDto = new CustomerMeterDto();
-            customerMeterDto.setId(id);
-            customerMeterDto.setState(CustomerMeterStateEnum.CANCELD.getCode());
-            BaseOutput<CustomerMeter> output = customerMeterService.updateCustomerMeter(customerMeterDto);
+            CustomerMeter customerMeter = customerMeterService.updateCustomerMeter(id);
 
             // 写业务日志
-            if (output.isSuccess()) {
-                CustomerMeter customerMeter = output.getData();
-                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "解绑");
-            }
+            LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(),
+                    userTicket.getFirmId(), "解绑");
 
-            return output;
+            return BaseOutput.success().setData(customerMeter);
         } catch (BusinessException e) {
-            logger.info(e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
+            logger.info("解绑表用户关系失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
-            logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
         }
     }
 
     /**
      * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)(查询水表)
      *
-     * @param  keyword 输入编号
-     * @return 表客户List
+     * @param  keyword
+     * @return List
      * @date   2020/7/10
      */
     @RequestMapping(value="/listCustomerMeterByLikeNameWater.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -210,8 +194,8 @@ public class CustomerMeterController {
     /**
      * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)(查询电表)
      *
-     * @param  keyword 输入编号
-     * @return 表客户List
+     * @param  keyword
+     * @return List
      * @date   2020/7/10
      */
     @RequestMapping(value="/listCustomerMeterByLikeNameElectricity.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -224,14 +208,22 @@ public class CustomerMeterController {
     /**
      * 根据表主键 meterId 获取表绑定的用户信息以及上期指数
      *
-     * @param  meterId 表主键
+     * @param  meterId
      * @return CustomerMeter
      * @date   2020/6/28
      */
     @RequestMapping(value="/getBindInfoByMeterId.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getBindInfoByMeterId(Long meterId) throws Exception {
-        CustomerMeterDto customerMeterInfo = customerMeterService.getBindInfoByMeterId(meterId);
+    public @ResponseBody BaseOutput getBindInfoByMeterId(Long meterId) {
+        try {
+            CustomerMeterDto customerMeterInfo = customerMeterService.getBindInfoByMeterId(meterId);
 
-        return BaseOutput.success().setData(customerMeterInfo);
+            return BaseOutput.success().setData(customerMeterInfo);
+        } catch (BusinessException e) {
+            logger.info("根据表主键查询绑定的用户信息以及上期指数失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+    }
     }
 }

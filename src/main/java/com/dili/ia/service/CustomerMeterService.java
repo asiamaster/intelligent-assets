@@ -6,6 +6,7 @@ import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
 
 import java.util.List;
 
@@ -30,35 +31,27 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * 新增表用户关系
      *
      * @param  customerMeterDto
-     * @return 是否成功
+     * @param  userTicket
+     * @return CustomerMeter
      * @date   2020/6/16
      */
-    BaseOutput<CustomerMeter> addCustomerMeter(CustomerMeterDto customerMeterDto);
+    CustomerMeter addCustomerMeter(CustomerMeterDto customerMeterDto, UserTicket userTicket);
 
     /**
      * 修改表用户关系(解绑)
      *
-     * @param  customerMeterDto
-     * @return 是否成功
+     * @param  id
+     * @return CustomerMeter
      * @date   2020/6/16
      */
-    BaseOutput<CustomerMeter> updateCustomerMeter(CustomerMeterDto customerMeterDto);
-
-    /**
-     * 删除表用户关系
-     *
-     * @param  id 表用户关系主键
-     * @return 是否成功
-     * @date   2020/6/16
-     */
-    BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id);
+    CustomerMeter updateCustomerMeter(Long id) throws BusinessException;
 
     /**
      * 查询表用户关系的集合(分页)
      *
      * @param  customerMeterDto
      * @param  useProvider
-     * @return customerMeterDtoList
+     * @return EasyuiPageOutput
      * @date   2020/6/17
      */
     EasyuiPageOutput listCustomerMeters(CustomerMeterDto customerMeterDto, boolean useProvider) throws Exception;
@@ -76,10 +69,19 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * 根据表编号模糊查询表客户信息列表
      *
      *
-     * @param type
-     * @param  keyword 输入编号
-     * @return 表客户List
+     * @param  type
+     * @param  keyword
+     * @return List
      * @date   2020/7/10
      */
     List<CustomerMeterDto> listCustomerMetersByLikeName(Integer type, String keyword);
+
+    /**
+     * 删除表用户关系
+     *
+     * @param  id 表用户关系主键
+     * @return 是否成功
+     * @date   2020/6/16
+     */
+    BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id);
 }

@@ -15,7 +15,6 @@ import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.seata.spring.annotation.GlobalTransactional;
@@ -23,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -91,19 +89,14 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      * 新增表用户关系
      *
      * @param  customerMeterDto
-     * @return 是否成功
+     * @param  userTicket
+     * @return CustomerMeter
      * @date   2020/6/16
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public BaseOutput<CustomerMeter> addCustomerMeter(CustomerMeterDto customerMeterDto) {
+    @GlobalTransactional
+    public CustomerMeter addCustomerMeter(CustomerMeterDto customerMeterDto, UserTicket userTicket) {
         CustomerMeter customerMeter = new CustomerMeter();
-
-        // 校验用户是否登陆
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if(null == userTicket){
-            return BaseOutput.failure("未登录");
-        }
 
         // 根据 number 查询 meter，拿取 meterId
         if (StringUtils.isNotEmpty(customerMeterDto.getNumber())) {
@@ -112,92 +105,57 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
             );
         }
 
-        // 并设置相关信息
+        customerMeterDto.setVersion(0);
         customerMeterDto.setCreatorId(userTicket.getId());
-        customerMeterDto.setCreator(userTicket.getUserName());
-        customerMeterDto.setCreatorDepId(userTicket.getDepartmentId());
-        customerMeterDto.setMarketId(userTicket.getFirmId());
-        customerMeterDto.setMarketCode(userTicket.getFirmCode());
         customerMeterDto.setCreateTime(LocalDateTime.now());
         customerMeterDto.setModifyTime(LocalDateTime.now());
+        customerMeterDto.setMarketId(userTicket.getFirmId());
+        customerMeterDto.setCreator(userTicket.getUserName());
+        customerMeterDto.setMarketCode(userTicket.getFirmCode());
+        customerMeterDto.setCreatorDepId(userTicket.getDepartmentId());
         customerMeterDto.setState(CustomerMeterStateEnum.CREATED.getCode());
-        customerMeterDto.setVersion(1);
 
         BeanUtils.copyProperties(customerMeterDto, customerMeter);
         this.insertSelective(customerMeter);
 
-        return BaseOutput.success().setData(customerMeter);
+        return customerMeter;
     }
 
     /**
      * 修改表用户关系(解绑)
      *
-     * @param  customerMeterDto
-     * @return 是否成功
+     * @param  id
+     * @return CustomerMeter
      * @date   2020/6/16
      */
     @Override
     @GlobalTransactional
-    public BaseOutput<CustomerMeter> updateCustomerMeter(CustomerMeterDto customerMeterDto) {
+    public CustomerMeter updateCustomerMeter(Long id) throws BusinessException{
         CustomerMeter customerMeter = new CustomerMeter();
+        CustomerMeterDto customerMeterDto = new CustomerMeterDto();
 
-        // 校验用户是否登陆, 并设置相关信息
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if(null == userTicket){
-            return BaseOutput.failure("表用户操作失败,用户未登录。");
-        }
-
+        customerMeterDto.setId(id);
+        customerMeterDto.setState(CustomerMeterStateEnum.CANCELD.getCode());
         CustomerMeter customerMeterInfo = this.get(customerMeterDto.getId());
         if (customerMeterInfo == null) {
-            return BaseOutput.failure("表用户操作失败,记录不存在。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，解绑失败。");
         }
 
         // 根据表 meterId、用户 customerId 查询未缴费的记录数量
         Integer count = meterDetailService.countUnPayByMeterAndCustomer(customerMeterInfo.getMeterId(), customerMeterInfo.getCustomerId());
         if (count > 0) {
-            return BaseOutput.failure("该表用户当前存在交费记录，不允许删除。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该表用户当前存在交费记录，不允许删除。");
         }
 
         customerMeterDto.setModifyTime(LocalDateTime.now());
         customerMeterDto.setVersion(customerMeterInfo.getVersion() + 1);
-
         BeanUtils.copyProperties(customerMeterDto, customerMeter);
-        int code = this.updateSelective(customerMeter);
-        if (code == 0) {
-            return BaseOutput.failure("当前数据正在被其他用户操作，提交失败！请关闭当前弹窗重新选择操作");
-        }
-        return BaseOutput.success().setData(customerMeter);
-    }
 
-    /**
-     * 删除表用户关系,如果有未缴费的单,则不能删除
-     *
-     * @param  id 表用户关系主键
-     * @return 是否成功
-     * @date   2020/6/16
-     */
-    @Override
-    @GlobalTransactional
-    public BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id) {
-        // 先查询是否还存在该用户表关系
-        CustomerMeter customerMeter = this.getActualDao().getMeterById(id);
-        if (customerMeter == null) {
-            return BaseOutput.failure("删除失败，该数据已删除。");
+        if (this.updateSelective(customerMeter) == 0) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
 
-        // 根据表 meterId、用户 customerId 查询未缴费的记录数量
-        Integer count = meterDetailService.countUnPayByMeterAndCustomer(customerMeter.getMeterId(), customerMeter.getCustomerId());
-        if (count > 0) {
-            return BaseOutput.failure("该表用户当前存在交费记录，不允许删除。");
-        }
-
-        // 再删除(乐观锁)
-        int code = this.delete(id);
-        if (code == 0) {
-            return BaseOutput.failure("删除失败，数据已被其他用户操作。");
-        }
-
-        return BaseOutput.success().setData(customerMeter);
+        return customerMeter;
     }
 
     /**
@@ -229,10 +187,9 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     /**
      * 根据表编号模糊查询表客户信息列表
      *
-     *
-     * @param type
-     * @param  keyword 输入编号
-     * @return 表客户List
+     * @param  type
+     * @param  keyword
+     * @return List
      * @date   2020/7/10
      */
     @Override
@@ -244,5 +201,36 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         }
         List<CustomerMeterDto> customerMeterDtoList = this.getActualDao().listCustomerMetersByLikeName(customerMeterDto);
         return customerMeterDtoList;
+    }
+
+    /**
+     * 删除表用户关系,如果有未缴费的单,则不能删除（暂时不用）
+     *
+     * @param  id 表用户关系主键
+     * @return BaseOutput
+     * @date   2020/6/16
+     */
+    @Override
+    @GlobalTransactional
+    public BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id) {
+        // 先查询是否还存在该用户表关系
+        CustomerMeter customerMeter = this.getActualDao().getMeterById(id);
+        if (customerMeter == null) {
+            return BaseOutput.failure("删除失败，该数据已删除。");
+        }
+
+        // 根据表 meterId、用户 customerId 查询未缴费的记录数量
+        Integer count = meterDetailService.countUnPayByMeterAndCustomer(customerMeter.getMeterId(), customerMeter.getCustomerId());
+        if (count > 0) {
+            return BaseOutput.failure("该表用户当前存在交费记录，不允许删除。");
+        }
+
+        // 再删除(乐观锁)
+        int code = this.delete(id);
+        if (code == 0) {
+            return BaseOutput.failure("删除失败，数据已被其他用户操作。");
+        }
+
+        return BaseOutput.success().setData(customerMeter);
     }
 }
