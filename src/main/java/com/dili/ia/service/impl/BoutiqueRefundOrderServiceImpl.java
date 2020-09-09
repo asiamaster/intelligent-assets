@@ -55,8 +55,8 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     /**
      * 退款单 -- 提交(退款的提交无需改变通行证缴费单的信息)
      * 
-     * @param
-     * @return 
+     * @param  refundOrder
+     * @return BaseOutput
      * @date   2020/7/21
      */
     @Override
@@ -67,8 +67,8 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     /**
      * 退款单 -- 撤回(退款的撤回无需改变通行证缴费单的信息)
      *
-     * @param
-     * @return
+     * @param  refundOrder
+     * @return BaseOutput
      * @date   2020/7/21
      */
     @Override
@@ -79,8 +79,9 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     /**
      * 退款单 -- 退款成功回调(精品停车的交费单状态由退款中修改为已退款)
      *
-     * @param
-     * @return
+     * @param  settleOrder
+     * @param  refundOrder
+     * @return BaseOutput
      * @date   2020/7/21
      */
     @Override
@@ -117,8 +118,8 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     /**
      * 退款单 -- 取消(精品停车的交费单状态由退款中修改为已缴费)
      *
-     * @param
-     * @return
+     * @param  refundOrder
+     * @return BaseOutput
      * @date   2020/7/21
      */
     @Override
@@ -138,8 +139,8 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     /**
      * 退款单 -- 业务数据加载
      *
-     * @param
-     * @return
+     * @param  refundOrder
+     * @return BaseOutput
      * @date   2020/7/21
      */
     @Override
@@ -159,6 +160,14 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         return Sets.newHashSet(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
     }
 
+    /**
+     * 修改操作
+     * 
+     * @param  code
+     * @param  version
+     * @param  state
+     * @date   2020/9/9
+     */
     private void updateState(String code, Integer version, BoutiqueOrderStateEnum state) {
 
         BoutiqueFeeOrder domain = new BoutiqueFeeOrder();

@@ -9,6 +9,7 @@ import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 
 import java.util.List;
@@ -43,21 +44,21 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
     /**
      * 新增水电费单
      *
-     * @param meterDetailDto
-     * @param userTicket     用户信息
-     * @return 是否成功
-     * @date 2020/6/28
+     * @param  meterDetailDto
+     * @param  userTicket
+     * @return MeterDetail
+     * @date   2020/6/28
      */
-    BaseOutput<MeterDetail> addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket) throws Exception;
+    MeterDetail addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket) throws BusinessException;
 
     /**
      * 修改 水电费单
      *
-     * @param meterDetailDto
-     * @return 是否成功
-     * @date 2020/7/1
+     * @param  meterDetailDto
+     * @return MeterDetail
+     * @date   2020/7/1
      */
-    BaseOutput<MeterDetail> updateMeterDetail(MeterDetailDto meterDetailDto);
+    MeterDetail updateMeterDetail(MeterDetailDto meterDetailDto) throws BusinessException;
 
     /**
      * 根据 meterId、customerId 查询未缴费单的数量
@@ -72,57 +73,59 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
     /**
      * 根据 meterId 获取初始值
      *
-     * @param meterId
+     * @param  meterId
      * @return 初始值(上期指数)
-     * @date 2020/6/29
+     * @date  2020/6/29
      */
     BaseOutput getLastAmount(Long meterId);
 
     /**
      * 提交水电费单(生缴费单和结算单)
      *
-     * @param id
-     * @return 是否成功
-     * @date 2020/7/6
+     * @param  idList
+     * @return List
+     * @date   2020/7/6
      */
-    BaseOutput<List<MeterDetail>> submit(List<Long> id, UserTicket userTicket) throws Exception;
+    List<MeterDetail> submit(List<Long> idList, UserTicket userTicket) throws BusinessException;
 
     /**
      * 全部提交水电费单(生缴费单和结算单)
      *
-     * @param
-     * @param metertype
-     * @return 是否成功
-     * @date 2020/7/29
+     * @param  userTicket
+     * @param  metertype
+     * @return List
+     * @date   2020/7/29
      */
-    BaseOutput<List<MeterDetailDto>> submitAll(UserTicket userTicket, Integer metertype) throws Exception;
-
-    /**
-     * 缴费回调
-     *
-     * @param settleOrder
-     * @return
-     * @date 2020/7/6
-     */
-    BaseOutput<MeterDetail> settlementDealHandler(SettleOrder settleOrder) throws Exception;
+    List<MeterDetailDto> submitAll(UserTicket userTicket, Integer metertype) throws BusinessException;
 
     /**
      * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)
      *
-     * @param id
-     * @return 是否成功
-     * @date 2020/7/6
+     * @param  id
+     * @param  userTicket
+     * @return MeterDetail
+     * @date   2020/7/6
      */
-    BaseOutput<MeterDetail> withdraw(Long id, UserTicket userTicket) throws Exception;
+    MeterDetail withdraw(Long id, UserTicket userTicket) throws BusinessException;
+
+    /**
+     * 缴费回调
+     *
+     * @param  settleOrder
+     * @return MeterDetail
+     * @date   2020/7/6
+     */
+    MeterDetail settlementDealHandler(SettleOrder settleOrder) throws BusinessException;
 
     /**
      * 取消水电费单(取消缴费单和结算单,将水电费单修改为已创建)
      *
-     * @param id
-     * @return 是否成功
-     * @date 2020/7/6
+     * @param  id
+     * @param  userTicket
+     * @return MeterDetail
+     * @date   2020/7/6
      */
-    BaseOutput<MeterDetail> cancel(Long id, UserTicket userTicket);
+    MeterDetail cancel(Long id, UserTicket userTicket) throws BusinessException;
 
     /**
      * 票据打印
@@ -132,7 +135,7 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return
      * @date 2020/7/10
      */
-    PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws Exception;
+    PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException;
 
     /**
      * 计费规则

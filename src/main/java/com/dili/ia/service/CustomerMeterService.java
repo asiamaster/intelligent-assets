@@ -5,6 +5,7 @@ import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.exception.BusinessException;
 
 import java.util.List;
 
@@ -69,7 +70,7 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * @return CustomerMeterDto
      * @date   2020/6/28
      */
-    CustomerMeterDto getBindInfoByMeterId(Long meterId) throws Exception;
+    CustomerMeterDto getBindInfoByMeterId(Long meterId) throws BusinessException;
 
     /**
      * 根据表编号模糊查询表客户信息列表

@@ -208,12 +208,12 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
      * @date   2020/6/28
      */
     @Override
-    public CustomerMeterDto getBindInfoByMeterId(Long meterId) throws Exception {
+    public CustomerMeterDto getBindInfoByMeterId(Long meterId) throws BusinessException {
         CustomerMeterDto customerMeterDto = new CustomerMeterDto();
 
         CustomerMeter customerMeterInfo = this.getActualDao().getBindInfoByMeterId(meterId);
         if (customerMeterInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "表已被删除");
+            throw new BusinessException(ResultCode.DATA_ERROR, "表已被删除。");
         }
         BeanUtils.copyProperties(customerMeterInfo, customerMeterDto);
 
