@@ -286,6 +286,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         //定金退款给本人，收款人为本人
         refundOrder.setPayeeId(refundOrder.getCustomerId());
         refundOrder.setPayee(refundOrder.getCustomerName());
+        refundOrder.setPayeeCertificateNumber(refundOrder.getCertificateNumber());
 
         //新增
         if(null == refundOrder.getId()){
