@@ -37,6 +37,7 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
@@ -498,6 +499,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             LOG.info("退款单提交状态更新失败 乐观锁生效 【退款单ID {}】", refundOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
         }
+        //保存提交审批记录
+        ApprovalParam approvalParam = DTOUtils.newInstance(ApprovalParam.class);
+        approvalParam.setBusinessKey(refundOrder.getCode());
+        approvalParam.setProcessInstanceId(refundOrder.getProcessInstanceId());
+        saveApprovalProcess(approvalParam, userTicket);
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
@@ -635,13 +641,18 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         approvalProcess.setBusinessKey(approvalParam.getBusinessKey());
         approvalProcess.setOpinion(approvalParam.getOpinion());
         approvalProcess.setTaskId(approvalParam.getTaskId());
+        approvalProcess.setResult(approvalParam.getResult());
+        //提交审批时没有任务id，直接保存
+        if(approvalParam.getTaskId() == null){
+            approvalProcessService.insertSelective(approvalProcess);
+            return;
+        }
         BaseOutput<TaskMapping> taskMappingBaseOutput = taskRpc.getById(approvalParam.getTaskId());
         if (!taskMappingBaseOutput.isSuccess()) {
             throw new AppException("获取任务信息失败");
         }
         approvalProcess.setTaskName(taskMappingBaseOutput.getData().getName());
         approvalProcess.setTaskTime(taskMappingBaseOutput.getData().getCreateTime());
-        approvalProcess.setResult(approvalParam.getResult());
         //每次审批通过，保存流程审批记录(目前考虑性能，没有保存流程名称)
         approvalProcessService.insertSelective(approvalProcess);
     }

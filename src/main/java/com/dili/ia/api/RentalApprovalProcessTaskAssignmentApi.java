@@ -90,6 +90,21 @@ public class RentalApprovalProcessTaskAssignmentApi {
     }
 
     /**
+     * 摊位退款审批 -> 工程部审批
+     * @param taskMapping 任务代理对象
+     * @return
+     */
+    @PostMapping(value="/engineeringDepartmentApprovalAssignment")
+    public BaseOutput<Assignment> engineeringDepartmentApprovalAssignment(TaskMapping taskMapping) {
+        try {
+            return BaseOutput.successData(buildApprovalAssignment(taskMapping));
+        } catch (Exception e) {
+            //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
+            return BaseOutput.successData(getExceptionHandlerAssignment());
+        }
+    }
+
+    /**
      * 摊位租赁审批, 摊位退款审批 -> 总经理审批
      * @param taskMapping 任务代理对象
      * @return
