@@ -25,24 +25,18 @@ import java.util.stream.Stream;
  */
 @Component
 public class RefundTypeProvider implements ValueProvider {
-    static final ThreadLocal<List<ValuePair<?>>> valuePairsTL = new ThreadLocal<>();
-
-    /**
-     * 获取线程数据源
-     * @return
-     */
-    private List<ValuePair<?>> getValuePairsTL() {
-        if (CollectionUtils.isEmpty(valuePairsTL.get())) {
-            valuePairsTL.set(Stream.of(RefundTypeEnum.values())
+    private static final ThreadLocal<List<ValuePair<?>>> valuePairsTL = new ThreadLocal<>() {
+        @Override
+        protected List<ValuePair<?>> initialValue() {
+            return Stream.of(RefundTypeEnum.values())
                     .map(e -> new ValuePairImpl<>(e.getName(), e.getCode().toString()))
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
         }
-        return valuePairsTL.get();
-    }
+    };
 
     @Override
     public List<ValuePair<?>> getLookupList(Object o, Map map, FieldMeta fieldMeta) {
-        return getValuePairsTL();
+        return valuePairsTL.get();
     }
 
     @Override
@@ -51,7 +45,7 @@ public class RefundTypeProvider implements ValueProvider {
             return null;
         }
 
-        ValuePair<?> valuePair = getValuePairsTL().stream().filter(val -> object.toString().equals(val.getValue())).findFirst().orElseGet(null);
+        ValuePair<?> valuePair = valuePairsTL.get().stream().filter(val -> object.toString().equals(val.getValue())).findFirst().orElseGet(null);
         if (null != valuePair) {
             return valuePair.getText();
         }
