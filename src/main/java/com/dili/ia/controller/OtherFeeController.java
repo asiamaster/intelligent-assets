@@ -358,12 +358,12 @@ public class OtherFeeController {
      * @param otherFeeDto
      */
     private void ParamValidate(OtherFeeDto otherFeeDto) {
+        AssertUtils.notNull(otherFeeDto.getAmount(), "金额不能为空");
+        AssertUtils.notNull(otherFeeDto.getAssetsType(), "费用类型不能为空");
+        AssertUtils.notNull(otherFeeDto.getDepartmentId(), "业务所属部门不能为空");
         AssertUtils.notEmpty(otherFeeDto.getCustomerName(), "客户名称不能为空");
+        AssertUtils.notEmpty(otherFeeDto.getChargeItemId(), "收费项目不能为空");
         AssertUtils.notEmpty(otherFeeDto.getCertificateNumber(), "证件号码不能为空");
         AssertUtils.notEmpty(otherFeeDto.getCustomerCellphone(), "联系电话不能为空");
-        AssertUtils.notNull(otherFeeDto.getAssetsType(), "费用类型不能为空");
-        AssertUtils.notEmpty(otherFeeDto.getChargeItemId(), "收费项目不能为空");
-        AssertUtils.notNull(otherFeeDto.getDepartmentId(), "业务所属部门不能为空");
-        AssertUtils.notNull(otherFeeDto.getAmount(), "金额不能为空");
     }
 }

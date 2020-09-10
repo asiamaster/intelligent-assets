@@ -421,14 +421,14 @@ public class MeterDetailController {
      * @param meterDetailDto
      */
     private void ParamValidate(MeterDetailDto meterDetailDto) {
-        AssertUtils.notNull(meterDetailDto.getUsageTime(), "截止月份不能为空");
-        AssertUtils.notNull(meterDetailDto.getDepartmentId(), "部门不能为空");
-        AssertUtils.notEmpty(meterDetailDto.getNumber(), "表编号不能为空");
         AssertUtils.notNull(meterDetailDto.getCustomerId(), "客户不能为空");
         AssertUtils.notNull(meterDetailDto.getAssetsName(), "表地址不能为空");
         AssertUtils.notNull(meterDetailDto.getAssetsType(), "表类别不能为空");
-        AssertUtils.notEmpty(meterDetailDto.getCustomerCellphone(), "客户联系电话不能为空");
+        AssertUtils.notNull(meterDetailDto.getDepartmentId(), "部门不能为空");
+        AssertUtils.notNull(meterDetailDto.getUsageTime(), "截止月份不能为空");
         AssertUtils.notNull(meterDetailDto.getThisAmount(), "本期指数不能为空");
+        AssertUtils.notEmpty(meterDetailDto.getNumber(), "表编号不能为空");
+        AssertUtils.notEmpty(meterDetailDto.getCustomerCellphone(), "客户联系电话不能为空");
     }
 
 //    /**

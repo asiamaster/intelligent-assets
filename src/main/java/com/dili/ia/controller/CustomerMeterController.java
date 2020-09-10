@@ -128,9 +128,9 @@ public class CustomerMeterController {
         try {
             // 参数校验
             AssertUtils.notNull(customerMeterDto.getType(), "表类型不能为空");
-            AssertUtils.notEmpty(customerMeterDto.getNumber(), "表编号不能为空");
             AssertUtils.notNull(customerMeterDto.getAssetsId(), "表地址不能为空");
             AssertUtils.notNull(customerMeterDto.getCustomerId(), "客户不能为空");
+            AssertUtils.notEmpty(customerMeterDto.getNumber(), "表编号不能为空");
             AssertUtils.notEmpty(customerMeterDto.getCustomerCellphone(), "客户联系电话不能为空");
 
             // 新增

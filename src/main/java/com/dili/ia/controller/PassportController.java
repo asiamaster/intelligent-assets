@@ -351,16 +351,16 @@ public class PassportController {
      * @param passportDto
      */
     private void ParamValidate(PassportDto passportDto) {
+        AssertUtils.notNull(passportDto.getCarType(), "车型不能为空");
+        AssertUtils.notNull(passportDto.getEndTime(), "结束日期不能为空");
+        AssertUtils.notNull(passportDto.getTollAmount(), "通行费不能为空");
+        AssertUtils.notNull(passportDto.getStartTime(), "开始日期不能为空");
+        AssertUtils.notNull(passportDto.getValidPeriod(), "有效期不能为空");
+        AssertUtils.notNull(passportDto.getDepartmentId(), "业务所属部门不能为空");
+        AssertUtils.notEmpty(passportDto.getCarNumber(), "车牌号不能为空");
+        AssertUtils.notEmpty(passportDto.getLicenseCode(), "证件类型不能为空");
         AssertUtils.notEmpty(passportDto.getCustomerName(), "客户名称不能为空");
         AssertUtils.notEmpty(passportDto.getCertificateNumber(), "证件号码不能为空");
         AssertUtils.notEmpty(passportDto.getCustomerCellphone(), "联系电话不能为空");
-        AssertUtils.notNull(passportDto.getCarType(), "车型不能为空");
-        AssertUtils.notNull(passportDto.getEndTime(), "结束日期不能为空");
-        AssertUtils.notEmpty(passportDto.getCarNumber(), "车牌号不能为空");
-        AssertUtils.notNull(passportDto.getStartTime(), "开始日期不能为空");
-        AssertUtils.notNull(passportDto.getValidPeriod(), "有效期不能为空");
-        AssertUtils.notEmpty(passportDto.getLicenseCode(), "证件类型不能为空");
-        AssertUtils.notNull(passportDto.getDepartmentId(), "业务所属部门不能为空");
-        AssertUtils.notNull(passportDto.getTollAmount(), "通行费不能为空");
     }
 }
