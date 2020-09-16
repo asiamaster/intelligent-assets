@@ -44,6 +44,7 @@ import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.exception.NotLoginException;
+import com.dili.uap.sdk.redis.UserResourceRedis;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
@@ -104,7 +105,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     private Long settlementAppId;
     @Value("${refundOrder.settlement.handler.url}")
     private String settlerHandlerUrl;
-
+    @Autowired
+    private UserResourceRedis userResourceRedis;
     @Autowired @Lazy
     private List<RefundOrderDispatcherService> refundBizTypes;
     private Map<String,RefundOrderDispatcherService> refundBiz = new HashMap<>();
@@ -217,6 +219,12 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         checkCustomerState(refundOrder.getCustomerId(), userTicket.getFirmId());
         //检查收款人客户状态
         checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
+
+        //提交时验证该用户是否有跳过审批的权限
+        if (!userResourceRedis.checkUserResourceRight(userTicket.getId(), "skipRefundApproval") && !ApprovalStateEnum.APPROVED.getCode().equals(refundOrder.getApprovalState())) {
+            LOG.info("退款单编号【{}】 未审批，不可以进行提交操作", refundOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款单编号【" + refundOrder.getCode() + "】 未审批，不可以进行提交操作");
+        }
         refundOrder.setState(RefundOrderStateEnum.SUBMITTED.getCode());
         refundOrder.setSubmitTime(LocalDateTime.now());
         refundOrder.setSubmitterId(userTicket.getId());
