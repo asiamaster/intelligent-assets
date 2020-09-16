@@ -77,12 +77,14 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-        //发送流程消息通知撤回
-        BaseOutput<String> baseOutput = taskRpc.messageEventReceived("withdraw", refundOrder.getProcessInstanceId(), null);
-        if (!baseOutput.isSuccess()) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+        if (null != refundOrder.getProcessInstanceId()) {
+            //发送流程消息通知撤回
+            BaseOutput<String> baseOutput = taskRpc.messageEventReceived("withdraw", refundOrder.getProcessInstanceId(), null);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+            }
         }
-        return baseOutput;
+        return BaseOutput.success();
     }
 
     @Override

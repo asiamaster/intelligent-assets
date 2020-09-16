@@ -652,10 +652,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
         assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
         //发送流程消息通知撤回
-        BaseOutput<String> baseOutput = taskRpc.messageEventReceived("withdraw", leaseOrder.getProcessInstanceId(), null);
-        if (!baseOutput.isSuccess()) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+        if (null != leaseOrder.getProcessInstanceId()) {
+            BaseOutput<String> baseOutput = taskRpc.messageEventReceived("withdraw", leaseOrder.getProcessInstanceId(), null);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+            }
         }
+
         //日志上下文构建
         LoggerUtil.buildLoggerContext(leaseOrder.getId(), leaseOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success();
