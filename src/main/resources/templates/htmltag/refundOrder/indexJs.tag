@@ -321,11 +321,15 @@
                     $('#btn_edit').attr('disabled', false);
                     $('#btn_cancel').attr('disabled', false);
                 }
+                <#resource code="skipRefundApproval">
+                    $('#btn_submit').attr('disabled', false);
+                </#resource>
             <%}else{%>
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
                 $('#btn_submit').attr('disabled', false);
             <%}%>
+
         } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CANCELD.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
