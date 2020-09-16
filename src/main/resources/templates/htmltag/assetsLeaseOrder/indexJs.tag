@@ -706,7 +706,7 @@
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
             }
-            <#resource code="skipApproval">
+            <#resource code="skipAssetsLeaseApproval">
                 $('#btn_submit').attr('disabled', false);
             </#resource>
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()}) {
