@@ -336,6 +336,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput doWithdrawDispatcher(RefundOrder refundOrder) {
         if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
