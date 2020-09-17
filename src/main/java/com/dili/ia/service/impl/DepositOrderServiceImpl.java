@@ -40,6 +40,7 @@ import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import com.dili.uap.sdk.util.WebContent;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -283,6 +284,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput<DepositOrder> submitDepositOrder(Long id, Long amount, Long waitAmount) {
         DepositOrder de = this.get(id);
@@ -422,6 +424,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput<DepositOrder> withdrawDepositOrder(Long depositOrderId) {
         //改状态，删除缴费单，通知撤回结算中心缴费单
@@ -562,6 +565,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput<DepositOrder> paySuccessHandler(SettleOrder settleOrder) {
         if (null == settleOrder){
