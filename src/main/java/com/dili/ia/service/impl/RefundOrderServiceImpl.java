@@ -9,6 +9,7 @@ import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.ApprovalProcess;
+import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.ApprovalParam;
@@ -206,6 +207,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput doSubmitDispatcher(RefundOrder refundOrder) {
         if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
@@ -215,6 +217,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
+        //记录当前审批状态，用于判断是否直接提交，而需要清空流程
+        Integer approvalState = refundOrder.getApprovalState();
         //检查客户状态
         checkCustomerState(refundOrder.getCustomerId(), userTicket.getFirmId());
         //检查收款人客户状态
@@ -233,6 +237,24 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         refundOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
         if (refundOrderService.updateSelective(refundOrder) == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
+        }
+
+        //如果有流程实例id，需要判断当前是否审批通过，非审批通过状态的直接提交需要清空流程
+        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId()) && !ApprovalStateEnum.APPROVED.getCode().equals(approvalState)){
+            RefundOrder refundOrder1 = new RefundOrder();
+            RefundOrder dbRefundOrder = get(refundOrder.getId());
+            refundOrder1.setId(refundOrder.getId());
+            refundOrder1.setVersion(dbRefundOrder.getVersion());
+            Map<String, Object> setForceParams = new HashMap<>();
+            setForceParams.put("process_instance_id", null);
+            setForceParams.put("process_definition_id", null);
+            refundOrder1.setSetForceParams(setForceParams);
+            if(0 == updateExact(refundOrder1)){
+                LOG.info("退款单提交状态更新失败 乐观锁生效 【退款单ID {}】", refundOrder.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
+            }
+            //清空流程
+            runtimeRpc.stopProcessInstanceById(refundOrder.getProcessInstanceId(), "直接提交审批");
         }
 
         //获取业务service,调用业务实现
@@ -314,6 +336,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput doWithdrawDispatcher(RefundOrder refundOrder) {
         if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
