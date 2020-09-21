@@ -3,6 +3,7 @@ package com.dili.ia.service.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.CustomerAccountService;
+import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.StockInDetailService;
@@ -67,6 +69,7 @@ import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -115,6 +118,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	@Autowired
 	private CustomerAccountService customerAccountService;
+	
+	@Autowired
+	private DataAuthService dataAuthService;
 	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -521,17 +527,19 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Override
 	public String listPageAction(StockInQueryDto stockIn) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-		List<Map> name = SessionContext.getSessionContext().dataAuth("department");
-		//System.err.println(JSON.toJSON(name));
-        List<Map> name2 = SessionContext.getSessionContext().dataAuth("market");
-        //System.err.println(JSON.toJSON(name2));
-		//TODO 数据隔离
+		// 获取部门数据权限
+		List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+		if (CollectionUtils.isEmpty(departmentIdList)) {
+			return null;
+		}
+		stockIn.setDepIds(departmentIdList);
 		stockIn.setMarketId(userTicket.getFirmId());
 		try {
 			return this.listEasyuiPageByExample(stockIn, true).toString();
 		} catch (Exception e) {
 			e.printStackTrace();
-		};
+		}
+		;
 		return null;
 	}
 
