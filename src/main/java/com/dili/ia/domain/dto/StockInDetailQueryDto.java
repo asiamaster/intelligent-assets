@@ -3,10 +3,14 @@ package com.dili.ia.domain.dto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
+
+import javax.persistence.Column;
 
 import org.apache.ibatis.io.ResolverUtil.IsA;
 
 import com.dili.ss.domain.BaseDomain;
+import com.dili.ss.domain.annotation.Operator;
 
 /**
  * 
@@ -65,6 +69,9 @@ public class StockInDetailQueryDto extends BaseDomain{
 	
 	private String sort;*/
 	
+	@Column(name = "`department_id`")
+	@Operator(Operator.IN)
+	private List<Long> depIds;
 
 	public String getStockInDetailCode() {
 		return stockInDetailCode;
@@ -192,6 +199,14 @@ public class StockInDetailQueryDto extends BaseDomain{
 
 	public void setMarketId(Long marketId) {
 		this.marketId = marketId;
+	}
+
+	public List<Long> getDepIds() {
+		return depIds;
+	}
+
+	public void setDepIds(List<Long> depIds) {
+		this.depIds = depIds;
 	}
 
 	

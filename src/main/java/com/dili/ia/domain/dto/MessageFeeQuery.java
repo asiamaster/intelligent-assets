@@ -1,6 +1,7 @@
 package com.dili.ia.domain.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.Column;
 
@@ -39,6 +40,11 @@ public class MessageFeeQuery extends MessageFee {
 	@Column(name = "`customer_name`")
 	@Like
 	private String likeCustomerName;
+	
+	@Column(name = "`department_id`")
+	@Operator(Operator.IN)
+	private List<Long> depIds;
+	
 	public LocalDateTime getCreatedStart() {
 		return createdStart;
 	}
@@ -68,6 +74,12 @@ public class MessageFeeQuery extends MessageFee {
 	}
 	public void setGtEndDate(LocalDateTime gtEndDate) {
 		this.gtEndDate = gtEndDate;
+	}
+	public List<Long> getDepIds() {
+		return depIds;
+	}
+	public void setDepIds(List<Long> depIds) {
+		this.depIds = depIds;
 	}
 	
 	

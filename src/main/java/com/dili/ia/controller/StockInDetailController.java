@@ -1,8 +1,10 @@
 package com.dili.ia.controller;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.dili.ia.domain.dto.StockInDetailQueryDto;
+import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.StockInDetailService;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.metadata.ValueProviderUtils;
@@ -27,7 +30,10 @@ import com.github.pagehelper.Page;
 @RequestMapping("/stock/stockInDetail")
 public class StockInDetailController {
     @Autowired
-    StockInDetailService stockInDetailService;
+    private StockInDetailService stockInDetailService;
+    
+    @Autowired
+    private DataAuthService dataAuthService;
 
     /**
      * 跳转到StockInDetail页面
@@ -60,6 +66,11 @@ public class StockInDetailController {
     public @ResponseBody String listPage(@ModelAttribute StockInDetailQueryDto stockInDetailQueryDto) throws Exception {
     	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
     	stockInDetailQueryDto.setMarketId(userTicket.getFirmId());
+    	List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+		if (CollectionUtils.isEmpty(departmentIdList)) {
+			return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+		}
+		stockInDetailQueryDto.setDepIds(departmentIdList);
     	Page<Map<String, String>> page = stockInDetailService.selectByContion(stockInDetailQueryDto);
     	Map<String, String> map = stockInDetailQueryDto.getMetadata();
     	List<Map> result = ValueProviderUtils.buildDataByProvider(map, page.getResult());

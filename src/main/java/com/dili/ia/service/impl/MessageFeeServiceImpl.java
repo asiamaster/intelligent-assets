@@ -322,6 +322,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	@Override
 	@Transactional
 	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
+		LOG.info("信息费退款成功回调{}",settleOrder.getCode());
 		MessageFee messageFee = getMessageFeeByCode(refundOrder.getBusinessCode());
 		if (messageFee.getState() != MessageFeeStateEnum.SUBMITTED_REFUND.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
@@ -356,6 +357,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	@Override
 	@Transactional
 	public void settlementDealHandler(SettleOrder settleOrder) {
+		LOG.info("信息费支付成功回调{}",settleOrder.getCode());
 		MessageFee messageFee = getMessageFeeByCode(settleOrder.getBusinessCode());
 		if(messageFee.getState() != MessageFeeStateEnum.SUBMITTED_PAY.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
@@ -401,6 +403,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 				&& messageFee.getState() != MessageFeeStateEnum.REFUNDED.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "信息单未缴费!");
 		}
+		// syncAction 1-缴费成功同步,2-退款同步
 		if (messageFee.getState() == MessageFeeStateEnum.REFUNDED.getCode()) {
 			syncAction = 2;
 		}
@@ -541,10 +544,10 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		messageFeePrint.setSettlementOperator(order.getOperatorName());
 		
 		messageFeePrint.setPayWay(order.getWayName());
-		//TODO 判断支付方式
-		//园区卡号
+		// 判断支付方式
+		// 园区卡号
 		messageFeePrint.setCardNo(order.getAccountNumber());
-		//流水号
+		// 流水号
 		messageFeePrint.setSerialNumber(order.getSerialNumber());
 		PrintDataDto<MessageFeePayPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_PAY.getName());
@@ -568,10 +571,10 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		printDto.setSubmitter(messageFee.getSubmitorName());
 		printDto.setNotes(messageFee.getNotes());
 		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
-		//TODO 判断支付方式
-		//园区卡号
+		// 判断支付方式
+		// 园区卡号
 		printDto.setAccountCardNo(order.getAccountNumber());
-		//银行卡号
+		// 银行卡号
 		printDto.setBankName(refundOrder.getBank());
 		printDto.setBankNo(refundOrder.getBankCardNo());
 		// 获取转抵信息

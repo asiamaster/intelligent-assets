@@ -1,9 +1,12 @@
 package com.dili.ia.domain.dto;
 
+import java.util.List;
+
 import javax.persistence.Column;
 
 import com.dili.ia.domain.StockOut;
 import com.dili.ss.domain.annotation.Like;
+import com.dili.ss.domain.annotation.Operator;
 
 /**
  * <B>Description</B>
@@ -23,6 +26,10 @@ public class StockOutQuery extends StockOut {
     @Column(name = "`creator`")
     @Like
     private String likeCreator;
+    
+	@Column(name = "`department_id`")
+	@Operator(Operator.IN)
+	private List<Long> depIds;
 
 	public String getLikeCustomerName() {
 		return likeCustomerName;
@@ -39,5 +46,15 @@ public class StockOutQuery extends StockOut {
 	public void setLikeCreator(String likeCreator) {
 		this.likeCreator = likeCreator;
 	}
+
+	public List<Long> getDepIds() {
+		return depIds;
+	}
+
+	public void setDepIds(List<Long> depIds) {
+		this.depIds = depIds;
+	}
+	
+	
 
 }

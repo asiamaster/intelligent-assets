@@ -9,6 +9,7 @@ import com.dili.ia.domain.dto.MessageFeeQuery;
 import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.service.BusinessChargeItemService;
+import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.MessageFeeService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.valid.LaborGetCost;
@@ -18,12 +19,15 @@ import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +59,9 @@ public class MessageFeeController {
     
     @Autowired
     private BusinessLogRpc businessLogRpc;
+    
+    @Autowired
+    private DataAuthService dataAuthService;
 
     /**
      * 跳转到messageFee页面
@@ -123,7 +130,15 @@ public class MessageFeeController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute MessageFeeQuery messageFee) throws Exception {
-        return messageFeeService.listEasyuiPageByExample(messageFee, true).toString();
+    	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+    	messageFee.setMarketId(userTicket.getFirmId());
+		// 获取部门数据权限
+		List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+		if (CollectionUtils.isEmpty(departmentIdList)) {
+			return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+		}
+		messageFee.setDepIds(departmentIdList);
+    	return messageFeeService.listEasyuiPageByExample(messageFee, true).toString();
     }
 
     /**

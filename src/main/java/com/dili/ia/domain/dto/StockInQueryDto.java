@@ -40,6 +40,10 @@ public class StockInQueryDto extends StockIn {
 	@Column(name = "`customer_name`")
 	@Like
 	private String likeCustomerName;
+	
+	@Column(name = "`department_id`")
+	@Operator(Operator.IN)
+	private List<Long> depIds;
 
 	public LocalDateTime getCreatedStart() {
 		return createdStart;
@@ -79,6 +83,14 @@ public class StockInQueryDto extends StockIn {
 
 	public void setLikeCustomerName(String likeCustomerName) {
 		this.likeCustomerName = likeCustomerName;
+	}
+
+	public List<Long> getDepIds() {
+		return depIds;
+	}
+
+	public void setDepIds(List<Long> depIds) {
+		this.depIds = depIds;
 	}
 	
 	

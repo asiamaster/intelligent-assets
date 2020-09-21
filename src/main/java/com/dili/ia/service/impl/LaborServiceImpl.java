@@ -340,6 +340,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	@Override
 	@GlobalTransactional
 	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
+		LOG.info("劳务费退款成功回调{}",settleOrder.getCode());
 		String code = refundOrder.getBusinessCode();
 		Labor labor = getLaborByCode(code);
 		if(labor.getState() != LaborStateEnum.SUBMITTED_REFUND.getCode()) {
@@ -368,6 +369,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	@Override
 	@Transactional
 	public void settlementDealHandler(SettleOrder settleOrder) {
+		LOG.info("劳务费支付成功回调{}",settleOrder.getCode());
 		String code = settleOrder.getBusinessCode();
 		Labor labor = getLaborByCode(code);
 		if (labor.getState() != LaborStateEnum.SUBMITTED_PAY.getCode()) {
@@ -571,10 +573,10 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		laborPrintDto.setNotes(labor.getNotes());
 		
 		laborPrintDto.setPayWay(order.getWayName());
-		//TODO 判断支付方式
-		//园区卡号
+		// 判断支付方式
+		// 园区卡号
 		laborPrintDto.setCardNo(order.getAccountNumber());
-		//流水号
+		// 流水号
 		laborPrintDto.setSerialNumber(order.getSerialNumber());
 		PrintDataDto<LaborPayPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.LABOR_VEST_PAY.getName());
@@ -599,10 +601,10 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		printDto.setSubmitter(labor.getSubmitter());
 		printDto.setNotes(labor.getNotes());
 		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
-		//TODO 判断支付方式
-		//园区卡号
+		// 判断支付方式
+		// 园区卡号
 		printDto.setAccountCardNo(order.getAccountNumber());
-		//银行卡号
+		// 银行卡号
 		printDto.setBankName(refundOrder.getBank());
 		printDto.setBankNo(refundOrder.getBankCardNo());
 		// 获取转抵信息

@@ -2,12 +2,17 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.StockOut;
 import com.dili.ia.domain.dto.StockOutQuery;
+import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.StockOutService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 
+import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -24,7 +29,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/stock/stockOut")
 public class StockOutController {
     @Autowired
-    StockOutService stockOutService;
+    private StockOutService stockOutService;
+    @Autowired
+    private DataAuthService dataAuthService;
 
     /**
      * 跳转到StockOut页面
@@ -57,6 +64,11 @@ public class StockOutController {
     public @ResponseBody String listPage(@ModelAttribute StockOutQuery stockOut) throws Exception {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		stockOut.setMarketId(userTicket.getFirmId());
+		List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
+		if (CollectionUtils.isEmpty(departmentIdList)) {
+			return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+		}
+		stockOut.setDepIds(departmentIdList);
         return stockOutService.listEasyuiPageByExample(stockOut, true).toString();
     }
 
