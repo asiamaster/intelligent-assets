@@ -4,6 +4,8 @@ import com.dili.ia.domain.dto.DepositBalanceQuery;
 import com.dili.ia.service.DepositBalanceService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.util.MoneyUtils;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -40,6 +42,8 @@ public class DepositBalanceController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute DepositBalanceQuery depositBalance) throws Exception {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        depositBalance.setMarketId(userTicket.getFirmId());
         return  depositBalanceService.listEasyuiPageByExample(depositBalance, true).toString();
     }
 
@@ -50,6 +54,8 @@ public class DepositBalanceController {
      */
     @RequestMapping(value="/getTotalBalance.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput<String> getTotalBalance(DepositBalanceQuery depositBalanceQuery){
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        depositBalanceQuery.setMarketId(userTicket.getFirmId());
         Long totalBalance = depositBalanceService.sumBalance(depositBalanceQuery);
         return BaseOutput.success().setData(MoneyUtils.centToYuan(totalBalance));
     }
