@@ -1,10 +1,14 @@
 package com.dili.ia.service.impl;
 
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.dto.DepartmentByOtherFeeDto;
 import com.dili.ia.domain.dto.DepartmentChargeItemDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.mapper.DepartmentChargeItemMapper;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.DepartmentChargeItemService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -12,7 +16,6 @@ import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
-import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.DataDictionaryValue;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DataDictionaryRpc;
@@ -21,17 +24,13 @@ import com.google.common.collect.Lists;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 
 /**
@@ -50,24 +49,22 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
     @Autowired
     DataDictionaryRpc dataDictionaryRpc;
 
+    @Autowired
+    private BusinessChargeItemService businessChargeItemService;
+
     /**
      * 打开 其他收费 - 收费项绑定部门 页面，更新数据表
      *
      * @date   2020/8/24
+     * @param userTicket
      */
     @Override
-    @GlobalTransactional
-    public void batchUpdateChargeItems() {
-        // 根据数据字典的键查询相关 其他收费项 的相关数据
-        List<DataDictionaryValue> list = dataDictionaryRpc.listDataDictionaryValueByDdCode(BizNumberTypeEnum.OTHER_FEE_CHARGE_ITEM.getCode()).getData();
-        if (!CollectionUtils.isEmpty(list)) {
-            List<ValuePair<?>> valuePairs = Lists.newArrayList();
+    public void batchUpdateChargeItems(UserTicket userTicket) {
+        // 收费项从动态收费项里获取
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
+                queryBusinessChargeItemConfig(userTicket.getFirmId(), BizTypeEnum.OTHER_FEE.getCode(), YesOrNoEnum.YES.getCode());
 
-            for (int i = 0; i < list.size(); i++) {
-                DataDictionaryValue dataDictionaryValue = list.get(i);
-                valuePairs.add(new ValuePairImpl(dataDictionaryValue.getName(), dataDictionaryValue.getCode()));
-            }
-
+        if (!CollectionUtils.isEmpty(chargeItemDtos)) {
             // 查询表中的收费项，数据字典中不存在，则从表中删除，数据字典多出来的，则添加到表中
             List<DepartmentChargeItem> itemInfoList = this.list(new DepartmentChargeItem());
             List<String> chargeItemIdListInTable = new ArrayList<>();
@@ -77,10 +74,10 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                 chargeItemIdListInTableToAdd.add(itemInfo.getChargeItemId());
             }
 
-            // 数据字典的收费项 ids
+            // 收费项配置 里的 其他收费 收费项 ids
             List<String> chargeItemIdListByDate = new ArrayList<>();
-            for (ValuePair<?> valuePair : valuePairs) {
-                String chargeItemId = (String) valuePair.getValue();
+            for (BusinessChargeItemDto chargeItemDto : chargeItemDtos) {
+                String chargeItemId = chargeItemDto.getId().toString();
                 chargeItemIdListByDate.add(chargeItemId);
             }
 
@@ -94,11 +91,11 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
             chargeItemIdListByDate.removeAll(chargeItemIdListInTableToAdd);
             if (chargeItemIdListByDate != null && chargeItemIdListByDate.size() > 0) {
                 List<DepartmentChargeItem> departmentChargeItemList = new ArrayList<>();
-                for (ValuePair<?> valuePair : valuePairs) {
-                    String chargeItemId = (String) valuePair.getValue();
+                for (BusinessChargeItemDto chargeItemDto : chargeItemDtos) {
+                    String chargeItemId = chargeItemDto.getId().toString();
                     if (chargeItemIdListByDate.contains(chargeItemId)) {
                         DepartmentChargeItem departmentChargeItem = new DepartmentChargeItem();
-                        String chargeItemName = valuePair.getText();
+                        String chargeItemName = chargeItemDto.getChargeItem();
                         departmentChargeItem.setVersion(0);
                         departmentChargeItem.setChargeItemId(chargeItemId);
                         departmentChargeItem.setChargeItemName(chargeItemName);

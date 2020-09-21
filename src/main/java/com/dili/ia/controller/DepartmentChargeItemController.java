@@ -56,8 +56,9 @@ public class DepartmentChargeItemController {
      */
     @RequestMapping(value="/department.html", method = RequestMethod.GET)
     public String department(ModelMap modelMap) {
-
-        departmentChargeItemService.batchUpdateChargeItems();
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        // 动态收费项的操作
+        departmentChargeItemService.batchUpdateChargeItems(userTicket);
 
         return "otherFee/department";
     }

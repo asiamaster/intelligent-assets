@@ -20,10 +20,11 @@ public interface DepartmentChargeItemService extends BaseService<DepartmentCharg
      * 打开其他收费 - 收费项绑定部门的页面，更新数据表
      *
      * @param
+     * @param userTicket
      * @return
      * @date   2020/8/24
      */
-    void batchUpdateChargeItems();
+    void batchUpdateChargeItems(UserTicket userTicket);
 
     /**
      * 根据收费项查询相关部门
