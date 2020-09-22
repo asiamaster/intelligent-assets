@@ -30,6 +30,7 @@ import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -234,6 +235,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput<EarnestOrder> submitEarnestOrder(Long earnestOrderId) {
         EarnestOrder ea = this.get(earnestOrderId);
@@ -348,6 +350,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput<EarnestOrder> withdrawEarnestOrder(Long earnestOrderId) {
         //改状态，删除缴费单，通知撤回结算中心缴费单
@@ -381,6 +384,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput<EarnestOrder> paySuccessHandler(SettleOrder settleOrder) {
         if (null == settleOrder){

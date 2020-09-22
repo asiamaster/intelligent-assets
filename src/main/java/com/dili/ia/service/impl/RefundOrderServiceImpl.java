@@ -9,6 +9,7 @@ import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.ApprovalProcess;
+import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.ApprovalParam;
@@ -37,12 +38,14 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.exception.NotLoginException;
+import com.dili.uap.sdk.redis.UserResourceRedis;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
@@ -101,9 +104,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     private ApprovalProcessService approvalProcessService;
     @Value("${settlement.app-id}")
     private Long settlementAppId;
-    //@Value("${refundOrder.settlement.handler.url}")
-    private String settlerHandlerUrl ="http://10.28.1.187:8381/api/refundOrder/settlementDealHandler";
-
+    @Value("${refundOrder.settlement.handler.url}")
+    private String settlerHandlerUrl;
+    @Autowired
+    private UserResourceRedis userResourceRedis;
     @Autowired @Lazy
     private List<RefundOrderDispatcherService> refundBizTypes;
     private Map<String,RefundOrderDispatcherService> refundBiz = new HashMap<>();
@@ -203,6 +207,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput doSubmitDispatcher(RefundOrder refundOrder) {
         if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
@@ -212,16 +217,44 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
+        //记录当前审批状态，用于判断是否直接提交，而需要清空流程
+        Integer approvalState = refundOrder.getApprovalState();
         //检查客户状态
         checkCustomerState(refundOrder.getCustomerId(), userTicket.getFirmId());
         //检查收款人客户状态
         checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
+
+        //提交时验证该租赁退款单业务的用户是否有跳过审批的权限
+        if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode()) && !userResourceRedis.checkUserResourceRight(userTicket.getId(), "skipRefundApproval") && !ApprovalStateEnum.APPROVED.getCode().equals(refundOrder.getApprovalState())) {
+            LOG.info("退款单编号【{}】 未审批，不可以进行提交操作", refundOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款单编号【" + refundOrder.getCode() + "】 未审批，不可以进行提交操作");
+        }
         refundOrder.setState(RefundOrderStateEnum.SUBMITTED.getCode());
         refundOrder.setSubmitTime(LocalDateTime.now());
         refundOrder.setSubmitterId(userTicket.getId());
         refundOrder.setSubmitter(userTicket.getRealName());
+        //提交审批后，默认为审批通过
+        refundOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
         if (refundOrderService.updateSelective(refundOrder) == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
+        }
+
+        //如果有流程实例id，需要判断当前是否审批通过，非审批通过状态的直接提交需要清空流程
+        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId()) && !ApprovalStateEnum.APPROVED.getCode().equals(approvalState)){
+            RefundOrder refundOrder1 = new RefundOrder();
+            RefundOrder dbRefundOrder = get(refundOrder.getId());
+            refundOrder1.setId(refundOrder.getId());
+            refundOrder1.setVersion(dbRefundOrder.getVersion());
+            Map<String, Object> setForceParams = new HashMap<>();
+            setForceParams.put("process_instance_id", null);
+            setForceParams.put("process_definition_id", null);
+            refundOrder1.setSetForceParams(setForceParams);
+            if(0 == updateExact(refundOrder1)){
+                LOG.info("退款单提交状态更新失败 乐观锁生效 【退款单ID {}】", refundOrder.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
+            }
+            //清空流程
+            runtimeRpc.stopProcessInstanceById(refundOrder.getProcessInstanceId(), "直接提交审批");
         }
 
         //获取业务service,调用业务实现
@@ -303,6 +336,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput doWithdrawDispatcher(RefundOrder refundOrder) {
         if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
@@ -498,6 +532,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             LOG.info("退款单提交状态更新失败 乐观锁生效 【退款单ID {}】", refundOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
         }
+        //保存提交审批记录
+        ApprovalParam approvalParam = DTOUtils.newInstance(ApprovalParam.class);
+        approvalParam.setBusinessKey(refundOrder.getCode());
+        approvalParam.setProcessInstanceId(refundOrder.getProcessInstanceId());
+        saveApprovalProcess(approvalParam, userTicket);
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
@@ -635,13 +674,18 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         approvalProcess.setBusinessKey(approvalParam.getBusinessKey());
         approvalProcess.setOpinion(approvalParam.getOpinion());
         approvalProcess.setTaskId(approvalParam.getTaskId());
+        approvalProcess.setResult(approvalParam.getResult());
+        //提交审批时没有任务id，直接保存
+        if(approvalParam.getTaskId() == null){
+            approvalProcessService.insertSelective(approvalProcess);
+            return;
+        }
         BaseOutput<TaskMapping> taskMappingBaseOutput = taskRpc.getById(approvalParam.getTaskId());
         if (!taskMappingBaseOutput.isSuccess()) {
             throw new AppException("获取任务信息失败");
         }
         approvalProcess.setTaskName(taskMappingBaseOutput.getData().getName());
         approvalProcess.setTaskTime(taskMappingBaseOutput.getData().getCreateTime());
-        approvalProcess.setResult(approvalParam.getResult());
         //每次审批通过，保存流程审批记录(目前考虑性能，没有保存流程名称)
         approvalProcessService.insertSelective(approvalProcess);
     }

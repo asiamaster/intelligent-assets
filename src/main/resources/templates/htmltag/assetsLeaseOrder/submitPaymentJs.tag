@@ -90,7 +90,7 @@
         let payAmount = Number($('#payAmount').val());
         let apportionAmount = calcApportionAmount();
         if (payAmount != (apportionAmount.sub(deductionAmount))) {
-            let errorMsg = deductionAmount > 0 ? '【本次付款金额】必须等于【分摊金额+抵扣】' : '【本次付款金额】必须等于【分摊金额】';
+            let errorMsg = deductionAmount > 0 ? '【本次付款金额】必须等于【分摊金额-抵扣】' : '【本次付款金额】必须等于【分摊金额】';
             bs4pop.notice(errorMsg, {position: 'bottomleft'});
             return false;
         }

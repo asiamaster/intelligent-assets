@@ -38,12 +38,14 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.exception.NotLoginException;
+import com.dili.uap.sdk.redis.UserResourceRedis;
 import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
@@ -124,6 +126,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private ApprovalProcessService approvalProcessService;
     @Autowired
     private ApportionRecordService apportionRecordService;
+    @Autowired
+    private UserResourceRedis userResourceRedis;
 
     @Autowired
     @Lazy
@@ -314,6 +318,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             runtimeRpc.stopProcessInstanceById(leaseOrder.getProcessInstanceId(), e.getMessage());
             throw e;
         }
+        ApprovalParam approvalParam = DTOUtils.newInstance(ApprovalParam.class);
+        approvalParam.setBusinessKey(leaseOrder.getCode());
+        approvalParam.setProcessInstanceId(leaseOrder.getProcessInstanceId());
+        saveApprovalProcess(approvalParam, userTicket);
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, leaseOrder.getCode());
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, leaseOrder.getId());
@@ -451,6 +459,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
 
         AssetsLeaseOrder leaseOrder = get(assetsLeaseSubmitPaymentDto.getLeaseOrderId());
+        //记录当前审批状态，用于判断是否直接提交，而需要清空流程
+        Integer approvalState = leaseOrder.getApprovalState();
         AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
@@ -505,6 +515,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
                 //提交付款
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
+                //提交时审批通过
+                leaseOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
                 //更新摊位租赁单状态
                 cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
             } else {
@@ -532,6 +544,24 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 LOG.info("保证金提交付款接口异常 【租赁单编号:{},数据:{}】", leaseOrder.getCode(), JSON.toJSONString(assetsLeaseSubmitPaymentDto.getDepositAmountMap()));
                 throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
             }
+        }
+
+        //如果有流程实例id，需要判断当前是否审批通过，非审批通过状态的直接提交需要清空流程
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId()) && !ApprovalStateEnum.APPROVED.getCode().equals(approvalState)){
+            AssetsLeaseOrder assetsLeaseOrder = new AssetsLeaseOrder();
+            AssetsLeaseOrder dbAssetsLeaseOrder = get(leaseOrder.getId());
+            assetsLeaseOrder.setId(leaseOrder.getId());
+            assetsLeaseOrder.setVersion(dbAssetsLeaseOrder.getVersion());
+            Map<String, Object> setForceParams = new HashMap<>();
+            setForceParams.put("process_instance_id", null);
+            setForceParams.put("process_definition_id", null);
+            assetsLeaseOrder.setSetForceParams(setForceParams);
+            if(0 == updateExact(assetsLeaseOrder)){
+                LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
+            }
+            //清空流程
+            runtimeRpc.stopProcessInstanceById(leaseOrder.getProcessInstanceId(), "直接提交审批");
         }
 
         //日志上下文构建
@@ -562,7 +592,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         leaseOrder.setState(LeaseOrderStateEnum.CANCELD.getCode());
         leaseOrder.setCancelerId(userTicket.getId());
         leaseOrder.setCanceler(userTicket.getRealName());
-
+        //如果没流程实例id过，直接提交
         if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
             //发送消息通知流程终止
             BaseOutput<String> baseOutput = taskRpc.messageEventReceived("terminate", leaseOrder.getProcessInstanceId(), null);
@@ -642,10 +672,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
         assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
         //发送流程消息通知撤回
-        BaseOutput<String> baseOutput = taskRpc.messageEventReceived("withdraw", leaseOrder.getProcessInstanceId(), null);
-        if (!baseOutput.isSuccess()) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+        if (null != leaseOrder.getProcessInstanceId()) {
+            BaseOutput<String> baseOutput = taskRpc.messageEventReceived("withdraw", leaseOrder.getProcessInstanceId(), null);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+            }
         }
+
         //日志上下文构建
         LoggerUtil.buildLoggerContext(leaseOrder.getId(), leaseOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success();
@@ -740,28 +773,30 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             List<BusinessChargeItem> businessChargeItems = businessChargeItemService.list(chargeItemCondition);
 
             Long itemPaymentAmount = businessChargeItems.stream().mapToLong(BusinessChargeItem::getPaymentAmount).sum();
-            o.setWaitAmount(o.getWaitAmount() - itemPaymentAmount);
-            o.setPaidAmount(o.getPaidAmount() + itemPaymentAmount);
             o.setState(leaseOrder.getState());
             if ((o.getWaitAmount() - itemPaymentAmount) == 0L) {
                 o.setPayState(PayStateEnum.PAID.getCode());
             }
 
-            //业务收费项完成分摊
-            businessChargeItems.stream().filter(bci -> bci.getPaymentAmount() > 0L).forEach(bci -> {
-                ApportionRecord apportionRecord = buildApportionRecord( o, bci);
-                apportionRecord.setPaymentOrderId(paymentOrderPO.getId());
-                apportionRecords.add(apportionRecord);
+            if (itemPaymentAmount > 0L) {
+                o.setWaitAmount(o.getWaitAmount() - itemPaymentAmount);
+                o.setPaidAmount(o.getPaidAmount() + itemPaymentAmount);
 
-                bci.setWaitAmount(bci.getWaitAmount() - bci.getPaymentAmount());
-                bci.setPaidAmount(bci.getPaidAmount() + bci.getPaymentAmount());
-                bci.setPaymentAmount(0L);
-            });
-            if (businessChargeItemService.batchUpdateSelective(businessChargeItems) != businessChargeItems.size()) {
-                LOG.info("结算成功完成分摊 【businessId:{},bizType:{}】", o.getId(), bizType);
-                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+                //业务收费项完成分摊
+                businessChargeItems.stream().filter(bci -> bci.getPaymentAmount() > 0L).forEach(bci -> {
+                    ApportionRecord apportionRecord = buildApportionRecord( o, bci);
+                    apportionRecord.setPaymentOrderId(paymentOrderPO.getId());
+                    apportionRecords.add(apportionRecord);
+
+                    bci.setWaitAmount(bci.getWaitAmount() - bci.getPaymentAmount());
+                    bci.setPaidAmount(bci.getPaidAmount() + bci.getPaymentAmount());
+                    bci.setPaymentAmount(0L);
+                });
+                if (businessChargeItemService.batchUpdateSelective(businessChargeItems) != businessChargeItems.size()) {
+                    LOG.info("结算成功完成分摊 【businessId:{},bizType:{}】", o.getId(), bizType);
+                    throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+                }
             }
-
         });
         if (assetsLeaseOrderItemService.batchUpdateSelective(leaseOrderItems) != leaseOrderItems.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -1290,13 +1325,18 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         approvalProcess.setBusinessKey(approvalParam.getBusinessKey());
         approvalProcess.setOpinion(approvalParam.getOpinion());
         approvalProcess.setTaskId(approvalParam.getTaskId());
+        approvalProcess.setResult(approvalParam.getResult());
+        //提交审批时没有任务id，直接保存
+        if(approvalParam.getTaskId() == null){
+            approvalProcessService.insertSelective(approvalProcess);
+            return;
+        }
         BaseOutput<TaskMapping> taskMappingBaseOutput = taskRpc.getById(approvalParam.getTaskId());
         if (!taskMappingBaseOutput.isSuccess()) {
             throw new AppException(taskMappingBaseOutput.getMessage());
         }
         approvalProcess.setTaskName(taskMappingBaseOutput.getData().getName());
         approvalProcess.setTaskTime(taskMappingBaseOutput.getData().getCreateTime());
-        approvalProcess.setResult(approvalParam.getResult());
         //每次审批通过，保存流程审批记录(目前考虑性能，没有保存流程名称)
         approvalProcessService.insertSelective(approvalProcess);
     }
@@ -1309,11 +1349,15 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      * @param leaseOrder
      */
     private void checkSubmitPayment(Long id, Long amount, AssetsLeaseOrder leaseOrder) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         //提交付款条件：已交清或退款中、已退款不能进行提交付款操作
-//        if (!ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
-//            LOG.info("租赁单编号【{}】 未审批，不可以进行提交付款操作", leaseOrder.getCode());
-//            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 未审批，不可以进行提交付款操作");
-//        }
+        if (!userResourceRedis.checkUserResourceRight(userTicket.getId(), "skipAssetsLeaseApproval") && !ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
+            LOG.info("租赁单编号【{}】 未审批，不可以进行提交付款操作", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 未审批，不可以进行提交付款操作");
+        }
         if (PayStateEnum.PAID.getCode().equals(leaseOrder.getPayState())) {
             LOG.info("租赁单编号【{}】 已交清，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已交清，不可以进行提交付款操作");
@@ -1325,10 +1369,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (LeaseOrderStateEnum.CANCELD.getCode().equals(leaseOrder.getState())) {
             LOG.info("租赁单编号【{}】已取消，不可以进行提交付款操作", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + leaseOrder.getCode() + "】 已取消，不可以进行提交付款操作");
-        }
-
-        if (amount.equals(0L) && !leaseOrder.getWaitAmount().equals(0L)) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位租赁单付款必须大于0");
         }
         if (amount > leaseOrder.getWaitAmount()) {
             LOG.info("摊位租赁单【ID {}】 支付金额【{}】大于待付金额【{}】", id, amount, leaseOrder.getWaitAmount());

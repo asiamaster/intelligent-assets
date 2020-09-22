@@ -113,30 +113,32 @@
     function openSubmitHandler() {
         if(isSelectRow()){
             bs4pop.confirm('提交之后信息不可更改，并可在结算中心办理退款，确定提交？', {}, bui.util.debounce(function (sure) {
-                bui.loading.show('努力提交中，请稍候。。。');
-                //获取选中行的数据
-                let rows = _grid.bootstrapTable('getSelections');
-                let selectedRow = rows[0];
+                if(sure){
+                    bui.loading.show('努力提交中，请稍候。。。');
+                    //获取选中行的数据
+                    let rows = _grid.bootstrapTable('getSelections');
+                    let selectedRow = rows[0];
 
-                $.ajax({
-                    type: "POST",
-                    url: "${contextPath}/refundOrder/submit.action",
-                    data: {id: selectedRow.id},
-                    processData:true,
-                    dataType: "json",
-                    success : function(data) {
-                        bui.loading.hide();
-                        if(data.success){
-                            _grid.bootstrapTable('refresh');
-                        }else{
-                            bs4pop.alert(data.message, {type: 'error'});
+                    $.ajax({
+                        type: "POST",
+                        url: "${contextPath}/refundOrder/submit.action",
+                        data: {id: selectedRow.id},
+                        processData:true,
+                        dataType: "json",
+                        success : function(data) {
+                            bui.loading.hide();
+                            if(data.success){
+                                _grid.bootstrapTable('refresh');
+                            }else{
+                                bs4pop.alert(data.message, {type: 'error'});
+                            }
+                        },
+                        error : function() {
+                            bui.loading.hide();
+                            bs4pop.alert('远程访问失败', {type: 'error'});
                         }
-                    },
-                    error : function() {
-                        bui.loading.hide();
-                        bs4pop.alert('远程访问失败', {type: 'error'});
-                    }
-                });
+                    });
+                }
             },1000,true))
         }
     }
@@ -305,6 +307,9 @@
                     $('#btn_approval').attr('disabled', false);
                     $('#btn_edit').attr('disabled', false);
                     $('#btn_cancel').attr('disabled', false);
+                    <#resource code="skipRefundApproval">
+                        $('#btn_submit').attr('disabled', false);
+                    </#resource>
                     return;
                 }
                 //待审批时可以 提交审批，修改和取消
@@ -312,20 +317,32 @@
                     $('#btn_approval').attr('disabled', false);
                     $('#btn_edit').attr('disabled', false);
                     $('#btn_cancel').attr('disabled', false);
+                    <#resource code="skipRefundApproval">
+                        $('#btn_submit').attr('disabled', false);
+                    </#resource>
                 }
                 //审批中不允许修改、取消和提交付款
+                else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.IN_REVIEW.getCode()}) {
+                }
                 //审批通过后直接提交退款
+                else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
+                    $('#btn_submit').attr('disabled', false);
+                }
                 //审批拒绝后，可以再次提交审批，修改和取消
                 else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVAL_DENIED.getCode()}){
                     $('#btn_approval').attr('disabled', false);
                     $('#btn_edit').attr('disabled', false);
                     $('#btn_cancel').attr('disabled', false);
+                    <#resource code="skipRefundApproval">
+                        $('#btn_submit').attr('disabled', false);
+                    </#resource>
                 }
             <%}else{%>
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
                 $('#btn_submit').attr('disabled', false);
             <%}%>
+
         } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CANCELD.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);

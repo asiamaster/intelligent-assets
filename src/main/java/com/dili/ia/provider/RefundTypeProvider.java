@@ -6,6 +6,7 @@ import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
 import com.dili.ss.metadata.ValueProvider;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -24,17 +25,18 @@ import java.util.stream.Stream;
  */
 @Component
 public class RefundTypeProvider implements ValueProvider {
-    private static final List<ValuePair<?>> BUFFER = new ArrayList<>();
-
-    static {
-        BUFFER.addAll(Stream.of(RefundTypeEnum.values())
-                .map(e -> new ValuePairImpl<>(e.getName(), e.getCode().toString()))
-                .collect(Collectors.toList()));
-    }
+    private static final ThreadLocal<List<ValuePair<?>>> valuePairsTL = new ThreadLocal<>() {
+        @Override
+        protected List<ValuePair<?>> initialValue() {
+            return Stream.of(RefundTypeEnum.values())
+                    .map(e -> new ValuePairImpl<>(e.getName(), e.getCode().toString()))
+                    .collect(Collectors.toList());
+        }
+    };
 
     @Override
     public List<ValuePair<?>> getLookupList(Object o, Map map, FieldMeta fieldMeta) {
-        return BUFFER;
+        return valuePairsTL.get();
     }
 
     @Override
@@ -42,7 +44,8 @@ public class RefundTypeProvider implements ValueProvider {
         if (null == object) {
             return null;
         }
-        ValuePair<?> valuePair = BUFFER.stream().filter(val -> object.toString().equals(val.getValue())).findFirst().orElseGet(null);
+
+        ValuePair<?> valuePair = valuePairsTL.get().stream().filter(val -> object.toString().equals(val.getValue())).findFirst().orElseGet(null);
         if (null != valuePair) {
             return valuePair.getText();
         }

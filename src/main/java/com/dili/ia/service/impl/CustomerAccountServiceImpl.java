@@ -286,6 +286,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         //定金退款给本人，收款人为本人
         refundOrder.setPayeeId(refundOrder.getCustomerId());
         refundOrder.setPayee(refundOrder.getCustomerName());
+        refundOrder.setPayeeCertificateNumber(refundOrder.getCertificateNumber());
 
         //新增
         if(null == refundOrder.getId()){
@@ -340,6 +341,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput submitLeaseOrderCustomerAmountFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName){
+            //如果 定金 和 转抵的抵扣都为0，即未使用，则验证返回成功。
+            if ((null == earnestDeduction || earnestDeduction.equals(0L)) && (null == transferDeduction || transferDeduction.equals(0L))){
+                return BaseOutput.success();
+            }
             Integer sceneType = TransactionSceneTypeEnum.FROZEN.getCode();
             BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
             if(!checkOut.isSuccess()){
@@ -357,26 +362,34 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput withdrawLeaseOrderCustomerAmountUnFrozen(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName) {
-            Integer sceneType = TransactionSceneTypeEnum.UNFROZEN.getCode();
+        //如果 定金 和 转抵的抵扣都为0，即未使用，则验证返回成功。
+        if ((null == earnestDeduction || earnestDeduction.equals(0L)) && (null == transferDeduction || transferDeduction.equals(0L))){
+            return BaseOutput.success();
+        }
 
-            BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
-            if(!checkOut.isSuccess()){
-                return checkOut;
-            }
-            CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
-            BaseOutput caCheckOut = this.checkCustomerAccount(sceneType, ca, earnestDeduction, transferDeduction);
-            if (!caCheckOut.isSuccess()){
-                return caCheckOut;
-            }
+        BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
+        if(!checkOut.isSuccess()){
+            return checkOut;
+        }
+        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+        Integer sceneType = TransactionSceneTypeEnum.UNFROZEN.getCode();
+        BaseOutput caCheckOut = this.checkCustomerAccount(sceneType, ca, earnestDeduction, transferDeduction);
+        if (!caCheckOut.isSuccess()){
+            return caCheckOut;
+        }
 
-            this.withdrawChangeCustomerAmountAndDetails(sceneType, orderId, orderCode, ca,customerId, earnestDeduction, transferDeduction, marketId, operaterId, operatorName);
-            return BaseOutput.success("处理成功！");
+        this.withdrawChangeCustomerAmountAndDetails(sceneType, orderId, orderCode, ca,customerId, earnestDeduction, transferDeduction, marketId, operaterId, operatorName);
+        return BaseOutput.success("处理成功！");
     }
 
     @Override
     //租赁单提交成功调用接口
     @Transactional(rollbackFor = Exception.class)
     public BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName) {
+            //如果 定金 和 转抵的抵扣都为0，即未使用，则验证返回成功。
+            if ((null == earnestDeduction || earnestDeduction.equals(0L)) && (null == transferDeduction || transferDeduction.equals(0L))){
+                return BaseOutput.success();
+            }
             Integer sceneType = TransactionSceneTypeEnum.DEDUCT_USE.getCode();
             BaseOutput checkOut = this.checkParams(orderId, orderCode, customerId, marketId);
             if(!checkOut.isSuccess()){
@@ -393,7 +406,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
 
     private BaseOutput checkCustomerAccount(Integer sceneType, CustomerAccount customerAccount, Long earnestDeduction, Long transferDeduction){
         //如果客户账户不存在，并且 定金 和 转抵的抵扣都为0，即未使用，则验证返回成功。
-        if (null == customerAccount && (earnestDeduction.equals(0L) || null == earnestDeduction) && (transferDeduction.equals(0L) || null == transferDeduction)){
+        if (null == customerAccount && (null == earnestDeduction || earnestDeduction.equals(0L)) && (null == transferDeduction || transferDeduction.equals(0L))){
             return BaseOutput.success();
         }
         if (customerAccount == null){

@@ -1,6 +1,7 @@
 package com.dili.ia.domain;
 
 import com.dili.ss.domain.BaseDomain;
+import com.dili.ss.dto.IMybatisForceParams;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
@@ -10,6 +11,8 @@ import tk.mybatis.mapper.annotation.Version;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 import javax.persistence.*;
 
 /**
@@ -18,7 +21,7 @@ import javax.persistence.*;
  * This file was generated on 2020-07-03 14:18:29.
  */
 @Table(name = "`refund_order`")
-public class RefundOrder extends BaseDomain {
+public class RefundOrder extends BaseDomain implements IMybatisForceParams {
     @Id
     @Column(name = "`id`")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -217,6 +220,17 @@ public class RefundOrder extends BaseDomain {
      */
     @Column(name = "`refund_reason`")
     private String refundReason;
+
+    @Transient
+    private Map<String, Object> setForceParams;
+    @Transient
+    private Map<String, Object> insertForceParams;
+    @Transient
+    private Set<String> selectColumns;
+    @Transient
+    private String whereSuffixSql;
+    @Transient
+    private Boolean checkInjection;
 
     /**
      * 退款时间
@@ -1096,5 +1110,55 @@ public class RefundOrder extends BaseDomain {
 
     public void setApprovalState(Integer approvalState) {
         this.approvalState = approvalState;
+    }
+
+    @Override
+    public Map<String, Object> getSetForceParams() {
+        return setForceParams;
+    }
+
+    @Override
+    public void setSetForceParams(Map<String, Object> setForceParams) {
+        this.setForceParams = setForceParams;
+    }
+
+    @Override
+    public Map<String, Object> getInsertForceParams() {
+        return insertForceParams;
+    }
+
+    @Override
+    public void setInsertForceParams(Map<String, Object> insertForceParams) {
+        this.insertForceParams = insertForceParams;
+    }
+
+    @Override
+    public Set<String> getSelectColumns() {
+        return selectColumns;
+    }
+
+    @Override
+    public void setSelectColumns(Set<String> selectColumns) {
+        this.selectColumns = selectColumns;
+    }
+
+    @Override
+    public String getWhereSuffixSql() {
+        return whereSuffixSql;
+    }
+
+    @Override
+    public void setWhereSuffixSql(String whereSuffixSql) {
+        this.whereSuffixSql = whereSuffixSql;
+    }
+
+    @Override
+    public Boolean getCheckInjection() {
+        return checkInjection;
+    }
+
+    @Override
+    public void setCheckInjection(Boolean checkInjection) {
+        this.checkInjection = checkInjection;
     }
 }

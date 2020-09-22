@@ -687,18 +687,14 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
-            //没有审批状态可以 提交审批，修改和取消
-            if(!approvalState){
-                $('#btn_approval').attr('disabled', false);
-                $('#btn_edit').attr('disabled', false);
-                $('#btn_cancel').attr('disabled', false);
-                return;
-            }
             //待审批时可以 提交审批，修改和取消
-            else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}){
+            if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}){
                 $('#btn_approval').attr('disabled', false);
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
+                <#resource code="skipAssetsLeaseApproval">
+                    $('#btn_submit').attr('disabled', false);
+                </#resource>
             }
             //审批中不允许修改、取消和提交付款
             else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.IN_REVIEW.getCode()}) {
@@ -712,6 +708,9 @@
                 $('#btn_approval').attr('disabled', false);
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
+                <#resource code="skipAssetsLeaseApproval">
+                    $('#btn_submit').attr('disabled', false);
+                </#resource>
             }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()}) {
             $('#toolbar button').attr('disabled', true);

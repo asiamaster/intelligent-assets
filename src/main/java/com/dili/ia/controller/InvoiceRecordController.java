@@ -43,6 +43,11 @@ public class InvoiceRecordController {
      */
     @PostMapping(value="/listPage.action")
     public @ResponseBody String listPage(InvoiceRecordDto invoiceRecord) throws Exception {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            return "";
+        }
+        invoiceRecord.setFirmId(userTicket.getFirmId());
         return invoiceRecordService.listEasyuiPageByExample(invoiceRecord, true).toString();
     }
 
