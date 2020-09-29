@@ -1,5 +1,6 @@
 package com.dili.ia.controller;
 
+import com.dili.bpmc.sdk.annotation.BpmTask;
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.ApprovalParam;
@@ -87,6 +88,7 @@ public class RefundOrderController {
      * @param bizType 参考BizTypeEnum, 1：摊位租赁， 2:定金， 3:摊位保证金
      * @return String
      */
+    @BpmTask(formKey = "refundOrderCheckerApprovalForm", defKey = "checkerApprovalForm")
     @GetMapping(value="/{bizType}/approval.html")
     public String assetsApproval(@PathVariable Integer bizType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
         modelMap.put("taskDefinitionKey", taskCenterParam.getTaskDefinitionKey());
