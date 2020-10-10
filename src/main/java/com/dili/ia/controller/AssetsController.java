@@ -1,37 +1,24 @@
 package com.dili.ia.controller;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.AssetsDTO;
-import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.dto.CusCategoryDTO;
+import com.dili.assets.sdk.dto.CusCategoryQuery;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
-import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.util.LogBizTypeConst;
-import com.dili.ia.util.LoggerUtil;
-import com.dili.logger.sdk.annotation.BusinessLogger;
-import com.dili.logger.sdk.base.LoggerContext;
-import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.uap.sdk.domain.Department;
-import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.rpc.DepartmentRpc;
-import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -83,8 +70,8 @@ public class AssetsController {
      */
     @GetMapping(value = "/searchCategory.action")
     public @ResponseBody
-    BaseOutput<List<CategoryDTO>> searchCategory(String keyword) {
-        CategoryDTO categoryDTO = new CategoryDTO();
+    BaseOutput<List<CusCategoryDTO>> searchCategory(String keyword) {
+        CusCategoryQuery categoryDTO = new CusCategoryQuery();
         categoryDTO.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
         categoryDTO.setState(EnabledStateEnum.ENABLED.getCode());
         if (null == keyword) {
@@ -93,9 +80,8 @@ public class AssetsController {
             categoryDTO.setKeyword(keyword);
         }
         try {
-            return assetsRpc.list(categoryDTO);
+            return assetsRpc.listCusCategory(categoryDTO);
         } catch (Exception e) {
-            LOG.error("品类查询接口异常",e);
             return BaseOutput.success().setData(new ArrayList<>());
         }
     }
