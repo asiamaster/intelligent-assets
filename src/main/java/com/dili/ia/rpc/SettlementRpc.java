@@ -1,5 +1,6 @@
 package com.dili.ia.rpc;
 
+import com.dili.settlement.domain.SettleConfig;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -62,6 +63,13 @@ public interface SettlementRpc {
      */
     @RequestMapping(value = "/api/settleOrder/getByCode", method = RequestMethod.GET)
     BaseOutput<SettleOrder> getByCode(@RequestParam("code") String settlementCode);
+    /**
+     * 【查询】结算可用退款方式 ---根据市场ID，marketId查询
+     * @param marketId 业务缴费单code
+     * @return 退款方式结算列表
+     */
+    @RequestMapping(value = "/api/settleConfig/listEnableRefundWay", method = RequestMethod.GET)
+    BaseOutput<List<SettleConfig>> listEnableRefundWay(@RequestParam("marketId") Long marketId);
 
     /**
      * 【数据迁移】生成【已交费的结算单】 --- 到结算中心
