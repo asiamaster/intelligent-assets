@@ -9,6 +9,7 @@ import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.DepositOrderStateEnum;
+import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -33,7 +34,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -60,6 +60,8 @@ public class DepositOrderController {
     RefundOrderService refundOrderService;
     @Autowired
     TransferDeductionItemService transferDeductionItemService;
+    @Autowired
+    SettlementRpc settlementRpc;
 
     /**
      * 跳转到DepositOrder页面
@@ -119,7 +121,8 @@ public class DepositOrderController {
             transferDeductionItemCondition.setRefundOrderId(refundOrderId);
             modelMap.put("transferDeductionItems", transferDeductionItemService.list(transferDeductionItemCondition));
         }
-
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        modelMap.put("marketCode", userTicket.getFirmCode());
         return "depositOrder/refundApply";
     }
 
