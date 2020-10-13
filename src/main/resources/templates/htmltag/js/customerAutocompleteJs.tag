@@ -82,7 +82,7 @@
      * 初始化刷卡 身份证
      * @param option {id:'',onLoadSuccess:function(customer){}}
      */
-    function initSwipeCard(option){
+    function initSwipeIdCard(option){
         $('#'+option.id).on('click', function (e) {
             e.stopPropagation();
             let user = reader();

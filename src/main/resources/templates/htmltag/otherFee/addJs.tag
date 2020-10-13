@@ -13,7 +13,7 @@
         registerMsg();
     });
     //初始化刷卡
-    initSwipeCard({
+    initSwipeIdCard({
         id:'getCustomer',
     });
 

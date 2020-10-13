@@ -31,7 +31,7 @@ public class AccountController {
      * @param ic
      * @return
      */
-    @GetMapping("/icCheck")
+    @GetMapping("/icCheck.action")
     public @ResponseBody BaseOutput<AccountInfo> icCheck(String ic) {
         try {
             return accountService.checkCardNo(ic);

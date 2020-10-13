@@ -40,7 +40,7 @@ public class AccountServiceImpl implements AccountService {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        BaseOutput<AccountInfo> result = BaseOutput.failure();
+        BaseOutput<AccountInfo> result = BaseOutput.failure("");
         LOG.info("---query cardNo:"+cardNo);
         if(StringUtils.isBlank(cardNo)){
             return result.setCode("201").setMessage("查询卡号没传入");

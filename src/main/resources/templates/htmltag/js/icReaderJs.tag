@@ -3,32 +3,28 @@
      * 初始化刷卡 身份证
      * @param option {id:'',onLoadSuccess:function(customer){}}
      */
-    function initSwipeCard(option){
+    function initSwipeParkCard(option){
         $('#' + option.id).click(function () {
             var ic = readerIc()
             if(ic.card) {
-                $(this).val(ic.card);
-                icCheck();
+                icCheck(ic.card, option);
             } else {
                 bs4pop.alert(ic.message, {type : "error"});
             }
         });
     }
 
-
-
-    function icCheck(onLoadSuccess) {
-        var ic = $("#_cardNo").val();
-        console.info(ic+"this ic check");
+    function icCheck(cardNo, option) {
+        console.info(cardNo+"this ic check");
         $.ajax({
             type: 'get',
-            url: '/account/icCheck?ic='+ic,
+            url: '/account/icCheck.action?ic=' + cardNo,
             dataType: 'json',
             async: false,
             success: function (ret) {
-                if (ret.code == "success") {
+                if (ret.success) {
                     var aInfo = ret.data;
-                    onLoadSuccess(aInfo);
+                    option.onLoadSuccess && option.onLoadSuccess(aInfo);
                 } else {
                     bs4pop.alert('此卡无效，不能交易！', {type : "warning"});
                     return false;
