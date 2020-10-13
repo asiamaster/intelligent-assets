@@ -725,18 +725,34 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         dePrintDto.setAssetsName(depositOrder.getAssetsName());
         dePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(settlementWay));
         dePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        dePrintDto.setSettleWayDetails(this.buildSettleWayDetails(paymentOrder.getSettlementWay(), paymentOrder.getSettlementCode()));
 
+        PrintDataDto printDataDto = new PrintDataDto();
+        printDataDto.setName(PrintTemplateEnum.DEPOSIT_ORDER.getCode());
+        printDataDto.setItem(BeanMapUtil.beanToMap(dePrintDto));
+        return BaseOutput.success().setData(printDataDto);
+    }
+    /**
+     * 票据获取结算详情
+     * 组合支付，结算详情格式 : 【微信 150.00 2020-08-19 4237458467568870 备注：微信付款150元;银行卡 150.00 2020-08-19 4237458467568870 备注：微信付款150元】
+     * 园区卡支付，结算详情格式：【卡号：428838247888（李四）】
+     * 除了园区卡 和 组合支付 ，结算详情格式：【2020-08-19 4237458467568870 备注：微信付款150元】
+     * @param settlementWay 结算方式
+     * @param settlementCode 结算详情
+     * @return
+     * */
+    private String buildSettleWayDetails(Integer settlementWay, String settlementCode){
         //组合支付需要显示结算详情
         StringBuffer settleWayDetails = new StringBuffer();
         settleWayDetails.append("【");
-        if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
+        if (settlementWay.equals(SettleWayEnum.MIXED_PAY.getCode())){
             //摊位租赁单据的交款时间，也就是结算时填写的时间，显示到结算详情中，显示内容为：支付方式（组合支付的，只显示该类型下的具体支付方式）、金额、收款日期、流水号、结算备注，每个字段间隔一个空格；如没填写的则不显示；
             // 多个支付方式的，均在一行显示，当前行满之后换行，支付方式之间用;隔开；
-            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
+            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(settlementCode);
             List<SettleWayDetail> swdList = output.getData();
             if (output.isSuccess() && CollectionUtils.isNotEmpty(swdList)){
                 for(SettleWayDetail swd : swdList){
-                    //此循环字符串拼接顺序不可修改，组合支付样式 : 【微信 150.00 2020-08-19 4237458467568870 备注：微信付款150元;银行卡 150.00 2020-08-19 4237458467568870 备注：微信付款150元】
+                    //此循环字符串拼接顺序不可修改，组合支付，结算详情格式 : 【微信 150.00 2020-08-19 4237458467568870 备注：微信付款150元;银行卡 150.00 2020-08-19 4237458467568870 备注：微信付款150元】
                     settleWayDetails.append(SettleWayEnum.getNameByCode(swd.getWay())).append(" ").append(MoneyUtils.centToYuan(swd.getAmount()));
                     if (null != swd.getChargeDate()){
                         settleWayDetails.append(" ").append(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(swd.getChargeDate()));
@@ -754,8 +770,23 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }else {
                 LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
             }
-        }else{ //格式：【2020-08-19 4237458467568870 备注：微信付款150元】
-            BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
+        } else if (settlementWay.equals(SettleWayEnum.CARD.getCode())){
+            // 园区卡支付，结算详情格式：【卡号：428838247888（李四）】
+            BaseOutput<SettleOrder> output = settlementRpc.getByCode(settlementCode);
+            if(output.isSuccess()){
+                SettleOrder settleOrder = output.getData();
+                if (null != settleOrder.getTradeCardNo()){
+                    settleWayDetails.append("卡号:" + settleOrder.getTradeCardNo());
+                }
+                if(StringUtils.isNotBlank(settleOrder.getTradeCustomerName())){
+                    settleWayDetails.append("（").append(settleOrder.getTradeCustomerName()).append("）");
+                }
+            }else {
+                LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
+        }else{
+            // 除了园区卡 和 组合支付 ，结算详情格式：【2020-08-19 4237458467568870 备注：微信付款150元】
+            BaseOutput<SettleOrder> output = settlementRpc.getByCode(settlementCode);
             if(output.isSuccess()){
                 SettleOrder settleOrder = output.getData();
                 if (null != settleOrder.getChargeDate()){
@@ -773,15 +804,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         settleWayDetails.append("】");
         if (StringUtils.isNotEmpty(settleWayDetails) && settleWayDetails.length() > 2){ // 长度大于2 是因为，避免内容为空，显示成 【】
-            dePrintDto.setSettleWayDetails(settleWayDetails.toString());
+            return settleWayDetails.toString();
         }
-
-        PrintDataDto printDataDto = new PrintDataDto();
-        printDataDto.setName(PrintTemplateEnum.DEPOSIT_ORDER.getCode());
-        printDataDto.setItem(BeanMapUtil.beanToMap(dePrintDto));
-        return BaseOutput.success().setData(printDataDto);
+        return "";
     }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BaseOutput refundSuccessHandler(RefundOrder refundOrder) {
