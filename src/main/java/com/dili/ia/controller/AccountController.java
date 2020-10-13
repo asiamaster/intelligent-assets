@@ -32,13 +32,9 @@ public class AccountController {
      * @return
      */
     @GetMapping("/icCheck.action")
-    public @ResponseBody BaseOutput<AccountInfo> icCheck(String ic) {
-        try {
-            return accountService.checkCardNo(ic);
-        } catch (Exception e) {
-            LOG.error("卡信息查询接口异常",e);
-            return BaseOutput.failure(e.getMessage());
-        }
+    public @ResponseBody
+    BaseOutput<AccountInfo> icCheck(String ic) {
+        return accountService.checkCardNo(ic);
     }
 
     /**
@@ -48,12 +44,8 @@ public class AccountController {
      * @return
      */
     @GetMapping("/getAccountListByCustomerId.action")
-    public @ResponseBody BaseOutput<List<AccountInfo>> getAccountListByCustomerId(Long customerId) {
-        try {
-            return accountService.getAccountListByCustomerId(customerId);
-        } catch (Exception e) {
-            LOG.error("卡信息查询接口异常",e);
-            return BaseOutput.failure(e.getMessage());
-        }
+    public @ResponseBody
+    BaseOutput<List<AccountInfo>> getAccountListByCustomerId(Long customerId) {
+        return accountService.getAccountListByCustomerId(customerId);
     }
 }
