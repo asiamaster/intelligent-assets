@@ -38,16 +38,14 @@ public class AccountServiceImpl implements AccountService {
     public BaseOutput<AccountInfo> checkCardNo(String cardNo) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw new RuntimeException("未登录");
+            return BaseOutput.failure("未登录");
         }
-        BaseOutput<AccountInfo> result = BaseOutput.failure("");
-        LOG.info("---query cardNo:"+cardNo);
-        if(StringUtils.isBlank(cardNo)){
-            return result.setCode("201").setMessage("查询卡号没传入");
+        if (StringUtils.isBlank(cardNo)) {
+            return BaseOutput.failure("查询卡号没传入");
         }
         try {
-            BaseOutput<CardInfo> output = accountRpc.cardInfo(cardNo,userTicket.getFirmId());
-            if(output.isSuccess()){
+            BaseOutput<CardInfo> output = accountRpc.cardInfo(cardNo, userTicket.getFirmId());
+            if (output.isSuccess()) {
                 AccountInfo accountInfo = output.getData().getAccountInfo();
                 accountInfo.setBalance(output.getData().getAccountFund().getBalance());
 
@@ -55,35 +53,34 @@ public class AccountServiceImpl implements AccountService {
                 dataDictionaryValueQuery.setDdCode("cus_customer_type");
                 dataDictionaryValueQuery.setFirmId(userTicket.getFirmId());
                 BaseOutput<List<DataDictionaryValue>> dataDictionaryValueResult = dataDictionaryRpc.listDataDictionaryValue(dataDictionaryValueQuery);
-                if(result.isSuccess()){
-                    throw new BusinessException(ResultCode.DATA_ERROR, "数据字典调用错误:" + result.getMessage());
+                if (!dataDictionaryValueResult.isSuccess()) {
+                    throw new BusinessException(ResultCode.DATA_ERROR, "数据字典调用错误:" + dataDictionaryValueResult.getMessage());
                 }
 
                 List<DataDictionaryValue> customerTypes = dataDictionaryValueResult.getData();
                 Map<String, String> typeMap = customerTypes.stream().collect(Collectors.toMap(DataDictionaryValue::getCode, DataDictionaryValue::getName));
                 accountInfo.setCustomerTypeView(typeMap.get(accountInfo.getCustomerType()));
-                result.setCode("200").setData(accountInfo);
-            }else {
-                LOG.error("----cardNo:"+cardNo+"查询失败："+output.getMessage());
-                result.setCode("201").setMessage(output.getMessage());
+                return BaseOutput.success().setData(accountInfo);
+            } else {
+                LOG.error("----cardNo:" + cardNo + "查询失败：" + output.getMessage());
+                return BaseOutput.failure(output.getMessage());
             }
 
         } catch (Exception e) {
-            LOG.error(cardNo+",获取卡务信息失败"+cardNo + e.getMessage(), e);
+            LOG.error(cardNo + ",获取卡务信息失败" + cardNo + e.getMessage(), e);
+            return BaseOutput.failure(e.getMessage());
         }
-        return result;
     }
 
     @Override
     public BaseOutput<List<AccountInfo>> getAccountListByCustomerId(Long customerId) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            throw new RuntimeException("未登录");
+            return BaseOutput.failure("未登录");
         }
-        BaseOutput<List<AccountInfo>> result = BaseOutput.failure();
-        LOG.info("---query cardNo:"+customerId);
-        if(null == customerId){
-            return result.setCode("201").setMessage("客户Id未传入");
+        LOG.info("---query customerId:" + customerId);
+        if (null == customerId) {
+            return BaseOutput.failure("客户Id未传入");
         }
         try {
             ArrayList<Long> customerIds = new ArrayList<>();
@@ -92,16 +89,13 @@ public class AccountServiceImpl implements AccountService {
             cardQuery.setFirmId(userTicket.getFirmId());
             cardQuery.setCustomerIds(customerIds);
             BaseOutput<List<AccountInfo>> output = accountRpc.getList(cardQuery);
-            if(output.isSuccess()){
-                result = output;
-            }else {
-                LOG.error("----customerId:{}, 市场：{}，查询失败：{}", customerId, userTicket.getFirmName() ,output.getMessage());
-                result.setCode("201").setMessage(output.getMessage());
+            if (!output.isSuccess()) {
+                LOG.error("----customerId:{}, 市场：{}，查询失败：{}", customerId, userTicket.getFirmName(), output.getMessage());
             }
-
+            return output;
         } catch (Exception e) {
-            LOG.error("customerId={},获取卡务信息失败,{}", customerId,e.getMessage());
+            LOG.error("customerId={},获取卡务信息失败,{}", customerId, e.getMessage());
+            return BaseOutput.failure(e.getMessage());
         }
-        return result;
     }
 }
