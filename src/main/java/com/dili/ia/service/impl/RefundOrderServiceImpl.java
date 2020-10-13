@@ -313,6 +313,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setBankName(ro.getBank());
         settleOrder.setBankCardHolder(ro.getPayee());
         settleOrder.setWay(ro.getRefundType());
+        settleOrder.setTradeCardNo(ro.getTradeCardNo());
 
         settleOrder.setBusinessDepId(ro.getDepartmentId()); //"业务部门ID
         settleOrder.setBusinessDepName(ro.getDepartmentName());//"业务部门名称
