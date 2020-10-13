@@ -67,7 +67,7 @@
                 <#bcomboProvider _log="退款方式" _id="refundType" _provider="refundTypeProvider" _queryParams='{required:true}' _value="${refundOrder.refundType!}" />
             </div>
         </div>
-        <div id="bankInfo"  class="row row-cols-4"  <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == @com.dili.ia.glossary.RefundTypeEnum.BANK.getCode()){ %> style="display: flex" <% } else {%>  style="display: none" <%}%> >
+        <div id="bankInfo"  class="row row-cols-4"  <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == @com.dili.settlement.enums.SettleWayEnum.BANK.getCode()){ %> style="display: flex" <% } else {%>  style="display: none" <%}%> >
             <div class="form-group col">
                 <label for="bank" class="" _log>开户行<i class="red">*</i></label>
                 <input type="text" class="form-control" id="bank"  name="bank" value="${refundOrder.bank!}" maxlength="50" required/>
@@ -75,6 +75,13 @@
             <div class="form-group col">
                 <label for="bankCardNo" class="" _log>银行卡号<i class="red">*</i></label>
                 <input type="text" class="form-control" id="bankCardNo" name="bankCardNo" value="${refundOrder.bankCardNo!}" maxlength="30" required/>
+            </div>
+        </div>
+
+        <div id="accountInfo"  class="row row-cols-4"  <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == @com.dili.settlement.enums.SettleWayEnum.CARD.getCode()){ %> style="display: flex" <% } else {%>  style="display: none" <%}%> >
+            <div class="form-group col">
+                <select class="form-control" id="tradeCardNo"  name="tradeCardNo" required>
+                </select>
             </div>
         </div>
 
