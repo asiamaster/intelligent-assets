@@ -6,6 +6,33 @@
      *
      ***/
 
+
+
+
+
+    function icCheck() {
+        var customerId = 226;
+        $.ajax({
+            type: 'get',
+            url: '/account/getAccountListByCustomerId.action?customerId='+customerId,
+            dataType: 'json',
+            async: false,
+            success: function (ret) {
+                if (ret.code == "success") {
+                    var aInfo = ret.data;
+                    console.log(aInfo);
+                } else {
+                    bs4pop.alert('此卡无效，不能交易！', {type : "warning"});
+                    return false;
+                }
+            }
+        });
+    }
+
+    $('#refundType').on('change', function(){
+        icCheck();
+    })
+
     /*********************变量定义区 begin*************/
         //行索引计数器
         let itemIndex = 0;

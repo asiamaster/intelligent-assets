@@ -2,6 +2,7 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.account.AccountInfo;
 import com.dili.ia.domain.account.CardInfo;
+import com.dili.ia.domain.account.CardQuery;
 import com.dili.ia.rpc.AccountRpc;
 import com.dili.ia.service.AccountService;
 import com.dili.ss.constant.ResultCode;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -68,6 +70,37 @@ public class AccountServiceImpl implements AccountService {
 
         } catch (Exception e) {
             LOG.error(cardNo+",获取卡务信息失败"+cardNo + e.getMessage(), e);
+        }
+        return result;
+    }
+
+    @Override
+    public BaseOutput<List<AccountInfo>> getAccountListByCustomerId(Long customerId) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+        BaseOutput<List<AccountInfo>> result = BaseOutput.failure();
+        LOG.info("---query cardNo:"+customerId);
+        if(null == customerId){
+            return result.setCode("201").setMessage("客户Id未传入");
+        }
+        try {
+            ArrayList<Long> customerIds = new ArrayList<>();
+            customerIds.add(customerId);
+            CardQuery cardQuery = new CardQuery();
+            cardQuery.setFirmId(userTicket.getFirmId());
+            cardQuery.setCustomerIds(customerIds);
+            BaseOutput<List<AccountInfo>> output = accountRpc.getList(cardQuery);
+            if(output.isSuccess()){
+                result = output;
+            }else {
+                LOG.error("----customerId:{}, 市场：{}，查询失败：{}", customerId, userTicket.getFirmName() ,output.getMessage());
+                result.setCode("201").setMessage(output.getMessage());
+            }
+
+        } catch (Exception e) {
+            LOG.error("customerId={},获取卡务信息失败,{}", customerId,e.getMessage());
         }
         return result;
     }

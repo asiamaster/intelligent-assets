@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.account.AccountInfo;
+import com.dili.ia.domain.account.CardInfo;
 import com.dili.ia.service.AccountService;
 import com.dili.ss.domain.BaseOutput;
 import org.slf4j.Logger;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 /**
  * 园区卡
@@ -32,6 +35,22 @@ public class AccountController {
     public @ResponseBody BaseOutput<AccountInfo> icCheck(String ic) {
         try {
             return accountService.checkCardNo(ic);
+        } catch (Exception e) {
+            LOG.error("卡信息查询接口异常",e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     * 卡的可用性校验
+     *
+     * @param customerId
+     * @return
+     */
+    @GetMapping("/getAccountListByCustomerId.action")
+    public @ResponseBody BaseOutput<List<AccountInfo>> getAccountListByCustomerId(Long customerId) {
+        try {
+            return accountService.getAccountListByCustomerId(customerId);
         } catch (Exception e) {
             LOG.error("卡信息查询接口异常",e);
             return BaseOutput.failure(e.getMessage());
