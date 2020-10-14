@@ -5,47 +5,6 @@
      * @author jiangchengyong
      *
      ***/
-    $('#refundType').on('change', function(){
-        var refundType = $('#refundType').val();
-        if (refundType == ${@com.dili.settlement.enums.SettleWayEnum.CASH.getCode()}){
-            // 现金
-            $('#bankInfo').css('display','none');
-            $('#accountInfo').css('display','none');
-        }else if(refundType == ${@com.dili.settlement.enums.SettleWayEnum.BANK.getCode()}){
-            // 银行卡
-            $('#bankInfo').css('display','flex');
-            $('#accountInfo').css('display','none');
-        }else if(refundType == ${@com.dili.settlement.enums.SettleWayEnum.CARD.getCode()}){
-            // 园区卡
-            $('#accountInfo').css('display','flex');
-            $('#bankInfo').css('display','none');
-            var customerId = $('input[name="payeeId"]').val();
-            var oldTradeCardNo = $('input[name="TradeCardNo"]').val();
-            //清空值
-            $("#tradeCardNo").empty();
-            $.ajax({
-                type: 'get',
-                url: '/account/getAccountListByCustomerId.action?customerId='+customerId,
-                dataType: 'json',
-                async: false,
-                success: function (ret) {
-                    debugger
-                    if (ret.success) {
-                        var aInfoList = ret.data;
-                        for(var i=0;i<aInfoList.length;i++){
-                            $('#tradeCardNo').append( '<option value="'+aInfoList[i].cardNo+'">'+aInfoList[i].cardNo+'</option>' ); //添加option
-                        }
-
-                    } else {
-                        bs4pop.alert('此卡无效，不能交易！', {type : "warning"});
-                        return false;
-                    }
-                }
-            });
-
-
-        }
-    })
 
     /*********************变量定义区 begin*************/
         //行索引计数器

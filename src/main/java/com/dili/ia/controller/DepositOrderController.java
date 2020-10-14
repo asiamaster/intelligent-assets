@@ -121,8 +121,6 @@ public class DepositOrderController {
             transferDeductionItemCondition.setRefundOrderId(refundOrderId);
             modelMap.put("transferDeductionItems", transferDeductionItemService.list(transferDeductionItemCondition));
         }
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        modelMap.put("marketCode", userTicket.getFirmCode());
         return "depositOrder/refundApply";
     }
 
