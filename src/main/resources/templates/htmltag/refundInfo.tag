@@ -3,8 +3,8 @@
 <div class="form-group col">
     <label for="payee">收款人<i class="red">*</i></label>
     <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='hzsc'){%>
-    <input type="text" class="form-control" name="payeeName" value="${customerName!}" readonly/>
-    <input type="hidden" class="form-control" name="payeeId" value="226" readonly/>
+    <input type="text" class="form-control" name="payee" value="${customerName!}" readonly/>
+    <input type="hidden" class="form-control" name="payeeId" value="${customerId!}"/>
     <%}else{%>
     <#bautoCompleteProvider _log="收款人" _hiddenDomainId="payeeId" _hiddenDomainName="payeeId" _displayDomainId="payee" _displayDomainName="payee" _validatorMethod="isSelected" _required="true" _value="${refundOrder.payeeId!}" _text="${refundOrder.payee!}" _optionVariable="customerNameAutoCompleteOption"/>
     <%}%>
