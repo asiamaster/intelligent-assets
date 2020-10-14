@@ -6,7 +6,6 @@
      *
      ***/
     $('#refundType').on('change', function(){
-        debugger;
         var refundType = $('#refundType').val();
         if (refundType == ${@com.dili.settlement.enums.SettleWayEnum.CASH.getCode()}){
             // 现金
@@ -21,6 +20,7 @@
             $('#accountInfo').css('display','flex');
             $('#bankInfo').css('display','none');
             var customerId = $('input[name="payeeId"]').val();
+            var oldTradeCardNo = $('input[name="TradeCardNo"]').val();
             //清空值
             $("#tradeCardNo").empty();
             $.ajax({
@@ -35,6 +35,7 @@
                         for(var i=0;i<aInfoList.length;i++){
                             $('#tradeCardNo').append( '<option value="'+aInfoList[i].cardNo+'">'+aInfoList[i].cardNo+'</option>' ); //添加option
                         }
+
                     } else {
                         bs4pop.alert('此卡无效，不能交易！', {type : "warning"});
                         return false;

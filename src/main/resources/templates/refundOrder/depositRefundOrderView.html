@@ -56,10 +56,10 @@
             </div>
             <div class="form-group col">
                 <label class="">退款方式<i class="red">*</i></label>
-                <input type="text" class="form-control" value="${@com.dili.ia.glossary.RefundTypeEnum.getRefundTypeEnum(refundOrder.refundType).getName()}" disabled />
+                <input type="text" class="form-control" value="${@com.dili.settlement.enums.SettleWayEnum.getNameByCode(refundOrder.refundType)}" disabled />
             </div>
         </div>
-        <%if(refundOrder.refundType == @com.dili.ia.glossary.RefundTypeEnum.BANK.getCode()){ %>
+        <%if(refundOrder.refundType == @com.dili.settlement.enums.SettleWayEnum.BANK.getCode()){ %>
         <div id="bankInfo" class="row row-cols-4">
             <div class="form-group col">
                 <label for="" class="">开户行</label>
@@ -70,6 +70,13 @@
                 <input type="text" class="form-control" value="${refundOrder.bankCardNo!}" disabled />
             </div>
         </div>
+        <% }%>
+        <%if(refundOrder.refundType == @com.dili.settlement.enums.SettleWayEnum.CARD.getCode()){ %>
+            <div id="accountInfo"  class="row row-cols-4" >
+                <div class="form-group col">
+                    <input type="text" class="form-control" value="${refundOrder.tradeCardNo!}" disabled />
+                </div>
+            </div>
         <% }%>
 </div>
 

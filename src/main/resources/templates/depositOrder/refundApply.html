@@ -4,6 +4,7 @@
     <form id="refundApplyForm" role="form" class="pb-5">
         <input type="hidden" id="id" name="id" value="${refundOrder.id!}"/>
         <input type="hidden" name="code" value="${refundOrder.code!}"/>
+        <input type="hidden" name="oldTradeCardNo " value="${refundOrder.tradeCardNo!}"/>
         <input type="hidden" name="businessId" value="${depositOrder.id}"/>
         <input type="hidden" name="businessCode" value="${depositOrder.code!}"/>
         <input type="hidden" name="departmentId" value="${depositOrder.departmentId!}"/>
@@ -43,8 +44,8 @@
             <div class="form-group col">
                 <label for="payee">收款人<i class="red">*</i></label>
                 <%if(marketCode=='hzsc'){%>
-                    <input type="text" class="form-control" value="${depositOrder.customerName!}" readonly/>
-                    <input type="hidden" class="form-control" id="payeeId" name="payeeId" value="${depositOrder.customerId!}" readonly/>
+                    <input type="text" class="form-control" name="payeeName" value="${depositOrder.customerName!}" readonly/>
+                    <input type="hidden" class="form-control" name="payeeId" value="${depositOrder.customerId!}" readonly/>
                 <%}else{%>
                     <#bautoCompleteProvider _log="收款人" _hiddenDomainId="payeeId" _hiddenDomainName="payeeId" _displayDomainId="payee" _displayDomainName="payee" _validatorMethod="isSelected" _required="true" _value="${refundOrder.payeeId!}" _text="${refundOrder.payee!}" _optionVariable="customerNameAutoCompleteOption"/>
                 <%}%>
