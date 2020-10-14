@@ -1,10 +1,10 @@
-<input type="hidden" name="oldTradeCardNo " value="${refundOrder.tradeCardNo!}"/>
+<input type="hidden" name="oldTradeCardNo" value="${refundOrder.tradeCardNo!}"/>
 
 <div class="form-group col">
     <label for="payee">收款人<i class="red">*</i></label>
     <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='hzsc'){%>
     <input type="text" class="form-control" name="payeeName" value="${customerName!}" readonly/>
-    <input type="hidden" class="form-control" name="payeeId" value="${customerId!}" readonly/>
+    <input type="hidden" class="form-control" name="payeeId" value="226" readonly/>
     <%}else{%>
     <#bautoCompleteProvider _log="收款人" _hiddenDomainId="payeeId" _hiddenDomainName="payeeId" _displayDomainId="payee" _displayDomainName="payee" _validatorMethod="isSelected" _required="true" _value="${refundOrder.payeeId!}" _text="${refundOrder.payee!}" _optionVariable="customerNameAutoCompleteOption"/>
     <%}%>
@@ -24,7 +24,7 @@
 <div class="form-group col">
     <label for="refundType" class="">退款方式<i class="red">*</i></label>
     <select id="refundType" name="refundType" class="form-control" ></select>
-    <#bcomboProvider _log="退款方式" _id="refundType" _provider="refundTypeProvider" _queryParams='{required:true}' _value="${refundOrder.refundType!}" />
+    <#bcomboProvider _log="退款方式" _id="refundType" _provider="refundTypeProvider" _queryParams='{required:true}' _value="${refundOrder.refundType!}" _option="async:false" />
 </div>
 </div>
 <div id="bankInfo"  class="row row-cols-4"  <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == @com.dili.settlement.enums.SettleWayEnum.BANK.getCode()){ %> style="display: flex" <% } else {%>  style="display: none" <%}%> >
@@ -40,6 +40,7 @@
 
 <div id="accountInfo"  class="row row-cols-4"  <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == @com.dili.settlement.enums.SettleWayEnum.CARD.getCode()){ %> style="display: flex" <% } else {%>  style="display: none" <%}%> >
     <div class="form-group col">
+        <label for="tradeCardNo" class="" _log>园区卡号<i class="red">*</i></label>
         <select class="form-control" id="tradeCardNo"  name="tradeCardNo" required>
         </select>
     </div>
@@ -70,13 +71,11 @@
                 dataType: 'json',
                 async: false,
                 success: function (ret) {
-                    debugger
                     if (ret.success) {
                         var aInfoList = ret.data;
                         for(var i=0;i<aInfoList.length;i++){
                             $('#tradeCardNo').append( '<option value="'+aInfoList[i].cardNo+'">'+aInfoList[i].cardNo+'</option>'); //添加option
                         }
-                        debugger;
                         //修改回显
                         if(oldTradeCardNo){
                             $('#tradeCardNo').val(oldTradeCardNo);
@@ -90,7 +89,7 @@
 
 
         }
-    })
+    });
 
 
     $(function () {

@@ -431,6 +431,14 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //检查客户状态
         checkCustomerState(refundOrder.getPayeeId(), oldOrder.getMarketId());
         refundOrder.setVersion(oldOrder.getVersion());
+
+        if (!(SettleWayEnum.BANK.getCode() == refundOrder.getRefundType())) {
+            refundOrder.setBank(null);
+            refundOrder.setBankCardNo(null);
+        }
+        if (!(SettleWayEnum.CARD.getCode() == refundOrder.getRefundType())) {
+            refundOrder.setTradeCardNo(null);
+        }
         //全部修改，为空字段会修改为空
         if (refundOrderService.update(refundOrder) == 0) {
             LOG.info("退款单修改--更新退款单状态记录数为0，多人操作，请重试！");
