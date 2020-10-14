@@ -20,8 +20,9 @@
             // 园区卡
             $('#accountInfo').css('display','flex');
             $('#bankInfo').css('display','none');
-            debugger
-            var customerId = 226;
+            var customerId = $('input[name="payeeId"]').val();
+            //清空值
+            $("#tradeCardNo").empty();
             $.ajax({
                 type: 'get',
                 url: '/account/getAccountListByCustomerId.action?customerId='+customerId,
@@ -32,7 +33,7 @@
                     if (ret.success) {
                         var aInfoList = ret.data;
                         for(var i=0;i<aInfoList.length;i++){
-                            $('#accountInfo').append( '<option value="'+aInfoList[i].cardNo+'">'+aInfoList[i].cardNo+'</option>' ); //添加option
+                            $('#tradeCardNo').append( '<option value="'+aInfoList[i].cardNo+'">'+aInfoList[i].cardNo+'</option>' ); //添加option
                         }
                     } else {
                         bs4pop.alert('此卡无效，不能交易！', {type : "warning"});

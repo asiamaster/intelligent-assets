@@ -5,12 +5,10 @@ import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.TransferDeductionItem;
-import com.dili.ia.domain.account.AccountInfo;
 import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.DepositOrderStateEnum;
-import com.dili.ia.rpc.AccountRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
@@ -64,8 +62,6 @@ public class DepositOrderController {
     TransferDeductionItemService transferDeductionItemService;
     @Autowired
     SettlementRpc settlementRpc;
-    @Autowired
-    AccountService accountService;
 
     /**
      * 跳转到DepositOrder页面
