@@ -39,8 +39,9 @@
             基础信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-4 collapse show" id="baseInfo">
+        <div class="collapse show" id="baseInfo">
             <#refundInfo customerName="${depositOrder.customerName!}" customerId="${depositOrder.customerId!}" certificateNumber="${depositOrder.certificateNumber!}"></#refundInfo>
+        </div>
         <div class="breadcrumb">
             转抵信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#transferInfo" aria-expanded="true" aria-controls="transferInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
