@@ -8,7 +8,16 @@
             <input type="hidden" name="isRenew" value="${isRenew!}">
             <input type="hidden" id="assetsType" name="assetsType" value="${assetsType!}">
             <div class="breadcrumb" >
-                客户信息 ${isNotEmpty(isRenew) && isRenew == 1?'':'<a href="javascript:;" class="ml-2" id="getCustomer">刷身份证</a><a href="javascript:;" class="ml-2" id="icReader">刷园区卡</a>'}
+                客户信息
+                <%
+                    if (isEmpty(isRenew) || isRenew != 1) {
+                %>
+                <a href="javascript:;" class="ml-2" id="getCustomer">刷身份证</a>
+                <%
+                    if (@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='sg') {
+                %>
+                    <a href="javascript:;" class="ml-2" id="icReader">刷园区卡</a>
+                <% }} %>
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                    aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
@@ -75,7 +84,7 @@
 
                 </div>
                 <% if(assetsType != @com.dili.ia.glossary.AssetsTypeEnum.LODGING.getCode()){%>
-                <div class="form-group col-9">
+                <div class="form-group col">
                     <label for="categorys" _log>经营品类</label>
                     <select id="categorys" name="categorys" multiple>
                         <%
