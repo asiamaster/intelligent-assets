@@ -7,7 +7,7 @@
                 客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷身份证</a>
                 <% if (@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='sg') { %>
                 <a href="javascript:;" class="ml-2" id="icReader">刷园区卡</a>
-                <% }} %>
+                <% }%>
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                    aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
@@ -58,7 +58,6 @@
                     <label for="departmentId">业务所属部门<i class="red">*</i></label>
                     <select id="departmentId"  name="departmentId" class="form-control" required></select>
                     <#bcomboProvider _id="departmentId" _provider="authDepartmentProvider"/>
-
                 </div>
             </div>
             <div class="breadcrumb">
