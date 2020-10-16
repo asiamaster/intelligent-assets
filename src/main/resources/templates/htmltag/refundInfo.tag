@@ -2,7 +2,7 @@
 <div class="row row-cols-4">
     <div class="form-group col">
         <label for="payee">收款人<i class="red">*</i></label>
-        <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='hzsc'){%>
+        <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='sg'){%>
         <input type="text" class="form-control" name="payee" value="${customerName!}" readonly/>
         <input type="hidden" class="form-control" name="payeeId" value="${customerId!}"/>
         <%}else{%>
@@ -11,7 +11,7 @@
     </div>
     <div class="form-group col">
         <label for="payeeCertificateNumber" class="">证件号<i class="red">*</i></label>
-        <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode()=='hzsc'){%>
+        <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode()=='sg'){%>
         <input type="text" class="form-control" name="payeeCertificateNumber" value="${certificateNumber!}" readonly/>
         <%}else{%>
         <input type="text" class="form-control" id="payeeCertificateNumber" name="payeeCertificateNumber" value="${refundOrder.payeeCertificateNumber!}" readonly/>
