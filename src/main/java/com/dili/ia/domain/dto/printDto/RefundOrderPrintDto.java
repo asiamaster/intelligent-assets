@@ -40,6 +40,10 @@ public class RefundOrderPrintDto {
     private String bank;
     //银行卡号
     private String bankCardNo;
+    //园区卡卡号
+    private String tradeCardNo;
+    //退款园区卡卡号 客户姓名
+    private String tradeCustomerName;
 
     //打印模板
     private String printTemplateCode;
@@ -171,5 +175,21 @@ public class RefundOrderPrintDto {
 
     public void setBankCardNo(String bankCardNo) {
         this.bankCardNo = bankCardNo;
+    }
+
+    public String getTradeCardNo() {
+        return tradeCardNo;
+    }
+
+    public void setTradeCardNo(String tradeCardNo) {
+        this.tradeCardNo = tradeCardNo;
+    }
+
+    public String getTradeCustomerName() {
+        return tradeCustomerName;
+    }
+
+    public void setTradeCustomerName(String tradeCustomerName) {
+        this.tradeCustomerName = tradeCustomerName;
     }
 }

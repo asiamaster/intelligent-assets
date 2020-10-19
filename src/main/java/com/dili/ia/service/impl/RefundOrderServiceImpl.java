@@ -723,6 +723,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         roPrintDto.setPayeeAmount(MoneyUtils.centToYuan(refundOrder.getPayeeAmount()));
         roPrintDto.setBank(refundOrder.getBank());
         roPrintDto.setBankCardNo(refundOrder.getBankCardNo());
+        roPrintDto.setTradeCardNo(refundOrder.getTradeCardNo());
+        roPrintDto.setTradeCustomerName(refundOrder.getCustomerName()); // 退款人默认就是退款客户所以园区卡客户即为退款客户
         roPrintDto.setRefundType(SettleWayEnum.getNameByCode(refundOrder.getRefundType()));
         return roPrintDto;
     }
