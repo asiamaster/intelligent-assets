@@ -199,7 +199,7 @@
 
         //账户余额查询
         queryCustomerAccount();
-        calcTotalAmount(true);
+
 
         let assetsIds = $("table input[name^='assetsId']").filter(function () {
             return this.value
@@ -210,6 +210,7 @@
             batchQueryDepositBalance($('#assetsType').val(), $('#customerId').val(), assetsIds);
             batchQueryDepositOrder({businessId:$('#id').val()});
         }
+        calcTotalAmount(true);
     });
     /******************************驱动执行区 end****************************/
 
@@ -360,6 +361,7 @@
             url: "/leaseOrder/batchQueryDepositOrder.action",
             data: depositOrderQuery,
             dataType: "json",
+            async: false,
             success: function (ret) {
                 if(ret.success){
                     let depositOrders = ret.data;
