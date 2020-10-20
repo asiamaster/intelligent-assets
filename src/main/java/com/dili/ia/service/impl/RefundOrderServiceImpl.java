@@ -9,9 +9,9 @@ import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.ApprovalProcess;
-import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.account.AccountInfo;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.RefundOrderPrintDto;
@@ -20,6 +20,7 @@ import com.dili.ia.mapper.AssetsLeaseOrderItemMapper;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
+import com.dili.ia.service.AccountService;
 import com.dili.ia.service.ApprovalProcessService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.RefundOrderService;
@@ -50,6 +51,7 @@ import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.Serializers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +110,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     private String settlerHandlerUrl;
     @Autowired
     private UserResourceRedis userResourceRedis;
+    @Autowired
+    private AccountService accountService;
     @Autowired @Lazy
     private List<RefundOrderDispatcherService> refundBizTypes;
     private Map<String,RefundOrderDispatcherService> refundBiz = new HashMap<>();
@@ -213,6 +217,21 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         return BaseOutput.success();
     }
 
+    private BaseOutput checkCard(Long customerId, String tradeCardNo){
+        BaseOutput<AccountInfo> output = accountService.checkCardNo(tradeCardNo);
+        if (output.isSuccess()){
+            AccountInfo accountInfo = output.getData();
+            if (accountInfo != null && accountInfo.getCustomerId().equals(customerId)){
+                return BaseOutput.success();
+            }else {
+                LOG.info("退款单提交：园区卡卡号tradeCardNo={}与客户信息customerId={}不匹配！", tradeCardNo,customerId);
+                return BaseOutput.failure("园区卡与客户信息不匹配！");
+            }
+        }else{
+            return BaseOutput.failure(output.getMessage());
+        }
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @GlobalTransactional
     @Override
@@ -223,6 +242,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
+        }
+        //园区卡退款，检查退款人 与 退款园区卡是否匹配
+        BaseOutput output = this.checkCard(refundOrder.getPayeeId(), refundOrder.getTradeCardNo());
+        if (!output.isSuccess()){
+            return output;
         }
         //记录当前审批状态，用于判断是否直接提交，而需要清空流程
         Integer approvalState = refundOrder.getApprovalState();
@@ -724,7 +748,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         roPrintDto.setBank(refundOrder.getBank());
         roPrintDto.setBankCardNo(refundOrder.getBankCardNo());
         roPrintDto.setTradeCardNo(refundOrder.getTradeCardNo());
-        roPrintDto.setTradeCustomerName(refundOrder.getCustomerName()); // 退款人默认就是退款客户所以园区卡客户即为退款客户
+        roPrintDto.setTradeCustomerName(refundOrder.getPayee()); // 退款人默认就是退款客户所以园区卡客户即为退款客户
         roPrintDto.setRefundType(SettleWayEnum.getNameByCode(refundOrder.getRefundType()));
         //根据退款方式组装退款对应方式详情信息
         roPrintDto.setSettleWayDetails(this.buildSettleWayDetails(refundOrder));
