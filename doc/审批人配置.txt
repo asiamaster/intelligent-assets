@@ -1,0 +1,11 @@
+	办理人							所属流程						处理URL
+managerApproval					rentalApprovalProcess			http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/managerApprovalAssignment
+viceGeneralManagerApproval		rentalApprovalProcess			http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/viceGeneralManagerApprovalAssignment
+generalManagerApproval			rentalApprovalProcess			http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/generalManagerApprovalAssignment
+
+
+managerApproval					rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/managerApprovalAssignment
+checkerApproval					rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/viceGeneralManagerApprovalAssignment
+engineeringDepartmentApproval	rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/generalManagerApprovalAssignment
+viceGeneralManagerApproval		rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/checkerApprovalAssignment
+generalManagerApproval			rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/managerApprovalAssignment
