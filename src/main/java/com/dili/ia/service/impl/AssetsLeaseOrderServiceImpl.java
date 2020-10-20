@@ -916,6 +916,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         leaseOrderPrintDto.setCategoryName(leaseOrder.getCategoryName());
         leaseOrderPrintDto.setNotes(leaseOrder.getNotes());
         leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
+        leaseOrderPrintDto.setWaitAmount(MoneyUtils.centToYuan(leaseOrder.getWaitAmount()));
 
         Long totalPayAmountExcludeLast = 0L;
         //已结清时  定金需要加前几次支付金额
