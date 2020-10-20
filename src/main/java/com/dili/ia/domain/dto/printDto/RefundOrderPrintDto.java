@@ -44,7 +44,8 @@ public class RefundOrderPrintDto {
     private String tradeCardNo;
     //退款园区卡卡号 客户姓名
     private String tradeCustomerName;
-
+    //结算详情
+    private String settleWayDetails;
     //打印模板
     private String printTemplateCode;
 
@@ -191,5 +192,13 @@ public class RefundOrderPrintDto {
 
     public void setTradeCustomerName(String tradeCustomerName) {
         this.tradeCustomerName = tradeCustomerName;
+    }
+
+    public String getSettleWayDetails() {
+        return settleWayDetails;
+    }
+
+    public void setSettleWayDetails(String settleWayDetails) {
+        this.settleWayDetails = settleWayDetails;
     }
 }

@@ -726,7 +726,31 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         roPrintDto.setTradeCardNo(refundOrder.getTradeCardNo());
         roPrintDto.setTradeCustomerName(refundOrder.getCustomerName()); // 退款人默认就是退款客户所以园区卡客户即为退款客户
         roPrintDto.setRefundType(SettleWayEnum.getNameByCode(refundOrder.getRefundType()));
+        //根据退款方式组装退款对应方式详情信息
+        roPrintDto.setSettleWayDetails(this.buildSettleWayDetails(refundOrder));
         return roPrintDto;
+    }
+    /**
+     * 票据获取结算详情
+     * 现金结算详情格式 :
+     * 园区卡支付，结算详情格式：   园区卡号：8838247888
+     * 银行卡 ，结算详情格式：     开户行：工商银行 银行卡号：62172736264789001
+     * @param refundOrder 退款单
+     * @return
+     * */
+    private String buildSettleWayDetails(RefundOrder refundOrder){
+        if (refundOrder.getRefundType().equals(SettleWayEnum.BANK.getCode())){
+            StringBuffer settleWayDetails = new StringBuffer();
+            settleWayDetails.append("开户行：").append(refundOrder.getBank()).append(" ");
+            settleWayDetails.append("银行卡号：").append(refundOrder.getBankCardNo());
+            return settleWayDetails.toString();
+        }else if (refundOrder.getRefundType().equals(SettleWayEnum.CARD.getCode())){
+            StringBuffer settleWayDetails = new StringBuffer();
+            settleWayDetails.append("园区卡号：").append(refundOrder.getTradeCardNo());
+            return settleWayDetails.toString();
+        }else {
+            return "";
+        }
     }
 
     public Map<String, RefundOrderDispatcherService> getRefundBiz() {
