@@ -3,7 +3,10 @@
         <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.deposit_order'/>">
         <form id="saveForm" role="form" novalidate class="pb-5">
             <div class="breadcrumb" >
-                客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷身份证</a><a href="javascript:;" class="ml-2" id="icReader">刷园区卡</a>
+                客户信息 <a href="javascript:;" class="ml-2" id="getCustomer">刷身份证</a>
+                <% if (@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='sg') { %>
+                <a href="javascript:;" class="ml-2" id="icReader">刷园区卡</a>
+                <% }%>
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                    aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>

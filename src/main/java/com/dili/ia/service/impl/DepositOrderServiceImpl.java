@@ -539,10 +539,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }else { // 修改
             RefundOrder oldRefundOrder = refundOrderService.get(depositRefundOrderDto.getId());
             SpringUtil.copyPropertiesIgnoreNull(depositRefundOrderDto, oldRefundOrder);
-            if (!RefundTypeEnum.BANK.getCode().equals(depositRefundOrderDto.getRefundType())) {
-                oldRefundOrder.setBank(null);
-                oldRefundOrder.setBankCardNo(null);
-            }
             if (!refundOrderService.doUpdatedHandler(oldRefundOrder).isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款修改接口异常", depositRefundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
