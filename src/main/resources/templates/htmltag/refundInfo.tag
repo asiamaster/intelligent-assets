@@ -81,7 +81,7 @@
                             $('#tradeCardNo').val(oldTradeCardNo);
                         }
                     } else {
-                        bs4pop.alert('此卡无效，不能交易！', {type : "warning"});
+                        bs4pop.alert(ret.message, {type: 'error'});
                         return false;
                     }
                 }
