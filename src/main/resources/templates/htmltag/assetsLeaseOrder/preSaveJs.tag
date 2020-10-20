@@ -564,7 +564,7 @@
      * @returns {boolean}
      */
     function saveFormHandler(){
-        let validator = $('#saveForm').validate({ignore:''})
+        let validator = $('#saveForm').validate({ignore: ''})
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
             $('.collapse:not(.show)').addClass('show');
@@ -573,22 +573,31 @@
 
         let assetsIds = $("table input[name^='assetsId']").filter(function () {
             return this.value
-        }).map(function(){
-            return $('#assetsId_'+getIndex(this.id)).val();
+        }).map(function () {
+            return $('#assetsId_' + getIndex(this.id)).val();
         }).get();
 
-        if(assetsIds.length == 0){
-            bs4pop.alert('请添加资产！')
+        if (assetsIds.length == 0) {
+            bs4pop.notice('请添加资产！', {position: 'leftcenter', type: 'danger'});
             return false;
         }
 
-        if(arrRepeatCheck(assetsIds)){
-            bs4pop.alert('存在重复资产，请检查！')
+        if (arrRepeatCheck(assetsIds)) {
+            bs4pop.notice('存在重复资产，请检查！', {position: 'leftcenter', type: 'danger'});
             return false;
         }
 
-        if(assetsIds.length > 10){
-            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'warning'});
+        if (assetsIds.length > 10) {
+            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'danger'});
+            return false;
+        }
+
+        let earnestDeduction = Number($('#earnestDeduction').val());
+        let transferDeduction = Number($('#transferDeduction').val());
+        let totalAmount = Number($('#totalAmount').val());
+        if (totalAmount < earnestDeduction.add(transferDeduction)) {
+            bs4pop.notice('抵扣金额之和不能大于租赁费用之和', {position: 'leftcenter', type: 'danger'});
+            return false;
         }
 
         bui.loading.show('努力提交中，请稍候。。。');
@@ -621,7 +630,7 @@
         if ($('#assetTable tr').length < 11) {
             addBoothItem({index: ++itemIndex});
         } else {
-            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'warning'})
+            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'danger'})
         }
     });
 

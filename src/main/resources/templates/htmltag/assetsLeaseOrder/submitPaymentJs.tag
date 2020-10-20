@@ -52,7 +52,7 @@
     }
 
     /**
-     * 计算合计金额
+     * 计算分摊明细金额之和
      * @returns {number}
      */
     function calcApportionedAmount() {
