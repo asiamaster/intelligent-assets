@@ -23,11 +23,15 @@ import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.dto.IDTO;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
+import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.domain.dto.UserQuery;
 import com.dili.uap.sdk.exception.NotLoginException;
+import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -79,6 +83,8 @@ public class AssetsLeaseOrderController {
     private RefundFeeItemService refundFeeItemService;
     @Autowired
     private TransferDeductionItemService transferDeductionItemService;
+    @Autowired
+    private UserRpc userRpc;
 
 
     /**
@@ -662,5 +668,34 @@ public class AssetsLeaseOrderController {
         }
 
     }
+
+    /**
+     * 管理员查询
+     * @param keyword
+     * @return
+     */
+    @GetMapping(value = "/queryUsers.action")
+    public @ResponseBody
+    BaseOutput<List<User>> queryUsers(String keyword) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+        try {
+            UserQuery query = DTOUtils.newInstance(UserQuery.class);
+            query.setFirmCode(userTicket.getFirmCode());
+            query.setRealName(keyword);
+            return userRpc.listByExample(query);
+        } catch (BusinessException e) {
+            LOG.info("管理员查询接口异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("管理员查询接口异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+
+    }
+
+
 
 }

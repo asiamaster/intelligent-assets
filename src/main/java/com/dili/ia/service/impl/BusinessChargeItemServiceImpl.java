@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.mapper.BusinessChargeItemMapper;
@@ -43,6 +44,7 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
         businessChargeItemDto.setMarketId(marketId);
         businessChargeItemDto.setBusinessType(bizType);
         businessChargeItemDto.setIsEnable(isEnable);
+        businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
         //获取业务收费项目
         BaseOutput<List<BusinessChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
         if(!chargeItemsOutput.isSuccess()){

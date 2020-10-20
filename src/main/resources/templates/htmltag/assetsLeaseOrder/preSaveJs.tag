@@ -88,6 +88,40 @@
             }
         }
     }
+
+    //品类搜索自动完成
+    var userAutoCompleteOption = {
+        width: '100%',
+        language: 'zh-CN',
+        minimumInputLength: 1,
+        //格式化结果
+        templateResult: function (dataItem) {
+            return dataItem.text + (dataItem.cellphone ? '(' + dataItem.cellphone + ')' : '')
+        },
+        ajax: {
+            type:'get',
+            url: '/leaseOrder/queryUsers.action',
+            data: function (params) {
+                return {
+                    keyword: params.term,
+                }
+            },
+            processResults: function (result) {
+                if(result.success){
+                    let data = result.data;
+                    return {
+                        results: $.map(data, function (dataItem) {
+                            dataItem.text = dataItem.realName;
+                            return dataItem;
+                        })
+                    };
+                }else{
+                    bs4pop.alert(result.message, {type: 'error'});
+                    return;
+                }
+            }
+        }
+    }
     /*********************变量定义区 end***************/
 
 
@@ -339,6 +373,7 @@
                             }
                         }
                     }
+                    calcTotalAmountAndDeposit(true);
                 }
             },
             error: function (a, b, c) {
@@ -397,18 +432,34 @@
 
     /**
      * 计算实付金额
+     * @param isCascadeCalc 是否级联计算加保证金后的实付金额
      * */
-    function calcPayAmount() {
+    function calcPayAmount(isCascadeCalc) {
         let earnestDeduction = Number($('#earnestDeduction').val());
         let transferDeduction = Number($('#transferDeduction').val());
         let totalAmount = Number($('#totalAmount').val());
         if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
             $('#payAmount').val((totalAmount.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).centToYuan());
         }
+
+        isCascadeCalc && calcPayAmountAndDeposit();
+    }
+
+    /**
+     * 计算实付金额+补交保证金
+     * */
+    function calcPayAmountAndDeposit() {
+        let earnestDeduction = Number($('#earnestDeduction').val());
+        let transferDeduction = Number($('#transferDeduction').val());
+        let totalAmountAndDeposit = Number($('#totalAmountAndDeposit').val());
+        if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
+            $('#payAmountAndDeposit').val((totalAmountAndDeposit.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).centToYuan());
+        }
     }
 
     /**
      * 计算合计金额
+     * @param isCascadeCalc 是否级联计算加保证金后的合计金额
      */
     function calcTotalAmount(isCascadeCalc) {
         let totalAmount = 0;
@@ -420,6 +471,28 @@
         $('#totalAmount').val(totalAmount.toFixed(2));
 
         isCascadeCalc && calcPayAmount();
+        calcTotalAmountAndDeposit(true);
+    }
+
+    /**
+     * 计算合计金额+补交保证金
+     * @param isCascadeCalc 是否级联计算加保证金后的实付金额
+     */
+    function calcTotalAmountAndDeposit(isCascadeCalc) {
+        let totalAmount = depositMakeUpAmount = 0;
+        $("table input[isCharge]").filter(function () {
+            return this.value;
+        }).each(function (i) {
+            totalAmount = Number(this.value).add(totalAmount);
+        });
+        $("table input[isDeposit]").filter(function () {
+            return this.value;
+        }).each(function (i) {
+            depositMakeUpAmount = Number(this.value).add(depositMakeUpAmount);
+        });
+        $('#totalAmountAndDeposit').val(totalAmount.add(depositMakeUpAmount).toFixed(2));
+
+        isCascadeCalc && calcPayAmountAndDeposit();
     }
 
 
@@ -561,6 +634,11 @@
     });
 
     $('#save').on('click', bui.util.debounce(saveFormHandler,1000,true));
+
+    $('#managerId').on('select2:select', function (e) {
+        var data = e.params.data;
+        $('#manager').val(data.text);
+    });
 
     /*****************************************自定义事件区 end**************************************/
 </script>

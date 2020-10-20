@@ -196,6 +196,15 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
     @Column(name = "`canceler`")
     private String canceler;
 
+    /**
+     * 管理员ID
+     */
+    @Column(name = "`manager_id`")
+    private Long managerId;
+
+    @Column(name = "`manager`")
+    private String manager;
+
     @Column(name = "`notes`")
     private String notes;
 
@@ -549,6 +558,22 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
 
     public void setCanceler(String canceler) {
         this.canceler = canceler;
+    }
+
+    public Long getManagerId() {
+        return managerId;
+    }
+
+    public void setManagerId(Long managerId) {
+        this.managerId = managerId;
+    }
+
+    public String getManager() {
+        return manager;
+    }
+
+    public void setManager(String manager) {
+        this.manager = manager;
     }
 
     public String getNotes() {

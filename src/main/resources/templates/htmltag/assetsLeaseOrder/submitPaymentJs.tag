@@ -2,7 +2,7 @@
 
     $(function () {
         batchQueryDepositOrder({businessId:$('#leaseOrderId').val()});
-        calcPayAmount();
+        loadDefaultAmount();
     });
 
     /**
@@ -41,19 +41,39 @@
     }
 
     /**
+     * 本次付款改动联动计算分摊总金额
+     * @returns {number}
+     */
+    function calcApportionAmountTotal() {
+        let payAmount = Number($('#payAmount').val());
+        let deductionAmount = Number($('#deductionAmount').val());
+        $('#apportionAmountTotal').val(payAmount.add(deductionAmount));
+        apportionedLinkageCalc();
+    }
+
+    /**
      * 计算合计金额
      * @returns {number}
      */
-    function calcApportionAmount() {
-        let deductionAmount = Number($('#deductionAmount').val());
-        let chargeAmount = calcChargeAmount();
+    function calcApportionedAmount() {
         let totalAmount = 0;
         $("table input.money").each(function (i) {
             totalAmount = Number(this.value).add(totalAmount);
         });
-        $('#apportionAmountTotal').val(totalAmount.toFixed(2));
-        $('#leasePayAmount').val(chargeAmount.sub(deductionAmount));
         return totalAmount;
+    }
+
+    /**
+     * 分摊金额改动联动
+     */
+    function apportionedLinkageCalc() {
+        let deductionAmount = Number($('#deductionAmount').val());
+        let apportionAmountTotal = Number($('#apportionAmountTotal').val());
+        let apportionedAmount = calcApportionedAmount();
+        let chargeAmount = calcChargeAmount();
+
+        $('#waitApportionAmount').val(apportionAmountTotal.sub(apportionedAmount));
+        $('#leasePayAmount').val(chargeAmount.sub(deductionAmount));
     }
 
     /**
@@ -69,13 +89,19 @@
     }
 
     /**
-     * 计算支付金额
+     * 计算加载默认金额
      */
-    function calcPayAmount() {
+    function loadDefaultAmount() {
         let deductionAmount = Number($('#deductionAmount').val());
-        let apportionAmount = calcApportionAmount();
+        let initApportionedAmount = calcApportionedAmount();
         let chargeAmount = calcChargeAmount();
-        $('#payAmount').val(apportionAmount.sub(deductionAmount));
+        let initPayAmount = initApportionedAmount.sub(deductionAmount);
+
+        //反推已分摊明细总金额
+        $('#apportionAmountTotal').val(initApportionedAmount);
+        //反推本次付款金额
+        $('#payAmount').attr('max',initPayAmount).val(initPayAmount);
+        //反推租赁支付金额
         $('#leasePayAmount').val(chargeAmount.sub(deductionAmount));
     }
 
@@ -88,16 +114,15 @@
         let chargeAmount = calcChargeAmount();
         let leasePayAmount = chargeAmount.sub(deductionAmount);
         let payAmount = Number($('#payAmount').val());
-        let apportionAmount = calcApportionAmount();
-        if (payAmount != (apportionAmount.sub(deductionAmount))) {
-            let errorMsg = deductionAmount > 0 ? '【本次付款金额】必须等于【分摊金额-抵扣】' : '【本次付款金额】必须等于【分摊金额】';
-            bs4pop.notice(errorMsg, {position: 'bottomleft'});
+        let apportionedAmount = calcApportionedAmount();
+        if (payAmount != (apportionedAmount.sub(deductionAmount))) {
+            bs4pop.notice('【本次付款金额 + 抵扣金额】必须等于【分摊明细之和】', {type: 'danger',position: 'bottomleft'});
             return false;
         }
 
         //抵扣额大于0且分摊总额大于0时，【收费项分摊总额】必须大于等于【抵扣额】
         if (deductionAmount > 0 && chargeAmount > 0 && leasePayAmount < 0) {
-            bs4pop.notice('【抵扣】只能分摊到收费项，请确保【收费项分摊金额】不小于【抵扣】', {position: 'bottomleft'});
+            bs4pop.notice('请确保【摊位租赁费用】不小于【抵扣金额】', {type: 'danger',position: 'bottomleft'});
             return false;
         }
         return true;

@@ -197,6 +197,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             oldLeaseOrder.setNotes(dto.getNotes());
             oldLeaseOrder.setCategoryId(dto.getCategoryId());
             oldLeaseOrder.setCategoryName(dto.getCategoryName());
+            oldLeaseOrder.setManagerId(dto.getManagerId());
+            oldLeaseOrder.setManager(dto.getManager());
             if (update(oldLeaseOrder) == 0) {
                 LOG.info("摊位租赁单修改异常,乐观锁生效 【租赁单编号:{}】", dto.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
