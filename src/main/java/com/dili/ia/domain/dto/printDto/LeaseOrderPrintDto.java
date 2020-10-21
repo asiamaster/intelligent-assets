@@ -46,6 +46,8 @@ public class LeaseOrderPrintDto {
     private String payAmount;
     //本次付款金额
     private String amount;
+    //待付金额
+    private String waitAmount;
     //结算方式
     private String settlementWay;
     //结算详情
@@ -185,6 +187,14 @@ public class LeaseOrderPrintDto {
 
     public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    public String getWaitAmount() {
+        return waitAmount;
+    }
+
+    public void setWaitAmount(String waitAmount) {
+        this.waitAmount = waitAmount;
     }
 
     public String getSettlementWay() {
