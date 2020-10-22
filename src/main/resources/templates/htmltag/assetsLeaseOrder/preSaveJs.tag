@@ -154,13 +154,19 @@
         //监听客户注册
         registerMsg();
 
+        <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
+            let startTime = moment("${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}").add(1,"days").format("YYYY-MM-DD");
+            //重新计算续租日期
+            $('#endTime').val(moment(startTime).add($('#days').val()-1,"days").format("YYYY-MM-DD"));
+        <% } %>
+
         laydate.render({
                 elem: '#startTime',
                 type: 'date',
                 theme: '#007bff',
                 trigger:'click',
             <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
-                value: moment("${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}").add(1,"days").format("YYYY-MM-DD"),
+                value: startTime,
             <% } else if(isEmpty(leaseOrder)){ %>
                 value: new Date(),
             <% }%>
@@ -183,12 +189,6 @@
                 $("#saveForm").validate().element($("#days"));
             }
         });
-
-        <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
-            //重新计算续租日期
-            $('#endTime').val(moment($('#startTime').val()).add($('#days').val()-1,"days").format("YYYY-MM-DD"));
-            endTimeChangeHandler();
-        <% } %>
 
         <% if(isNotEmpty(leaseOrderItems)){ %>
             itemIndex += ${leaseOrderItems.~size};
