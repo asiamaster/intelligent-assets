@@ -1,8 +1,5 @@
 package com.dili.ia.provider;
 
-import com.dili.ia.controller.DepositOrderController;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.RefundTypeEnum;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.settlement.domain.SettleConfig;
 import com.dili.ss.domain.BaseOutput;
@@ -10,9 +7,7 @@ import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
 import com.dili.ss.metadata.ValueProvider;
-import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -23,8 +18,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * <B>Description</B>

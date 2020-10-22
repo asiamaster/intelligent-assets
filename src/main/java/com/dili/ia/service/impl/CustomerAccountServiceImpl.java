@@ -282,12 +282,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (customerAccount.getEarnestAvailableBalance() < refundOrder.getPayeeAmount()){
             return BaseOutput.failure("退款金额不能大于可用余额！");
         }
-        refundOrder.setTotalRefundAmount(refundOrder.getPayeeAmount());
-        //定金退款给本人，收款人为本人
-        refundOrder.setPayeeId(refundOrder.getCustomerId());
-        refundOrder.setPayee(refundOrder.getCustomerName());
-        refundOrder.setPayeeCertificateNumber(refundOrder.getCertificateNumber());
-
         //新增
         if(null == refundOrder.getId()){
             BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode());
@@ -305,10 +299,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }else { // 修改
             RefundOrder oldRefundOrder = refundOrderService.get(refundOrder.getId());
             SpringUtil.copyPropertiesIgnoreNull(refundOrder, oldRefundOrder);
-            if (!RefundTypeEnum.BANK.getCode().equals(refundOrder.getRefundType())) {
-                oldRefundOrder.setBank(null);
-                oldRefundOrder.setBankCardNo(null);
-            }
             BaseOutput<RefundOrder> output = refundOrderService.doUpdatedHandler(oldRefundOrder);
             if (!output.isSuccess()) {
                 LOG.info("客户账户定金退款【业务ID：{}】退款修改接口异常,原因：{}", refundOrder.getBusinessId(), output.getMessage());
