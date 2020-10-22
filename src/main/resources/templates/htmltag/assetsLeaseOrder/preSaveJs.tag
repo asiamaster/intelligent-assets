@@ -187,6 +187,7 @@
         <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
             //重新计算续租日期
             $('#endTime').val(moment($('#startTime').val()).add($('#days').val()-1,"days").format("YYYY-MM-DD"));
+            endTimeChangeHandler();
         <% } %>
 
         <% if(isNotEmpty(leaseOrderItems)){ %>
@@ -208,7 +209,7 @@
         }).get();
         if(assetsIds.length > 0){
             batchQueryDepositBalance($('#assetsType').val(), $('#customerId').val(), assetsIds);
-            batchQueryDepositOrder({businessId:$('#id').val()});
+            $('#id').val() && batchQueryDepositOrder({businessId:$('#id').val()});
         }
         calcTotalAmount(true);
     });
