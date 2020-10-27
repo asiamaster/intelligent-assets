@@ -6,6 +6,7 @@ import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.domain.TaskMapping;
+import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
@@ -122,6 +123,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     @SuppressWarnings("all")
     @Autowired
     private TaskRpc taskRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    private EventRpc eventRpc;
     @Autowired
     private ApprovalProcessService approvalProcessService;
     @Autowired
@@ -265,14 +269,15 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
 
         //根据第一个摊位的所属区域来确认审批人
-        Long districtId = leaseOrderItems.get(0).getDistrictId();
+//        Long districtId = leaseOrderItems.get(0).getDistrictId();
         Map<String, Object> variables = new HashMap<>();
-        variables.put("districtId", districtId.toString());
+        variables.put("customerName", leaseOrder.getCustomerName());
+        variables.put("payAmount", leaseOrder.getPayAmount());
         variables.put("businessKey", leaseOrder.getCode());
         variables.put("firmId", userTicket.getFirmId().toString());
         if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
             //发送消息通知流程
-            BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "reapply", null);
+            BaseOutput<String> baseOutput = eventRpc.signal(leaseOrder.getProcessInstanceId(), "reapply", null);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
@@ -597,7 +602,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //如果没流程实例id过，直接提交
         if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
             //发送消息通知流程终止
-            BaseOutput<String> baseOutput = taskRpc.messageEventReceived("terminate", leaseOrder.getProcessInstanceId(), null);
+            BaseOutput<String> baseOutput = eventRpc.messageEventReceived("terminate", leaseOrder.getProcessInstanceId(), null);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
@@ -675,7 +680,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
         //发送流程消息通知撤回
         if (null != leaseOrder.getProcessInstanceId()) {
-            BaseOutput<String> baseOutput = taskRpc.messageEventReceived("withdraw", leaseOrder.getProcessInstanceId(), null);
+            BaseOutput<String> baseOutput = eventRpc.messageEventReceived("withdraw", leaseOrder.getProcessInstanceId(), null);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
@@ -808,13 +813,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
         /***************************更新租赁单及其订单项相关字段 end*********************/
         //如果是提交状态的租赁单(第一次提交付款)，并且有流程实例id，则通知流程结束
-        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId()) && leaseOrderState.equals(LeaseOrderStateEnum.SUBMITTED.getCode())) {
-            //发送消息通知流程
-            BaseOutput<String> baseOutput = taskRpc.signal(leaseOrder.getProcessInstanceId(), "confirmReceipt", null);
-            if (!baseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "流程结束消息发送失败");
-            }
-        }
+//        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId()) && leaseOrderState.equals(LeaseOrderStateEnum.SUBMITTED.getCode())) {
+//            //发送消息通知流程
+//            BaseOutput<String> baseOutput = eventRpc.signal(leaseOrder.getProcessInstanceId(), "confirmReceipt", null);
+//            if (!baseOutput.isSuccess()) {
+//                throw new BusinessException(ResultCode.DATA_ERROR, "流程结束消息发送失败");
+//            }
+//        }
         msgService.sendBusinessLog(recordPayLog(settleOrder, leaseOrder));
         return BaseOutput.success().setData(true);
     }
@@ -1221,13 +1226,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
         }
         //如果有流程实例id，则通知流程结束
-        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
-            //发送消息通知流程
-            BaseOutput<String> baseOutput = taskRpc.signal(refundOrder.getProcessInstanceId(), "confirmRefund", null);
-            if (!baseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "流程结束消息发送失败");
-            }
-        }
+//        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
+//            //发送消息通知流程
+//            BaseOutput<String> baseOutput = eventRpc.signal(refundOrder.getProcessInstanceId(), "confirmRefund", null);
+//            if (!baseOutput.isSuccess()) {
+//                throw new BusinessException(ResultCode.DATA_ERROR, "流程结束消息发送失败");
+//            }
+//        }
         //记录退款日志
         msgService.sendBusinessLog(recordRefundLog(refundOrder, leaseOrder));
         return BaseOutput.success();
