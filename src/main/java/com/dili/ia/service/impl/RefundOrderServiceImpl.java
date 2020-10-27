@@ -244,9 +244,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             return BaseOutput.failure("未登录");
         }
         //园区卡退款，检查退款人 与 退款园区卡是否匹配
-        BaseOutput output = this.checkCard(refundOrder.getPayeeId(), refundOrder.getTradeCardNo());
-        if (!output.isSuccess()){
-            return output;
+        if(refundOrder.getRefundType() != null && refundOrder.getRefundType().equals(SettleWayEnum.CARD.getCode())){
+            BaseOutput output = this.checkCard(refundOrder.getPayeeId(), refundOrder.getTradeCardNo());
+            if (!output.isSuccess()){
+                return output;
+            }
         }
         //记录当前审批状态，用于判断是否直接提交，而需要清空流程
         Integer approvalState = refundOrder.getApprovalState();
