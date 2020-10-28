@@ -27,7 +27,7 @@
     <result column="notes" jdbcType="VARCHAR" property="notes" />
     <result column="is_related" jdbcType="BIT" property="isRelated" />
     <result column="business_id" jdbcType="BIGINT" property="businessId" />
-    <result column="biz_type" jdbcType="INTEGER" property="bizType" />
+    <result column="biz_type" jdbcType="VARCHAR" property="bizType" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="pay_state" jdbcType="BIT" property="payState" />
     <result column="refund_state" jdbcType="BIT" property="refundState" />
@@ -42,6 +42,10 @@
     <result column="withdraw_operator" jdbcType="VARCHAR" property="withdrawOperator" />
     <result column="canceler_id" jdbcType="BIGINT" property="cancelerId" />
     <result column="canceler" jdbcType="VARCHAR" property="canceler" />
+    <result column="invalid_operator_id" jdbcType="BIGINT" property="invalidOperatorId" />
+    <result column="invalid_operator" jdbcType="VARCHAR" property="invalidOperator" />
+    <result column="invalid_time" jdbcType="TIMESTAMP" property="invalidTime" />
+    <result column="invalid_reason" jdbcType="VARCHAR" property="invalidReason" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
     <result column="version" jdbcType="BIGINT" property="version" />
@@ -56,7 +60,8 @@
     assets_id, assets_name, amount, paid_amount, wait_amount, refund_amount, notes, is_related, 
     business_id, biz_type, state, pay_state, refund_state, approval_state, process_instance_id, 
     creator_id, creator, submitter_id, submitter, submit_time, withdraw_operator_id, 
-    withdraw_operator, canceler_id, canceler, market_id, market_code, version, is_import
+    withdraw_operator, canceler_id, canceler, invalid_operator_id, invalid_operator, 
+    invalid_time, invalid_reason, market_id, market_code, version, is_import
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -137,7 +142,7 @@
         business_id = #{businessId,jdbcType=BIGINT},
       </if>
       <if test="bizType != null">
-        biz_type = #{bizType,jdbcType=INTEGER},
+        biz_type = #{bizType,jdbcType=VARCHAR},
       </if>
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
@@ -180,6 +185,18 @@
       </if>
       <if test="canceler != null">
         canceler = #{canceler,jdbcType=VARCHAR},
+      </if>
+      <if test="invalidOperatorId != null">
+        invalid_operator_id = #{invalidOperatorId,jdbcType=BIGINT},
+      </if>
+      <if test="invalidOperator != null">
+        invalid_operator = #{invalidOperator,jdbcType=VARCHAR},
+      </if>
+      <if test="invalidTime != null">
+        invalid_time = #{invalidTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="invalidReason != null">
+        invalid_reason = #{invalidReason,jdbcType=VARCHAR},
       </if>
       <if test="marketId != null">
         market_id = #{marketId,jdbcType=BIGINT},
