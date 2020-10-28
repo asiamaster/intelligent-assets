@@ -1,5 +1,41 @@
 <script>
     /******************************驱动执行区 begin***************************/
+        //行索引计数器
+    let itemIndex = 0;
+    var customerNameAutoCompleteOption = {
+        serviceUrl: '/customer/listNormal.action',
+        paramName : 'keyword',
+        displayFieldName : 'name',
+        showNoSuggestionNotice: true,
+        noSuggestionNotice: '无匹配结果',
+        transformResult: function (result) {
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '（' + dataItem.certificateNumber + '）'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return false;
+            }
+        },
+        selectFn: function (suggestion) {
+            $('#payeeCertificateNumber').val(suggestion.certificateNumber);
+        }
+    };
+
+    var customerNameTableAutoCompleteOption = $.extend({},customerNameAutoCompleteOption,{
+        selectFn: function (suggestion,element) {
+            let index = getIndex($(element).attr('id'));
+            $('#payeeCertificateNumber_'+index).val(suggestion.certificateNumber);
+        }
+    });
+
     //定金退款总金额 = 定金退款金额
     $('input[name="totalRefundAmount"]').bind('input propertychange', function() {
         $('input[name="payeeAmount"]').val($('input[name="totalRefundAmount"]').val());
