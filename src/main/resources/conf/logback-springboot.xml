@@ -27,7 +27,7 @@
             </encoder>
         </appender>
         <!--        不打印心跳日志     -->
-        <logger name="io.seata.core.rpc.netty" level="info"/>
+        <logger name="io.seata.core.rpc" level="info"/>
         <!-- 不显示Flushing UNDO LOG  -->
         <logger name="io.seata.rm.datasource.undo" level="info"/>
         <logger name="com.dili.${LOG_NAME}" level="DEBUG"/>
@@ -55,7 +55,7 @@
             </encoder>
         </appender>
         <!--        不打印心跳日志     -->
-        <logger name="io.seata.core.rpc.netty" level="info"/>
+        <logger name="io.seata.core.rpc" level="info"/>
         <!-- 不显示Flushing UNDO LOG  -->
         <logger name="io.seata.rm.datasource.undo" level="info"/>
         <jmxConfigurator/>
@@ -83,7 +83,7 @@
             </encoder>
         </appender>
         <!--        不打印心跳日志     -->
-        <logger name="io.seata.core.rpc.netty" level="info"/>
+        <logger name="io.seata.core.rpc" level="info"/>
         <!-- 不显示Flushing UNDO LOG  -->
         <logger name="io.seata.rm.datasource.undo" level="info"/>
     </springProfile>
@@ -110,7 +110,7 @@
             </encoder>
         </appender>
         <!--        不打印心跳日志     -->
-        <logger name="io.seata.core.rpc.netty" level="info"/>
+        <logger name="io.seata.core.rpc" level="info"/>
         <!-- 不显示Flushing UNDO LOG  -->
         <logger name="io.seata.rm.datasource.undo" level="info"/>
     </springProfile>
