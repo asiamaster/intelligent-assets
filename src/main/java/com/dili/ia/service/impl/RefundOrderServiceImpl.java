@@ -4,6 +4,7 @@ import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.domain.TaskMapping;
+import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
@@ -100,6 +101,9 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @SuppressWarnings("all")
     @Autowired
     private TaskRpc taskRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    private EventRpc eventRpc;
     @Autowired
     private AssetsRpc assetsRpc;
     @Autowired
@@ -209,7 +213,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
         if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
             //发送消息通知流程终止
-            BaseOutput<String> baseOutput = taskRpc.messageEventReceived("terminate", refundOrder.getProcessInstanceId(), null);
+            BaseOutput<String> baseOutput = eventRpc.messageEventReceived("terminate", refundOrder.getProcessInstanceId(), null);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
@@ -544,9 +548,17 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
             }
         }
+        /**
+         * 启动租赁审批流程
+         */
+        Map<String, Object> variables = new HashMap<>(8);
+        variables.put("businessKey", refundOrder.getCode());
+        variables.put("firmId", userTicket.getFirmId().toString());
+        variables.put("customerName", refundOrder.getCustomerName());
+        variables.put("payeeAmount", String.valueOf(refundOrder.getPayeeAmount()/100));
         if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
             //发送消息通知流程
-            BaseOutput<String> baseOutput = taskRpc.signal(refundOrder.getProcessInstanceId(), "reapply", null);
+            BaseOutput<String> baseOutput = eventRpc.signal(refundOrder.getProcessInstanceId(), "reapply", variables);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
@@ -555,14 +567,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 //        AssetsLeaseOrderItem assetsLeaseOrderItem = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId());
 //        Map<String, Object> variables = new HashMap<>();
 //        variables.put("districtId", assetsLeaseOrderItem.getDistrictId().toString());
-            /**
-             * 启动租赁审批流程
-             */
-            Map<String, Object> variables = new HashMap<>(4);
-            variables.put("businessKey", refundOrder.getCode());
-            variables.put("firmId", userTicket.getFirmId().toString());
-            variables.put("customerName", refundOrder.getCustomerName());
-            variables.put("payeeAmount", refundOrder.getPayeeAmount());
+
             BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS, refundOrder.getCode(), userTicket.getId().toString(), variables);
             if (!processInstanceMappingBaseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");

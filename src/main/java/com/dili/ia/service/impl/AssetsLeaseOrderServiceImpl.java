@@ -272,12 +272,12 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 //        Long districtId = leaseOrderItems.get(0).getDistrictId();
         Map<String, Object> variables = new HashMap<>();
         variables.put("customerName", leaseOrder.getCustomerName());
-        variables.put("payAmount", leaseOrder.getPayAmount());
+        variables.put("payAmount", String.valueOf(leaseOrder.getPayAmount()/100));
         variables.put("businessKey", leaseOrder.getCode());
         variables.put("firmId", userTicket.getFirmId().toString());
         if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
             //发送消息通知流程
-            BaseOutput<String> baseOutput = eventRpc.signal(leaseOrder.getProcessInstanceId(), "reapply", null);
+            BaseOutput<String> baseOutput = eventRpc.signal(leaseOrder.getProcessInstanceId(), "reapply", variables);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
@@ -522,8 +522,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
                 //提交付款
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
-                //提交时审批通过
-                leaseOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
+                //提交时判断如果没有审批过则是待提审批，否则不处理审批状态
+                if(leaseOrder.getApprovalState() == null) {
+                    leaseOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
+                }
                 //更新摊位租赁单状态
                 cascadeUpdateLeaseOrderState(leaseOrder, true, LeaseOrderItemStateEnum.SUBMITTED);
             } else {

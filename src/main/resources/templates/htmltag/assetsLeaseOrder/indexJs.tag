@@ -699,7 +699,7 @@
             //审批中不允许修改、取消和提交付款
             else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.IN_REVIEW.getCode()}) {
             }
-            //审批通过后不能修改和取消，可以提交付款
+            //审批通过后不能修改，可以提交付款和取消
             else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
                 $('#btn_submit').attr('disabled', false);
             }
@@ -720,10 +720,14 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_cancel').attr('disabled', false);
             if(row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){
                 $('#btn_submit').attr('disabled', false);
             }
-            $('#btn_withdraw').attr('disabled', false);
+            //审批通过后，只有待审批和审批拒绝的订单可以撤回
+            if(approvalState != ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
+                $('#btn_withdraw').attr('disabled', false);
+            }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
             || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}) {
             $('#toolbar button').attr('disabled', true);
