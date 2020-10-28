@@ -195,9 +195,20 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if (userTicket == null){
             return BaseOutput.failure("未登录！");
         }
-        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
+        if (!(RefundOrderStateEnum.CREATED.getCode().equals(refundOrder.getState()) || RefundOrderStateEnum.SUBMITTED.getCode().equals(refundOrder.getState()))) {
             return BaseOutput.failure("取消失败，退款单状态已变更！");
         }
+
+        //已提交取消操作 需要把退款结算单撤回
+        if (RefundOrderStateEnum.SUBMITTED.getCode().equals(refundOrder.getState())) {
+            //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
+            BaseOutput<String> out= settlementRpc.cancel(settlementAppId, refundOrder.getCode());
+            if (!out.isSuccess()){
+                LOG.info("撤回调用结算中心失败！" + out.getMessage() + out.getErrorData());
+                throw new BusinessException(ResultCode.DATA_ERROR, "撤回调用结算中心失败！" + out.getMessage());
+            }
+        }
+
         refundOrder.setCancelerId(userTicket.getId());
         refundOrder.setCanceler(userTicket.getRealName());
         refundOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
@@ -377,7 +388,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @GlobalTransactional
     @Override
     public BaseOutput doWithdrawDispatcher(RefundOrder refundOrder) {
-        if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
+        if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode()) || ApprovalStateEnum.APPROVED.getCode().equals(refundOrder.getApprovalState())){
             return BaseOutput.failure("撤回失败，状态已变更！请刷新");
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

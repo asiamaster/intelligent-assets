@@ -587,17 +587,35 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      */
     @Override
     @Transactional
+    @GlobalTransactional
     public BaseOutput cancelOrder(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
         AssetsLeaseOrder leaseOrder = get(id);
-        if (!LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState())) {
+        AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
+        itemCondition.setLeaseOrderId(leaseOrder.getId());
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
+        //仅有创建状态或已提交状态才可执行取消
+        if (!(LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState())
+                || LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState()))) {
             String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
             LOG.info("租赁单【编号：{}】状态为【{}】，不可以进行取消操作", leaseOrder.getCode(), stateName);
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态为【" + stateName + "】，不可以进行取消操作");
         }
+
+        if (null != leaseOrder.getPaymentId() && 0L != leaseOrder.getPaymentId()) {
+            withdrawPaymentOrder(leaseOrder.getPaymentId());
+            leaseOrder.setPaymentId(0L);
+            //撤回正在分摊中收费项金额
+            withdrawBusinessChargeItemPaymentAmount(leaseOrderItems);
+        }
+
+        AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
+        //释放租赁
+        assetsLeaseService.unFrozenAllAsset(id);
+
         leaseOrder.setState(LeaseOrderStateEnum.CANCELD.getCode());
         leaseOrder.setCancelerId(userTicket.getId());
         leaseOrder.setCanceler(userTicket.getRealName());
@@ -646,10 +664,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
         itemCondition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
-        if (!LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
+        if (!LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState()) || ApprovalStateEnum.APPROVED.getCode().equals(leaseOrder.getApprovalState())) {
             String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
-            LOG.info("租赁单【编号：{}】状态为【{}】，不可以进行撤回操作", leaseOrder.getCode(), stateName);
-            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态为【" + stateName + "】，不可以进行撤回操作");
+            LOG.info("租赁单【编号：{}】状态为【{}】或审批通过，不可以进行撤回操作", leaseOrder.getCode(), stateName);
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态为【" + stateName + "】或审批通过，不可以进行撤回操作");
         }
         if (null != leaseOrder.getPaymentId() && 0L != leaseOrder.getPaymentId()) {
             withdrawPaymentOrder(leaseOrder.getPaymentId());

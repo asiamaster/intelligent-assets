@@ -68,7 +68,7 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
     }
 
     /**
-     * 解冻租赁订单所有摊位
+     * 释放租赁订单所有摊位
      * @param leaseOrderId
      */
     @Override
