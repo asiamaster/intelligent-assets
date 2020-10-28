@@ -28,7 +28,7 @@ public interface AssetsLeaseService {
     void frozenAsset(AssetsLeaseOrder leaseOrder, List<AssetsLeaseOrderItem> leaseOrderItems);
 
     /**
-     * 解冻租赁订单所有资产
+     * 释放订单所有资产
      * @param leaseOrderId
      */
     void unFrozenAllAsset(Long leaseOrderId);
