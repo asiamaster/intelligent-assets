@@ -37,6 +37,8 @@ public class EarnestOrder extends BaseDomain {
     /**
      * 修改时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "`modify_time`")
     private LocalDateTime modifyTime;
 

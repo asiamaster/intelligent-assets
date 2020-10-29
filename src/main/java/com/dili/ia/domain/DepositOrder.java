@@ -97,7 +97,7 @@ public class DepositOrder extends BaseDomain {
      * 资产类型
      */
     @Column(name = "`assets_type`")
-    private String assetsType;
+    private Integer assetsType;
 
     /**
      * 资产ID
@@ -529,22 +529,22 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
-     * 获取资产类型
+     * 获取资产类型，包含摊位，冷库，公寓等
      *
-     * @return assets_type - 资产类型
+     * @return assets_type - 资产类型，包含摊位，冷库，公寓等
      */
-    @FieldDef(label="资产类型", maxLength = 50)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getAssetsType() {
+    @FieldDef(label="资产类型，包含摊位，冷库，公寓等")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getAssetsType() {
         return assetsType;
     }
 
     /**
-     * 设置资产类型
+     * 设置资产类型，包含摊位，冷库，公寓等
      *
-     * @param assetsType 资产类型
+     * @param assetsType 资产类型，包含摊位，冷库，公寓等
      */
-    public void setAssetsType(String assetsType) {
+    public void setAssetsType(Integer assetsType) {
         this.assetsType = assetsType;
     }
 
