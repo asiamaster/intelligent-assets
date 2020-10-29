@@ -938,7 +938,16 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         });
 
         if (CollectionUtils.isNotEmpty(BList)){
-            businessLogRpc.batchSave(BList, businessLogReferer);
+            try {
+                BaseOutput out = businessLogRpc.batchSave(BList, businessLogReferer);
+                if (!out.isSuccess()){
+                    LOG.error("保存日志出错，日志返回失败：{}", out.getMessage());
+                    throw new BusinessException(ResultCode.APP_ERROR, "保存日志出错，日志返回失败");
+                }
+            }catch (Exception e){
+                LOG.error("保存日志出错，日志服务返回异常："+e.getMessage(),e);
+                throw new BusinessException(ResultCode.APP_ERROR, "保存日志出错，日志服务返回异常");
+            }
         }
 
         return BaseOutput.success();
@@ -1031,7 +1040,16 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         });
         //日志记录
         if (CollectionUtils.isNotEmpty(BList)){
-            businessLogRpc.batchSave(BList, businessLogReferer);
+            try {
+                BaseOutput out = businessLogRpc.batchSave(BList, businessLogReferer);
+                if (!out.isSuccess()){
+                    LOG.error("保存日志出错，日志返回失败：{}", out.getMessage());
+                    throw new BusinessException(ResultCode.APP_ERROR, "保存日志出错，日志返回失败");
+                }
+            }catch (Exception e){
+                LOG.error("保存日志出错，日志服务返回异常："+e.getMessage(),e);
+                throw new BusinessException(ResultCode.APP_ERROR, "保存日志出错，日志服务返回异常");
+            }
         }
         return BaseOutput.success();
     }
@@ -1071,7 +1089,16 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         });
 
         if (CollectionUtils.isNotEmpty(BList)){
-            businessLogRpc.batchSave(BList, businessLogReferer);
+            try {
+                BaseOutput out = businessLogRpc.batchSave(BList, businessLogReferer);
+                if (!out.isSuccess()){
+                    LOG.error("保存日志出错，日志返回失败：{}", out.getMessage());
+                    throw new BusinessException(ResultCode.APP_ERROR, "保存日志出错，日志返回失败");
+                }
+            }catch (Exception e){
+                LOG.error("保存日志出错，日志服务返回异常："+e.getMessage(),e);
+                throw new BusinessException(ResultCode.APP_ERROR, "保存日志出错，日志服务返回异常");
+            }
         }
 
         return BaseOutput.success();
@@ -1104,7 +1131,16 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
         // 日志记录
         if (CollectionUtils.isNotEmpty(BList)){
-            businessLogRpc.batchSave(BList, businessLogReferer);
+            try {
+                BaseOutput out = businessLogRpc.batchSave(BList, businessLogReferer);
+                if (!out.isSuccess()){
+                    LOG.error("保存日志出错，日志返回失败：{}", out.getMessage());
+                    throw new BusinessException(ResultCode.APP_ERROR, "保存日志出错，日志返回失败");
+                }
+            }catch (Exception e){
+                LOG.error("保存日志出错，日志服务返回异常："+e.getMessage(),e);
+                throw new BusinessException(ResultCode.APP_ERROR, "保存日志出错，日志服务返回异常");
+            }
         }
         return BaseOutput.success();
     }
@@ -1132,7 +1168,16 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         // 日志记录
         if (CollectionUtils.isNotEmpty(BList)){
-            businessLogRpc.batchSave(BList, businessLogReferer);
+            try {
+                BaseOutput out = businessLogRpc.batchSave(BList, businessLogReferer);
+                if (!out.isSuccess()){
+                    LOG.error("保存日志出错，日志返回失败：{}", out.getMessage());
+                    throw new BusinessException(ResultCode.APP_ERROR, "保存日志出错，日志返回失败");
+                }
+            }catch (Exception e){
+                LOG.error("保存日志出错，日志服务返回异常："+e.getMessage(),e);
+                throw new BusinessException(ResultCode.APP_ERROR, "保存日志出错，日志服务返回异常");
+            }
         }
         return BaseOutput.success();
     }
