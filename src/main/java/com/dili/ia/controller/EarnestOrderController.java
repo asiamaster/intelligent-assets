@@ -309,4 +309,28 @@ public class EarnestOrderController {
             return BaseOutput.failure("取消出错！");
         }
     }
+    /**
+     * 定金管理--作废
+     * @param id
+     * @return BaseOutput
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${businessCode!}", operationType="invalid", systemCode = "IA")
+    @RequestMapping(value="/invalid.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput invalid(Long id, String invalidReason) {
+        try {
+            BaseOutput<EarnestOrder> output = earnestOrderService.invalidEarnestOrder(id);
+            if (output.isSuccess()){
+                EarnestOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+            return output;
+        } catch (BusinessException e) {
+            LOG.error("定金单撤回出错！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("withdraw 定金单撤回出错!" ,e);
+            return BaseOutput.failure("撤回出错！");
+        }
+    }
 }

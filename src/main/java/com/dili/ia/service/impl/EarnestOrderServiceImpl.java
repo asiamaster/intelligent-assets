@@ -334,12 +334,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return pb;
     }
 
-    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
+    private PaymentOrder findPaymentOrder(Long marketId, Long businessId, String businessCode){
         PaymentOrder pb = new PaymentOrder();
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
-        pb.setMarketId(userTicket.getFirmId());
+        pb.setMarketId(marketId);
         pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
         PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
         if (null == order) {
@@ -370,11 +370,48 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        PaymentOrder pb = this.findPaymentOrder(userTicket, ea.getId(), ea.getCode());
+        PaymentOrder pb = this.findPaymentOrder(userTicket.getFirmId(), ea.getId(), ea.getCode());
         if (paymentOrderService.delete(pb.getId()) == 0) {
             LOG.info("撤回定金【删除缴费单】失败.");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
+        BaseOutput<String>  setOut = settlementRpc.cancel(settlementAppId, pb.getCode());
+        if (!setOut.isSuccess()){
+            LOG.info("撤回，调用结算中心修改状态失败！" + setOut.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "撤回，调用结算中心修改状态失败！" + setOut.getMessage());
+        }
+        return BaseOutput.success().setData(ea);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
+    @Override
+    public BaseOutput<EarnestOrder> invalidEarnestOrder(Long earnestOrderId, String invalidReson) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (null == userTicket){
+            return BaseOutput.failure("未登录！");
+        }
+        //改状态，新增红冲缴费单，通知结算中心生成结算红冲单
+        EarnestOrder ea = this.get(earnestOrderId);
+        if (null == ea || !ea.getState().equals(EarnestOrderStateEnum.PAID.getCode())){
+            return BaseOutput.failure("作废失败，状态已变更！");
+        }
+        ea.setState(EarnestOrderStateEnum.INVALID.getCode());
+        ea.setInvalidOperatorId(userTicket.getId());
+        ea.setInvalidOperator(userTicket.getRealName());
+        ea.setInvalidReason(invalidReson);
+        ea.setInvalidTime(LocalDateTime.now());
+        if (this.updateSelective(ea) == 0) {
+            LOG.info("作废定金【修改定金单状态】失败,乐观锁生效。【定金单ID：】" + earnestOrderId);
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
+        PaymentOrder pb = this.findPaymentOrder(userTicket.getFirmId(), ea.getId(), ea.getCode());
+        //@TODO 生成缴费红冲单
+
+        //@TODO 扣减客户定金余额
+
+        //@TODO 调用结算生成结算红冲单
         BaseOutput<String>  setOut = settlementRpc.cancel(settlementAppId, pb.getCode());
         if (!setOut.isSuccess()){
             LOG.info("撤回，调用结算中心修改状态失败！" + setOut.getMessage());

@@ -13,6 +13,7 @@ public enum EarnestOrderStateEnum {
     CANCELD(2, "已取消"),
     SUBMITTED(3, "已提交"),
     PAID(4, "已缴费"),
+    INVALID(5, "已作废"),
     ;
 
     private String name;

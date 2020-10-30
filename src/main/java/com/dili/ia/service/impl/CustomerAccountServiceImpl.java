@@ -511,7 +511,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     //退款调用接口，退款成功，退款到转抵--充值转抵金，另起事务使其不影响原有事务
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput rechargTransfer(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
+    public BaseOutput rechargeTransferBalance(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
         if (null == amount || amount < 0){
             return BaseOutput.failure("转抵充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
         }
@@ -602,36 +602,28 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         return BaseOutput.success();
     }
 
-    /* ************************************************************** start 【老数据迁移 】 后期删除 ************************************************************************************/
+    //退款调用接口，退款成功，退款到转抵--充值转抵金，另起事务使其不影响原有事务
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void oldDataHandler(Long orderId, Long customerId, Long marketId, Long earnestAmount, Long transferAmount) {
-        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
-        if (null == ca){
-            LOG.info("客户账户不存在，customerId={}；marketId={}", customerId, marketId);
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户账户不存在！customerId=" + customerId);
+    public BaseOutput rechargeEarnestBalance(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
+        if (null == amount || amount < 0){
+            return BaseOutput.failure("定金充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
         }
-        ca.setEarnestBalance(ca.getEarnestBalance() + earnestAmount);
-        ca.setEarnestAvailableBalance(ca.getEarnestAvailableBalance() + earnestAmount);
-        ca.setTransferBalance(ca.getTransferBalance() + transferAmount);
-        ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() + transferAmount);
-
-        if(this.updateSelective(ca) == 0){
-            LOG.info("客户账户处理老数据（退还定金，转抵金额）接口异常,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户账户处理老数据（退还定金，转抵金额）接口异常,乐观锁生效！");
+        if (amount.equals(0L)){
+            return BaseOutput.success();
         }
-        //删除流水
-        TransactionDetails tdParam = new TransactionDetails();
-        tdParam.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
-        tdParam.setOrderId(orderId);
-        List<TransactionDetails>  tdList = transactionDetailsService.listByExample(tdParam);
-        tdList.stream().forEach(o->{
-            transactionDetailsService.delete(o.getId());
-        });
-
+        BaseOutput check = this.checkParams(orderId, orderCode, customerId, marketId);
+        if (!check.isSuccess()){
+            return check;
+        }
+        Long id = 0L;
+        this.getActualDao().addEarnestBalance(id, amount);
+        Integer sceneType = TransactionSceneTypeEnum.TRANSFER_IN.getCode();
+        Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
+        TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
+        transactionDetailsService.insertSelective(detail);
+        return BaseOutput.success("处理成功！");
     }
-    /* ************************************************************** end 【老数据迁移 】 后期删除 ************************************************************************************/
-
 
 }
 

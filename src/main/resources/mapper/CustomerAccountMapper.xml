@@ -89,4 +89,41 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <!--【定金余额充值】 修改定金余额，通过主键-->
+  <update id="addEarnestBalance">
+    update customer_account
+    set earnest_balance = earnest_balance + #{amount},
+    earnest_available_balance = earnest_available_balance + #{amount}
+    where
+        id = #{id}
+  </update>
+  <!--【定金余额扣减】 修改定金余额，通过主键-->
+  <update id="deductEarnestBalance">
+    update customer_account
+    set earnest_balance = earnest_balance - #{amount},
+    earnest_available_balance = earnest_available_balance - #{amount}
+    where
+        id = #{id}
+        and earnest_balance - #{amount} >= 0
+        and earnest_available_balance - #{amount} >= 0
+  </update>
+  <!--【转抵余额充值】 修改转抵余额，通过主键-->
+  <update id="addTransferBalance">
+    update customer_account
+    set transferBalance = transferBalance + #{amount},
+    earnest_available_balance = earnest_available_balance + #{amount}
+    where
+        id = #{id}
+  </update>
+  <!--【转抵余额扣减】 修改转抵余额，通过主键-->
+  <update id="deductTransferBalance">
+    update customer_account
+    set transferBalance = transferBalance - #{amount},
+    transfer_available_balance = transfer_available_balance - #{amount}
+    where
+        id = #{id}
+        and transferBalance - #{amount} >= 0
+        and transfer_available_balance - #{amount} >= 0
+  </update>
+
 </mapper>

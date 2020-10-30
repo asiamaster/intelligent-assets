@@ -17,6 +17,7 @@ public enum TransactionSceneTypeEnum {
     FROZEN(6, "冻结"),
     UNFROZEN(7, "解冻"),
     TRANSFER_IN(8, "转抵转入"),
+    INVALID_IN(9, "业务收款作废转入"),
     ;
 
     private String name;

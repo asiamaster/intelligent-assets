@@ -235,6 +235,41 @@
             })
         }
     }
+    /**
+     作废
+     */
+    function openCancelHandler() {
+        if(isSelectRow()){
+            bs4pop.confirm('确定取消该业务单？', {}, function (sure) {
+                if(sure){
+                    bui.loading.show('努力提交中，请稍候。。。');
+                    //获取选中行的数据
+                    let rows = _grid.bootstrapTable('getSelections');
+                    let selectedRow = rows[0];
+
+                    $.ajax({
+                        type: "POST",
+                        url: "${contextPath}/earnestOrder/cancel.action",
+                        data: {id: selectedRow.id},
+                        processData:true,
+                        dataType: "json",
+                        success : function(ret) {
+                            bui.loading.hide();
+                            if(ret.success){
+                                queryDataHandler();
+                            }else{
+                                bs4pop.alert(ret.message, {type: 'error'});
+                            }
+                        },
+                        error : function() {
+                            bui.loading.hide();
+                            bs4pop.alert('远程访问失败', {type: 'error'});
+                        }
+                    });
+                }
+            })
+        }
+    }
 
     //选中行事件
     _grid.on('uncheck.bs.table', function (e, row, $element) {
@@ -264,6 +299,7 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_invalid').attr('disabled', false);
         }
     });
 
