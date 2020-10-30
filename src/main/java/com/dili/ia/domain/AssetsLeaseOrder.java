@@ -197,6 +197,29 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
     private String canceler;
 
     /**
+     * 作废人
+     */
+    @Column(name = "`invalid_operator_id`")
+    private Long invalidOperatorId;
+
+    @Column(name = "`invalid_operator`")
+    private String invalidOperator;
+
+    /**
+     * 作废时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "`invalid_time`")
+    private LocalDateTime invalidTime;
+
+    /**
+     * 作废原因
+     */
+    @Column(name = "`invalid_reason`")
+    private String invalidReason;
+
+    /**
      * 管理员ID
      */
     @Column(name = "`manager_id`")
@@ -558,6 +581,38 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
 
     public void setCanceler(String canceler) {
         this.canceler = canceler;
+    }
+
+    public Long getInvalidOperatorId() {
+        return invalidOperatorId;
+    }
+
+    public void setInvalidOperatorId(Long invalidOperatorId) {
+        this.invalidOperatorId = invalidOperatorId;
+    }
+
+    public String getInvalidOperator() {
+        return invalidOperator;
+    }
+
+    public void setInvalidOperator(String invalidOperator) {
+        this.invalidOperator = invalidOperator;
+    }
+
+    public LocalDateTime getInvalidTime() {
+        return invalidTime;
+    }
+
+    public void setInvalidTime(LocalDateTime invalidTime) {
+        this.invalidTime = invalidTime;
+    }
+
+    public String getInvalidReason() {
+        return invalidReason;
+    }
+
+    public void setInvalidReason(String invalidReason) {
+        this.invalidReason = invalidReason;
     }
 
     public Long getManagerId() {

@@ -85,6 +85,12 @@ public class PaymentOrder extends BaseDomain {
     private Integer isSettle;
 
     /**
+     * 是否红冲（1：是 0：否）
+     */
+    @Column(name = "`is_reverse`")
+    private Integer isReverse;
+
+    /**
      * 金额
      */
     @Column(name = "`amount`")
@@ -310,6 +316,14 @@ public class PaymentOrder extends BaseDomain {
      */
     public void setIsSettle(Integer isSettle) {
         this.isSettle = isSettle;
+    }
+
+    public Integer getIsReverse() {
+        return isReverse;
+    }
+
+    public void setIsReverse(Integer isReverse) {
+        this.isReverse = isReverse;
     }
 
     /**
