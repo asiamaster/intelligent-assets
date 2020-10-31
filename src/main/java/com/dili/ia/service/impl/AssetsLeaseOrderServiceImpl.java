@@ -1229,7 +1229,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
             transferDeductionItems.forEach(o -> {
-                BaseOutput accountOutput = customerAccountService.rechargTransfer(refundOrder.getBizType(),
+                BaseOutput accountOutput = customerAccountService.rechargeTransferBalance(refundOrder.getBizType(),TransactionSceneTypeEnum.TRANSFER_IN.getCode(),
                         refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
                         refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
                 if (!accountOutput.isSuccess()) {
