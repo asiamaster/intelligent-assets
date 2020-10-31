@@ -511,7 +511,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     //退款调用接口，退款成功，退款到转抵--充值转抵金，另起事务使其不影响原有事务
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput rechargeTransferBalance(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
+    public BaseOutput rechargeTransferBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
         if (null == amount || amount < 0){
             return BaseOutput.failure("转抵充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
         }
@@ -523,7 +523,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             return check;
         }
         this.executeRechargeTransfer(customerId, amount, marketId);
-        Integer sceneType = TransactionSceneTypeEnum.TRANSFER_IN.getCode();
         Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
         TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
         transactionDetailsService.insertSelective(detail);
@@ -560,12 +559,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             customerAccount.setVersion(0L);
             this.insertSelective(customerAccount);
         }else {
-            ca.setTransferAvailableBalance(ca.getTransferAvailableBalance() + amount);
-            ca.setTransferBalance(ca.getTransferBalance() + amount);
-            if(this.updateSelective(ca) == 0){
-                LOG.info("摊位租赁转抵充值调用接口异常，转抵金额充值修改客户账户金额失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", ca.getCustomerName(), ca.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR, "摊位租赁转抵充值调用接口异常，转抵金额充值修改客户账户金额失败,乐观锁生效！");
-            }
+            this.getActualDao().addTransferBalance(ca.getId(), amount);
         }
     }
 
@@ -602,10 +596,10 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         return BaseOutput.success();
     }
 
-    //退款调用接口，退款成功，退款到转抵--充值转抵金，另起事务使其不影响原有事务
+    //定金充值接口
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput rechargeEarnestBalance(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
+    public BaseOutput rechargeEarnestBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
         if (null == amount || amount < 0){
             return BaseOutput.failure("定金充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
         }
@@ -616,14 +610,43 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         if (!check.isSuccess()){
             return check;
         }
-        Long id = 0L;
-        this.getActualDao().addEarnestBalance(id, amount);
-        Integer sceneType = TransactionSceneTypeEnum.TRANSFER_IN.getCode();
-        Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
+        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+        if (null == ca){
+            LOG.info("充值定金余额失败！！客户定金账户不存在，customerId={}；marketId = {}", customerId, marketId);
+            return BaseOutput.failure("客户定金账户不存在！").setCode(ResultCode.DATA_ERROR);
+        }
+        this.getActualDao().addEarnestBalance(ca.getId(), amount);
+        Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
         TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
         transactionDetailsService.insertSelective(detail);
         return BaseOutput.success("处理成功！");
     }
 
+    @Override
+    public BaseOutput deductEarnestBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName) {
+        if (null == amount || amount < 0){
+            return BaseOutput.failure("定金充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
+        }
+        if (amount.equals(0L)){
+            return BaseOutput.success();
+        }
+        BaseOutput check = this.checkParams(orderId, orderCode, customerId, marketId);
+        if (!check.isSuccess()){
+            return check;
+        }
+        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+        if (null == ca){
+            LOG.info("扣减定金余额失败！！客户定金账户不存在，customerId={}；marketId = {}", customerId, marketId);
+            return BaseOutput.failure("客户定金账户不存在！").setCode(ResultCode.DATA_ERROR);
+        }
+        if (ca.getEarnestAvailableBalance() < amount){
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户定金余额不足！");
+        }
+        this.getActualDao().deductEarnestBalance(ca.getId(), amount);
+        Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
+        TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
+        transactionDetailsService.insertSelective(detail);
+        return BaseOutput.success("处理成功！");
+    }
 }
 

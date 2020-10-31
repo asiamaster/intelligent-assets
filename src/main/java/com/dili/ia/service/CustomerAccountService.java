@@ -126,8 +126,9 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
     /**
      * 摊位租赁【退款转抵成功】-- 客户账户转抵余额加， 及相应流水变动记录
      * @param bizType 业务类型，取自枚举【BizTypeEnum】 的 code
-     * @param orderId 产生转抵金额的【租赁退款单】订单ID
-     * @param orderCode 产生转抵金额的【租赁退款单】订单编号
+     * @param sceneType 场景，取自【TransactionSceneTypeEnum】 的 code
+     * @param orderId 产生转抵金额的【业务单单】订单ID
+     * @param orderCode 产生转抵金额的【业务单单】订单编号
      * @param customerId 客户ID
      * @param amount 转抵金额
      * @param marketId 市场ID
@@ -135,12 +136,13 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @param operatorName 操作员名字
      * @return BaseOutput
      * */
-    BaseOutput rechargeTransferBalance(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
+    BaseOutput rechargeTransferBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
     /**
      * 客户账户 定金【定金可用余额】 和 【定金余额】增加, 及相应流水变动记录
      * @param bizType 业务类型，取自枚举【BizTypeEnum】 的 code
-     * @param orderId 产生转抵金额的【租赁退款单】订单ID
-     * @param orderCode 产生转抵金额的【租赁退款单】订单编号
+     * @param sceneType 场景，取自【TransactionSceneTypeEnum】 的 code
+     * @param orderId 产生转抵金额的【业务单单】订单ID
+     * @param orderCode 产生转抵金额的【业务单单】订单编号
      * @param customerId 客户ID
      * @param amount 转抵金额
      * @param marketId 市场ID
@@ -149,5 +151,22 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @return BaseOutput
      * @return
      * */
-    BaseOutput rechargeEarnestBalance(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
+    BaseOutput rechargeEarnestBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
+
+    /**
+     * 客户账户 定金【定金可用余额】 和 【定金余额】扣减, 及相应流水变动记录
+     * @param bizType 业务类型，取自枚举【BizTypeEnum】 的 code
+     * @param sceneType 场景，取自【TransactionSceneTypeEnum】 的 code
+     * @param orderId 产生转抵金额的【业务单】订单ID
+     * @param orderCode 产生转抵金额的【业务单单】订单编号
+     * @param customerId 客户ID
+     * @param amount 转抵金额
+     * @param marketId 市场ID
+     * @param operaterId 操作员ID
+     * @param operatorName 操作员名字
+     * @return BaseOutput
+     * @return
+     * */
+    BaseOutput deductEarnestBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
+
 }

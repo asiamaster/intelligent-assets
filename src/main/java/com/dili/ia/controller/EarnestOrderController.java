@@ -318,7 +318,7 @@ public class EarnestOrderController {
     @RequestMapping(value="/invalid.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput invalid(Long id, String invalidReason) {
         try {
-            BaseOutput<EarnestOrder> output = earnestOrderService.invalidEarnestOrder(id);
+            BaseOutput<EarnestOrder> output = earnestOrderService.invalidEarnestOrder(id, invalidReason);
             if (output.isSuccess()){
                 EarnestOrder order = output.getData();
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -326,11 +326,11 @@ public class EarnestOrderController {
             }
             return output;
         } catch (BusinessException e) {
-            LOG.error("定金单撤回出错！", e);
+            LOG.error("定金单作废出错！", e);
             return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
-            LOG.error("withdraw 定金单撤回出错!" ,e);
-            return BaseOutput.failure("撤回出错！");
+            LOG.error("invalid 定金作废回出错!" ,e);
+            return BaseOutput.failure("作废出错！");
         }
     }
 }

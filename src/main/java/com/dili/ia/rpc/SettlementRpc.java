@@ -3,9 +3,11 @@ package com.dili.ia.rpc;
 import com.dili.settlement.domain.SettleConfig;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
+import com.dili.settlement.dto.InvalidRequestDto;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,6 +41,13 @@ public interface SettlementRpc {
      */
     @RequestMapping(value = "/api/settleOrder/cancel", method = RequestMethod.POST)
     BaseOutput<String> cancel(@RequestParam("appId") Long appId, @RequestParam("orderCode") String orderCode);
+    /**
+     * 【作废】结算单
+     * @param invalidRequestDto  对象里面的参数都是必填
+     * @return
+     */
+    @RequestMapping(value = "/api/settleOrder/invalid", method = RequestMethod.POST)
+    BaseOutput<String> invalid(@RequestBody InvalidRequestDto invalidRequestDto);
     /**
      * 【查询】结算单 ---结算单查询
      * @param appId
