@@ -2,7 +2,7 @@
 # Sentinel自动化配置是否生效
 spring.cloud.sentinel.eager=true
 # Sentinel 控制台地址
-spring.cloud.sentinel.transport.dashboard=localhost:8201
+spring.cloud.sentinel.transport.dashboard=sentinel.diligrp.com:8201
 # 应用与Sentinel控制台交互的端口，应用本地会起一个该端口占用的HttpServer
 spring.cloud.sentinel.transport.port=8202
 
