@@ -42,7 +42,7 @@ public class TransactionDetails extends BaseDomain {
     private String code;
 
     /**
-     * 场景：1-交费,2-抵扣消费,3-定金转入,4-定金转出,5-退款,6-冻结，7-解冻,8-转抵转入
+     * 场景：1-交费,2-抵扣消费,3-定金转入,4-定金转出,5-退款,6-冻结，7-解冻,8-转抵转入, 9-业务收款作废转入, 10-业务收款作废转出
      */
     @Column(name = "`scene_type`")
     private Integer sceneType;

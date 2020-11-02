@@ -5,6 +5,7 @@ import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
@@ -416,9 +417,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
 
         //客户定金余额扣减
-        BaseOutput result = customerAccountService.deductEarnestBalance(BizTypeEnum.EARNEST.getCode(),TransactionSceneTypeEnum.INVALID_OUT.getCode(),
-                ea.getId(), ea.getCode(), ea.getCustomerId(), ea.getAmount(),
-                ea.getMarketId(), userTicket.getId(), userTicket.getRealName());
+        BaseOutput result = customerAccountService.deductEarnestBalance(this.buildCustomerAccountParam(ea, userTicket));
         if (!result.isSuccess()){
             LOG.info("作废定金，调用扣减定金余额失败！" + result.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "作废定金，调用扣减定金余额失败！" + result.getMessage());
@@ -432,6 +431,21 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return BaseOutput.success().setData(ea);
     }
 
+    private CustomerAccountParam buildCustomerAccountParam(EarnestOrder ea, UserTicket userTicket){
+        CustomerAccountParam caParam = new CustomerAccountParam();
+        caParam.setBizType(BizTypeEnum.EARNEST.getCode());
+        caParam.setAmount(ea.getAmount());
+        caParam.setCustomerId(ea.getCustomerId());
+        caParam.setOrderId(ea.getId());
+        caParam.setOrderCode(ea.getCode());
+        caParam.setOperaterId(userTicket.getId());
+        caParam.setOperatorName(userTicket.getRealName());
+        caParam.setItemType(TransactionItemTypeEnum.EARNEST.getCode());
+        caParam.setSceneType(TransactionSceneTypeEnum.INVALID_OUT.getCode());
+        caParam.setMarketId(ea.getMarketId());
+
+        return caParam;
+    }
     private InvalidRequestDto buildInvalidRequestDto(UserTicket userTicket, PaymentOrder paymentOrder){
         InvalidRequestDto param = new InvalidRequestDto();
         param.setAppId(this.settlementAppId);

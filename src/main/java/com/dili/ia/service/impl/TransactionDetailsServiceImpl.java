@@ -32,6 +32,7 @@ public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDe
     CustomerRpc customerRpc;
     @Autowired
     UidFeignRpc uidFeignRpc;
+    @SuppressWarnings("all")
     @Autowired
     FirmRpc firmRpc;
 

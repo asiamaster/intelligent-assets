@@ -3,6 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -124,49 +125,25 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * */
     void refundSuccessEarnest(Long customerId, Long marketId, Long amount);
     /**
-     * 摊位租赁【退款转抵成功】-- 客户账户转抵余额加， 及相应流水变动记录
-     * @param bizType 业务类型，取自枚举【BizTypeEnum】 的 code
-     * @param sceneType 场景，取自【TransactionSceneTypeEnum】 的 code
-     * @param orderId 产生转抵金额的【业务单单】订单ID
-     * @param orderCode 产生转抵金额的【业务单单】订单编号
-     * @param customerId 客户ID
-     * @param amount 转抵金额
-     * @param marketId 市场ID
-     * @param operaterId 操作员ID
-     * @param operatorName 操作员名字
+     * 客户账户 转抵扣【转抵扣可用余额】 和 【转抵扣余额】增加, 及相应流水变动记录
+     * @param customerAccountParam 对象参数，所有字段必填
      * @return BaseOutput
      * */
-    BaseOutput rechargeTransferBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
+    BaseOutput rechargeTransferBalance(CustomerAccountParam customerAccountParam);
     /**
      * 客户账户 定金【定金可用余额】 和 【定金余额】增加, 及相应流水变动记录
-     * @param bizType 业务类型，取自枚举【BizTypeEnum】 的 code
-     * @param sceneType 场景，取自【TransactionSceneTypeEnum】 的 code
-     * @param orderId 产生转抵金额的【业务单单】订单ID
-     * @param orderCode 产生转抵金额的【业务单单】订单编号
-     * @param customerId 客户ID
-     * @param amount 转抵金额
-     * @param marketId 市场ID
-     * @param operaterId 操作员ID
-     * @param operatorName 操作员名字
+     * @param customerAccountParam 对象参数，所有字段必填
      * @return BaseOutput
      * @return
      * */
-    BaseOutput rechargeEarnestBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
+    BaseOutput rechargeEarnestBalance(CustomerAccountParam customerAccountParam);
 
     /**
      * 客户账户 定金【定金可用余额】 和 【定金余额】扣减, 及相应流水变动记录
-     * @param bizType 业务类型，取自枚举【BizTypeEnum】 的 code
-     * @param sceneType 场景，取自【TransactionSceneTypeEnum】 的 code
-     * @param orderId 产生转抵金额的【业务单】订单ID
-     * @param orderCode 产生转抵金额的【业务单单】订单编号
-     * @param customerId 客户ID
-     * @param amount 转抵金额
-     * @param marketId 市场ID
-     * @param operaterId 操作员ID
-     * @param operatorName 操作员名字
+     * @param customerAccountParam 对象参数，所有字段必填
      * @return BaseOutput
      * @return
      * */
-    BaseOutput deductEarnestBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
+    BaseOutput deductEarnestBalance(CustomerAccountParam customerAccountParam);
 
 }

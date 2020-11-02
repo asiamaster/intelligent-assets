@@ -3,6 +3,7 @@ package com.dili.ia.service.impl;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.CustomerAccountMapper;
@@ -511,20 +512,20 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     //退款调用接口，退款成功，退款到转抵--充值转抵金，另起事务使其不影响原有事务
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput rechargeTransferBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
-        if (null == amount || amount < 0){
-            return BaseOutput.failure("转抵充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
+    public BaseOutput rechargeTransferBalance(CustomerAccountParam caParam){
+        if (null == caParam.getAmount() || caParam.getAmount() < 0){
+            return BaseOutput.failure("转抵充值金额不合法！amount=" + caParam.getAmount()).setCode(ResultCode.DATA_ERROR);
         }
-        if (amount.equals(0L)){
+        if (caParam.getAmount().equals(0L)){
             return BaseOutput.success();
         }
-        BaseOutput check = this.checkParams(orderId, orderCode, customerId, marketId);
+        BaseOutput check = this.checkParams(caParam.getOrderId(), caParam.getOrderCode(), caParam.getCustomerId(), caParam.getMarketId());
         if (!check.isSuccess()){
             return check;
         }
-        this.executeRechargeTransfer(customerId, amount, marketId);
-        Integer itemType = TransactionItemTypeEnum.TRANSFER.getCode();
-        TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
+        this.executeRechargeTransfer(caParam.getCustomerId(), caParam.getAmount(), caParam.getMarketId());
+        TransactionDetails detail = transactionDetailsService.buildByConditions(caParam.getSceneType(), caParam.getBizType(), caParam.getItemType(), caParam.getAmount(),
+                caParam.getOrderId(), caParam.getOrderCode(), caParam.getCustomerId(), caParam.getOrderCode(), caParam.getMarketId(), caParam.getOperaterId(), caParam.getOperatorName());
         transactionDetailsService.insertSelective(detail);
         return BaseOutput.success("处理成功！");
     }
@@ -599,52 +600,53 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     //定金充值接口
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public BaseOutput rechargeEarnestBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName){
-        if (null == amount || amount < 0){
-            return BaseOutput.failure("定金充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
+    public BaseOutput rechargeEarnestBalance(CustomerAccountParam caParam){
+        if (null == caParam.getAmount() || caParam.getAmount() < 0){
+            return BaseOutput.failure("定金充值金额不合法！amount=" + caParam.getAmount()).setCode(ResultCode.DATA_ERROR);
         }
-        if (amount.equals(0L)){
+        if (caParam.getAmount().equals(0L)){
             return BaseOutput.success();
         }
-        BaseOutput check = this.checkParams(orderId, orderCode, customerId, marketId);
+        BaseOutput check = this.checkParams(caParam.getOrderId(), caParam.getOrderCode(), caParam.getCustomerId(), caParam.getMarketId());
         if (!check.isSuccess()){
             return check;
         }
-        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+        CustomerAccount ca = this.getCustomerAccountByCustomerId(caParam.getCustomerId(), caParam.getMarketId());
         if (null == ca){
-            LOG.info("充值定金余额失败！！客户定金账户不存在，customerId={}；marketId = {}", customerId, marketId);
+            LOG.info("充值定金余额失败！！客户定金账户不存在，customerId={}；marketId = {}", caParam.getCustomerId(), caParam.getMarketId());
             return BaseOutput.failure("客户定金账户不存在！").setCode(ResultCode.DATA_ERROR);
         }
-        this.getActualDao().addEarnestBalance(ca.getId(), amount);
-        Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
-        TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
+        this.getActualDao().addEarnestBalance(ca.getId(), caParam.getAmount());
+        TransactionDetails detail = transactionDetailsService.buildByConditions(caParam.getSceneType(), caParam.getBizType(), caParam.getItemType(), caParam.getAmount(),
+                caParam.getOrderId(), caParam.getOrderCode(), caParam.getCustomerId(), caParam.getOrderCode(), caParam.getMarketId(), caParam.getOperaterId(), caParam.getOperatorName());
         transactionDetailsService.insertSelective(detail);
         return BaseOutput.success("处理成功！");
     }
 
     @Override
-    public BaseOutput deductEarnestBalance(String bizType, Integer sceneType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName) {
-        if (null == amount || amount < 0){
-            return BaseOutput.failure("定金充值金额不合法！amount=" + amount).setCode(ResultCode.DATA_ERROR);
+    public BaseOutput deductEarnestBalance(CustomerAccountParam caParam) {
+        if (null == caParam.getAmount() || caParam.getAmount() < 0){
+            return BaseOutput.failure("定金充值金额不合法！amount=" + caParam.getAmount()).setCode(ResultCode.DATA_ERROR);
         }
-        if (amount.equals(0L)){
+        if (caParam.getAmount().equals(0L)){
             return BaseOutput.success();
         }
-        BaseOutput check = this.checkParams(orderId, orderCode, customerId, marketId);
+        BaseOutput check = this.checkParams(caParam.getOrderId(), caParam.getOrderCode(), caParam.getCustomerId(), caParam.getMarketId());
         if (!check.isSuccess()){
             return check;
         }
-        CustomerAccount ca = this.getCustomerAccountByCustomerId(customerId, marketId);
+        CustomerAccount ca = this.getCustomerAccountByCustomerId(caParam.getCustomerId(), caParam.getMarketId());
         if (null == ca){
-            LOG.info("扣减定金余额失败！！客户定金账户不存在，customerId={}；marketId = {}", customerId, marketId);
+            LOG.info("扣减定金余额失败！！客户定金账户不存在，customerId={}；marketId = {}", caParam.getCustomerId(), caParam.getMarketId());
             return BaseOutput.failure("客户定金账户不存在！").setCode(ResultCode.DATA_ERROR);
         }
-        if (ca.getEarnestAvailableBalance() < amount){
+        if (ca.getEarnestAvailableBalance() < caParam.getAmount()){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户定金余额不足！");
         }
-        this.getActualDao().deductEarnestBalance(ca.getId(), amount);
+        this.getActualDao().deductEarnestBalance(ca.getId(), caParam.getAmount());
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
-        TransactionDetails detail = transactionDetailsService.buildByConditions(sceneType, bizType, itemType, amount, orderId, orderCode, customerId, orderCode, marketId, operaterId, operatorName);
+        TransactionDetails detail = transactionDetailsService.buildByConditions(caParam.getSceneType(), caParam.getBizType(), caParam.getItemType(), caParam.getAmount(),
+                caParam.getOrderId(), caParam.getOrderCode(), caParam.getCustomerId(), caParam.getOrderCode(), caParam.getMarketId(), caParam.getOperaterId(), caParam.getOperatorName());
         transactionDetailsService.insertSelective(detail);
         return BaseOutput.success("处理成功！");
     }
