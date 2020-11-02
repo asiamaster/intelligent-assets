@@ -440,7 +440,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         caParam.setOrderCode(ea.getCode());
         caParam.setOperaterId(userTicket.getId());
         caParam.setOperatorName(userTicket.getRealName());
-        caParam.setItemType(TransactionItemTypeEnum.EARNEST.getCode());
         caParam.setSceneType(TransactionSceneTypeEnum.INVALID_OUT.getCode());
         caParam.setMarketId(ea.getMarketId());
 
@@ -453,7 +452,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         param.setMarketId(userTicket.getFirmId());
         param.setOperatorId(userTicket.getId());
         param.setOperatorName(userTicket.getRealName());
-        //@TODO 参数待商讨
         List<String> orderCodeList = new ArrayList<>();
         orderCodeList.add(paymentOrder.getCode());
         param.setOrderCodeList(orderCodeList);

@@ -119,7 +119,7 @@
   </select>
 
 
-  <select id="listDepositBalanceExact" parameterType="com.dili.ia.domain.DepositBalance" resultMap="BaseResultMap">
+  <select id="getDepositBalanceExact" parameterType="com.dili.ia.domain.dto.DepositBalanceParam" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from deposit_balance
@@ -173,5 +173,14 @@
       </otherwise>
     </choose>
   </select>
+
+  <!--【保证金余额扣减】 修改余额，通过主键-->
+  <update id="deductDepositBalance">
+    update deposit_balance
+    set balance = balance - #{amount},
+    where
+        id = #{id}
+        and balance - #{amount} >= 0
+  </update>
 
 </mapper>

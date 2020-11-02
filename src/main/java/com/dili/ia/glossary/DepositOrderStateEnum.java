@@ -15,6 +15,7 @@ public enum DepositOrderStateEnum {
     PAID(4, "已交费"),
     REFUNDING(5, "退款中"),
     REFUND(6, "已退款"),
+    INVALID(7, "已作废"),
     ;
 
     private String name;
