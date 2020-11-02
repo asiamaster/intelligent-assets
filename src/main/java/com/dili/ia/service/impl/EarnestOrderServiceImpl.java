@@ -422,7 +422,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOG.info("作废定金，调用扣减定金余额失败！" + result.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "作废定金，调用扣减定金余额失败！" + result.getMessage());
         }
-        //@TODO 调用结算生成结算红冲单, 业务缴费单也会生成红冲单，是否关联结算的红冲单
+        //调用结算生成结算红冲单
         BaseOutput<String> setOut = settlementRpc.invalid(this.buildInvalidRequestDto(userTicket, pb));
         if (!setOut.isSuccess()){
             LOG.info("作废，调用结算中心生成红冲单失败！" + setOut.getMessage());

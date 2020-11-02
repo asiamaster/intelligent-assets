@@ -524,7 +524,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             return check;
         }
         this.executeRechargeTransfer(caParam.getCustomerId(), caParam.getAmount(), caParam.getMarketId());
-        TransactionDetails detail = transactionDetailsService.buildByConditions(caParam.getSceneType(), caParam.getBizType(), caParam.getItemType(), caParam.getAmount(),
+        TransactionDetails detail = transactionDetailsService.buildByConditions(caParam.getSceneType(), caParam.getBizType(), TransactionItemTypeEnum.TRANSFER.getCode(), caParam.getAmount(),
                 caParam.getOrderId(), caParam.getOrderCode(), caParam.getCustomerId(), caParam.getOrderCode(), caParam.getMarketId(), caParam.getOperaterId(), caParam.getOperatorName());
         transactionDetailsService.insertSelective(detail);
         return BaseOutput.success("处理成功！");
@@ -617,7 +617,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             return BaseOutput.failure("客户定金账户不存在！").setCode(ResultCode.DATA_ERROR);
         }
         this.getActualDao().addEarnestBalance(ca.getId(), caParam.getAmount());
-        TransactionDetails detail = transactionDetailsService.buildByConditions(caParam.getSceneType(), caParam.getBizType(), caParam.getItemType(), caParam.getAmount(),
+        TransactionDetails detail = transactionDetailsService.buildByConditions(caParam.getSceneType(), caParam.getBizType(), TransactionItemTypeEnum.EARNEST.getCode(), caParam.getAmount(),
                 caParam.getOrderId(), caParam.getOrderCode(), caParam.getCustomerId(), caParam.getOrderCode(), caParam.getMarketId(), caParam.getOperaterId(), caParam.getOperatorName());
         transactionDetailsService.insertSelective(detail);
         return BaseOutput.success("处理成功！");
@@ -645,7 +645,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         this.getActualDao().deductEarnestBalance(ca.getId(), caParam.getAmount());
         Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
-        TransactionDetails detail = transactionDetailsService.buildByConditions(caParam.getSceneType(), caParam.getBizType(), caParam.getItemType(), caParam.getAmount(),
+        TransactionDetails detail = transactionDetailsService.buildByConditions(caParam.getSceneType(), caParam.getBizType(), TransactionItemTypeEnum.EARNEST.getCode(), caParam.getAmount(),
                 caParam.getOrderId(), caParam.getOrderCode(), caParam.getCustomerId(), caParam.getOrderCode(), caParam.getMarketId(), caParam.getOperaterId(), caParam.getOperatorName());
         transactionDetailsService.insertSelective(detail);
         return BaseOutput.success("处理成功！");

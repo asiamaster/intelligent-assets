@@ -314,7 +314,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${businessCode!}", operationType="invalid", systemCode = "IA")
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${invalidReason!}", operationType="invalid", systemCode = "IA")
     @RequestMapping(value="/invalid.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput invalid(Long id, String invalidReason) {
         try {

@@ -16,9 +16,6 @@ public class CustomerAccountParam {
     // 用于记录客户账户流水 --- 场景，取自【TransactionSceneTypeEnum】 的 code
     private Integer sceneType;
 
-    // 用于记录客户账户流水 --- 类型，【定金，转抵扣】，取自【TransactionItemTypeEnum】 的 code
-    private Integer itemType;
-
     // 用于记录客户账户流水 --- 造成客户账户变化的 【业务单】订单ID
     private Long orderId;
 
@@ -39,14 +36,6 @@ public class CustomerAccountParam {
 
      // operatorName 操作员名字
      private String operatorName;
-
-    public Integer getItemType() {
-        return itemType;
-    }
-
-    public void setItemType(Integer itemType) {
-        this.itemType = itemType;
-    }
 
     public String getBizType() {
         return bizType;

@@ -866,7 +866,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         caParam.setOrderCode(param.getCode());
         caParam.setOperaterId(param.getRefundOperatorId());
         caParam.setOperatorName(param.getRefundOperator());
-        caParam.setItemType(TransactionItemTypeEnum.EARNEST.getCode());
         caParam.setSceneType(TransactionSceneTypeEnum.TRANSFER_IN.getCode());
         caParam.setMarketId(param.getMarketId());
 

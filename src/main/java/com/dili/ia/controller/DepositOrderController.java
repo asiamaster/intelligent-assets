@@ -1,10 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.DepositOrder;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
@@ -376,6 +373,32 @@ public class DepositOrderController {
         } catch (Exception e) {
             LOG.error("cancel 保证金单取消出错!" ,e);
             return BaseOutput.failure("取消出错！");
+        }
+    }
+
+    /**
+     * 定金管理--作废
+     * @param id
+     * @return BaseOutput
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${invalidReason!}", operationType="invalid", systemCode = "IA")
+    @RequestMapping(value="/invalid.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput invalid(Long id, String invalidReason) {
+        try {
+//            BaseOutput<EarnestOrder> output = earnestOrderService.invalidEarnestOrder(id, invalidReason);
+            BaseOutput<EarnestOrder> output = BaseOutput.failure();
+            if (output.isSuccess()){
+                EarnestOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            }
+            return output;
+        } catch (BusinessException e) {
+            LOG.error("定金单作废出错！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("invalid 定金作废回出错!" ,e);
+            return BaseOutput.failure("作废出错！");
         }
     }
 }
