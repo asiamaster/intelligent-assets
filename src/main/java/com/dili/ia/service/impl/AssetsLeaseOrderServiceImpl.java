@@ -32,6 +32,7 @@ import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
+import com.dili.settlement.dto.InvalidRequestDto;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
@@ -646,6 +647,124 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         return BaseOutput.success();
     }
 
+    @Override
+    @Transactional
+    @GlobalTransactional
+    public BaseOutput invalidOrder(Long id, String invalidReason) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            return BaseOutput.failure("未登录");
+        }
+        AssetsLeaseOrder leaseOrder = get(id);
+        PaymentOrder paymentOrderCondition = new PaymentOrder();
+        paymentOrderCondition.setBusinessId(id);
+        paymentOrderCondition.setBizType(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType());
+        List<PaymentOrder> paymentOrders = paymentOrderService.listByExample(paymentOrderCondition);
+
+        //检查同步状态
+        List<String> notPaidPaymentOrders = paymentOrders.stream().filter(o -> PaymentOrderStateEnum.NOT_PAID.getCode().equals(o.getState())).map(o -> o.getCode()).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(notPaidPaymentOrders)) {
+            SettleOrderDto notPaidOrderCondition = new SettleOrderDto();
+            notPaidOrderCondition.setAppId(settlementAppId);
+            notPaidOrderCondition.setMarketId(leaseOrder.getMarketId());
+            notPaidOrderCondition.setOrderCodeList(notPaidPaymentOrders);
+            List<SettleOrder> settleOrders = settlementRpc.list(notPaidOrderCondition).getData();
+            if (CollectionUtils.isNotEmpty(settleOrders.stream().filter(s -> SettleStateEnum.DEAL.getCode() == s.getState()).collect(Collectors.toList()))) {
+                LOG.error("缴费状态未同步 【租赁单CODE {}】", leaseOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "缴费状态未同步，不能进行此操作");
+            }
+        }
+
+        //作废结算单
+        InvalidRequestDto invalidRequestDto = new InvalidRequestDto();
+        invalidRequestDto.setAppId(settlementAppId);
+        invalidRequestDto.setMarketId(leaseOrder.getMarketId());
+        invalidRequestDto.setMarketCode(leaseOrder.getMarketCode());
+        invalidRequestDto.setOperatorId(userTicket.getId());
+        invalidRequestDto.setOperatorName(userTicket.getRealName());
+        invalidRequestDto.setOrderCodeList(paymentOrders.stream().map(o -> o.getCode()).collect(Collectors.toList()));
+        BaseOutput settlementInvalidOutput = settlementRpc.invalid(invalidRequestDto);
+        if (!settlementInvalidOutput.isSuccess()) {
+            LOG.error("租赁单作废调用结算单作废异常 【租赁单CODE {}】", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, settlementInvalidOutput.getMessage());
+        }
+
+        List<PaymentOrder> rerverpaymentOrders = new ArrayList<>();
+        paymentOrders.stream().filter(o -> PaymentOrderStateEnum.PAID.getCode().equals(leaseOrder.getState())).forEach(o -> {
+            PaymentOrder newPaymentOrder = o.clone();
+            newPaymentOrder.setCreateTime(LocalDateTime.now());
+            newPaymentOrder.setModifyTime(LocalDateTime.now());
+            newPaymentOrder.setCreatorId(userTicket.getId());
+            newPaymentOrder.setCreator(userTicket.getRealName());
+            newPaymentOrder.setIsReverse(YesOrNoEnum.YES.getCode());
+            newPaymentOrder.setParentId(o.getId());
+            newPaymentOrder.setId(null);
+
+            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+            if (!bizNumberOutput.isSuccess()) {
+                LOG.info("租赁单【编号：{}】,缴费单编号生成异常", leaseOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+            }
+            newPaymentOrder.setCode(bizNumberOutput.getData());
+            rerverpaymentOrders.add(newPaymentOrder);
+        });
+
+        if (!rerverpaymentOrders.isEmpty() && paymentOrderService.batchInsert(rerverpaymentOrders) != rerverpaymentOrders.size()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "缴费单红冲写入失败！");
+        }
+
+        //更新作废状态
+        leaseOrder.setState(LeaseOrderStateEnum.INVALIDATED.getCode());
+        cascadeUpdateLeaseOrderState(leaseOrder,true,LeaseOrderItemStateEnum.INVALIDATED);
+
+        //释放租赁时间段
+        AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
+        assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
+
+        //作废转抵扣退回
+        CustomerAccountParam transferDeductionCustomerAccountParam = new CustomerAccountParam();
+        transferDeductionCustomerAccountParam.setBizType(BizTypeEnum.getBizTypeEnum(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType()).getCode());
+        transferDeductionCustomerAccountParam.setSceneType(TransactionSceneTypeEnum.INVALID_IN.getCode());
+        transferDeductionCustomerAccountParam.setOrderId(leaseOrder.getId());
+        transferDeductionCustomerAccountParam.setOrderCode(leaseOrder.getCode());
+        transferDeductionCustomerAccountParam.setCustomerId(leaseOrder.getCustomerId());
+        transferDeductionCustomerAccountParam.setAmount(leaseOrder.getTransferDeduction());
+        transferDeductionCustomerAccountParam.setMarketId(leaseOrder.getMarketId());
+        transferDeductionCustomerAccountParam.setOperaterId(userTicket.getId());
+        transferDeductionCustomerAccountParam.setOperatorName(userTicket.getRealName());
+        BaseOutput transferDeductionAccountOutput = customerAccountService.rechargeTransferBalance(transferDeductionCustomerAccountParam);
+        if (!transferDeductionAccountOutput.isSuccess()) {
+            LOG.error("作废转抵异常，【租赁编号:{},收款人:{},收款金额:{},msg:{}】", leaseOrder.getCode(), leaseOrder.getCustomerName(), leaseOrder.getTransferDeduction(), transferDeductionAccountOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, transferDeductionAccountOutput.getMessage());
+        }
+
+        //作废定金退回
+        CustomerAccountParam earnestDeductionCustomerAccountParam = new CustomerAccountParam();
+        earnestDeductionCustomerAccountParam.setBizType(BizTypeEnum.getBizTypeEnum(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType()).getCode());
+        earnestDeductionCustomerAccountParam.setSceneType(TransactionSceneTypeEnum.INVALID_IN.getCode());
+        earnestDeductionCustomerAccountParam.setOrderId(leaseOrder.getId());
+        earnestDeductionCustomerAccountParam.setOrderCode(leaseOrder.getCode());
+        earnestDeductionCustomerAccountParam.setCustomerId(leaseOrder.getCustomerId());
+        earnestDeductionCustomerAccountParam.setAmount(leaseOrder.getEarnestDeduction());
+        earnestDeductionCustomerAccountParam.setMarketId(leaseOrder.getMarketId());
+        earnestDeductionCustomerAccountParam.setOperaterId(userTicket.getId());
+        earnestDeductionCustomerAccountParam.setOperatorName(userTicket.getRealName());
+        BaseOutput earnestDeductionAccountOutput = customerAccountService.rechargeEarnestBalance(earnestDeductionCustomerAccountParam);
+        if (!earnestDeductionAccountOutput.isSuccess()) {
+            LOG.error("作废转抵异常，【租赁编号:{},收款人:{},收款金额:{},msg:{}】", leaseOrder.getCode(), leaseOrder.getCustomerName(), leaseOrder.getTransferDeduction(), earnestDeductionAccountOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, earnestDeductionAccountOutput.getMessage());
+        }
+
+        //保证金取消
+        BaseOutput depositOutput = depositOrderService.batchCancelDepositOrder(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), id);
+        if (!depositOutput.isSuccess()) {
+            LOG.info("取消保证金单接口异常 【租赁单编号:{}】", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
+        }
+
+        return BaseOutput.success();
+    }
+
     /**
      * 撤回摊位租赁订单
      *
@@ -1229,9 +1348,17 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
             transferDeductionItems.forEach(o -> {
-                BaseOutput accountOutput = customerAccountService.rechargeTransferBalance(refundOrder.getBizType(),TransactionSceneTypeEnum.TRANSFER_IN.getCode(),
-                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
-                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
+                CustomerAccountParam customerAccountParam = new CustomerAccountParam();
+                customerAccountParam.setBizType(refundOrder.getBizType());
+                customerAccountParam.setSceneType(TransactionSceneTypeEnum.TRANSFER_IN.getCode());
+                customerAccountParam.setOrderId(refundOrder.getId());
+                customerAccountParam.setOrderCode(refundOrder.getCode());
+                customerAccountParam.setCustomerId(o.getPayeeId());
+                customerAccountParam.setAmount(o.getPayeeAmount());
+                customerAccountParam.setMarketId(refundOrder.getMarketId());
+                customerAccountParam.setOperaterId(refundOrder.getRefundOperatorId());
+                customerAccountParam.setOperatorName(refundOrder.getRefundOperator());
+                BaseOutput accountOutput = customerAccountService.rechargeTransferBalance(customerAccountParam);
                 if (!accountOutput.isSuccess()) {
                     LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
                     throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());

@@ -17,4 +17,7 @@ ADD COLUMN `invalid_time` datetime DEFAULT NULL COMMENT '作废时间' AFTER `in
 ADD COLUMN `invalid_reason` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '作废原因' AFTER `invalid_time`;
 
 ALTER TABLE `dili_ia`.`payment_order`
-ADD COLUMN `is_reverse` tinyint(1) NULL COMMENT '是否红冲（1：是 0：否）' AFTER `is_settle`;
+ADD COLUMN `is_reverse` tinyint(1) NULL DEFAULT 0 COMMENT '是否红冲（1：是 0：否）' AFTER `is_settle`;
+
+ALTER TABLE `dili_ia`.`payment_order`
+ADD COLUMN `parent_id` bigint(20) NULL COMMENT '父ID（红冲原单ID）' AFTER `version`;

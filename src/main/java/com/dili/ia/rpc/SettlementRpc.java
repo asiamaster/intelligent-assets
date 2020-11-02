@@ -56,6 +56,13 @@ public interface SettlementRpc {
      */
     @RequestMapping(value = "/api/settleOrder/get", method = RequestMethod.POST)
     BaseOutput<SettleOrder> get(@RequestParam("appId") Long appId, @RequestParam("orderCode") String orderCode);
+    /**
+     * 【查询】结算单 ---结算单高级查询
+     * @param settleOrder
+     * @return
+     */
+    @RequestMapping(value = "/api/settleOrder/list", method = RequestMethod.POST)
+    BaseOutput<List<SettleOrder>> list(SettleOrderDto settleOrder);
 
     /**
      * 【查询】结算单结算详情 ---根据结算编号code查询

@@ -17,6 +17,7 @@ public enum LeaseOrderItemStateEnum {
     NOT_ACTIVE(4, "未生效"),
     EFFECTIVE(5, "已生效"),
     RENTED_OUT(6, "已停租"),
+    INVALIDATED(7,"已作废"),
     EXPIRED(8, "已到期"),
     ;
 

@@ -118,6 +118,9 @@
                 <#resource code="cancelBoothLeaseOrder" checkMenu="true">
                 <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                 </#resource>
+                <#resource code="invalidBoothLeaseOrder" checkMenu="true">
+                <button id="btn_invalid" type="button" class="btn btn-primary" onclick="openInvalidHandler()"><i class="fa fa-ban"></i> 作废</button>
+                </#resource>
                 <#resource code="submitBoothLeaseOrderApplication" checkMenu="true">
                 <button id="btn_approval" type="button" class="btn btn-primary" onclick="submitForApproval()"><i class="fa fa-paper-plane"></i> 提交审批</button>
                 </#resource>
@@ -287,6 +290,19 @@
             </div>
             <div class="col-6">
                 <input type="text" id="contractNo" name="contractNo" class="form-control" maxlength="50" required/>
+            </div>
+        </div>
+    </form>
+</script>
+<!-- 作废模板 -->
+<script id="invalidTpl" type="text/html">
+    <form id="invalidForm">
+        <div class="row">
+            <div class="col-4 col-form-label text-right">
+                <label for="invalidReason" class="justify-content-end w-100px">作废原因:</label>
+            </div>
+            <div class="col-6">
+                <textarea type="text" id="invalidReason" name="invalidReason" class="form-control" rows="1" maxlength="100" required></textarea>
             </div>
         </div>
     </form>

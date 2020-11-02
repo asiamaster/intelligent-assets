@@ -297,6 +297,55 @@
     }
 
     /**
+     * 打开作废Handler
+     */
+    function openInvalidHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        let selectedRow = rows[0];
+        bs4pop.dialog({
+            title: '作废',
+            content: template('invalidTpl',{}),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick: bui.util.debounce(function () {
+                        if (!$('#invalidForm').valid()) {
+                            return false;
+                        }
+                        bui.loading.show('努力提交中，请稍候。。。');
+                        $.ajax({
+                            type: "POST",
+                            url: "${contextPath}/leaseOrder/invalidOrder.action",
+                            data: {id: selectedRow.id,invalidReason : $('#invalidReason').val()},
+                            dataType: "json",
+                            success : function(data) {
+                                bui.loading.hide();
+                                if(!data.success){
+                                    bs4pop.alert(data.result, {type: 'error'});
+                                }
+                            },
+                            error : function() {
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
+                    }, 1000, true)
+                },
+                {label: '取消', className: 'btn-secondary', onClick(e) {}}
+            ]
+        });
+
+    }
+
+    /**
      * 打开撤回Handler
      */
     function openWithdrawHandler() {
@@ -735,6 +784,7 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
+            $('#btn_invalid').attr('disabled', false);
             //未开票才显示开票按钮
             if(row.$_isInvoice != 1){
                 $('#btn_invoice').attr('disabled', false);
@@ -758,12 +808,16 @@
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
                 $('#btn_submit').attr('disabled', false);
             }
+            if (row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}) {
+                $('#btn_invalid').attr('disabled', false);
+            }
         }else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
+            $('#btn_invalid').attr('disabled', false);
             //未开票才显示开票按钮
             if(row.$_isInvoice != 1){
                 $('#btn_invoice').attr('disabled', false);

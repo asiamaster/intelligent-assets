@@ -468,6 +468,29 @@ public class AssetsLeaseOrderController {
     }
 
     /**
+     * 租赁订单作废
+     *
+     * @param id 订单ID
+     * @return
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "cancel", systemCode = "IA")
+    @PostMapping(value = "/invalidOrder.action")
+    public @ResponseBody
+    BaseOutput invalidOrder(@RequestParam Long id, @RequestParam String invalidReason) {
+        try {
+            return assetsLeaseOrderService.invalidOrder(id, invalidReason);
+        } catch (BusinessException e) {
+            LOG.info("租赁订单作废异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("租赁订单作废异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+
+
+    }
+
+    /**
      * 租赁订单撤回
      *
      * @param id 订单ID
@@ -671,6 +694,7 @@ public class AssetsLeaseOrderController {
 
     /**
      * 管理员查询
+     *
      * @param keyword
      * @return
      */
@@ -695,7 +719,6 @@ public class AssetsLeaseOrderController {
         }
 
     }
-
 
 
 }
