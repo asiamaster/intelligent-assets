@@ -692,23 +692,30 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //构建缴费红冲单
         List<PaymentOrder> rerverpaymentOrders = new ArrayList<>();
         paymentOrders.stream().filter(o -> PaymentOrderStateEnum.PAID.getCode().equals(leaseOrder.getState())).forEach(o -> {
-            PaymentOrder newPaymentOrder = o.clone();
-            newPaymentOrder.setCreateTime(LocalDateTime.now());
-            newPaymentOrder.setModifyTime(LocalDateTime.now());
-            newPaymentOrder.setCreatorId(userTicket.getId());
-            newPaymentOrder.setCreator(userTicket.getRealName());
-            newPaymentOrder.setIsReverse(YesOrNoEnum.YES.getCode());
-            newPaymentOrder.setParentId(o.getId());
-            newPaymentOrder.setId(null);
+            if (PaymentOrderStateEnum.PAID.getCode().equals(leaseOrder.getState())) {
+                PaymentOrder newPaymentOrder = o.clone();
+                newPaymentOrder.setCreateTime(LocalDateTime.now());
+                newPaymentOrder.setModifyTime(LocalDateTime.now());
+                newPaymentOrder.setCreatorId(userTicket.getId());
+                newPaymentOrder.setCreator(userTicket.getRealName());
+                newPaymentOrder.setIsReverse(YesOrNoEnum.YES.getCode());
+                newPaymentOrder.setParentId(o.getId());
+                newPaymentOrder.setId(null);
 
-            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
-            if (!bizNumberOutput.isSuccess()) {
-                LOG.info("租赁单【编号：{}】,缴费单编号生成异常", leaseOrder.getCode());
-                throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+                BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+                if (!bizNumberOutput.isSuccess()) {
+                    LOG.info("租赁单【编号：{}】,缴费单编号生成异常", leaseOrder.getCode());
+                    throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
+                }
+                newPaymentOrder.setCode(bizNumberOutput.getData());
+                rerverpaymentOrders.add(newPaymentOrder);
+            } else if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(leaseOrder.getState())) {
+                withdrawPaymentOrder(o.getId());
             }
-            newPaymentOrder.setCode(bizNumberOutput.getData());
-            rerverpaymentOrders.add(newPaymentOrder);
+
         });
+
+
 
         if (!rerverpaymentOrders.isEmpty() && paymentOrderService.batchInsert(rerverpaymentOrders) != rerverpaymentOrders.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "缴费单红冲写入失败！");
