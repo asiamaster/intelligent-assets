@@ -691,7 +691,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
         //构建缴费红冲单
         List<PaymentOrder> rerverpaymentOrders = new ArrayList<>();
-        paymentOrders.stream().filter(o -> PaymentOrderStateEnum.PAID.getCode().equals(leaseOrder.getState())).forEach(o -> {
+        paymentOrders.stream().forEach(o -> {
             if (PaymentOrderStateEnum.PAID.getCode().equals(leaseOrder.getState())) {
                 PaymentOrder newPaymentOrder = o.clone();
                 newPaymentOrder.setCreateTime(LocalDateTime.now());
