@@ -644,7 +644,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
             throw new BusinessException(ResultCode.DATA_ERROR, "客户定金余额不足！");
         }
         this.getActualDao().deductEarnestBalance(ca.getId(), caParam.getAmount());
-        Integer itemType = TransactionItemTypeEnum.EARNEST.getCode();
         TransactionDetails detail = transactionDetailsService.buildByConditions(caParam.getSceneType(), caParam.getBizType(), TransactionItemTypeEnum.EARNEST.getCode(), caParam.getAmount(),
                 caParam.getOrderId(), caParam.getOrderCode(), caParam.getCustomerId(), caParam.getOrderCode(), caParam.getMarketId(), caParam.getOperaterId(), caParam.getOperatorName());
         transactionDetailsService.insertSelective(detail);

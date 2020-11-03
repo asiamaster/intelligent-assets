@@ -420,7 +420,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "缴费单红冲写入失败！");
         }
         //客户定金余额扣减
-        BaseOutput result = customerAccountService.deductEarnestBalance(this.buildCustomerAccountParam(ea, userTicket));
+        BaseOutput result = customerAccountService.deductEarnestBalance(this.buildCustomerAccountParam(ea,userTicket.getId(), userTicket.getRealName() ,ea.getAmount(), TransactionSceneTypeEnum.INVALID_OUT.getCode()));
         if (!result.isSuccess()){
             LOG.info("作废定金，调用扣减定金余额失败！" + result.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "作废定金，调用扣减定金余额失败！" + result.getMessage());
@@ -477,17 +477,25 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
     }
 
-
-    private CustomerAccountParam buildCustomerAccountParam(EarnestOrder ea, UserTicket userTicket){
+    /**
+     * 构建客户定金修改 的 方法参数
+     * @param ea 发生客户定金变动的业务单
+     * @param operaterId 操作员ID
+     * @param operatorName 操作员姓名
+     * @param amount 发生变动的金额
+     * @param sceneType 发生金额变动的场景，用于记录流水
+     * @return CustomerAccountParam
+     * */
+    private CustomerAccountParam buildCustomerAccountParam(EarnestOrder ea, Long operaterId, String operatorName, Long amount, Integer sceneType){
         CustomerAccountParam caParam = new CustomerAccountParam();
         caParam.setBizType(BizTypeEnum.EARNEST.getCode());
-        caParam.setAmount(ea.getAmount());
+        caParam.setAmount(amount);
         caParam.setCustomerId(ea.getCustomerId());
         caParam.setOrderId(ea.getId());
         caParam.setOrderCode(ea.getCode());
-        caParam.setOperaterId(userTicket.getId());
-        caParam.setOperatorName(userTicket.getRealName());
-        caParam.setSceneType(TransactionSceneTypeEnum.INVALID_OUT.getCode());
+        caParam.setOperaterId(operaterId);
+        caParam.setOperatorName(operatorName);
+        caParam.setSceneType(sceneType);
         caParam.setMarketId(ea.getMarketId());
 
         return caParam;
@@ -544,9 +552,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
 
         //更新客户账户定金余额和可用余额
         customerAccountService.paySuccessEarnest(ea.getCustomerId(), ea.getMarketId(), ea.getAmount());
-        //插入客户账户定金资金动账流水
-        TransactionDetails details = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.PAYMENT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), ea.getAmount(), ea.getId(), ea.getCode(), ea.getCustomerId(), ea.getCode(), ea.getMarketId(), settleOrder.getOperatorId(), settleOrder.getOperatorName());
-        transactionDetailsService.insertSelective(details);
+        BaseOutput output = customerAccountService.rechargeEarnestBalance(this.buildCustomerAccountParam(ea,settleOrder.getOperatorId(), settleOrder.getOperatorName(), paymentOrderPO.getAmount() ,TransactionSceneTypeEnum.PAYMENT.getCode()));
+        if (!output.isSuccess()){
+            LOG.info("【定金单支付成功回调接口】充值定金接口返回失败！EarnestOrderId={}；原因：{}", ea.getId(),output.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "充值定金接口返回失败！" + output.getMessage());
+        }
         return BaseOutput.success().setData(ea);
     }
 
