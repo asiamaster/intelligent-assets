@@ -122,7 +122,7 @@
     transfer_available_balance = transfer_available_balance - #{amount}
     where
         id = #{id}
-        and transferBalance - #{amount} >= 0
+        and transfer_balance - #{amount} >= 0
         and transfer_available_balance - #{amount} >= 0
   </update>
 
