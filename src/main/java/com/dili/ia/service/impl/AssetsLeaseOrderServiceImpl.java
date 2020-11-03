@@ -713,8 +713,12 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, "缴费单红冲写入失败！");
         }
 
-        //更新作废状态
+        //更新作废人信息及状态
         leaseOrder.setState(LeaseOrderStateEnum.INVALIDATED.getCode());
+        leaseOrder.setInvalidReason(invalidReason);
+        leaseOrder.setInvalidTime(LocalDateTime.now());
+        leaseOrder.setInvalidOperatorId(userTicket.getId());
+        leaseOrder.setInvalidOperator(userTicket.getRealName());
         cascadeUpdateLeaseOrderState(leaseOrder,true,LeaseOrderItemStateEnum.INVALIDATED);
 
         //释放租赁时间段
@@ -762,6 +766,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
         }
 
+        //日志上下文构建
+        LoggerUtil.buildLoggerContext(leaseOrder.getId(), leaseOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), invalidReason);
         return BaseOutput.success();
     }
 

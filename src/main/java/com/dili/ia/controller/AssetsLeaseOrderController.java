@@ -473,7 +473,7 @@ public class AssetsLeaseOrderController {
      * @param id 订单ID
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "cancel", systemCode = "IA")
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "invalid", systemCode = "IA")
     @PostMapping(value = "/invalidOrder.action")
     public @ResponseBody
     BaseOutput invalidOrder(@RequestParam Long id, @RequestParam String invalidReason) {
