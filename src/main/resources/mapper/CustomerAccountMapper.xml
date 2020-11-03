@@ -111,7 +111,7 @@
   <update id="addTransferBalance">
     update customer_account
     set transfer_balance = transfer_balance + #{amount},
-    earnest_available_balance = earnest_available_balance + #{amount}
+    transfer_available_balance = transfer_available_balance + #{amount}
     where
         id = #{id}
   </update>
