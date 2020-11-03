@@ -714,9 +714,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
 
         });
-
-
-
         if (!rerverpaymentOrders.isEmpty() && paymentOrderService.batchInsert(rerverpaymentOrders) != rerverpaymentOrders.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "缴费单红冲写入失败！");
         }
