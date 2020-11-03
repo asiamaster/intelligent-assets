@@ -675,20 +675,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
         }
 
-        //作废结算单
-        InvalidRequestDto invalidRequestDto = new InvalidRequestDto();
-        invalidRequestDto.setAppId(settlementAppId);
-        invalidRequestDto.setMarketId(leaseOrder.getMarketId());
-        invalidRequestDto.setMarketCode(leaseOrder.getMarketCode());
-        invalidRequestDto.setOperatorId(userTicket.getId());
-        invalidRequestDto.setOperatorName(userTicket.getRealName());
-        invalidRequestDto.setOrderCodeList(paymentOrders.stream().map(o -> o.getCode()).collect(Collectors.toList()));
-        BaseOutput settlementInvalidOutput = settlementRpc.invalid(invalidRequestDto);
-        if (!settlementInvalidOutput.isSuccess()) {
-            LOG.error("租赁单作废调用结算单作废异常 【租赁单CODE {}】", leaseOrder.getCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, settlementInvalidOutput.getMessage());
-        }
-
         //构建缴费红冲单
         List<PaymentOrder> rerverpaymentOrders = new ArrayList<>();
         paymentOrders.stream().forEach(o -> {
@@ -764,11 +750,25 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, earnestDeductionAccountOutput.getMessage());
         }
 
-        //保证金取消
-        BaseOutput depositOutput = depositOrderService.batchCancelDepositOrder(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), id);
+        //释放关联保证金，让其单飞
+        BaseOutput depositOutput = depositOrderService.batchReleaseRelated(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrder.getId(),null);
         if (!depositOutput.isSuccess()) {
-            LOG.info("取消保证金单接口异常 【租赁单编号:{}】", leaseOrder.getCode());
+            LOG.info("释放关联保证金，让其单飞接口异常 【租赁单编号:{}】", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
+        }
+
+        //作废结算单
+        InvalidRequestDto invalidRequestDto = new InvalidRequestDto();
+        invalidRequestDto.setAppId(settlementAppId);
+        invalidRequestDto.setMarketId(leaseOrder.getMarketId());
+        invalidRequestDto.setMarketCode(leaseOrder.getMarketCode());
+        invalidRequestDto.setOperatorId(userTicket.getId());
+        invalidRequestDto.setOperatorName(userTicket.getRealName());
+        invalidRequestDto.setOrderCodeList(paymentOrders.stream().map(o -> o.getCode()).collect(Collectors.toList()));
+        BaseOutput settlementInvalidOutput = settlementRpc.invalid(invalidRequestDto);
+        if (!settlementInvalidOutput.isSuccess()) {
+            LOG.error("租赁单作废调用结算单作废异常 【租赁单CODE {}】", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, settlementInvalidOutput.getMessage());
         }
 
         //日志上下文构建

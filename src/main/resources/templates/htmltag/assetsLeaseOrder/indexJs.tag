@@ -328,7 +328,9 @@
                             dataType: "json",
                             success : function(data) {
                                 bui.loading.hide();
-                                if(!data.success){
+                                if(data.success){
+                                    queryDataHandler();
+                                } else {
                                     bs4pop.alert(data.result, {type: 'error'});
                                 }
                             },
@@ -761,7 +763,7 @@
                     $('#btn_submit').attr('disabled', false);
                 </#resource>
             }
-        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.INVALIDATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
