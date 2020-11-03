@@ -7,4 +7,5 @@ spring.cloud.sentinel.transport.dashboard=sentinel.diligrp.com:8201
 spring.cloud.sentinel.transport.port=8202
 
 
-
+菜单配置
+租赁办理-》摊位出租管理-》作废 invalidBoothLeaseOrder
