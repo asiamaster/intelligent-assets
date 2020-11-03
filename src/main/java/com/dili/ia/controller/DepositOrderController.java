@@ -381,7 +381,7 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, operationType="invalid", systemCode = "IA")
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, operationType="invalid", systemCode = "IA")
     @RequestMapping(value="/invalid.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput invalid(Long id, String invalidReason) {
         try {
