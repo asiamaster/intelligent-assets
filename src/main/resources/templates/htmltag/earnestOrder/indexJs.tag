@@ -297,26 +297,16 @@
     //选中行事件 -- 可操作按钮控制
     _grid.on('check.bs.table', function (e, row, $element) {
         let state = row.$_state;
+        $('#toolbar button').attr('disabled', true);
+        $('#btn_view').attr('disabled', false);
+        $('#btn_add').attr('disabled', false);
         if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.CREATED.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
             $('#btn_update').attr('disabled', false);
             $('#btn_cancel').attr('disabled', false);
             $('#btn_submit').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.CANCELD.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.SUBMITTED.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
             $('#btn_withdraw').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.PAID.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
             $('#btn_invalid').attr('disabled', false);
         }
     });

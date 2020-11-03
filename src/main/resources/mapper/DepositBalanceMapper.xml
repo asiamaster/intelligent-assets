@@ -177,7 +177,7 @@
   <!--【保证金余额扣减】 修改余额，通过主键-->
   <update id="deductDepositBalance">
     update deposit_balance
-    set balance = balance - #{amount},
+    set balance = balance - #{amount}
     where
         id = #{id}
         and balance - #{amount} >= 0

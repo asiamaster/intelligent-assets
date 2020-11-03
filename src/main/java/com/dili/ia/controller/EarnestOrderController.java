@@ -314,7 +314,7 @@ public class EarnestOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${invalidReason!}", operationType="invalid", systemCode = "IA")
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, operationType="invalid", systemCode = "IA")
     @RequestMapping(value="/invalid.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput invalid(Long id, String invalidReason) {
         try {
@@ -322,7 +322,7 @@ public class EarnestOrderController {
             if (output.isSuccess()){
                 EarnestOrder order = output.getData();
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), invalidReason);
             }
             return output;
         } catch (BusinessException e) {

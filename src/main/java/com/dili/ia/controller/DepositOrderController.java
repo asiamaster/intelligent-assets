@@ -381,16 +381,15 @@ public class DepositOrderController {
      * @param id
      * @return BaseOutput
      */
-    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, content="${invalidReason!}", operationType="invalid", systemCode = "IA")
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, operationType="invalid", systemCode = "IA")
     @RequestMapping(value="/invalid.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput invalid(Long id, String invalidReason) {
         try {
-//            BaseOutput<EarnestOrder> output = earnestOrderService.invalidEarnestOrder(id, invalidReason);
-            BaseOutput<EarnestOrder> output = BaseOutput.failure();
+            BaseOutput<DepositOrder> output = depositOrderService.invalidDepositOrder(id, invalidReason);
             if (output.isSuccess()){
-                EarnestOrder order = output.getData();
+                DepositOrder order = output.getData();
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), invalidReason);
             }
             return output;
         } catch (BusinessException e) {

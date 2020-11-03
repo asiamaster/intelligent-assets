@@ -1281,12 +1281,17 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.info("作废保证金【修改保证金单状态】失败,乐观锁生效。【定金单ID：】" + depositOrder);
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-        //@TODO 生成缴费红冲单
         //warn : 定金不支持多次缴费的，所以这里只用查询订单是否有已交费的缴费单即可
         List<PaymentOrder> pbList = this.findPaymentOrder(depositOrder.getMarketId(), PaymentOrderStateEnum.PAID.getCode(), depositOrderId, depositOrder.getCode());
         if (CollectionUtils.isEmpty(pbList)){
             throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到该业务单已交费的缴费单");
         }
+        //构建缴费红冲单
+        List<PaymentOrder> rerverpaymentOrders = this.buildRerverpaymentOrders(pbList, userTicket);
+        if (!rerverpaymentOrders.isEmpty() && paymentOrderService.batchInsert(rerverpaymentOrders) != rerverpaymentOrders.size()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "缴费单红冲写入失败！");
+        }
+
         //客户保证金 余额 扣减
         DepositBalance depositBalance = depositBalanceService.getDepositBalanceExact(this.bulidDepositBalanceParam(depositOrder));
         if (null == depositBalance){
@@ -1303,6 +1308,49 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return BaseOutput.success().setData(depositOrder);
     }
 
+    private List<PaymentOrder> buildRerverpaymentOrders(List<PaymentOrder> paymentOrders, UserTicket userTicket){
+        List<PaymentOrder> rerverpaymentOrders = new ArrayList<>();
+        paymentOrders.stream().forEach(o -> {
+            if (PaymentOrderStateEnum.PAID.getCode().equals(o.getState())) {
+                PaymentOrder newPaymentOrder = o.clone();
+                newPaymentOrder.setCreateTime(LocalDateTime.now());
+                newPaymentOrder.setModifyTime(LocalDateTime.now());
+                newPaymentOrder.setCreatorId(userTicket.getId());
+                newPaymentOrder.setCreator(userTicket.getRealName());
+                newPaymentOrder.setIsReverse(YesOrNoEnum.YES.getCode());
+                newPaymentOrder.setParentId(o.getId());
+                newPaymentOrder.setId(null);
+                newPaymentOrder.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.DEPOSIT_ORDER.getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+                rerverpaymentOrders.add(newPaymentOrder);
+            } else if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(o.getState())) {
+                this.withdrawPaymentOrder(o.getId());
+            }
+        });
+        return rerverpaymentOrders;
+    }
+    /**
+     * 撤回缴费单 判断缴费单是否需要撤回 需要撤回则撤回
+     * 如果撤回时发现缴费单状态为及时同步结算状态 则抛出异常 提示用户带结算同步后再操作
+     *
+     * @param paymentId
+     */
+    private void withdrawPaymentOrder(Long paymentId) {
+        PaymentOrder payingOrder = paymentOrderService.get(paymentId);
+        if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
+            String paymentCode = payingOrder.getCode();
+            BaseOutput output = settlementRpc.cancel(settlementAppId, paymentCode);
+            if (!output.isSuccess()) {
+                LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
+                throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+            }
+
+            payingOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
+            if (paymentOrderService.updateSelective(payingOrder) == 0) {
+                LOG.info("撤回缴费单异常，乐观锁生效，【缴费单编号:{}】", payingOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
+        }
+    }
     private InvalidRequestDto buildInvalidRequestDto(UserTicket userTicket, List<PaymentOrder> paymentOrderList){
         InvalidRequestDto param = new InvalidRequestDto();
         param.setAppId(this.settlementAppId);
