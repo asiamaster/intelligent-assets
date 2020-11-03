@@ -399,13 +399,13 @@ public class AssetsLeaseOrderController {
             assetsLeaseOrderItemListDto.setDistrictIds(districtIds);
             leaseOrder.setIds(new ArrayList<>(assetsLeaseOrderItemService.listByExample(assetsLeaseOrderItemListDto).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toSet())));
             if (CollectionUtils.isEmpty(leaseOrder.getIds())) {
-                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+                return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
             }
         }
 
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
         if (CollectionUtils.isEmpty(departmentIdList)) {
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+            return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
         }
         leaseOrder.setMarketId(userTicket.getFirmId());
         leaseOrder.setDepartmentIds(departmentIdList);
@@ -415,7 +415,7 @@ public class AssetsLeaseOrderController {
             leaseOrderItemCondition.setAssetsName(leaseOrder.getAssetsName());
             leaseOrder.setIds(assetsLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
             if (CollectionUtils.isEmpty(leaseOrder.getIds())) {
-                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+                return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
             }
         }
         return assetsLeaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
