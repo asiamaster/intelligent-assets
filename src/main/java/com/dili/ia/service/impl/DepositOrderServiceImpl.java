@@ -1278,7 +1278,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setInvalidReason(invalidReason);
         depositOrder.setInvalidTime(LocalDateTime.now());
         if (this.updateSelective(depositOrder) == 0) {
-            LOG.info("作废保证金【修改保证金单状态】失败,乐观锁生效。【定金单ID：】" + depositOrder);
+            LOG.info("作废保证金【修改保证金单状态】失败,乐观锁生效。【保证金ID：】" + depositOrder);
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         //warn : 定金不支持多次缴费的，所以这里只用查询订单是否有已交费的缴费单即可

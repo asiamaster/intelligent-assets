@@ -393,10 +393,10 @@ public class DepositOrderController {
             }
             return output;
         } catch (BusinessException e) {
-            LOG.error("定金单作废出错！", e);
+            LOG.error("保证金单作废出错！", e);
             return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
-            LOG.error("invalid 定金作废回出错!" ,e);
+            LOG.error("invalid 保证金作废回出错!" ,e);
             return BaseOutput.failure("作废出错！");
         }
     }
