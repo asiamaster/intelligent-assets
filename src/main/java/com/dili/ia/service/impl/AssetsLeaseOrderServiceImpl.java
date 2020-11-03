@@ -689,6 +689,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, settlementInvalidOutput.getMessage());
         }
 
+        //构建缴费红冲单
         List<PaymentOrder> rerverpaymentOrders = new ArrayList<>();
         paymentOrders.stream().filter(o -> PaymentOrderStateEnum.PAID.getCode().equals(leaseOrder.getState())).forEach(o -> {
             PaymentOrder newPaymentOrder = o.clone();
