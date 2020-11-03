@@ -110,7 +110,7 @@
   <!--【转抵余额充值】 修改转抵余额，通过主键-->
   <update id="addTransferBalance">
     update customer_account
-    set transferBalance = transferBalance + #{amount},
+    set transfer_balance = transfer_balance + #{amount},
     earnest_available_balance = earnest_available_balance + #{amount}
     where
         id = #{id}
@@ -118,7 +118,7 @@
   <!--【转抵余额扣减】 修改转抵余额，通过主键-->
   <update id="deductTransferBalance">
     update customer_account
-    set transferBalance = transferBalance - #{amount},
+    set transfer_balance = transfer_balance - #{amount},
     transfer_available_balance = transfer_available_balance - #{amount}
     where
         id = #{id}
