@@ -710,6 +710,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         leaseOrder.setInvalidTime(LocalDateTime.now());
         leaseOrder.setInvalidOperatorId(userTicket.getId());
         leaseOrder.setInvalidOperator(userTicket.getRealName());
+        String formatNow = DateUtils.format(new Date(), "yyyyMMddHHmmssSSS");
+        if (StringUtils.isNotBlank(leaseOrder.getContractNo())) {
+            leaseOrder.setContractNo(leaseOrder.getContractNo() + "_" + formatNow);
+        }
         cascadeUpdateLeaseOrderState(leaseOrder,true,LeaseOrderItemStateEnum.INVALIDATED);
 
         //释放租赁时间段
