@@ -630,23 +630,35 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         //【更新/修改】保证金余额 --- 缴费成功保证金余额增加
-        this.saveOrupdateDepositBalance(depositOrder, paymentOrderPO.getAmount());
+        this.rechargeDepositBalance(depositOrder, paymentOrderPO.getAmount());
 
         return BaseOutput.success().setData(depositOrder);
     }
 
-    private BaseOutput<String> saveOrupdateDepositBalance(DepositOrder depositOrder, Long payAmount){
+    private BaseOutput<String> rechargeDepositBalance(DepositOrder depositOrder, Long payAmount){
         DepositBalance depositBalance = depositBalanceService.getDepositBalanceExact(this.bulidDepositBalanceParam(depositOrder));
         if (depositBalance == null){//创建客户账户余额
             this.createDepositBalanceAccount(depositOrder, payAmount);
         }else {
-            DepositBalance upDep = new DepositBalance();
-            upDep.setId(depositBalance.getId());
-            upDep.setBalance(depositBalance.getBalance() + payAmount);
-            upDep.setVersion(depositBalance.getVersion());
-            if (depositBalanceService.updateSelective(upDep) == 0) {
-                LOG.info("缴费单成功回调 -- 更新【保证金余额】失败,乐观锁生效！【保证金单DepositOrderID:{}；code:{}】", depositOrder.getId(),depositOrder.getCode());
-                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            Integer count = depositBalanceService.addDepositBalance(depositBalance.getId(), payAmount);
+            if (count != 1) {
+                LOG.info("缴费单成功回调 -- 更新【保证金余额】失败！depositBalanceService.addDepositBalance 修改记录失败！【保证金单DepositOrderID:{}；code:{}】", depositOrder.getId(),depositOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "更新【保证金余额】失败！");
+            }
+        }
+        return BaseOutput.success();
+    }
+
+    private BaseOutput<String> deductDepositBalance(DepositOrder depositOrder, Long payAmount){
+        DepositBalance depositBalance = depositBalanceService.getDepositBalanceExact(this.bulidDepositBalanceParam(depositOrder));
+        if (depositBalance == null){
+            LOG.info("扣减【保证金余额】失败！客户保证余额DepositBalance账户不存在【保证金单DepositOrderID:{}；code:{}】", depositOrder.getId(),depositOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "扣减保证金余额失败！【客户保证余额账户】不存在");
+        }else {
+            Integer count = depositBalanceService.deductDepositBalance(depositBalance.getId(), payAmount);
+            if (count != 1) {
+                LOG.info("退款成功回调 -- 更新【保证金余额】失败！depositBalanceService.deductDepositBalance 修改记录失败！【保证金单DepositOrderID:{}；code:{}】", depositOrder.getId(),depositOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "更新【保证金余额】失败！");
             }
         }
         return BaseOutput.success();
@@ -833,7 +845,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
         //更新保证金余额 ---- 退款扣减保证金余额
-        this.saveOrupdateDepositBalance(depositOrder, 0 - refundOrder.getTotalRefundAmount());
+        this.deductDepositBalance(depositOrder, refundOrder.getTotalRefundAmount());
 
         //转抵扣充值
         TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
@@ -1226,7 +1238,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     @Override
-    public BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds) {
+    public BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds, Long marketId) {
         if (bizType == null){
             return BaseOutput.failure("参数bizType 不能为空！");
         }
@@ -1238,20 +1250,39 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         List<DepositBalance> list = new ArrayList<>();
         assetsIds.stream().forEach(o -> {
-            DepositBalance depositBalance = this.queryDepositBalance(customerId, o);
-            if (depositBalance != null){
-                list.add(depositBalance);
+            BaseOutput<DepositBalance> out = this.queryDepositBalance(bizType, customerId, o, marketId);
+            if (out.isSuccess()){
+                list.add(out.getData());
+            }else {
+                return;
             }
+
         });
 
         return BaseOutput.success().setData(list);
     }
 
-    private DepositBalance queryDepositBalance(Long customerId, Long assetsId){
+
+    /**
+     * 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称，市场ID
+     * !!! 所有参数字段 有值的话 必填 ；
+     * */
+    private BaseOutput<DepositBalance> queryDepositBalance(String bizType, Long customerId, Long assetsId, Long marketId){
+        AssetsTypeEnum atEnum = AssetsTypeEnum.getAssetsTypeEnumByBizType(bizType);
+        // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称,市场ID
         DepositBalance depositBalance = new DepositBalance();
-        depositBalance.setCustomerId(customerId);
+        depositBalance.setTypeCode(atEnum.getTypeCode());
+        depositBalance.setAssetsType(atEnum.getCode());
         depositBalance.setAssetsId(assetsId);
-        return depositBalanceService.listByExample(depositBalance).stream().findFirst().orElse(null);
+        depositBalance.setCustomerId(customerId);
+        depositBalance.setMarketId(marketId);
+        List<DepositBalance> dbList = depositBalanceService.listByExample(depositBalance);
+        Integer record = CollectionUtils.isEmpty(dbList) ? 0 : dbList.size();
+        if (record != 1){
+            LOG.info("查询保证金余额账户异常！结果条数为：{}", record);
+            return BaseOutput.failure("查询保证金余额账户异常！结果条数为：" + record);
+        }
+        return BaseOutput.success().setData(dbList.stream().findFirst().orElse(null));
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -13,4 +13,6 @@ public interface DepositBalanceMapper extends MyMapper<DepositBalance> {
     DepositBalance getDepositBalanceExact(DepositBalanceParam depositBalanceParam);
 
     Integer deductDepositBalance(Long id, Long amount);
+
+    Integer addDepositBalance(Long id, Long amount);
 }

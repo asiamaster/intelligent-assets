@@ -35,4 +35,8 @@ public class DepositBalanceServiceImpl extends BaseServiceImpl<DepositBalance, L
     public Integer deductDepositBalance(Long id, Long amount) {
         return this.getActualDao().deductDepositBalance(id, amount);
     }
+    @Override
+    public Integer addDepositBalance(Long id, Long amount) {
+        return this.getActualDao().deductDepositBalance(id, amount);
+    }
 }

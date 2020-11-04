@@ -129,9 +129,10 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @param bizType 业务类型
      * @param customerId 客户ID
      * @param assetsIds 资产ID的List
+     * @param marketId 市场ID
      * @return BaseOutput<List<DepositBalance>>
      */
-    BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds);
+    BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds, Long marketId);
     /**
      * 批量【取消关联操作】保证金单 --- 【摊位租赁同步撤回成使用】
      * 解除关联操作关系的情况：

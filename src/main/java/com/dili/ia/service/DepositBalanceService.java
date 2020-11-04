@@ -35,4 +35,10 @@ public interface DepositBalanceService extends BaseService<DepositBalance, Long>
      * @param amount 扣减金额
      */
     Integer deductDepositBalance(Long id, Long amount);
+    /**
+     * 客户保证金 增加 ！！！
+     * @param id 保证金余额ID
+     * @param amount 扣减金额
+     */
+    Integer addDepositBalance(Long id, Long amount);
 }

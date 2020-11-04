@@ -183,4 +183,12 @@
         and balance - #{amount} >= 0
   </update>
 
+  <!--【保证金余额增加】 修改余额，通过主键-->
+  <update id="addDepositBalance">
+    update deposit_balance
+    set balance = balance + #{amount}
+    where
+        id = #{id}
+  </update>
+
 </mapper>
