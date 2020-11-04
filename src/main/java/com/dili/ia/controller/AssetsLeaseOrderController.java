@@ -666,7 +666,11 @@ public class AssetsLeaseOrderController {
     @PostMapping(value = "/batchQueryDepositBalance.action")
     public @ResponseBody
     BaseOutput<List<DepositBalance>> batchQueryDepositBalance(@RequestBody BatchDepositBalanceQueryDto batchDepositBalanceQueryDto) {
-        return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds());
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+        return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds(),userTicket.getId());
     }
 
     /**
