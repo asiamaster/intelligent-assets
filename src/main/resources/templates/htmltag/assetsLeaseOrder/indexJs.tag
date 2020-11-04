@@ -786,7 +786,9 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
-            $('#btn_invalid').attr('disabled', false);
+            if (row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}) {
+                $('#btn_invalid').attr('disabled', false);
+            }
             //未开票才显示开票按钮
             if(row.$_isInvoice != 1){
                 $('#btn_invoice').attr('disabled', false);
@@ -819,7 +821,9 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
-            $('#btn_invalid').attr('disabled', false);
+            if (row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}) {
+                $('#btn_invalid').attr('disabled', false);
+            }
             //未开票才显示开票按钮
             if(row.$_isInvoice != 1){
                 $('#btn_invoice').attr('disabled', false);
