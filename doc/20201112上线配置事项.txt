@@ -9,3 +9,6 @@ spring.cloud.sentinel.transport.port=8202
 
 菜单配置
 租赁办理-》摊位出租管理-》作废 invalidBoothLeaseOrder
+
+数据字典
+日志操作类型 增加“作废”code：invalid
