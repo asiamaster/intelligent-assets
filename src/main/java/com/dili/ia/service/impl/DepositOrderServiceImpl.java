@@ -1245,20 +1245,27 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (customerId == null){
             return BaseOutput.failure("参数customerId 不能为空！");
         }
+        if (marketId == null){
+            return BaseOutput.failure("参数marketId 不能为空！");
+        }
         if (CollectionUtils.isEmpty(assetsIds)){
             return BaseOutput.success();
         }
         List<DepositBalance> list = new ArrayList<>();
-        assetsIds.stream().forEach(o -> {
-            BaseOutput<DepositBalance> out = this.queryDepositBalance(bizType, customerId, o, marketId);
-            if (out.isSuccess()){
+        try {
+            assetsIds.stream().forEach(o -> {
+                BaseOutput<DepositBalance> out = this.queryDepositBalance(bizType, customerId, o, marketId);
+                if (!out.isSuccess()){
+                    throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
+                }
                 list.add(out.getData());
-            }else {
-                return;
-            }
-
-        });
-
+            });
+        } catch (BusinessException e) {
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("查询保证金余额异常！", e);
+            return BaseOutput.failure("查询保证金余额异常!");
+        }
         return BaseOutput.success().setData(list);
     }
 
