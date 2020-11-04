@@ -660,6 +660,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         paymentOrderCondition.setBusinessId(id);
         paymentOrderCondition.setBizType(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType());
         List<PaymentOrder> paymentOrders = paymentOrderService.listByExample(paymentOrderCondition);
+        //检查作废
+        checkInvalid(leaseOrder, paymentOrders);
+
 
         //检查同步状态
         List<String> notPaidPaymentOrders = paymentOrders.stream().filter(o -> PaymentOrderStateEnum.NOT_PAID.getCode().equals(o.getState())).map(o -> o.getCode()).collect(Collectors.toList());
@@ -1943,6 +1946,33 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 LOG.info("批量撤回正在分摊中的金额 【订单CODE{}】", leaseOrderItems.get(0).getLeaseOrderCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
             }
+        }
+    }
+
+
+    /**
+     * 作废前检查
+     * @param leaseOrder
+     * @param paymentOrders
+     */
+    private void checkInvalid(AssetsLeaseOrder leaseOrder, List<PaymentOrder> paymentOrders) {
+        //检查是否已经作废
+        if (LeaseOrderStateEnum.INVALIDATED.getCode().equals(leaseOrder.getState())) {
+            String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
+            LOG.info("租赁单【编号：{}】状态为【{}】，不可以进行作废操作", leaseOrder.getCode(), stateName);
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态为【" + stateName + "】，不可以进行作废操作");
+        }
+        //检查是否交过费
+        if (CollectionUtils.isEmpty(paymentOrders.stream().filter(o -> PaymentOrderStateEnum.PAID.getCode().equals(o.getState())).collect(Collectors.toList()))) {
+            String stateName = LeaseOrderStateEnum.getLeaseOrderStateEnum(leaseOrder.getState()).getName();
+            LOG.info("租赁单【编号：{}】没有缴过费，不可以进行作废操作", leaseOrder.getCode(), stateName);
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单没有缴过费，不可以进行作废操作");
+        }
+
+        //检查是否已退款或正在退款中
+        if (!LeaseRefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())) {
+            LOG.info("租赁单【编号：{}】已退款或正在退款，不可以进行作废操作", leaseOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "租赁单已退款或正在退款，不可以进行作废操作");
         }
     }
 
