@@ -924,7 +924,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 if (!output.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
                 }
-
                 if (assetsIdsMap.containsKey(o.getAssetsId())){
                     assetsIdsMap.remove(o.getAssetsId());
                 }
@@ -938,6 +937,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
         assetsIdsMap.forEach((key, value) -> { //【取消】
             DepositOrder depositOrder = this.get(value);
+            //这里的取消，保证金是关联订单，状态必须是【已创建】，否则会抛异常！
+            if (!depositOrder.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
+                throw new BusinessException(ResultCode.DATA_ERROR, "取消失败，保证金单状态已变更！");
+            }
             this.cancelDepositOrder(depositOrder);
 
             BusinessLog businessLog = this.buildCommonLog(depositOrder);
@@ -1157,6 +1160,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchCancelDepositOrder(String bizType, Long businessId) {
+        // 已创建 和 已提交 需要取消单子， 已交费 需要解除关联关系， 其它状态就抛出异常
         if (bizType == null){
             return BaseOutput.failure("参数bizType 不能为空！");
         }
@@ -1167,7 +1171,24 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
         if (CollectionUtils.isNotEmpty(deList)){
             deList.stream().forEach(o -> {
-                this.cancelDepositOrder(o);
+                if (o.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
+                    this.cancelDepositOrder(o);
+                }else if (o.getState().equals(DepositOrderStateEnum.SUBMITTED.getCode())){
+                    //先撤回，然后取消
+                    BaseOutput<DepositOrder> out = this.withdrawDepositOrder(o.getId());
+                    if (!out.isSuccess()){
+                        LOG.error("取消保证金，撤回已提交保证金失败：{}", out.getMessage());
+                        throw new BusinessException(ResultCode.APP_ERROR, "取消保证金，撤回已提交保证金失败！");
+                    }
+                    this.cancelDepositOrder(o);
+                }else {
+                    //其它状态，还是关联保证金单的话，直接解除关联关系
+                    o.setIsRelated(YesOrNoEnum.NO.getCode());
+                    if (this.getActualDao().updateRelatedState(o) == 0) {
+                        LOG.info("修改保证金【解除关联操作】失败 ,修改记录为 0！【保证金单ID:{}】", o.getId());
+                        throw new BusinessException(ResultCode.DATA_ERROR, "修改保证金【解除关联操作】失败 ,修改记录为 0！");
+                    }
+                }
                 // 日志构建
                 BusinessLog businessLog = this.buildCommonLog(o);
                 businessLog.setOperationType("cancel");
@@ -1192,10 +1213,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     public void cancelDepositOrder(DepositOrder depositOrder) {
-        //@TODO 关联取消 已提交的也可以取消，已交费后，取消时如果是关联订单，就解除关联。本单不可取消。
-        if (!depositOrder.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "取消失败，保证金单状态已变更！");
-        }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         depositOrder.setCancelerId(userTicket.getId());
         depositOrder.setCanceler(userTicket.getRealName());
