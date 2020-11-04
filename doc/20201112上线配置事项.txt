@@ -5,6 +5,8 @@ spring.cloud.sentinel.eager=true
 spring.cloud.sentinel.transport.dashboard=sentinel.diligrp.com:8201
 # 应用与Sentinel控制台交互的端口，应用本地会起一个该端口占用的HttpServer
 spring.cloud.sentinel.transport.port=8202
+# 日志文件保留天数
+log.maxHistory=30
 
 
 菜单配置
