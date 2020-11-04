@@ -549,9 +549,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOG.info("缴费单成功回调 -- 更新【定金单】状态,乐观锁生效！【定金单EarnestOrderID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-
         //更新客户账户定金余额和可用余额
-        customerAccountService.paySuccessEarnest(ea.getCustomerId(), ea.getMarketId(), ea.getAmount());
         BaseOutput output = customerAccountService.rechargeEarnestBalance(this.buildCustomerAccountParam(ea,settleOrder.getOperatorId(), settleOrder.getOperatorName(), paymentOrderPO.getAmount() ,TransactionSceneTypeEnum.PAYMENT.getCode()));
         if (!output.isSuccess()){
             LOG.info("【定金单支付成功回调接口】充值定金接口返回失败！EarnestOrderId={}；原因：{}", ea.getId(),output.getMessage());

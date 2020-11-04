@@ -118,21 +118,6 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
     }
 
     @Override
-    public void paySuccessEarnest(Long customerId, Long marketId, Long amount) {
-        CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
-        if (null == customerAccount){
-            LOG.info("客户账户退款申请，客户账户【{}】在市场【{}】不存在！", customerId, marketId);
-            throw new BusinessException(ResultCode.DATA_ERROR,"客户账户不存在！");
-        }
-        customerAccount.setEarnestAvailableBalance(customerAccount.getEarnestAvailableBalance() + amount);
-        customerAccount.setEarnestBalance(customerAccount.getEarnestBalance() + amount);
-
-        if (this.updateSelective(customerAccount) == 0){
-            LOG.info("定金付款成功回调修改客户账户失败,乐观锁生效【客户名称：{}】 【客户账户ID:{}】", customerAccount.getCustomerName(), customerAccount.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-    }
-    @Override
     public void refundSuccessEarnest(Long customerId, Long marketId, Long amount) {
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(customerId, marketId);
         if (null == customerAccount){

@@ -109,14 +109,6 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * */
     void unfrozenEarnest(Long customerId, Long marketId, Long amount);
     /**
-     * 客户账户 定金单付款成功-- 【定金可用余额】 和 【定金余额】增加
-     * @param customerId 客户ID
-     * @param marketId 市场ID
-     * @param amount 付款成功金额
-     * @return
-     * */
-    void paySuccessEarnest(Long customerId, Long marketId, Long amount);
-    /**
      * 客户账户 定金单退款成功-- 实际是解冻 和 退款扣除。定金【定金可用余额】不变 ， 【定金余额】减少，【冻结金额】减少
      * @param customerId 客户ID
      * @param marketId 市场ID
