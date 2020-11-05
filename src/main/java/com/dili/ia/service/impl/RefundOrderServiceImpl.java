@@ -222,7 +222,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
             }
         }
-        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
+        //有流程实例id，并且是创建状态，才触发流程取消
+        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId()) && refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())) {
             //发送消息通知流程终止
             BaseOutput<String> baseOutput = eventRpc.messageEventReceived("terminate", refundOrder.getProcessInstanceId(), null);
             if (!baseOutput.isSuccess()) {

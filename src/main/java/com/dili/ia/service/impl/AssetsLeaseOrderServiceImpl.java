@@ -620,8 +620,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         leaseOrder.setState(LeaseOrderStateEnum.CANCELD.getCode());
         leaseOrder.setCancelerId(userTicket.getId());
         leaseOrder.setCanceler(userTicket.getRealName());
-        //如果没流程实例id过，直接提交
-        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
+        //有流程实例id，并且是创建状态，才触发流程取消
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId()) && leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
             //发送消息通知流程终止
             BaseOutput<String> baseOutput = eventRpc.messageEventReceived("terminate", leaseOrder.getProcessInstanceId(), null);
             if (!baseOutput.isSuccess()) {
