@@ -595,6 +595,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             return BaseOutput.failure("未登录");
         }
         AssetsLeaseOrder leaseOrder = get(id);
+
         AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
         itemCondition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
@@ -605,7 +606,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("租赁单【编号：{}】状态为【{}】，不可以进行取消操作", leaseOrder.getCode(), stateName);
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态为【" + stateName + "】，不可以进行取消操作");
         }
-
+        int currentState = leaseOrder.getState();
         if (null != leaseOrder.getPaymentId() && 0L != leaseOrder.getPaymentId()) {
             withdrawPaymentOrder(leaseOrder.getPaymentId());
             leaseOrder.setPaymentId(0L);
@@ -621,7 +622,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         leaseOrder.setCancelerId(userTicket.getId());
         leaseOrder.setCanceler(userTicket.getRealName());
         //有流程实例id，并且是创建状态，才触发流程取消
-        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId()) && leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId()) && currentState == LeaseOrderStateEnum.CREATED.getCode()) {
             //发送消息通知流程终止
             BaseOutput<String> baseOutput = eventRpc.messageEventReceived("terminate", leaseOrder.getProcessInstanceId(), null);
             if (!baseOutput.isSuccess()) {

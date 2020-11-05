@@ -208,7 +208,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "撤回调用结算中心失败！" + out.getMessage());
             }
         }
-
+        int currentState = refundOrder.getState();
         refundOrder.setCancelerId(userTicket.getId());
         refundOrder.setCanceler(userTicket.getRealName());
         refundOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
@@ -223,7 +223,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             }
         }
         //有流程实例id，并且是创建状态，才触发流程取消
-        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId()) && refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())) {
+        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId()) && currentState == RefundOrderStateEnum.CREATED.getCode()) {
             //发送消息通知流程终止
             BaseOutput<String> baseOutput = eventRpc.messageEventReceived("terminate", refundOrder.getProcessInstanceId(), null);
             if (!baseOutput.isSuccess()) {
