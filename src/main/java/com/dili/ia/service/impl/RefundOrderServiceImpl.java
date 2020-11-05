@@ -281,8 +281,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         refundOrder.setSubmitTime(LocalDateTime.now());
         refundOrder.setSubmitterId(userTicket.getId());
         refundOrder.setSubmitter(userTicket.getRealName());
-        //提交审批后，默认为审批通过
-        refundOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
+        //提交时判断如果没有审批过则是待提审批，否则不处理审批状态
+        if(refundOrder.getApprovalState() == null) {
+            refundOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
+        }
         if (refundOrderService.updateSelective(refundOrder) == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
         }
