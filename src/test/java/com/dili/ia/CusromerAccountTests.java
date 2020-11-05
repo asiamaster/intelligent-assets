@@ -1,9 +1,16 @@
 package com.dili.ia;
 
+import cn.hutool.core.lang.Assert;
 import com.dili.ia.domain.Customer;
+import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.CustomerQuery;
+import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.TransactionSceneTypeEnum;
+import com.dili.ia.mapper.CustomerAccountMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.CustomerAccountService;
+import com.dili.ia.service.DepositBalanceService;
+import com.dili.ia.service.DepositOrderService;
 import com.dili.ss.domain.BaseOutput;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +34,9 @@ class CusromerAccountTests {
 
     @Autowired
     CustomerRpc customerRpc;
+
+    @Autowired
+    DepositBalanceService depositBalanceService;
 
     @Test
     void testFrozenAccount() {
@@ -53,4 +63,34 @@ class CusromerAccountTests {
         System.out.println(list.size());
 
     }
+
+    @Test
+    void testRechargeEarnestBalance(){
+        CustomerAccountParam caParam = new CustomerAccountParam();
+        caParam.setBizType(BizTypeEnum.EARNEST.getCode());
+        caParam.setAmount(1L);
+        caParam.setCustomerId(3L); //克兰
+        caParam.setOrderId(1L);
+        caParam.setOrderCode("23534534543");
+        caParam.setOperaterId(1L);
+        caParam.setOperatorName("测试");
+        caParam.setSceneType(TransactionSceneTypeEnum.TRANSFER_IN.getCode());
+        caParam.setMarketId(11L);
+
+//        BaseOutput count = customerAccountService.rechargeEarnestBalance(caParam);
+
+//        CustomerAccountMapper.addEarnestBalance(ca.getId(), caParam.getAmount());
+
+    }
+    @Test
+    void testAddDepositBalance(){
+
+//        Integer count = depositBalanceService.addDepositBalance(60L, 100L);
+
+//        System.out.println("-------------------- count :" + count);
+
+    }
+
+
+
 }
