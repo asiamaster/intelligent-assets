@@ -21,4 +21,12 @@ public class DepositBalanceQuery extends DepositBalance {
     @Column(name = "customer_name")
     @Like
     private String likeCustomerName;
+
+    public String getLikeCustomerName() {
+        return likeCustomerName;
+    }
+
+    public void setLikeCustomerName(String likeCustomerName) {
+        this.likeCustomerName = likeCustomerName;
+    }
 }
