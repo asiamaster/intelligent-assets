@@ -51,9 +51,6 @@
                 <thead>
                 <tr>
                     <th data-width-unit="%" data-width="2" data-checkbox="true"></th>
-                    <th data-width-unit="%" data-width="10" data-field="districtId" data-provider="districtProvider" data-sortable="true" data-align="center">
-                        区域
-                    </th>
                     <th data-width-unit="%" data-width="10" data-field="assignee" data-provider="userProvider" data-fk-field="assignee" data-sortable="true" data-align="center">
                         办理人
                     </th>
@@ -97,29 +94,6 @@
                 <input type="text" class="form-control" id="_taskDefinitionKey" name="_taskDefinitionKey" value="{{taskDefinitionKey}}"  placeholder="" minlength="1" maxlength="64" {{if batchUpdate}}readonly{{/if}} required/>
             </div>
         </div>
-        {{if districtIds}}
-        <div class="form-group row">
-            <label class="col-2 col-form-label text-right" for="_districtId">区域*</label>
-            <div class="col-10">
-                <select id="_districtIds" name="_districtIds" class="form-control" required multiple>
-                    {{each districtIds}}
-                    <option value="{{$value.$_districtId}}" selected>{{$value.districtId}}</option>
-                    {{/each}}
-                </select>
-                <#bselect2 _escape="true" _id="_districtIds" _provider="districtProvider" _mode="remote"  />
-            </div>
-        </div>
-        {{else}}
-        <div class="form-group row">
-            <label class="col-2 col-form-label text-right" for="_districtId">区域</label>
-            <div class="col-10">
-                <select id="_districtId" name="_districtId"  class="form-control" >
-                    <option value="{{$_districtId}}" selected>{{districtId}}</option>
-                </select>
-                <#bselect2 _escape="true" _id="_districtId" _provider="districtProvider" _mode="remote" _option="allowClear:true, placeholderOption:'first',placeholder:'请选择'" />
-            </div>
-        </div>
-        {{/if}}
         <div class="form-group row">
             <label class="col-2 col-form-label text-right" for="_assignee">办理人*</label>
             <div class="col-10">

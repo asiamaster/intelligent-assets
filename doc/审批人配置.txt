@@ -6,6 +6,6 @@ generalManagerApproval			rentalApprovalProcess			http://ia.diligrp.com:8381/api/
 
 managerApproval					rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/managerApprovalAssignment
 checkerApproval					rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/viceGeneralManagerApprovalAssignment
-engineeringDepartmentApproval	rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/generalManagerApprovalAssignment
+engineeringDepartmentApproval	rentalRefundApprovalProcess		https://ia.diligrp.com/api/rentalApprovalProcessTaskAssignmentApi/engineeringDepartmentApprovalAssignment
 viceGeneralManagerApproval		rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/checkerApprovalAssignment
-generalManagerApproval			rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/managerApprovalAssignment
+generalManagerApproval			rentalRefundApprovalProcess		http://ia.diligrp.com:8381/api/rentalApprovalProcessTaskAssignmentApi/generalManagerApprovalAssignment
