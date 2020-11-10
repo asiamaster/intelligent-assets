@@ -154,14 +154,14 @@
       </when>
       <otherwise>
         AND assets_id is null
-      </otherwise>
-    </choose>
-    <choose>
-      <when test="assetsName != null and assetsName != ''">
-        AND assets_name = #{assetsName,jdbcType=VARCHAR}
-      </when>
-      <otherwise>
-        AND assets_name is null
+        <choose>
+          <when test="assetsName != null and assetsName != ''">
+            AND assets_name = #{assetsName,jdbcType=VARCHAR}
+          </when>
+          <otherwise>
+            AND assets_name is null
+          </otherwise>
+        </choose>
       </otherwise>
     </choose>
     <choose>
