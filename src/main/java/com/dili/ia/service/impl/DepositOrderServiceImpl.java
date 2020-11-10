@@ -637,8 +637,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     private BaseOutput<String> rechargeDepositBalance(DepositOrder depositOrder, Long payAmount){
         DepositBalance depositBalance = depositBalanceService.getDepositBalanceExact(this.bulidDepositBalanceParam(depositOrder));
-        if (depositBalance == null){//创建客户账户余额
-            this.createDepositBalanceAccount(depositOrder, payAmount);
+        if (depositBalance == null){//客户保证金账户余额，在提交的时候已经创建，如果这里为空，抛出异常
+            LOG.info("缴费单成功回调 -- 充值【保证金余额】失败！客户保证余额DepositBalance账户不存在【保证金单DepositOrderID:{}；code:{}】", depositOrder.getId(),depositOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到【保证金余额】账户！");
         }else {
             Integer count = depositBalanceService.addDepositBalance(depositBalance.getId(), payAmount);
             if (count != 1) {
