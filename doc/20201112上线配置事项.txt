@@ -11,6 +11,8 @@ log.maxHistory=30
 
 菜单配置
 租赁办理-》摊位出租管理-》作废 invalidBoothLeaseOrder
+定金-》定金管理-》作废  invalidEarnestOrder
+保证金-》保证金管理-》作废  invalidDepositOrder
 
 数据字典
-日志操作类型 增加“作废”code：invalid
+配置管理 > 数据字典 > 日志服务系统 >  操作日志类型 作废 code：invalid
