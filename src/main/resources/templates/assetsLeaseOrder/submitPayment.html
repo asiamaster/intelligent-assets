@@ -12,7 +12,7 @@
                 <label for="payAmount" _log>本次付款金额<i class="red">*</i></label>
                 <input type="number" id="payAmount" name="payAmount" class="form-control money floatReserve" min="${isNotDeducted ? '0': '0.01'}" oninput="calcApportionAmountTotal()" required/>
             </div>
-            <div class="form-group col ${isNotDeducted?'': 'd-none'}">
+            <div class="form-group col">
                 <label for="deductionAmount" _log>
                     抵扣金额
                     <sup style="cursor: pointer" data-toggle="tooltip" data-placement="right" title="抵扣金额只能分配到租赁相关费用上，不能分配到保证金">
