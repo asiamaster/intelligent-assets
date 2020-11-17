@@ -10,7 +10,7 @@ public interface PrintService {
      * @param reprint
      * @return
      */
-    BaseOutput<PrintDataDto> queryPrintLeaseOrderData(String orderCode, Integer reprint);
+    BaseOutput<PrintDataDto> queryPrintLeaseSettlementBillData(String orderCode, Integer reprint);
 
     /**
      * 查询打印合同签订单数据
@@ -18,5 +18,13 @@ public interface PrintService {
      * @param leaseOrderId
      * @return
      */
-    BaseOutput<PrintDataDto> queryPrintContractSigningData(Long leaseOrderId);
+    BaseOutput<PrintDataDto> queryPrintLeaseContractSigningBillData(Long leaseOrderId);
+
+    /**
+     * 租赁定金单打印数据查询
+     *
+     * @param leaseOrderId
+     * @return
+     */
+    BaseOutput<PrintDataDto> queryPrintLeasePaymentBillData(Long leaseOrderId);
 }

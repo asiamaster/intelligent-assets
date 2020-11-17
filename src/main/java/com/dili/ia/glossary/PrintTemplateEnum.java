@@ -16,6 +16,8 @@ public enum PrintTemplateEnum {
     EARNEST_REFUND_ORDER("EarnestRefundOrder", "定金退款单"),
     DEPOSIT_ORDER("DepositOrder", "保证金单"),
     DEPOSIT_REFUND_ORDER("DepositRefundOrder", "保证金退款单"),
+    LEASE_CONTRACT_SIGNING_BILL("LeaseContractSigningBill", "租赁合同签订单"),
+    LEASE_PAYMENT_BILL("LeasePaymentBill", "租赁交款单"),
     ;
 
     private String name;

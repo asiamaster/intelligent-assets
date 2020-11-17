@@ -34,8 +34,6 @@ public class LeaseOrderPrintDto {
     private String isRenew;
     //经营品类
     private String categoryName;
-    //租赁期限
-    private String leaseTermName;
     //备注
     private String notes;
     //总金额
@@ -64,6 +62,8 @@ public class LeaseOrderPrintDto {
     private List<LeaseOrderItemPrintDto> leaseOrderItems;
     //全量收费项
     private List<BusinessChargeItemDto> chargeItems;
+    //管理员
+    private String manager;
 
     public LocalDate getPrintTime() {
         return printTime;
@@ -143,14 +143,6 @@ public class LeaseOrderPrintDto {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
-    }
-
-    public String getLeaseTermName() {
-        return leaseTermName;
-    }
-
-    public void setLeaseTermName(String leaseTermName) {
-        this.leaseTermName = leaseTermName;
     }
 
     public String getNotes() {
@@ -263,5 +255,13 @@ public class LeaseOrderPrintDto {
 
     public void setChargeItems(List<BusinessChargeItemDto> chargeItems) {
         this.chargeItems = chargeItems;
+    }
+
+    public String getManager() {
+        return manager;
+    }
+
+    public void setManager(String manager) {
+        this.manager = manager;
     }
 }

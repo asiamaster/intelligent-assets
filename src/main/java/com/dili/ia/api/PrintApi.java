@@ -20,32 +20,51 @@ public class PrintApi {
     private PrintService printService;
 
     /**
-     * 租赁单缴费打印数据查询
+     * 租赁单缴费打印数据查询(杭州)
+     *
      * @return
      */
-    @RequestMapping(value="/leaseOrder/queryPrintData")
-    public @ResponseBody BaseOutput<PrintDataDto> queryPrintLeaseOrderData(String orderCode, Integer reprint){
-        try{
-            if(StringUtils.isBlank(orderCode) || null == reprint){
+    @GetMapping(value = "/leaseOrder/queryPrintData")
+    public @ResponseBody
+    BaseOutput<PrintDataDto> queryPrintLeaseSettlementBillData(String orderCode, Integer reprint) {
+        try {
+            if (StringUtils.isBlank(orderCode) || null == reprint) {
                 return BaseOutput.failure("参数错误");
             }
-            return printService.queryPrintLeaseOrderData(orderCode,reprint);
-        }catch (Exception e){
+            return printService.queryPrintLeaseSettlementBillData(orderCode, reprint);
+        } catch (Exception e) {
             LOG.error("租赁单缴费打印异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
 
     /**
-     * 合同签订单打印数据查询
+     * 合同签订单打印数据查询(杭州)
+     *
+     * @param leaseOrderId
+     * @return
+     */
+    @GetMapping(value = "/queryPrintLeaseContractSigningBillData")
+    public @ResponseBody
+    BaseOutput<PrintDataDto> queryPrintLeaseContractSigningBillData(@RequestParam Long leaseOrderId) {
+        try {
+            return printService.queryPrintLeaseContractSigningBillData(leaseOrderId);
+        } catch (Exception e) {
+            LOG.error("合同签订单打印异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     * 合同签订单打印数据查询(杭州)
      *
      * @return
      */
-    @GetMapping(value = "/queryPrintContractSigningData")
+    @GetMapping(value = "/queryPrintLeasePaymentBillData")
     public @ResponseBody
-    BaseOutput<PrintDataDto> queryPrintContractSigningData(@RequestParam Long leaseOrderId) {
+    BaseOutput<PrintDataDto> queryPrintLeasePaymentBillData(@RequestParam Long leaseOrderId) {
         try {
-            return printService.queryPrintContractSigningData(leaseOrderId);
+            return printService.queryPrintLeasePaymentBillData(leaseOrderId);
         } catch (Exception e) {
             LOG.error("合同签订单打印异常！", e);
             return BaseOutput.failure(e.getMessage());
