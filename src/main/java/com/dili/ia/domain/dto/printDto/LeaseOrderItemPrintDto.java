@@ -31,6 +31,10 @@ public class LeaseOrderItemPrintDto {
     private String manageRefundAmount;
     //保证金退款额
     private String depositRefundAmount;
+    //保证金已交金额
+    private String depositBalance;
+    //保证金补交金额
+    private String depositMakeUpAmount;
 
     //业务收费项
     private Map<String,String> businessChargeItem;
@@ -145,6 +149,22 @@ public class LeaseOrderItemPrintDto {
 
     public void setDepositRefundAmount(String depositRefundAmount) {
         this.depositRefundAmount = depositRefundAmount;
+    }
+
+    public String getDepositBalance() {
+        return depositBalance;
+    }
+
+    public void setDepositBalance(String depositBalance) {
+        this.depositBalance = depositBalance;
+    }
+
+    public String getDepositMakeUpAmount() {
+        return depositMakeUpAmount;
+    }
+
+    public void setDepositMakeUpAmount(String depositMakeUpAmount) {
+        this.depositMakeUpAmount = depositMakeUpAmount;
     }
 
     public Map<String, String> getBusinessChargeItem() {

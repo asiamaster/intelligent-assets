@@ -15,8 +15,8 @@ public interface PrintService {
     /**
      * 查询打印合同签订单数据
      *
-     * @param code
+     * @param leaseOrderId
      * @return
      */
-    BaseOutput<PrintDataDto> queryPrintContractSigningData(String code);
+    BaseOutput<PrintDataDto> queryPrintContractSigningData(Long leaseOrderId);
 }

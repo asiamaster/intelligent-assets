@@ -7,9 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 打印api
@@ -43,14 +41,11 @@ public class PrintApi {
      *
      * @return
      */
-    @RequestMapping(value = "/queryPrintContractSigningData")
+    @GetMapping(value = "/queryPrintContractSigningData")
     public @ResponseBody
-    BaseOutput<PrintDataDto> queryPrintContractSigningData(String code) {
+    BaseOutput<PrintDataDto> queryPrintContractSigningData(@RequestParam Long leaseOrderId) {
         try {
-            if (StringUtils.isBlank(code)) {
-                return BaseOutput.failure("参数错误");
-            }
-            return printService.queryPrintContractSigningData(code);
+            return printService.queryPrintContractSigningData(leaseOrderId);
         } catch (Exception e) {
             LOG.error("合同签订单打印异常！", e);
             return BaseOutput.failure(e.getMessage());

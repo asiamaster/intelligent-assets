@@ -34,10 +34,14 @@ public class LeaseOrderPrintDto {
     private String isRenew;
     //经营品类
     private String categoryName;
+    //租赁期限
+    private String leaseTermName;
     //备注
     private String notes;
     //总金额
     private String totalAmount;
+    //保证金转抵
+    private String depositDeduction;
     //定金转抵
     private String earnestDeduction;
     //转抵扣
@@ -141,6 +145,14 @@ public class LeaseOrderPrintDto {
         this.categoryName = categoryName;
     }
 
+    public String getLeaseTermName() {
+        return leaseTermName;
+    }
+
+    public void setLeaseTermName(String leaseTermName) {
+        this.leaseTermName = leaseTermName;
+    }
+
     public String getNotes() {
         return notes;
     }
@@ -155,6 +167,14 @@ public class LeaseOrderPrintDto {
 
     public void setTotalAmount(String totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public String getDepositDeduction() {
+        return depositDeduction;
+    }
+
+    public void setDepositDeduction(String depositDeduction) {
+        this.depositDeduction = depositDeduction;
     }
 
     public String getEarnestDeduction() {
