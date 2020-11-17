@@ -663,6 +663,14 @@ public class DepositOrder extends BaseDomain {
         return refundAmount;
     }
     /**
+     * 设置退款金额，用于多次退款记录
+     *
+     * @param refundAmount 退款金额，用于多次退款记录
+     */
+    public void setRefundAmount(Long refundAmount) {
+        this.refundAmount = refundAmount;
+    }
+    /**
      * 创建时该保证金维度余额快照
      *
      * @return balance - 创建时该保证金维度余额快照
@@ -672,16 +680,14 @@ public class DepositOrder extends BaseDomain {
     public Long getBalance() {
         return balance;
     }
-
     /**
-     * 设置退款金额，用于多次退款记录
+     * 创建时该保证金维度余额快照
      *
-     * @param refundAmount 退款金额，用于多次退款记录
+     * @param balance 创建时该保证金维度余额快照
      */
-    public void setRefundAmount(Long refundAmount) {
-        this.refundAmount = refundAmount;
+    public void setBalance(Long balance) {
+        this.balance = balance;
     }
-
     /**
      * 获取备注信息
      *
