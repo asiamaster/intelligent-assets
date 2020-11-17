@@ -145,7 +145,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setRefundState(DepositRefundStateEnum.NO_REFUNDED.getCode());
         depositOrder.setIsImport(YesOrNoEnum.NO.getCode());
         depositOrder.setWaitAmount(depositOrder.getAmount());
-
+        DepositBalance depositBalance = depositBalanceService.getDepositBalanceExact(this.bulidDepositBalanceParam(depositOrder));
+        if (depositBalance != null) {//创建时存入 客户余额账户 余额快照，用于打印
+            depositOrder.setBalance(depositBalance.getBalance());
+        }
         this.insertSelective(depositOrder);
         return BaseOutput.success().setData(depositOrder);
     }
@@ -670,6 +673,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * !!! 所有参数字段 有值的话 必填 ；
      * */
     private DepositBalanceParam bulidDepositBalanceParam(DepositOrder depositOrder){
+        this.checkDepositBalanceParam(depositOrder);
         DepositBalanceParam params = new DepositBalanceParam();
         // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称,市场ID
         params.setCustomerId(depositOrder.getCustomerId());
@@ -679,6 +683,21 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         params.setMarketId(depositOrder.getMarketId());
         params.setAssetsName(depositOrder.getAssetsName());
         return params;
+    }
+
+    private void checkDepositBalanceParam(DepositOrder depositOrder){
+        if (depositOrder.getCustomerId() == null){
+            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数客户ID不能为空！");
+        }
+        if (depositOrder.getTypeCode() == null){
+            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，保证金类型TypeCode不能为空！");
+        }
+        if (depositOrder.getAssetsType() == null){
+            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数资产类型AssetsType不能为空！");
+        }
+        if (depositOrder.getMarketId() == null){
+            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数市场ID不能为空！");
+        }
     }
 
     private DepositBalance createDepositBalanceAccount(DepositOrder depositOrder, Long balance){
