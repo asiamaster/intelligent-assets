@@ -34,8 +34,6 @@ public class LeaseOrderPrintDto {
     private String isRenew;
     //经营品类
     private String categoryName;
-    //租赁期限
-    private String leaseTermName;
     //备注
     private String notes;
     //总金额
@@ -145,14 +143,6 @@ public class LeaseOrderPrintDto {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
-    }
-
-    public String getLeaseTermName() {
-        return leaseTermName;
-    }
-
-    public void setLeaseTermName(String leaseTermName) {
-        this.leaseTermName = leaseTermName;
     }
 
     public String getNotes() {
