@@ -569,7 +569,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         variables.put("businessKey", refundOrder.getCode());
         variables.put("firmId", userTicket.getFirmId().toString());
         variables.put("customerName", refundOrder.getCustomerName());
-        variables.put("payeeAmount", String.valueOf(refundOrder.getPayeeAmount()/100));
+        variables.put("payAmount", String.valueOf(refundOrder.getTotalRefundAmount()/100));
         if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
             //发送消息通知流程
             BaseOutput<String> baseOutput = eventRpc.signal(refundOrder.getProcessInstanceId(), "reapply", variables);

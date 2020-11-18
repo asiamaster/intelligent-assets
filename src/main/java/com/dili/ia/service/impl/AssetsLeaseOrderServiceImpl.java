@@ -260,20 +260,31 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
+        //每个摊位补交的保证金合计
+        Long depositAmount = 0L;
+        DepositOrderQuery depositOrderQuery = new DepositOrderQuery();
+        depositOrderQuery.setIsRelated(YesOrNoEnum.YES.getCode());
+        depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
+        List<DepositOrder> depositOrders = depositOrderService.listByExample(depositOrderQuery);
+        for (DepositOrder depositOrder : depositOrders) {
+            depositAmount += depositOrder.getAmount();
+        }
+
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
             //检查客户状态
             checkCustomerState(leaseOrder.getCustomerId(), leaseOrder.getMarketId());
-            leaseOrderItems.forEach(o -> {
-                //检查资产状态
-                assetsLeaseService.checkAssetState(o.getAssetsId());
-            });
+            for (AssetsLeaseOrderItem leaseOrderItem : leaseOrderItems) {
+                assetsLeaseService.checkAssetState(leaseOrderItem.getAssetsId());
+            }
         }
 
         //根据第一个摊位的所属区域来确认审批人
 //        Long districtId = leaseOrderItems.get(0).getDistrictId();
         Map<String, Object> variables = new HashMap<>();
         variables.put("customerName", leaseOrder.getCustomerName());
-        variables.put("payAmount", String.valueOf(leaseOrder.getPayAmount()/100));
+        //支付金额 = 总金额 - 摊位保证金合计 + 定金抵扣 + 转抵抵扣, 用于任务标题展示
+        Long payAmount = leaseOrder.getTotalAmount() - depositAmount + leaseOrder.getEarnestDeduction() + leaseOrder.getTransferDeduction();
+        variables.put("payAmount", String.valueOf(payAmount/100));
         variables.put("businessKey", leaseOrder.getCode());
         variables.put("firmId", userTicket.getFirmId().toString());
         if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
