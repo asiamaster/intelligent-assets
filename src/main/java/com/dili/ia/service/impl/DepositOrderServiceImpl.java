@@ -1470,14 +1470,29 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.APP_ERROR, "参数businessId 不能为空！");
         }
         DepositOrdersPrintDataDto  printDataDto = new DepositOrdersPrintDataDto();
+        List<DepositOrder> depositOrderList = new ArrayList<>();
+        Long totalWaitAmount = 0L;
+        Long totalSubmitAmount = 0L;
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
-        if (CollectionUtils.isNotEmpty(deList)) { // 如果有任何一条 关联创建的 保证金状态 是【退款中】【已退款】【已作废】，则返回false;
-            for (DepositOrder o : deList) {
-                if (o.getState().equals(DepositOrderStateEnum.REFUND.getCode()) || o.getState().equals(DepositOrderStateEnum.REFUNDING.getCode()) || o.getState().equals(DepositOrderStateEnum.INVALID.getCode())) {
+        if (CollectionUtils.isNotEmpty(deList)) {
+            for (DepositOrder de : deList) {// 关联创建的 保证金状态 是【退款中】【已退款】【已作废】【已取消】不需要添加到list中，
+                if (de.getState().equals(DepositOrderStateEnum.CREATED.getCode()) || de.getState().equals(DepositOrderStateEnum.SUBMITTED.getCode()) || de.getState().equals(DepositOrderStateEnum.PAID.getCode())) {
+                    // 状态是【已创建】【已提交】【已交费】的保证金单，需要添加到list 中
+                    depositOrderList.add(de);
+                    // 计算状态是【已创建】【已提交】【已交费】的保证金单的 待付金额
+                    totalWaitAmount += de.getWaitAmount();
+                    // 计算状态是【已创建】【已提交】【已交费】的保证金单的 提交金额
+                    PaymentOrder pb = this.findPaymentOrder(de.getMarketId(), PaymentOrderStateEnum.NOT_PAID.getCode(), de.getId(), de.getCode()).stream().findFirst().orElse(null);
+                    if (pb != null){
+                        totalSubmitAmount += pb.getAmount();
+                    }
 
                 }
             }
         }
+        printDataDto.setTotalSubmitAmount(totalSubmitAmount);
+        printDataDto.setTotalWaitAmount(totalWaitAmount);
+        printDataDto.setDepositOrderList(depositOrderList);
         return BaseOutput.success().setData(printDataDto);
     }
 }
