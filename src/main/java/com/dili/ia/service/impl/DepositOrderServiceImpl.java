@@ -1442,11 +1442,42 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Override
     public Boolean checkDepositOrdersState(String bizType, Long businessId) {
-        return null;
+        if (bizType == null){
+            throw new BusinessException(ResultCode.APP_ERROR, "参数bizType 不能为空！");
+        }
+        if (businessId == null){
+            throw new BusinessException(ResultCode.APP_ERROR, "参数businessId 不能为空！");
+        }
+        Boolean flag = true;
+        List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        if (CollectionUtils.isNotEmpty(deList)) { // 如果有任何一条 关联创建的 保证金状态 是【退款中】【已退款】【已作废】，则返回false;
+            for (DepositOrder o : deList) {
+                if (o.getState().equals(DepositOrderStateEnum.REFUND.getCode()) || o.getState().equals(DepositOrderStateEnum.REFUNDING.getCode()) || o.getState().equals(DepositOrderStateEnum.INVALID.getCode())) {
+                    flag = false;
+                    break;
+                }
+            }
+        }
+        return flag;
     }
 
     @Override
     public BaseOutput<DepositOrdersPrintDataDto> findDepositOrdersPrintData(String bizType, Long businessId) {
-        return null;
+        if (bizType == null){
+            throw new BusinessException(ResultCode.APP_ERROR, "参数bizType 不能为空！");
+        }
+        if (businessId == null){
+            throw new BusinessException(ResultCode.APP_ERROR, "参数businessId 不能为空！");
+        }
+        DepositOrdersPrintDataDto  printDataDto = new DepositOrdersPrintDataDto();
+        List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        if (CollectionUtils.isNotEmpty(deList)) { // 如果有任何一条 关联创建的 保证金状态 是【退款中】【已退款】【已作废】，则返回false;
+            for (DepositOrder o : deList) {
+                if (o.getState().equals(DepositOrderStateEnum.REFUND.getCode()) || o.getState().equals(DepositOrderStateEnum.REFUNDING.getCode()) || o.getState().equals(DepositOrderStateEnum.INVALID.getCode())) {
+
+                }
+            }
+        }
+        return BaseOutput.success().setData(printDataDto);
     }
 }

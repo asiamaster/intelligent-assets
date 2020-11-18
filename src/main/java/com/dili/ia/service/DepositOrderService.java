@@ -165,11 +165,11 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      */
     Boolean checkDepositOrdersState(String bizType, Long businessId);
     /**
-     * 【检查】租赁关联创建保证金单的状态检查--- 【摊位租赁业务票据打印判断使用】
-     * 只要有一个保证金单状态是【已作废】或者【已取消】 返回 false, 否则的话返回 true
+     * 【查询】租赁关联创建保证金单--- 【摊位租赁业务票据打印数据显示使用】
+     *
      * @param bizType 业务类型
      * @param businessId 关联订单ID
-     * @return Boolean 只要有一个保证金单状态是【已作废】或者【已取消】 返回 false, 否则的话返回 true
+     * @return BaseOutput<DepositOrdersPrintDataDto>
      */
     BaseOutput<DepositOrdersPrintDataDto> findDepositOrdersPrintData(String bizType, Long businessId);
 }
