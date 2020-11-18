@@ -26,6 +26,7 @@ import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.dto.IDTO;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.exception.ParamErrorException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -275,6 +276,9 @@ public class AssetsLeaseOrderController {
             AssetsLeaseOrder condition = new AssetsLeaseOrder();
             condition.setCode(code);
             leaseOrder = assetsLeaseOrderService.list(condition).stream().findFirst().orElse(null);
+        }
+        if(leaseOrder == null){
+            throw new ParamErrorException("租赁订单不存在");
         }
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();

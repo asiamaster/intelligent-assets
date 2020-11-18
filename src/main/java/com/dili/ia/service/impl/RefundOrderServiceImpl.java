@@ -758,7 +758,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         roPrintDto.setPrintTime(DateUtils.format(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss"));
         roPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         roPrintDto.setCode(refundOrder.getCode());
-
         roPrintDto.setCustomerName(refundOrder.getCustomerName());
         roPrintDto.setCustomerCellphone(refundOrder.getCustomerCellphone());
         roPrintDto.setRefundReason(refundOrder.getRefundReason());

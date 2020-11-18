@@ -282,8 +282,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 //        Long districtId = leaseOrderItems.get(0).getDistrictId();
         Map<String, Object> variables = new HashMap<>();
         variables.put("customerName", leaseOrder.getCustomerName());
-        //支付金额 = 总金额 - 摊位保证金合计 + 定金抵扣 + 转抵抵扣, 用于任务标题展示
-        Long payAmount = leaseOrder.getTotalAmount() - depositAmount + leaseOrder.getEarnestDeduction() + leaseOrder.getTransferDeduction();
+        //支付金额 = 总金额 + 摊位保证金合计 - 定金抵扣 - 转抵抵扣, 用于任务标题展示
+        Long payAmount = leaseOrder.getTotalAmount() + depositAmount - leaseOrder.getEarnestDeduction() - leaseOrder.getTransferDeduction();
         variables.put("payAmount", String.valueOf(payAmount/100));
         variables.put("businessKey", leaseOrder.getCode());
         variables.put("firmId", userTicket.getFirmId().toString());
