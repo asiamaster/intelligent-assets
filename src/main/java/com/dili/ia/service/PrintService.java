@@ -3,6 +3,9 @@ package com.dili.ia.service;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ss.domain.BaseOutput;
 
+/**
+ * 打印服务
+ */
 public interface PrintService {
     /**
      * 查询打印数据
