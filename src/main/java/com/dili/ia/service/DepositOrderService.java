@@ -1,7 +1,11 @@
 package com.dili.ia.service;
 
-import com.dili.ia.domain.*;
+import com.dili.ia.domain.Customer;
+import com.dili.ia.domain.DepositBalance;
+import com.dili.ia.domain.DepositOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
+import com.dili.ia.domain.dto.printDto.DepositOrdersPrintDataDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -41,7 +45,13 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput
      * */
     BaseOutput<DepositOrder> withdrawDepositOrder(Long depositOrderId);
-
+    /**
+     * 保证金 --作废
+     * @param depositOrderId 保证金单ID
+     * @param invalidReason 作废原因
+     * @return BaseOutput
+     * */
+    BaseOutput<DepositOrder> invalidDepositOrder(Long depositOrderId, String invalidReason);
     /**
      * 保证金 --缴费成功回调
      * @param settleOrder 结算单
@@ -69,6 +79,15 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput<PrintDataDto>
      */
     BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint);
+    /**
+     * 检查当前市场客户状态
+     * @param customerId 客户ID
+     * @param marketId 当前市场ID
+     * @return Customer 客户
+     */
+    Customer checkCustomerState(Long customerId, Long marketId);
+
+    /******************************************************【和租赁交互的接口】*******************************************************************/
     /**
      * 批量【新增】保证金单 --- 【摊位租赁同步生成使用】
      * @param bizType 业务类型
@@ -117,14 +136,6 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      */
     BaseOutput batchCancelDepositOrder(String bizType, Long businessId);
     /**
-     * 保证金 --作废
-     * @param depositOrderId 保证金单ID
-     * @param invalidReason 作废原因
-     * @return BaseOutput
-     * */
-    BaseOutput<DepositOrder> invalidDepositOrder(Long depositOrderId, String invalidReason);
-
-    /**
      * 【查询】客户摊位保证金余额 --- 【摊位租赁使用】
      * @param bizType 业务类型
      * @param customerId 客户ID
@@ -145,12 +156,20 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput
      */
     BaseOutput batchReleaseRelated(String bizType, Long businessId, Long assetsId);
-
     /**
-     * 检查当前市场客户状态
-     * @param customerId 客户ID
-     * @param marketId 当前市场ID
-     * @return Customer 客户
+     * 【检查】租赁关联创建保证金单的状态检查--- 【摊位租赁业务票据打印判断使用】
+     * 只要有一个保证金单状态是【已作废】或者【已取消】 返回 false, 否则的话返回 true
+     * @param bizType 业务类型
+     * @param businessId 关联订单ID
+     * @return Boolean 只要有一个保证金单状态是【已作废】或者【已取消】 返回 false, 否则的话返回 true
      */
-    Customer checkCustomerState(Long customerId, Long marketId);
+    Boolean checkDepositOrdersState(String bizType, Long businessId);
+    /**
+     * 【检查】租赁关联创建保证金单的状态检查--- 【摊位租赁业务票据打印判断使用】
+     * 只要有一个保证金单状态是【已作废】或者【已取消】 返回 false, 否则的话返回 true
+     * @param bizType 业务类型
+     * @param businessId 关联订单ID
+     * @return Boolean 只要有一个保证金单状态是【已作废】或者【已取消】 返回 false, 否则的话返回 true
+     */
+    BaseOutput<DepositOrdersPrintDataDto> findDepositOrdersPrintData(String bizType, Long businessId);
 }

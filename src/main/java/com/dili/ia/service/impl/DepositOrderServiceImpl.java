@@ -9,6 +9,7 @@ import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.DepositBalanceParam;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
+import com.dili.ia.domain.dto.printDto.DepositOrdersPrintDataDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.DepositOrderMapper;
@@ -1439,4 +1440,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return param;
     }
 
+    @Override
+    public Boolean checkDepositOrdersState(String bizType, Long businessId) {
+        return null;
+    }
+
+    @Override
+    public BaseOutput<DepositOrdersPrintDataDto> findDepositOrdersPrintData(String bizType, Long businessId) {
+        return null;
+    }
 }
