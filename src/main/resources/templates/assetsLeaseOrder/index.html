@@ -140,6 +140,9 @@
                 <#resource code="invoiceBoothLeaseOrder" checkMenu="true">
                 <button id="btn_invoice" type="button" class="btn btn-primary" onclick="openInvoiceHandler()"><i class="fa fa-reply"></i>开票</button>
                 </#resource>
+                <#resource code="invoiceBoothPrint" checkMenu="true">
+                <button id="btn_print" type="button" class="btn btn-primary" onclick="openPrintHandler()"><i class="fa fa-reply"></i>业务打印</button>
+                </#resource>
 <!--
                 <button id="export" type="button" class="btn btn-primary" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
 -->
@@ -397,6 +400,25 @@
         <div class="form-group">
             <label>停租原因</label>
             <textarea class="form-control" name="stopReason"  rows="3" maxlength="100"></textarea>
+        </div>
+    </form>
+</script>
+<!-- 停租模板 -->
+<script id="printTpl" type="text/html">
+    <form id="printForm">
+        <input type="hidden" name="id" value="{{id}}"/>
+        <div class="form-group row">
+            <label class="col-3">票据类型</label>
+            <div class="col-9">
+                <div class="form-check">
+                    <input class="form-check-input" id="leaseContractSigningBill" type="radio" name="noteType" value="1" checked>
+                    <label class="form-check-label" for="leaseContractSigningBill">合同签订单</label>
+                </div>
+                <div class="form-check mt-1">
+                    <input class="form-check-input" id="leasePaymentBill" type="radio" name="noteType" value="2">
+                    <label class="form-check-label" for="leasePaymentBill">定金单</label>
+                </div>
+            </div>
         </div>
     </form>
 </script>

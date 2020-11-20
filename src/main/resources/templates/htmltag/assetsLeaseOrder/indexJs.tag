@@ -597,6 +597,62 @@
     }
 
     /**
+     * 打开作废Handler
+     */
+    function openPrintHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        bs4pop.dialog({
+            title: '业务打印',
+            content: template('printTpl',rows[0]),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '400',
+            btns: [
+                {
+                    label: '打印', className: 'btn-primary', onClick: bui.util.debounce(function () {
+                        if (typeof (callbackObj) === "undefined") {
+                            return;
+                        }
+                        let url;
+                        let noteType = $("input[name='noteType']:checked").val();
+                        bui.loading.show('努力打印中，请稍候。。。');
+                        if (noteType == 1) {
+                            url = "/api/leaseOrder/queryPrintLeaseContractSigningBillData?leaseOrderId="+$('#id').val();
+                        } else {
+                            url = "/api/leaseOrder/queryPrintLeasePaymentBillData?leaseOrderId="+$('#id').val();
+                        }
+                        $.ajax({
+                            type: "get",
+                            url: url,
+                            dataType: "json",
+                            success : function(result) {
+                                bui.loading.hide();
+                                if(data.success){
+                                    callbackObj.printDirect(JSON.stringify(result.data.item), result.data.name);
+                                } else {
+                                    bs4pop.alert(result.message, {type: 'error'});
+                                }
+                            },
+                            error : function() {
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
+                    }, 1000, true)
+                },
+                {label: '取消', className: 'btn-secondary', onClick(e) {}}
+            ]
+        });
+
+    }
+
+    /**
      * 查询处理
      */
     function queryDataHandler() {
@@ -838,6 +894,8 @@
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
         }
+
+        $('#btn_print').attr('disabled', false);
     });
     /*****************************************自定义事件区 end**************************************/
 </script>

@@ -44,7 +44,7 @@ public class PrintApi {
      * @param leaseOrderId
      * @return
      */
-    @GetMapping(value = "/queryPrintLeaseContractSigningBillData")
+    @GetMapping(value = "/leaseOrder/queryPrintLeaseContractSigningBillData")
     public @ResponseBody
     BaseOutput<PrintDataDto> queryPrintLeaseContractSigningBillData(@RequestParam Long leaseOrderId) {
         try {
@@ -60,7 +60,7 @@ public class PrintApi {
      *
      * @return
      */
-    @GetMapping(value = "/queryPrintLeasePaymentBillData")
+    @GetMapping(value = "/leaseOrder/queryPrintLeasePaymentBillData")
     public @ResponseBody
     BaseOutput<PrintDataDto> queryPrintLeasePaymentBillData(@RequestParam Long leaseOrderId) {
         try {
