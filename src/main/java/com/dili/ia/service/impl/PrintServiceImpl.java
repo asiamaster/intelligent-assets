@@ -140,7 +140,7 @@ public class PrintServiceImpl implements PrintService {
 
 
     /**
-     * 订单项Bean转PrintDto
+     * 订单项AssetsLeaseOrderItemListDto转PrintDto
      *
      * @param leaseOrderItem
      * @return
@@ -156,6 +156,25 @@ public class PrintServiceImpl implements PrintService {
         leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
         leaseOrderItemPrintDto.setDiscountAmount(MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
         leaseOrderItemPrintDto.setBusinessChargeItem(leaseOrderItem.getBusinessChargeItem());
+        return leaseOrderItemPrintDto;
+    }
+
+    /**
+     * 订单项AssetsLeaseOrderItem转PrintDto
+     *
+     * @param leaseOrderItem
+     * @return
+     */
+    private LeaseOrderItemPrintDto leaseOrderItem2PrintDto(AssetsLeaseOrderItem leaseOrderItem) {
+        LeaseOrderItemPrintDto leaseOrderItemPrintDto = new LeaseOrderItemPrintDto();
+        leaseOrderItemPrintDto.setAssetsName(leaseOrderItem.getAssetsName());
+        leaseOrderItemPrintDto.setDistrictName(leaseOrderItem.getDistrictName());
+        leaseOrderItemPrintDto.setNumber(leaseOrderItem.getNumber().toString());
+        leaseOrderItemPrintDto.setUnitName(leaseOrderItem.getUnitName());
+        leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
+        leaseOrderItemPrintDto.setIsCorner(leaseOrderItem.getIsCorner());
+        leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
+        leaseOrderItemPrintDto.setDiscountAmount(MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
         return leaseOrderItemPrintDto;
     }
 
@@ -246,13 +265,18 @@ public class PrintServiceImpl implements PrintService {
     @Override
     public BaseOutput<PrintDataDto> queryPrintLeaseContractSigningBillData(Long leaseOrderId) {
         AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(leaseOrderId);
+        AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
+        leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(leaseOrderItemCondition);
+        checkPrintCondition(leaseOrder,leaseOrderItems);
+
         PaymentOrder paymentOrder = null;
         if (null != leaseOrder.getPaymentId()) {
             paymentOrder = paymentOrderService.get(leaseOrder.getPaymentId());
         }
         PrintDataDto<LeaseOrderPrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.LEASE_CONTRACT_SIGNING_BILL.getCode());
-        LeaseOrderPrintDto leaseOrderPrintDto = buildLeaseOrderPrintDto(leaseOrder, paymentOrder, true);
+        LeaseOrderPrintDto leaseOrderPrintDto = buildLeaseOrderPrintDto(leaseOrder, leaseOrderItems, paymentOrder, true);
         printDataDto.setItem(leaseOrderPrintDto);
         return BaseOutput.success().setData(printDataDto);
     }
@@ -266,26 +290,52 @@ public class PrintServiceImpl implements PrintService {
     @Override
     public BaseOutput<PrintDataDto> queryPrintLeasePaymentBillData(Long leaseOrderId) {
         AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(leaseOrderId);
+        AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
+        leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(leaseOrderItemCondition);
+        checkPrintCondition(leaseOrder,leaseOrderItems);
+
         PaymentOrder paymentOrder = null;
         if (null != leaseOrder.getPaymentId()) {
             paymentOrder = paymentOrderService.get(leaseOrder.getPaymentId());
         }
         PrintDataDto<LeaseOrderPrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.LEASE_PAYMENT_BILL.getCode());
-        LeaseOrderPrintDto leaseOrderPrintDto = buildLeaseOrderPrintDto(leaseOrder, paymentOrder, false);
+        LeaseOrderPrintDto leaseOrderPrintDto = buildLeaseOrderPrintDto(leaseOrder, leaseOrderItems, paymentOrder, false);
         printDataDto.setItem(leaseOrderPrintDto);
         return BaseOutput.success().setData(printDataDto);
+    }
+
+    /**
+     * 业务单打印检查
+     * @param leaseOrder
+     * @param leaseOrderItems
+     */
+    private void checkPrintCondition (AssetsLeaseOrder leaseOrder, List<AssetsLeaseOrderItem> leaseOrderItems) {
+        if (LeaseOrderStateEnum.INVALIDATED.getCode().equals(leaseOrder.getState()) || LeaseOrderStateEnum.CANCELD.getCode().equals(leaseOrder.getState()) ) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "已作废或已取消状态不能打印");
+        }
+        if (!LeaseRefundStateEnum.WAIT_APPLY.getCode().equals(leaseOrder.getRefundState())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "发起过退款不能打印");
+        }
+        if (leaseOrderItems.stream().filter(o -> !StopRentStateEnum.NO_APPLY.getCode().equals(o.getStopRentState())).collect(Collectors.toList()).size() > 0) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "发起过停租不能打印");
+        }
+        if (!depositOrderService.checkDepositOrdersState(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrder.getId())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "保证金单已作废或已取消不能打印");
+        }
     }
 
     /**
      * 构造租赁单打印数据对象
      *
      * @param leaseOrder
+     * @param leaseOrderItems
      * @param paymentOrder
      * @param isBuildChargeItem 是否构建收费项目
      * @return
      */
-    private LeaseOrderPrintDto buildLeaseOrderPrintDto(AssetsLeaseOrder leaseOrder, PaymentOrder paymentOrder, Boolean isBuildChargeItem) {
+    private LeaseOrderPrintDto buildLeaseOrderPrintDto(AssetsLeaseOrder leaseOrder, List<AssetsLeaseOrderItem> leaseOrderItems, PaymentOrder paymentOrder, Boolean isBuildChargeItem) {
         LeaseOrderPrintDto leaseOrderPrintDto = new LeaseOrderPrintDto();
         leaseOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
         leaseOrderPrintDto.setPrintTime(LocalDate.now());
@@ -301,9 +351,7 @@ public class PrintServiceImpl implements PrintService {
         leaseOrderPrintDto.setSubmitter(null != paymentOrder ? paymentOrder.getCreator() : null);
         leaseOrderPrintDto.setTransferDeduction(MoneyUtils.centToYuan(leaseOrder.getTransferDeduction()));
 
-        AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
-        leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
-        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(leaseOrderItemCondition);
+
 
         //保证金单查询
         DepositOrderQuery depositOrderQuery = new DepositOrderQuery();
@@ -355,7 +403,12 @@ public class PrintServiceImpl implements PrintService {
     private List<LeaseOrderItemPrintDto> leaseOrderItemList2PrintDtoList(Map<Long, DepositOrder> depositOrderMap, List<? extends AssetsLeaseOrderItem> assetsLeaseOrderItems) {
         List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
         assetsLeaseOrderItems.forEach(o -> {
-            LeaseOrderItemPrintDto leaseOrderItemPrintDto = leaseOrderItem2PrintDto((AssetsLeaseOrderItemListDto) o);
+            LeaseOrderItemPrintDto leaseOrderItemPrintDto = null;
+            if (o instanceof AssetsLeaseOrderItemListDto) {
+                leaseOrderItemPrintDto = leaseOrderItem2PrintDto((AssetsLeaseOrderItemListDto) o);
+            } else {
+                leaseOrderItemPrintDto = leaseOrderItem2PrintDto(o);
+            }
             if (depositOrderMap.containsKey(o.getAssetsId())) {
                 DepositOrder depositOrder = depositOrderMap.get(o.getAssetsId());
                 //保证金补交金额

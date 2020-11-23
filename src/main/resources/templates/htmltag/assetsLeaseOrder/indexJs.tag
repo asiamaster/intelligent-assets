@@ -616,9 +616,9 @@
             btns: [
                 {
                     label: '打印', className: 'btn-primary', onClick: bui.util.debounce(function () {
-                        if (typeof (callbackObj) === "undefined") {
-                            return;
-                        }
+                        // if (typeof (callbackObj) === "undefined") {
+                        //     return;
+                        // }
                         let url;
                         let noteType = $("input[name='noteType']:checked").val();
                         bui.loading.show('努力打印中，请稍候。。。');
@@ -633,8 +633,8 @@
                             dataType: "json",
                             success : function(result) {
                                 bui.loading.hide();
-                                if(data.success){
-                                    callbackObj.printDirect(JSON.stringify(result.data.item), result.data.name);
+                                if(result.success){
+                                    callbackObj.boothPrintPreview(JSON.stringify(result.data.item), result.data.name);
                                 } else {
                                     bs4pop.alert(result.message, {type: 'error'});
                                 }
