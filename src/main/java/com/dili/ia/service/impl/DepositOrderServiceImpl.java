@@ -146,10 +146,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setRefundState(DepositRefundStateEnum.NO_REFUNDED.getCode());
         depositOrder.setIsImport(YesOrNoEnum.NO.getCode());
         depositOrder.setWaitAmount(depositOrder.getAmount());
-        DepositBalance depositBalance = depositBalanceService.getDepositBalanceExact(this.bulidDepositBalanceParam(depositOrder));
-        if (depositBalance != null) {//创建时存入 客户余额账户 余额快照，用于打印
-            depositOrder.setBalance(depositBalance.getBalance());
-        }
         this.insertSelective(depositOrder);
         return BaseOutput.success().setData(depositOrder);
     }
