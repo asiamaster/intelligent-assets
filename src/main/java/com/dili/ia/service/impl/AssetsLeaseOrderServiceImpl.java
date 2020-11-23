@@ -264,6 +264,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         Long depositAmount = 0L;
         DepositOrderQuery depositOrderQuery = new DepositOrderQuery();
         depositOrderQuery.setIsRelated(YesOrNoEnum.YES.getCode());
+        depositOrderQuery.setBusinessId(leaseOrder.getId());
         depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
         List<DepositOrder> depositOrders = depositOrderService.listByExample(depositOrderQuery);
         for (DepositOrder depositOrder : depositOrders) {
