@@ -634,7 +634,7 @@
                             success : function(result) {
                                 bui.loading.hide();
                                 if(result.success){
-                                    callbackObj.printDirect(JSON.stringify(result.data.item), result.data.name);
+                                    callbackObj.boothPrintPreview(JSON.stringify(result.data.item), result.data.name);
                                 } else {
                                     bs4pop.alert(result.message, {type: 'error'});
                                 }
