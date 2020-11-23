@@ -7,7 +7,6 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.DepositBalanceParam;
-import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.domain.dto.printDto.DepositOrdersPrintDataDto;
@@ -1440,24 +1439,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         param.setOrderCodeList(orderCodeList);
         return param;
     }
-
-    @Override
-    public BaseOutput<List<DepositOrder>> findDepositOrdersExcludeCancel(String bizType, Long businessId, Long marketId) {
-        DepositOrderQuery depositOrderQuery = new DepositOrderQuery();
-        depositOrderQuery.setBizType(bizType);
-        depositOrderQuery.setBusinessId(businessId);
-        depositOrderQuery.setMarketId(marketId);
-        depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode()); //排除已取消状态
-        return BaseOutput.success().setData(this.listByExample(depositOrderQuery));
-    }
-
     @Override
     public Boolean checkDepositOrdersState(String bizType, Long businessId) {
         if (bizType == null){
-            throw new BusinessException(ResultCode.APP_ERROR, "参数bizType 不能为空！");
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数bizType 不能为空！");
         }
         if (businessId == null){
-            throw new BusinessException(ResultCode.APP_ERROR, "参数businessId 不能为空！");
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数businessId 不能为空！");
         }
         Boolean flag = true;
         List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
@@ -1475,10 +1463,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Override
     public BaseOutput<DepositOrdersPrintDataDto> findDepositOrdersPrintData(String bizType, Long businessId) {
         if (bizType == null){
-            throw new BusinessException(ResultCode.APP_ERROR, "参数bizType 不能为空！");
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数bizType 不能为空！");
         }
         if (businessId == null){
-            throw new BusinessException(ResultCode.APP_ERROR, "参数businessId 不能为空！");
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数businessId 不能为空！");
         }
         DepositOrdersPrintDataDto  printDataDto = new DepositOrdersPrintDataDto();
         List<DepositOrder> depositOrderList = new ArrayList<>();
