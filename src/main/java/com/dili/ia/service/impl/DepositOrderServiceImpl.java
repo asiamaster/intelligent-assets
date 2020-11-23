@@ -1440,26 +1440,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         param.setOrderCodeList(orderCodeList);
         return param;
     }
-
-    @Override
-    public BaseOutput<List<DepositOrder>> findDepositOrdersExcludeCancel(String bizType, Long businessId, Long marketId) {
-        if (bizType == null){
-            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数bizType 不能为空！");
-        }
-        if (businessId == null){
-            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数businessId 不能为空！");
-        }
-        if (marketId == null){
-            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数marketId 不能为空！");
-        }
-        DepositOrderQuery depositOrderQuery = new DepositOrderQuery();
-        depositOrderQuery.setBizType(bizType);
-        depositOrderQuery.setBusinessId(businessId);
-        depositOrderQuery.setMarketId(marketId);
-        depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode()); //排除已取消状态
-        return BaseOutput.success().setData(this.listByExample(depositOrderQuery));
-    }
-
     @Override
     public Boolean checkDepositOrdersState(String bizType, Long businessId) {
         if (bizType == null){
