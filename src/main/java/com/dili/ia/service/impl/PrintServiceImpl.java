@@ -373,7 +373,7 @@ public class PrintServiceImpl implements PrintService {
         if (depositOrdersPrintDataDto.getTotalSubmitAmount().equals(0L) && null == paymentOrder) {
             leaseOrderPrintDto.setAmount(MoneyUtils.centToYuan(leaseOrder.getWaitAmount() + depositOrdersPrintDataDto.getTotalWaitAmount()));
         } else {
-            leaseOrderPrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount() + depositOrdersPrintDataDto.getTotalSubmitAmount()));
+            leaseOrderPrintDto.setAmount(MoneyUtils.centToYuan(null == paymentOrder?0L : paymentOrder.getAmount() + depositOrdersPrintDataDto.getTotalSubmitAmount()));
         }
 
         leaseOrderPrintDto.setDepositDeduction(MoneyUtils.centToYuan(depositSnapshotAmountTotal));
