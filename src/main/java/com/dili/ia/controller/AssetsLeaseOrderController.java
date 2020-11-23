@@ -36,6 +36,8 @@ import com.dili.uap.sdk.domain.dto.UserQuery;
 import com.dili.uap.sdk.exception.NotLoginException;
 import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -133,6 +135,15 @@ public class AssetsLeaseOrderController {
     @ResponseBody
     public BaseOutput<List<String>> listEventName(@RequestParam String processInstanceId, @RequestParam Integer state) {
         String cacheKey = processInstanceId + "_" + state;
+
+        // 初始化缓存
+        LoadingCache<String, Object> loadingCache = Caffeine.newBuilder()
+                .maximumSize(1_000)
+                .build(key -> {
+                    return eventRpc.listEventName(processInstanceId);
+                });
+
+
         if(BpmCache.leaseOrderEventCache.containsKey(cacheKey)){
             return BaseOutput.successData(BpmCache.leaseOrderEventCache.get(cacheKey));
         }
