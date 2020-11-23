@@ -7,7 +7,6 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.DepositBalanceParam;
-import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.domain.dto.printDto.DepositOrdersPrintDataDto;
