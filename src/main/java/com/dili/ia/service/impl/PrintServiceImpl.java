@@ -403,7 +403,12 @@ public class PrintServiceImpl implements PrintService {
     private List<LeaseOrderItemPrintDto> leaseOrderItemList2PrintDtoList(Map<Long, DepositOrder> depositOrderMap, List<? extends AssetsLeaseOrderItem> assetsLeaseOrderItems) {
         List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
         assetsLeaseOrderItems.forEach(o -> {
-            LeaseOrderItemPrintDto leaseOrderItemPrintDto = leaseOrderItem2PrintDto(o);
+            LeaseOrderItemPrintDto leaseOrderItemPrintDto = null;
+            if (o instanceof AssetsLeaseOrderItemListDto) {
+                leaseOrderItemPrintDto = leaseOrderItem2PrintDto((AssetsLeaseOrderItemListDto) o);
+            } else {
+                leaseOrderItemPrintDto = leaseOrderItem2PrintDto(o);
+            }
             if (depositOrderMap.containsKey(o.getAssetsId())) {
                 DepositOrder depositOrder = depositOrderMap.get(o.getAssetsId());
                 //保证金补交金额
