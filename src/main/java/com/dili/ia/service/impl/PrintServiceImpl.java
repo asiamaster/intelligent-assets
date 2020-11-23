@@ -140,7 +140,7 @@ public class PrintServiceImpl implements PrintService {
 
 
     /**
-     * 订单项Bean转PrintDto
+     * 订单项AssetsLeaseOrderItemListDto转PrintDto
      *
      * @param leaseOrderItem
      * @return
@@ -156,6 +156,25 @@ public class PrintServiceImpl implements PrintService {
         leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
         leaseOrderItemPrintDto.setDiscountAmount(MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
         leaseOrderItemPrintDto.setBusinessChargeItem(leaseOrderItem.getBusinessChargeItem());
+        return leaseOrderItemPrintDto;
+    }
+
+    /**
+     * 订单项AssetsLeaseOrderItem转PrintDto
+     *
+     * @param leaseOrderItem
+     * @return
+     */
+    private LeaseOrderItemPrintDto leaseOrderItem2PrintDto(AssetsLeaseOrderItem leaseOrderItem) {
+        LeaseOrderItemPrintDto leaseOrderItemPrintDto = new LeaseOrderItemPrintDto();
+        leaseOrderItemPrintDto.setAssetsName(leaseOrderItem.getAssetsName());
+        leaseOrderItemPrintDto.setDistrictName(leaseOrderItem.getDistrictName());
+        leaseOrderItemPrintDto.setNumber(leaseOrderItem.getNumber().toString());
+        leaseOrderItemPrintDto.setUnitName(leaseOrderItem.getUnitName());
+        leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
+        leaseOrderItemPrintDto.setIsCorner(leaseOrderItem.getIsCorner());
+        leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
+        leaseOrderItemPrintDto.setDiscountAmount(MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
         return leaseOrderItemPrintDto;
     }
 
@@ -355,7 +374,7 @@ public class PrintServiceImpl implements PrintService {
     private List<LeaseOrderItemPrintDto> leaseOrderItemList2PrintDtoList(Map<Long, DepositOrder> depositOrderMap, List<? extends AssetsLeaseOrderItem> assetsLeaseOrderItems) {
         List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
         assetsLeaseOrderItems.forEach(o -> {
-            LeaseOrderItemPrintDto leaseOrderItemPrintDto = leaseOrderItem2PrintDto((AssetsLeaseOrderItemListDto) o);
+            LeaseOrderItemPrintDto leaseOrderItemPrintDto = leaseOrderItem2PrintDto(o);
             if (depositOrderMap.containsKey(o.getAssetsId())) {
                 DepositOrder depositOrder = depositOrderMap.get(o.getAssetsId());
                 //保证金补交金额
