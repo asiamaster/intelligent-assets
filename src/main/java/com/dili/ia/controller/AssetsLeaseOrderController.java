@@ -4,8 +4,10 @@ import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
+import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.bpmc.sdk.rpc.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.cache.BpmCache;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
@@ -84,9 +86,12 @@ public class AssetsLeaseOrderController {
     private RefundFeeItemService refundFeeItemService;
     @Autowired
     private TransferDeductionItemService transferDeductionItemService;
+    @SuppressWarnings("all")
     @Autowired
     private UserRpc userRpc;
-
+    @SuppressWarnings("all")
+    @Autowired
+    EventRpc eventRpc;
 
     /**
      * 跳转到LeaseOrder页面
@@ -116,6 +121,27 @@ public class AssetsLeaseOrderController {
         modelMap.put("createdEnd", createdEnd);
         modelMap.put("assetsType", assetsType);
         return "assetsLeaseOrder/index";
+    }
+
+    /**
+     * 根据流程实例id查询当前事件名称列表
+     * @param processInstanceId
+     * @param state
+     * @return BaseOutput
+     */
+    @PostMapping(value="/listEventName.action")
+    @ResponseBody
+    public BaseOutput<List<String>> listEventName(@RequestParam String processInstanceId, @RequestParam Integer state) {
+        String cacheKey = processInstanceId + "_" + state;
+        if(BpmCache.leaseOrderEventCache.containsKey(cacheKey)){
+            return BaseOutput.successData(BpmCache.leaseOrderEventCache.get(cacheKey));
+        }
+        BaseOutput<List<String>> listBaseOutput = eventRpc.listEventName(processInstanceId);
+        if(!listBaseOutput.isSuccess()){
+            return BaseOutput.failure("调用流控中心远程接口失败:" + listBaseOutput.getMessage());
+        }
+        BpmCache.leaseOrderEventCache.put(cacheKey, listBaseOutput.getData());
+        return listBaseOutput;
     }
 
     /**
@@ -253,7 +279,6 @@ public class AssetsLeaseOrderController {
         view(modelMap, null, code, null);
         return "assetsLeaseOrder/approvalView";
     }
-
 
     /**
      * 跳转到LeaseOrder查看页面

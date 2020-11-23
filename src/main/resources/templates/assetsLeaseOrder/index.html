@@ -113,32 +113,32 @@
                 <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
                 </#resource>
                 <#resource code="updateBoothLeaseOrder" checkMenu="true">
-                <button id="btn_edit" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
+                <button id="btn_edit" type="button" class="btn btn-primary updateEvent" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
                 </#resource>
                 <#resource code="cancelBoothLeaseOrder" checkMenu="true">
-                <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
+                <button id="btn_cancel" type="button" class="btn btn-primary cancelEvent" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                 </#resource>
                 <#resource code="invalidBoothLeaseOrder" checkMenu="true">
-                <button id="btn_invalid" type="button" class="btn btn-primary" onclick="openInvalidHandler()"><i class="fa fa-window-close"></i> 作废</button>
+                <button id="btn_invalid" type="button" class="btn btn-primary obsoleteEvent" onclick="openInvalidHandler()"><i class="fa fa-window-close"></i> 作废</button>
                 </#resource>
                 <#resource code="submitBoothLeaseOrderApplication" checkMenu="true">
-                <button id="btn_approval" type="button" class="btn btn-primary" onclick="submitForApproval()"><i class="fa fa-paper-plane"></i> 提交审批</button>
+                <button id="btn_approval" type="button" class="btn btn-primary submitApprovalEvent" onclick="submitForApproval()"><i class="fa fa-paper-plane"></i> 提交审批</button>
                 </#resource>
                 <button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
                 <#resource code="submitPaymentBoothLeaseOrder" checkMenu="true">
-                <button id="btn_submit" type="button" class="btn btn-primary" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交付款</button>
+                <button id="btn_submit" type="button" class="btn btn-primary submitEvent" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交付款</button>
                 </#resource>
                 <#resource code="withdrawBoothLeaseOrder" checkMenu="true">
-                <button id="btn_withdraw" type="button" class="btn btn-primary" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
+                <button id="btn_withdraw" type="button" class="btn btn-primary withdrawEvent" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>
                 </#resource>
                 <#resource code="supplementBoothLeaseOrder" checkMenu="true">
-                <button id="btn_supplement" type="button" class="btn btn-primary" onclick="openSupplementHandler()"><i class="fa fa-paint-brush"></i> 补录</button>
+                <button id="btn_supplement" type="button" class="btn btn-primary supplementEvent" onclick="openSupplementHandler()"><i class="fa fa-paint-brush"></i> 补录</button>
                 </#resource>
                 <#resource code="renewBoothLeaseOrder" checkMenu="true">
-                <button id="btn_renew" type="button" class="btn btn-primary" onclick="openRenewHandler()"><i class="fa fa-plug"></i> 续租</button>
+                <button id="btn_renew" type="button" class="btn btn-primary reletEvent" onclick="openRenewHandler()"><i class="fa fa-plug"></i> 续租</button>
                 </#resource>
                 <#resource code="invoiceBoothLeaseOrder" checkMenu="true">
-                <button id="btn_invoice" type="button" class="btn btn-primary" onclick="openInvoiceHandler()"><i class="fa fa-reply"></i>开票</button>
+                <button id="btn_invoice" type="button" class="btn btn-primary invoiceEvent" onclick="openInvoiceHandler()"><i class="fa fa-reply"></i>开票</button>
                 </#resource>
                 <#resource code="invoiceBoothPrint" checkMenu="true">
                 <button id="btn_print" type="button" class="btn btn-primary" onclick="openPrintHandler()"><i class="fa fa-reply"></i>业务打印</button>
