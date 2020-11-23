@@ -3,6 +3,7 @@
 <div class="container-fluid">
     <form id="saveForm" role="form" novalidate>
         <input type="hidden" id="id" name="id" value="${leaseOrder.id!}">
+        <input type="hidden" id="bizType" name="bizType" value="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.assetsType).getBizType()}">
         <div class="breadcrumb" >
             订单信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#orderInfo" aria-expanded="true"
@@ -254,7 +255,7 @@
         }).get();
         if(assetsIds.length > 0){
             batchQueryDepositBalance('${leaseOrder.assetsType!}', $('#customerId').val(), assetsIds);
-            batchQueryDepositOrder({businessId:$('#id').val()});
+            batchQueryDepositOrder({businessId:$('#id').val(),bizType: $('#bizType').val()});
         }
     });
 

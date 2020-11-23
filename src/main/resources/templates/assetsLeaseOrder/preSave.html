@@ -7,6 +7,7 @@
             <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
             <input type="hidden" name="isRenew" value="${isRenew!}">
             <input type="hidden" id="assetsType" name="assetsType" value="${assetsType!}">
+            <input type="hidden" id="bizType" name="bizType" value="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType()}">
             <div class="breadcrumb" >
                 客户信息
                 <%

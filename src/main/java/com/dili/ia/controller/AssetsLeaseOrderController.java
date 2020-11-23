@@ -686,8 +686,12 @@ public class AssetsLeaseOrderController {
     @PostMapping(value = "/batchQueryDepositOrder.action")
     public @ResponseBody
     BaseOutput<List<DepositOrder>> batchQueryDepositOrder(DepositOrderQuery depositOrderQuery) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         try {
-            depositOrderQuery.setIsRelated(YesOrNoEnum.YES.getCode());
+            depositOrderQuery.setMarketId(userTicket.getFirmId());
             depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
             return BaseOutput.success().setData(depositOrderService.listByExample(depositOrderQuery));
         } catch (BusinessException e) {
