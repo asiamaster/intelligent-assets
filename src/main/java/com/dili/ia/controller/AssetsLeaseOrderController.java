@@ -7,7 +7,7 @@ import com.dili.bpmc.sdk.domain.TaskCenterParam;
 import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.bpmc.sdk.rpc.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.cache.BpmCache;
+import com.dili.ia.cache.BpmCacheConfig;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
@@ -28,6 +28,7 @@ import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.dto.IDTO;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.exception.DataErrorException;
 import com.dili.ss.exception.ParamErrorException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.User;
@@ -36,8 +37,7 @@ import com.dili.uap.sdk.domain.dto.UserQuery;
 import com.dili.uap.sdk.exception.NotLoginException;
 import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Cache;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -48,6 +48,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -94,7 +95,8 @@ public class AssetsLeaseOrderController {
     @SuppressWarnings("all")
     @Autowired
     EventRpc eventRpc;
-
+    @Resource(name = "leaseOrderEventCache")
+    Cache<String, List<String>> leaseOrderEventCache;
     /**
      * 跳转到LeaseOrder页面
      *
@@ -129,30 +131,25 @@ public class AssetsLeaseOrderController {
      * 根据流程实例id查询当前事件名称列表
      * @param processInstanceId
      * @param state
+     * @param approvalState
      * @return BaseOutput
      */
     @PostMapping(value="/listEventName.action")
     @ResponseBody
-    public BaseOutput<List<String>> listEventName(@RequestParam String processInstanceId, @RequestParam Integer state) {
-        String cacheKey = processInstanceId + "_" + state;
-
-        // 初始化缓存
-        LoadingCache<String, Object> loadingCache = Caffeine.newBuilder()
-                .maximumSize(1_000)
-                .build(key -> {
-                    return eventRpc.listEventName(processInstanceId);
-                });
-
-
-        if(BpmCache.leaseOrderEventCache.containsKey(cacheKey)){
-            return BaseOutput.successData(BpmCache.leaseOrderEventCache.get(cacheKey));
+    public BaseOutput<List<String>> listEventName(@RequestParam String processInstanceId, @RequestParam Integer state, @RequestParam(required = false) Integer approvalState) {
+        StringBuilder sb = new StringBuilder().append(processInstanceId).append("_").append(state);
+        String cacheKey = approvalState == null ? sb.toString() : sb.append("_").append(approvalState).toString();
+        try {
+            return BaseOutput.successData(leaseOrderEventCache.get(cacheKey, t -> {
+                BaseOutput<List<String>> listBaseOutput = eventRpc.listEventName(processInstanceId);
+                if(!listBaseOutput.isSuccess()) {
+                    throw new DataErrorException(listBaseOutput.getMessage());
+                }
+                return listBaseOutput.getData();
+            }));
+        } catch (Exception e) {
+            return BaseOutput.failure(e.getMessage());
         }
-        BaseOutput<List<String>> listBaseOutput = eventRpc.listEventName(processInstanceId);
-        if(!listBaseOutput.isSuccess()){
-            return BaseOutput.failure("调用流控中心远程接口失败:" + listBaseOutput.getMessage());
-        }
-        BpmCache.leaseOrderEventCache.put(cacheKey, listBaseOutput.getData());
-        return listBaseOutput;
     }
 
     /**

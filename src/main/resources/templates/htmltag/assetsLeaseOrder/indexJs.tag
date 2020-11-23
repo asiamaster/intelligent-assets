@@ -796,7 +796,7 @@
         $.ajax({
             type: "POST",
             url: url,
-            data: {processInstanceId: row.processInstanceId, state: row.$_state},
+            data: {processInstanceId: row.processInstanceId, state: row.$_state, approvalState: approvalState},
             processData: true,
             dataType: "json",
             async: true,
