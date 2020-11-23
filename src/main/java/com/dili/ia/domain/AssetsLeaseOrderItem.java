@@ -169,6 +169,12 @@ public class AssetsLeaseOrderItem extends BaseDomain {
     private String districtName;
 
     /**
+     * 保证金余额快照
+     */
+    @Column(name = "`deposit_balance`")
+    private Long depositBalance;
+
+    /**
      * 金额
      */
     @Column(name = "`total_amount`")
@@ -446,6 +452,14 @@ public class AssetsLeaseOrderItem extends BaseDomain {
 
     public void setDistrictName(String districtName) {
         this.districtName = districtName;
+    }
+
+    public Long getDepositBalance() {
+        return depositBalance;
+    }
+
+    public void setDepositBalance(Long depositBalance) {
+        this.depositBalance = depositBalance;
     }
 
     public Long getTotalAmount() {

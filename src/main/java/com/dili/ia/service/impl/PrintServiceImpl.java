@@ -362,7 +362,7 @@ public class PrintServiceImpl implements PrintService {
         Map<Long, DepositOrder> depositOrderMap = depositOrders.stream().collect(Collectors.toMap(DepositOrder::getAssetsId, Function.identity()));
         Long depositMakeUpAmountTotal = depositOrders.stream().mapToLong(DepositOrder::getAmount).sum(); //保证金补交金额
         Long depositPaidAmountTotal = depositOrders.stream().mapToLong(DepositOrder::getPaidAmount).sum(); //保证金补交已交金额
-        Long depositSnapshotAmountTotal = depositOrders.stream().mapToLong(DepositOrder::getBalance).sum(); //保证金快照
+        Long depositSnapshotAmountTotal = leaseOrderItems.stream().mapToLong(AssetsLeaseOrderItem::getDepositBalance).sum(); //保证金快照
 
         //计算本期付款金额
         BaseOutput<DepositOrdersPrintDataDto> depositOrdersPrintDataDtoBaseOutput = depositOrderService.findDepositOrdersPrintData(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(),leaseOrder.getId());
@@ -413,9 +413,12 @@ public class PrintServiceImpl implements PrintService {
                 DepositOrder depositOrder = depositOrderMap.get(o.getAssetsId());
                 //保证金补交金额
                 leaseOrderItemPrintDto.setDepositMakeUpAmount(MoneyUtils.centToYuan(depositOrder.getAmount()));
-                //保证金快照
-                leaseOrderItemPrintDto.setDepositBalance(MoneyUtils.centToYuan(depositOrder.getBalance()));
+            } else {
+                leaseOrderItemPrintDto.setDepositMakeUpAmount(MoneyUtils.centToYuan(0L));
             }
+
+            //保证金快照
+            leaseOrderItemPrintDto.setDepositBalance(MoneyUtils.centToYuan(o.getDepositBalance()));
             leaseOrderItemPrintDtos.add(leaseOrderItemPrintDto);
         });
         return leaseOrderItemPrintDtos;

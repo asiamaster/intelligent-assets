@@ -1,2 +1,2 @@
-ALTER TABLE `dili_ia`.`deposit_order`
-ADD COLUMN  `balance` bigint(20) DEFAULT '0' COMMENT '创建时该保证金维度余额快照' AFTER `refund_amount`;
+ALTER TABLE `dili_ia`.`assets_lease_order_item`
+ADD COLUMN `deposit_balance` bigint(20) NULL default 0 COMMENT '保证金余额快照' AFTER `district_name`;
