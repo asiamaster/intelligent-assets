@@ -1,6 +1,5 @@
 package com.dili.ia.api;
 
-import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.TaskMapping;
@@ -12,6 +11,8 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 租赁审批流程任务分配接口
@@ -30,6 +30,7 @@ import java.util.Map;
 @RefreshScope
 @RequestMapping("/api/rentalApprovalProcessTaskAssignmentApi")
 public class RentalApprovalProcessTaskAssignmentApi {
+    protected static final Logger log = LoggerFactory.getLogger(RentalApprovalProcessTaskAssignmentApi.class);
     @Autowired
     private AssetsRpc assetsRpc;
 
@@ -53,6 +54,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
+            log.error("审批人分配异常:"+e.getMessage());
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return BaseOutput.successData(getExceptionHandlerAssignment());
         }
@@ -68,6 +70,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
+            log.error("审批人分配异常:"+e.getMessage());
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return BaseOutput.successData(getExceptionHandlerAssignment());
         }
@@ -84,6 +87,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
+            log.error("审批人分配异常:"+e.getMessage());
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return BaseOutput.successData(getExceptionHandlerAssignment());
         }
@@ -99,6 +103,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
+            log.error("审批人分配异常:"+e.getMessage());
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return BaseOutput.successData(getExceptionHandlerAssignment());
         }
@@ -114,6 +119,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
         try {
             return BaseOutput.successData(buildApprovalAssignment(taskMapping));
         } catch (Exception e) {
+            log.error("审批人分配异常:"+e.getMessage());
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return BaseOutput.successData(getExceptionHandlerAssignment());
         }
@@ -168,6 +174,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
         List<ApproverAssignment> approverAssignments = approverAssignmentService.listByExample(approverAssignment);
         //如果未找到审批人
         if(CollectionUtils.isEmpty(approverAssignments)){
+            log.error("未找到审批人，市场id:"+firmId);
             //流程异常时的审批人id，用于在流程异常时，作为兜底的处理人
             return getExceptionHandlerAssignment();
         }

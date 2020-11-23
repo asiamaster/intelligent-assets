@@ -135,11 +135,6 @@ public class DepositOrder extends BaseDomain {
     @Column(name = "`refund_amount`")
     private Long refundAmount;
     /**
-     * 创建时该保证金维度余额快照
-     */
-    @Column(name = "`balance`")
-    private Long balance;
-    /**
      * 备注信息
      */
     @Column(name = "`notes`")
@@ -669,24 +664,6 @@ public class DepositOrder extends BaseDomain {
      */
     public void setRefundAmount(Long refundAmount) {
         this.refundAmount = refundAmount;
-    }
-    /**
-     * 创建时该保证金维度余额快照
-     *
-     * @return balance - 创建时该保证金维度余额快照
-     */
-    @FieldDef(label="创建时该保证金维度余额快照")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getBalance() {
-        return balance;
-    }
-    /**
-     * 创建时该保证金维度余额快照
-     *
-     * @param balance 创建时该保证金维度余额快照
-     */
-    public void setBalance(Long balance) {
-        this.balance = balance;
     }
     /**
      * 获取备注信息
