@@ -172,4 +172,13 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput<DepositOrdersPrintDataDto>
      */
     BaseOutput<DepositOrdersPrintDataDto> findDepositOrdersPrintData(String bizType, Long businessId);
+    /**
+     * 【查询】租赁关联创建保证金单[排除已取消状态保证金单]--- 【摊位租赁业务修改显示使用】
+     *
+     * @param bizType 业务类型
+     * @param businessId 关联订单ID
+     * @param marketId 市场ID
+     * @return BaseOutput<List<DepositOrder>>
+     */
+    BaseOutput<List<DepositOrder>> findDepositOrdersExcludeCancel(String bizType, Long businessId, Long marketId);
 }

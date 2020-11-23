@@ -7,6 +7,7 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.DepositBalanceParam;
+import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.domain.dto.printDto.DepositOrdersPrintDataDto;
@@ -1438,6 +1439,16 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         orderCodeList.addAll(paymentOrderList.stream().map(PaymentOrder::getCode).collect(Collectors.toList()));
         param.setOrderCodeList(orderCodeList);
         return param;
+    }
+
+    @Override
+    public BaseOutput<List<DepositOrder>> findDepositOrdersExcludeCancel(String bizType, Long businessId, Long marketId) {
+        DepositOrderQuery depositOrderQuery = new DepositOrderQuery();
+        depositOrderQuery.setBizType(bizType);
+        depositOrderQuery.setBusinessId(businessId);
+        depositOrderQuery.setMarketId(marketId);
+        depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode()); //排除已取消状态
+        return BaseOutput.success().setData(this.listByExample(depositOrderQuery));
     }
 
     @Override
