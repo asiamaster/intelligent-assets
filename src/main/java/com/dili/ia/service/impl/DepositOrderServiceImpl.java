@@ -1051,6 +1051,15 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return list;
     }
 
+    private List<DepositOrder> queryDepositOrderNotRelated(String bizType, Long businessId, Long assetsId){
+        DepositOrder query = new DepositOrder();
+        query.setBizType(bizType);
+        query.setBusinessId(businessId);
+        query.setAssetsId(assetsId);
+        List<DepositOrder> list = this.listByExample(query);
+        return list;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput batchSubmitDepositOrder(String bizType, Long businessId, Map<Long, Long> map) {
@@ -1468,7 +1477,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         List<DepositOrder> depositOrderList = new ArrayList<>();
         Long totalWaitAmount = 0L;
         Long totalSubmitAmount = 0L;
-        List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        List<DepositOrder> deList = this.queryDepositOrderNotRelated(bizType, businessId, null);
         if (CollectionUtils.isNotEmpty(deList)) {
             for (DepositOrder de : deList) {// 关联创建的 保证金状态 是【退款中】【已退款】【已作废】【已取消】不需要添加到list中，
                 if (de.getState().equals(DepositOrderStateEnum.CREATED.getCode()) || de.getState().equals(DepositOrderStateEnum.SUBMITTED.getCode()) || de.getState().equals(DepositOrderStateEnum.PAID.getCode())) {
