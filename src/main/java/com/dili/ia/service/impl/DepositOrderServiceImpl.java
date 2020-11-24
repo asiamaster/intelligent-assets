@@ -1453,7 +1453,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.PARAMS_ERROR, "参数businessId 不能为空！");
         }
         Boolean flag = true;
-        List<DepositOrder> deList = this.queryDepositOrder(bizType, businessId, null);
+        List<DepositOrder> deList = this.queryDepositOrderNotRelated(bizType, businessId, null);
         if (CollectionUtils.isNotEmpty(deList)) { // 如果有任何一条 关联创建的 保证金状态 是【退款中】【已退款】【已作废】，则返回false;
             for (DepositOrder o : deList) {
                 if (o.getState().equals(DepositOrderStateEnum.REFUND.getCode()) || o.getState().equals(DepositOrderStateEnum.REFUNDING.getCode()) || o.getState().equals(DepositOrderStateEnum.INVALID.getCode())) {
