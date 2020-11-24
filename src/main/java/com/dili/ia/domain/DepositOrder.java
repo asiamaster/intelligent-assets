@@ -134,7 +134,6 @@ public class DepositOrder extends BaseDomain {
      */
     @Column(name = "`refund_amount`")
     private Long refundAmount;
-
     /**
      * 备注信息
      */
@@ -658,7 +657,6 @@ public class DepositOrder extends BaseDomain {
     public Long getRefundAmount() {
         return refundAmount;
     }
-
     /**
      * 设置退款金额，用于多次退款记录
      *
@@ -667,7 +665,6 @@ public class DepositOrder extends BaseDomain {
     public void setRefundAmount(Long refundAmount) {
         this.refundAmount = refundAmount;
     }
-
     /**
      * 获取备注信息
      *

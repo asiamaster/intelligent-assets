@@ -9,6 +9,7 @@ import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.DepositBalanceParam;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
+import com.dili.ia.domain.dto.printDto.DepositOrdersPrintDataDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.DepositOrderMapper;
@@ -145,7 +146,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setRefundState(DepositRefundStateEnum.NO_REFUNDED.getCode());
         depositOrder.setIsImport(YesOrNoEnum.NO.getCode());
         depositOrder.setWaitAmount(depositOrder.getAmount());
-
         this.insertSelective(depositOrder);
         return BaseOutput.success().setData(depositOrder);
     }
@@ -670,6 +670,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * !!! 所有参数字段 有值的话 必填 ；
      * */
     private DepositBalanceParam bulidDepositBalanceParam(DepositOrder depositOrder){
+        this.checkDepositBalanceParam(depositOrder);
         DepositBalanceParam params = new DepositBalanceParam();
         // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称,市场ID
         params.setCustomerId(depositOrder.getCustomerId());
@@ -679,6 +680,21 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         params.setMarketId(depositOrder.getMarketId());
         params.setAssetsName(depositOrder.getAssetsName());
         return params;
+    }
+
+    private void checkDepositBalanceParam(DepositOrder depositOrder){
+        if (depositOrder.getCustomerId() == null){
+            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数客户ID不能为空！");
+        }
+        if (depositOrder.getTypeCode() == null){
+            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，保证金类型TypeCode不能为空！");
+        }
+        if (depositOrder.getAssetsType() == null){
+            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数资产类型AssetsType不能为空！");
+        }
+        if (depositOrder.getMarketId() == null){
+            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数市场ID不能为空！");
+        }
     }
 
     private DepositBalance createDepositBalanceAccount(DepositOrder depositOrder, Long balance){
@@ -854,7 +870,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
             transferDeductionItems.forEach(o -> {
-                BaseOutput accountOutput = customerAccountService.rechargeTransferBalance(this.buildCustomerAccountParam(refundOrder, o.getPayeeId(), o.getPayeeAmount()));
+                BaseOutput accountOutput = customerAccountService.rechargeTransferBalance(this.buildCustomerAccountParam(refundOrder, o.getPayeeAmount(), o.getPayeeId()));
                 if (!accountOutput.isSuccess()) {
                     LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
                     throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
@@ -1031,6 +1047,15 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         query.setBusinessId(businessId);
         query.setAssetsId(assetsId);
         query.setIsRelated(YesOrNoEnum.YES.getCode()); //必须是关联订单
+        List<DepositOrder> list = this.listByExample(query);
+        return list;
+    }
+
+    private List<DepositOrder> queryDepositOrderNotRelated(String bizType, Long businessId, Long assetsId){
+        DepositOrder query = new DepositOrder();
+        query.setBizType(bizType);
+        query.setBusinessId(businessId);
+        query.setAssetsId(assetsId);
         List<DepositOrder> list = this.listByExample(query);
         return list;
     }
@@ -1333,6 +1358,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setInvalidOperator(userTicket.getRealName());
         depositOrder.setInvalidReason(invalidReason);
         depositOrder.setInvalidTime(LocalDateTime.now());
+        depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
         if (this.updateSelective(depositOrder) == 0) {
             LOG.info("作废保证金【修改保证金单状态】失败,乐观锁生效。【保证金ID：】" + depositOrder);
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -1419,5 +1445,59 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         param.setOrderCodeList(orderCodeList);
         return param;
     }
+    @Override
+    public Boolean checkDepositOrdersState(String bizType, Long businessId) {
+        if (bizType == null){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数bizType 不能为空！");
+        }
+        if (businessId == null){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数businessId 不能为空！");
+        }
+        Boolean flag = true;
+        List<DepositOrder> deList = this.queryDepositOrderNotRelated(bizType, businessId, null);
+        if (CollectionUtils.isNotEmpty(deList)) { // 如果有任何一条 关联创建的 保证金状态 是【退款中】【已退款】【已作废】，则返回false;
+            for (DepositOrder o : deList) {
+                if (o.getState().equals(DepositOrderStateEnum.REFUND.getCode()) || o.getState().equals(DepositOrderStateEnum.REFUNDING.getCode()) || o.getState().equals(DepositOrderStateEnum.INVALID.getCode())) {
+                    flag = false;
+                    break;
+                }
+            }
+        }
+        return flag;
+    }
 
+    @Override
+    public BaseOutput<DepositOrdersPrintDataDto> findDepositOrdersPrintData(String bizType, Long businessId) {
+        if (bizType == null){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数bizType 不能为空！");
+        }
+        if (businessId == null){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数businessId 不能为空！");
+        }
+        DepositOrdersPrintDataDto  printDataDto = new DepositOrdersPrintDataDto();
+        List<DepositOrder> depositOrderList = new ArrayList<>();
+        Long totalWaitAmount = 0L;
+        Long totalSubmitAmount = 0L;
+        List<DepositOrder> deList = this.queryDepositOrderNotRelated(bizType, businessId, null);
+        if (CollectionUtils.isNotEmpty(deList)) {
+            for (DepositOrder de : deList) {// 关联创建的 保证金状态 是【退款中】【已退款】【已作废】【已取消】不需要添加到list中，
+                if (de.getState().equals(DepositOrderStateEnum.CREATED.getCode()) || de.getState().equals(DepositOrderStateEnum.SUBMITTED.getCode()) || de.getState().equals(DepositOrderStateEnum.PAID.getCode())) {
+                    // 状态是【已创建】【已提交】【已交费】的保证金单，需要添加到list 中
+                    depositOrderList.add(de);
+                    // 计算状态是【已创建】【已提交】【已交费】的保证金单的 待付金额
+                    totalWaitAmount += de.getWaitAmount();
+                    // 计算状态是【已创建】【已提交】【已交费】的保证金单的 提交金额
+                    PaymentOrder pb = this.findPaymentOrder(de.getMarketId(), PaymentOrderStateEnum.NOT_PAID.getCode(), de.getId(), de.getCode()).stream().findFirst().orElse(null);
+                    if (pb != null){
+                        totalSubmitAmount += pb.getAmount();
+                    }
+
+                }
+            }
+        }
+        printDataDto.setTotalSubmitAmount(totalSubmitAmount);
+        printDataDto.setTotalWaitAmount(totalWaitAmount);
+        printDataDto.setDepositOrderList(depositOrderList);
+        return BaseOutput.success().setData(printDataDto);
+    }
 }

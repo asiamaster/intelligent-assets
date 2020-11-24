@@ -57,7 +57,7 @@
     -->
     id, create_time, modify_time, code, customer_id, customer_name, certificate_number, 
     customer_cellphone, department_id, department_name, type_code, type_name, assets_type, 
-    assets_id, assets_name, amount, paid_amount, wait_amount, refund_amount, notes, is_related, 
+    assets_id, assets_name, amount, paid_amount, wait_amount, refund_amount, notes, is_related,
     business_id, biz_type, state, pay_state, refund_state, approval_state, process_instance_id, 
     creator_id, creator, submitter_id, submitter, submit_time, withdraw_operator_id, 
     withdraw_operator, canceler_id, canceler, invalid_operator_id, invalid_operator, 

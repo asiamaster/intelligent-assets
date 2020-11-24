@@ -7,6 +7,7 @@
             <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
             <input type="hidden" name="isRenew" value="${isRenew!}">
             <input type="hidden" id="assetsType" name="assetsType" value="${assetsType!}">
+            <input type="hidden" id="bizType" name="bizType" value="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType()}">
             <div class="breadcrumb" >
                 客户信息
                 <%
@@ -167,7 +168,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">已交</span>
                                     </div>
-                                    <input type="number" id="depositBalance_${itemLP.index}" name="depositBalance_${itemLP.index}" class="form-control" value="0.00" readonly>
+                                    <input type="number" id="depositBalance_${itemLP.index}" name="depositBalance_${itemLP.index}" class="form-control money" value="0.00" readonly>
                                 </div>
                                 <div class="input-group w-50 pl-1">
                                     <div class="input-group-prepend">
@@ -270,7 +271,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text">已交</span>
                     </div>
-                    <input type="number" id="depositBalance_{{index}}" name="depositBalance_{{index}}" class="form-control" value="0.00" readonly>
+                    <input type="number" id="depositBalance_{{index}}" name="depositBalance_{{index}}" class="form-control money" value="0.00" readonly>
                 </div>
                 <div class="input-group w-50 pl-1">
                     <div class="input-group-prepend">

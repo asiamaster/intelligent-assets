@@ -26,6 +26,7 @@ import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.dto.IDTO;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.exception.ParamErrorException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -275,6 +276,9 @@ public class AssetsLeaseOrderController {
             AssetsLeaseOrder condition = new AssetsLeaseOrder();
             condition.setCode(code);
             leaseOrder = assetsLeaseOrderService.list(condition).stream().findFirst().orElse(null);
+        }
+        if(leaseOrder == null){
+            throw new ParamErrorException("租赁订单不存在");
         }
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -670,7 +674,7 @@ public class AssetsLeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds(),userTicket.getId());
+        return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds(),userTicket.getFirmId());
     }
 
     /**
@@ -682,8 +686,13 @@ public class AssetsLeaseOrderController {
     @PostMapping(value = "/batchQueryDepositOrder.action")
     public @ResponseBody
     BaseOutput<List<DepositOrder>> batchQueryDepositOrder(DepositOrderQuery depositOrderQuery) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         try {
             depositOrderQuery.setIsRelated(YesOrNoEnum.YES.getCode());
+            depositOrderQuery.setMarketId(userTicket.getFirmId());
             depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
             return BaseOutput.success().setData(depositOrderService.listByExample(depositOrderQuery));
         } catch (BusinessException e) {
