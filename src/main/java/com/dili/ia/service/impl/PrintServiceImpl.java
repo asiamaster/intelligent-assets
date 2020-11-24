@@ -322,7 +322,7 @@ public class PrintServiceImpl implements PrintService {
             throw new BusinessException(ResultCode.DATA_ERROR, "发起过停租不能打印");
         }
         if (!depositOrderService.checkDepositOrdersState(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrder.getId())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "保证金单已作废或已取消不能打印");
+            throw new BusinessException(ResultCode.DATA_ERROR, "保证金单已退款、已作废或已取消不能打印");
         }
     }
 
