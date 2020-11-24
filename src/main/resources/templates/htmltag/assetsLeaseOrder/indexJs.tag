@@ -92,16 +92,41 @@
             return;
         }
 
-        dia = bs4pop.dialog({
-            title: '修改租赁',
-            content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
-            isIframe : true,
-            closeBtn: true,
-            backdrop : 'static',
-            width: '95%',
-            height : '95%',
-            btns: []
+        $.ajax({
+            type: "post",
+            url: "/leaseOrder/batchQueryDepositOrder.action",
+            data: {businessId:rows[0].id,bizType: $('#bizType').val()},
+            dataType: "json",
+            success: function (ret) {
+                if(ret.success){
+                    let depositOrders = ret.data;
+                    if(depositOrders.length > 0){
+                        for (let depositOrder of depositOrders){
+                            if (depositOrder.state == ${@com.dili.ia.glossary.DepositOrderStateEnum.PAID.getCode()}) {
+                                bs4pop.alert('对应补交保证金已交费不能修改，请取消后重新录入');
+                                return;
+                            }
+                        }
+                    }
+
+                    dia = bs4pop.dialog({
+                        title: '修改租赁',
+                        content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
+                        isIframe : true,
+                        closeBtn: true,
+                        backdrop : 'static',
+                        width: '95%',
+                        height : '95%',
+                        btns: []
+                    });
+                }
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
         });
+
+
     }
 
     /**
@@ -616,9 +641,9 @@
             btns: [
                 {
                     label: '打印', className: 'btn-primary', onClick: bui.util.debounce(function () {
-                        // if (typeof (callbackObj) === "undefined") {
-                        //     return;
-                        // }
+                        if (typeof (callbackObj) === "undefined") {
+                            return;
+                        }
                         let url;
                         let noteType = $("input[name='noteType']:checked").val();
                         bui.loading.show('努力打印中，请稍候。。。');

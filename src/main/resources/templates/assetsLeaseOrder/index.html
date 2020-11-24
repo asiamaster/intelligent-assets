@@ -16,7 +16,8 @@
     <#bs4nav>
     <form id="queryForm" role="form" >
         <input type="hidden" id="assetsType" name="assetsType" value="${assetsType!}">
-                <div class="row row-cols-6">
+        <input type="hidden" id="bizType" name="bizType" value="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType()}">
+        <div class="row row-cols-6">
                     <div class="form-group col">
                         <label for="state">业务状态</label>
                         <select id="state" name="state" class="form-control"></select>
