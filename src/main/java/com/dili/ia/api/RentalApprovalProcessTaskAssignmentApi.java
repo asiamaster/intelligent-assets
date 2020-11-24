@@ -184,7 +184,7 @@ public class RentalApprovalProcessTaskAssignmentApi {
     /**
      * 根据区域构建审批人分配
      * @param districtDTO
-     * @param taskMapping
+     * @param taskMapping   任务映射
      * @return
      */
     private List<ApproverAssignment> listApproverAssignmentByDistrict( DistrictDTO districtDTO, TaskMapping taskMapping){
