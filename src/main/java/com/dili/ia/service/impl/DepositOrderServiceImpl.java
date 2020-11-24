@@ -1358,6 +1358,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositOrder.setInvalidOperator(userTicket.getRealName());
         depositOrder.setInvalidReason(invalidReason);
         depositOrder.setInvalidTime(LocalDateTime.now());
+        depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
         if (this.updateSelective(depositOrder) == 0) {
             LOG.info("作废保证金【修改保证金单状态】失败,乐观锁生效。【保证金ID：】" + depositOrder);
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
