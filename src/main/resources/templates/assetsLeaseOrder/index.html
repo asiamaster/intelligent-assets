@@ -185,7 +185,7 @@
     </div>
 </div>
 
-</div>
+
 </#bs4Body>
 <#assetsLeaseOrder_indexJs />
 
@@ -375,4 +375,27 @@
             </div>
         </div>
     </form>
+</script>
+
+<!-- 业务流程模板 -->
+<script id="bpmTpl" type="text/html">
+    <form id="bpmForm">
+        <div class="row">
+            <div class="col-4 col-form-label text-right">
+                <label for="bizProcessInstanceId" class="justify-content-end w-100px">业务流程实例id:</label>
+            </div>
+            <div class="col-6">
+                <input type="text" id="bizProcessInstanceId" name="bizProcessInstanceId" class="form-control" maxlength="50" value="{{bizProcessInstanceId}}"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-form-label text-right">
+                <label for="bizProcessDefinitionId" class="justify-content-end w-100px">业务流程定义id:</label>
+            </div>
+            <div class="col-6">
+                <input type="text" id="bizProcessDefinitionId" name="bizProcessDefinitionId" class="form-control" maxlength="50" value="{{bizProcessDefinitionId}}"/>
+            </div>
+        </div>
+    </form>
+    <img id="bizProcessInstanceImg" href="{{bizProcessInstanceImgUrl}}"/>
 </script>
