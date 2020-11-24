@@ -136,12 +136,12 @@ public class AssetsLeaseOrderController {
      */
     @PostMapping(value="/listEventName.action")
     @ResponseBody
-    public BaseOutput<List<String>> listEventName(@RequestParam String processInstanceId, @RequestParam Integer state, @RequestParam(required = false) Integer approvalState) {
-        StringBuilder sb = new StringBuilder().append(processInstanceId).append("_").append(state);
+    public BaseOutput<List<String>> listEventName(@RequestParam String bizProcessInstanceId, @RequestParam Integer state, @RequestParam(required = false) Integer approvalState) {
+        StringBuilder sb = new StringBuilder().append(bizProcessInstanceId).append("_").append(state);
         String cacheKey = approvalState == null ? sb.toString() : sb.append("_").append(approvalState).toString();
         try {
             List<String> strings = leaseOrderEventCache.get(cacheKey, t -> {
-                BaseOutput<List<String>> listBaseOutput = eventRpc.listEventName(processInstanceId);
+                BaseOutput<List<String>> listBaseOutput = eventRpc.listEventName(bizProcessInstanceId);
                 if (!listBaseOutput.isSuccess()) {
                     throw new DataErrorException(listBaseOutput.getMessage());
                 }

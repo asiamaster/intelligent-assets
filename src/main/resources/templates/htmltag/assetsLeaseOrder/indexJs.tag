@@ -72,8 +72,33 @@
         var keycode = e.which ? e.which : e.keyCode;
         //如果按下ctrl+alt+r，弹出快捷执行窗口
         if(e.ctrlKey && e.altKey && keycode == 82){
-            openExecuteHandler();
+            openBpm();
         }
+    }
+
+    /**
+     * 打开业务流程编号框
+     */
+    function openBpm() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            return;
+        }
+        var param = {};
+        param["bizProcessInstanceImgUrl"] = '<#config name="bpmc.server.address"/>/api/runtime/progress?processInstanceId='+rows[0].processInstanceId+'&processDefinitionId='+rows[0].processDefinitionId+"&"+Math.random();
+        param["bizProcessInstanceId"] = rows[0].processInstanceId;
+        param["bizProcessDefinitionId"] = rows[0].processDefinitionId;
+        bs4pop.dialog({
+            title: "业务流程",
+            content: bui.util.HTMLDecode(template('bpmTpl', param)),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '600px',
+            btns: [
+                {label: '关闭', className: 'btn-secondary', onClick(e) {}}
+            ]
+        });
     }
 
     /**
@@ -803,33 +828,48 @@
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
         }
-        var url = "${contextPath}/leaseOrder/listEventName.action";
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: {processInstanceId: row.processInstanceId, state: row.$_state, approvalState: approvalState},
-            processData: true,
-            dataType: "json",
-            async: true,
-            success: function (output) {
-                bui.loading.hide();
-                if (output.success) {
-                    for(var i in output.data){
-                        //根据事件名的class启用按钮
-                        $("."+output.data[i]).attr('disabled', false);
-                    }
-                    _grid.bootstrapTable('refresh');
-                    _modal.modal('hide');
-                } else {
-                    bs4pop.alert(output.result, {type: 'error'});
-                }
-            },
-            error: function (a, b, c) {
-                bui.loading.hide();
-                bs4pop.alert('远程访问失败', {type: 'error'});
-            }
-        });
 
+        if(row.bizProcessInstanceId){
+            var url = "${contextPath}/leaseOrder/listEventName.action";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {bizProcessInstanceId: row.bizProcessInstanceId, state: row.$_state, approvalState: approvalState},
+                processData: true,
+                dataType: "json",
+                async: true,
+                success: function (output) {
+                    bui.loading.hide();
+                    if (output.success) {
+                        for(var i in output.data){
+                            //根据事件名的class启用按钮
+                            $("."+output.data[i]).attr('disabled', false);
+                        }
+                        _grid.bootstrapTable('refresh');
+                        _modal.modal('hide');
+                    } else {
+                        bs4pop.alert(output.result, {type: 'error'});
+                    }
+                },
+                error: function (a, b, c) {
+                    bui.loading.hide();
+                    bs4pop.alert('远程访问失败', {type: 'error'});
+                }
+            });
+        }else{
+            defaultBizProcess(row);
+        }
+
+
+    });
+
+    /**
+     * 没有业务流程实例id时的兜底方案
+     */
+    function defaultBizProcess(row) {
+        let state = row.$_state;
+        //审批状态
+        let approvalState = row.$_approvalState;
         if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CREATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
@@ -839,9 +879,9 @@
                 $('#btn_approval').attr('disabled', false);
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
-                <#resource code="skipAssetsLeaseApproval">
+            <#resource code="skipAssetsLeaseApproval">
                     $('#btn_submit').attr('disabled', false);
-                </#resource>
+            </#resource>
             }
             //审批中不允许修改、取消和提交付款
             else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.IN_REVIEW.getCode()}) {
@@ -855,9 +895,9 @@
                 $('#btn_approval').attr('disabled', false);
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
-                <#resource code="skipAssetsLeaseApproval">
+            <#resource code="skipAssetsLeaseApproval">
                     $('#btn_submit').attr('disabled', false);
-                </#resource>
+            </#resource>
             }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.INVALIDATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
@@ -930,9 +970,7 @@
                 $('#btn_submit').attr('disabled', false);
             }
         }
-
-
         $('#btn_print').attr('disabled', false);
-    });
+    }
     /*****************************************自定义事件区 end**************************************/
 </script>

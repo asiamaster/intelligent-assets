@@ -154,7 +154,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
-
         //检查客户状态
         checkCustomerState(dto.getCustomerId(), userTicket.getFirmId());
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(dto.getAssetsType());
@@ -180,6 +179,16 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 LOG.info("租赁单编号生成异常");
                 throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
             }
+            /**
+             * 启动租赁业务流程
+             */
+            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_BOOTH_LEASE_ORDER_PROCESS, bizNumberOutput.getData(), userTicket.getId().toString(), new HashMap<>(1));
+            if (!processInstanceMappingBaseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+            }
+            //设置流程定义和实例id，后面会更新到租赁单表
+            dto.setBizProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
+            dto.setBizProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
             dto.setCode(bizNumberOutput.getData());
             dto.setState(LeaseOrderStateEnum.CREATED.getCode());
             dto.setPayState(PayStateEnum.NOT_PAID.getCode());
