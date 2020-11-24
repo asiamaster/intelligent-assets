@@ -691,6 +691,7 @@ public class AssetsLeaseOrderController {
             throw new RuntimeException("未登录");
         }
         try {
+            depositOrderQuery.setIsRelated(YesOrNoEnum.YES.getCode());
             depositOrderQuery.setMarketId(userTicket.getFirmId());
             depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
             return BaseOutput.success().setData(depositOrderService.listByExample(depositOrderQuery));
