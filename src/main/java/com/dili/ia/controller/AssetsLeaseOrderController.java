@@ -140,13 +140,14 @@ public class AssetsLeaseOrderController {
         StringBuilder sb = new StringBuilder().append(processInstanceId).append("_").append(state);
         String cacheKey = approvalState == null ? sb.toString() : sb.append("_").append(approvalState).toString();
         try {
-            return BaseOutput.successData(leaseOrderEventCache.get(cacheKey, t -> {
+            List<String> strings = leaseOrderEventCache.get(cacheKey, t -> {
                 BaseOutput<List<String>> listBaseOutput = eventRpc.listEventName(processInstanceId);
-                if(!listBaseOutput.isSuccess()) {
+                if (!listBaseOutput.isSuccess()) {
                     throw new DataErrorException(listBaseOutput.getMessage());
                 }
                 return listBaseOutput.getData();
-            }));
+            });
+            return BaseOutput.successData(strings);
         } catch (Exception e) {
             return BaseOutput.failure(e.getMessage());
         }

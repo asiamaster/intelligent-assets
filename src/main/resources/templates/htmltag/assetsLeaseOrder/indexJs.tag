@@ -59,12 +59,23 @@
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
         _grid.bootstrapTable('refreshOptions', {url: '/leaseOrder/listPage.action',pageSize: parseInt(size)});
+        document.addEventListener("keyup",getKey,false);
     });
 
 
     /******************************驱动执行区 end****************************/
 
     /*****************************************函数区 begin************************************/
+    //全局按键事件
+    function getKey(e){
+        e = e || window.event;
+        var keycode = e.which ? e.which : e.keyCode;
+        //如果按下ctrl+alt+r，弹出快捷执行窗口
+        if(e.ctrlKey && e.altKey && keycode == 82){
+            openExecuteHandler();
+        }
+    }
+
     /**
      * 打开新增窗口
      */
@@ -792,7 +803,7 @@
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
         }
-        var url = "${contextPath}/dynamicProcessOrders/listEventName.action";
+        var url = "${contextPath}/leaseOrder/listEventName.action";
         $.ajax({
             type: "POST",
             url: url,
