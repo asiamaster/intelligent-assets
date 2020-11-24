@@ -356,7 +356,6 @@ public class PrintServiceImpl implements PrintService {
         //保证金单查询
         DepositOrderQuery depositOrderQuery = new DepositOrderQuery();
         depositOrderQuery.setBusinessId(leaseOrder.getId());
-        depositOrderQuery.setIsRelated(YesOrNoEnum.YES.getCode());
         depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
         List<DepositOrder> depositOrders = depositOrderService.listByExample(depositOrderQuery);
         Map<Long, DepositOrder> depositOrderMap = depositOrders.stream().collect(Collectors.toMap(DepositOrder::getAssetsId, Function.identity()));
