@@ -142,13 +142,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if (!checkResult.isSuccess()){
             return checkResult;
         }
-        if (!(SettleWayEnum.BANK.getCode() == order.getRefundType())) {
-            order.setBank(null);
-            order.setBankCardNo(null);
-        }
-        if (!(SettleWayEnum.CARD.getCode() == order.getRefundType())) {
-            order.setTradeCardNo(null);
-        }
         order.setCreator(userTicket.getRealName());
         order.setCreatorId(userTicket.getId());
         order.setMarketId(userTicket.getFirmId());

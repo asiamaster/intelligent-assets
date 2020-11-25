@@ -1,6 +1,7 @@
 package com.dili.ia.provider;
 
 import com.dili.ia.glossary.AssetsTypeEnum;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.TransactionItemTypeEnum;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
@@ -27,11 +28,7 @@ public class AssetsTypeProvider implements ValueProvider {
     private static final List<ValuePair<?>> BUFFER = new ArrayList<>();
     // 杭州二期 资产类型只展示 【摊位】【其它】
     static {
-        AssetsTypeEnum arr[] = new AssetsTypeEnum[2];
-        arr[0] = AssetsTypeEnum.BOOTH;
-        arr[1] = AssetsTypeEnum.OTHER;
-
-        BUFFER.addAll(Stream.of(arr)
+        BUFFER.addAll(Stream.of(AssetsTypeEnum.values())
                 .map(e -> new ValuePairImpl<>(e.getName(), e.getCode().toString()))
                 .collect(Collectors.toList()));
     }

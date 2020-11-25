@@ -114,9 +114,6 @@ public class DepositOrderController {
         modelMap.put("maxRefundAmount", maxRefundAmount);
         if (null != refundOrderId) {
             modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
-            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-            transferDeductionItemCondition.setRefundOrderId(refundOrderId);
-            modelMap.put("transferDeductionItems", transferDeductionItemService.list(transferDeductionItemCondition));
         }
         return "depositOrder/refundApply";
     }

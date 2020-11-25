@@ -555,15 +555,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             transferDeductionItemCondition.setRefundOrderId(depositRefundOrderDto.getId());
             transferDeductionItemService.deleteByExample(transferDeductionItemCondition);
         }
-
-        if (CollectionUtils.isNotEmpty(depositRefundOrderDto.getTransferDeductionItems())) {
-            depositRefundOrderDto.getTransferDeductionItems().forEach(o -> {
-                //检查转抵客户状态
-                checkCustomerState(o.getPayeeId(), userTicket.getFirmId());
-                o.setRefundOrderId(depositRefundOrderDto.getId());
-                transferDeductionItemService.insertSelective(o);
-            });
-        }
         return BaseOutput.success().setData(depositRefundOrderDto);
     }
 
