@@ -82,7 +82,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         long total = customerMeterDtoList instanceof Page ? ((Page)customerMeterDtoList).getTotal() : (long)customerMeterDtoList.size();
         List results = useProvider ? ValueProviderUtils.buildDataByProvider(customerMeterDto, customerMeterDtoList) : customerMeterDtoList;
 
-        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results);
+        return new EasyuiPageOutput(total, results);
     }
 
     /**

@@ -98,7 +98,7 @@ public class CategoryStorageCycleController {
         	LOG.error("品类加载失败",e.getMessage());
 			e.printStackTrace();
 		}
-    	return new EasyuiPageOutput(Integer.parseInt(String.valueOf(page.getTotal())), result).toString();
+    	return new EasyuiPageOutput(page.getTotal(), result).toString();
     }
 
     /**

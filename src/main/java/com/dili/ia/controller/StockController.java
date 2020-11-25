@@ -109,7 +109,7 @@ public class StockController {
     	Page<StockDto> page = stockService.countCustomerStock(stockQueryDto);
     	Map<String, String> map = stockQueryDto.getMetadata();
     	List<Map> result = ValueProviderUtils.buildDataByProvider(map, page.getResult());
-    	return new EasyuiPageOutput(Integer.parseInt(String.valueOf(page.getTotal())), result ).toString();
+    	return new EasyuiPageOutput(page.getTotal(), result ).toString();
     }
     
     /**

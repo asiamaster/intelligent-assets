@@ -236,6 +236,6 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
         }
 
         long total = chargeItemListByGroup instanceof Page ? ((Page)chargeItemListByGroup).getTotal() : (long)chargeItemListByGroup.size();
-        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), chargeItemListByGroup).toString();
+        return new EasyuiPageOutput(total, chargeItemListByGroup).toString();
     }
 }

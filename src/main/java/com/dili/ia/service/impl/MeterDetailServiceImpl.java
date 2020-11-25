@@ -176,7 +176,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         long total = meterDetailDtooList instanceof Page ? ((Page) meterDetailDtooList).getTotal() : (long) meterDetailDtooList.size();
         List results = useProvider ? ValueProviderUtils.buildDataByProvider(meterDetailDto, meterDetailDtooList) : meterDetailDtooList;
 
-        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results);
+        return new EasyuiPageOutput(total, results);
     }
 
     /**

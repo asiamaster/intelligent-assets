@@ -135,7 +135,7 @@ public class MessageFeeController {
 		// 获取部门数据权限
 		List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
 		if (CollectionUtils.isEmpty(departmentIdList)) {
-			return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+			return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
 		}
 		messageFee.setDepIds(departmentIdList);
     	return messageFeeService.listEasyuiPageByExample(messageFee, true).toString();

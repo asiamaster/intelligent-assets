@@ -117,7 +117,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         long total = boutiqueList instanceof Page ? ((Page) boutiqueList).getTotal() : (long) boutiqueList.size();
         List results = useProvider ? ValueProviderUtils.buildDataByProvider(boutiqueDto, boutiqueList) : boutiqueList;
 
-        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results);
+        return new EasyuiPageOutput(total, results);
     }
 
     /**

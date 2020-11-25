@@ -1,36 +1,24 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.BusinessChargeItem;
-import com.dili.ia.domain.Labor;
-import com.dili.ia.domain.MessageFee;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.MessageFeeDto;
 import com.dili.ia.domain.dto.MessageFeeQuery;
 import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
-import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
 import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import com.dili.ia.domain.dto.printDto.MessageFeePayPrintDto;
 import com.dili.ia.domain.dto.printDto.MessageFeeRefundPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
-import com.dili.ia.glossary.BizNumberTypeEnum;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.MessageFeeStateEnum;
-import com.dili.ia.glossary.PaymentOrderStateEnum;
-import com.dili.ia.glossary.PrintTemplateEnum;
-import com.dili.ia.glossary.RefundTypeEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.MessageFeeMapper;
 import com.dili.ia.rpc.MessageFeeRpc;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
-import com.dili.ia.service.BusinessChargeItemService;
-import com.dili.ia.service.CustomerAccountService;
-import com.dili.ia.service.MessageFeeService;
-import com.dili.ia.service.PaymentOrderService;
-import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.ResultCodeConst;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
@@ -40,6 +28,7 @@ import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
+import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -48,20 +37,7 @@ import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
 import io.seata.spring.annotation.GlobalTransactional;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +45,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -337,13 +320,13 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
             transferDeductionItems.forEach(o -> {
-                BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.MESSAGEFEE.getCode(),
-                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
-                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
-                if (!accountOutput.isSuccess()) {
-                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
-                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
-                }
+//                BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.MESSAGEFEE.getCode(),
+//                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
+//                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
+//                if (!accountOutput.isSuccess()) {
+//                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
+//                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
+//                }
             });
         }
      // 通知消息系统
@@ -452,7 +435,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
-		if(RefundTypeEnum.BANK.getCode().equals(refundInfoDto.getRefundType())) {
+		if(SettleWayEnum.BANK.getCode() == refundInfoDto.getRefundType()) {
 			refundOrder.setBank(refundInfoDto.getBank());
 			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
 		}

@@ -159,7 +159,7 @@ public class OtherFeeController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
         if (CollectionUtils.isEmpty(departmentIdList)) {
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+            return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
         }
         otherFeeDto.setMarketId(userTicket.getFirmId());
         otherFeeDto.setDepartmentIds(departmentIdList);

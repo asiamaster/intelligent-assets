@@ -1,14 +1,36 @@
 package com.dili.ia.service.impl;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.*;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintItemDto;
+import com.dili.ia.glossary.*;
+import com.dili.ia.mapper.StockInMapper;
+import com.dili.ia.rpc.SettlementRpcResolver;
+import com.dili.ia.rpc.UidRpcResolver;
+import com.dili.ia.service.*;
+import com.dili.ia.util.LoggerUtil;
+import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
+import com.dili.rule.sdk.rpc.ChargeRuleRpc;
+import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.SettleStateEnum;
+import com.dili.settlement.enums.SettleTypeEnum;
+import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
+import com.dili.uap.sdk.session.SessionContext;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,65 +41,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.dili.ia.domain.BusinessChargeItem;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.Stock;
-import com.dili.ia.domain.StockIn;
-import com.dili.ia.domain.StockInDetail;
-import com.dili.ia.domain.StockWeighmanRecord;
-import com.dili.ia.domain.TransferDeductionItem;
-import com.dili.ia.domain.dto.printDto.PrintDataDto;
-import com.dili.ia.domain.dto.RefundInfoDto;
-import com.dili.ia.domain.dto.SettleOrderInfoDto;
-import com.dili.ia.domain.dto.StockInDetailDto;
-import com.dili.ia.domain.dto.StockInDto;
-import com.dili.ia.domain.dto.StockInQueryDto;
-import com.dili.ia.domain.dto.StockWeighmanRecordDto;
-import com.dili.ia.domain.dto.printDto.StockInPrintDto;
-import com.dili.ia.domain.dto.printDto.StockInPrintItemDto;
-import com.dili.ia.glossary.BizNumberTypeEnum;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.PaymentOrderStateEnum;
-import com.dili.ia.glossary.PrintTemplateEnum;
-import com.dili.ia.glossary.RefundTypeEnum;
-import com.dili.ia.glossary.StockInStateEnum;
-import com.dili.ia.glossary.StockInTypeEnum;
-import com.dili.ia.mapper.StockInMapper;
-import com.dili.ia.rpc.SettlementRpcResolver;
-import com.dili.ia.rpc.UidRpcResolver;
-import com.dili.ia.service.BusinessChargeItemService;
-import com.dili.ia.service.CustomerAccountService;
-import com.dili.ia.service.DataAuthService;
-import com.dili.ia.service.PaymentOrderService;
-import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.service.StockInDetailService;
-import com.dili.ia.service.StockInService;
-import com.dili.ia.service.StockService;
-import com.dili.ia.service.StockWeighmanRecordService;
-import com.dili.ia.service.TransferDeductionItemService;
-import com.dili.ia.util.LoggerUtil;
-import com.dili.rule.sdk.domain.input.QueryFeeInput;
-import com.dili.rule.sdk.domain.output.QueryFeeOutput;
-import com.dili.rule.sdk.rpc.ChargeRuleRpc;
-import com.dili.settlement.domain.SettleOrder;
-import com.dili.settlement.dto.SettleOrderDto;
-import com.dili.settlement.enums.SettleStateEnum;
-import com.dili.settlement.enums.SettleTypeEnum;
-import com.dili.ss.base.BaseServiceImpl;
-import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.exception.BusinessException;
-import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.rpc.DepartmentRpc;
-import com.dili.uap.sdk.session.SessionContext;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
-import io.seata.spring.annotation.GlobalTransactional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -109,7 +79,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	@Autowired
 	private BusinessChargeItemService businessChargeItemService;
-	
+
+	@SuppressWarnings("all")
 	@Autowired
 	private DepartmentRpc departmentRpc;
 	
@@ -511,13 +482,13 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
         List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
         if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
             transferDeductionItems.forEach(o -> {
-                BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.STOCKIN.getCode(),
-                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
-                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
-                if (!accountOutput.isSuccess()) {
-                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
-                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
-                }
+//                BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.STOCKIN.getCode(),
+//                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
+//                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
+//                if (!accountOutput.isSuccess()) {
+//                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
+//                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
+//                }
             });
         }
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
@@ -580,7 +551,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
-		if(RefundTypeEnum.BANK.getCode().equals(refundInfoDto.getRefundType())) {
+		if(SettleWayEnum.BANK.getCode() == refundInfoDto.getRefundType()) {
 			refundOrder.setBank(refundInfoDto.getBank());
 			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
 		}

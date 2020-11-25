@@ -68,13 +68,13 @@ public class StockInDetailController {
     	stockInDetailQueryDto.setMarketId(userTicket.getFirmId());
     	List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
 		if (CollectionUtils.isEmpty(departmentIdList)) {
-			return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+			return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
 		}
 		stockInDetailQueryDto.setDepIds(departmentIdList);
     	Page<Map<String, String>> page = stockInDetailService.selectByContion(stockInDetailQueryDto);
     	Map<String, String> map = stockInDetailQueryDto.getMetadata();
     	List<Map> result = ValueProviderUtils.buildDataByProvider(map, page.getResult());
-    	return new EasyuiPageOutput(Integer.parseInt(String.valueOf(page.getTotal())), result ).toString();
+    	return new EasyuiPageOutput(page.getTotal(), result ).toString();
     }
 
    

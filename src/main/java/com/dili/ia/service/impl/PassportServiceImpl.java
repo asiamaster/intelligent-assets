@@ -124,7 +124,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         long total = passportInfoList instanceof Page ? ((Page) passportInfoList).getTotal() : (long) passportInfoList.size();
         List results = useProvider ? ValueProviderUtils.buildDataByProvider(passportDto, passportInfoList) : passportInfoList;
 
-        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results);
+        return new EasyuiPageOutput(total, results);
     }
 
     /**
