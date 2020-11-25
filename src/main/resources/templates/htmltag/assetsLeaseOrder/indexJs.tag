@@ -86,15 +86,15 @@
             return;
         }
         var param = {};
-        param["bizProcessInstanceImgUrl"] = '<#config name="bpmc.server.address"/>/api/runtime/progress?processInstanceId='+rows[0].processInstanceId+'&processDefinitionId='+rows[0].processDefinitionId+"&"+Math.random();
-        param["bizProcessInstanceId"] = rows[0].processInstanceId;
-        param["bizProcessDefinitionId"] = rows[0].processDefinitionId;
+        param["bizProcessInstanceImgUrl"] = '<#config name="bpmc.server.address"/>/api/runtime/progress?processInstanceId='+rows[0].bizProcessInstanceId+'&processDefinitionId='+rows[0].bizProcessDefinitionId+"&"+Math.random();
+        param["bizProcessInstanceId"] = rows[0].bizProcessInstanceId;
+        param["bizProcessDefinitionId"] = rows[0].bizProcessDefinitionId;
         bs4pop.dialog({
             title: "业务流程",
             content: bui.util.HTMLDecode(template('bpmTpl', param)),
             closeBtn: true,
             backdrop : 'static',
-            width: '600px',
+            width: '1300px',
             btns: [
                 {label: '关闭', className: 'btn-secondary', onClick(e) {}}
             ]

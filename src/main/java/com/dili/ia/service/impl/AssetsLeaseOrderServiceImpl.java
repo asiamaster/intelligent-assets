@@ -1,7 +1,6 @@
 package com.dili.ia.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
@@ -13,9 +12,6 @@ import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
-import com.dili.ia.domain.dto.printDto.LeaseOrderItemPrintDto;
-import com.dili.ia.domain.dto.printDto.LeaseOrderPrintDto;
-import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
@@ -31,12 +27,10 @@ import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.settlement.domain.SettleOrder;
-import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.InvalidRequestDto;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
-import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -64,9 +58,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -182,13 +174,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             /**
              * 启动租赁业务流程
              */
-            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_BOOTH_LEASE_ORDER_PROCESS, bizNumberOutput.getData(), userTicket.getId().toString(), new HashMap<>(1));
-            if (!processInstanceMappingBaseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
-            }
-            //设置流程定义和实例id，后面会更新到租赁单表
-            dto.setBizProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
-            dto.setBizProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
+//            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_BOOTH_LEASE_ORDER_PROCESS, bizNumberOutput.getData(), userTicket.getId().toString(), new HashMap<>(1));
+//            if (!processInstanceMappingBaseOutput.isSuccess()) {
+//                throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+//            }
+//            //设置流程定义和实例id，后面会更新到租赁单表
+//            dto.setBizProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
+//            dto.setBizProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
             dto.setCode(bizNumberOutput.getData());
             dto.setState(LeaseOrderStateEnum.CREATED.getCode());
             dto.setPayState(PayStateEnum.NOT_PAID.getCode());
@@ -290,33 +282,32 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
         }
 
-        //根据第一个摊位的所属区域来确认审批人
-//        Long districtId = leaseOrderItems.get(0).getDistrictId();
         Map<String, Object> variables = new HashMap<>();
         variables.put("customerName", leaseOrder.getCustomerName());
-        //支付金额 = 总金额 + 摊位保证金合计 - 定金抵扣 - 转抵抵扣, 用于任务标题展示
+        //wm:支付金额 = 总金额 + 摊位保证金合计 - 定金抵扣 - 转抵抵扣, 用于任务标题展示
         Long payAmount = leaseOrder.getTotalAmount() + depositAmount - leaseOrder.getEarnestDeduction() - leaseOrder.getTransferDeduction();
         variables.put("payAmount", String.valueOf(payAmount/100));
         variables.put("businessKey", leaseOrder.getCode());
         variables.put("firmId", userTicket.getFirmId().toString());
+        //wm:重新提交审批时清空旧的审批流程
         if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
-            //发送消息通知流程
-            BaseOutput<String> baseOutput = eventRpc.signal(leaseOrder.getProcessInstanceId(), "reapply", variables);
-            if (!baseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+            BaseOutput output = runtimeRpc.stopProcessInstanceById(leaseOrder.getProcessInstanceId(), "重新提交审批");
+            if (!output.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "重新提交审批时清空旧的审批流程失败:"+ output.getMessage());
             }
-        }else {
-            /**
-             * 启动租赁审批流程
-             */
-            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_RENTAL_APPROVAL_PROCESS, leaseOrder.getCode(), userTicket.getId().toString(), variables);
-            if (!processInstanceMappingBaseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
-            }
-            //设置流程定义和实例id，后面会更新到租赁单表
-            leaseOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
-            leaseOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
         }
+
+        /**
+         * wm:启动租赁审批流程
+         */
+        BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_RENTAL_APPROVAL_PROCESS, leaseOrder.getCode(), userTicket.getId().toString(), variables);
+        if (!processInstanceMappingBaseOutput.isSuccess()) {
+            throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+        }
+        //wm:设置流程定义和实例id，后面会更新到租赁单表
+        leaseOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
+        leaseOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
+
         try {
             /**
              * 冻结定金和转抵
