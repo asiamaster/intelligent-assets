@@ -1,19 +1,23 @@
 package com.dili.ia.provider;
 
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.RefundTypeEnum;
+import com.dili.ia.rpc.SettlementRpc;
+import com.dili.settlement.domain.SettleConfig;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;
 import com.dili.ss.metadata.ValueProvider;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * <B>Description</B>
@@ -25,30 +29,36 @@ import java.util.stream.Stream;
  */
 @Component
 public class RefundTypeProvider implements ValueProvider {
-    private static final ThreadLocal<List<ValuePair<?>>> valuePairsTL = new ThreadLocal<>() {
-        @Override
-        protected List<ValuePair<?>> initialValue() {
-            return Stream.of(RefundTypeEnum.values())
-                    .map(e -> new ValuePairImpl<>(e.getName(), e.getCode().toString()))
-                    .collect(Collectors.toList());
-        }
-    };
+    private final static Logger LOG = LoggerFactory.getLogger(RefundTypeProvider.class);
+    @Autowired
+    private SettlementRpc settlementRpc;
 
     @Override
-    public List<ValuePair<?>> getLookupList(Object o, Map map, FieldMeta fieldMeta) {
-        return valuePairsTL.get();
+    public List<ValuePair<?>> getLookupList(Object val, Map metaMap, FieldMeta fieldMeta) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        List<ValuePair<?>> buffer = new ArrayList<ValuePair<?>>();
+        try {
+            BaseOutput<List<SettleConfig>> settleOutput = settlementRpc.listEnableRefundWay(userTicket.getFirmId());
+            if (settleOutput.isSuccess()){
+                if (CollectionUtils.isNotEmpty(settleOutput.getData())){
+                    settleOutput.getData().forEach(o->{
+                        buffer.add(new ValuePairImpl(o.getVal(), o.getCode()));
+                    });
+                    return buffer;
+                }else {
+                    LOG.info("调用结算，获取市场[{}]退款方式，数据为空！", userTicket.getFirmName());
+                }
+            }else {
+                LOG.info("调用结算，获取市场[{}]退款方式，返回失败[{}]！", userTicket.getFirmName(), settleOutput.getMessage());
+            }
+        }catch (Exception e){
+            LOG.error("调用结算，获取市场[{}]退款方式，结算服务异常！", userTicket.getFirmName());
+        }
+        return buffer;
     }
 
     @Override
-    public String getDisplayText(Object object, Map map, FieldMeta fieldMeta) {
-        if (null == object) {
-            return null;
-        }
-
-        ValuePair<?> valuePair = valuePairsTL.get().stream().filter(val -> object.toString().equals(val.getValue())).findFirst().orElseGet(null);
-        if (null != valuePair) {
-            return valuePair.getText();
-        }
+    public String getDisplayText(Object obj, Map metaMap, FieldMeta fieldMeta) {
         return null;
     }
 }

@@ -59,12 +59,48 @@
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
         _grid.bootstrapTable('refreshOptions', {url: '/leaseOrder/listPage.action',pageSize: parseInt(size)});
+        document.addEventListener("keyup",getKey,false);
     });
 
 
     /******************************驱动执行区 end****************************/
 
     /*****************************************函数区 begin************************************/
+    //全局按键事件
+    function getKey(e){
+        e = e || window.event;
+        var keycode = e.which ? e.which : e.keyCode;
+        //如果按下ctrl+alt+r，弹出快捷执行窗口
+        if(e.ctrlKey && e.altKey && keycode == 82){
+            openBpm();
+        }
+    }
+
+    /**
+     * 打开业务流程编号框
+     */
+    function openBpm() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            return;
+        }
+        var param = {};
+        param["bizProcessInstanceImgUrl"] = '<#config name="bpmc.server.address"/>/api/runtime/progress?processInstanceId='+rows[0].processInstanceId+'&processDefinitionId='+rows[0].processDefinitionId+"&"+Math.random();
+        param["bizProcessInstanceId"] = rows[0].processInstanceId;
+        param["bizProcessDefinitionId"] = rows[0].processDefinitionId;
+        bs4pop.dialog({
+            title: "业务流程",
+            content: bui.util.HTMLDecode(template('bpmTpl', param)),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '600px',
+            btns: [
+                {label: '关闭', className: 'btn-secondary', onClick(e) {}}
+            ]
+        });
+    }
+
     /**
      * 打开新增窗口
      */
@@ -92,16 +128,41 @@
             return;
         }
 
-        dia = bs4pop.dialog({
-            title: '修改租赁',
-            content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
-            isIframe : true,
-            closeBtn: true,
-            backdrop : 'static',
-            width: '95%',
-            height : '95%',
-            btns: []
+        $.ajax({
+            type: "post",
+            url: "/leaseOrder/batchQueryDepositOrder.action",
+            data: {businessId:rows[0].id,bizType: $('#bizType').val()},
+            dataType: "json",
+            success: function (ret) {
+                if(ret.success){
+                    let depositOrders = ret.data;
+                    if(depositOrders.length > 0){
+                        for (let depositOrder of depositOrders){
+                            if (depositOrder.state == ${@com.dili.ia.glossary.DepositOrderStateEnum.PAID.getCode()}) {
+                                bs4pop.alert('对应补交保证金已交费不能修改，请取消后重新录入');
+                                return;
+                            }
+                        }
+                    }
+
+                    dia = bs4pop.dialog({
+                        title: '修改租赁',
+                        content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
+                        isIframe : true,
+                        closeBtn: true,
+                        backdrop : 'static',
+                        width: '95%',
+                        height : '95%',
+                        btns: []
+                    });
+                }
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
         });
+
+
     }
 
     /**
@@ -293,6 +354,57 @@
             }
 
         })
+
+    }
+
+    /**
+     * 打开作废Handler
+     */
+    function openInvalidHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        let selectedRow = rows[0];
+        bs4pop.dialog({
+            title: '作废',
+            content: template('invalidTpl',{}),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '40%',
+            btns: [
+                {
+                    label: '确定', className: 'btn-primary', onClick: bui.util.debounce(function () {
+                        if (!$('#invalidForm').valid()) {
+                            return false;
+                        }
+                        bui.loading.show('努力提交中，请稍候。。。');
+                        $.ajax({
+                            type: "POST",
+                            url: "${contextPath}/leaseOrder/invalidOrder.action",
+                            data: {id: selectedRow.id,invalidReason : $('#invalidReason').val()},
+                            dataType: "json",
+                            success : function(data) {
+                                bui.loading.hide();
+                                if(data.success){
+                                    queryDataHandler();
+                                } else {
+                                    bs4pop.alert(data.result, {type: 'error'});
+                                }
+                            },
+                            error : function() {
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
+                    }, 1000, true)
+                },
+                {label: '取消', className: 'btn-secondary', onClick(e) {}}
+            ]
+        });
 
     }
 
@@ -546,6 +658,62 @@
     }
 
     /**
+     * 打开作废Handler
+     */
+    function openPrintHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        bs4pop.dialog({
+            title: '业务打印',
+            content: template('printTpl',rows[0]),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '400',
+            btns: [
+                {
+                    label: '打印', className: 'btn-primary', onClick: bui.util.debounce(function () {
+                        if (typeof (callbackObj) === "undefined") {
+                            return;
+                        }
+                        let url;
+                        let noteType = $("input[name='noteType']:checked").val();
+                        bui.loading.show('努力打印中，请稍候。。。');
+                        if (noteType == 1) {
+                            url = "/api/leaseOrder/queryPrintLeaseContractSigningBillData?leaseOrderId="+$('#id').val();
+                        } else {
+                            url = "/api/leaseOrder/queryPrintLeasePaymentBillData?leaseOrderId="+$('#id').val();
+                        }
+                        $.ajax({
+                            type: "get",
+                            url: url,
+                            dataType: "json",
+                            success : function(result) {
+                                bui.loading.hide();
+                                if(result.success){
+                                    callbackObj.boothPrintPreview(JSON.stringify(result.data.item), result.data.name);
+                                } else {
+                                    bs4pop.alert(result.message, {type: 'error'});
+                                }
+                            },
+                            error : function() {
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
+                    }, 1000, true)
+                },
+                {label: '取消', className: 'btn-secondary', onClick(e) {}}
+            ]
+        });
+
+    }
+
+    /**
      * 查询处理
      */
     function queryDataHandler() {
@@ -673,13 +841,57 @@
 
     //选中行事件
     _grid.on('check.bs.table', function (e, row, $element) {
-        // let newIndex = $element.parents('tr').data('index');
-        // if (currentSelectRowIndex !== newIndex) {
-        //     _grid.bootstrapTable('collapseRow', currentSelectRowIndex);
-        //     _grid.bootstrapTable('expandRow', newIndex);
-        //     currentSelectRowIndex = newIndex;
-        // }
+        let state = row.$_state;
+        //审批状态
+        let approvalState = row.$_approvalState;
+        //先禁用所有按键
+        $('#toolbar button').attr('disabled', true);
+        //允许新增和查看按钮
+        $('#btn_add').attr('disabled', false);
+        $('#btn_view').attr('disabled', false);
+        //只要有流程实例id就可以查看流程图
+        if(row.processInstanceId) {
+            $("#btn_showProgress").attr('disabled', false);
+        }
 
+        if(row.bizProcessInstanceId){
+            var url = "${contextPath}/leaseOrder/listEventName.action";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {bizProcessInstanceId: row.bizProcessInstanceId, state: row.$_state, approvalState: approvalState},
+                processData: true,
+                dataType: "json",
+                async: true,
+                success: function (output) {
+                    bui.loading.hide();
+                    if (output.success) {
+                        for(var i in output.data){
+                            //根据事件名的class启用按钮
+                            $("."+output.data[i]).attr('disabled', false);
+                        }
+                        _grid.bootstrapTable('refresh');
+                        _modal.modal('hide');
+                    } else {
+                        bs4pop.alert(output.result, {type: 'error'});
+                    }
+                },
+                error: function (a, b, c) {
+                    bui.loading.hide();
+                    bs4pop.alert('远程访问失败', {type: 'error'});
+                }
+            });
+        }else{
+            defaultBizProcess(row);
+        }
+
+
+    });
+
+    /**
+     * 没有业务流程实例id时的兜底方案
+     */
+    function defaultBizProcess(row) {
         let state = row.$_state;
         //审批状态
         let approvalState = row.$_approvalState;
@@ -692,14 +904,14 @@
                 $('#btn_approval').attr('disabled', false);
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
-                <#resource code="skipAssetsLeaseApproval">
+            <#resource code="skipAssetsLeaseApproval">
                     $('#btn_submit').attr('disabled', false);
-                </#resource>
+            </#resource>
             }
             //审批中不允许修改、取消和提交付款
             else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.IN_REVIEW.getCode()}) {
             }
-            //审批通过后不能修改和取消，可以提交付款
+            //审批通过后不能修改，可以提交付款和取消
             else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
                 $('#btn_submit').attr('disabled', false);
             }
@@ -708,11 +920,11 @@
                 $('#btn_approval').attr('disabled', false);
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
-                <#resource code="skipAssetsLeaseApproval">
+            <#resource code="skipAssetsLeaseApproval">
                     $('#btn_submit').attr('disabled', false);
-                </#resource>
+            </#resource>
             }
-        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.INVALIDATED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
@@ -720,10 +932,14 @@
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
+            $('#btn_cancel').attr('disabled', false);
             if(row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){
                 $('#btn_submit').attr('disabled', false);
             }
-            $('#btn_withdraw').attr('disabled', false);
+            //审批通过后，只有待审批和审批拒绝的订单可以撤回
+            if(approvalState != ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
+                $('#btn_withdraw').attr('disabled', false);
+            }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
             || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}) {
             $('#toolbar button').attr('disabled', true);
@@ -731,6 +947,9 @@
             $('#btn_add').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
+            if (row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}) {
+                $('#btn_invalid').attr('disabled', false);
+            }
             //未开票才显示开票按钮
             if(row.$_isInvoice != 1){
                 $('#btn_invoice').attr('disabled', false);
@@ -754,12 +973,18 @@
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
                 $('#btn_submit').attr('disabled', false);
             }
+            if (row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}) {
+                $('#btn_invalid').attr('disabled', false);
+            }
         }else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
+            if (row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}) {
+                $('#btn_invalid').attr('disabled', false);
+            }
             //未开票才显示开票按钮
             if(row.$_isInvoice != 1){
                 $('#btn_invoice').attr('disabled', false);
@@ -770,10 +995,7 @@
                 $('#btn_submit').attr('disabled', false);
             }
         }
-        //只能有流程实例id就可以查看流程图
-        if(row.processInstanceId) {
-            $("#btn_showProgress").attr('disabled', false);
-        }
-    });
+        $('#btn_print').attr('disabled', false);
+    }
     /*****************************************自定义事件区 end**************************************/
 </script>

@@ -59,7 +59,7 @@ public class AssetsLeaseOrderItemController {
 
         List results = ValueProviderUtils.buildDataByProvider(leaseOrderItem,assetsLeaseOrderItemListDtos);
         long total = assetsLeaseOrderItems instanceof Page ? ((Page) assetsLeaseOrderItems).getTotal() : assetsLeaseOrderItems.size();
-        return new EasyuiPageOutput(Integer.parseInt(String.valueOf(total)), results).toString();
+        return new EasyuiPageOutput(total, results).toString();
     }
 
     /**

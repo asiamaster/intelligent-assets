@@ -3,6 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.EarnestTransferDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -92,19 +93,6 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * */
     BaseOutput paySuccessLeaseOrderCustomerAmountConsume(Long orderId, String orderCode, Long customerId, Long earnestDeduction, Long transferDeduction, Long marketId, Long operaterId, String operatorName);
     /**
-     * 摊位租赁【退款转抵成功】-- 客户账户转抵余额加， 及相应流水变动记录
-     * @param bizType 业务类型，取自枚举【BizTypeEnum】 的 code
-     * @param orderId 产生转抵金额的【租赁退款单】订单ID
-     * @param orderCode 产生转抵金额的【租赁退款单】订单编号
-     * @param customerId 客户ID
-     * @param amount 转抵金额
-     * @param marketId 市场ID
-     * @param operaterId 操作员ID
-     * @param operatorName 操作员名字
-     * @return BaseOutput
-     * */
-    BaseOutput rechargTransfer(String bizType, Long orderId, String orderCode, Long customerId, Long amount, Long marketId, Long operaterId, String operatorName);
-    /**
      * 客户账户 -- 冻结定金， 定金【冻结金额】加，【可用余额】减，【余额】不变
      * @param customerId 客户ID
      * @param marketId 市场ID
@@ -121,14 +109,6 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * */
     void unfrozenEarnest(Long customerId, Long marketId, Long amount);
     /**
-     * 客户账户 定金单付款成功-- 【定金可用余额】 和 【定金余额】增加
-     * @param customerId 客户ID
-     * @param marketId 市场ID
-     * @param amount 付款成功金额
-     * @return
-     * */
-    void paySuccessEarnest(Long customerId, Long marketId, Long amount);
-    /**
      * 客户账户 定金单退款成功-- 实际是解冻 和 退款扣除。定金【定金可用余额】不变 ， 【定金余额】减少，【冻结金额】减少
      * @param customerId 客户ID
      * @param marketId 市场ID
@@ -136,15 +116,26 @@ public interface CustomerAccountService extends BaseService<CustomerAccount, Lon
      * @return
      * */
     void refundSuccessEarnest(Long customerId, Long marketId, Long amount);
-
     /**
-     * 定金，转抵老数据处理 --- 清除【未交清】并且缴费过一次，【未退款】租赁单， 如果使用了定金 或者 转抵的钱，清楚租赁单 需要退还 使用的 【定金 或者 转抵的金额】
-     * @param orderId 订单Id
-     * @param customerId 客户ID
-     * @param marketId 市场ID
-     * @param earnestAmount 定金退还金额
-     * @param transferAmount 转抵退还金额
+     * 客户账户 转抵扣【转抵扣可用余额】 和 【转抵扣余额】增加, 及相应流水变动记录
+     * @param customerAccountParam 对象参数，所有字段必填
+     * @return BaseOutput
+     * */
+    BaseOutput rechargeTransferBalance(CustomerAccountParam customerAccountParam);
+    /**
+     * 客户账户 定金【定金可用余额】 和 【定金余额】增加, 及相应流水变动记录
+     * @param customerAccountParam 对象参数，所有字段必填
+     * @return BaseOutput
      * @return
      * */
-    void oldDataHandler(Long orderId, Long customerId, Long marketId, Long earnestAmount, Long transferAmount);
+    BaseOutput rechargeEarnestBalance(CustomerAccountParam customerAccountParam);
+
+    /**
+     * 客户账户 定金【定金可用余额】 和 【定金余额】扣减, 及相应流水变动记录
+     * @param customerAccountParam 对象参数，所有字段必填
+     * @return BaseOutput
+     * @return
+     * */
+    BaseOutput deductEarnestBalance(CustomerAccountParam customerAccountParam);
+
 }

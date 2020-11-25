@@ -196,6 +196,38 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
     @Column(name = "`canceler`")
     private String canceler;
 
+    /**
+     * 作废人
+     */
+    @Column(name = "`invalid_operator_id`")
+    private Long invalidOperatorId;
+
+    @Column(name = "`invalid_operator`")
+    private String invalidOperator;
+
+    /**
+     * 作废时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "`invalid_time`")
+    private LocalDateTime invalidTime;
+
+    /**
+     * 作废原因
+     */
+    @Column(name = "`invalid_reason`")
+    private String invalidReason;
+
+    /**
+     * 管理员ID
+     */
+    @Column(name = "`manager_id`")
+    private Long managerId;
+
+    @Column(name = "`manager`")
+    private String manager;
+
     @Column(name = "`notes`")
     private String notes;
 
@@ -244,6 +276,18 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
      */
     @Column(name = "`process_definition_id`")
     private String processDefinitionId;
+
+    /**
+     * 业务流程实例ID
+     */
+    @Column(name = "`biz_process_instance_id`")
+    private String bizProcessInstanceId;
+
+    /**
+     * 业务流程定义ID
+     */
+    @Column(name = "`biz_process_definition_id`")
+    private String bizProcessDefinitionId;
 
     /**
      * 审批状态
@@ -551,6 +595,54 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
         this.canceler = canceler;
     }
 
+    public Long getInvalidOperatorId() {
+        return invalidOperatorId;
+    }
+
+    public void setInvalidOperatorId(Long invalidOperatorId) {
+        this.invalidOperatorId = invalidOperatorId;
+    }
+
+    public String getInvalidOperator() {
+        return invalidOperator;
+    }
+
+    public void setInvalidOperator(String invalidOperator) {
+        this.invalidOperator = invalidOperator;
+    }
+
+    public LocalDateTime getInvalidTime() {
+        return invalidTime;
+    }
+
+    public void setInvalidTime(LocalDateTime invalidTime) {
+        this.invalidTime = invalidTime;
+    }
+
+    public String getInvalidReason() {
+        return invalidReason;
+    }
+
+    public void setInvalidReason(String invalidReason) {
+        this.invalidReason = invalidReason;
+    }
+
+    public Long getManagerId() {
+        return managerId;
+    }
+
+    public void setManagerId(Long managerId) {
+        this.managerId = managerId;
+    }
+
+    public String getManager() {
+        return manager;
+    }
+
+    public void setManager(String manager) {
+        this.manager = manager;
+    }
+
     public String getNotes() {
         return notes;
     }
@@ -679,5 +771,21 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
     @Override
     public void setCheckInjection(Boolean checkInjection) {
         this.checkInjection = checkInjection;
+    }
+
+    public String getBizProcessInstanceId() {
+        return bizProcessInstanceId;
+    }
+
+    public void setBizProcessInstanceId(String bizProcessInstanceId) {
+        this.bizProcessInstanceId = bizProcessInstanceId;
+    }
+
+    public String getBizProcessDefinitionId() {
+        return bizProcessDefinitionId;
+    }
+
+    public void setBizProcessDefinitionId(String bizProcessDefinitionId) {
+        this.bizProcessDefinitionId = bizProcessDefinitionId;
     }
 }

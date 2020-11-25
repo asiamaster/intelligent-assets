@@ -157,7 +157,7 @@ public class EarnestOrderController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
         if (CollectionUtils.isEmpty(departmentIdList)){
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+            return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
         }
         earnestOrderListDto.setMarketId(userTicket.getFirmId());
         earnestOrderListDto.setDepartmentIds(departmentIdList);
@@ -307,6 +307,30 @@ public class EarnestOrderController {
         } catch (Exception e) {
             LOG.error("cancel 定金单取消出错!" ,e);
             return BaseOutput.failure("取消出错！");
+        }
+    }
+    /**
+     * 定金管理--作废
+     * @param id
+     * @return BaseOutput
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.EARNEST_ORDER, operationType="invalid", systemCode = "IA")
+    @RequestMapping(value="/invalid.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput invalid(Long id, String invalidReason) {
+        try {
+            BaseOutput<EarnestOrder> output = earnestOrderService.invalidEarnestOrder(id, invalidReason);
+            if (output.isSuccess()){
+                EarnestOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), invalidReason);
+            }
+            return output;
+        } catch (BusinessException e) {
+            LOG.error("定金单作废出错！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("invalid 定金作废回出错!" ,e);
+            return BaseOutput.failure("作废出错！");
         }
     }
 }

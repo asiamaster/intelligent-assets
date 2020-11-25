@@ -38,6 +38,8 @@ public class LeaseOrderPrintDto {
     private String notes;
     //总金额
     private String totalAmount;
+    //保证金转抵
+    private String depositDeduction;
     //定金转抵
     private String earnestDeduction;
     //转抵扣
@@ -46,6 +48,8 @@ public class LeaseOrderPrintDto {
     private String payAmount;
     //本次付款金额
     private String amount;
+    //待付金额
+    private String waitAmount;
     //结算方式
     private String settlementWay;
     //结算详情
@@ -58,6 +62,8 @@ public class LeaseOrderPrintDto {
     private List<LeaseOrderItemPrintDto> leaseOrderItems;
     //全量收费项
     private List<BusinessChargeItemDto> chargeItems;
+    //管理员
+    private String manager;
 
     public LocalDate getPrintTime() {
         return printTime;
@@ -155,6 +161,14 @@ public class LeaseOrderPrintDto {
         this.totalAmount = totalAmount;
     }
 
+    public String getDepositDeduction() {
+        return depositDeduction;
+    }
+
+    public void setDepositDeduction(String depositDeduction) {
+        this.depositDeduction = depositDeduction;
+    }
+
     public String getEarnestDeduction() {
         return earnestDeduction;
     }
@@ -185,6 +199,14 @@ public class LeaseOrderPrintDto {
 
     public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    public String getWaitAmount() {
+        return waitAmount;
+    }
+
+    public void setWaitAmount(String waitAmount) {
+        this.waitAmount = waitAmount;
     }
 
     public String getSettlementWay() {
@@ -233,5 +255,13 @@ public class LeaseOrderPrintDto {
 
     public void setChargeItems(List<BusinessChargeItemDto> chargeItems) {
         this.chargeItems = chargeItems;
+    }
+
+    public String getManager() {
+        return manager;
+    }
+
+    public void setManager(String manager) {
+        this.manager = manager;
     }
 }

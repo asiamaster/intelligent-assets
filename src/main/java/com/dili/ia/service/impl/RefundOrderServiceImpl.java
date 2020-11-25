@@ -4,14 +4,15 @@ import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.domain.TaskMapping;
+import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.ApprovalProcess;
-import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.account.AccountInfo;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.RefundOrderPrintDto;
@@ -20,6 +21,7 @@ import com.dili.ia.mapper.AssetsLeaseOrderItemMapper;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
+import com.dili.ia.service.AccountService;
 import com.dili.ia.service.ApprovalProcessService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.RefundOrderService;
@@ -50,6 +52,8 @@ import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.Serializers;
+import org.codehaus.jackson.map.util.ISO8601Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +64,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +103,9 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @SuppressWarnings("all")
     @Autowired
     private TaskRpc taskRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    private EventRpc eventRpc;
     @Autowired
     private AssetsRpc assetsRpc;
     @Autowired
@@ -108,6 +116,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     private String settlerHandlerUrl;
     @Autowired
     private UserResourceRedis userResourceRedis;
+    @Autowired
+    private AccountService accountService;
     @Autowired @Lazy
     private List<RefundOrderDispatcherService> refundBizTypes;
     private Map<String,RefundOrderDispatcherService> refundBiz = new HashMap<>();
@@ -121,7 +131,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
     }
 
-
     @Override
     @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER,operationType="add",systemCode = "IA")
     public BaseOutput doAddHandler(RefundOrder order) {
@@ -132,6 +141,13 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         BaseOutput checkResult = checkParams(order);
         if (!checkResult.isSuccess()){
             return checkResult;
+        }
+        if (!(SettleWayEnum.BANK.getCode() == order.getRefundType())) {
+            order.setBank(null);
+            order.setBankCardNo(null);
+        }
+        if (!(SettleWayEnum.CARD.getCode() == order.getRefundType())) {
+            order.setTradeCardNo(null);
         }
         order.setCreator(userTicket.getRealName());
         order.setCreatorId(userTicket.getId());
@@ -180,9 +196,20 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if (userTicket == null){
             return BaseOutput.failure("未登录！");
         }
-        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
+        if (!(RefundOrderStateEnum.CREATED.getCode().equals(refundOrder.getState()) || RefundOrderStateEnum.SUBMITTED.getCode().equals(refundOrder.getState()))) {
             return BaseOutput.failure("取消失败，退款单状态已变更！");
         }
+
+        //已提交取消操作 需要把退款结算单撤回
+        if (RefundOrderStateEnum.SUBMITTED.getCode().equals(refundOrder.getState())) {
+            //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
+            BaseOutput<String> out= settlementRpc.cancel(settlementAppId, refundOrder.getCode());
+            if (!out.isSuccess()){
+                LOG.info("撤回调用结算中心失败！" + out.getMessage() + out.getErrorData());
+                throw new BusinessException(ResultCode.DATA_ERROR, "撤回调用结算中心失败！" + out.getMessage());
+            }
+        }
+        int currentState = refundOrder.getState();
         refundOrder.setCancelerId(userTicket.getId());
         refundOrder.setCanceler(userTicket.getRealName());
         refundOrder.setState(EarnestOrderStateEnum.CANCELD.getCode());
@@ -196,14 +223,30 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
             }
         }
-        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
+        //有流程实例id，并且是创建状态，才触发流程取消
+        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId()) && currentState == RefundOrderStateEnum.CREATED.getCode()) {
             //发送消息通知流程终止
-            BaseOutput<String> baseOutput = taskRpc.messageEventReceived("terminate", refundOrder.getProcessInstanceId(), null);
+            BaseOutput<String> baseOutput = eventRpc.messageEventReceived("terminate", refundOrder.getProcessInstanceId(), null);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
         }
         return BaseOutput.success();
+    }
+
+    private BaseOutput checkCard(Long customerId, String tradeCardNo){
+        BaseOutput<AccountInfo> output = accountService.checkCardNo(tradeCardNo);
+        if (output.isSuccess()){
+            AccountInfo accountInfo = output.getData();
+            if (accountInfo != null && accountInfo.getCustomerId().equals(customerId)){
+                return BaseOutput.success();
+            }else {
+                LOG.info("退款单提交：园区卡卡号tradeCardNo={}与客户信息customerId={}不匹配！", tradeCardNo,customerId);
+                return BaseOutput.failure("园区卡与客户信息不匹配！");
+            }
+        }else{
+            return BaseOutput.failure(output.getMessage());
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -216,6 +259,13 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
+        }
+        //园区卡退款，检查退款人 与 退款园区卡是否匹配
+        if(refundOrder.getRefundType() != null && refundOrder.getRefundType().equals(SettleWayEnum.CARD.getCode())){
+            BaseOutput output = this.checkCard(refundOrder.getPayeeId(), refundOrder.getTradeCardNo());
+            if (!output.isSuccess()){
+                return output;
+            }
         }
         //记录当前审批状态，用于判断是否直接提交，而需要清空流程
         Integer approvalState = refundOrder.getApprovalState();
@@ -233,8 +283,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         refundOrder.setSubmitTime(LocalDateTime.now());
         refundOrder.setSubmitterId(userTicket.getId());
         refundOrder.setSubmitter(userTicket.getRealName());
-        //提交审批后，默认为审批通过
-        refundOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
+        //提交时判断如果没有审批过则是待提审批，否则不处理审批状态
+        if(refundOrder.getApprovalState() == null) {
+            refundOrder.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
+        }
         if (refundOrderService.updateSelective(refundOrder) == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
         }
@@ -313,6 +365,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setBankName(ro.getBank());
         settleOrder.setBankCardHolder(ro.getPayee());
         settleOrder.setWay(ro.getRefundType());
+        settleOrder.setTradeCardNo(ro.getTradeCardNo());
 
         settleOrder.setBusinessDepId(ro.getDepartmentId()); //"业务部门ID
         settleOrder.setBusinessDepName(ro.getDepartmentName());//"业务部门名称
@@ -339,7 +392,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @GlobalTransactional
     @Override
     public BaseOutput doWithdrawDispatcher(RefundOrder refundOrder) {
-        if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode())){
+        if (!refundOrder.getState().equals(RefundOrderStateEnum.SUBMITTED.getCode()) || ApprovalStateEnum.APPROVED.getCode().equals(refundOrder.getApprovalState())){
             return BaseOutput.failure("撤回失败，状态已变更！请刷新");
         }
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -430,6 +483,14 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //检查客户状态
         checkCustomerState(refundOrder.getPayeeId(), oldOrder.getMarketId());
         refundOrder.setVersion(oldOrder.getVersion());
+
+        if (!(SettleWayEnum.BANK.getCode() == refundOrder.getRefundType())) {
+            refundOrder.setBank(null);
+            refundOrder.setBankCardNo(null);
+        }
+        if (!(SettleWayEnum.CARD.getCode() == refundOrder.getRefundType())) {
+            refundOrder.setTradeCardNo(null);
+        }
         //全部修改，为空字段会修改为空
         if (refundOrderService.update(refundOrder) == 0) {
             LOG.info("退款单修改--更新退款单状态记录数为0，多人操作，请重试！");
@@ -502,9 +563,17 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
             }
         }
+        /**
+         * 启动租赁审批流程
+         */
+        Map<String, Object> variables = new HashMap<>(8);
+        variables.put("businessKey", refundOrder.getCode());
+        variables.put("firmId", userTicket.getFirmId().toString());
+        variables.put("customerName", refundOrder.getCustomerName());
+        variables.put("payAmount", String.valueOf(refundOrder.getTotalRefundAmount()/100));
         if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
             //发送消息通知流程
-            BaseOutput<String> baseOutput = taskRpc.signal(refundOrder.getProcessInstanceId(), "reapply", null);
+            BaseOutput<String> baseOutput = eventRpc.signal(refundOrder.getProcessInstanceId(), "reapply", variables);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
@@ -513,12 +582,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 //        AssetsLeaseOrderItem assetsLeaseOrderItem = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId());
 //        Map<String, Object> variables = new HashMap<>();
 //        variables.put("districtId", assetsLeaseOrderItem.getDistrictId().toString());
-            /**
-             * 启动租赁审批流程
-             */
-            Map<String, Object> variables = new HashMap<>(4);
-            variables.put("businessKey", refundOrder.getCode());
-            variables.put("firmId", userTicket.getFirmId().toString());
+
             BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS, refundOrder.getCode(), userTicket.getId().toString(), variables);
             if (!processInstanceMappingBaseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
@@ -695,7 +759,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         roPrintDto.setPrintTime(DateUtils.format(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss"));
         roPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         roPrintDto.setCode(refundOrder.getCode());
-
         roPrintDto.setCustomerName(refundOrder.getCustomerName());
         roPrintDto.setCustomerCellphone(refundOrder.getCustomerCellphone());
         roPrintDto.setRefundReason(refundOrder.getRefundReason());
@@ -707,8 +770,34 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         roPrintDto.setPayeeAmount(MoneyUtils.centToYuan(refundOrder.getPayeeAmount()));
         roPrintDto.setBank(refundOrder.getBank());
         roPrintDto.setBankCardNo(refundOrder.getBankCardNo());
+        roPrintDto.setTradeCardNo(refundOrder.getTradeCardNo());
+        roPrintDto.setTradeCustomerName(refundOrder.getPayee()); // 退款人默认就是退款客户所以园区卡客户即为退款客户
         roPrintDto.setRefundType(SettleWayEnum.getNameByCode(refundOrder.getRefundType()));
+        //根据退款方式组装退款对应方式详情信息
+        roPrintDto.setSettleWayDetails(this.buildSettleWayDetails(refundOrder));
         return roPrintDto;
+    }
+    /**
+     * 票据获取结算详情
+     * 现金结算详情格式 :
+     * 园区卡支付，结算详情格式：   园区卡号：8838247888
+     * 银行卡 ，结算详情格式：     开户行：工商银行 银行卡号：62172736264789001
+     * @param refundOrder 退款单
+     * @return
+     * */
+    private String buildSettleWayDetails(RefundOrder refundOrder){
+        if (refundOrder.getRefundType().equals(SettleWayEnum.BANK.getCode())){
+            StringBuffer settleWayDetails = new StringBuffer();
+            settleWayDetails.append("开户行：").append(refundOrder.getBank()).append(" ");
+            settleWayDetails.append("银行卡号：").append(refundOrder.getBankCardNo());
+            return settleWayDetails.toString();
+        }else if (refundOrder.getRefundType().equals(SettleWayEnum.CARD.getCode())){
+            StringBuffer settleWayDetails = new StringBuffer();
+            settleWayDetails.append("园区卡号：").append(refundOrder.getTradeCardNo());
+            return settleWayDetails.toString();
+        }else {
+            return "";
+        }
     }
 
     public Map<String, RefundOrderDispatcherService> getRefundBiz() {

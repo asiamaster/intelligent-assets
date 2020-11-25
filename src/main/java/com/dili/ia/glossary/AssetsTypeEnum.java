@@ -36,6 +36,15 @@ public enum AssetsTypeEnum {
         return null;
     }
 
+    public static AssetsTypeEnum getAssetsTypeEnumByBizType(String bizType) {
+        for (AssetsTypeEnum anEnum : AssetsTypeEnum.values()) {
+            if (anEnum.getBizType().equals(bizType)) {
+                return anEnum;
+            }
+        }
+        return null;
+    }
+
     public Integer getCode() {
         return code;
     }

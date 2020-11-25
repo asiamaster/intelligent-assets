@@ -88,15 +88,63 @@
             }
         }
     }
+
+    //品类搜索自动完成
+    var userAutoCompleteOption = {
+        width: '100%',
+        language: 'zh-CN',
+        minimumInputLength: 1,
+        //格式化结果
+        templateResult: function (dataItem) {
+            return dataItem.text + (dataItem.cellphone ? '(' + dataItem.cellphone + ')' : '')
+        },
+        ajax: {
+            type:'get',
+            url: '/leaseOrder/queryUsers.action',
+            data: function (params) {
+                return {
+                    keyword: params.term,
+                }
+            },
+            processResults: function (result) {
+                if(result.success){
+                    let data = result.data;
+                    return {
+                        results: $.map(data, function (dataItem) {
+                            dataItem.text = dataItem.realName;
+                            return dataItem;
+                        })
+                    };
+                }else{
+                    bs4pop.alert(result.message, {type: 'error'});
+                    return;
+                }
+            }
+        }
+    }
     /*********************变量定义区 end***************/
 
 
     /******************************驱动执行区 begin***************************/
     $(function () {
-        //初始化刷卡
-        initSwipeCard({
+        //初始化刷身份证
+        initSwipeIdCard({
             id:'getCustomer',
             onLoadSuccess:function(customer){
+                //账户余额查询
+                queryCustomerAccount();
+                calcTotalAmount(true);
+            }
+        });
+
+        //初始化刷园区卡
+        initSwipeParkCard({
+            id:'icReader',
+            onLoadSuccess:function(customer){
+                $('#customerName').val(customer.name);
+                $('#customerId').val(customer.customerId);
+                $('#certificateNumber,#_certificateNumber').val(customer.customerCertificateNumber);
+                $('#customerCellphone').val(customer.customerContactsPhone);
                 //账户余额查询
                 queryCustomerAccount();
                 calcTotalAmount(true);
@@ -106,13 +154,19 @@
         //监听客户注册
         registerMsg();
 
+        <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
+            let startTime = moment("${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}").add(1,"days").format("YYYY-MM-DD");
+            //重新计算续租日期
+            $('#endTime').val(moment(startTime).add($('#days').val()-1,"days").format("YYYY-MM-DD"));
+        <% } %>
+
         laydate.render({
                 elem: '#startTime',
                 type: 'date',
                 theme: '#007bff',
                 trigger:'click',
             <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
-                value: moment("${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}").add(1,"days").format("YYYY-MM-DD"),
+                value: startTime,
             <% } else if(isEmpty(leaseOrder)){ %>
                 value: new Date(),
             <% }%>
@@ -136,11 +190,6 @@
             }
         });
 
-        <% if(isNotEmpty(isRenew) && isRenew == 1){ %>
-            //重新计算续租日期
-            $('#endTime').val(moment($('#startTime').val()).add($('#days').val()-1,"days").format("YYYY-MM-DD"));
-        <% } %>
-
         <% if(isNotEmpty(leaseOrderItems)){ %>
             itemIndex += ${leaseOrderItems.~size};
         <% }else{%>
@@ -151,7 +200,7 @@
 
         //账户余额查询
         queryCustomerAccount();
-        calcTotalAmount(true);
+
 
         let assetsIds = $("table input[name^='assetsId']").filter(function () {
             return this.value
@@ -160,8 +209,9 @@
         }).get();
         if(assetsIds.length > 0){
             batchQueryDepositBalance($('#assetsType').val(), $('#customerId').val(), assetsIds);
-            batchQueryDepositOrder({businessId:$('#id').val()});
+            $('#id').val() && batchQueryDepositOrder({businessId: $('#id').val(), bizType: $('#bizType').val()});
         }
+        calcTotalAmount(true);
     });
     /******************************驱动执行区 end****************************/
 
@@ -269,7 +319,11 @@
         $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
         $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
         batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
-        $('#id').val() && batchQueryDepositOrder({businessId:$('#id').val(),assetsId:suggestion.id});
+        $('#id').val() && batchQueryDepositOrder({
+            businessId: $('#id').val(),
+            bizType: $('#bizType').val(),
+            assetsId: suggestion.id
+        });
     }
 
     /**
@@ -312,6 +366,7 @@
             url: "/leaseOrder/batchQueryDepositOrder.action",
             data: depositOrderQuery,
             dataType: "json",
+            async: false,
             success: function (ret) {
                 if(ret.success){
                     let depositOrders = ret.data;
@@ -325,6 +380,7 @@
                             }
                         }
                     }
+                    calcTotalAmountAndDeposit(true);
                 }
             },
             error: function (a, b, c) {
@@ -383,18 +439,34 @@
 
     /**
      * 计算实付金额
+     * @param isCascadeCalc 是否级联计算加保证金后的实付金额
      * */
-    function calcPayAmount() {
+    function calcPayAmount(isCascadeCalc) {
         let earnestDeduction = Number($('#earnestDeduction').val());
         let transferDeduction = Number($('#transferDeduction').val());
         let totalAmount = Number($('#totalAmount').val());
         if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
             $('#payAmount').val((totalAmount.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).centToYuan());
         }
+
+        isCascadeCalc && calcPayAmountAndDeposit();
+    }
+
+    /**
+     * 计算实付金额+补交保证金
+     * */
+    function calcPayAmountAndDeposit() {
+        let earnestDeduction = Number($('#earnestDeduction').val());
+        let transferDeduction = Number($('#transferDeduction').val());
+        let totalAmountAndDeposit = Number($('#totalAmountAndDeposit').val());
+        if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
+            $('#payAmountAndDeposit').val((totalAmountAndDeposit.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).centToYuan());
+        }
     }
 
     /**
      * 计算合计金额
+     * @param isCascadeCalc 是否级联计算加保证金后的合计金额
      */
     function calcTotalAmount(isCascadeCalc) {
         let totalAmount = 0;
@@ -406,6 +478,28 @@
         $('#totalAmount').val(totalAmount.toFixed(2));
 
         isCascadeCalc && calcPayAmount();
+        calcTotalAmountAndDeposit(true);
+    }
+
+    /**
+     * 计算合计金额+补交保证金
+     * @param isCascadeCalc 是否级联计算加保证金后的实付金额
+     */
+    function calcTotalAmountAndDeposit(isCascadeCalc) {
+        let totalAmount = depositMakeUpAmount = 0;
+        $("table input[isCharge]").filter(function () {
+            return this.value;
+        }).each(function (i) {
+            totalAmount = Number(this.value).add(totalAmount);
+        });
+        $("table input[isDeposit]").filter(function () {
+            return this.value;
+        }).each(function (i) {
+            depositMakeUpAmount = Number(this.value).add(depositMakeUpAmount);
+        });
+        $('#totalAmountAndDeposit').val(totalAmount.add(depositMakeUpAmount).toFixed(2));
+
+        isCascadeCalc && calcPayAmountAndDeposit();
     }
 
 
@@ -477,7 +571,7 @@
      * @returns {boolean}
      */
     function saveFormHandler(){
-        let validator = $('#saveForm').validate({ignore:''})
+        let validator = $('#saveForm').validate({ignore: ''})
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
             $('.collapse:not(.show)').addClass('show');
@@ -486,22 +580,31 @@
 
         let assetsIds = $("table input[name^='assetsId']").filter(function () {
             return this.value
-        }).map(function(){
-            return $('#assetsId_'+getIndex(this.id)).val();
+        }).map(function () {
+            return $('#assetsId_' + getIndex(this.id)).val();
         }).get();
 
-        if(assetsIds.length == 0){
-            bs4pop.alert('请添加资产！')
+        if (assetsIds.length == 0) {
+            bs4pop.notice('请添加资产！', {position: 'leftcenter', type: 'danger'});
             return false;
         }
 
-        if(arrRepeatCheck(assetsIds)){
-            bs4pop.alert('存在重复资产，请检查！')
+        if (arrRepeatCheck(assetsIds)) {
+            bs4pop.notice('存在重复资产，请检查！', {position: 'leftcenter', type: 'danger'});
             return false;
         }
 
-        if(assetsIds.length > 10){
-            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'warning'});
+        if (assetsIds.length > 10) {
+            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'danger'});
+            return false;
+        }
+
+        let earnestDeduction = Number($('#earnestDeduction').val());
+        let transferDeduction = Number($('#transferDeduction').val());
+        let totalAmount = Number($('#totalAmount').val());
+        if (totalAmount < earnestDeduction.add(transferDeduction)) {
+            bs4pop.notice('抵扣金额之和不能大于租赁费用之和', {position: 'leftcenter', type: 'danger'});
+            return false;
         }
 
         bui.loading.show('努力提交中，请稍候。。。');
@@ -534,7 +637,7 @@
         if ($('#assetTable tr').length < 11) {
             addBoothItem({index: ++itemIndex});
         } else {
-            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'warning'})
+            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'danger'})
         }
     });
 
@@ -547,6 +650,11 @@
     });
 
     $('#save').on('click', bui.util.debounce(saveFormHandler,1000,true));
+
+    $('#managerId').on('select2:select', function (e) {
+        var data = e.params.data;
+        $('#manager').val(data.text);
+    });
 
     /*****************************************自定义事件区 end**************************************/
 </script>

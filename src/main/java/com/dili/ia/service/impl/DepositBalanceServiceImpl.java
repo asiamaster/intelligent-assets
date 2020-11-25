@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.DepositBalance;
+import com.dili.ia.domain.dto.DepositBalanceParam;
 import com.dili.ia.domain.dto.DepositBalanceQuery;
 import com.dili.ia.mapper.DepositBalanceMapper;
 import com.dili.ia.service.DepositBalanceService;
@@ -26,7 +27,16 @@ public class DepositBalanceServiceImpl extends BaseServiceImpl<DepositBalance, L
     }
 
     @Override
-    public List<DepositBalance> listDepositBalanceExact(DepositBalance depositBalance) {
-        return this.getActualDao().listDepositBalanceExact(depositBalance);
+    public DepositBalance getDepositBalanceExact(DepositBalanceParam depositBalanceParam) {
+        return this.getActualDao().getDepositBalanceExact(depositBalanceParam);
+    }
+
+    @Override
+    public Integer deductDepositBalance(Long id, Long amount) {
+        return this.getActualDao().deductDepositBalance(id, amount);
+    }
+    @Override
+    public Integer addDepositBalance(Long id, Long amount) {
+        return this.getActualDao().addDepositBalance(id, amount);
     }
 }

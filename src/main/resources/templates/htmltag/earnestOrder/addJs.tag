@@ -11,20 +11,29 @@
 
     //对应摊位
     $(function () {
+        //初始化刷身份证
+        initSwipeIdCard({
+            id:'getCustomer',
+        });
+
+        //初始化刷园区卡
+        initSwipeParkCard({
+            id:'icReader',
+            onLoadSuccess:function(customer){
+                $('#customerName').val(customer.name);
+                $('#customerId').val(customer.customerId);
+                $('#certificateNumber,#_certificateNumber').val(customer.customerCertificateNumber);
+                $('#customerCellphone').val(customer.customerContactsPhone);
+            }
+        });
         addBoothItem();
         registerMsg();
     });
-
 
     //获取table Index
     function getIndex(str) {
         return str.split('_')[1];
     }
-
-    //初始化刷卡
-    initSwipeCard({
-        id:'getCustomer',
-    });
 
     var boothAutoCompleteOption = {
         paramName: 'keyword',

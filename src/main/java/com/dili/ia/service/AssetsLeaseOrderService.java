@@ -51,6 +51,13 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
     BaseOutput cancelOrder(Long id);
 
     /**
+     * 摊位租赁订单作废
+     * @param id
+     * @return
+     */
+    BaseOutput invalidOrder(Long id, String invalidReason);
+
+    /**
      * 摊位租赁订单撤回
      * @param id
      * @return
@@ -76,13 +83,7 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
      */
     void leaseOrderExpiredHandler(AssetsLeaseOrder o);
 
-    /**
-     * 查询打印数据
-     * @param orderCode
-     * @param reprint
-     * @return
-     */
-    BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint);
+
 
     /**
      * 退款申请

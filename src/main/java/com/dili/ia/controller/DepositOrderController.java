@@ -1,14 +1,12 @@
 package com.dili.ia.controller;
 
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.DepositOrder;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.DepositOrderStateEnum;
+import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -33,7 +31,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -60,6 +57,8 @@ public class DepositOrderController {
     RefundOrderService refundOrderService;
     @Autowired
     TransferDeductionItemService transferDeductionItemService;
+    @Autowired
+    SettlementRpc settlementRpc;
 
     /**
      * 跳转到DepositOrder页面
@@ -93,7 +92,7 @@ public class DepositOrderController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
         if (CollectionUtils.isEmpty(departmentIdList)){
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+            return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
         }
         depositOrderQuery.setMarketId(userTicket.getFirmId());
         depositOrderQuery.setDepartmentIds(departmentIdList);
@@ -119,7 +118,6 @@ public class DepositOrderController {
             transferDeductionItemCondition.setRefundOrderId(refundOrderId);
             modelMap.put("transferDeductionItems", transferDeductionItemService.list(transferDeductionItemCondition));
         }
-
         return "depositOrder/refundApply";
     }
 
@@ -375,6 +373,31 @@ public class DepositOrderController {
         } catch (Exception e) {
             LOG.error("cancel 保证金单取消出错!" ,e);
             return BaseOutput.failure("取消出错！");
+        }
+    }
+
+    /**
+     * 定金管理--作废
+     * @param id
+     * @return BaseOutput
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.DEPOSIT_ORDER, operationType="invalid", systemCode = "IA")
+    @RequestMapping(value="/invalid.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput invalid(Long id, String invalidReason) {
+        try {
+            BaseOutput<DepositOrder> output = depositOrderService.invalidDepositOrder(id, invalidReason);
+            if (output.isSuccess()){
+                DepositOrder order = output.getData();
+                UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerUtil.buildLoggerContext(order.getId(), order.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), invalidReason);
+            }
+            return output;
+        } catch (BusinessException e) {
+            LOG.error("保证金单作废出错！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("invalid 保证金作废回出错!" ,e);
+            return BaseOutput.failure("作废出错！");
         }
     }
 }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 /**
  * 由MyBatis Generator工具自动生成
  * 定金的业务单
- * This file was generated on 2020-07-04 09:48:04.
+ * This file was generated on 2020-10-28 16:31:00.
  */
 @Table(name = "`earnest_order`")
 public class EarnestOrder extends BaseDomain {
@@ -177,6 +177,30 @@ public class EarnestOrder extends BaseDomain {
      */
     @Column(name = "`canceler`")
     private String canceler;
+
+    /**
+     * 作废人ID
+     */
+    @Column(name = "`invalid_operator_id`")
+    private Long invalidOperatorId;
+
+    /**
+     * 作废人名字
+     */
+    @Column(name = "`invalid_operator`")
+    private String invalidOperator;
+
+    /**
+     * 作废时间
+     */
+    @Column(name = "`invalid_time`")
+    private LocalDateTime invalidTime;
+
+    /**
+     * 作废原因
+     */
+    @Column(name = "`invalid_reason`")
+    private String invalidReason;
 
     /**
      * 市场Id
@@ -689,6 +713,86 @@ public class EarnestOrder extends BaseDomain {
      */
     public void setCanceler(String canceler) {
         this.canceler = canceler;
+    }
+
+    /**
+     * 获取作废人ID
+     *
+     * @return invalid_operator_id - 作废人ID
+     */
+    @FieldDef(label="作废人ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getInvalidOperatorId() {
+        return invalidOperatorId;
+    }
+
+    /**
+     * 设置作废人ID
+     *
+     * @param invalidOperatorId 作废人ID
+     */
+    public void setInvalidOperatorId(Long invalidOperatorId) {
+        this.invalidOperatorId = invalidOperatorId;
+    }
+
+    /**
+     * 获取作废人名字
+     *
+     * @return invalid_operator - 作废人名字
+     */
+    @FieldDef(label="作废人名字", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getInvalidOperator() {
+        return invalidOperator;
+    }
+
+    /**
+     * 设置作废人名字
+     *
+     * @param invalidOperator 作废人名字
+     */
+    public void setInvalidOperator(String invalidOperator) {
+        this.invalidOperator = invalidOperator;
+    }
+
+    /**
+     * 获取作废时间
+     *
+     * @return invalid_time - 作废时间
+     */
+    @FieldDef(label="作废时间")
+    @EditMode(editor = FieldEditor.Datetime, required = false)
+    public LocalDateTime getInvalidTime() {
+        return invalidTime;
+    }
+
+    /**
+     * 设置作废时间
+     *
+     * @param invalidTime 作废时间
+     */
+    public void setInvalidTime(LocalDateTime invalidTime) {
+        this.invalidTime = invalidTime;
+    }
+
+    /**
+     * 获取作废原因
+     *
+     * @return invalid_reason - 作废原因
+     */
+    @FieldDef(label="作废原因", maxLength = 100)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getInvalidReason() {
+        return invalidReason;
+    }
+
+    /**
+     * 设置作废原因
+     *
+     * @param invalidReason 作废原因
+     */
+    public void setInvalidReason(String invalidReason) {
+        this.invalidReason = invalidReason;
     }
 
     /**

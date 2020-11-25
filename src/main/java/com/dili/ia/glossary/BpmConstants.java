@@ -28,5 +28,9 @@ public interface BpmConstants {
      */
     String TK_GENERAL_MANAGER_APPROVAL = "generalManagerApproval";
 
+    /**
+     * 租赁业务流程KEY
+     */
+    String PK_BOOTH_LEASE_ORDER_PROCESS = "boothLeaseOrderBpm";
 
 }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-29 15:11:22.
+ * This file was generated on 2020-10-28 16:31:00.
  */
 @Table(name = "`deposit_order`")
 public class DepositOrder extends BaseDomain {
@@ -134,7 +134,6 @@ public class DepositOrder extends BaseDomain {
      */
     @Column(name = "`refund_amount`")
     private Long refundAmount;
-
     /**
      * 备注信息
      */
@@ -160,19 +159,19 @@ public class DepositOrder extends BaseDomain {
     private String bizType;
 
     /**
-     * （1：已创建 2：已取消 3：已提交 4：已交费5：已退款）
+     * （1：已创建 2：已取消 3：已提交 4：已交费5：退款中 6：已退款）
      */
     @Column(name = "`state`")
     private Integer state;
 
     /**
-     * 支付状态（1：未交清 2：已交清）
+     * 支付状态（1：未交费 2：未交清 3：已交清）
      */
     @Column(name = "`pay_state`")
     private Integer payState;
 
     /**
-     * 1:待申请 2：退款中 3：已退款
+     * 1:未退款  2：部分退款 3：全额退款
      */
     @Column(name = "`refund_state`")
     private Integer refundState;
@@ -242,6 +241,30 @@ public class DepositOrder extends BaseDomain {
      */
     @Column(name = "`canceler`")
     private String canceler;
+
+    /**
+     * 作废人ID
+     */
+    @Column(name = "`invalid_operator_id`")
+    private Long invalidOperatorId;
+
+    /**
+     * 作废人名字
+     */
+    @Column(name = "`invalid_operator`")
+    private String invalidOperator;
+
+    /**
+     * 作废时间
+     */
+    @Column(name = "`invalid_time`")
+    private LocalDateTime invalidTime;
+
+    /**
+     * 作废原因
+     */
+    @Column(name = "`invalid_reason`")
+    private String invalidReason;
 
     /**
      * 市场Id
@@ -505,20 +528,20 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
-     * 获取资产类型
+     * 获取资产类型，包含摊位，冷库，公寓等
      *
-     * @return assets_type - 资产类型
+     * @return assets_type - 资产类型，包含摊位，冷库，公寓等
      */
-    @FieldDef(label="资产类型", maxLength = 50)
+    @FieldDef(label="资产类型，包含摊位，冷库，公寓等")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Integer getAssetsType() {
         return assetsType;
     }
 
     /**
-     * 设置资产类型
+     * 设置资产类型，包含摊位，冷库，公寓等
      *
-     * @param assetsType 资产类型
+     * @param assetsType 资产类型，包含摊位，冷库，公寓等
      */
     public void setAssetsType(Integer assetsType) {
         this.assetsType = assetsType;
@@ -634,7 +657,6 @@ public class DepositOrder extends BaseDomain {
     public Long getRefundAmount() {
         return refundAmount;
     }
-
     /**
      * 设置退款金额，用于多次退款记录
      *
@@ -643,7 +665,6 @@ public class DepositOrder extends BaseDomain {
     public void setRefundAmount(Long refundAmount) {
         this.refundAmount = refundAmount;
     }
-
     /**
      * 获取备注信息
      *
@@ -709,8 +730,8 @@ public class DepositOrder extends BaseDomain {
      *
      * @return biz_type - 关联订单业务类型
      */
-    @FieldDef(label="关联订单业务类型")
-    @EditMode(editor = FieldEditor.Number, required = false)
+    @FieldDef(label="关联订单业务类型", maxLength = 120)
+    @EditMode(editor = FieldEditor.Text, required = false)
     public String getBizType() {
         return bizType;
     }
@@ -725,60 +746,60 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
-     * 获取（1：已创建 2：已取消 3：已提交 4：已交费5：已退款）
+     * 获取（1：已创建 2：已取消 3：已提交 4：已交费5：退款中 6：已退款）
      *
-     * @return state - （1：已创建 2：已取消 3：已提交 4：已交费5：已退款）
+     * @return state - （1：已创建 2：已取消 3：已提交 4：已交费5：退款中 6：已退款）
      */
-    @FieldDef(label="（1：已创建 2：已取消 3：已提交 4：已交费5：已退款）")
+    @FieldDef(label="（1：已创建 2：已取消 3：已提交 4：已交费5：退款中 6：已退款）")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Integer getState() {
         return state;
     }
 
     /**
-     * 设置（1：已创建 2：已取消 3：已提交 4：已交费5：已退款）
+     * 设置（1：已创建 2：已取消 3：已提交 4：已交费5：退款中 6：已退款）
      *
-     * @param state （1：已创建 2：已取消 3：已提交 4：已交费5：已退款）
+     * @param state （1：已创建 2：已取消 3：已提交 4：已交费5：退款中 6：已退款）
      */
     public void setState(Integer state) {
         this.state = state;
     }
 
     /**
-     * 获取支付状态（1：未交清 2：已交清）
+     * 获取支付状态（1：未交费 2：未交清 3：已交清）
      *
-     * @return pay_state - 支付状态（1：未交清 2：已交清）
+     * @return pay_state - 支付状态（1：未交费 2：未交清 3：已交清）
      */
-    @FieldDef(label="支付状态（1：未交清 2：已交清）")
+    @FieldDef(label="支付状态（1：未交费 2：未交清 3：已交清）")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Integer getPayState() {
         return payState;
     }
 
     /**
-     * 设置支付状态（1：未交清 2：已交清）
+     * 设置支付状态（1：未交费 2：未交清 3：已交清）
      *
-     * @param payState 支付状态（1：未交清 2：已交清）
+     * @param payState 支付状态（1：未交费 2：未交清 3：已交清）
      */
     public void setPayState(Integer payState) {
         this.payState = payState;
     }
 
     /**
-     * 获取1:待申请 2：退款中 3：已退款
+     * 获取1:未退款  2：部分退款 3：全额退款
      *
-     * @return refund_state - 1:待申请 2：退款中 3：已退款
+     * @return refund_state - 1:未退款  2：部分退款 3：全额退款
      */
-    @FieldDef(label="1:待申请 2：退款中 3：已退款")
+    @FieldDef(label="1:未退款  2：部分退款 3：全额退款")
     @EditMode(editor = FieldEditor.Number, required = true)
     public Integer getRefundState() {
         return refundState;
     }
 
     /**
-     * 设置1:待申请 2：退款中 3：已退款
+     * 设置1:未退款  2：部分退款 3：全额退款
      *
-     * @param refundState 1:待申请 2：退款中 3：已退款
+     * @param refundState 1:未退款  2：部分退款 3：全额退款
      */
     public void setRefundState(Integer refundState) {
         this.refundState = refundState;
@@ -1002,6 +1023,86 @@ public class DepositOrder extends BaseDomain {
      */
     public void setCanceler(String canceler) {
         this.canceler = canceler;
+    }
+
+    /**
+     * 获取作废人ID
+     *
+     * @return invalid_operator_id - 作废人ID
+     */
+    @FieldDef(label="作废人ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getInvalidOperatorId() {
+        return invalidOperatorId;
+    }
+
+    /**
+     * 设置作废人ID
+     *
+     * @param invalidOperatorId 作废人ID
+     */
+    public void setInvalidOperatorId(Long invalidOperatorId) {
+        this.invalidOperatorId = invalidOperatorId;
+    }
+
+    /**
+     * 获取作废人名字
+     *
+     * @return invalid_operator - 作废人名字
+     */
+    @FieldDef(label="作废人名字", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getInvalidOperator() {
+        return invalidOperator;
+    }
+
+    /**
+     * 设置作废人名字
+     *
+     * @param invalidOperator 作废人名字
+     */
+    public void setInvalidOperator(String invalidOperator) {
+        this.invalidOperator = invalidOperator;
+    }
+
+    /**
+     * 获取作废时间
+     *
+     * @return invalid_time - 作废时间
+     */
+    @FieldDef(label="作废时间")
+    @EditMode(editor = FieldEditor.Datetime, required = false)
+    public LocalDateTime getInvalidTime() {
+        return invalidTime;
+    }
+
+    /**
+     * 设置作废时间
+     *
+     * @param invalidTime 作废时间
+     */
+    public void setInvalidTime(LocalDateTime invalidTime) {
+        this.invalidTime = invalidTime;
+    }
+
+    /**
+     * 获取作废原因
+     *
+     * @return invalid_reason - 作废原因
+     */
+    @FieldDef(label="作废原因", maxLength = 100)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getInvalidReason() {
+        return invalidReason;
+    }
+
+    /**
+     * 设置作废原因
+     *
+     * @param invalidReason 作废原因
+     */
+    public void setInvalidReason(String invalidReason) {
+        this.invalidReason = invalidReason;
     }
 
     /**

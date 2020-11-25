@@ -119,7 +119,7 @@
   </select>
 
 
-  <select id="listDepositBalanceExact" parameterType="com.dili.ia.domain.DepositBalance" resultMap="BaseResultMap">
+  <select id="getDepositBalanceExact" parameterType="com.dili.ia.domain.dto.DepositBalanceParam" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from deposit_balance
@@ -154,14 +154,14 @@
       </when>
       <otherwise>
         AND assets_id is null
-      </otherwise>
-    </choose>
-    <choose>
-      <when test="assetsName != null and assetsName != ''">
-        AND assets_name = #{assetsName,jdbcType=VARCHAR}
-      </when>
-      <otherwise>
-        AND assets_name is null
+        <choose>
+          <when test="assetsName != null and assetsName != ''">
+            AND assets_name = #{assetsName,jdbcType=VARCHAR}
+          </when>
+          <otherwise>
+            AND assets_name is null
+          </otherwise>
+        </choose>
       </otherwise>
     </choose>
     <choose>
@@ -173,5 +173,22 @@
       </otherwise>
     </choose>
   </select>
+
+  <!--【保证金余额扣减】 修改余额，通过主键-->
+  <update id="deductDepositBalance">
+    update deposit_balance
+    set balance = balance - #{amount}
+    where
+        id = #{id}
+        and balance - #{amount} >= 0
+  </update>
+
+  <!--【保证金余额增加】 修改余额，通过主键-->
+  <update id="addDepositBalance">
+    update deposit_balance
+    set balance = balance + #{amount}
+    where
+        id = #{id}
+  </update>
 
 </mapper>

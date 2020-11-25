@@ -7,8 +7,18 @@
             <input type="hidden" id="code" name="code" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.code!}">
             <input type="hidden" name="isRenew" value="${isRenew!}">
             <input type="hidden" id="assetsType" name="assetsType" value="${assetsType!}">
+            <input type="hidden" id="bizType" name="bizType" value="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType()}">
             <div class="breadcrumb" >
-                客户信息 ${isNotEmpty(isRenew) && isRenew == 1?'':'<a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>'}
+                客户信息
+                <%
+                    if (isEmpty(isRenew) || isRenew != 1) {
+                %>
+                <a href="javascript:;" class="ml-2" id="getCustomer">刷身份证</a>
+                <%
+                    if (@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='sg') {
+                %>
+                    <a href="javascript:;" class="ml-2" id="icReader">刷园区卡</a>
+                <% }} %>
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                    aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
@@ -74,8 +84,16 @@
                     <#bcomboProvider _log="业务所属部门" _id="departmentId" _provider="authDepartmentProvider" _value="${leaseOrder.departmentId!}"/>
 
                 </div>
+                <div class="form-group col">
+                    <label for="managerId" _log>管理员</label>
+                    <input type="hidden" id="manager" name="manager" value="${leaseOrder.manager!}">
+                    <select id="managerId" name="managerId">
+                        <option value="${leaseOrder.managerId!}">${leaseOrder.manager!}</option>
+                    </select>
+                    <#bselect2 _id="managerId" _mode="remote" _optionVariable="userAutoCompleteOption" _value="${leaseOrder.managerId!}"/>
+                </div>
                 <% if(assetsType != @com.dili.ia.glossary.AssetsTypeEnum.LODGING.getCode()){%>
-                <div class="form-group col-9">
+                <div class="form-group col">
                     <label for="categorys" _log>经营品类</label>
                     <select id="categorys" name="categorys" multiple>
                         <%
@@ -150,13 +168,13 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">已交</span>
                                     </div>
-                                    <input type="number" id="depositBalance_${itemLP.index}" name="depositBalance_${itemLP.index}" class="form-control" value="0.00" readonly>
+                                    <input type="number" id="depositBalance_${itemLP.index}" name="depositBalance_${itemLP.index}" class="form-control money" value="0.00" readonly>
                                 </div>
                                 <div class="input-group w-50 pl-1">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">补交</span>
                                     </div>
-                                    <input _log="保证金补交" type="number" id="depositMakeUpAmount_${itemLP.index}" name="depositMakeUpAmount_${itemLP.index}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01">
+                                    <input _log="保证金补交" type="number" isDeposit id="depositMakeUpAmount_${itemLP.index}" name="depositMakeUpAmount_${itemLP.index}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" oninput="calcTotalAmount(true)">
                                 </div>
                             </div>
                         </td>
@@ -176,12 +194,13 @@
                 <div class="row row-cols-4">
                     <div class="form-group col">
                         <label for="totalAmount" _log>合计金额<i class="red">*</i></label>
-                        <input type="number" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>" readonly/>
+                        <input type="hidden" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>" readonly/>
+                        <input type="number" class="form-control money" id="totalAmountAndDeposit" name="totalAmountAndDeposit" readonly/>
                     </div>
                     <div class="form-group col">
                         <label for="earnestDeduction" _log>定金抵扣</label>
                         <div class="input-group">
-                            <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.earnestDeduction!}'/>" oninput="calcPayAmount()"/>
+                            <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.earnestDeduction!}'/>" oninput="calcPayAmount(true)"/>
                             <div class="input-group-append">
                                 <span class="input-group-text" id="earnestAmount">0.00</span>
                             </div>
@@ -190,7 +209,7 @@
                     <div class="form-group col">
                         <label for="transferDeduction" _log>转抵扣</label>
                         <div class="input-group">
-                            <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.transferDeduction!}'/>" oninput="calcPayAmount()"/>
+                            <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.transferDeduction!}'/>" oninput="calcPayAmount(true)"/>
                             <div class="input-group-append">
                                 <span class="input-group-text" id="transferAmount">0.00</span>
                             </div>
@@ -198,7 +217,8 @@
                     </div>
                     <div class="form-group col">
                         <label for="payAmount" _log>实付金额<i class="red">*</i></label>
-                        <input type="number" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" min="0" readonly/>
+                        <input type="hidden" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" readonly/>
+                        <input type="number" class="form-control money" id="payAmountAndDeposit" name="payAmountAndDeposit" min="0" readonly/>
                     </div>
                 </div>
             </div>
@@ -219,6 +239,7 @@
 
 </#bs4Body>
 <#js_customerAutocompleteJs/>
+<#js_icReaderJs/>
 <#assetsLeaseOrder_preSaveJs />
 <script  id="assetItem"  type="text/html">
     <tr data-index="{{index}}">
@@ -250,13 +271,13 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text">已交</span>
                     </div>
-                    <input type="number" id="depositBalance_{{index}}" name="depositBalance_{{index}}" class="form-control" value="0.00" readonly>
+                    <input type="number" id="depositBalance_{{index}}" name="depositBalance_{{index}}" class="form-control money" value="0.00" readonly>
                 </div>
                 <div class="input-group w-50 pl-1">
                     <div class="input-group-prepend">
                         <span class="input-group-text">补交</span>
                     </div>
-                    <input type="number" id="depositMakeUpAmount_{{index}}" name="depositMakeUpAmount_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01">
+                    <input type="number" id="depositMakeUpAmount_{{index}}" isDeposit name="depositMakeUpAmount_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" oninput="calcTotalAmount(true)">
                 </div>
             </div>
 

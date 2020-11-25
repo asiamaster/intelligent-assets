@@ -1,0 +1,1 @@
+ALTER TABLE refund_order ADD COLUMN `trade_card_no` VARCHAR ( 20 ) DEFAULT NULL COMMENT '园区卡号' AFTER bank_card_no;

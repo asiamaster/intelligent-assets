@@ -36,8 +36,10 @@ public class SceneMoneyProvider implements ValueProvider {
         Object sceneTypeObj = objData.get("$_sceneType");
         if (null != objData.get("$_sceneType")){
             Integer sceneType = Integer.valueOf(sceneTypeObj.toString());
-            //场景为：抵扣消费， 冻结， 定金转出， 退款 ，金额显示为负数。
-            if (sceneType.equals(TransactionSceneTypeEnum.DEDUCT_USE.getCode()) || sceneType.equals(TransactionSceneTypeEnum.FROZEN.getCode()) || sceneType.equals(TransactionSceneTypeEnum.EARNEST_OUT.getCode()) || sceneType.equals(TransactionSceneTypeEnum.REFUND.getCode())){
+            //【金额显示为负数】 场景为：抵扣消费， 冻结， 定金转出， 退款 ，业务收款作废转出。
+            if (sceneType.equals(TransactionSceneTypeEnum.DEDUCT_USE.getCode()) || sceneType.equals(TransactionSceneTypeEnum.FROZEN.getCode())
+                    || sceneType.equals(TransactionSceneTypeEnum.EARNEST_OUT.getCode()) || sceneType.equals(TransactionSceneTypeEnum.REFUND.getCode())
+                    || sceneType.equals(TransactionSceneTypeEnum.INVALID_OUT.getCode()) ){
                 amount = 0 - amount;
             }
         }

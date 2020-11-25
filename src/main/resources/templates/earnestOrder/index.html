@@ -70,6 +70,9 @@
                 <#resource code="cancelEarnestOrder">
                 <button id="btn_cancel" type="button" class="btn btn-primary" onclick="openCancelHandler()"><i class="fa fa-ban"></i> 取消</button>
                 </#resource>
+                <#resource code="invalidEarnestOrder">
+                <button id="btn_invalid" type="button" class="btn btn-primary" onclick="openInvalidHandler()"><i class="fa fa-window-close"></i> 作废</button>
+                </#resource>
             </div>
             <table id="grid" data-toggle="table" data-title="定金列表" class="table" data-toolbar="#toolbar"
                    data-pagination="true" data-page-number="1" data-page-size="10"
@@ -123,4 +126,21 @@
 </#bs4Body>
 
 <#earnestOrder_indexJs />
+
+<!-- 作废模板 -->
+<script id="invalidTpl" type="text/html">
+    <div class="container-fuild">
+        <form id="invalidForm">
+            <div class="row mb-3">
+                <div class="col-12"><i class="red">确认作废该业务单？</i></div>
+            </div>
+            <div class="row row-cols-1">
+                <dic class="col">
+                    <label>作废原因</label>
+                    <textarea class="form-control" id="invalidReason" name="invalidReason"  rows="3" maxlength="100" required></textarea>
+                </dic>
+            </div>
+        </form>
+    </div>
+</script>
 

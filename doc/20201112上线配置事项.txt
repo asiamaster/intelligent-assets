@@ -1,0 +1,18 @@
+###Sentinel配置
+# Sentinel自动化配置是否生效
+spring.cloud.sentinel.eager=true
+# Sentinel 控制台地址
+spring.cloud.sentinel.transport.dashboard=sentinel.diligrp.com:8201
+# 应用与Sentinel控制台交互的端口，应用本地会起一个该端口占用的HttpServer
+spring.cloud.sentinel.transport.port=8202
+# 日志文件保留天数
+log.maxHistory=30
+
+
+菜单配置
+租赁办理-》摊位出租管理-》作废 invalidBoothLeaseOrder
+定金-》定金管理-》作废  invalidEarnestOrder
+保证金-》保证金管理-》作废  invalidDepositOrder
+
+数据字典
+配置管理 > 数据字典 > 日志服务系统 >  操作日志类型 作废 code：invalid

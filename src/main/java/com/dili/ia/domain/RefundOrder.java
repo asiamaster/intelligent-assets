@@ -9,11 +9,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import tk.mybatis.mapper.annotation.Version;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-import javax.persistence.*;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -142,6 +142,12 @@ public class RefundOrder extends BaseDomain implements IMybatisForceParams {
      */
     @Column(name = "`bank_card_no`")
     private String bankCardNo;
+
+    /**
+     * 园区卡卡号
+     */
+    @Column(name = "`trade_card_no`")
+    private String tradeCardNo;
 
     /**
      * 创建人ID
@@ -662,6 +668,23 @@ public class RefundOrder extends BaseDomain implements IMybatisForceParams {
      */
     public void setBankCardNo(String bankCardNo) {
         this.bankCardNo = bankCardNo;
+    }
+    /**
+     * 获取园区卡卡号
+     *
+     * @return trade_card_no - 园区卡卡号
+     */
+    @FieldDef(label="园区卡卡号", maxLength = 20)
+    public String getTradeCardNo() {
+        return tradeCardNo;
+    }
+    /**
+     * 设置园区卡卡号
+     *
+     * @param tradeCardNo 园区卡卡号
+     */
+    public void setTradeCardNo(String tradeCardNo) {
+        this.tradeCardNo = tradeCardNo;
     }
 
     /**

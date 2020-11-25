@@ -235,6 +235,59 @@
             })
         }
     }
+    /**
+     作废
+     */
+    function openInvalidHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        var param =  $.extend({}, rows[0]);
+        dia = bs4pop.dialog({
+            title: '作废',
+            content: bui.util.HTMLDecode(template('invalidTpl', param)),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '500px',
+            btns: [
+                {label: '取消', className: 'btn-secondary px-5', onClick(e) {}},
+                {
+                    label: '确定', className: 'btn-primary px-5', onClick : bui.util.debounce(function () {
+                        if (!$('#invalidForm').valid()) {
+                            return false;
+                        }
+                        bui.loading.show('作废中。。。');
+                        $.ajax({
+                            type: "POST",
+                            url: "${contextPath}/earnestOrder/invalid.action",
+                            data: {
+                                id: rows[0].id,
+                                invalidReason: $('#invalidReason').val()
+                            },
+                            dataType: "json",
+                            success : function(data) {
+                                closeDialog(dia);
+                                bui.loading.hide();
+                                if(!data.success){
+                                    bs4pop.alert(data.result, {type: 'error'});
+                                }
+                            },
+                            error : function() {
+                                closeDialog(dia);
+                                bui.loading.hide();
+                                bs4pop.alert('远程访问失败', {type: 'error'});
+                            }
+                        });
+                        return false;
+                    },1000,true)
+                }
+
+            ]
+        });
+    }
 
     //选中行事件
     _grid.on('uncheck.bs.table', function (e, row, $element) {
@@ -244,26 +297,17 @@
     //选中行事件 -- 可操作按钮控制
     _grid.on('check.bs.table', function (e, row, $element) {
         let state = row.$_state;
+        $('#toolbar button').attr('disabled', true);
+        $('#btn_view').attr('disabled', false);
+        $('#btn_add').attr('disabled', false);
         if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.CREATED.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
             $('#btn_update').attr('disabled', false);
             $('#btn_cancel').attr('disabled', false);
             $('#btn_submit').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.CANCELD.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.SUBMITTED.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
             $('#btn_withdraw').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.EarnestOrderStateEnum.PAID.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
+            $('#btn_invalid').attr('disabled', false);
         }
     });
 

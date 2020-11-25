@@ -26,7 +26,9 @@ public enum PrintTemplateEnum {
     LABOR_VEST_REFUND("labor_vest_refund","劳务马甲退款单"),
     MESSAGEFEE_PAY("messageFee_pay","信息费收款单"),
     MESSAGEFEE_REFUND("messageFee_refund","信息费退款单"),
-    OTHER_FEE("otherFee","其他收费")
+    OTHER_FEE("otherFee","其他收费"),
+    LEASE_CONTRACT_SIGNING_BILL("LeaseContractSigningBill", "租赁合同签订单"),
+    LEASE_PAYMENT_BILL("LeasePaymentBill", "租赁交款单"),
     ;
 
     private String name;

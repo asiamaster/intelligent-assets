@@ -1,8 +1,9 @@
 <#bs4Body>
+<!-- 租赁审批页面 -->
 <div class="container-fluid">
     <!-- 租赁单详情 -->
     <div>
-        <iframe height="938" frameborder="0" width="100%" src="${contextPath}/leaseOrder/approvalView.action?code=${businessKey}" ></iframe>
+        <iframe height="1028" frameborder="0" width="100%" src="${contextPath}/leaseOrder/approvalView.action?code=${businessKey}" ></iframe>
     </div>
     <div align="left" id="approvalInfo" >
         <%
@@ -21,7 +22,7 @@
                     <%}else{%>
                     <td style="padding-right: 20px;"></td>
                     <%}%>
-                    <td>${approvalProcess.createTime, 'yyyy-MM-dd hh:mm:ss'}</td>
+                    <td>${approvalProcess.createTime, 'yyyy-MM-dd HH:mm:ss'}</td>
                 </tr>
                 <%
                 }

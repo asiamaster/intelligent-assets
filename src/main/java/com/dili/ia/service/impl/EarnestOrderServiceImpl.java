@@ -5,6 +5,7 @@ import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
+import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
@@ -16,6 +17,7 @@ import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
+import com.dili.settlement.dto.InvalidRequestDto;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
@@ -42,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,6 +60,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return (EarnestOrderMapper)getDao();
     }
 
+    @SuppressWarnings("all")
     @Autowired
     DepartmentRpc departmentRpc;
     @Autowired
@@ -334,13 +338,13 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return pb;
     }
 
-    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode){
+    private PaymentOrder findPaymentOrder(Long marketId, Long businessId, String businessCode, Integer paymentOrderState){
         PaymentOrder pb = new PaymentOrder();
         pb.setBizType(BizTypeEnum.EARNEST.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
-        pb.setMarketId(userTicket.getFirmId());
-        pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
+        pb.setMarketId(marketId);
+        pb.setState(paymentOrderState);
         PaymentOrder order = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
         if (null == order) {
             LOG.info("没有查询到付款单PaymentOrder【业务单businessId：{}】 【业务单businessCode:{}】", businessId, businessCode);
@@ -369,8 +373,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOG.info("撤回定金【修改定金单状态】失败,乐观锁生效。【定金单ID：】" + earnestOrderId);
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-
-        PaymentOrder pb = this.findPaymentOrder(userTicket, ea.getId(), ea.getCode());
+        //查询【未支付】的缴费单
+        PaymentOrder pb = this.findPaymentOrder(userTicket.getFirmId(), ea.getId(), ea.getCode(), PaymentOrderStateEnum.NOT_PAID.getCode());
         if (paymentOrderService.delete(pb.getId()) == 0) {
             LOG.info("撤回定金【删除缴费单】失败.");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -383,6 +387,131 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return BaseOutput.success().setData(ea);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
+    @Override
+    public BaseOutput<EarnestOrder> invalidEarnestOrder(Long earnestOrderId, String invalidReason) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (null == userTicket){
+            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登录！");
+        }
+        //修改业务单改状态 为【已作废】
+        EarnestOrder ea = this.get(earnestOrderId);
+        if (null == ea || !ea.getState().equals(EarnestOrderStateEnum.PAID.getCode())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "作废失败，状态已变更！");
+        }
+        ea.setState(EarnestOrderStateEnum.INVALID.getCode());
+        ea.setInvalidOperatorId(userTicket.getId());
+        ea.setInvalidOperator(userTicket.getRealName());
+        ea.setInvalidReason(invalidReason);
+        ea.setInvalidTime(LocalDateTime.now());
+        if (this.updateSelective(ea) == 0) {
+            LOG.info("作废定金【修改定金单状态】失败,乐观锁生效。【定金单ID：】" + earnestOrderId);
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+        //warn : 定金不支持多次缴费的，所以这里只用查询订单是否有已交费的缴费单即可
+        PaymentOrder pb = this.findPaymentOrder(userTicket.getFirmId(), ea.getId(), ea.getCode(), PaymentOrderStateEnum.PAID.getCode());
+        if (null == pb){
+            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到该业务单已交费的缴费单");
+        }
+        //构建缴费红冲单
+        List<PaymentOrder> rerverpaymentOrders = this.buildRerverpaymentOrder(userTicket, pb);
+        if (!rerverpaymentOrders.isEmpty() && paymentOrderService.batchInsert(rerverpaymentOrders) != rerverpaymentOrders.size()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "缴费单红冲写入失败！");
+        }
+        //客户定金余额扣减
+        BaseOutput result = customerAccountService.deductEarnestBalance(this.buildCustomerAccountParam(ea,userTicket.getId(), userTicket.getRealName() ,ea.getAmount(), TransactionSceneTypeEnum.INVALID_OUT.getCode()));
+        if (!result.isSuccess()){
+            LOG.info("作废定金，调用扣减定金余额失败！" + result.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "作废定金，调用扣减定金余额失败！" + result.getMessage());
+        }
+        //调用结算生成结算红冲单
+        BaseOutput<String> setOut = settlementRpc.invalid(this.buildInvalidRequestDto(userTicket, pb));
+        if (!setOut.isSuccess()){
+            LOG.info("作废，调用结算中心生成红冲单失败！" + setOut.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "作废，调用结算中心生成红冲单失败！" + setOut.getMessage());
+        }
+        return BaseOutput.success().setData(ea);
+    }
+
+    private List<PaymentOrder> buildRerverpaymentOrder(UserTicket userTicket, PaymentOrder paymentOrder){
+        List<PaymentOrder> rerverpaymentOrders = new ArrayList<>();
+        if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
+            PaymentOrder newPaymentOrder = paymentOrder.clone();
+            newPaymentOrder.setCreateTime(LocalDateTime.now());
+            newPaymentOrder.setModifyTime(LocalDateTime.now());
+            newPaymentOrder.setCreatorId(userTicket.getId());
+            newPaymentOrder.setCreator(userTicket.getRealName());
+            newPaymentOrder.setIsReverse(YesOrNoEnum.YES.getCode());
+            newPaymentOrder.setParentId(paymentOrder.getId());
+            newPaymentOrder.setId(null);
+            newPaymentOrder.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + "_" +  BizNumberTypeEnum.PAYMENT_ORDER.getCode()));
+            rerverpaymentOrders.add(newPaymentOrder);
+        } else if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(paymentOrder.getState())) {
+            this.withdrawPaymentOrder(paymentOrder.getId());
+        }
+        return rerverpaymentOrders;
+    }
+
+    /**
+     * 撤回缴费单 判断缴费单是否需要撤回 需要撤回则撤回
+     * 如果撤回时发现缴费单状态为及时同步结算状态 则抛出异常 提示用户带结算同步后再操作
+     *
+     * @param paymentId
+     */
+    private void withdrawPaymentOrder(Long paymentId) {
+        PaymentOrder payingOrder = paymentOrderService.get(paymentId);
+        if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
+            String paymentCode = payingOrder.getCode();
+            BaseOutput output = settlementRpc.cancel(settlementAppId, paymentCode);
+            if (!output.isSuccess()) {
+                LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
+                throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+            }
+
+            payingOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
+            if (paymentOrderService.updateSelective(payingOrder) == 0) {
+                LOG.info("撤回缴费单异常，乐观锁生效，【缴费单编号:{}】", payingOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+            }
+        }
+    }
+
+    /**
+     * 构建客户定金修改 的 方法参数
+     * @param ea 发生客户定金变动的业务单
+     * @param operaterId 操作员ID
+     * @param operatorName 操作员姓名
+     * @param amount 发生变动的金额
+     * @param sceneType 发生金额变动的场景，用于记录流水
+     * @return CustomerAccountParam
+     * */
+    private CustomerAccountParam buildCustomerAccountParam(EarnestOrder ea, Long operaterId, String operatorName, Long amount, Integer sceneType){
+        CustomerAccountParam caParam = new CustomerAccountParam();
+        caParam.setBizType(BizTypeEnum.EARNEST.getCode());
+        caParam.setAmount(amount);
+        caParam.setCustomerId(ea.getCustomerId());
+        caParam.setOrderId(ea.getId());
+        caParam.setOrderCode(ea.getCode());
+        caParam.setOperaterId(operaterId);
+        caParam.setOperatorName(operatorName);
+        caParam.setSceneType(sceneType);
+        caParam.setMarketId(ea.getMarketId());
+
+        return caParam;
+    }
+    private InvalidRequestDto buildInvalidRequestDto(UserTicket userTicket, PaymentOrder paymentOrder){
+        InvalidRequestDto param = new InvalidRequestDto();
+        param.setAppId(this.settlementAppId);
+        param.setMarketCode(userTicket.getFirmCode());
+        param.setMarketId(userTicket.getFirmId());
+        param.setOperatorId(userTicket.getId());
+        param.setOperatorName(userTicket.getRealName());
+        List<String> orderCodeList = new ArrayList<>();
+        orderCodeList.add(paymentOrder.getCode());
+        param.setOrderCodeList(orderCodeList);
+        return param;
+    }
     @Transactional(rollbackFor = Exception.class)
     @GlobalTransactional
     @Override
@@ -417,16 +546,15 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         //修改订单状态
         ea.setState(EarnestOrderStateEnum.PAID.getCode());
         if (this.updateSelective(ea) == 0) {
-            LOG.info("缴费单成功回调 -- 更新【租赁单】状态,乐观锁生效！【定金单EarnestOrderID:{}】", ea.getId());
+            LOG.info("缴费单成功回调 -- 更新【定金单】状态,乐观锁生效！【定金单EarnestOrderID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-
         //更新客户账户定金余额和可用余额
-        customerAccountService.paySuccessEarnest(ea.getCustomerId(), ea.getMarketId(), ea.getAmount());
-        //插入客户账户定金资金动账流水
-        TransactionDetails details = transactionDetailsService.buildByConditions(TransactionSceneTypeEnum.PAYMENT.getCode(), BizTypeEnum.EARNEST.getCode(), TransactionItemTypeEnum.EARNEST.getCode(), ea.getAmount(), ea.getId(), ea.getCode(), ea.getCustomerId(), ea.getCode(), ea.getMarketId(), settleOrder.getOperatorId(), settleOrder.getOperatorName());
-        transactionDetailsService.insertSelective(details);
-
+        BaseOutput output = customerAccountService.rechargeEarnestBalance(this.buildCustomerAccountParam(ea,settleOrder.getOperatorId(), settleOrder.getOperatorName(), paymentOrderPO.getAmount() ,TransactionSceneTypeEnum.PAYMENT.getCode()));
+        if (!output.isSuccess()){
+            LOG.info("【定金单支付成功回调接口】充值定金接口返回失败！EarnestOrderId={}；原因：{}", ea.getId(),output.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "充值定金接口返回失败！" + output.getMessage());
+        }
         return BaseOutput.success().setData(ea);
     }
 
@@ -470,18 +598,34 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             assetsItems.replace(assetsItems.length()-1, assetsItems.length(), " ");
         }
         earnestOrderPrintDto.setAssetsItems(assetsItems.toString());
+        earnestOrderPrintDto.setSettleWayDetails(this.buildSettleWayDetails(paymentOrder.getSettlementWay(), paymentOrder.getSettlementCode()));
+        PrintDataDto<EarnestOrderPrintDto> printDataDto = new PrintDataDto<>();
+        printDataDto.setName(PrintTemplateEnum.EARNEST_ORDER.getCode());
+        printDataDto.setItem(earnestOrderPrintDto);
+        return BaseOutput.success().setData(printDataDto);
+    }
 
+    /**
+     * 票据获取结算详情
+     * 组合支付，结算详情格式 : 【微信 150.00 2020-08-19 4237458467568870 备注：微信付款150元;银行卡 150.00 2020-08-19 4237458467568870 备注：微信付款150元】
+     * 园区卡支付，结算详情格式：【卡号：428838247888（李四）】
+     * 除了园区卡 和 组合支付 ，结算详情格式：【2020-08-19 4237458467568870 备注：微信付款150元】
+     * @param settlementWay 结算方式
+     * @param settlementCode 结算详情
+     * @return
+     * */
+    private String buildSettleWayDetails(Integer settlementWay, String settlementCode){
         //组合支付需要显示结算详情
         StringBuffer settleWayDetails = new StringBuffer();
         settleWayDetails.append("【");
-        if (paymentOrder.getSettlementWay().equals(SettleWayEnum.MIXED_PAY.getCode())){
+        if (settlementWay.equals(SettleWayEnum.MIXED_PAY.getCode())){
             //摊位租赁单据的交款时间，也就是结算时填写的时间，显示到结算详情中，显示内容为：支付方式（组合支付的，只显示该类型下的具体支付方式）、金额、收款日期、流水号、结算备注，每个字段间隔一个空格；如没填写的则不显示；
             // 多个支付方式的，均在一行显示，当前行满之后换行，支付方式之间用;隔开；
-            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(paymentOrder.getSettlementCode());
+            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(settlementCode);
             List<SettleWayDetail> swdList = output.getData();
             if (output.isSuccess() && CollectionUtils.isNotEmpty(swdList)){
                 for(SettleWayDetail swd : swdList){
-                    //此循环字符串拼接顺序不可修改，组合支付样式 : 【微信 150.00 2020-08-19 4237458467568870 备注：微信付款150元;银行卡 150.00 2020-08-19 4237458467568870 备注：微信付款150元】
+                    //此循环字符串拼接顺序不可修改，组合支付，结算详情格式 : 【微信 150.00 2020-08-19 4237458467568870 备注：微信付款150元;银行卡 150.00 2020-08-19 4237458467568870 备注：微信付款150元】
                     settleWayDetails.append(SettleWayEnum.getNameByCode(swd.getWay())).append(" ").append(MoneyUtils.centToYuan(swd.getAmount()));
                     if (null != swd.getChargeDate()){
                         settleWayDetails.append(" ").append(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(swd.getChargeDate()));
@@ -499,8 +643,23 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             }else {
                 LOGGER.info("查询结算微服务组合支付，支付详情失败；原因：{}",output.getMessage());
             }
-        }else{ //格式：【2020-08-19 4237458467568870 备注：微信付款150元】
-            BaseOutput<SettleOrder> output = settlementRpc.getByCode(paymentOrder.getSettlementCode());
+        } else if (settlementWay.equals(SettleWayEnum.CARD.getCode())){
+            // 园区卡支付，结算详情格式：【卡号：428838247888（李四）】
+            BaseOutput<SettleOrder> output = settlementRpc.getByCode(settlementCode);
+            if(output.isSuccess()){
+                SettleOrder settleOrder = output.getData();
+                if (null != settleOrder.getTradeCardNo()){
+                    settleWayDetails.append("卡号:" + settleOrder.getTradeCardNo());
+                }
+                if(StringUtils.isNotBlank(settleOrder.getTradeCustomerName())){
+                    settleWayDetails.append("（").append(settleOrder.getTradeCustomerName()).append("）");
+                }
+            }else {
+                LOGGER.info("查询结算微服务非组合支付，支付详情失败；原因：{}",output.getMessage());
+            }
+        }else{
+            // 除了园区卡 和 组合支付 ，结算详情格式：【2020-08-19 4237458467568870 备注：微信付款150元】
+            BaseOutput<SettleOrder> output = settlementRpc.getByCode(settlementCode);
             if(output.isSuccess()){
                 SettleOrder settleOrder = output.getData();
                 if (null != settleOrder.getChargeDate()){
@@ -518,11 +677,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         settleWayDetails.append("】");
         if (StringUtils.isNotEmpty(settleWayDetails) && settleWayDetails.length() > 2){ // 长度大于2 是因为，避免内容为空，显示成 【】
-            earnestOrderPrintDto.setSettleWayDetails(settleWayDetails.toString());
+            return settleWayDetails.toString();
         }
-        PrintDataDto<EarnestOrderPrintDto> printDataDto = new PrintDataDto<>();
-        printDataDto.setName(PrintTemplateEnum.EARNEST_ORDER.getCode());
-        printDataDto.setItem(earnestOrderPrintDto);
-        return BaseOutput.success().setData(printDataDto);
+        return "";
     }
 }

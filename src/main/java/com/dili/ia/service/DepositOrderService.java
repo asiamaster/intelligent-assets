@@ -1,7 +1,11 @@
 package com.dili.ia.service;
 
-import com.dili.ia.domain.*;
+import com.dili.ia.domain.Customer;
+import com.dili.ia.domain.DepositBalance;
+import com.dili.ia.domain.DepositOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
+import com.dili.ia.domain.dto.printDto.DepositOrdersPrintDataDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -41,7 +45,13 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput
      * */
     BaseOutput<DepositOrder> withdrawDepositOrder(Long depositOrderId);
-
+    /**
+     * 保证金 --作废
+     * @param depositOrderId 保证金单ID
+     * @param invalidReason 作废原因
+     * @return BaseOutput
+     * */
+    BaseOutput<DepositOrder> invalidDepositOrder(Long depositOrderId, String invalidReason);
     /**
      * 保证金 --缴费成功回调
      * @param settleOrder 结算单
@@ -69,6 +79,15 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput<PrintDataDto>
      */
     BaseOutput<PrintDataDto> queryPrintData(String orderCode, Integer reprint);
+    /**
+     * 检查当前市场客户状态
+     * @param customerId 客户ID
+     * @param marketId 当前市场ID
+     * @return Customer 客户
+     */
+    Customer checkCustomerState(Long customerId, Long marketId);
+
+    /******************************************************【和租赁交互的接口】*******************************************************************/
     /**
      * 批量【新增】保证金单 --- 【摊位租赁同步生成使用】
      * @param bizType 业务类型
@@ -116,15 +135,15 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput
      */
     BaseOutput batchCancelDepositOrder(String bizType, Long businessId);
-
     /**
      * 【查询】客户摊位保证金余额 --- 【摊位租赁使用】
      * @param bizType 业务类型
      * @param customerId 客户ID
      * @param assetsIds 资产ID的List
+     * @param marketId 市场ID
      * @return BaseOutput<List<DepositBalance>>
      */
-    BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds);
+    BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds, Long marketId);
     /**
      * 批量【取消关联操作】保证金单 --- 【摊位租赁同步撤回成使用】
      * 解除关联操作关系的情况：
@@ -137,43 +156,20 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @return BaseOutput
      */
     BaseOutput batchReleaseRelated(String bizType, Long businessId, Long assetsId);
-
     /**
-     * 检查当前市场客户状态
-     * @param customerId 客户ID
-     * @param marketId 当前市场ID
-     * @return Customer 客户
+     * 【检查】租赁关联创建保证金单的状态检查--- 【摊位租赁业务票据打印判断使用】
+     * 只要有一个保证金单状态是【已作废】或者【已取消】 返回 false, 否则的话返回 true
+     * @param bizType 业务类型
+     * @param businessId 关联订单ID
+     * @return Boolean 只要有一个保证金单状态是【已作废】或者【已取消】 返回 false, 否则的话返回 true
      */
-    Customer checkCustomerState(Long customerId, Long marketId);
-
+    Boolean checkDepositOrdersState(String bizType, Long businessId);
     /**
-     * 批量【新增】,【已交费】的保证金单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
-     * @param depositOrderList 保证金订单列表
-     * DepositOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
-     *                         departmentId 业务所属部门ID ; departmentName 部门名称; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
-     *                         assetsType 资产类型; assetsId 资产ID; assetsName 资产名称; amount 保证金金额; isRelated 是否关联订单1，是，0否;
-     *                         businessId 关联订单ID; bizType 关联订单业务类型; 创建人；创建人ID；提交人；提交人ID；提交时间；
+     * 【查询】租赁关联创建保证金单--- 【摊位租赁业务票据打印数据显示使用】
      *
-     * @return BaseOutput
+     * @param bizType 业务类型
+     * @param businessId 关联订单ID
+     * @return BaseOutput<DepositOrdersPrintDataDto>
      */
-    BaseOutput oldDataHandler(List<DepositOrder> depositOrderList);
-    /**
-     *
-     * 新增关联退款单
-     * 修改/新增保证金余额，
-     * 新增退款单的退款结算单
-     *
-     * 批量【新增】,【已退款】的保证金退款单 --- 【用于处理老数据开发的接口】，正常流程【禁用！！！】
-     * @param oldRefundOrder 租赁订单退款单
-     * @param assetsId 资产ID
-     * @param transferDeductionItem 保证金有退款到转抵扣金额里面的钱
-     * oldRefundOrder 对象必要的参数有： customerId 客户Id ; customerName 客户名称; certificateNumber 客户证件号 ; customerCellphone 客户电话
-     *                         departmentId 业务所属部门ID ; departmentName 部门名称; typeCode 保证金类型，来源数据字典 ; typeName 保证金类型名称
-     *                         assetsId 资产ID; businessId 关联订单ID; bizType 关联订单业务类型;
-     *                         Payee 收款人,  PayeeID 收款人ID, PayeeCertificateNumber 收款人证件号
-     *                        RefundType 退款方式 ; Bank 银行 ； BankCardNo 卡号； TotalRefundAmount 总退款金额 ； PayeeAmount付款金额
-     *                              ; 创建人；创建人ID；提交人；提交人ID；提交时间；
-     * @return BaseOutput
-     */
-    BaseOutput oldRefundOrderDataHandler(RefundOrder oldRefundOrder, Long assetsId, TransferDeductionItem transferDeductionItem);
+    BaseOutput<DepositOrdersPrintDataDto> findDepositOrdersPrintData(String bizType, Long businessId);
 }

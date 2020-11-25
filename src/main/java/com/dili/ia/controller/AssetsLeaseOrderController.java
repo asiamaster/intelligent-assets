@@ -4,8 +4,10 @@ import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
+import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.bpmc.sdk.rpc.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.cache.BpmCacheConfig;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
@@ -23,12 +25,19 @@ import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.dto.IDTO;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.exception.DataErrorException;
+import com.dili.ss.exception.ParamErrorException;
 import com.dili.ss.util.MoneyUtils;
+import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.domain.dto.UserQuery;
 import com.dili.uap.sdk.exception.NotLoginException;
+import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import com.github.benmanes.caffeine.cache.Cache;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,6 +48,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -79,8 +89,14 @@ public class AssetsLeaseOrderController {
     private RefundFeeItemService refundFeeItemService;
     @Autowired
     private TransferDeductionItemService transferDeductionItemService;
-
-
+    @SuppressWarnings("all")
+    @Autowired
+    private UserRpc userRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    EventRpc eventRpc;
+    @Resource(name = "leaseOrderEventCache")
+    Cache<String, List<String>> leaseOrderEventCache;
     /**
      * 跳转到LeaseOrder页面
      *
@@ -109,6 +125,32 @@ public class AssetsLeaseOrderController {
         modelMap.put("createdEnd", createdEnd);
         modelMap.put("assetsType", assetsType);
         return "assetsLeaseOrder/index";
+    }
+
+    /**
+     * 根据流程实例id查询当前事件名称列表
+     * @param processInstanceId
+     * @param state
+     * @param approvalState
+     * @return BaseOutput
+     */
+    @PostMapping(value="/listEventName.action")
+    @ResponseBody
+    public BaseOutput<List<String>> listEventName(@RequestParam String bizProcessInstanceId, @RequestParam Integer state, @RequestParam(required = false) Integer approvalState) {
+        StringBuilder sb = new StringBuilder().append(bizProcessInstanceId).append("_").append(state);
+        String cacheKey = approvalState == null ? sb.toString() : sb.append("_").append(approvalState).toString();
+        try {
+            List<String> strings = leaseOrderEventCache.get(cacheKey, t -> {
+                BaseOutput<List<String>> listBaseOutput = eventRpc.listEventName(bizProcessInstanceId);
+                if (!listBaseOutput.isSuccess()) {
+                    throw new DataErrorException(listBaseOutput.getMessage());
+                }
+                return listBaseOutput.getData();
+            });
+            return BaseOutput.successData(strings);
+        } catch (Exception e) {
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
     /**
@@ -247,7 +289,6 @@ public class AssetsLeaseOrderController {
         return "assetsLeaseOrder/approvalView";
     }
 
-
     /**
      * 跳转到LeaseOrder查看页面
      *
@@ -269,6 +310,9 @@ public class AssetsLeaseOrderController {
             AssetsLeaseOrder condition = new AssetsLeaseOrder();
             condition.setCode(code);
             leaseOrder = assetsLeaseOrderService.list(condition).stream().findFirst().orElse(null);
+        }
+        if(leaseOrder == null){
+            throw new ParamErrorException("租赁订单不存在");
         }
 
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
@@ -393,13 +437,13 @@ public class AssetsLeaseOrderController {
             assetsLeaseOrderItemListDto.setDistrictIds(districtIds);
             leaseOrder.setIds(new ArrayList<>(assetsLeaseOrderItemService.listByExample(assetsLeaseOrderItemListDto).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toSet())));
             if (CollectionUtils.isEmpty(leaseOrder.getIds())) {
-                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+                return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
             }
         }
 
         List<Long> departmentIdList = dataAuthService.getDepartmentDataAuth(userTicket);
         if (CollectionUtils.isEmpty(departmentIdList)) {
-            return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+            return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
         }
         leaseOrder.setMarketId(userTicket.getFirmId());
         leaseOrder.setDepartmentIds(departmentIdList);
@@ -409,7 +453,7 @@ public class AssetsLeaseOrderController {
             leaseOrderItemCondition.setAssetsName(leaseOrder.getAssetsName());
             leaseOrder.setIds(assetsLeaseOrderItemService.list(leaseOrderItemCondition).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toList()));
             if (CollectionUtils.isEmpty(leaseOrder.getIds())) {
-                return new EasyuiPageOutput(0, Collections.emptyList()).toString();
+                return new EasyuiPageOutput(0L, Collections.emptyList()).toString();
             }
         }
         return assetsLeaseOrderService.listEasyuiPageByExample(leaseOrder, true).toString();
@@ -455,6 +499,29 @@ public class AssetsLeaseOrderController {
             return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("租赁订单取消异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+
+
+    }
+
+    /**
+     * 租赁订单作废
+     *
+     * @param id 订单ID
+     * @return
+     */
+    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "invalid", systemCode = "IA")
+    @PostMapping(value = "/invalidOrder.action")
+    public @ResponseBody
+    BaseOutput invalidOrder(@RequestParam Long id, @RequestParam String invalidReason) {
+        try {
+            return assetsLeaseOrderService.invalidOrder(id, invalidReason);
+        } catch (BusinessException e) {
+            LOG.info("租赁订单作废异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("租赁订单作废异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
 
@@ -637,7 +704,11 @@ public class AssetsLeaseOrderController {
     @PostMapping(value = "/batchQueryDepositBalance.action")
     public @ResponseBody
     BaseOutput<List<DepositBalance>> batchQueryDepositBalance(@RequestBody BatchDepositBalanceQueryDto batchDepositBalanceQueryDto) {
-        return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds());
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+        return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds(),userTicket.getFirmId());
     }
 
     /**
@@ -649,8 +720,13 @@ public class AssetsLeaseOrderController {
     @PostMapping(value = "/batchQueryDepositOrder.action")
     public @ResponseBody
     BaseOutput<List<DepositOrder>> batchQueryDepositOrder(DepositOrderQuery depositOrderQuery) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
         try {
             depositOrderQuery.setIsRelated(YesOrNoEnum.YES.getCode());
+            depositOrderQuery.setMarketId(userTicket.getFirmId());
             depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
             return BaseOutput.success().setData(depositOrderService.listByExample(depositOrderQuery));
         } catch (BusinessException e) {
@@ -662,5 +738,34 @@ public class AssetsLeaseOrderController {
         }
 
     }
+
+    /**
+     * 管理员查询
+     *
+     * @param keyword
+     * @return
+     */
+    @GetMapping(value = "/queryUsers.action")
+    public @ResponseBody
+    BaseOutput<List<User>> queryUsers(String keyword) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new RuntimeException("未登录");
+        }
+        try {
+            UserQuery query = DTOUtils.newInstance(UserQuery.class);
+            query.setFirmCode(userTicket.getFirmCode());
+            query.setRealName(keyword);
+            return userRpc.listByExample(query);
+        } catch (BusinessException e) {
+            LOG.info("管理员查询接口异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("管理员查询接口异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+
+    }
+
 
 }

@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  * This file was generated on 2020-07-03 15:46:47.
  */
 @Table(name = "`payment_order`")
-public class PaymentOrder extends BaseDomain {
+public class PaymentOrder extends BaseDomain implements Cloneable{
     @Id
     @Column(name = "`id`")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -85,6 +85,12 @@ public class PaymentOrder extends BaseDomain {
     private Integer isSettle;
 
     /**
+     * 是否红冲（1：是 0：否）
+     */
+    @Column(name = "`is_reverse`")
+    private Integer isReverse;
+
+    /**
      * 金额
      */
     @Column(name = "`amount`")
@@ -136,6 +142,12 @@ public class PaymentOrder extends BaseDomain {
      */
     @Column(name = "`market_code`")
     private String marketCode;
+
+    /**
+     * 父ID（红冲原单ID）
+     */
+    @Column(name = "`parent_id`")
+    private Long parentId;
 
     /**
      * 乐观锁，版本号
@@ -312,6 +324,14 @@ public class PaymentOrder extends BaseDomain {
         this.isSettle = isSettle;
     }
 
+    public Integer getIsReverse() {
+        return isReverse;
+    }
+
+    public void setIsReverse(Integer isReverse) {
+        this.isReverse = isReverse;
+    }
+
     /**
      * 获取金额
      *
@@ -476,6 +496,14 @@ public class PaymentOrder extends BaseDomain {
         this.marketCode = marketCode;
     }
 
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
     /**
      * 获取乐观锁，版本号
      *
@@ -495,4 +523,14 @@ public class PaymentOrder extends BaseDomain {
     public void setVersion(Integer version) {
         this.version = version;
     }
+
+    @Override
+    public PaymentOrder clone() {
+        try {
+            return (PaymentOrder) super.clone();
+        } catch(CloneNotSupportedException e) {
+            throw new AssertionError(); // Can't happen
+        }
+    }
+
 }

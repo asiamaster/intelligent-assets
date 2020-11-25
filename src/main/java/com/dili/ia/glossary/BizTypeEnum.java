@@ -10,6 +10,8 @@ package com.dili.ia.glossary;
  */
 public enum BizTypeEnum {
     BOOTH_LEASE("1", "摊位租赁","boothLease"),
+    LOCATION_LEASE("4", "冷库租赁","locationLease"),
+    LODGING_LEASE("5", "公寓租赁","lodgingLease"),
     EARNEST("2", "定金","earnest"),
     DEPOSIT_ORDER("3", "保证金","deposit"),
     WATER_ELECTRICITY("5", "水电费", "waterElectricity"),

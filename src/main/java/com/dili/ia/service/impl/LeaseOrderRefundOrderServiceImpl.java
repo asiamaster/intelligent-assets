@@ -1,6 +1,6 @@
 package com.dili.ia.service.impl;
 
-import com.dili.bpmc.sdk.rpc.TaskRpc;
+import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.ia.domain.*;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
@@ -43,8 +43,9 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     TransferDeductionItemService transferDeductionItemService;
     @Autowired
     private RefundFeeItemService refundFeeItemService;
+    @SuppressWarnings("all")
     @Autowired
-    private TaskRpc taskRpc;
+    private EventRpc eventRpc;
     @Autowired
     private CustomerAccountService customerAccountService;
     @Autowired
@@ -79,7 +80,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
         if (null != refundOrder.getProcessInstanceId()) {
             //发送流程消息通知撤回
-            BaseOutput<String> baseOutput = taskRpc.messageEventReceived("withdraw", refundOrder.getProcessInstanceId(), null);
+            BaseOutput<String> baseOutput = eventRpc.messageEventReceived("withdraw", refundOrder.getProcessInstanceId(), null);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
