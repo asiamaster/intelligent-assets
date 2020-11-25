@@ -29,12 +29,14 @@
             <pattern>%d %-5level [${LOG_NAME}-${build.profile.id}] [%t] [%c:%L] -| %msg%n</pattern>
         </encoder>
     </appender>
+    <!--        不打印心跳日志     -->
+    <logger name="io.seata.core.rpc.netty" level="info"/>
 
     <!-- 开发环境 -->
     <springProfile name="dev">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE"/>
+<!--            <appender-ref ref="FILE"/>-->
         </root>
     </springProfile>
     <!-- 测试环境 -->

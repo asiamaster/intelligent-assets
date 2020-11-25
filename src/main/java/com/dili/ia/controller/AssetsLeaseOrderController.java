@@ -4,8 +4,10 @@ import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
+import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.bpmc.sdk.rpc.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.cache.BpmCacheConfig;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
@@ -26,6 +28,7 @@ import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.dto.IDTO;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.exception.DataErrorException;
 import com.dili.ss.exception.ParamErrorException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.User;
@@ -34,6 +37,7 @@ import com.dili.uap.sdk.domain.dto.UserQuery;
 import com.dili.uap.sdk.exception.NotLoginException;
 import com.dili.uap.sdk.rpc.UserRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import com.github.benmanes.caffeine.cache.Cache;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -44,6 +48,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -84,10 +89,14 @@ public class AssetsLeaseOrderController {
     private RefundFeeItemService refundFeeItemService;
     @Autowired
     private TransferDeductionItemService transferDeductionItemService;
+    @SuppressWarnings("all")
     @Autowired
     private UserRpc userRpc;
-
-
+    @SuppressWarnings("all")
+    @Autowired
+    EventRpc eventRpc;
+    @Resource(name = "leaseOrderEventCache")
+    Cache<String, List<String>> leaseOrderEventCache;
     /**
      * 跳转到LeaseOrder页面
      *
@@ -116,6 +125,32 @@ public class AssetsLeaseOrderController {
         modelMap.put("createdEnd", createdEnd);
         modelMap.put("assetsType", assetsType);
         return "assetsLeaseOrder/index";
+    }
+
+    /**
+     * 根据流程实例id查询当前事件名称列表
+     * @param processInstanceId
+     * @param state
+     * @param approvalState
+     * @return BaseOutput
+     */
+    @PostMapping(value="/listEventName.action")
+    @ResponseBody
+    public BaseOutput<List<String>> listEventName(@RequestParam String bizProcessInstanceId, @RequestParam Integer state, @RequestParam(required = false) Integer approvalState) {
+        StringBuilder sb = new StringBuilder().append(bizProcessInstanceId).append("_").append(state);
+        String cacheKey = approvalState == null ? sb.toString() : sb.append("_").append(approvalState).toString();
+        try {
+            List<String> strings = leaseOrderEventCache.get(cacheKey, t -> {
+                BaseOutput<List<String>> listBaseOutput = eventRpc.listEventName(bizProcessInstanceId);
+                if (!listBaseOutput.isSuccess()) {
+                    throw new DataErrorException(listBaseOutput.getMessage());
+                }
+                return listBaseOutput.getData();
+            });
+            return BaseOutput.successData(strings);
+        } catch (Exception e) {
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
     /**
@@ -253,7 +288,6 @@ public class AssetsLeaseOrderController {
         view(modelMap, null, code, null);
         return "assetsLeaseOrder/approvalView";
     }
-
 
     /**
      * 跳转到LeaseOrder查看页面
