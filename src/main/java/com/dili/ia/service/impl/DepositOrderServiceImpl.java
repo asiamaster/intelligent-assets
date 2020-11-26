@@ -549,10 +549,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                 LOG.info("租赁单【编号：{}】退款修改接口异常", depositRefundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
             }
-            //删除转抵扣项的数据
-            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-            transferDeductionItemCondition.setRefundOrderId(depositRefundOrderDto.getId());
-            transferDeductionItemService.deleteByExample(transferDeductionItemCondition);
         }
         return BaseOutput.success().setData(depositRefundOrderDto);
     }

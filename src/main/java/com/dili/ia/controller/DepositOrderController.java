@@ -133,7 +133,7 @@ public class DepositOrderController {
         try {
             BaseOutput<RefundOrder> out = depositOrderService.saveOrUpdateRefundOrder(orderDto);
             if (out.isSuccess()) {
-                if(StringUtils.isNotBlank(orderDto.getLogContent())){
+                if(orderDto.getId() != null){
                     LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
                     LoggerContext.put("content", orderDto.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
