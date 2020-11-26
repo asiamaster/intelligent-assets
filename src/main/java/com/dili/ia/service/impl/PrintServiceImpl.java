@@ -126,9 +126,9 @@ public class PrintServiceImpl implements PrintService {
         AssetsLeaseOrderItem leaseOrderItemCondition = new AssetsLeaseOrderItem();
         leaseOrderItemCondition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(leaseOrderItemCondition);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         leaseOrderPrintDto.setChargeItems(chargeItemDtos);
-        List<AssetsLeaseOrderItemListDto> leaseOrderItemListDtos = assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos);
+        List<AssetsLeaseOrderItemListDto> leaseOrderItemListDtos = assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, leaseOrder.getBizType(), chargeItemDtos);
         List<LeaseOrderItemPrintDto> leaseOrderItemPrintDtos = new ArrayList<>();
         leaseOrderItemListDtos.forEach(o -> {
             leaseOrderItemPrintDtos.add(leaseOrderItem2PrintDto(o));
@@ -321,7 +321,7 @@ public class PrintServiceImpl implements PrintService {
         if (leaseOrderItems.stream().filter(o -> !StopRentStateEnum.NO_APPLY.getCode().equals(o.getStopRentState())).collect(Collectors.toList()).size() > 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "发起过停租不能打印");
         }
-        if (!depositOrderService.checkDepositOrdersState(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrder.getId())) {
+        if (!depositOrderService.checkDepositOrdersState(leaseOrder.getBizType(), leaseOrder.getId())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "保证金单已退款、已作废或已取消不能打印");
         }
     }
@@ -364,7 +364,7 @@ public class PrintServiceImpl implements PrintService {
         Long depositSnapshotAmountTotal = leaseOrderItems.stream().mapToLong(AssetsLeaseOrderItem::getDepositBalance).sum(); //保证金快照
 
         //计算本期付款金额
-        BaseOutput<DepositOrdersPrintDataDto> depositOrdersPrintDataDtoBaseOutput = depositOrderService.findDepositOrdersPrintData(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(),leaseOrder.getId());
+        BaseOutput<DepositOrdersPrintDataDto> depositOrdersPrintDataDtoBaseOutput = depositOrderService.findDepositOrdersPrintData(leaseOrder.getBizType(),leaseOrder.getId());
         if (!depositOrdersPrintDataDtoBaseOutput.isSuccess()) {
             throw new BusinessException(ResultCode.DATA_ERROR, depositOrdersPrintDataDtoBaseOutput.getMessage());
         }
@@ -382,9 +382,9 @@ public class PrintServiceImpl implements PrintService {
         //实付金额 = 租赁实付金额 + 补交保证金金额
         leaseOrderPrintDto.setPayAmount(MoneyUtils.centToYuan(leaseOrder.getPayAmount() + depositMakeUpAmountTotal));
         if (isBuildChargeItem) {
-            List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+            List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
             leaseOrderPrintDto.setChargeItems(chargeItemDtos);
-            List<AssetsLeaseOrderItemListDto> leaseOrderItemListDtos = assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos);
+            List<AssetsLeaseOrderItemListDto> leaseOrderItemListDtos = assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, leaseOrder.getBizType(), chargeItemDtos);
             leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemList2PrintDtoList(depositOrderMap, leaseOrderItemListDtos));
         } else {
             leaseOrderPrintDto.setLeaseOrderItems(leaseOrderItemList2PrintDtoList(depositOrderMap, leaseOrderItems));
