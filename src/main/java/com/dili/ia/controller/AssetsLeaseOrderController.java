@@ -7,7 +7,6 @@ import com.dili.bpmc.sdk.domain.TaskCenterParam;
 import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.bpmc.sdk.rpc.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.cache.BpmCacheConfig;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.AssetsTypeEnum;
@@ -101,11 +100,11 @@ public class AssetsLeaseOrderController {
      * 跳转到LeaseOrder页面
      *
      * @param modelMap
-     * @param assetsType
+     * @param bizType
      * @return String
      */
-    @GetMapping(value = "/{assetsType}/index.html")
-    public String index(ModelMap modelMap, @PathVariable Integer assetsType) {
+    @GetMapping(value = "/{bizType}/index.html")
+    public String index(ModelMap modelMap, @PathVariable String bizType) {
         //默认显示最近3天，结束时间默认为当前日期的23:59:59，开始时间为当前日期-2的00:00:00，选择到年月日时分秒
         Calendar c = Calendar.getInstance();
         c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
@@ -123,13 +122,14 @@ public class AssetsLeaseOrderController {
 
         modelMap.put("createdStart", createdStart);
         modelMap.put("createdEnd", createdEnd);
-        modelMap.put("assetsType", assetsType);
+        modelMap.put("bizType", bizType);
+        modelMap.put("assetsType", AssetsTypeEnum.getAssetsTypeEnumByBizType(bizType).getCode());
         return "assetsLeaseOrder/index";
     }
 
     /**
      * 根据流程实例id查询当前事件名称列表
-     * @param processInstanceId
+     * @param bizProcessInstanceId
      * @param state
      * @param approvalState
      * @return BaseOutput
@@ -265,7 +265,7 @@ public class AssetsLeaseOrderController {
             AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
             condition.setLeaseOrderId(leaseOrderId);
             List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
-            return BaseOutput.success().setData(businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItems.get(0).getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList())));
+            return BaseOutput.success().setData(businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItems.get(0).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList())));
         } catch (BusinessException e) {
             LOG.info("收费项meta信息查询异常！", e);
             return BaseOutput.failure(e.getMessage());
@@ -324,9 +324,9 @@ public class AssetsLeaseOrderController {
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
         modelMap.put("leaseOrder", leaseOrder);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
-        modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
+        modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, leaseOrder.getBizType(), chargeItemDtos));
         try {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
@@ -360,12 +360,12 @@ public class AssetsLeaseOrderController {
      * @return String
      */
     @GetMapping(value = "/preSave.html")
-    public String add(ModelMap modelMap, Long id, Integer assetsType, Integer isRenew) {
+    public String add(ModelMap modelMap, Long id, String bizType, Integer isRenew) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), YesOrNoEnum.YES.getCode());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemConfig(userTicket.getFirmId(), bizType, YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
         if (null != id) {
             AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(id);
@@ -375,9 +375,10 @@ public class AssetsLeaseOrderController {
             condition.setLeaseOrderId(id);
             List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
 
-            modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(assetsType).getBizType(), chargeItemDtos));
+            modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, bizType, chargeItemDtos));
         }
-        modelMap.put("assetsType", assetsType);
+        modelMap.put("bizType", bizType);
+        modelMap.put("assetsType",AssetsTypeEnum.getAssetsTypeEnumByBizType(bizType).getCode());
         modelMap.put("isRenew", YesOrNoEnum.YES.getCode().equals(isRenew) ? YesOrNoEnum.YES.getCode() : YesOrNoEnum.NO.getCode());
         return "assetsLeaseOrder/preSave";
     }
@@ -400,7 +401,7 @@ public class AssetsLeaseOrderController {
         modelMap.put("leaseOrder", assetsLeaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
         if (null != refundOrderId) {
             modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
-            List<BusinessChargeItemDto> businessChargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrderItem.getAssetsType()).getBizType(), List.of(leaseOrderItemId));
+            List<BusinessChargeItemDto> businessChargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItem.getBizType(), List.of(leaseOrderItemId));
             modelMap.put("refundFeeItemMap", refundFeeItemService.queryRefundFeeItem(List.of(refundOrderId), businessChargeItemDtos).get(0));
             TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
             transferDeductionItemCondition.setRefundOrderId(refundOrderId);
@@ -603,9 +604,9 @@ public class AssetsLeaseOrderController {
         condition.setLeaseOrderId(id);
         condition.setRefundState(LeaseRefundStateEnum.WAIT_APPLY.getCode());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
         modelMap.put("chargeItems", chargeItemDtos);
-        modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getBizType(), chargeItemDtos));
+        modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, leaseOrder.getBizType(), chargeItemDtos));
         //【已创建】状态或【已提交】状态是没有进行抵扣的，当从【已提交】状态流转到【未生效】或【已生效】时则完成了抵扣分摊
         modelMap.put("isNotDeducted", leaseOrder.getEarnestDeduction() + leaseOrder.getTransferDeduction() > 0 && (LeaseOrderStateEnum.CREATED.getCode().equals(leaseOrder.getState()) || LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())));
         return "assetsLeaseOrder/submitPayment";

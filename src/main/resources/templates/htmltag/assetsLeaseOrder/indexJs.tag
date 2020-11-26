@@ -107,7 +107,7 @@
     function openInsertHandler() {
        dia = bs4pop.dialog({
             title: '新增租赁',
-           content: '/leaseOrder/preSave.html?assetsType=' + $('#assetsType').val(),
+            content: '/leaseOrder/preSave.html?bizType=' + $('#bizType').val(),
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
@@ -147,7 +147,7 @@
 
                     dia = bs4pop.dialog({
                         title: '修改租赁',
-                        content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&assetsType=' + $('#assetsType').val(),
+                        content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&bizType=' + $('#bizType').val(),
                         isIframe : true,
                         closeBtn: true,
                         backdrop : 'static',

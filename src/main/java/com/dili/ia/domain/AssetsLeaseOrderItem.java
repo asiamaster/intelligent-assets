@@ -53,6 +53,12 @@ public class AssetsLeaseOrderItem extends BaseDomain {
     private Integer assetsType;
 
     /**
+     *  业务类型 1:摊位租赁 4：冷库租赁 5：公寓租赁
+     */
+    @Column(name = "`biz_type`")
+    private String bizType;
+
+    /**
      * 资产ID
      */
     @Column(name = "`assets_id`")
@@ -268,6 +274,14 @@ public class AssetsLeaseOrderItem extends BaseDomain {
 
     public void setAssetsType(Integer assetsType) {
         this.assetsType = assetsType;
+    }
+
+    public String getBizType() {
+        return bizType;
+    }
+
+    public void setBizType(String bizType) {
+        this.bizType = bizType;
     }
 
     public Long getAssetsId() {

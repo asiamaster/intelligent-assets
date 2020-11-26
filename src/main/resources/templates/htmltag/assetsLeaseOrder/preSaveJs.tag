@@ -532,6 +532,7 @@
                 }
             });
             leaseOrderItem.assetsType = $('#assetsType').val();
+            leaseOrderItem.bizType = $('#bizType').val();
             leaseOrderItems.push(leaseOrderItem);
         });
 
