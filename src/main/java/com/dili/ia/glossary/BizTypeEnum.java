@@ -10,11 +10,10 @@ package com.dili.ia.glossary;
  */
 public enum BizTypeEnum {
     BOOTH_LEASE("1", "摊位租赁","boothLease"),
-    LOCATION_LEASE("4", "冷库租赁","locationLease"),
-    LODGING_LEASE("5", "公寓租赁","lodgingLease"),
     EARNEST("2", "定金","earnest"),
     DEPOSIT_ORDER("3", "保证金","deposit"),
-    WATER_ELECTRICITY("5", "水电费", "waterElectricity"),
+    LOCATION_LEASE("4", "冷库租赁","locationLease"),
+    LODGING_LEASE("5", "公寓租赁","lodgingLease"),
     BOUTIQUE_ENTRANCE("6", "精品停车费", "boutique"),
     PASSPORT("7", "通行证", "passport"),
     STOCKIN("8", "冷库入库", "stockIn"),
@@ -25,7 +24,8 @@ public enum BizTypeEnum {
     LABOR_VEST_REMODEL("13", "劳务马甲更型费", "laborVestRemodel"),
     MESSAGEFEE("14", "信息费", "messageFee"),
     WATER("15", "水费", "water"),
-    ELECTRICITY("16", "电费", "electricity")
+    ELECTRICITY("16", "电费", "electricity"),
+    WATER_ELECTRICITY("17", "水电费", "waterElectricity"),
     ;
 
     private String name;
