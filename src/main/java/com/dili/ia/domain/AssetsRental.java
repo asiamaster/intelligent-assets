@@ -25,6 +25,12 @@ public class AssetsRental extends BaseDomain {
     private Long id;
 
     /**
+     * 一批资产属于一个批次的批次号
+     */
+    @Column(name = "`batch_id`")
+    private Long batchId;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -104,13 +110,46 @@ public class AssetsRental extends BaseDomain {
      * （1启用,2禁用）
      */
     @Column(name = "`state`")
-    private Byte state;
+    private Integer state;
+
+    /**
+     * 创建操作员ID
+     */
+    @Column(name = "`creator_id`")
+    private Long creatorId;
+
+    /**
+     * 创建人名称
+     */
+    @Column(name = "`creator`")
+    private String creator;
+
+    /**
+     * 市场Id
+     */
+    @Column(name = "`market_id`")
+    private Long marketId;
+
+    /**
+     * 市场CODE
+     */
+    @Column(name = "`market_code`")
+    private String marketCode;
 
     /**
      * 乐观锁，版本号
      */
     @Column(name = "`version`")
-    private Byte version;
+    private Integer version;
+
+
+    public Long getBatchId() {
+        return batchId;
+    }
+
+    public void setBatchId(Long batchId) {
+        this.batchId = batchId;
+    }
 
     /**
      * 获取创建时间
@@ -359,7 +398,7 @@ public class AssetsRental extends BaseDomain {
      */
     @FieldDef(label="（1启用,2禁用）")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getState() {
+    public Integer getState() {
         return state;
     }
 
@@ -368,8 +407,48 @@ public class AssetsRental extends BaseDomain {
      *
      * @param state （1启用,2禁用）
      */
-    public void setState(Byte state) {
+    public void setState(Integer state) {
         this.state = state;
+    }
+
+    @FieldDef(label="创建操作员ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    @FieldDef(label="创建人名称", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
+    @FieldDef(label="市场Id")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getMarketId() {
+        return marketId;
+    }
+
+    public void setMarketId(Long marketId) {
+        this.marketId = marketId;
+    }
+
+    @FieldDef(label="市场CODE", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getMarketCode() {
+        return marketCode;
+    }
+
+    public void setMarketCode(String marketCode) {
+        this.marketCode = marketCode;
     }
 
     /**
@@ -379,7 +458,7 @@ public class AssetsRental extends BaseDomain {
      */
     @FieldDef(label="乐观锁，版本号")
     @EditMode(editor = FieldEditor.Text, required = false)
-    public Byte getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
@@ -388,7 +467,7 @@ public class AssetsRental extends BaseDomain {
      *
      * @param version 乐观锁，版本号
      */
-    public void setVersion(Byte version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 }

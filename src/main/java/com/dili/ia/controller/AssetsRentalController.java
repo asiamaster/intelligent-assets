@@ -8,6 +8,8 @@ import com.dili.ia.util.AssertUtils;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,12 +96,13 @@ public class AssetsRentalController {
      */
     @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput insert(@ModelAttribute AssetsRentalDto assetsRentalDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 校验参数，名称和摊位不能为空
             AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
             AssertUtils.notNull(assetsRentalDto.getAssetsRentalItemList(), "预设名称不能为空");
 
-            AssetsRental assetsRental = assetsRentalService.addAssetsRental(assetsRentalDto);
+            AssetsRental assetsRental = assetsRentalService.addAssetsRental(assetsRentalDto, userTicket);
             return BaseOutput.success().setData(assetsRental);
         } catch (BusinessException e) {
             logger.info("新增资产出租预设失败：{}", e.getMessage());
@@ -137,12 +140,14 @@ public class AssetsRentalController {
 
     /**
      * 启用或者禁用
-     * @param id
+     *
+     * @param  id
      * @return BaseOutput
+     * @date   2020/11/26
      */
-    @RequestMapping(value="/delete.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput delete(Long id) {
-        assetsRentalService.delete(id);
-        return BaseOutput.success("删除成功");
+    @RequestMapping(value="/enableOrDisable.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput enableOrDisable(Long id) {
+        assetsRentalService.enableOrDisable(id);
+        return BaseOutput.success();
     }
 }
