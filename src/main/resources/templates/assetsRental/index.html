@@ -1,0 +1,70 @@
+<#bs4Body>
+
+<div class="container-fluid">
+
+<div class="row">
+    <div class="col-12">
+        <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+        <#resource code="addMeter">
+            <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
+        </#resource>
+        <#resource code="updateMeter">
+            <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
+        </#resource>
+        <#resource code="copyMeter">
+            <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 启用</button>
+        </#resource>
+        <#resource code="copyMeter">
+            <button id="btn_view1" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 禁用</button>
+        </#resource>
+</div>
+<table id="grid" data-toggle="table" data-title="资产出租预设列表" class="table" data-toolbar="#toolbar"
+       data-pagination="true" data-page-number="1" data-page-size="10"
+       data-query-params="queryParams" data-side-pagination="server" data-method="POST"
+       data-content-type="application/x-www-form-urlencoded" data-single-select="true"
+       data-click-to-select="true" data-unique-id="id" data-sort-name="id"
+       data-sort-order="desc" data-icons="bui.variable.icons" data-buttons-class="primary"
+       data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
+    <thead>
+    <tr>
+        <th data-radio="true"></th>
+        <th data-field="name" data-sortable="true" data-align="center" data-formatter="codeFormatter">
+            预设名称
+        </th>
+        <th data-field="" data-sortable="true" data-align="center" data-provider="">
+            摊位对象
+        </th>
+        <th data-field="engageName" data-sortable="true" data-align="center" data-provider="assetsTypeProvider">
+            经营范围
+        </th>
+        <th data-field="categoryName" data-sortable="true" data-align="center">
+            经营品类
+        </th>
+        <th data-field="leaseTermCode" data-sortable="true" data-align="center">
+            租赁期限
+        </th>
+        <th data-field="leaseDays" data-sortable="true" data-align="center" data-provider="moneyProvider">
+            租赁天数
+        </th>
+        <th data-field="startTime" data-sortable="true" data-align="center"  data-provider="dateProvider" >
+            开始日期
+        </th>
+        <th data-field="endTime" data-sortable="true" data-align="center"  data-provider="dateProvider" >
+            结束日期
+        </th>
+        <th data-field="state" data-sortable="true" data-align="center" >
+            状态
+        </th>
+    </tr>
+    </thead>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</#bs4Body>
+
+<#meter_indexJs />
+
