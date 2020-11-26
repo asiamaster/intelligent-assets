@@ -5,11 +5,8 @@
      * @author jiangchengyong
      *
      ***/
-
-        //行索引计数器
+    //行索引计数器
     let itemIndex = 0;
-
-
 
     //对应摊位
     $(function () {
@@ -37,10 +34,10 @@
         $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
         $('#assetsName-error').remove();
         $('#assetsNameInput').attr('name', '');
-        if($(this).val() == 1 ) {
-            $('#assetsName').show();
-        } else {
+        if($(this).val() == 100 ) { //其它
             $('#assetsNameInput').attr('name', 'assetsName').show();
+        } else {
+            $('#assetsName').show();
         }
     })
 

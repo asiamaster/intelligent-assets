@@ -74,10 +74,15 @@
         }
     })
 
+    let assetsType = $('[name="assetsType"]').val();
     var boothAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/assets/searchAssets.action',
+        onSearchStart: function (params) {
+            params['assetsType'] = $('[name="assetsType"]').val();
+            return params;
+        },
         transformResult: function (result) {
             if(result.success){
                 let data = result.data;
