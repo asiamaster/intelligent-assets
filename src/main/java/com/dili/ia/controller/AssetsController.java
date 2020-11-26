@@ -3,6 +3,7 @@ package com.dili.ia.controller;
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.dto.AssetsDTO;
+import com.dili.assets.sdk.dto.AssetsQuery;
 import com.dili.assets.sdk.dto.CusCategoryDTO;
 import com.dili.assets.sdk.dto.CusCategoryQuery;
 import com.dili.assets.sdk.rpc.AssetsRpc;
@@ -37,13 +38,14 @@ public class AssetsController {
      */
     @GetMapping(value = "/searchAssets.action")
     public @ResponseBody
-    BaseOutput<List<AssetsDTO>> searchAssets(String keyword) {
+    BaseOutput<List<AssetsDTO>> searchAssets(String keyword, Integer assetsType) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        JSONObject json = new JSONObject();
-        json.put("keyword", keyword);
-        json.put("marketId", userTicket.getFirmId());
+        AssetsQuery assetsQuery = new AssetsQuery();
+        assetsQuery.setKeyword(keyword);
+        assetsQuery.setBusinessType(assetsType);// 资产类型
+        assetsQuery.setMarketId(userTicket.getFirmId());
         try {
-            List<AssetsDTO> data = assetsRpc.searchBooth(json).getData();
+            List<AssetsDTO> data = assetsRpc.searchBooth(assetsQuery).getData();
             List<AssetsDTO> result = new ArrayList<>();
             if (CollUtil.isNotEmpty(data)) {
                 for (AssetsDTO dto : data) {

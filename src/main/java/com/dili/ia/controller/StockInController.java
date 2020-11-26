@@ -309,7 +309,8 @@ public class StockInController {
     public @ResponseBody BaseOutput getColdStorage(AssetsDto assetsDto) {	        
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
-    		baseOutput.setData(assetsRpc.searchBooth((JSONObject)JSON.toJSON(assetsDto)).getData());
+    	    //@TODO 升级包参数调整
+//    		baseOutput.setData(assetsRpc.searchBooth((JSONObject)JSON.toJSON(assetsDto)).getData());
     	}catch (Exception e) {
 			LOG.error("获取异常！", e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");

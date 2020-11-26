@@ -5,7 +5,6 @@ import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
-import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.DepositBalanceParam;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
@@ -854,40 +853,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //更新保证金余额 ---- 退款扣减保证金余额
         this.deductDepositBalance(depositOrder, refundOrder.getTotalRefundAmount());
-
-        //转抵扣充值
-        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
-        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
-            transferDeductionItems.forEach(o -> {
-                BaseOutput accountOutput = customerAccountService.rechargeTransferBalance(this.buildCustomerAccountParam(refundOrder, o.getPayeeAmount(), o.getPayeeId()));
-                if (!accountOutput.isSuccess()) {
-                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
-                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
-                }
-            });
-        }
         //记录退款日志
         msgService.sendBusinessLog(recordRefundLog(refundOrder));
         return BaseOutput.success();
     }
-
-    private CustomerAccountParam buildCustomerAccountParam(RefundOrder param,Long amount, Long customerId){
-        CustomerAccountParam caParam = new CustomerAccountParam();
-        caParam.setBizType(param.getBizType());
-        caParam.setAmount(amount);
-        caParam.setCustomerId(customerId);
-        caParam.setOrderId(param.getId());
-        caParam.setOrderCode(param.getCode());
-        caParam.setOperaterId(param.getRefundOperatorId());
-        caParam.setOperatorName(param.getRefundOperator());
-        caParam.setSceneType(TransactionSceneTypeEnum.TRANSFER_IN.getCode());
-        caParam.setMarketId(param.getMarketId());
-
-        return caParam;
-    }
-
     /**
      * 记录退款日志
      *
