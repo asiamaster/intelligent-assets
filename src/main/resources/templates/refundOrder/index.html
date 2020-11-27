@@ -89,7 +89,13 @@
             退款单编号
         </th>
         <th data-field="businessCode" data-sortable="true" data-align="center">
+            <% if (bizType == @com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()
+            || bizType == @com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()
+            || bizType == @com.dili.ia.glossary.BizTypeEnum.LODGING_LEASE.getCode()) {%>
+            对应合同号
+            <% } else {%>
             对应业务单编号
+            <% } %>
         </th>
         <th data-field="bizType" data-sortable="true" data-sort-name="biz_type" data-align="center" data-provider="bizTypeProvider">
             业务类型

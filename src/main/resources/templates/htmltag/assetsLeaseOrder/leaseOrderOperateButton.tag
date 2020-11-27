@@ -1,4 +1,5 @@
 <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
+<button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-eye"></i> 查看流程</button>
 <!-- 摊位操作button -->
 <#resource code="addBoothLeaseOrder" checkMenu="true">
 <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
@@ -15,7 +16,6 @@
 <#resource code="submitBoothLeaseOrderApplication" checkMenu="true">
 <button id="btn_approval" type="button" class="btn btn-primary submitApprovalEvent" onclick="submitForApproval()"><i class="fa fa-paper-plane"></i> 提交审批</button>
 </#resource>
-<button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
 <#resource code="submitPaymentBoothLeaseOrder" checkMenu="true">
 <button id="btn_submit" type="button" class="btn btn-primary submitEvent" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交付款</button>
 </#resource>
@@ -51,7 +51,6 @@
 <#resource code="submitLocationLeaseOrderApplication" checkMenu="true">
 <button id="btn_approval" type="button" class="btn btn-primary submitApprovalEvent" onclick="submitForApproval()"><i class="fa fa-paper-plane"></i> 提交审批</button>
 </#resource>
-<button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
 <#resource code="submitPaymentLocationLeaseOrder" checkMenu="true">
 <button id="btn_submit" type="button" class="btn btn-primary submitEvent" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交付款</button>
 </#resource>
@@ -87,7 +86,7 @@
 <#resource code="submitLodgingLeaseOrderApplication" checkMenu="true">
 <button id="btn_approval" type="button" class="btn btn-primary submitApprovalEvent" onclick="submitForApproval()"><i class="fa fa-paper-plane"></i> 提交审批</button>
 </#resource>
-<button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
+
 <#resource code="submitPaymentLodgingLeaseOrder" checkMenu="true">
 <button id="btn_submit" type="button" class="btn btn-primary submitEvent" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交付款</button>
 </#resource>

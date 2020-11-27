@@ -182,7 +182,7 @@
 
 
         dia = bs4pop.dialog({
-            title: '摊位租赁详情',
+            title: '租赁详情',
             content: '/leaseOrder/view.action?id='+id,
             isIframe : true,
             closeBtn: true,
@@ -480,7 +480,7 @@
         }
 
         dia = bs4pop.dialog({
-            title: '摊位续租',
+            title: '续租',
             content: '/leaseOrder/preSave.html?isRenew=1&id=' + rows[0].id + '&assetsType=' + rows[0].assetsType,
             isIframe : true,
             closeBtn: true,
