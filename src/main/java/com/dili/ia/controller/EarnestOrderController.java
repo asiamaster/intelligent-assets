@@ -107,24 +107,25 @@ public class EarnestOrderController {
             earnestOrder = earnestOrderService.get(paymentOrderService.listByExample(paymentOrder).stream().findFirst().orElse(null).getBusinessId());
             id = earnestOrder.getId();
         }
-            EarnestOrderDetail condition = new EarnestOrderDetail();
-            condition.setEarnestOrderId(id);
-            List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
-            modelMap.put("earnestOrder",earnestOrder);
-            modelMap.put("earnestOrderDetails", earnestOrderDetails);
-            try{
-                //日志查询
-                BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-                businessLogQueryInput.setBusinessId(id);
-                businessLogQueryInput.setBusinessType(LogBizTypeConst.EARNEST_ORDER);
-                businessLogQueryInput.setSystemCode("IA");
-                BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
-                if(businessLogOutput.isSuccess()){
-                    modelMap.put("logs",businessLogOutput.getData());
-                }
-            }catch (Exception e){
-                LOG.error("日志服务查询异常",e);
+        EarnestOrderDetail condition = new EarnestOrderDetail();
+        condition.setEarnestOrderId(id);
+        List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
+        modelMap.put("earnestOrder",earnestOrder);
+        modelMap.put("earnestOrderDetails", earnestOrderDetails);
+        try{
+            //日志查询
+            BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
+            businessLogQueryInput.setBusinessId(id);
+            businessLogQueryInput.setBusinessType(LogBizTypeConst.EARNEST_ORDER);
+            businessLogQueryInput.setSystemCode("IA");
+            businessLogQueryInput.setMarketId(earnestOrder.getMarketId());
+            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            if(businessLogOutput.isSuccess()){
+                modelMap.put("logs", businessLogOutput.getData());
             }
+        }catch (Exception e){
+            LOG.error("日志服务查询异常",e);
+        }
         return "earnestOrder/view";
     }
     /**

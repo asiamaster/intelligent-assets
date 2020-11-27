@@ -265,9 +265,10 @@ public class DepositOrderController {
             businessLogQueryInput.setBusinessId(id);
             businessLogQueryInput.setBusinessType(LogBizTypeConst.DEPOSIT_ORDER);
             businessLogQueryInput.setSystemCode("IA");
+            businessLogQueryInput.setMarketId(depositOrder.getMarketId());
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if(businessLogOutput.isSuccess()){
-                modelMap.put("logs",businessLogOutput.getData());
+                modelMap.put("logs", businessLogOutput.getData());
             }
         }catch (Exception e){
             LOG.error("日志服务查询异常",e);
