@@ -6,15 +6,14 @@ import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.dto.AssetsLeaseOrderItemListDto;
-import com.dili.ia.glossary.LeaseOrderItemStateEnum;
-import com.dili.ia.glossary.LeaseOrderStateEnum;
-import com.dili.ia.glossary.StopRentStateEnum;
-import com.dili.ia.glossary.StopWayEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderItemMapper;
 import com.dili.ia.service.AssetsLeaseOrderItemService;
 import com.dili.ia.service.AssetsLeaseOrderService;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -105,6 +104,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
             LOG.info("摊位订单项停租异常,乐观锁生效【订单项ID:{},摊位名称:{}】", leaseOrderItemOld.getId(), leaseOrderItemOld.getAssetsName());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName());
         LoggerUtil.buildLoggerContext(leaseOrderItemOld.getLeaseOrderId(),leaseOrderItemOld.getLeaseOrderCode(),userTicket.getId(),userTicket.getRealName(),userTicket.getFirmId(),leaseOrderItem.getStopReason());
         return BaseOutput.success();
     }
