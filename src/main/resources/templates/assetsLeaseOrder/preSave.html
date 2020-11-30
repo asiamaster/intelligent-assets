@@ -75,7 +75,7 @@
                     <input type="text" id="endTime" name="endTime" class="form-control" oninput="endTimeChangeHandler()" value="${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}" autocomplete="off" required>
                 </div>
                 <div class="form-group col">
-                    <label for="contractNo" _log>合同编号</label>
+                    <label for="contractNo" _log>线下合同号</label>
                     <input type="text" class="form-control" id="contractNo" name="contractNo" value="${isNotEmpty(isRenew) && isRenew == 1?'':leaseOrder.contractNo!}" maxlength="50"/>
                 </div>
                 <div class="form-group col">

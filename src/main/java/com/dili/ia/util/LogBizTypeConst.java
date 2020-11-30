@@ -7,8 +7,6 @@ package com.dili.ia.util;
  * @description:  日志类型，值与数据字典的日志配置一致
  */
 public class LogBizTypeConst {
-    //摊位租赁类型
-    public static final String BOOTH_LEASE="booth_lease";
     //定金管理
     public static final String EARNEST_ORDER="earnest_order";
     //保证金管理

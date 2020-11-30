@@ -9,10 +9,7 @@ import com.dili.bpmc.sdk.rpc.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
-import com.dili.ia.glossary.AssetsTypeEnum;
-import com.dili.ia.glossary.DepositOrderStateEnum;
-import com.dili.ia.glossary.LeaseOrderStateEnum;
-import com.dili.ia.glossary.LeaseRefundStateEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -209,7 +206,7 @@ public class AssetsLeaseOrderController {
      *
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkPass", content = "${logContent!}", systemCode = "IA")
+    @BusinessLogger(operationType = "checkPass", content = "${logContent!}", systemCode = "IA")
     @PostMapping(value = "/approvedHandler.action")
     public @ResponseBody
     BaseOutput approvedHandler(@Validated ApprovalParam approvalParam) {
@@ -233,7 +230,7 @@ public class AssetsLeaseOrderController {
      *
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "checkFail", content = "${logContent!}", systemCode = "IA")
+    @BusinessLogger(operationType = "checkFail", content = "${logContent!}", systemCode = "IA")
     @PostMapping(value = "/approvedDeniedHandler.action")
     public @ResponseBody
     BaseOutput approvedDeniedHandler(@Validated ApprovalParam approvalParam) {
@@ -331,7 +328,7 @@ public class AssetsLeaseOrderController {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(leaseOrder.getId());
-            businessLogQueryInput.setBusinessType(LogBizTypeConst.BOOTH_LEASE);
+            businessLogQueryInput.setBusinessType(BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName());
             businessLogQueryInput.setSystemCode("IA");
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if (businessLogOutput.isSuccess()) {
@@ -466,7 +463,7 @@ public class AssetsLeaseOrderController {
      * @param leaseOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${contractNo}", operationType = "reNumber", systemCode = "IA")
+    @BusinessLogger(content = "${contractNo}", operationType = "reNumber", systemCode = "IA")
     @PostMapping(value = "/supplement.action")
     public @ResponseBody
     BaseOutput supplement(AssetsLeaseOrder leaseOrder) {
@@ -489,7 +486,7 @@ public class AssetsLeaseOrderController {
      * @param id 订单ID
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "cancel", systemCode = "IA")
+    @BusinessLogger(operationType = "cancel", systemCode = "IA")
     @PostMapping(value = "/cancelOrder.action")
     public @ResponseBody
     BaseOutput cancelOrder(Long id) {
@@ -512,7 +509,7 @@ public class AssetsLeaseOrderController {
      * @param id 订单ID
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "invalid", systemCode = "IA")
+    @BusinessLogger(operationType = "invalid", systemCode = "IA")
     @PostMapping(value = "/invalidOrder.action")
     public @ResponseBody
     BaseOutput invalidOrder(@RequestParam Long id, @RequestParam String invalidReason) {
@@ -535,7 +532,7 @@ public class AssetsLeaseOrderController {
      * @param id 订单ID
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "withdraw", systemCode = "IA")
+    @BusinessLogger(operationType = "withdraw", systemCode = "IA")
     @PostMapping(value = "/withdrawOrder.action")
     public @ResponseBody
     BaseOutput withdrawOrder(Long id) {
@@ -556,7 +553,7 @@ public class AssetsLeaseOrderController {
      * @param leaseOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${logContent!}", systemCode = "IA")
+    @BusinessLogger(content = "${logContent!}", systemCode = "IA")
     @PostMapping(value = "/saveLeaseOrder.action")
     public @ResponseBody
     BaseOutput saveLeaseOrder(@RequestBody AssetsLeaseOrderListDto leaseOrder) {
@@ -569,6 +566,7 @@ public class AssetsLeaseOrderController {
             //写业务日志
             if (output.isSuccess()) {
                 UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName());
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, leaseOrder.getCode());
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, leaseOrder.getId());
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, userTicket.getId());
@@ -619,7 +617,7 @@ public class AssetsLeaseOrderController {
      * @param assetsLeaseSubmitPaymentDto
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, content = "${leasePayAmountStr}", operationType = "submitPayment", systemCode = "IA")
+    @BusinessLogger(content = "${leasePayAmountStr}", operationType = "submitPayment", systemCode = "IA")
     @PostMapping(value = "/submitPayment.action")
     public @ResponseBody
     BaseOutput submitPayment(@RequestBody AssetsLeaseSubmitPaymentDto assetsLeaseSubmitPaymentDto) {
@@ -640,7 +638,7 @@ public class AssetsLeaseOrderController {
      * @param id
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.BOOTH_LEASE, operationType = "submitForApproval", systemCode = "IA")
+    @BusinessLogger(operationType = "submitForApproval", systemCode = "IA")
     @PostMapping(value = "/submitForApproval.action")
     public @ResponseBody
     BaseOutput submitForApproval(@RequestParam Long id) {
@@ -682,7 +680,7 @@ public class AssetsLeaseOrderController {
                 } else {
                     LoggerContext.put("content", MoneyUtils.centToYuan(refundOrderDto.getTotalRefundAmount()));
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "refundApply");
-                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.BOOTH_LEASE);
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE,BizTypeEnum.getBizTypeEnum(refundOrderDto.getBizType()).getEnName());
                     LoggerUtil.buildLoggerContext(refundOrderDto.getBusinessId(), refundOrderDto.getBusinessCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
                 }
             }

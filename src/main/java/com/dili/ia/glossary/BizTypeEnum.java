@@ -9,11 +9,11 @@ package com.dili.ia.glossary;
  * @createTime 2020-02-17 18:51
  */
 public enum BizTypeEnum {
-    BOOTH_LEASE("1", "摊位租赁","boothLease"),
+    BOOTH_LEASE("1", "摊位租赁","booth_lease"),
     EARNEST("2", "定金","earnest"),
     DEPOSIT_ORDER("3", "保证金","deposit"),
-    LOCATION_LEASE("4", "冷库租赁","locationLease"),
-    LODGING_LEASE("5", "公寓租赁","lodgingLease"),
+    LOCATION_LEASE("4", "冷库租赁","location_lease"),
+    LODGING_LEASE("5", "公寓租赁","lodging_lease"),
     BOUTIQUE_ENTRANCE("6", "精品停车费", "boutique"),
     PASSPORT("7", "通行证", "passport"),
     STOCKIN("8", "冷库入库", "stockIn"),
