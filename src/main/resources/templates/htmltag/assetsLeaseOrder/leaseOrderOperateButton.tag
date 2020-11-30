@@ -31,7 +31,7 @@
 <#resource code="invoiceBoothLeaseOrder" checkMenu="true">
 <button id="btn_invoice" type="button" class="btn btn-primary invoiceEvent" onclick="openInvoiceHandler()"><i class="fa fa-reply"></i>开票</button>
 </#resource>
-<#resource code="invoiceBoothPrint" checkMenu="true">
+<#resource code="boothLeasePrint" checkMenu="true">
 <button id="btn_print" type="button" class="btn btn-primary" onclick="openPrintHandler()"><i class="fa fa-reply"></i>业务打印</button>
 </#resource>
 
@@ -66,7 +66,7 @@
 <#resource code="invoiceLocationLeaseOrder" checkMenu="true">
 <button id="btn_invoice" type="button" class="btn btn-primary invoiceEvent" onclick="openInvoiceHandler()"><i class="fa fa-reply"></i>开票</button>
 </#resource>
-<#resource code="invoiceLocationPrint" checkMenu="true">
+<#resource code="locationLeasePrint" checkMenu="true">
 <button id="btn_print" type="button" class="btn btn-primary" onclick="openPrintHandler()"><i class="fa fa-reply"></i>业务打印</button>
 </#resource>
 
@@ -102,6 +102,6 @@
 <#resource code="invoiceLodgingLeaseOrder" checkMenu="true">
 <button id="btn_invoice" type="button" class="btn btn-primary invoiceEvent" onclick="openInvoiceHandler()"><i class="fa fa-reply"></i>开票</button>
 </#resource>
-<#resource code="invoiceLodgingPrint" checkMenu="true">
+<#resource code="lodgingLeasePrint" checkMenu="true">
 <button id="btn_print" type="button" class="btn btn-primary" onclick="openPrintHandler()"><i class="fa fa-reply"></i>业务打印</button>
 </#resource>
