@@ -67,6 +67,7 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         assetsRentalDto.setCreator(userTicket.getUserName());
         assetsRentalDto.setMarketCode(userTicket.getFirmCode());
         BeanUtils.copyProperties(assetsRentalDto, assetsRental);
+
         this.insertSelective(assetsRental);
 
         // 新增到关联表

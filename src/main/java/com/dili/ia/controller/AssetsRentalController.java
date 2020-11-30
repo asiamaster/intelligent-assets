@@ -94,8 +94,8 @@ public class AssetsRentalController {
      * @return BaseOutput
      * @date   2020/11/26
      */
-    @RequestMapping(value="/insert.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput insert(@ModelAttribute AssetsRentalDto assetsRentalDto) {
+    @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput add(@ModelAttribute AssetsRentalDto assetsRentalDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 校验参数，名称和摊位不能为空
