@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 转抵金额只来源于租赁退款
  * This file was generated on 2020-07-04 09:48:04.
  */
+@Deprecated
 @Table(name = "`customer_account`")
 public class CustomerAccount extends BaseDomain {
     @Id

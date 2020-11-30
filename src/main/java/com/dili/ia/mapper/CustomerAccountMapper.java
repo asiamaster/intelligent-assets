@@ -2,7 +2,7 @@ package com.dili.ia.mapper;
 
 import com.dili.ia.domain.CustomerAccount;
 import com.dili.ss.base.MyMapper;
-
+@Deprecated
 public interface CustomerAccountMapper extends MyMapper<CustomerAccount> {
 
     Integer addEarnestBalance(Long id, Long amount);

@@ -12,6 +12,7 @@ import com.dili.ss.domain.BaseOutput;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-14 10:18:23.
  */
+@Deprecated
 public interface CustomerAccountService extends BaseService<CustomerAccount, Long> {
     /**
      * 检查当前市场客户账户是否已存在

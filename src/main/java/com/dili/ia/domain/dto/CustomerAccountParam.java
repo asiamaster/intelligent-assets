@@ -8,6 +8,7 @@ package com.dili.ia.domain.dto;
  * @author qinkelan
  * @createTime 2020-11-02 10:42
  */
+@Deprecated
 public class CustomerAccountParam {
 
      // 业务类型，取自枚举【BizTypeEnum】 的 code
