@@ -21,6 +21,7 @@ import java.util.stream.Stream;
  * @author qinkelan
  * @createTime 2020-02-26 15:56
  */
+@Deprecated
 @Component
 public class TransactionItemTypeProvider implements ValueProvider {
     private static final List<ValuePair<?>> BUFFER = new ArrayList<>();

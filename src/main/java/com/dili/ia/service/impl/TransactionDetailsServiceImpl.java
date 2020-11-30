@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-14 10:18:23.
  */
+@Deprecated
 @Service
 public class TransactionDetailsServiceImpl extends BaseServiceImpl<TransactionDetails, Long> implements TransactionDetailsService {
 

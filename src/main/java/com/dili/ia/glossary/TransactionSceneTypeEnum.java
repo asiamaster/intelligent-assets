@@ -8,6 +8,7 @@ package com.dili.ia.glossary;
  * @author qinkelan
  * @createTime 2020-02-26 15:21
  */
+@Deprecated
 public enum TransactionSceneTypeEnum {
     PAYMENT(1, "交费"),
     DEDUCT_USE(2, "抵扣消费"),

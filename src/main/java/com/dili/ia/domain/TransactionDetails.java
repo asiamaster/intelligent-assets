@@ -16,6 +16,7 @@ import javax.persistence.*;
  * 明细流水
  * This file was generated on 2020-07-04 09:48:04.
  */
+@Deprecated
 @Table(name = "`transaction_details`")
 public class TransactionDetails extends BaseDomain {
     @Id
