@@ -16,9 +16,6 @@
             $('#_certificateNumber').val(suggestion.certificateNumber);
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#_certificateNumber,#customerCellphone").valid();
-
-            //账户余额查询
-            queryCustomerAccount();
             calcTotalAmount(true);
         }
     });
@@ -29,8 +26,6 @@
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#customerName,#customerCellphone").valid();
 
-            //账户余额查询
-            queryCustomerAccount();
             calcTotalAmount(true);
         }
     });
@@ -131,8 +126,6 @@
         initSwipeIdCard({
             id:'getCustomer',
             onLoadSuccess:function(customer){
-                //账户余额查询
-                queryCustomerAccount();
                 calcTotalAmount(true);
             }
         });
@@ -145,8 +138,6 @@
                 $('#customerId').val(customer.customerId);
                 $('#certificateNumber,#_certificateNumber').val(customer.customerCertificateNumber);
                 $('#customerCellphone').val(customer.customerContactsPhone);
-                //账户余额查询
-                queryCustomerAccount();
                 calcTotalAmount(true);
             }
         });
@@ -197,10 +188,6 @@
                 addBoothItem({index: ++itemIndex});
             }
         <% }%>
-
-        //账户余额查询
-        queryCustomerAccount();
-
 
         let assetsIds = $("table input[name^='assetsId']").filter(function () {
             return this.value
@@ -380,88 +367,13 @@
                             }
                         }
                     }
-                    calcTotalAmountAndDeposit(true);
+                    calcTotalAmountAndDeposit();
                 }
             },
             error: function (a, b, c) {
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
-    }
-
-    /**
-     * 账户余额查询
-     * */
-    function queryCustomerAccount(){
-        let customerId = $('#customerId').val();
-        if(!customerId) return;
-        $.ajax({
-            type: "get",
-            url: "/customerAccount/getCustomerAccountByCustomerId.action",
-            data: {customerId},
-            dataType: "json",
-            async : false,
-            success: function (ret) {
-                if(ret.success){
-                    let earnestDeductionEl$ = $('#earnestDeduction');
-                    let transferDeductionEl$ = $('#transferDeduction');
-                    let earnestAvailableBalance = 0;
-                    let transferAvailableBalance = 0;
-                    if(ret.data){
-                        let data = ret.data;
-                        earnestAvailableBalance = Number(data.earnestAvailableBalance).centToYuan();
-                        transferAvailableBalance = Number(data.transferAvailableBalance).centToYuan();
-                        if(isInitCheckDeduction){
-                            if(Number(earnestDeductionEl$.val()) > earnestAvailableBalance){
-                                earnestDeductionEl$.val(earnestAvailableBalance);
-                                bs4pop.notice('定金可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
-                            }
-                            if(Number(transferDeductionEl$.val()) > transferAvailableBalance){
-                                transferDeductionEl$.val(transferAvailableBalance);
-                                bs4pop.notice('转低可抵扣额小于之前设置金额,已为您调整至最大抵扣额！', {position: 'bottomleft',autoClose: false})
-                            }
-                        }else{
-                            earnestDeductionEl$.val('');
-                            $('#transferDeduction').val('');
-                        }
-                    }
-                    earnestDeductionEl$.attr('max',earnestAvailableBalance);
-                    $('#earnestAmount').text('余额'+earnestAvailableBalance);
-                    transferDeductionEl$.attr('max',transferAvailableBalance);
-                    $('#transferAmount').text('余额'+transferAvailableBalance);
-                }
-            },
-            error: function (a, b, c) {
-                bs4pop.alert('远程访问失败', {type: 'error'});
-            }
-        });
-    }
-
-    /**
-     * 计算实付金额
-     * @param isCascadeCalc 是否级联计算加保证金后的实付金额
-     * */
-    function calcPayAmount(isCascadeCalc) {
-        let earnestDeduction = Number($('#earnestDeduction').val());
-        let transferDeduction = Number($('#transferDeduction').val());
-        let totalAmount = Number($('#totalAmount').val());
-        if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
-            $('#payAmount').val((totalAmount.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).centToYuan());
-        }
-
-        isCascadeCalc && calcPayAmountAndDeposit();
-    }
-
-    /**
-     * 计算实付金额+补交保证金
-     * */
-    function calcPayAmountAndDeposit() {
-        let earnestDeduction = Number($('#earnestDeduction').val());
-        let transferDeduction = Number($('#transferDeduction').val());
-        let totalAmountAndDeposit = Number($('#totalAmountAndDeposit').val());
-        if(Number.isFinite(earnestDeduction) && Number.isFinite(transferDeduction)){
-            $('#payAmountAndDeposit').val((totalAmountAndDeposit.mul(100) - earnestDeduction.mul(100) - transferDeduction.mul(100)).centToYuan());
-        }
     }
 
     /**
@@ -477,15 +389,13 @@
         });
         $('#totalAmount').val(totalAmount.toFixed(2));
 
-        isCascadeCalc && calcPayAmount();
-        calcTotalAmountAndDeposit(true);
+        isCascadeCalc && calcTotalAmountAndDeposit();
     }
 
     /**
      * 计算合计金额+补交保证金
-     * @param isCascadeCalc 是否级联计算加保证金后的实付金额
      */
-    function calcTotalAmountAndDeposit(isCascadeCalc) {
+    function calcTotalAmountAndDeposit() {
         let totalAmount = depositMakeUpAmount = 0;
         $("table input[isCharge]").filter(function () {
             return this.value;
@@ -498,8 +408,6 @@
             depositMakeUpAmount = Number(this.value).add(depositMakeUpAmount);
         });
         $('#totalAmountAndDeposit').val(totalAmount.add(depositMakeUpAmount).toFixed(2));
-
-        isCascadeCalc && calcPayAmountAndDeposit();
     }
 
 
@@ -597,14 +505,6 @@
 
         if (assetsIds.length > 10) {
             bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'danger'});
-            return false;
-        }
-
-        let earnestDeduction = Number($('#earnestDeduction').val());
-        let transferDeduction = Number($('#transferDeduction').val());
-        let totalAmount = Number($('#totalAmount').val());
-        if (totalAmount < earnestDeduction.add(transferDeduction)) {
-            bs4pop.notice('抵扣金额之和不能大于租赁费用之和', {position: 'leftcenter', type: 'danger'});
             return false;
         }
 

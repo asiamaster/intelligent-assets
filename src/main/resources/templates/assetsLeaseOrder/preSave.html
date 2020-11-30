@@ -203,29 +203,6 @@
                         <input type="hidden" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>" readonly/>
                         <input type="number" class="form-control money" id="totalAmountAndDeposit" name="totalAmountAndDeposit" readonly/>
                     </div>
-                    <div class="form-group col">
-                        <label for="earnestDeduction" _log>定金抵扣</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.earnestDeduction!}'/>" oninput="calcPayAmount(true)"/>
-                            <div class="input-group-append">
-                                <span class="input-group-text" id="earnestAmount">0.00</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col">
-                        <label for="transferDeduction" _log>转抵扣</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" min="0.00" value="<#centToYuan value='${leaseOrder.transferDeduction!}'/>" oninput="calcPayAmount(true)"/>
-                            <div class="input-group-append">
-                                <span class="input-group-text" id="transferAmount">0.00</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col">
-                        <label for="payAmount" _log>实付金额<i class="red">*</i></label>
-                        <input type="hidden" class="form-control money" id="payAmount" name="payAmount" value="<#centToYuan value='${leaseOrder.payAmount!0}'/>" readonly/>
-                        <input type="number" class="form-control money" id="payAmountAndDeposit" name="payAmountAndDeposit" min="0" readonly/>
-                    </div>
                 </div>
             </div>
             <div class="row">

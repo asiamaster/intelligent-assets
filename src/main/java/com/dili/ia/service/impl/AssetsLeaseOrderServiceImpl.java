@@ -185,7 +185,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             dto.setState(LeaseOrderStateEnum.CREATED.getCode());
             dto.setPayState(PayStateEnum.NOT_PAID.getCode());
             dto.setApprovalState(ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode());
-            dto.setWaitAmount(dto.getPayAmount());
+            dto.setWaitAmount(dto.getTotalAmount());
             insertSelective(dto);
             insertLeaseOrderItems(dto);
         } else {
@@ -197,7 +197,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                     || ApprovalStateEnum.IN_REVIEW.getCode().equals(oldLeaseOrder.getApprovalState())) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + oldLeaseOrder.getCode() + "】 状态已变更，不可以进行修改操作");
             }
-            dto.setWaitAmount(dto.getPayAmount());
+            dto.setWaitAmount(dto.getTotalAmount());
             SpringUtil.copyPropertiesIgnoreNull(dto, oldLeaseOrder);
             oldLeaseOrder.setContractNo(dto.getContractNo());
             oldLeaseOrder.setNotes(dto.getNotes());
@@ -205,8 +205,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             oldLeaseOrder.setCategoryName(dto.getCategoryName());
             oldLeaseOrder.setManagerId(dto.getManagerId());
             oldLeaseOrder.setManager(dto.getManager());
-            oldLeaseOrder.setEarnestDeduction(null == dto.getEarnestDeduction()? 0L :dto.getEarnestDeduction());
-            oldLeaseOrder.setTransferDeduction(null == dto.getTransferDeduction()? 0L :dto.getTransferDeduction());
             if (update(oldLeaseOrder) == 0) {
                 LOG.info("摊位租赁单修改异常,乐观锁生效 【租赁单编号:{}】", dto.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -285,7 +283,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         Map<String, Object> variables = new HashMap<>();
         variables.put("customerName", leaseOrder.getCustomerName());
         //wm:支付金额 = 总金额 + 摊位保证金合计 - 定金抵扣 - 转抵抵扣, 用于任务标题展示
-        Long payAmount = leaseOrder.getTotalAmount() + depositAmount - leaseOrder.getEarnestDeduction() - leaseOrder.getTransferDeduction();
+        Long payAmount = leaseOrder.getTotalAmount() + depositAmount;
         variables.put("payAmount", String.valueOf(payAmount/100));
         variables.put("businessKey", leaseOrder.getCode());
         variables.put("firmId", userTicket.getFirmId().toString());
@@ -309,23 +307,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         leaseOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
 
         try {
-            /**
-             * 冻结定金和转抵
-             */
-            BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
-                    leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
-                    leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(),
-                    leaseOrder.getMarketId(), userTicket.getId(), userTicket.getRealName());
-            if (!customerAccountOutput.isSuccess()) {
-                LOG.info("冻结定金和转抵异常【编号：{}】", leaseOrder.getCode());
-                if (ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())) {
-                    throw new BusinessException(ResultCode.DATA_ERROR, "客户定金可用金额不足，请核实修改后重新保存");
-                } else if (ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())) {
-                    throw new BusinessException(ResultCode.DATA_ERROR, "客户转抵可用金额不足，请核实修改后重新保存");
-                } else {
-                    throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
-                }
-            }
             /**
              * 冻结摊位
              */
@@ -381,7 +362,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                     assetsLeaseService.checkAssetState(o.getAssetsId());
                 });
                 //提交付款
-                Long paymentId = submitPay(leaseOrder, leaseOrder.getPayAmount());
+                Long paymentId = submitPay(leaseOrder, leaseOrder.getTotalAmount());
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
                 leaseOrder.setPaymentId(paymentId);
                 leaseOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
@@ -438,15 +419,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         } else {
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态不正确");
         }
-        //解冻定金、转抵
-        BaseOutput customerAccountOutput = customerAccountService.withdrawLeaseOrderCustomerAmountUnFrozen(
-                leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
-                leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(),
-                leaseOrder.getMarketId(), userTicket.getId(), userTicket.getRealName());
-        if (!customerAccountOutput.isSuccess()) {
-            LOG.info("租赁单撤回 解冻定金、转抵异常【编号：{},MSG:{}】", leaseOrder.getCode(), customerAccountOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
-        }
         //解冻摊位
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
         assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
@@ -490,11 +462,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         condition.setLeaseOrderId(leaseOrder.getId());
         List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(condition);
 
-        Long leaseApportionAmount = CollectionUtils.isNotEmpty(assetsLeaseSubmitPaymentDto.getBusinessChargeItems()) ? assetsLeaseSubmitPaymentDto.getBusinessChargeItems().stream().mapToLong(o -> o.getPaymentAmount()).sum() : 0L;
-        Long deductionAmount = leaseOrder.getEarnestDeduction() + leaseOrder.getTransferDeduction();
         //租赁付款金额提交前提条件：1.大于0 2.等于0时，要么实付金额为0，要么有抵扣时摊位项分摊总金额等于抵扣额
-        if (assetsLeaseSubmitPaymentDto.getLeasePayAmount() > 0L
-                || (assetsLeaseSubmitPaymentDto.getLeasePayAmount() == 0L &&  (leaseOrder.getPayAmount() == 0L || (deductionAmount > 0L && leaseApportionAmount - deductionAmount == 0L)))) {
+        if (assetsLeaseSubmitPaymentDto.getLeasePayAmount() > 0L) {
             AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
             /***************************检查是否可以提交付款 begin*********************/
             if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
@@ -521,21 +490,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             Long paymentId = submitPay(leaseOrder, assetsLeaseSubmitPaymentDto.getLeasePayAmount());
             leaseOrder.setPaymentId(paymentId);
             if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
-                //冻结定金和转抵
-                BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
-                        leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
-                        leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(),
-                        leaseOrder.getMarketId(), userTicket.getId(), userTicket.getRealName());
-                if (!customerAccountOutput.isSuccess()) {
-                    LOG.info("冻结定金和转抵异常【编号：{}】", leaseOrder.getCode());
-                    if (ResultCodeConst.EARNEST_ERROR.equals(customerAccountOutput.getCode())) {
-                        throw new BusinessException(ResultCode.DATA_ERROR, "客户定金可用金额不足，请核实修改后重新保存");
-                    } else if (ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())) {
-                        throw new BusinessException(ResultCode.DATA_ERROR, "客户转抵可用金额不足，请核实修改后重新保存");
-                    } else {
-                        throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
-                    }
-                }
                 //冻结摊位
                 assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
                 //提交付款
@@ -743,40 +697,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
         assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
 
-        //作废转抵扣退回
-        CustomerAccountParam transferDeductionCustomerAccountParam = new CustomerAccountParam();
-        transferDeductionCustomerAccountParam.setBizType(leaseOrder.getBizType());
-        transferDeductionCustomerAccountParam.setSceneType(TransactionSceneTypeEnum.INVALID_IN.getCode());
-        transferDeductionCustomerAccountParam.setOrderId(leaseOrder.getId());
-        transferDeductionCustomerAccountParam.setOrderCode(leaseOrder.getCode());
-        transferDeductionCustomerAccountParam.setCustomerId(leaseOrder.getCustomerId());
-        transferDeductionCustomerAccountParam.setAmount(leaseOrder.getTransferDeduction());
-        transferDeductionCustomerAccountParam.setMarketId(leaseOrder.getMarketId());
-        transferDeductionCustomerAccountParam.setOperaterId(userTicket.getId());
-        transferDeductionCustomerAccountParam.setOperatorName(userTicket.getRealName());
-        BaseOutput transferDeductionAccountOutput = customerAccountService.rechargeTransferBalance(transferDeductionCustomerAccountParam);
-        if (!transferDeductionAccountOutput.isSuccess()) {
-            LOG.error("作废转抵异常，【租赁编号:{},收款人:{},收款金额:{},msg:{}】", leaseOrder.getCode(), leaseOrder.getCustomerName(), leaseOrder.getTransferDeduction(), transferDeductionAccountOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, transferDeductionAccountOutput.getMessage());
-        }
-
-        //作废定金退回
-        CustomerAccountParam earnestDeductionCustomerAccountParam = new CustomerAccountParam();
-        earnestDeductionCustomerAccountParam.setBizType(leaseOrder.getBizType());
-        earnestDeductionCustomerAccountParam.setSceneType(TransactionSceneTypeEnum.INVALID_IN.getCode());
-        earnestDeductionCustomerAccountParam.setOrderId(leaseOrder.getId());
-        earnestDeductionCustomerAccountParam.setOrderCode(leaseOrder.getCode());
-        earnestDeductionCustomerAccountParam.setCustomerId(leaseOrder.getCustomerId());
-        earnestDeductionCustomerAccountParam.setAmount(leaseOrder.getEarnestDeduction());
-        earnestDeductionCustomerAccountParam.setMarketId(leaseOrder.getMarketId());
-        earnestDeductionCustomerAccountParam.setOperaterId(userTicket.getId());
-        earnestDeductionCustomerAccountParam.setOperatorName(userTicket.getRealName());
-        BaseOutput earnestDeductionAccountOutput = customerAccountService.rechargeEarnestBalance(earnestDeductionCustomerAccountParam);
-        if (!earnestDeductionAccountOutput.isSuccess()) {
-            LOG.error("作废转抵异常，【租赁编号:{},收款人:{},收款金额:{},msg:{}】", leaseOrder.getCode(), leaseOrder.getCustomerName(), leaseOrder.getTransferDeduction(), earnestDeductionAccountOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, earnestDeductionAccountOutput.getMessage());
-        }
-
         //释放关联保证金，让其单飞
         BaseOutput depositOutput = depositOrderService.batchReleaseRelated(leaseOrder.getBizType(), leaseOrder.getId(),null);
         if (!depositOutput.isSuccess()) {
@@ -844,15 +764,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
         }
 
-        //解冻定金、转抵
-        BaseOutput customerAccountOutput = customerAccountService.withdrawLeaseOrderCustomerAmountUnFrozen(
-                leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(),
-                leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(),
-                leaseOrder.getMarketId(), userTicket.getId(), userTicket.getRealName());
-        if (!customerAccountOutput.isSuccess()) {
-            LOG.info("租赁单撤回 解冻定金、转抵异常【编号：{},MSG:{}】", leaseOrder.getCode(), customerAccountOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
-        }
         //解冻摊位
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
         assetsLeaseService.unFrozenAllAsset(leaseOrder.getId());
@@ -904,14 +815,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         /*****************************更新缴费单相关字段 end*************************/
 
 
-        //第一次消费，需要抵扣保证金、定金、转抵金
+        //第一次消费，需要解冻出租摊位
         if (LeaseOrderStateEnum.SUBMITTED.getCode().equals(leaseOrder.getState())) {
-            //消费定金、转抵
-            BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(leaseOrder.getId(), leaseOrder.getCode(), leaseOrder.getCustomerId(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction(), leaseOrder.getMarketId(), settleOrder.getOperatorId(), settleOrder.getOperatorName());
-            if (!customerAccountOutput.isSuccess()) {
-                LOG.info("结算成功，消费定金、转抵接口异常 【租赁单编号:{},定金:{},转抵:{}】", leaseOrder.getCode(), leaseOrder.getEarnestDeduction(), leaseOrder.getTransferDeduction());
-                throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
-            }
             //解冻出租摊位
             AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(leaseOrder.getAssetsType());
             assetsLeaseService.leaseAsset(leaseOrder);

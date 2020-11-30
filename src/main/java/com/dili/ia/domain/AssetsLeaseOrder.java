@@ -513,29 +513,29 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
         this.totalAmount = totalAmount;
     }
 
-    public Long getEarnestDeduction() {
-        return earnestDeduction;
-    }
+//    public Long getEarnestDeduction() {
+//        return earnestDeduction;
+//    }
+//
+//    public void setEarnestDeduction(Long earnestDeduction) {
+//        this.earnestDeduction = earnestDeduction;
+//    }
+//
+//    public Long getTransferDeduction() {
+//        return transferDeduction;
+//    }
+//
+//    public void setTransferDeduction(Long transferDeduction) {
+//        this.transferDeduction = transferDeduction;
+//    }
 
-    public void setEarnestDeduction(Long earnestDeduction) {
-        this.earnestDeduction = earnestDeduction;
-    }
-
-    public Long getTransferDeduction() {
-        return transferDeduction;
-    }
-
-    public void setTransferDeduction(Long transferDeduction) {
-        this.transferDeduction = transferDeduction;
-    }
-
-    public Long getPayAmount() {
-        return payAmount;
-    }
-
-    public void setPayAmount(Long payAmount) {
-        this.payAmount = payAmount;
-    }
+//    public Long getPayAmount() {
+//        return payAmount;
+//    }
+//
+//    public void setPayAmount(Long payAmount) {
+//        this.payAmount = payAmount;
+//    }
 
     public Long getPaidAmount() {
         return paidAmount;

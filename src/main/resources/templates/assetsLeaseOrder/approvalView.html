@@ -163,23 +163,6 @@
         </div>
 
         <div class="breadcrumb">
-            抵扣项
-            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#deduction" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
-        </div>
-        <div class="collapse show" id="deduction">
-            <div class="row row-cols-4">
-                <div class="form-group col">
-                    <label for="earnestDeduction" _log>定金抵扣</label>
-                    <input type="number" class="form-control money" id="earnestDeduction" name="earnestDeduction" value="<#centToYuan value='${leaseOrder.earnestDeduction!0}'/>" min="0" readonly/>
-                </div>
-                <div class="form-group col">
-                    <label for="transferDeduction" _log>转抵扣</label>
-                    <input type="number" class="form-control money" id="transferDeduction" name="transferDeduction" value="<#centToYuan value='${leaseOrder.transferDeduction!0}'/>" min="0" readonly/>
-                </div>
-            </div>
-        </div>
-
-        <div class="breadcrumb">
             金额信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#moneyInfo" aria-expanded="true" aria-controls="moneyInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
@@ -190,16 +173,12 @@
                     <input type="number" class="form-control money" id="sumOfLeaseAndDeposit" name="sumOfLeaseAndDeposit" readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="payAmount" _log>租赁金额</label>
+                    <label _log>租赁金额</label>
                     <input type="number" class="form-control money" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>"readonly/>
                 </div>
                 <div class="form-group col">
-                    <label for="earnestDeduction" _log>保证金金额</label>
+                    <label for="depositAmount" _log>保证金金额</label>
                     <input type="number" class="form-control money" id="depositAmount" name="depositAmount" readonly/>
-                </div>
-                <div class="form-group col">
-                    <label for="payAmount" _log>实付金额<i class="red">*</i></label>
-                    <input type="number" class="form-control money" id="payAmount" name="payAmount" readonly/>
                 </div>
             </div>
         </div>
@@ -304,8 +283,6 @@
                     let depositOrders = ret.data;
                     let depositAmount = 0;
                     let sumOfLeaseAndDeposit = ${leaseOrder.totalAmount!0};
-                    let earnestDeduction = ${leaseOrder.earnestDeduction!0};
-                    let transferDeduction = ${leaseOrder.transferDeduction!0};
                     if(depositOrders.length > 0){
                         for (let depositOrder of depositOrders){
                             let index = getIndex($("table input.assets[value='"+depositOrder.assetsId+"']").attr('id'));
@@ -315,7 +292,7 @@
                     }
                     $('#depositAmount').val(depositAmount.centToYuan());
                     $('#sumOfLeaseAndDeposit').val((sumOfLeaseAndDeposit + depositAmount).centToYuan());
-                    $('#payAmount').val((sumOfLeaseAndDeposit + depositAmount - earnestDeduction - transferDeduction).centToYuan());
+                    $('#payAmount').val((sumOfLeaseAndDeposit + depositAmount).centToYuan());
                 }
             },
             error: function (a, b, c) {

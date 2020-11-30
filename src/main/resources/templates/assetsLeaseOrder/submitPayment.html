@@ -10,20 +10,7 @@
         <div class="row">
             <div class="form-group col">
                 <label for="payAmount" _log>本次付款金额<i class="red">*</i></label>
-                <input type="number" id="payAmount" name="payAmount" class="form-control money floatReserve" min="${isNotDeducted ? '0': '0.01'}" oninput="calcApportionAmountTotal()" required/>
-            </div>
-            <div class="form-group col">
-                <label for="deductionAmount" _log>
-                    抵扣金额
-                    <sup style="cursor: pointer" data-toggle="tooltip" data-placement="right" title="抵扣金额只能分配到租赁相关费用上，不能分配到保证金">
-                        <i class="fa fa-question-circle-o fa-lg" aria-hidden="true"></i>
-                    </sup>
-                </label>
-                <input type="number" id="deductionAmount" name="deductionAmount" class="form-control money floatReserve" value="<#centToYuan value='${isNotDeducted?leaseOrder.earnestDeduction + leaseOrder.transferDeduction : 0}'/>" readonly/>
-            </div>
-            <div class="form-group col">
-                <label for="apportionAmountTotal" _log>分配总金额</label>
-                <input type="number" id="apportionAmountTotal" name="apportionAmountTotal" class="form-control money floatReserve" readonly/>
+                <input type="number" id="payAmount" name="payAmount" class="form-control money floatReserve" min="0.01" oninput="calcWaitApportionAmount()" required/>
             </div>
             <div class="form-group col">
                 <label for="payAmount" _log>待分配金额</label>
