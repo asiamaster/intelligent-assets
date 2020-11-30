@@ -11,7 +11,7 @@
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
     <result column="assets_name" jdbcType="VARCHAR" property="assetsName" />
-    <result column="assets_type" jdbcType="BIT" property="assetsType" />
+    <result column="assets_type" jdbcType="TINYINT" property="assetsType" />
     <result column="version" jdbcType="TINYINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -60,4 +60,13 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+    <delete id="deleteByRentalId" parameterType="java.lang.Long">
+
+        delete
+        from
+            assets_rental_item
+        where
+            stall_rent_preset_id = #{stallRentPresetId,jdbcType=BIGINT}
+    </delete>
 </mapper>

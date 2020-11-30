@@ -18,4 +18,16 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
     public AssetsRentalItemMapper getActualDao() {
         return (AssetsRentalItemMapper)getDao();
     }
+
+    /**
+     * 根据关联主键删除对应的资产
+     *
+     * @param   stallRentPresetId
+     * @return
+     * @date    2020/11/26
+     */
+    @Override
+    public void deleteByRentalId(Long stallRentPresetId) {
+        this.getActualDao().deleteByRentalId(stallRentPresetId);
+    }
 }

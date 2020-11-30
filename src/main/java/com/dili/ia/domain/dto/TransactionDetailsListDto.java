@@ -16,6 +16,7 @@ import java.util.List;
  * @author qinkelan
  * @createTime 2020-03-19 14:26
  */
+@Deprecated
 public class TransactionDetailsListDto extends TransactionDetails {
     @Column(name = "`create_time`")
     @Operator(Operator.GREAT_EQUAL_THAN)

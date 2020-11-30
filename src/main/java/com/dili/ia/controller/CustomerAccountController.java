@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-14 10:18:23.
  */
+@Deprecated
 @Controller
 @RequestMapping("/customerAccount")
 public class CustomerAccountController {

@@ -15,6 +15,7 @@ import java.util.List;
  * @author qinkelan
  * @createTime 2020-03-19 11:43
  */
+@Deprecated
 public class CustomerAccountListDto extends CustomerAccount {
     /**
      * 昵称模糊查询

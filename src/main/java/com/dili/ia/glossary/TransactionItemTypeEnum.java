@@ -8,6 +8,7 @@ package com.dili.ia.glossary;
  * @author qinkelan
  * @createTime 2020-02-26 15:23
  */
+@Deprecated
 public enum TransactionItemTypeEnum {
     EARNEST(1, "定金"),
     TRANSFER(2, "转抵"),

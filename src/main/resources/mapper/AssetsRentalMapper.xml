@@ -19,6 +19,10 @@
     <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
     <result column="state" jdbcType="TINYINT" property="state" />
+      <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
+      <result column="creator" jdbcType="VARCHAR" property="creator" />
+      <result column="market_id" jdbcType="BIGINT" property="marketId" />
+      <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
     <result column="version" jdbcType="TINYINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -26,7 +30,8 @@
       WARNING - @mbg.generated
     -->
     id, create_time, modify_time, name, engage_code, engage_name, category_id, category_name, 
-    lease_term_code, lease_term_name, lease_days, start_time, end_time, state, version
+    lease_term_code, lease_term_name, lease_days, start_time, end_time, state, creator_id,
+      creator, market_id, market_code, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--

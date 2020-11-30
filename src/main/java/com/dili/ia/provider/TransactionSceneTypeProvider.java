@@ -21,6 +21,7 @@ import java.util.stream.Stream;
  * @author qinkelan
  * @createTime 2020-02-26 15:55
  */
+@Deprecated
 @Component
 public class TransactionSceneTypeProvider implements ValueProvider {
     private static final List<ValuePair<?>> BUFFER = new ArrayList<>();
