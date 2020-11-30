@@ -1,0 +1,45 @@
+摊位租赁
+    租赁办理
+        业务打印 boothLeasePrint（修改CODE）
+
+冷库租赁
+    冷库租赁管理 http://ia.diligrp.com:8381/leaseOrder/4/index.html
+        新增 addLocationLeaseOrder
+        修改 updateLocationLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/preSave.html)
+        取消 cancelLocationLeaseOrder
+        作废 invalidLocationLeaseOrder
+        提交付款 submitPaymentLocationLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/submitPayment.html)
+        提交审批 submitLocationLeaseOrderApplication
+        开票 invoiceLocationLeaseOrder
+        撤回 withdrawLocationLeaseOrder
+        补录 supplementLocationLeaseOrder
+        续租 renewLocationLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/preSave.html)
+        退款申请 refundApplyLocationLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/refundApply.html)
+        停租 stopRentLocationLeaseOrder
+    冷库退款单 http://ia.diligrp.com:8381/refundOrder/1/index.html
+        修改 updateLocationLeaseRefundOrder(内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        提交 submitLocationLeaseRefundOrder
+        撤回 withdrawLocationLeaseRefundOrder
+        取消 cancelLocationLeaseRefundOrder
+        提交审批 submitLocationLeaseRefundOrderApplication
+
+公寓租赁
+    公寓租赁管理 http://ia.diligrp.com:8381/leaseOrder/5/index.html
+        新增 addLodgingLeaseOrder
+        修改 updateLodgingLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/preSave.html)
+        取消 cancelLodgingLeaseOrder
+        作废 invalidLodgingLeaseOrder
+        提交付款 submitPaymentLodgingLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/submitPayment.html)
+        提交审批 submitLodgingLeaseOrderApplication
+        开票 invoiceLodgingLeaseOrder
+        撤回 withdrawLodgingLeaseOrder
+        补录 supplementLodgingLeaseOrder
+        续租 renewLodgingLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/preSave.html)
+        退款申请 refundApplyLodgingLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/refundApply.html)
+        停租 stopRentLodgingLeaseOrder
+    公寓退款单 http://ia.diligrp.com:8381/refundOrder/1/index.html
+        修改 updateLodgingLeaseRefundOrder(内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
+        提交 submitLodgingLeaseRefundOrder
+        撤回 withdrawLodgingLeaseRefundOrder
+        取消 cancelLodgingLeaseRefundOrder
+        提交审批 submitLodgingLeaseRefundOrderApplication
