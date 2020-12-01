@@ -382,19 +382,19 @@
 <script id="bpmTpl" type="text/html">
     <form id="bpmForm">
         <div class="row">
-            <div class="col-4 col-form-label text-right">
-                <label for="bizProcessInstanceId" class="justify-content-end w-100px">业务流程实例id:</label>
+            <div class="col-6 text-center">
+                业务流程实例id:<b style="color: #316AC5">{{bizProcessInstanceId}}</b>
             </div>
-            <div class="col-6">
-                <input type="text" id="bizProcessInstanceId" name="bizProcessInstanceId" class="form-control" maxlength="50" value="{{bizProcessInstanceId}}"/>
+            <div class="col-6 text-left">
+                业务流程定义id:<b style="color: #316AC5">{{bizProcessDefinitionId}}</b>
             </div>
         </div>
         <div class="row">
-            <div class="col-4 col-form-label text-right">
-                <label for="bizProcessDefinitionId" class="justify-content-end w-100px">业务流程定义id:</label>
+            <div class="col-6 text-center">
+                审批流程实例id:<b style="color: #316AC5">{{processInstanceId}}</b>
             </div>
-            <div class="col-6">
-                <input type="text" id="bizProcessDefinitionId" name="bizProcessDefinitionId" class="form-control" maxlength="50" value="{{bizProcessDefinitionId}}"/>
+            <div class="col-6 text-left">
+                审批流程定义id:<b style="color: #316ac5">{{processDefinitionId}}</b>
             </div>
         </div>
         <div class="row">

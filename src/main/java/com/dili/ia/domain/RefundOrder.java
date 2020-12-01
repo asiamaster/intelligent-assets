@@ -305,6 +305,18 @@ public class RefundOrder extends BaseDomain implements IMybatisForceParams {
     private String processDefinitionId;
 
     /**
+     * 业务流程实例ID
+     */
+    @Column(name = "`biz_process_instance_id`")
+    private String bizProcessInstanceId;
+
+    /**
+     * 业务流程定义ID
+     */
+    @Column(name = "`biz_process_definition_id`")
+    private String bizProcessDefinitionId;
+
+    /**
      * 审批状态
      */
     @Column(name = "`approval_state`")
@@ -1125,6 +1137,22 @@ public class RefundOrder extends BaseDomain implements IMybatisForceParams {
 
     public void setProcessDefinitionId(String processDefinitionId) {
         this.processDefinitionId = processDefinitionId;
+    }
+
+    public String getBizProcessInstanceId() {
+        return bizProcessInstanceId;
+    }
+
+    public void setBizProcessInstanceId(String bizProcessInstanceId) {
+        this.bizProcessInstanceId = bizProcessInstanceId;
+    }
+
+    public String getBizProcessDefinitionId() {
+        return bizProcessDefinitionId;
+    }
+
+    public void setBizProcessDefinitionId(String bizProcessDefinitionId) {
+        this.bizProcessDefinitionId = bizProcessDefinitionId;
     }
 
     public Integer getApprovalState() {

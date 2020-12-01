@@ -295,21 +295,73 @@
         let state = row.$_state;
         //审批状态
         let approvalState = row.$_approvalState;
-        if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CREATED.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
 
-            <%//摊位租赁退款单需要提交审批
+        //先禁用所有按键
+        $('#toolbar button').attr('disabled', true);
+        //允许查看按钮
+        $('#btn_view').attr('disabled', false);
+        //只要有审批流程实例id就可以查看流程图
+        if(row.processInstanceId) {
+            $("#btn_showProgress").attr('disabled', false);
+        }
+
+        if(row.bizProcessInstanceId){
+            var url = "${contextPath}/leaseOrder/listEventName.action";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {bizProcessInstanceId: row.bizProcessInstanceId, state: state, approvalState: approvalState},
+                processData: true,
+                dataType: "json",
+                async: true,
+                success: function (output) {
+                    bui.loading.hide();
+                    if (output.success) {
+                        for(let item of output.data){
+                            //根据事件名的class启用按钮
+                            $("."+item).attr('disabled', false);
+                        }
+                        //审批通过的不能撤回
+                        if(approvalState  == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
+                            $('#btn_withdraw').attr('disabled', true);
+                        }
+                    } else {
+                        bs4pop.alert(output.result, {type: 'error'});
+                    }
+                },
+                error: function (a, b, c) {
+                    bui.loading.hide();
+                    bs4pop.alert('远程访问失败', {type: 'error'});
+                }
+            });
+        }else{
+            //无流程的硬编码
+            defaultBizProcess(row);
+        }
+        //只能有流程实例id就可以查看流程图
+        if(row.processInstanceId) {
+            $("#btn_showProgress").attr('disabled', false);
+        }
+    });
+
+
+    function defaultBizProcess(row){
+        let state = row.$_state;
+        //审批状态
+        let approvalState = row.$_approvalState;
+        $('#toolbar button').attr('disabled', true);
+        $('#btn_view').attr('disabled', false);
+        if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CREATED.getCode()}) {
+        <%//摊位租赁退款单需要提交审批
             if(bizType=="1"){%>
                 //没有审批状态可以 提交审批，修改和取消
                 if(!approvalState){
                     $('#btn_approval').attr('disabled', false);
                     $('#btn_edit').attr('disabled', false);
                     $('#btn_cancel').attr('disabled', false);
-                    <#resource code="skipRefundApproval">
-                        $('#btn_submit').attr('disabled', false);
-                    </#resource>
+                <#resource code="skipRefundApproval">
+                     $('#btn_submit').attr('disabled', false);
+                </#resource>
                     return;
                 }
                 //待审批时可以 提交审批，修改和取消
@@ -317,9 +369,9 @@
                     $('#btn_approval').attr('disabled', false);
                     $('#btn_edit').attr('disabled', false);
                     $('#btn_cancel').attr('disabled', false);
-                    <#resource code="skipRefundApproval">
+                <#resource code="skipRefundApproval">
                         $('#btn_submit').attr('disabled', false);
-                    </#resource>
+                </#resource>
                 }
                 //审批中不允许修改、取消和提交付款
                 else if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.IN_REVIEW.getCode()}) {
@@ -333,9 +385,9 @@
                     $('#btn_approval').attr('disabled', false);
                     $('#btn_edit').attr('disabled', false);
                     $('#btn_cancel').attr('disabled', false);
-                    <#resource code="skipRefundApproval">
-                        $('#btn_submit').attr('disabled', false);
-                    </#resource>
+                <#resource code="skipRefundApproval">
+                    $('#btn_submit').attr('disabled', false);
+                </#resource>
                 }
             <%}else{%>
                 $('#btn_edit').attr('disabled', false);
@@ -344,13 +396,10 @@
             <%}%>
 
         } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.CANCELD.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
-            $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
+
         } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.SUBMITTED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
             $('#btn_cancel').attr('disabled', false);
             //审批通过后，只有待审批和审批拒绝的订单可以撤回
             if(approvalState != ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
@@ -359,13 +408,8 @@
         } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.REFUNDED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
-            $('#btn_add').attr('disabled', false);
         }
-        //只能有流程实例id就可以查看流程图
-        if(row.processInstanceId) {
-            $("#btn_showProgress").attr('disabled', false);
-        }
-    });
+    }
 </script>
 
 <!--

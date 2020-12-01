@@ -21,6 +21,8 @@ public class BpmCacheConfig {
 
     private Long leaseOrderEventCacheMaximumSize;
 
+    private Long refundOrderEventCacheMaximumSize;
+
     /**
      * getter
      * @return
@@ -39,13 +41,38 @@ public class BpmCacheConfig {
     }
 
     /**
+     * getter
+     * @return
+     */
+    public Long getRefundOrderEventCacheMaximumSize() {
+        return refundOrderEventCacheMaximumSize;
+    }
+
+    /**
+     * setter
+     * @param refundOrderEventCacheMaximumSize
+     */
+    @Value("${ia.cache.refundOrderEventCacheMaximumSize:500}")
+    public void setRefundOrderEventCacheMaximumSize(Long refundOrderEventCacheMaximumSize) {
+        this.refundOrderEventCacheMaximumSize = refundOrderEventCacheMaximumSize;
+    }
+
+    /**
      * 租赁单事件缓存， key为processInstanceId_state_approvalState, value为事件名称列表
      * 因为可能多实例部署，但又不想接入MQ，只能每台实例自行负责缓存，按LRU清除
      */
-//    public static final Cache<String, List<String>> leaseOrderEventCache = Caffeine.newBuilder().maximumSize(1_000).build();
     @Bean("leaseOrderEventCache")
     public Cache<String, List<String>> leaseOrderEventCache(){
         return Caffeine.newBuilder().maximumSize(leaseOrderEventCacheMaximumSize).build();
+    }
+
+    /**
+     * 退款单事件缓存， key为processInstanceId_state_approvalState, value为事件名称列表
+     * 因为可能多实例部署，但又不想接入MQ，只能每台实例自行负责缓存，按LRU清除
+     */
+    @Bean("refundOrderEventCache")
+    public Cache<String, List<String>> refundOrderEventCache(){
+        return Caffeine.newBuilder().maximumSize(refundOrderEventCacheMaximumSize).build();
     }
 
 }

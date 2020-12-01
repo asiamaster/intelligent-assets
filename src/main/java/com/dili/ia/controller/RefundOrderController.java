@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
+import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
@@ -16,8 +17,10 @@ import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.IDTO;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.exception.DataErrorException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import com.github.benmanes.caffeine.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +30,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +58,11 @@ public class RefundOrderController {
     private RefundFeeItemService refundFeeItemService;
     @Autowired
     CustomerRpc customerRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    EventRpc eventRpc;
+    @Resource(name = "refundOrderEventCache")
+    Cache<String, List<String>> refundOrderEventCache;
 
     /**
      * 跳转到RefundOrder页面
@@ -93,7 +102,7 @@ public class RefundOrderController {
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
         ApprovalProcess approvalProcess = new ApprovalProcess();
-        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
+        approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
         //查询审批记录
         List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
         modelMap.put("approvalProcesses", approvalProcesses);
@@ -114,10 +123,37 @@ public class RefundOrderController {
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
         ApprovalProcess approvalProcess = new ApprovalProcess();
-        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
+        approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
         List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
         modelMap.put("approvalProcesses", approvalProcesses);
         return "refundOrder/approvalDetail";
+    }
+
+    /**
+     * 根据流程实例id查询当前事件名称列表
+     * @param bizProcessInstanceId
+     * @param state
+     * @param approvalState
+     * @return BaseOutput
+     */
+    @PostMapping(value="/listEventName.action")
+    @ResponseBody
+    public BaseOutput<List<String>> listEventName(@RequestParam String bizProcessInstanceId, @RequestParam Integer state, @RequestParam(required = false) Integer approvalState) {
+        StringBuilder sb = new StringBuilder().append(bizProcessInstanceId).append("_").append(state);
+        String cacheKey = approvalState == null ? sb.toString() : sb.append("_").append(approvalState).toString();
+        try {
+            List<String> strings = refundOrderEventCache.get(cacheKey, t -> {
+                BaseOutput<List<String>> listBaseOutput = eventRpc.listEventName(bizProcessInstanceId);
+                if (!listBaseOutput.isSuccess()) {
+                    //内部类需要抛异常
+                    throw new DataErrorException(listBaseOutput.getMessage());
+                }
+                return listBaseOutput.getData();
+            });
+            return BaseOutput.successData(strings);
+        } catch (Exception e) {
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
     /**
@@ -203,7 +239,7 @@ public class RefundOrderController {
                 //审批记录显示
                 if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
                     ApprovalProcess approvalProcess = new ApprovalProcess();
-                    approvalProcess.setProcessInstanceId(refundOrder.getProcessInstanceId());
+                    approvalProcess.setBusinessKey(refundOrder.getCode());
                     //查询审批记录
                     List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
                     if(!approvalProcesses.isEmpty()) {

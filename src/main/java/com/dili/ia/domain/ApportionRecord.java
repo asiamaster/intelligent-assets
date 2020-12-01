@@ -1,5 +1,6 @@
 package com.dili.ia.domain;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
@@ -18,6 +19,7 @@ import javax.persistence.*;
  */
 @Table(name = "`apportion_record`")
 public class ApportionRecord extends BaseDomain {
+
     @Id
     @Column(name = "`id`")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
