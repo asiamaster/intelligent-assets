@@ -275,6 +275,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         PaymentOrder pb = this.buildPaymentOrder(userTicket, ea);
         paymentOrderService.insertSelective(pb);
+        // @TODO 客户余额迁移，这里需要删除
         //如果客户账户不存在，创建客户账户
         if (!customerAccountService.checkCustomerAccountExist(ea.getCustomerId(), userTicket.getFirmId())){
             customerAccountService.addCustomerAccountByCustomerInfo(ea.getCustomerId(), ea.getCustomerName(), ea.getCustomerCellphone(), ea.getCertificateNumber(), ea.getMarketId());
@@ -419,6 +420,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (!rerverpaymentOrders.isEmpty() && paymentOrderService.batchInsert(rerverpaymentOrders) != rerverpaymentOrders.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "缴费单红冲写入失败！");
         }
+        //@TODO 客户余额迁移 此处需要 调用结算进行定金余额扣减
         //客户定金余额扣减
         BaseOutput result = customerAccountService.deductEarnestBalance(this.buildCustomerAccountParam(ea,userTicket.getId(), userTicket.getRealName() ,ea.getAmount(), TransactionSceneTypeEnum.INVALID_OUT.getCode()));
         if (!result.isSuccess()){
@@ -549,6 +551,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOG.info("缴费单成功回调 -- 更新【定金单】状态,乐观锁生效！【定金单EarnestOrderID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
+
+        //TODO 付款成功 结算自己处理余额变动及流水记录 ，此处删除
         //更新客户账户定金余额和可用余额
         BaseOutput output = customerAccountService.rechargeEarnestBalance(this.buildCustomerAccountParam(ea,settleOrder.getOperatorId(), settleOrder.getOperatorName(), paymentOrderPO.getAmount() ,TransactionSceneTypeEnum.PAYMENT.getCode()));
         if (!output.isSuccess()){
