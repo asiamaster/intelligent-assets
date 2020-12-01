@@ -1,12 +1,16 @@
 package com.dili.ia.api;
 
 import com.dili.ia.domain.MeterDetail;
+import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
+import com.dili.ia.glossary.MeterTypeEnum;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -42,16 +46,22 @@ public class MeterDetailApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${code!}", operationType = "pay", systemCode = "IA")
+    @BusinessLogger(content = "${code!}", operationType = "pay", systemCode = "IA")
     @RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
         try {
-            MeterDetail meterDetail = meterDetailService.settlementDealHandler(settleOrder);
+            MeterDetailDto meterDetailDto = meterDetailService.settlementDealHandler(settleOrder);
 
             //记录业务日志
-            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(),
-                    meterDetail.getMarketId(), null);
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.ELECTRICITY_CODE);
+            if (MeterTypeEnum.WATER_METER.getCode().equals(meterDetailDto.getType())) {
+                // 水费
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.WATER_CODE);
+            }
+            LoggerUtil.buildLoggerContext(meterDetailDto.getId(), meterDetailDto.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(),
+                    meterDetailDto.getMarketId(), null);
+
             return BaseOutput.success().setData(true);
         } catch (BusinessException e) {
             LOG.info("水电费缴费成功回调失败：{}", e.getMessage());

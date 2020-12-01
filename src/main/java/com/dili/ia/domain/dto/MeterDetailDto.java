@@ -35,6 +35,11 @@ public class MeterDetailDto extends MeterDetail {
     private Integer type;
 
     /**
+     * 表类型在缴费单中的字段值
+     */
+    private String bizType;
+
+    /**
      * 关键字(X费单号,表编号,客户姓名)
      */
     private String keyword;
@@ -59,11 +64,6 @@ public class MeterDetailDto extends MeterDetail {
      * 水电预存余额
      */
     private Long balance;
-
-    /**
-     * 业务类型(该用能是水表、电表)
-     */
-    private String bizTypes;
 
     /**
      * 状态数组
@@ -157,14 +157,6 @@ public class MeterDetailDto extends MeterDetail {
         this.balance = balance;
     }
 
-    public String getBizTypes() {
-        return bizTypes;
-    }
-
-    public void setBizTypes(String bizTypes) {
-        this.bizTypes = bizTypes;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -203,5 +195,13 @@ public class MeterDetailDto extends MeterDetail {
 
     public void setPrice(Long price) {
         this.price = price;
+    }
+
+    public String getBizType() {
+        return bizType;
+    }
+
+    public void setBizType(String bizType) {
+        this.bizType = bizType;
     }
 }

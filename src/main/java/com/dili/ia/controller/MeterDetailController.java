@@ -5,19 +5,24 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.MeterTypeEnum;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.collections.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +62,7 @@ public class MeterDetailController {
     /**
      * 跳转到水费列表页面
      *
+     *
      * @param  modelMap
      * @return String
      * @date   2020/6/29
@@ -67,19 +73,7 @@ public class MeterDetailController {
     }
 
     /**
-     * 跳转到电费列表页面
-     *
-     * @param  modelMap
-     * @return String
-     * @date   2020/6/29
-     */
-    @RequestMapping(value = "/electricity/index.html", method = RequestMethod.GET)
-    public String electricityIndex(ModelMap modelMap) {
-        return "meterDetail/electricity/index";
-    }
-
-    /**
-     * 跳转到新增页面
+     * 跳转到水费新增页面
      *
      * @param  modelMap
      * @return String
@@ -98,7 +92,36 @@ public class MeterDetailController {
     }
 
     /**
-     * 跳转到新增页面
+     * 跳转到水费修改页面
+     *
+     * @param  id
+     * @return
+     * @date   2020/6/29
+     */
+    @RequestMapping(value = "/water/update.html", method = RequestMethod.GET)
+    public String updateWater(ModelMap modelMap, Long id) {
+        if (id != null) {
+            MeterDetailDto meterDetail = meterDetailService.getMeterDetailDtoById(id);
+            modelMap.put("meterDetail", meterDetail);
+        }
+
+        return "meterDetail/water/update";
+    }
+
+    /**
+     * 跳转到电费列表页面
+     *
+     * @param  modelMap
+     * @return String
+     * @date   2020/6/29
+     */
+    @RequestMapping(value = "/electricity/index.html", method = RequestMethod.GET)
+    public String electricityIndex(ModelMap modelMap) {
+        return "meterDetail/electricity/index";
+    }
+
+    /**
+     * 跳转到电费新增页面
      *
      * @param  modelMap
      * @return String
@@ -117,6 +140,23 @@ public class MeterDetailController {
     }
 
     /**
+     * 跳转到电费修改页面
+     *
+     * @param  id
+     * @return
+     * @date   2020/6/29
+     */
+    @RequestMapping(value = "/electricity/update.html", method = RequestMethod.GET)
+    public String update(ModelMap modelMap, Long id) {
+        if (id != null) {
+            MeterDetailDto meterDetail = meterDetailService.getMeterDetailDtoById(id);
+            modelMap.put("meterDetail", meterDetail);
+        }
+
+        return "meterDetail/electricity/update";
+    }
+
+    /**
      * 跳转到查看页面
      *
      * @param  id
@@ -128,7 +168,7 @@ public class MeterDetailController {
         MeterDetailDto meterDetailDto = null;
 
         if (id != null) {
-            meterDetailDto = meterDetailService.getMeterDetailById(id);
+            meterDetailDto = meterDetailService.getMeterDetailDtoById(id);
         }
         modelMap.put("meterDetail", meterDetailDto);
 
@@ -136,8 +176,12 @@ public class MeterDetailController {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(id);
-            // 注：水电费的 controller 是一个，所以日志类型写为一个
-            businessLogQueryInput.setBusinessType(LogBizTypeConst.WATER_ELECTRICITY_CODE);
+            // 注：水电费日志类型拆分，需要传日志类型
+            businessLogQueryInput.setBusinessType(LogBizTypeConst.ELECTRICITY_CODE);
+            if (MeterTypeEnum.WATER_METER.getCode().equals(meterDetailDto.getType())) {
+                businessLogQueryInput.setBusinessType(LogBizTypeConst.WATER_CODE);
+            }
+
             BaseOutput list = businessLogRpc.list(businessLogQueryInput);
             if (list.isSuccess()) {
                 modelMap.put("logs", list.getData());
@@ -146,45 +190,11 @@ public class MeterDetailController {
             logger.error("日志服务查询异常", e);
         }
 
-        String meterUrl = "/water";
-        if (2 == meterDetailDto.getType()) {
-            meterUrl = "/electricity";
+        String meterUrl = "meterDetail/water/view";
+        if (MeterTypeEnum.ELECTRIC_METER.getCode().equals(meterDetailDto.getType())) {
+            meterUrl = "meterDetail/electricity/view";
         }
-        return "meterDetail" + meterUrl + "/view";
-    }
-
-    /**
-     * 跳转到修改水费页面
-     *
-     * @param  id
-     * @return
-     * @date   2020/6/29
-     */
-    @RequestMapping(value = "/water/update.html", method = RequestMethod.GET)
-    public String updateWater(ModelMap modelMap, Long id) {
-        if (id != null) {
-            MeterDetailDto meterDetail = meterDetailService.getMeterDetailById(id);
-            modelMap.put("meterDetail", meterDetail);
-        }
-
-        return "meterDetail/water/update";
-    }
-
-    /**
-     * 跳转到修改电费页面
-     *
-     * @param  id
-     * @return
-     * @date   2020/6/29
-     */
-    @RequestMapping(value = "/electricity/update.html", method = RequestMethod.GET)
-    public String update(ModelMap modelMap, Long id) {
-        if (id != null) {
-            MeterDetailDto meterDetail = meterDetailService.getMeterDetailById(id);
-            modelMap.put("meterDetail", meterDetail);
-        }
-
-        return "meterDetail/electricity/update";
+        return meterUrl;
     }
 
     /**
@@ -208,7 +218,7 @@ public class MeterDetailController {
      * @return BaseOutput
      * @date   2020/6/28
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "add", systemCode = "IA")
+    @BusinessLogger(content = "${businessCode!}", operationType = "add", systemCode = "IA")
     @RequestMapping(value = "/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput add(@RequestBody MeterDetailDto meterDetailDto) {
@@ -218,13 +228,10 @@ public class MeterDetailController {
             this.ParamValidate(meterDetailDto);
 
             // 新增水电费
-            MeterDetail meterDetail = meterDetailService.addMeterDetail(meterDetailDto, userTicket);
+            MeterDetailDto meterDetailDtoInfo = meterDetailService.addMeterDetail(meterDetailDto, userTicket);
 
-            // 写业务日志
-            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(),
-                    userTicket.getFirmId(), null);
-
-            return BaseOutput.success().setData(meterDetail);
+            // 写业务日志，默认电费
+            return getBaseOutput(userTicket, meterDetailDtoInfo);
         } catch (BusinessException e) {
             logger.info("新增水电费单失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
@@ -235,13 +242,46 @@ public class MeterDetailController {
     }
 
     /**
+     * 修改水电费单
+     *
+     * @param  meterDetailDto
+     * @return BaseOutput
+     * @date   2020/6/29
+     */
+    @BusinessLogger(content = "${businessCode!}", operationType = "update", systemCode = "IA")
+    @RequestMapping(value = "/update.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput update(@RequestBody MeterDetailDto meterDetailDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            // 参数校验
+            AssertUtils.notNull(meterDetailDto.getId(), "主键不能为空");
+            this.ParamValidate(meterDetailDto);
+
+            // 修改操作
+            MeterDetailDto meterDetailDtoInfo = meterDetailService.updateMeterDetail(meterDetailDto);
+
+            // 写业务日志，默认电费
+            return getBaseOutput(userTicket, meterDetailDtoInfo);
+        } catch (BusinessException e) {
+            logger.info("修改水电费单失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+        }
+    }
+
+
+
+    /**
      * 提交 水电费单(生缴费单和结算单)
      *
      * @param  ids
      * @return BaseOutput
      * @date   2020/7/6
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "submit", systemCode = "IA")
+    @BusinessLogger(content = "${businessCode!}", operationType = "submit", systemCode = "IA")
     @RequestMapping(value = "/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput submit(String ids) {
@@ -252,13 +292,9 @@ public class MeterDetailController {
 
             // 提交操作
             List<Long> idList = Arrays.stream(ids.split(",")).map(Long::valueOf).collect(Collectors.toList());
-            List<MeterDetail> meterDetailList = meterDetailService.submit(idList, userTicket);
+            List<MeterDetailDto> meterDetailDtoList = meterDetailService.submit(idList, userTicket);
 
-            // 写业务日志
-            meterDetailList.forEach(meterDetail -> LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(),
-                    userTicket.getRealName(), userTicket.getFirmId(), null));
-
-            return BaseOutput.success();
+            return getBaseOutput(userTicket, meterDetailDtoList);
         } catch (BusinessException e) {
             logger.info("提交水电费单失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
@@ -274,7 +310,7 @@ public class MeterDetailController {
      * @return BaseOutput
      * @date   2020/7/29
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "submit", systemCode = "IA")
+    @BusinessLogger(content = "${businessCode!}", operationType = "submit", systemCode = "IA")
     @RequestMapping(value = "/submitAll.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput submitAll(Integer metertype) {
@@ -284,15 +320,10 @@ public class MeterDetailController {
             AssertUtils.notNull(metertype, "表类型不能为空");
 
             // 全部提交操作
-            List<MeterDetailDto> meterDetailList = meterDetailService.submitAll(userTicket, metertype);
+            List<MeterDetailDto> meterDetailDtoList = meterDetailService.submitAll(userTicket, metertype);
 
-            // 写业务日志
-            if (meterDetailList != null && meterDetailList.size() > 0) {
-                meterDetailList.forEach(meterDetail -> LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(),
-                        userTicket.getRealName(), userTicket.getFirmId(), null));
-            }
-
-            return BaseOutput.success();
+            // 写业务日志，默认电费
+            return getBaseOutput(userTicket, meterDetailDtoList);
         } catch (BusinessException e) {
             logger.info("全部提交水电费单失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
@@ -309,7 +340,7 @@ public class MeterDetailController {
      * @return BaseOutput
      * @date   2020/7/6
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "withdraw", systemCode = "IA")
+    @BusinessLogger(content = "${businessCode!}", operationType = "withdraw", systemCode = "IA")
     @RequestMapping(value = "/withdraw.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput withdraw(Long id) {
@@ -319,13 +350,10 @@ public class MeterDetailController {
             AssertUtils.notNull(id, "主键不能为空");
 
             // 撤回操作
-            MeterDetail meterDetail = meterDetailService.withdraw(id, userTicket);
+            MeterDetailDto meterDetailDtoInfo = meterDetailService.withdraw(id, userTicket);
 
-            // 写业务日志
-            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(),
-                    userTicket.getFirmId(), null);
-
-            return BaseOutput.success();
+            // 写业务日志，默认电费
+            return getBaseOutput(userTicket, meterDetailDtoInfo);
         } catch (BusinessException e) {
             logger.info("撤回水电费单失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
@@ -342,7 +370,7 @@ public class MeterDetailController {
      * @return  BaseOutput
      * @date    2020/7/6
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "cancel", systemCode = "IA")
+    @BusinessLogger(content = "${businessCode!}", operationType = "cancel", systemCode = "IA")
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput cancel(Long id) {
@@ -352,13 +380,10 @@ public class MeterDetailController {
             AssertUtils.notNull(id, "主键不能为空");
 
             // 取消操作
-            MeterDetail meterDetail = meterDetailService.cancel(id, userTicket);
+            MeterDetailDto meterDetailDtoInfo = meterDetailService.cancel(id, userTicket);
 
-            // 写业务日志
-            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(),
-                    userTicket.getFirmId(), null);
-
-            return BaseOutput.success().setData(meterDetail);
+            // 写业务日志，默认电费
+            return getBaseOutput(userTicket, meterDetailDtoInfo);
         } catch (BusinessException e) {
             logger.info("取消水电费单失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
@@ -369,37 +394,39 @@ public class MeterDetailController {
     }
 
     /**
-     * 修改水电费单
-     *
-     * @param  meterDetailDto
-     * @return BaseOutput
-     * @date   2020/6/29
+     * 单个写日志抽取（用于修改、新增、撤回、取消）
      */
-    @BusinessLogger(businessType = LogBizTypeConst.WATER_ELECTRICITY_CODE, content = "${businessCode!}", operationType = "update", systemCode = "IA")
-    @RequestMapping(value = "/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput update(@RequestBody MeterDetailDto meterDetailDto) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        try {
-            // 参数校验
-            AssertUtils.notNull(meterDetailDto.getId(), "主键不能为空");
-            this.ParamValidate(meterDetailDto);
-
-            // 修改操作
-            MeterDetail meterDetail = meterDetailService.updateMeterDetail(meterDetailDto);
-
-            // 写业务日志
-            LoggerUtil.buildLoggerContext(meterDetail.getId(), meterDetail.getCode(), userTicket.getId(), userTicket.getRealName(),
-                    userTicket.getFirmId(), null);
-
-            return BaseOutput.success().setData(meterDetail);
-        } catch (BusinessException e) {
-            logger.info("修改水电费单失败：{}", e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage());
-        } catch (Exception e) {
-            logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+    private BaseOutput getBaseOutput(UserTicket userTicket, MeterDetailDto meterDetailDto) {
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.ELECTRICITY_CODE);
+        if (MeterTypeEnum.WATER_METER.getCode().equals(meterDetailDto.getType())) {
+            // 水费
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.WATER_CODE);
         }
+        LoggerUtil.buildLoggerContext(meterDetailDto.getId(), meterDetailDto.getCode(), userTicket.getId(), userTicket.getRealName(),
+                userTicket.getFirmId(), null);
+
+        return BaseOutput.success().setData(meterDetailDto);
+    }
+
+    /**
+     * 集合写日志抽取（用于提交、批量提交）
+     */
+    @NotNull
+    private BaseOutput getBaseOutput(UserTicket userTicket, List<MeterDetailDto> meterDetailDtoList) {
+        if (CollectionUtils.isNotEmpty(meterDetailDtoList)) {
+            // 写业务日志，默认电费
+            meterDetailDtoList.forEach(meterDetailDto -> {
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.ELECTRICITY_CODE);
+                if (MeterTypeEnum.WATER_METER.getCode().equals(meterDetailDto.getType())) {
+                    // 水费
+                    LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.WATER_CODE);
+                }
+                LoggerUtil.buildLoggerContext(meterDetailDto.getId(), meterDetailDto.getCode(), userTicket.getId(), userTicket.getRealName(),
+                        userTicket.getFirmId(), null);
+            });
+        }
+
+        return BaseOutput.success();
     }
 
     /**
@@ -431,28 +458,5 @@ public class MeterDetailController {
         AssertUtils.notEmpty(meterDetailDto.getCustomerCellphone(), "客户联系电话不能为空");
     }
 
-//    /**
-//     * 通过计费规则算取费用
-//     *
-//     * @param meterDetailDto
-//     * @return BaseOutput
-//     * @date 2020/7/17
-//     */
-//    @RequestMapping(value="/getCost.action", method = {RequestMethod.GET, RequestMethod.POST})
-//    public @ResponseBody BaseOutput getCost(@RequestBody MeterDetailDto meterDetailDto) {
-//        //throw new BusinessException("2000", "errorCode");
-//        BaseOutput baseOutput = BaseOutput.success();
-//
-//        try {
-//            baseOutput.setData(meterDetailService.getCost(meterDetailDto));
-//        }catch (BusinessException e) {
-//            logger.error("费用{}计算异常！",meterDetailDto.getCode(), e);
-//            return BaseOutput.failure(e.getErrorCode(), e.getErrorMsg());
-//        }catch (Exception e) {
-//            logger.error("费用{}计算异常！",meterDetailDto.getCode(), e);
-//            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
-//        }
-//
-//        return baseOutput;
-//    }
+
 }

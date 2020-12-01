@@ -34,7 +34,16 @@ public class LogBizTypeConst {
     /**
      * 水电费
      */
-    public static final String WATER_ELECTRICITY_CODE="water_electricity";
+//    public static final String WATER_ELECTRICITY_CODE="water_electricity";
+    /**
+     * 水费
+     */
+    public static final String WATER_CODE="water";
+
+    /**
+     * 电费
+     */
+    public static final String ELECTRICITY_CODE="electricity";
 
     /**
      * 精品停车
