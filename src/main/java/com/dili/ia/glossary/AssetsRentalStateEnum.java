@@ -6,7 +6,7 @@ package com.dili.ia.glossary;
  * @version:     农批业务系统重构
  * @description: 资产出租预设启用禁用枚举
  */
-public enum RentalStateEnum {
+public enum AssetsRentalStateEnum {
     ENABLE(1, "启用"),
     DISABLE(2, "禁用"),
     ;
@@ -14,13 +14,13 @@ public enum RentalStateEnum {
     private String name;
     private Integer code ;
 
-    RentalStateEnum(Integer code, String name){
+    AssetsRentalStateEnum(Integer code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static RentalStateEnum getRentalStateEnum(Integer code) {
-        for (RentalStateEnum anEnum : RentalStateEnum.values()) {
+    public static AssetsRentalStateEnum getAssetsRentalStateEnum(Integer code) {
+        for (AssetsRentalStateEnum anEnum : AssetsRentalStateEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }
@@ -28,8 +28,8 @@ public enum RentalStateEnum {
         return null;
     }
 
-    public static String getRentalStateEnumName(Integer code) {
-        for (RentalStateEnum r : RentalStateEnum.values()) {
+    public static String getAssetsRentalStateEnumName(Integer code) {
+        for (AssetsRentalStateEnum r : AssetsRentalStateEnum.values()) {
             if (r.getCode().equals(code)) {
                 return r.getName();
             }

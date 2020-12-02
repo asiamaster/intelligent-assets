@@ -2,9 +2,8 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.AssetsRental;
 import com.dili.ia.domain.AssetsRentalItem;
-import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.AssetsRentalDto;
-import com.dili.ia.glossary.RentalStateEnum;
+import com.dili.ia.glossary.AssetsRentalStateEnum;
 import com.dili.ia.mapper.AssetsRentalMapper;
 import com.dili.ia.service.AssetsRentalItemService;
 import com.dili.ia.service.AssetsRentalService;
@@ -59,7 +58,7 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
 
         //TODO 关于同一批设置的资产一个批次号，是否该加一个字段
         assetsRentalDto.setVersion(0);
-        assetsRentalDto.setState(RentalStateEnum.ENABLE.getCode());
+        assetsRentalDto.setState(AssetsRentalStateEnum.ENABLE.getCode());
         assetsRentalDto.setCreatorId(userTicket.getId());
         assetsRentalDto.setCreateTime(LocalDateTime.now());
         assetsRentalDto.setModifyTime(LocalDateTime.now());
@@ -136,10 +135,10 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
     public void enableOrDisable(Long id) {
         AssetsRental assetsRental = this.get(id);
         if (assetsRental != null) {
-            if (RentalStateEnum.ENABLE.getCode().equals(assetsRental.getState())) {
-                assetsRental.setState(RentalStateEnum.DISABLE.getCode());
+            if (AssetsRentalStateEnum.ENABLE.getCode().equals(assetsRental.getState())) {
+                assetsRental.setState(AssetsRentalStateEnum.DISABLE.getCode());
             } else {
-                assetsRental.setState(RentalStateEnum.ENABLE.getCode());
+                assetsRental.setState(AssetsRentalStateEnum.ENABLE.getCode());
             }
         }
         assetsRental.setModifyTime(LocalDateTime.now());
@@ -148,5 +147,36 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         if (this.updateSelective(assetsRental) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
+    }
+
+    /**
+     * 根据摊位 id 查询相关的预设信息
+     *
+     * @param  assetsId
+     * @return BaseOutput
+     * @date   2020/12/2
+     */
+    @Override
+    public AssetsRentalDto getRentalByAssetsId(Long assetsId) {
+        AssetsRentalDto assetsRentalDto = new AssetsRentalDto();
+        assetsRentalDto.setAssetsId(assetsId);
+        assetsRentalDto.setState(AssetsRentalStateEnum.ENABLE.getCode());
+        return this.getActualDao().getRentalByAssetsId(assetsRentalDto);
+    }
+
+    /**
+     * 根据摊位 ids 查询是否属于一个批次
+     *
+     * @param  assetsIds
+     * @return BaseOutput
+     * @date   2020/12/2
+     */
+    @Override
+    public boolean belongsBatchByAssetsIds(List<Long> assetsIds) {
+        List<Long> rentalIds = this.getActualDao().belongsBatchByAssetsIds(assetsIds);
+        if (rentalIds != null && rentalIds.size() > 1) {
+            return false;
+        }
+        return true;
     }
 }
