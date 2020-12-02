@@ -1,8 +1,10 @@
 package com.dili.ia.service.impl;
 
+import com.dili.bpmc.sdk.dto.EventReceivedDto;
 import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.ia.domain.*;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.BpmEventConstants;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
@@ -11,6 +13,7 @@ import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.google.common.collect.Sets;
@@ -79,8 +82,11 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
         if (null != refundOrder.getProcessInstanceId()) {
+            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+            eventReceivedDto.setEventName(BpmEventConstants.WITHDRAW_EVENT);
+            eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
             //发送流程消息通知撤回
-            BaseOutput<String> baseOutput = eventRpc.messageEventReceived("withdraw", refundOrder.getProcessInstanceId(), null);
+            BaseOutput<String> baseOutput = eventRpc.messageEventReceived(eventReceivedDto);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }

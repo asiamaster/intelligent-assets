@@ -61,7 +61,12 @@ public class MessageFeeRpc {
             throw new BusinessException(ResultCode.APP_ERROR, "【白名单推送】接口调用异常!");
         }
     }
-    
+
+    /**
+     *
+     * @param messageFee
+     * @return
+     */
     private JSONObject buildPay(MessageFee messageFee) {
     	JSONObject json = new JSONObject();
     	json.put("customerName", messageFee.getCustomerName());

@@ -261,6 +261,7 @@ public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount,
         }
         //检查客户状态
         checkCustomerState(refundOrder.getCustomerId(), userTicket.getFirmId());
+        //@TODO 从结算查询，验证客户余额
         CustomerAccount customerAccount = this.getCustomerAccountByCustomerId(refundOrder.getCustomerId(), userTicket.getFirmId());
         if (null == customerAccount){
             LOG.info("客户账户退款申请，客户账户【{}】在市场【{}:{}】不存在！", refundOrder.getCustomerId(), userTicket.getFirmId(), userTicket.getFirmCode());

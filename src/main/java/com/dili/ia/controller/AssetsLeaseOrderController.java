@@ -140,6 +140,7 @@ public class AssetsLeaseOrderController {
             List<String> strings = leaseOrderEventCache.get(cacheKey, t -> {
                 BaseOutput<List<String>> listBaseOutput = eventRpc.listEventName(bizProcessInstanceId);
                 if (!listBaseOutput.isSuccess()) {
+                    //内部类需要抛异常
                     throw new DataErrorException(listBaseOutput.getMessage());
                 }
                 return listBaseOutput.getData();
@@ -173,7 +174,7 @@ public class AssetsLeaseOrderController {
         modelMap.put("formKey", taskCenterParam.getFormKey());
 
         ApprovalProcess approvalProcess = new ApprovalProcess();
-        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
+        approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
         List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
         modelMap.put("approvalProcesses", approvalProcesses);
         return "assetsLeaseOrder/assetsApproval";
@@ -195,7 +196,7 @@ public class AssetsLeaseOrderController {
         modelMap.put("formKey", taskCenterParam.getFormKey());
 
         ApprovalProcess approvalProcess = new ApprovalProcess();
-        approvalProcess.setProcessInstanceId(taskCenterParam.getProcessInstanceId());
+        approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
         List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
         modelMap.put("approvalProcesses", approvalProcesses);
         return "assetsLeaseOrder/assetsApprovalDetail";
@@ -341,7 +342,7 @@ public class AssetsLeaseOrderController {
         if (leaseOrder.getProcessInstanceId() != null) {
             //准备流程审批记录
             ApprovalProcess approvalProcess = new ApprovalProcess();
-            approvalProcess.setProcessInstanceId(leaseOrder.getProcessInstanceId());
+            approvalProcess.setBusinessKey(leaseOrder.getCode());
             List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
             if (!approvalProcesses.isEmpty()) {
                 modelMap.put("approvalProcesses", approvalProcesses);

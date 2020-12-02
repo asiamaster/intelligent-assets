@@ -89,6 +89,8 @@
         param["bizProcessInstanceImgUrl"] = '<#config name="bpmc.server.address"/>/api/runtime/progress?processInstanceId='+rows[0].bizProcessInstanceId+'&processDefinitionId='+rows[0].bizProcessDefinitionId+"&"+Math.random();
         param["bizProcessInstanceId"] = rows[0].bizProcessInstanceId;
         param["bizProcessDefinitionId"] = rows[0].bizProcessDefinitionId;
+        param["processInstanceId"] = rows[0].processInstanceId;
+        param["processDefinitionId"] = rows[0].processDefinitionId;
         bs4pop.dialog({
             title: "业务流程",
             content: bui.util.HTMLDecode(template('bpmTpl', param)),
@@ -849,29 +851,30 @@
         //允许新增和查看按钮
         $('#btn_add').attr('disabled', false);
         $('#btn_view').attr('disabled', false);
-        //只要有流程实例id就可以查看流程图
+        //只要有审批流程实例id就可以查看流程图
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
         }
-
         if(row.bizProcessInstanceId){
             var url = "${contextPath}/leaseOrder/listEventName.action";
             $.ajax({
                 type: "POST",
                 url: url,
-                data: {bizProcessInstanceId: row.bizProcessInstanceId, state: row.$_state, approvalState: approvalState},
+                data: {bizProcessInstanceId: row.bizProcessInstanceId, state: state, approvalState: approvalState},
                 processData: true,
                 dataType: "json",
                 async: true,
                 success: function (output) {
                     bui.loading.hide();
                     if (output.success) {
-                        for(var i in output.data){
+                        for(let item of output.data){
                             //根据事件名的class启用按钮
-                            $("."+output.data[i]).attr('disabled', false);
+                            $("."+item).attr('disabled', false);
                         }
-                        _grid.bootstrapTable('refresh');
-                        _modal.modal('hide');
+                        //审批通过的不能撤回
+                        if(approvalState  == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
+                            $('#btn_withdraw').attr('disabled', true);
+                        }
                     } else {
                         bs4pop.alert(output.result, {type: 'error'});
                     }
@@ -905,7 +908,7 @@
                 $('#btn_edit').attr('disabled', false);
                 $('#btn_cancel').attr('disabled', false);
             <#resource code="skipAssetsLeaseApproval">
-                    $('#btn_submit').attr('disabled', false);
+                $('#btn_submit').attr('disabled', false);
             </#resource>
             }
             //审批中不允许修改、取消和提交付款

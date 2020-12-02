@@ -4,6 +4,9 @@ import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.domain.TaskMapping;
+import com.dili.bpmc.sdk.dto.EventReceivedDto;
+import com.dili.bpmc.sdk.dto.StartProcessInstanceDto;
+import com.dili.bpmc.sdk.dto.TaskCompleteDto;
 import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
@@ -218,8 +221,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
         //有流程实例id，并且是创建状态，才触发流程取消
         if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId()) && currentState == RefundOrderStateEnum.CREATED.getCode()) {
+            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+            eventReceivedDto.setEventName(BpmEventConstants.CANCEL_EVENT);
+            eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
             //发送消息通知流程终止
-            BaseOutput<String> baseOutput = eventRpc.messageEventReceived("terminate", refundOrder.getProcessInstanceId(), null);
+            BaseOutput<String> baseOutput = eventRpc.messageEventReceived(eventReceivedDto);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
@@ -557,8 +563,12 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         variables.put("customerName", refundOrder.getCustomerName());
         variables.put("payAmount", String.valueOf(refundOrder.getTotalRefundAmount()/100));
         if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
+            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+            eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_APPROVAL_EVENT);
+            eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
+            eventReceivedDto.setVariables(variables);
             //发送消息通知流程
-            BaseOutput<String> baseOutput = eventRpc.signal(refundOrder.getProcessInstanceId(), "reapply", variables);
+            BaseOutput<String> baseOutput = eventRpc.messageEventReceived(eventReceivedDto);
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
@@ -567,8 +577,12 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 //        AssetsLeaseOrderItem assetsLeaseOrderItem = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId());
 //        Map<String, Object> variables = new HashMap<>();
 //        variables.put("districtId", assetsLeaseOrderItem.getDistrictId().toString());
-
-            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS, refundOrder.getCode(), userTicket.getId().toString(), variables);
+            StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
+            startProcessInstanceDto.setProcessDefinitionKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS);
+            startProcessInstanceDto.setBusinessKey(refundOrder.getCode());
+            startProcessInstanceDto.setUserId(userTicket.getId().toString());
+            startProcessInstanceDto.setVariables(variables);
+            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
             if (!processInstanceMappingBaseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
             }
@@ -679,8 +693,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if(StringUtils.isNotEmpty(districtName)){
             hashMap.put("districtName", districtName);
         }
+        TaskCompleteDto taskCompleteDto = DTOUtils.newInstance(TaskCompleteDto.class);
+        taskCompleteDto.setTaskId(taskId);
+        taskCompleteDto.setVariables(hashMap);
         //非最后一次审批，只更新流程状态
-        BaseOutput baseOutput = taskRpc.complete(taskId, hashMap);
+        BaseOutput baseOutput = taskRpc.complete(taskCompleteDto);
         if (!baseOutput.isSuccess()) {
             throw new BusinessException(ResultCode.APP_ERROR, baseOutput.getMessage());
         }

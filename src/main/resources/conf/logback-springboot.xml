@@ -30,7 +30,8 @@
         </encoder>
     </appender>
     <!--        不打印心跳日志     -->
-    <logger name="io.seata.core.rpc.netty" level="info"/>
+    <logger name="io.seata.core" level="INFO"/>
+    <logger name="io.seata.integration" level="INFO"/>
 
     <!-- 开发环境 -->
     <springProfile name="dev">
