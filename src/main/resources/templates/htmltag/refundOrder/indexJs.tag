@@ -20,9 +20,48 @@
         let size = ($(window).height() - $('#queryForm').height() - 210) / 40;
         size = size > 10 ? size : 10;
         _grid.bootstrapTable('refreshOptions', {pageNumber: 1, url: '/refundOrder/listPage.action',pageSize: parseInt(size)});
+        document.addEventListener("keyup",getKey,false);
     });
 
     /******************************驱动执行区 end****************************/
+
+    //全局按键事件
+    function getKey(e){
+        e = e || window.event;
+        var keycode = e.which ? e.which : e.keyCode;
+        //如果按下ctrl+alt+r，弹出快捷执行窗口
+        if(e.ctrlKey && e.altKey && keycode == 82){
+            openBpm();
+        }
+    }
+
+    /**
+     * 打开业务流程编号框
+     */
+    function openBpm() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            return;
+        }
+        var param = {};
+        param["bizProcessInstanceImgUrl"] = '<#config name="bpmc.server.address"/>/api/runtime/progress?processInstanceId='+rows[0].bizProcessInstanceId+'&processDefinitionId='+rows[0].bizProcessDefinitionId+"&"+Math.random();
+        param["bizProcessInstanceId"] = rows[0].bizProcessInstanceId;
+        param["bizProcessDefinitionId"] = rows[0].bizProcessDefinitionId;
+        param["processInstanceId"] = rows[0].processInstanceId;
+        param["processDefinitionId"] = rows[0].processDefinitionId;
+        bs4pop.dialog({
+            title: "业务流程",
+            content: bui.util.HTMLDecode(template('bpmTpl', param)),
+            closeBtn: true,
+            backdrop : 'static',
+            width: '1300px',
+            btns: [
+                {label: '关闭', className: 'btn-secondary', onClick(e) {}}
+            ]
+        });
+    }
+
     /**
      * table参数组装
      * 可修改queryParams向服务器发送其余的参数
@@ -306,7 +345,7 @@
         }
 
         if(row.bizProcessInstanceId){
-            var url = "${contextPath}/leaseOrder/listEventName.action";
+            var url = "${contextPath}/refundOrder/listEventName.action";
             $.ajax({
                 type: "POST",
                 url: url,
