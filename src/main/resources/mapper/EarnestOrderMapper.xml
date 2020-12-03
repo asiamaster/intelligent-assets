@@ -35,6 +35,8 @@
     <result column="invalid_time" jdbcType="TIMESTAMP" property="invalidTime" />
     <result column="invalid_reason" jdbcType="VARCHAR" property="invalidReason" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
+    <result column="mch_id" jdbcType="BIGINT" property="mchId" />
+    <result column="district_id" jdbcType="BIGINT" property="districtId" />
     <result column="version" jdbcType="BIGINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -45,7 +47,7 @@
     start_time, end_time, department_id, department_name, state, assets_type, amount, 
     code, creator_id, creator, submitter_id, submitter, sub_date, notes, withdraw_operator_id, 
     withdraw_operator, canceler_id, canceler, invalid_operator_id, invalid_operator, 
-    invalid_time, invalid_reason, market_id, version
+    invalid_time, invalid_reason, market_id, mch_id, district_id, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -148,6 +150,12 @@
       </if>
       <if test="marketId != null">
         market_id = #{marketId,jdbcType=BIGINT},
+      </if>
+      <if test="mchId != null">
+        mch_id = #{mchId,jdbcType=BIGINT},
+      </if>
+      <if test="districtId != null">
+        district_id = #{districtId,jdbcType=BIGINT},
       </if>
       <if test="version != null">
         version = #{version,jdbcType=BIGINT},
