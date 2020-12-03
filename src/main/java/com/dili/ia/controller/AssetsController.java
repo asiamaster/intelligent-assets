@@ -88,7 +88,7 @@ public class AssetsController {
     /**
      * list district 区域查询接口
      */
-    @GetMapping(value = "/searchCategory.action")
+    @GetMapping(value = "/searchDistrict.action")
     public @ResponseBody
     BaseOutput<List<DistrictDTO>> searchDistrict(Long parentId) {
         DistrictDTO districtDTO = new DistrictDTO();
