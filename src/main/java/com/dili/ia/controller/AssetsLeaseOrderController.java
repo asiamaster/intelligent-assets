@@ -403,11 +403,20 @@ public class AssetsLeaseOrderController {
     @GetMapping(value = "/refundApply.html")
     public String refundApply(ModelMap modelMap, Long leaseOrderItemId, Long refundOrderId) {
         AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(leaseOrderItemId);
+        AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(leaseOrderItem.getLeaseOrderId());
         modelMap.put("leaseOrderItem", leaseOrderItem);
         BusinessChargeItem condition = new BusinessChargeItem();
         condition.setBusinessId(leaseOrderItem.getId());
         modelMap.put("businessChargeItems", businessChargeItemService.list(condition));
-        modelMap.put("leaseOrder", assetsLeaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
+        modelMap.put("leaseOrder", leaseOrder);
+
+        AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
+        itemCondition.setLeaseOrderId(leaseOrder.getId());
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(itemCondition);
+        modelMap.put("leaseOrder", leaseOrder);
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        modelMap.put("chargeItems", chargeItemDtos);
+        modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, leaseOrder.getBizType(), chargeItemDtos));
         if (null != refundOrderId) {
             modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
             List<BusinessChargeItemDto> businessChargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItem.getBizType(), List.of(leaseOrderItemId));

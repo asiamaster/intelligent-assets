@@ -1087,6 +1087,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
+        refundOrderDto.setPayeeAmount(refundOrderDto.getTotalRefundAmount());
         //订单项退款申请
         AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(refundOrderDto.getBusinessItemId());
         //摊位订单项退款申请条件检查
@@ -1518,13 +1519,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private void checkRufundApplyWithLeaseOrderItem(LeaseRefundOrderDto refundOrderDto, AssetsLeaseOrderItem leaseOrderItem, UserTicket userTicket) {
         //收款人和转抵扣收款人客户状态验证
         checkCustomerState(refundOrderDto.getPayeeId(), userTicket.getFirmId());
-        List<TransferDeductionItem> transferDeductionItems = refundOrderDto.getTransferDeductionItems();
-        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
-            for (TransferDeductionItem transferDeductionItem : transferDeductionItems
-            ) {
-                checkCustomerState(transferDeductionItem.getPayeeId(), userTicket.getFirmId());
-            }
-        }
 
         if (LeaseRefundStateEnum.REFUNDED.getCode().equals(leaseOrderItem.getRefundState())
                 || (null == refundOrderDto.getId() && LeaseRefundStateEnum.REFUNDING.getCode().equals(leaseOrderItem.getRefundState()))) {

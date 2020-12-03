@@ -128,9 +128,6 @@
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
                         <th style="font-weight:normal;width: 5rem;">转角</th>
                         <% } %>
-                        <th style="font-weight:normal;width: 9rem;">单价<i class="red">*</i></th>
-                        <th style="font-weight:normal;width: 6rem;">应交月数<i class="red">*</i></th>
-                        <th style="font-weight:normal;width: 9rem;">优惠金额<i class="red">*</i></th>
                         <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                         for(item in chargeItems){
                         %>
@@ -160,9 +157,6 @@
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
                         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="isCorner_${itemLP.index}" name="isCorner_${itemLP.index}" value="${item.isCorner!}" readonly uncheck/></td>
                         <% } %>
-                        <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_${itemLP.index}" name="unitPrice_${itemLP.index}" value="<#centToYuan value='${item.unitPrice!0}'/>" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-                        <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_${itemLP.index}" name="paymentMonth_${itemLP.index}" value="${item.paymentMonth!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-                        <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_${itemLP.index}" name="discountAmount_${itemLP.index}" value="<#centToYuan value='${item.discountAmount!0}'/>" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
                         <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                         for(chargeItem in chargeItems){
                         %>
@@ -242,9 +236,6 @@
         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" readonly uncheck/></td>
         <% } %>
-        <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_{{index}}" name="unitPrice_{{index}}" value="{{unitPrice}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_{{index}}" name="paymentMonth_{{index}}" value="{{discountAmount}}" value="{{paymentMonth}}"  class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-        <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_{{index}}" name="discountAmount_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
         <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
         for(item in chargeItems){
         %>
