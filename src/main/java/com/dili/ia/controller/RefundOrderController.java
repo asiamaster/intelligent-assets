@@ -157,6 +157,17 @@ public class RefundOrderController {
     }
 
     /**
+     * 清空事件名缓存
+     * @return BaseOutput
+     */
+    @GetMapping(value="/clearEventNameCache.action")
+    @ResponseBody
+    public BaseOutput clearEventNameCache() {
+        refundOrderEventCache.invalidateAll();
+        return BaseOutput.success("清除成功");
+    }
+
+    /**
      * 分页查询RefundOrder，返回easyui分页信息
      * @param refundOrder
      * @return String

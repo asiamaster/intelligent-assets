@@ -183,17 +183,17 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
             }
             /**
-             * 启动租赁业务流程
+             * wm:启动租赁业务流程
              */
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
             startProcessInstanceDto.setProcessDefinitionKey(BpmConstants.PK_BOOTH_LEASE_ORDER_PROCESS);
-            startProcessInstanceDto.setBusinessKey(bizNumberOutput.getCode());
+            startProcessInstanceDto.setBusinessKey(bizNumberOutput.getData());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
             if (!processInstanceMappingBaseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
             }
-            //设置流程定义和实例id，后面会更新到租赁单表
+            //wm:设置流程定义和实例id，后面会更新到租赁单表
             dto.setBizProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
             dto.setBizProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
             dto.setCode(bizNumberOutput.getData());
@@ -295,17 +295,25 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
         }
 
+        //wm:重新提交审批时清空旧的审批流程
+        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
+            BaseOutput output = runtimeRpc.stopProcessInstanceById(leaseOrder.getProcessInstanceId(), "重新提交审批");
+            if (!output.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "重新提交审批时清空旧的审批流程失败:"+ output.getMessage());
+            }
+        }
+        //构建审批流程参数
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("customerName", leaseOrder.getCustomerName());
+        //wm:支付金额 = 总金额 + 摊位保证金合计, 用于任务标题展示
+        Long payAmount = leaseOrder.getTotalAmount() + depositAmount;
+        variables.put("payAmount", String.valueOf(payAmount / 100));
+        variables.put("businessKey", leaseOrder.getCode());
+        variables.put("firmId", userTicket.getFirmId().toString());
         /**
          * wm:启动租赁审批子流程
          */
         if(StringUtils.isNotBlank(leaseOrder.getBizProcessInstanceId())) {
-            Map<String, Object> variables = new HashMap<>();
-            variables.put("customerName", leaseOrder.getCustomerName());
-            //wm:支付金额 = 总金额 + 摊位保证金合计, 用于任务标题展示
-            Long payAmount = leaseOrder.getTotalAmount() + depositAmount;
-            variables.put("payAmount", String.valueOf(payAmount / 100));
-            variables.put("businessKey", leaseOrder.getCode());
-            variables.put("firmId", userTicket.getFirmId().toString());
             EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
             eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_APPROVAL_EVENT);
             eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
@@ -314,30 +322,32 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             if (!submitApprovalOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "审批子流程启动失败:" + submitApprovalOutput.getMessage());
             }
-        }
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("customerName", leaseOrder.getCustomerName());
-        //wm:支付金额 = 总金额 + 摊位保证金合计 - 定金抵扣 - 转抵抵扣, 用于任务标题展示
-        Long payAmount = leaseOrder.getTotalAmount() + depositAmount;
-        variables.put("payAmount", String.valueOf(payAmount/100));
-        variables.put("businessKey", leaseOrder.getCode());
-        variables.put("firmId", userTicket.getFirmId().toString());
-        //wm:重新提交审批时清空旧的审批流程
-        if(StringUtils.isNotBlank(leaseOrder.getProcessInstanceId())) {
-            BaseOutput output = runtimeRpc.stopProcessInstanceById(leaseOrder.getProcessInstanceId(), "重新提交审批");
-            if (!output.isSuccess()) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "重新提交审批时清空旧的审批流程失败:"+ output.getMessage());
-            }
             //wm:获取审批子流程实例
             BaseOutput<ProcessInstanceMapping> subApprovalProcessInstance = runtimeRpc.findActiveProcessInstance(null, leaseOrder.getCode(), leaseOrder.getBizProcessInstanceId());
-
-            if (!subApprovalProcessInstance.isSuccess()) {
+            ProcessInstanceMapping processInstanceMapping = subApprovalProcessInstance.getData();
+            if (!subApprovalProcessInstance.isSuccess() || processInstanceMapping == null) {
                 throw new BusinessException(ResultCode.APP_ERROR, "获取审批流程失败");
             }
             //wm:设置审批子流程定义和实例id，后面会更新到租赁单表
             leaseOrder.setProcessDefinitionId(subApprovalProcessInstance.getData().getProcessDefinitionId());
             leaseOrder.setProcessInstanceId(subApprovalProcessInstance.getData().getProcessInstanceId());
+        }else {
+            //没有业务流程实例id，需要直接启动审批流程
+            StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
+            startProcessInstanceDto.setProcessDefinitionKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS);
+            startProcessInstanceDto.setBusinessKey(leaseOrder.getCode());
+            startProcessInstanceDto.setUserId(userTicket.getId().toString());
+            startProcessInstanceDto.setVariables(variables);
+            BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
+            if (!processInstanceMappingBaseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+            }
+            //设置流程定义和实例id，后面会更新到租赁单表
+            leaseOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
+            leaseOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
         }
+
+
         try {
             /**
              * 冻结摊位
@@ -1291,7 +1301,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId())) {
             //发送消息通知流程
             EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
-            eventReceivedDto.setEventName(BpmEventConstants.REFUND_EVENT);
+            eventReceivedDto.setEventName(BpmEventConstants.SUBMITTED_RECEIVE_TASK);
             eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
             BaseOutput<String> baseOutput = eventRpc.signal(eventReceivedDto);
             if (!baseOutput.isSuccess()) {

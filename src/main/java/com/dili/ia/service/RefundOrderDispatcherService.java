@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-03-09 19:34:40.
  */
 public interface RefundOrderDispatcherService extends BaseService<RefundOrder, Long> {
-	
+
 	/**
 	 * 退款单 --修改
 	 * 

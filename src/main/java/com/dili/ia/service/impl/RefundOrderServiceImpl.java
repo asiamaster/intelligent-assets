@@ -290,7 +290,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
         }
 
-        //如果有流程实例id，需要判断当前是否审批通过，非审批通过状态的直接提交需要清空流程
+        //wm:如果有审批流程实例id，需要判断当前是否审批通过，非审批通过状态的直接提交需要清空流程
         if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId()) && !ApprovalStateEnum.APPROVED.getCode().equals(approvalState)){
             RefundOrder refundOrder1 = new RefundOrder();
             RefundOrder dbRefundOrder = get(refundOrder.getId());
@@ -317,12 +317,16 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
             }
         }
+
+        //TODO wm:写死现金方式，后面需要删除
+        refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, refundOrder));
         if (!out.isSuccess()){
             LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException(ResultCode.DATA_ERROR, "提交到结算中心失败！" + out.getMessage());
         }
+
         return BaseOutput.success("提交成功");
     }
 
@@ -536,22 +540,16 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             throw new NotLoginException();
         }
         RefundOrder refundOrder = get(id);
-        if (!refundOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())
-                && (!ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode().equals(refundOrder.getApprovalState())
-                || !ApprovalStateEnum.APPROVAL_DENIED.getCode().equals(refundOrder.getApprovalState()))) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "状态已流转不能提交审批，请刷新后再试");
-        }
+
         //检查客户状态
         checkCustomerState(refundOrder.getCustomerId(), userTicket.getFirmId());
         //检查收款人客户状态
         checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
-        //获取业务service, 校验转抵人
-        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
-        if(service!=null){
-            BaseOutput refundResult = service.submitHandler(refundOrder);
-            if (refundOrder != null && !refundResult.isSuccess()){
-                LOG.info("提交回调业务返回失败！" + refundResult.getMessage());
-                throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
+        //wm:重新提交审批时清空旧的审批流程
+        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
+            BaseOutput output = runtimeRpc.stopProcessInstanceById(refundOrder.getProcessInstanceId(), "重新提交审批");
+            if (!output.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "重新提交审批时清空旧的审批流程失败:"+ output.getMessage());
             }
         }
         /**
@@ -559,10 +557,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
          */
         Map<String, Object> variables = new HashMap<>(8);
         variables.put("businessKey", refundOrder.getCode());
-        variables.put("firmId", userTicket.getFirmId().toString());
         variables.put("customerName", refundOrder.getCustomerName());
         variables.put("payAmount", String.valueOf(refundOrder.getTotalRefundAmount()/100));
-        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())) {
+        //如果有业务流程实例id，需要触发边界事件
+        if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId())) {
             EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
             eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_APPROVAL_EVENT);
             eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
@@ -572,11 +570,17 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             if (!baseOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
+            //wm:获取审批子流程实例
+            BaseOutput<ProcessInstanceMapping> subApprovalProcessInstance = runtimeRpc.findActiveProcessInstance(null, null, refundOrder.getBizProcessInstanceId());
+            ProcessInstanceMapping processInstanceMapping = subApprovalProcessInstance.getData();
+            if (!subApprovalProcessInstance.isSuccess() || processInstanceMapping == null) {
+                throw new BusinessException(ResultCode.APP_ERROR, "获取审批流程失败");
+            }
+            //wm:设置审批子流程定义和实例id，后面会更新到租赁单表
+            refundOrder.setProcessDefinitionId(processInstanceMapping.getProcessDefinitionId());
+            refundOrder.setProcessInstanceId(processInstanceMapping.getProcessInstanceId());
         }else {
-            //根据第一个摊位的所属区域来确认审批人
-//        AssetsLeaseOrderItem assetsLeaseOrderItem = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId());
-//        Map<String, Object> variables = new HashMap<>();
-//        variables.put("districtId", assetsLeaseOrderItem.getDistrictId().toString());
+            //没有业务流程实例id，需要直接启动审批流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
             startProcessInstanceDto.setProcessDefinitionKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS);
             startProcessInstanceDto.setBusinessKey(refundOrder.getCode());
@@ -590,6 +594,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             refundOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
             refundOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
         }
+
         refundOrder.setApprovalState(ApprovalStateEnum.IN_REVIEW.getCode());
         if (updateSelective(refundOrder) == 0) {
             LOG.info("退款单提交状态更新失败 乐观锁生效 【退款单ID {}】", refundOrder.getId());
@@ -617,10 +622,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         RefundOrder condition = new RefundOrder();
         condition.setCode(approvalParam.getBusinessKey());
         RefundOrder refundOrder = getActualDao().selectOne(condition);
-        //只有创建状态的退款单才能提交审批任务
-        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款单状态不正确，请刷新后再试");
-        }
         //最后一次审批，更新审批状态、租赁单状态，并且全量提交退款单到结算
         //总经理审批通过需要更新审批状态
         if ("generalManagerApproval".equals(approvalParam.getTaskDefinitionKey())) {
@@ -633,8 +634,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
         //保存流程审批记录
         saveApprovalProcess(approvalParam, userTicket);
-        //摊位的区域id，用于获取一级区域名称，在流程中进行判断
-        Long districtId = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId()).getDistrictId();
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
@@ -643,7 +642,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
         LoggerContext.put("logContent", approvalParam.getOpinion());
         //提交审批任务
-        completeTask(approvalParam.getTaskId(), "true", getLevel1DistrictName(districtId));
+        completeTask(approvalParam.getTaskId(), "true");
     }
 
     @Override
@@ -668,7 +667,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //保存流程审批记录
         saveApprovalProcess(approvalParam, userTicket);
         //摊位的区域id，用于获取一级区域名称，在流程中进行判断
-        Long districtId = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId()).getDistrictId();
+//        Long districtId = assetsLeaseOrderItemMapper.selectByPrimaryKey(refundOrder.getBusinessItemId()).getDistrictId();
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
@@ -677,7 +676,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
         LoggerContext.put("logContent", approvalParam.getOpinion());
         //提交审批任务
-        completeTask(approvalParam.getTaskId(), "false", getLevel1DistrictName(districtId));
+        completeTask(approvalParam.getTaskId(), "false");
     }
 
     /**
@@ -685,14 +684,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
      *
      * @param taskId
      * @param agree
-     * @param districtName 街区名称, 一区或二区。 用于流程判断
      */
-    private void completeTask(String taskId, String agree, String districtName) {
+    private void completeTask(String taskId, String agree) {
         HashMap hashMap = new HashMap();
         hashMap.put("agree", agree);
-        if(StringUtils.isNotEmpty(districtName)){
-            hashMap.put("districtName", districtName);
-        }
         TaskCompleteDto taskCompleteDto = DTOUtils.newInstance(TaskCompleteDto.class);
         taskCompleteDto.setTaskId(taskId);
         taskCompleteDto.setVariables(hashMap);

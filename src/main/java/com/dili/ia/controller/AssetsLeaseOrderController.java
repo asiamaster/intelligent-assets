@@ -152,6 +152,17 @@ public class AssetsLeaseOrderController {
     }
 
     /**
+     * 清空事件名缓存
+     * @return BaseOutput
+     */
+    @GetMapping(value="/clearEventNameCache.action")
+    @ResponseBody
+    public BaseOutput clearEventNameCache() {
+        leaseOrderEventCache.invalidateAll();
+        return BaseOutput.success("清除成功");
+    }
+
+    /**
      * 跳转到资产审批页面，任务中心调用
      *
      * @param modelMap
