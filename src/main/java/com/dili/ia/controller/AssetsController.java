@@ -1,12 +1,10 @@
 package com.dili.ia.controller;
 
 import cn.hutool.core.collection.CollUtil;
-import com.dili.assets.sdk.dto.AssetsDTO;
-import com.dili.assets.sdk.dto.AssetsQuery;
-import com.dili.assets.sdk.dto.CusCategoryDTO;
-import com.dili.assets.sdk.dto.CusCategoryQuery;
+import com.dili.assets.sdk.dto.*;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -33,7 +31,7 @@ public class AssetsController {
     private AssetsRpc assetsRpc;
 
     /**
-     * 新增BoothOrderR
+     * 新增BoothOrderR 资产查询接口
      */
     @GetMapping(value = "/searchAssets.action")
     public @ResponseBody
@@ -67,7 +65,7 @@ public class AssetsController {
     }
 
     /**
-     * list Category
+     * list Category 品类查询接口
      */
     @GetMapping(value = "/searchCategory.action")
     public @ResponseBody
@@ -82,6 +80,27 @@ public class AssetsController {
         }
         try {
             return assetsRpc.listCusCategory(categoryDTO);
+        } catch (Exception e) {
+            return BaseOutput.success().setData(new ArrayList<>());
+        }
+    }
+
+    /**
+     * list district 区域查询接口
+     */
+    @GetMapping(value = "/searchCategory.action")
+    public @ResponseBody
+    BaseOutput<List<DistrictDTO>> searchDistrict(Long parentId) {
+        DistrictDTO districtDTO = new DistrictDTO();
+        districtDTO.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
+        districtDTO.setIsDelete(YesOrNoEnum.NO.getCode());
+        if (null == parentId) {
+            districtDTO.setParentId(0L);
+        } else {
+            districtDTO.setParentId(parentId);
+        }
+        try {
+            return assetsRpc.searchDistrict(districtDTO);
         } catch (Exception e) {
             return BaseOutput.success().setData(new ArrayList<>());
         }
