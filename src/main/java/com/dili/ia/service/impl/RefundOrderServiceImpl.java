@@ -558,6 +558,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         Map<String, Object> variables = new HashMap<>(8);
         variables.put("businessKey", refundOrder.getCode());
         variables.put("customerName", refundOrder.getCustomerName());
+        //市场id用于决定市场任务审批人
+        variables.put("firmId", refundOrder.getMarketId());
         variables.put("payAmount", String.valueOf(refundOrder.getTotalRefundAmount()/100));
         //如果有业务流程实例id，需要触发边界事件
         if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId())) {

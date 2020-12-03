@@ -309,7 +309,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         Long payAmount = leaseOrder.getTotalAmount() + depositAmount;
         variables.put("payAmount", String.valueOf(payAmount / 100));
         variables.put("businessKey", leaseOrder.getCode());
-        variables.put("firmId", userTicket.getFirmId().toString());
+        //市场id用于决定市场任务审批人
+        variables.put("firmId", leaseOrder.getMarketId());
         /**
          * wm:启动租赁审批子流程
          */
