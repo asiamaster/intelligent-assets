@@ -20,6 +20,8 @@
     <result column="balance" jdbcType="BIGINT" property="balance" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
+    <result column="mch_id" jdbcType="BIGINT" property="mchId" />
+    <result column="district_id" jdbcType="BIGINT" property="districtId" />
     <result column="version" jdbcType="BIGINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -28,7 +30,7 @@
     -->
     id, create_time, modify_time, customer_id, customer_name, certificate_number, customer_cellphone, 
     type_code, type_name, assets_type, assets_id, assets_name, balance, market_id, market_code, 
-    version
+    mch_id, district_id, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -86,6 +88,12 @@
       </if>
       <if test="marketCode != null">
         market_code = #{marketCode,jdbcType=VARCHAR},
+      </if>
+      <if test="mchId != null">
+        mch_id = #{mchId,jdbcType=BIGINT},
+      </if>
+      <if test="districtId != null">
+        district_id = #{districtId,jdbcType=BIGINT},
       </if>
       <if test="version != null">
         version = #{version,jdbcType=BIGINT},
