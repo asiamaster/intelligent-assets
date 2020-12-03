@@ -398,6 +398,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                     //检查资产状态
                     assetsLeaseService.checkAssetState(o.getAssetsId());
                 });
+                //wm:提交审批任务(现在不需要根据区域名称来判断流程)
+                completeTask(approvalParam.getTaskId(), "true");
+                //wm:保存流程审批记录
+                saveApprovalProcess(approvalParam, userTicket);
                 //提交付款
                 Long paymentId = submitPay(leaseOrder, leaseOrder.getTotalAmount());
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
@@ -408,16 +412,19 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 leaseOrderItems.forEach(l -> {
                     businessChargeItemService.unityUpdatePaymentAmountByBusinessId(l.getId(), l.getBizType());
                 });
-
                 //保证金全额提交
                 BaseOutput depositOutput = depositOrderService.batchSubmitDepositOrderFull(leaseOrder.getBizType(), leaseOrder.getId());
                 if (!depositOutput.isSuccess()) {
                     LOG.info("保证金审批全额提交付款接口异常 【租赁单编号:{}】", leaseOrder.getCode());
                     throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
                 }
+            }else{
+                //wm:提交审批任务(现在不需要根据区域名称来判断流程)
+                completeTask(approvalParam.getTaskId(), "true");
+                //wm:保存流程审批记录
+                saveApprovalProcess(approvalParam, userTicket);
             }
-            //wm:保存流程审批记录
-            saveApprovalProcess(approvalParam, userTicket);
+
             //wm:写业务日志
             LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE,BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName());
             LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
@@ -426,8 +433,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
             LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
             LoggerContext.put("logContent", approvalParam.getOpinion());
-            //wm:提交审批任务(现在不需要根据区域名称来判断流程)
-            completeTask(approvalParam.getTaskId(), "true");
+
         } else {
             throw new BusinessException(ResultCode.DATA_ERROR, "租赁单状态不正确");
         }
