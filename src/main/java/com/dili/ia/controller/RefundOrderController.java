@@ -237,11 +237,9 @@ public class RefundOrderController {
             		|| refundOrder.getBizType().equals(BizTypeEnum.OTHER_FEE.getCode())
             		|| refundOrder.getBizType().equals(BizTypeEnum.STOCKIN.getCode())){
                 return "refundOrder/commonRefundOrderView";
-            } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
-                TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-                transferDeductionItemCondition.setRefundOrderId(id);
-                modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
-
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())
+                    || refundOrder.getBizType().equals(BizTypeEnum.LOCATION_LEASE.getCode())
+                    || refundOrder.getBizType().equals(BizTypeEnum.LODGING_LEASE.getCode())) {
                 if(null != refundOrder.getBusinessItemId()){
                     AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId());
                     modelMap.put("leaseOrderItem", leaseOrderItem);

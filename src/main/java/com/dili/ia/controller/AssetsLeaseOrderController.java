@@ -83,8 +83,6 @@ public class AssetsLeaseOrderController {
     private RefundOrderService refundOrderService;
     @Autowired
     private RefundFeeItemService refundFeeItemService;
-    @Autowired
-    private TransferDeductionItemService transferDeductionItemService;
     @SuppressWarnings("all")
     @Autowired
     private UserRpc userRpc;
@@ -421,9 +419,6 @@ public class AssetsLeaseOrderController {
             modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
             List<BusinessChargeItemDto> businessChargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItem.getBizType(), List.of(leaseOrderItemId));
             modelMap.put("refundFeeItemMap", refundFeeItemService.queryRefundFeeItem(List.of(refundOrderId), businessChargeItemDtos).get(0));
-            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-            transferDeductionItemCondition.setRefundOrderId(refundOrderId);
-            modelMap.put("transferDeductionItems", transferDeductionItemService.list(transferDeductionItemCondition));
         }
 
         return "assetsLeaseOrder/refundApply";
