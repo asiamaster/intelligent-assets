@@ -101,8 +101,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     @Autowired
     private UidFeignRpc uidFeignRpc;
     @Autowired
-    private CustomerAccountService customerAccountService;
-    @Autowired
     private RefundOrderService refundOrderService;
     @Autowired
     private CustomerRpc customerRpc;
@@ -112,8 +110,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private BusinessChargeItemService businessChargeItemService;
     @Autowired
     private RefundFeeItemService refundFeeItemService;
-    @Autowired
-    private TransferDeductionItemService transferDeductionItemService;
     @SuppressWarnings("all")
     @Autowired
     DataDictionaryRpc dataDictionaryRpc;
@@ -134,8 +130,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private ApprovalProcessService approvalProcessService;
     @Autowired
     private ApportionRecordService apportionRecordService;
-    @Autowired
-    private UserResourceRedis userResourceRedis;
 
     @Autowired
     @Lazy
@@ -1167,10 +1161,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             refundFeeItemCondtion.setRefundOrderId(refundOrderDto.getId());
             refundFeeItemService.deleteByExample(refundFeeItemCondtion);
 
-            //删除转抵扣项的数据
-            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-            transferDeductionItemCondition.setRefundOrderId(refundOrderDto.getId());
-            transferDeductionItemService.deleteByExample(transferDeductionItemCondition);
         }
 
         leaseOrderItem.setExitTime(refundOrderDto.getExitTime());
@@ -1187,12 +1177,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             refundFeeItemService.insertSelective(o);
         });
 
-        if (CollectionUtils.isNotEmpty(refundOrderDto.getTransferDeductionItems())) {
-            refundOrderDto.getTransferDeductionItems().forEach(o -> {
-                o.setRefundOrderId(refundOrderDto.getId());
-                transferDeductionItemService.insertSelective(o);
-            });
-        }
         return BaseOutput.success();
     }
 
@@ -1266,30 +1250,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (updateSelective(leaseOrder) == 0) {
             LOG.info("摊位租赁单订单项退款申请结算退款成功 级联更新租赁单乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-
-        //转抵扣充值
-        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
-        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
-            transferDeductionItems.forEach(o -> {
-                CustomerAccountParam customerAccountParam = new CustomerAccountParam();
-                customerAccountParam.setBizType(refundOrder.getBizType());
-                customerAccountParam.setSceneType(TransactionSceneTypeEnum.TRANSFER_IN.getCode());
-                customerAccountParam.setOrderId(refundOrder.getId());
-                customerAccountParam.setOrderCode(refundOrder.getCode());
-                customerAccountParam.setCustomerId(o.getPayeeId());
-                customerAccountParam.setAmount(o.getPayeeAmount());
-                customerAccountParam.setMarketId(refundOrder.getMarketId());
-                customerAccountParam.setOperaterId(refundOrder.getRefundOperatorId());
-                customerAccountParam.setOperatorName(refundOrder.getRefundOperator());
-                BaseOutput accountOutput = customerAccountService.rechargeTransferBalance(customerAccountParam);
-                if (!accountOutput.isSuccess()) {
-                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
-                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
-                }
-            });
         }
 
         //释放关联保证金，让其单飞
