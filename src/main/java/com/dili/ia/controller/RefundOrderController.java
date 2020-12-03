@@ -101,6 +101,7 @@ public class RefundOrderController {
         modelMap.put("taskId", taskCenterParam.getTaskId());
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
+        modelMap.put("bizType", bizType);
         ApprovalProcess approvalProcess = new ApprovalProcess();
         approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
         //查询审批记录
@@ -122,6 +123,7 @@ public class RefundOrderController {
         modelMap.put("taskId", taskCenterParam.getTaskId());
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
+        modelMap.put("assetsType", assetsType);
         ApprovalProcess approvalProcess = new ApprovalProcess();
         approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
         List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
