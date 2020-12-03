@@ -252,31 +252,40 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @GlobalTransactional
     @Override
     public BaseOutput doSubmitDispatcher(RefundOrder refundOrder) {
-        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
-            return BaseOutput.failure("提交失败，状态已变更！");
+        BaseOutput businessOutput = doSubmitBusiness(refundOrder);
+        if(!businessOutput.isSuccess()){
+            return businessOutput;
         }
+        //执行提交退款单业务流转，放在结算前面，保证能回滚结算单， 流程失败会有垃圾数据，需要手工处理，后续接入分布式事务
+        doSubmitProcess(refundOrder);
+
+        //TODO wm:写死现金方式，后面需要删除
+        refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
+        //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
+        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder));
+        if (!out.isSuccess()){
+            LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
+            throw new BusinessException(ResultCode.DATA_ERROR, "提交到结算中心失败！" + out.getMessage());
+        }
+
+        return BaseOutput.success("提交成功");
+    }
+
+    /**
+     * 退款单本地业务
+     * 业务执行失败会抛出异常
+     * @param refundOrder
+     * @throws BusinessException
+     */
+    private BaseOutput doSubmitBusiness(RefundOrder refundOrder){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
-        //园区卡退款，检查退款人 与 退款园区卡是否匹配
-        if(refundOrder.getRefundType() != null && refundOrder.getRefundType().equals(SettleWayEnum.CARD.getCode())){
-            BaseOutput output = this.checkCard(refundOrder.getPayeeId(), refundOrder.getTradeCardNo());
-            if (!output.isSuccess()){
-                return output;
-            }
-        }
-        //记录当前审批状态，用于判断是否直接提交，而需要清空流程
-        Integer approvalState = refundOrder.getApprovalState();
-        //检查客户状态
-        checkCustomerState(refundOrder.getCustomerId(), userTicket.getFirmId());
-        //检查收款人客户状态
-        checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
-
-        //提交时验证该租赁退款单业务的用户是否有跳过审批的权限
-        if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode()) && !userResourceRedis.checkUserResourceRight(userTicket.getId(), "skipRefundApproval") && !ApprovalStateEnum.APPROVED.getCode().equals(refundOrder.getApprovalState())) {
-            LOG.info("退款单编号【{}】 未审批，不可以进行提交操作", refundOrder.getCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款单编号【" + refundOrder.getCode() + "】 未审批，不可以进行提交操作");
+        //退款单提交验证
+        BaseOutput chechOutput = doSubmitCheck(refundOrder);
+        if(!chechOutput.isSuccess()){
+            return chechOutput;
         }
         refundOrder.setState(RefundOrderStateEnum.SUBMITTED.getCode());
         refundOrder.setSubmitTime(LocalDateTime.now());
@@ -290,8 +299,27 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
         }
 
-        //wm:如果有审批流程实例id，需要判断当前是否审批通过，非审批通过状态的直接提交需要清空流程
-        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId()) && !ApprovalStateEnum.APPROVED.getCode().equals(approvalState)){
+        //获取业务service,调用业务实现
+        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
+        if(service!=null){
+            BaseOutput refundResult = service.submitHandler(refundOrder);
+            if (refundOrder != null && !refundResult.isSuccess()){
+                LOG.info("提交回调业务返回失败！" + refundResult.getMessage());
+                throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
+            }
+        }
+        return BaseOutput.success();
+    }
+
+    /**
+     * 执行提交退款单业务流转
+     * 流程失败会抛出异常
+     * @param refundOrder
+     * @throws BusinessException
+     */
+    private void doSubmitProcess(RefundOrder refundOrder){
+        //wm: 直接提交退款需要清空流程，避免垃圾流程数据
+        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId())){
             RefundOrder refundOrder1 = new RefundOrder();
             RefundOrder dbRefundOrder = get(refundOrder.getId());
             refundOrder1.setId(refundOrder.getId());
@@ -307,27 +335,47 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             //清空流程
             runtimeRpc.stopProcessInstanceById(refundOrder.getProcessInstanceId(), "直接提交审批");
         }
-
-        //获取业务service,调用业务实现
-        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
-        if(service!=null){
-            BaseOutput refundResult = service.submitHandler(refundOrder);
-            if (refundOrder != null && !refundResult.isSuccess()){
-                LOG.info("提交回调业务返回失败！" + refundResult.getMessage());
-                throw new BusinessException(ResultCode.DATA_ERROR, "提交回调业务返回失败！" + refundResult.getMessage());
+        //如果有业务流程实例id，需要触发边界事件
+        if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId())) {
+            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+            eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_EVENT);
+            eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
+            //发送消息通知流程
+            BaseOutput<String> baseOutput = eventRpc.messageEventReceived(eventReceivedDto);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
             }
         }
+    }
 
-        //TODO wm:写死现金方式，后面需要删除
-        refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
-        //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, refundOrder));
-        if (!out.isSuccess()){
-            LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
-            throw new BusinessException(ResultCode.DATA_ERROR, "提交到结算中心失败！" + out.getMessage());
+    /**
+     * 提交退款单验证
+     * @param refundOrder
+     * @return
+     */
+    private BaseOutput doSubmitCheck(RefundOrder refundOrder){
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
+//            return BaseOutput.failure("提交失败，状态已变更！");
+//        }
+        //园区卡退款，检查退款人 与 退款园区卡是否匹配
+        if(refundOrder.getRefundType() != null && refundOrder.getRefundType().equals(SettleWayEnum.CARD.getCode())){
+            BaseOutput output = this.checkCard(refundOrder.getPayeeId(), refundOrder.getTradeCardNo());
+            if (!output.isSuccess()){
+                return output;
+            }
         }
+        //检查客户状态
+        checkCustomerState(refundOrder.getCustomerId(), userTicket.getFirmId());
+        //检查收款人客户状态
+        checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
 
-        return BaseOutput.success("提交成功");
+        //提交时验证该租赁退款单业务的用户是否有跳过审批的权限
+        if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode()) && !userResourceRedis.checkUserResourceRight(userTicket.getId(), "skipRefundApproval") && !ApprovalStateEnum.APPROVED.getCode().equals(refundOrder.getApprovalState())) {
+            LOG.info("退款单编号【{}】 未审批，不可以进行提交操作", refundOrder.getCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款单编号【" + refundOrder.getCode() + "】 未审批，不可以进行提交操作");
+        }
+        return BaseOutput.success();
     }
 
     /**
@@ -629,13 +677,28 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if ("generalManagerApproval".equals(approvalParam.getTaskDefinitionKey())) {
             refundOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
             //提交退款单
-            BaseOutput baseOutput = doSubmitDispatcher(refundOrder);
-            if(!baseOutput.isSuccess()){
-                throw new BusinessException(baseOutput.getCode(), baseOutput.getMessage());
+            BaseOutput businessOutput = doSubmitBusiness(refundOrder);
+            if(!businessOutput.isSuccess()){
+                throw new BusinessException(businessOutput.getCode(), businessOutput.getMessage());
             }
+            //保存流程审批记录
+            saveApprovalProcess(approvalParam, userTicket);
+            //提交审批任务
+            completeTask(approvalParam.getTaskId(), "true");
+            //TODO wm:写死现金方式，后面需要删除
+            refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
+            //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
+            BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder));
+            if (!out.isSuccess()){
+                LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
+                throw new BusinessException(ResultCode.DATA_ERROR, "提交到结算中心失败！" + out.getMessage());
+            }
+        }else{
+            //保存流程审批记录
+            saveApprovalProcess(approvalParam, userTicket);
+            //提交审批任务
+            completeTask(approvalParam.getTaskId(), "true");
         }
-        //保存流程审批记录
-        saveApprovalProcess(approvalParam, userTicket);
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approvalParam.getBusinessKey());
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, refundOrder.getId());
@@ -643,8 +706,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, userTicket.getRealName());
         LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
         LoggerContext.put("logContent", approvalParam.getOpinion());
-        //提交审批任务
-        completeTask(approvalParam.getTaskId(), "true");
+
     }
 
     @Override

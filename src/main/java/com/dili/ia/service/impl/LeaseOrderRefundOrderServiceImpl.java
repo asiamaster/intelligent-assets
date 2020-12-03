@@ -86,18 +86,6 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
                 }
             });
         }
-
-        //如果有业务流程实例id，需要触发边界事件
-        if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId())) {
-            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
-            eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_EVENT);
-            eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
-            //发送消息通知流程
-            BaseOutput<String> baseOutput = eventRpc.messageEventReceived(eventReceivedDto);
-            if (!baseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
-            }
-        }
         return BaseOutput.success();
     }
 
