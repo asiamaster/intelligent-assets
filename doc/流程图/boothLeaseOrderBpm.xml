@@ -25,6 +25,7 @@
         <activiti:in source="businessKey" target="businessKey"></activiti:in>
         <activiti:in source="payAmount" target="payAmount"></activiti:in>
         <activiti:in source="customerName" target="customerName"></activiti:in>
+        <activiti:in source="firmId" target="firmId"></activiti:in>
         <activiti:out source="agree" target="agree"></activiti:out>
       </extensionElements>
     </callActivity>
