@@ -113,17 +113,17 @@ public class RefundOrderController {
     /**
      * 跳转到退款单审批详情页面，用于查看归档记录
      * @param modelMap
-     * @param assetsType 1：摊位， 2： 冷库， 3: 公寓, 4:其它
+     * @param bizType 1：摊位， 2： 定金， 3: 保证金, 4:冷库租赁, 5:公寓租赁
      * @return String
      */
-    @GetMapping(value="/{assetsType}/approvalDetail.html")
-    public String assetsApprovalDetail(@PathVariable Integer assetsType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
+    @GetMapping(value="/{bizType}/approvalDetail.html")
+    public String assetsApprovalDetail(@PathVariable Integer bizType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
         modelMap.put("taskDefinitionKey", taskCenterParam.getTaskDefinitionKey());
         modelMap.put("processInstanceId", taskCenterParam.getProcessInstanceId());
         modelMap.put("taskId", taskCenterParam.getTaskId());
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
-        modelMap.put("assetsType", assetsType);
+        modelMap.put("bizType", bizType);
         ApprovalProcess approvalProcess = new ApprovalProcess();
         approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
         List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
