@@ -71,13 +71,6 @@
         }
     }
 
-    $(function () {
-        // 初始化一级区域
-       /* initFirstDistrict();
-        initSecondDistrict()*/
-        initFirstDistrict(8);
-        initSecondDistrict(8, 43)
-    });
     function queryBoothDataHandler(){
         let booth = [];
         $.ajax({
