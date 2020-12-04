@@ -93,4 +93,56 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+    <select id="getRentalByAssetsId" parameterType="com.dili.ia.domain.dto.AssetsRentalDto" resultType="com.dili.ia.domain.dto.AssetsRentalDto">
+        select
+            ar.id,
+            ar.create_time,
+            ar.modify_time,
+            ar.name,
+            ar.engage_code,
+            ar.engage_name,
+            ar.category_id,
+            ar.category_name,
+            ar.lease_term_code,
+            ar.lease_term_name,
+            ar.lease_days,
+            ar.start_time,
+            ar.end_time,
+            ar.state,
+            ar.creator_id,
+            ar.creator,
+            ar.market_id,
+            ar.market_code,
+            ar.version,
+            ari.assets_id as assetsId,
+            ari.assets_name as assetsName,
+            ari.assets_type as assetsType
+        from
+            assets_rental_item as ari
+          left join
+            assets_rental as ar
+          on
+            ari.stall_rent_preset_id = ar.id
+        where
+            ari.assets_id = #{assetsId,jdbcType=BIGINT}
+          and
+            ar.state = #{state}
+    </select>
+
+    <select id="belongsBatchByAssetsIds" resultType="long">
+        select distinct
+            ar.id
+        from
+            assets_rental_item as ari
+          left join
+            assets_rental as ar
+          on
+            ari.stall_rent_preset_id = ar.id
+        where
+            ari.assets_id in
+            <foreach collection="assetsIds" item="assetsId" index="index" open="(" close=")" separator=",">
+                #{assetsId}
+            </foreach>
+    </select>
 </mapper>

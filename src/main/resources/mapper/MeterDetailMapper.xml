@@ -230,7 +230,7 @@
         LEFT JOIN payment_order po ON md.id = po.business_id
     WHERE
         md.meter_id = #{meterId}
-    AND po.biz_type IN (#{bizTypes})
+        AND po.biz_type = #{bizType}
     <if test = "customerId != null" >
         AND md.customer_id = #{customerId}
     </if>
@@ -247,7 +247,7 @@
         LEFT JOIN payment_order po ON md.id = po.business_id
     WHERE
         md.meter_id = #{meterId}
-    and po.biz_type in (${bizTypes})
+    and po.biz_type = #{bizType}
     and md.submit_time is not null
     <if test="state != null and state !=''">
         AND po.state = #{state}
@@ -257,59 +257,7 @@
     LIMIT 1
     </select>
 
-  <select id="listUnPayUnSubmitByMeter" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">
-    SELECT DISTINCT
-        md.id,
-        md.create_time,
-        md.modify_time,
-        md.code,
-        md.meter_id,
-        md.usage_time,
-        md.customer_id,
-        md.customer_name,
-        md.customer_cellphone,
-        md.department_id,
-        md.department_name,
-        md.record_time,
-        md.recorder_name,
-        md.state,
-        md.last_amount,
-        md.this_amount,
-        md.usage_amount,
-        md.receivable,
-        md.amount,
-        md.creator_dep_id,
-        md.notes,
-        md.submitter_id,
-        md.submitter,
-        md.submit_time,
-        md.withdraw_operator_id,
-        md.withdraw_operator,
-        md.canceler_id,
-        md.canceler,
-        md.creator_id,
-        md.creator,
-        md.market_id,
-        md.market_code,
-        md.version
-    FROM
-        meter_detail md
-    LEFT JOIN payment_order po ON md.id = po.business_id
-    WHERE
-        md.meter_id = #{meterId}
-    AND po.biz_type IN (#{bizTypes})
-    <if test = "status != null" >
-        AND po.state IN (#{status})
-    </if>
-    <if test="startTime != null">
-        and md.usage_time  <![CDATA[ >= ]]> #{startTime}
-    </if>
-    <if test="endTime != null">
-        and md.usage_time  <![CDATA[ <= ]]> #{endTime}
-    </if>
-  </select>
-
-  <select id="getMeterDetailById" resultType="com.dili.ia.domain.dto.MeterDetailDto" parameterType="long">
+  <select id="getMeterDetailDtoById" resultType="com.dili.ia.domain.dto.MeterDetailDto" parameterType="long">
     SELECT DISTINCT
         md.id,
         md.create_time,
@@ -425,4 +373,54 @@
         and
             m.type = #{type}
     </select>
+
+    <select id="getMeterDetailDtoListByIds" resultType="com.dili.ia.domain.dto.MeterDetailDto">
+    SELECT DISTINCT
+        md.id,
+        md.create_time,
+        md.modify_time,
+        md.code,
+        md.meter_id,
+        md.usage_time,
+        md.customer_id,
+        md.customer_name,
+        md.customer_cellphone,
+        md.department_id,
+        md.department_name,
+        md.record_time,
+        md.recorder_name,
+        md.state,
+        md.last_amount,
+        md.this_amount,
+        md.usage_amount,
+        md.receivable,
+        md.amount,
+        md.creator_dep_id,
+        md.notes,
+        md.submitter_id,
+        md.submitter,
+        md.submit_time,
+        md.withdraw_operator_id,
+        md.withdraw_operator,
+        md.canceler_id,
+        md.canceler,
+        md.creator_id,
+        md.creator,
+        md.market_id,
+        md.market_code,
+        md.version,
+        m.number as number,
+        m.type as type,
+        m.assets_name as assetsName,
+        m.assets_type as assetsType,
+        m.price as price
+    FROM
+        meter_detail md
+    LEFT JOIN meter m on md.meter_id = m.id
+    WHERE
+        md.id in
+        <foreach collection="idList" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+  </select>
 </mapper>

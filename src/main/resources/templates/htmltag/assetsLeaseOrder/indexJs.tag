@@ -103,6 +103,26 @@
         });
     }
 
+    //清空事件名缓存
+    function clearEventNameCache() {
+        $.ajax({
+            type: "GET",
+            url: "${contextPath}/leaseOrder/clearEventNameCache.action",
+            dataType: "json",
+            success : function(data) {
+                if(data.success){
+                    bs4pop.alert(data.message);
+                }else{
+                    bs4pop.alert(data.message, {type: 'error'});
+                }
+            },
+            error : function() {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
     /**
      * 打开新增窗口
      */

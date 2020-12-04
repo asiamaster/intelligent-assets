@@ -24,6 +24,27 @@ import java.util.List;
  * @description:  资产出租预设Dto
  */
 public class AssetsRentalDto extends AssetsRental {
+
+    /**
+     * 资产ID
+     */
+    private Long assetsId;
+
+    /**
+     * 资产名称
+     */
+    private String assetsName;
+
+    /**
+     * 资产类型 1：摊位 2：冷库
+     */
+    private Integer assetsType;
+
+    /**
+     * 摊位id集合
+     */
+    private List<Long> assetsIds;
+
     // 一个出租预设可能有多个摊位
     private List<AssetsRentalItem> assetsRentalItemList;
 
@@ -33,5 +54,37 @@ public class AssetsRentalDto extends AssetsRental {
 
     public void setAssetsRentalItemList(List<AssetsRentalItem> assetsRentalItemList) {
         this.assetsRentalItemList = assetsRentalItemList;
+    }
+
+    public Long getAssetsId() {
+        return assetsId;
+    }
+
+    public void setAssetsId(Long assetsId) {
+        this.assetsId = assetsId;
+    }
+
+    public String getAssetsName() {
+        return assetsName;
+    }
+
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
+    }
+
+    public Integer getAssetsType() {
+        return assetsType;
+    }
+
+    public void setAssetsType(Integer assetsType) {
+        this.assetsType = assetsType;
+    }
+
+    public List<Long> getAssetsIds() {
+        return assetsIds;
+    }
+
+    public void setAssetsIds(List<Long> assetsIds) {
+        this.assetsIds = assetsIds;
     }
 }

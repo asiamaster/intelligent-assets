@@ -1,9 +1,13 @@
 package com.dili.ia.service.impl;
 
+import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.dto.EventReceivedDto;
+import com.dili.bpmc.sdk.dto.StartProcessInstanceDto;
 import com.dili.bpmc.sdk.rpc.EventRpc;
+import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.ia.domain.*;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.BpmConstants;
 import com.dili.ia.glossary.BpmEventConstants;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
@@ -16,8 +20,11 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +56,9 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     @SuppressWarnings("all")
     @Autowired
     private EventRpc eventRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    private RuntimeRpc runtimeRpc;
     @Autowired
     private CustomerAccountService customerAccountService;
     @Autowired
@@ -81,7 +91,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-        if (null != refundOrder.getProcessInstanceId()) {
+        if (null != refundOrder.getBizProcessInstanceId()) {
             EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
             eventReceivedDto.setEventName(BpmEventConstants.WITHDRAW_EVENT);
             eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());

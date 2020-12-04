@@ -3,6 +3,7 @@ package com.dili.ia.mapper;
 import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ss.base.MyMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -42,22 +43,13 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
     Long getLastAmountByMeterId(MeterDetailDto meterDetailDto);
 
     /**
-     * 根据 meterId 查询是否有未缴费的缴费单记录(某月份)
-     *
-     * @param  meterDetailDto
-     * @return List
-     * @date   2020/6/30
-     */
-    List<MeterDetailDto> listUnPayUnSubmitByMeter(MeterDetailDto meterDetailDto);
-
-    /**
      * 根据主键 id 查询到水电费单详情以及联表查询表信息
      *
      * @param  id
      * @return MeterDetailDto
      * @date   2020/7/6
      */
-    MeterDetailDto getMeterDetailById(Long id);
+    MeterDetailDto getMeterDetailDtoById(Long id);
 
     /**
      * 根据 code 查询实体
@@ -85,4 +77,13 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * @date   2020/7/29
      */
     List<MeterDetailDto> listByStateCreatedAndType(MeterDetailDto meterDetailQuery);
+
+    /**
+     * 根据主键 ids 查询到水电费单详情以及联表查询表信息
+     *
+     * @param  idList
+     * @return List
+     * @date   2020/12/1
+     */
+    List<MeterDetailDto> getMeterDetailDtoListByIds(@Param("idList") List<Long> idList);
 }

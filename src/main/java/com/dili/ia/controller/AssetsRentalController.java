@@ -10,15 +10,20 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 /**
  * @author:       xiaosa
@@ -83,7 +88,7 @@ public class AssetsRentalController {
      * @date   2020/11/26
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute AssetsRental assetsRental) throws Exception {
+    public @ResponseBody String listPage(@RequestBody AssetsRental assetsRental) throws Exception {
         return assetsRentalService.listEasyuiPageByExample(assetsRental, true).toString();
     }
 
@@ -95,7 +100,7 @@ public class AssetsRentalController {
      * @date   2020/11/26
      */
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput add(@ModelAttribute AssetsRentalDto assetsRentalDto) {
+    public @ResponseBody BaseOutput add(@RequestBody AssetsRentalDto assetsRentalDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 校验参数，名称和摊位不能为空
@@ -121,7 +126,7 @@ public class AssetsRentalController {
      * @date   2020/11/26
      */
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@ModelAttribute AssetsRentalDto assetsRentalDto) {
+    public @ResponseBody BaseOutput update(@RequestBody AssetsRentalDto assetsRentalDto) {
         try {
             // 校验参数，名称和摊位不能为空
             AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
@@ -146,8 +151,34 @@ public class AssetsRentalController {
      * @date   2020/11/26
      */
     @RequestMapping(value="/enableOrDisable.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput enableOrDisable(Long id) {
+    public @ResponseBody BaseOutput enableOrDisable(@RequestBody Long id) {
         assetsRentalService.enableOrDisable(id);
         return BaseOutput.success();
+    }
+
+    /**
+     * 根据摊位 id 查询相关的预设信息
+     *
+     * @param  assetsId
+     * @return BaseOutput
+     * @date   2020/12/2
+     */
+    @RequestMapping(value="/getRentalByAssetsId.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput getRentalByAssetsId(@RequestParam("assetsId") Long assetsId) {
+        AssetsRentalDto assetsRentalDto = assetsRentalService.getRentalByAssetsId(assetsId);
+        return BaseOutput.success().setData(assetsRentalDto);
+    }
+
+    /**
+     * 根据摊位 ids 查询是否属于一个批次
+     *
+     * @param  assetsRentalDto
+     * @return BaseOutput
+     * @date   2020/12/2
+     */
+    @RequestMapping(value="/belongsOneBatchByAssetsIds.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput belongsBatchByAssetsIds(@RequestBody AssetsRentalDto assetsRentalDto) {
+        boolean belongsBatchByAssetsIds = assetsRentalService.belongsBatchByAssetsIds(assetsRentalDto.getAssetsIds());
+        return BaseOutput.success().setData(belongsBatchByAssetsIds);
     }
 }

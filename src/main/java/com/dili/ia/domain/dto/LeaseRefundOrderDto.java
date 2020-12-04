@@ -36,9 +36,6 @@ public class LeaseRefundOrderDto extends RefundOrder {
     @Column(name = "id")
     private List<Long> ids;
 
-    //转抵扣
-    private List<TransferDeductionItem> transferDeductionItems;
-
     //业务退款项
     private List<RefundFeeItem> refundFeeItems;
 
@@ -85,14 +82,6 @@ public class LeaseRefundOrderDto extends RefundOrder {
 
     public void setIds(List<Long> ids) {
         this.ids = ids;
-    }
-
-    public List<TransferDeductionItem> getTransferDeductionItems() {
-        return transferDeductionItems;
-    }
-
-    public void setTransferDeductionItems(List<TransferDeductionItem> transferDeductionItems) {
-        this.transferDeductionItems = transferDeductionItems;
     }
 
     public List<RefundFeeItem> getRefundFeeItems() {

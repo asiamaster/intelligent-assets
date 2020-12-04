@@ -25,6 +25,26 @@
 
     /******************************驱动执行区 end****************************/
 
+    //清空事件名缓存
+    function clearEventNameCache() {
+        $.ajax({
+            type: "GET",
+            url: "${contextPath}/refundOrder/clearEventNameCache.action",
+            dataType: "json",
+            success : function(data) {
+                if(data.success){
+                    bs4pop.alert(data.message);
+                }else{
+                    bs4pop.alert(data.message, {type: 'error'});
+                }
+            },
+            error : function() {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
     //全局按键事件
     function getKey(e){
         e = e || window.event;
