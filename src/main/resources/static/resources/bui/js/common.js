@@ -87,18 +87,28 @@ function laydateInt() {
 };
 
 //开始结束时间对比
-function isStartEndDatetime (el){
-    let start = moment(new Date($('.laystart').val()), 'MM-DD-YYYY HH:mm:ss');
-    let end = moment(new Date($('.layend').val()), 'MM-DD-YYYY HH:mm:ss');
-    if ($(el).attr('class').indexOf('laystart')>-1 && end) {
-        debugger
-        if (start.isAfter(end)) {
-            bs4pop.alert('结束时间不能小于开始时间',{} ,function () {$(el).val('')});
+function isStartEndDatetime (el, value){
+    let start, end;
+
+    if ($(el).hasClass('laystart')) {
+        start = moment(new Date(value), 'MM-DD-YYYY HH:mm:ss');
+        if ($(el).parents('.form-group').find('.layend').length) {
+            end = moment(new Date($(el).parents('.form-group').find('.layend:visible').val()), 'MM-DD-YYYY HH:mm:ss');
+        } else {
+            end = moment(new Date($('.layend:visible').val()), 'MM-DD-YYYY HH:mm:ss');
         }
-    } else if (start && $(el).attr('class').indexOf('layend')>-1 ) {
-        if (start.isAfter(end)) {
-            bs4pop.alert('结束时间不能小于开始时间',{} ,function () {$(el).val('')});
+    } else if ($(el).hasClass('layend')) {
+        end = moment(new Date(value), 'MM-DD-YYYY HH:mm:ss');
+        if ($(el).parents('.form-group').find('.laystart').length) {
+            start = moment(new Date($(el).parents('.form-group').find('.laystart:visible').val()), 'MM-DD-YYYY HH:mm:ss');
+        } else {
+            start = moment(new Date($('.laystart:visible').val()), 'MM-DD-YYYY HH:mm:ss');
         }
+    } else {
+        return  false;
+    }
+    if (start.isAfter(end)) {
+        bs4pop.alert('结束时间不能小于开始时间',{} ,function () {$(el).val('')});
     }
 }
 /************ 初始化日期/时间 end **************/
