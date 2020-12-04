@@ -116,14 +116,18 @@
                 </table>
             </div>
             <% }%>
-            <div class="row">
-                <div class="form-group col-3">
-                    <label for="" class="">营业执照状态</label>
+            <div class="row row-cols-3">
+                <div class="form-group col">
+                    <label>营业执照状态</label>
                     <input type="text" class="form-control" value="${@com.dili.ia.glossary.LicenseStateEnum.getLicenseStateEnum(refundOrder.licenseState).getName()}" disabled />
                 </div>
-                <div class="form-group col-8">
-                    <label for="">退款原因及详情</label>
+                <div class="form-group col">
+                    <label for="">退款原因</label>
                     <textarea class="form-control" id="" rows="1" maxlength="100" readonly>${refundOrder.refundReason!}</textarea>
+                </div>
+                <div class="form-group col">
+                    <label for="remark" _log>补充信息</label>
+                    <textarea class="form-control" id="remark" name="remark" rows="1" maxlength="100" readonly>${refundOrder.remark!}</textarea>
                 </div>
             </div>
             <%if(isNotEmpty(logs) && logs.~size>0){ %>
