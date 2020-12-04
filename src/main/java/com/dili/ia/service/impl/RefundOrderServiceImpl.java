@@ -12,6 +12,7 @@ import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.cache.BpmDefKeyConfig;
 import com.dili.ia.domain.ApprovalProcess;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
@@ -632,7 +633,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }else {
             //没有业务流程实例id，需要直接启动审批流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS);
+            startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getRefundDefKey(refundOrder.getBizType()));
             startProcessInstanceDto.setBusinessKey(refundOrder.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             startProcessInstanceDto.setVariables(variables);
