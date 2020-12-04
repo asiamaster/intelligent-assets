@@ -222,7 +222,8 @@ public class RefundOrderController {
             		|| refundOrder.getBizType().equals(BizTypeEnum.PASSPORT.getCode())
             		|| refundOrder.getBizType().equals(BizTypeEnum.LABOR_VEST.getCode())
             		|| refundOrder.getBizType().equals(BizTypeEnum.OTHER_FEE.getCode())
-            		|| refundOrder.getBizType().equals(BizTypeEnum.STOCKIN.getCode())){
+            		|| refundOrder.getBizType().equals(BizTypeEnum.STOCKIN.getCode())
+            		|| refundOrder.getBizType().equals(BizTypeEnum.MESSAGEFEE.getCode())){
                 return "refundOrder/commonRefundOrderView";
             } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
                 TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
