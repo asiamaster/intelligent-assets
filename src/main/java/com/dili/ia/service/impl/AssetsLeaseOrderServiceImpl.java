@@ -398,10 +398,11 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                     //检查资产状态
                     assetsLeaseService.checkAssetState(o.getAssetsId());
                 });
-                //wm:提交审批任务(现在不需要根据区域名称来判断流程)
-                completeTask(approvalParam.getTaskId(), "true");
                 //wm:保存流程审批记录
                 saveApprovalProcess(approvalParam, userTicket);
+                //wm:提交审批任务(现在不需要根据区域名称来判断流程)
+                completeTask(approvalParam.getTaskId(), "true");
+
                 //提交付款
                 Long paymentId = submitPay(leaseOrder, leaseOrder.getTotalAmount());
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
@@ -419,10 +420,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                     throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
                 }
             }else{
-                //wm:提交审批任务(现在不需要根据区域名称来判断流程)
-                completeTask(approvalParam.getTaskId(), "true");
                 //wm:保存流程审批记录
                 saveApprovalProcess(approvalParam, userTicket);
+                //wm:提交审批任务(现在不需要根据区域名称来判断流程)
+                completeTask(approvalParam.getTaskId(), "true");
             }
 
             //wm:写业务日志
