@@ -127,9 +127,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
         //检查摊位状态
         if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) && depositOrder.getAssetsId() != null){
-            AssetsDTO assetsDTO = getAndCheckAssetsState(depositOrder.getAssetsId());
-            // 资产上冗余了一级区域ID和二级区域ID，业务单保存【末级】区域ID
-            depositOrder.setDistrictId(Long.valueOf(assetsDTO.getSecondArea() == null?assetsDTO.getArea():assetsDTO.getSecondArea()));
+            getAndCheckAssetsState(depositOrder.getAssetsId());
         }
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
         if(!depOut.isSuccess()){
@@ -281,9 +279,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         checkCustomerState(depositOrder.getCustomerId(),oldDTO.getMarketId());
         //检查摊位状态
         if(depositOrder.getAssetsId() != null && (AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) ||  AssetsTypeEnum.LOCATION.getCode().equals(depositOrder.getAssetsType()) || AssetsTypeEnum.LODGING.getCode().equals(depositOrder.getAssetsType()))){
-            AssetsDTO assetsDTO = getAndCheckAssetsState(depositOrder.getAssetsId());
-            // 资产上冗余了一级区域ID和二级区域ID，业务单保存【末级】区域ID
-            depositOrder.setDistrictId(Long.valueOf(assetsDTO.getSecondArea() == null?assetsDTO.getArea():assetsDTO.getSecondArea()));
+            getAndCheckAssetsState(depositOrder.getAssetsId());
         }
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
         if(!depOut.isSuccess()){
@@ -319,7 +315,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         oldDto.setWaitAmount(dto.getAmount());
         oldDto.setNotes(dto.getNotes());
         oldDto.setModifyTime(LocalDateTime.now());
-        oldDto.setDistrictId(dto.getDistrictId());
+        oldDto.setFirstDistrictId(dto.getFirstDistrictId());
+        oldDto.setSecondDistrictId(dto.getSecondDistrictId());
         //@TODO 调用基础信息接口，获取当前区域所属的商户ID
 //        oldDto.setMchId();
 
@@ -344,8 +341,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         //检查摊位状态
         if(AssetsTypeEnum.BOOTH.getCode().equals(de.getAssetsType()) && de.getAssetsId() != null){
             AssetsDTO assetsDTO = getAndCheckAssetsState(de.getAssetsId());
-            // 资产上冗余了一级区域ID和二级区域ID，业务单保存【末级】区域ID
-            de.setDistrictId(Long.valueOf(assetsDTO.getSecondArea() == null?assetsDTO.getArea():assetsDTO.getSecondArea()));
+            // 资产上冗余了一级区域ID和二级区域ID
+            de.setFirstDistrictId(Long.valueOf(assetsDTO.getArea()));
+            de.setSecondDistrictId(assetsDTO.getSecondArea() == null? null:Long.valueOf(assetsDTO.getSecondArea()));
         }
         //检查是否可以进行提交付款
         checkSubmitPayment(id, amount, waitAmount, de);
