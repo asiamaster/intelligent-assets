@@ -285,10 +285,16 @@ public class DepositOrder extends BaseDomain {
     private Long mchId;
 
     /**
-     * 区域ID（末级区域ID）
+     * 一级区域ID
      */
-    @Column(name = "`district_id`")
-    private Long districtId;
+    @Column(name = "`first_district_id`")
+    private Long firstDistrictId;
+
+    /**
+     * 二级区域ID
+     */
+    @Column(name = "`second_district_id`")
+    private Long secondDistrictId;
 
     /**
      * 版本控制,乐观锁
@@ -1178,23 +1184,43 @@ public class DepositOrder extends BaseDomain {
     }
 
     /**
-     * 获取区域ID（末级区域ID）
+     * 获取一级区域ID
      *
-     * @return district_id - 区域ID（末级区域ID）
+     * @return first_district_id - 一级区域ID
      */
-    @FieldDef(label="区域ID（末级区域ID）")
+    @FieldDef(label="一级区域ID")
     @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getDistrictId() {
-        return districtId;
+    public Long getFirstDistrictId() {
+        return firstDistrictId;
     }
 
     /**
-     * 设置区域ID（末级区域ID）
+     * 设置一级区域ID
      *
-     * @param districtId 区域ID（末级区域ID）
+     * @param firstDistrictId 一级区域ID
      */
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
+    public void setFirstDistrictId(Long firstDistrictId) {
+        this.firstDistrictId = firstDistrictId;
+    }
+
+    /**
+     * 获取二级区域ID
+     *
+     * @return second_district_id - 二级区域ID
+     */
+    @FieldDef(label="二级区域ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getSecondDistrictId() {
+        return secondDistrictId;
+    }
+
+    /**
+     * 设置二级区域ID
+     *
+     * @param secondDistrictId 二级区域ID
+     */
+    public void setSecondDistrictId(Long secondDistrictId) {
+        this.secondDistrictId = secondDistrictId;
     }
 
     /**
