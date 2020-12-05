@@ -1,7 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.AssetsDTO;
-import com.dili.assets.sdk.dto.BoothRentDTO;
+import com.dili.assets.sdk.dto.AssetsRentDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
@@ -36,7 +36,7 @@ public class LodgingLeaseServiceImpl implements AssetsLeaseService {
 
     @Override
     public void checkAssetState(Long assetsId) {
-        BaseOutput<AssetsDTO> output = assetsRpc.getBoothById(assetsId);
+        BaseOutput<AssetsDTO> output = assetsRpc.getAssetsById(assetsId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR,"摊位接口调用异常 "+output.getMessage());
         }
@@ -53,12 +53,12 @@ public class LodgingLeaseServiceImpl implements AssetsLeaseService {
     @Override
     public void frozenAsset(AssetsLeaseOrder leaseOrder, List<AssetsLeaseOrderItem> leaseOrderItems) {
         leaseOrderItems.forEach(o->{
-            BoothRentDTO boothRentDTO = new BoothRentDTO();
+            AssetsRentDTO boothRentDTO = new AssetsRentDTO();
             boothRentDTO.setBoothId(o.getAssetsId());
             boothRentDTO.setStart(DateUtils.localDateTimeToUdate(leaseOrder.getStartTime()));
             boothRentDTO.setEnd(DateUtils.localDateTimeToUdate(leaseOrder.getEndTime()));
             boothRentDTO.setOrderId(leaseOrder.getId().toString());
-            BaseOutput assetsOutput = assetsRpc.addBoothRent(boothRentDTO);
+            BaseOutput assetsOutput = assetsRpc.addAssetsRent(boothRentDTO);
             if(!assetsOutput.isSuccess()){
                 LOG.info("冻结摊位异常【编号：{}】", leaseOrder.getCode());
                 if(assetsOutput.getCode().equals("2500")){
@@ -76,9 +76,9 @@ public class LodgingLeaseServiceImpl implements AssetsLeaseService {
      */
     @Override
     public void unFrozenAllAsset(Long leaseOrderId) {
-        BoothRentDTO boothRentDTO = new BoothRentDTO();
+        AssetsRentDTO boothRentDTO = new AssetsRentDTO();
         boothRentDTO.setOrderId(leaseOrderId.toString());
-        BaseOutput assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
+        BaseOutput assetsOutput = assetsRpc.deleteAssetsRent(boothRentDTO);
         if(!assetsOutput.isSuccess()){
             LOG.info("解冻租赁订单【leaseOrderId:{}】所有摊位异常{}", leaseOrderId, assetsOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
@@ -91,9 +91,9 @@ public class LodgingLeaseServiceImpl implements AssetsLeaseService {
      */
     @Override
     public void leaseAsset(AssetsLeaseOrder leaseOrder) {
-        BoothRentDTO boothRentDTO = new BoothRentDTO();
+        AssetsRentDTO boothRentDTO = new AssetsRentDTO();
         boothRentDTO.setOrderId(leaseOrder.getId().toString());
-        BaseOutput assetsOutput = assetsRpc.rentBoothRent(boothRentDTO);
+        BaseOutput assetsOutput = assetsRpc.rentAssetsRent(boothRentDTO);
         if(!assetsOutput.isSuccess()){
             LOG.info("摊位解冻出租异常{}",assetsOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());

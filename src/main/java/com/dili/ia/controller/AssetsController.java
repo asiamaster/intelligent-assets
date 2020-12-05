@@ -42,7 +42,7 @@ public class AssetsController {
         assetsQuery.setBusinessType(assetsType);// 资产类型
         assetsQuery.setMarketId(userTicket.getFirmId());
         try {
-            List<AssetsDTO> data = assetsRpc.searchBooth(assetsQuery).getData();
+            List<AssetsDTO> data = assetsRpc.searchAssets(assetsQuery).getData();
             List<AssetsDTO> result = new ArrayList<>();
             if (CollUtil.isNotEmpty(data)) {
                 for (AssetsDTO dto : data) {

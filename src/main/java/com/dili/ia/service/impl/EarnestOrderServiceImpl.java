@@ -155,7 +155,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
      * @param boothId
      */
     private void checkBoothState(Long boothId){
-        BaseOutput<AssetsDTO> output = assetsRpc.getBoothById(boothId);
+        BaseOutput<AssetsDTO> output = assetsRpc.getAssetsById(boothId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位接口调用异常 "+output.getMessage());
         }

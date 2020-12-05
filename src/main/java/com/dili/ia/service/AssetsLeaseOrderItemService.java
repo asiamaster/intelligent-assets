@@ -26,7 +26,7 @@ public interface AssetsLeaseOrderItemService extends BaseService<AssetsLeaseOrde
      * @param startTime
      * @param stopTime
      */
-    void stopBoothRent(AssetsLeaseOrderItem assetsLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime);
+    void stopAssetsRent(AssetsLeaseOrderItem assetsLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime);
 
     /**
      * 摊位订单项停租处理
