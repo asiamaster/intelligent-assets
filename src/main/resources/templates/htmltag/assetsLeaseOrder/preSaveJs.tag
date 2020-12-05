@@ -7,9 +7,9 @@
      ***/
 
     /*********************变量定义区 begin*************/
-    //行索引计数器
-    let itemIndex = 0;
-    let isInitCheckDeduction = ${isNotEmpty(leaseOrder) ? true : false};
+    let itemIndex = 0;//行索引计数器
+    let batchId = 0;//批次号
+    let mchId = 0;//商户号
     $.extend(customerNameAutoCompleteOption,{
         selectFn: function (suggestion) {
             $('#certificateNumber').val(suggestion.certificateNumber);
@@ -35,6 +35,7 @@
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/assets/searchAssets.action',
+        params : {mchId},
         selectFn: assetSelectHandler,
         transformResult: function (result) {
             if(result.success){
@@ -298,6 +299,7 @@
      * */
     function assetSelectHandler(suggestion,element) {
         let index = getIndex($(element).attr('id'));
+        mchId = suggestion.marketId;
         $('#number_'+index).val(suggestion.number);
         $('#unitCode_'+index).val(suggestion.unit);
         $('#unitName_'+index).val(suggestion.unitName);
@@ -310,6 +312,27 @@
             businessId: $('#id').val(),
             bizType: $('#bizType').val(),
             assetsId: suggestion.id
+        });
+    }
+
+    function getRentalByAssetsId(assetsId) {
+        $.ajax({
+            type: "post",
+            url: "/assetsRental/getRentalByAssetsId.action",
+            data: {assetsId:assetsId},
+            dataType: "json",
+            success: function (ret) {
+                if (ret.success) {
+                    if (ret.data) {
+                        batchId = ret.data.batchId;
+                    }
+                } else {
+                    bs4pop.alert(ret.message, {type: 'error'});
+                }
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
         });
     }
 
