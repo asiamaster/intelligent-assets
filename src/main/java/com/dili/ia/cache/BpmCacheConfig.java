@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -75,4 +75,19 @@ public class BpmCacheConfig {
         return Caffeine.newBuilder().maximumSize(refundOrderEventCacheMaximumSize).build();
     }
 
+//    public static void main(String[] args) throws InterruptedException {
+//        Cache<String, String> cache = Caffeine.newBuilder().initialCapacity(2).maximumSize(2).expireAfterAccess(Duration.ofSeconds(5L)).build();
+//        for(int i=0;i<5;i++){
+//            cache.get("key"+i, t -> {
+//                System.out.println("build:"+t);
+//                return t + ":value";
+//            });
+//        }
+//        for(int i=0;i<5;i++){
+//            System.out.println(cache.get("key"+i, t -> {
+//                System.out.println("build:"+t);
+//                return t + ":value";
+//            }));
+//        }
+//    }
 }

@@ -222,6 +222,12 @@ public class RefundOrder extends BaseDomain implements IMybatisForceParams {
     private String canceler;
 
     /**
+     * 退款备注
+     */
+    @Column(name = "`remark`")
+    private String remark;
+
+    /**
      * 退款原因
      */
     @Column(name = "`refund_reason`")
@@ -937,6 +943,14 @@ public class RefundOrder extends BaseDomain implements IMybatisForceParams {
      */
     public void setCanceler(String canceler) {
         this.canceler = canceler;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     /**

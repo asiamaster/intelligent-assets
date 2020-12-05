@@ -1,7 +1,6 @@
 package com.dili.ia.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
@@ -14,32 +13,26 @@ import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.cache.BpmDefKeyConfig;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
-import com.dili.ia.domain.dto.printDto.LeaseOrderItemPrintDto;
-import com.dili.ia.domain.dto.printDto.LeaseOrderPrintDto;
-import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
-import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
-import com.dili.ia.util.ResultCodeConst;
 import com.dili.ia.util.SpringUtil;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.settlement.domain.SettleOrder;
-import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.InvalidRequestDto;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
-import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -50,7 +43,6 @@ import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.exception.NotLoginException;
-import com.dili.uap.sdk.redis.UserResourceRedis;
 import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
@@ -67,9 +59,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -180,7 +170,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
              * wm:启动租赁业务流程
              */
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(BpmConstants.PK_BOOTH_LEASE_ORDER_PROCESS);
+            startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getLeaseDefKey(dto.getBizType()));
             startProcessInstanceDto.setBusinessKey(bizNumberOutput.getData());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
@@ -329,7 +319,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }else {
             //没有业务流程实例id，需要直接启动审批流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(BpmConstants.PK_REFUND_APPROVAL_PROCESS);
+            startProcessInstanceDto.setProcessDefinitionKey(BpmConstants.PK_RENTAL_APPROVAL_PROCESS);
             startProcessInstanceDto.setBusinessKey(leaseOrder.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             startProcessInstanceDto.setVariables(variables);
@@ -1121,24 +1111,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
             refundOrderDto.setCode(bizNumberOutput.getData());
             //根据退款单业务类型启动流程
-            String procDefKey = null;
-            switch (BizTypeEnum.getBizTypeEnum(refundOrderDto.getBizType())){
-                case BOOTH_LEASE:
-                    procDefKey = BpmConstants.PK_BOOTH_LEASE_REFUND_ORDER_PROCESS;
-                    break;
-                case LOCATION_LEASE:
-                    procDefKey = BpmConstants.PK_LOCATION_LEASE_REFUND_ORDER_PROCESS;
-                    break;
-                case LODGING_LEASE:
-                    procDefKey = BpmConstants.PK_LODGING_LEASE_REFUND_ORDER_PROCESS;
-                    break;
-                default:
-                    //默认走公寓退款流程
-                    procDefKey = BpmConstants.PK_LODGING_LEASE_REFUND_ORDER_PROCESS;
-                    break;
-            }
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(procDefKey);
+            startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getRefundDefKey(refundOrderDto.getBizType()));
             startProcessInstanceDto.setBusinessKey(refundOrderDto.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> output = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
