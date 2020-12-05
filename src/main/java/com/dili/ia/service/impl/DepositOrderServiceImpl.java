@@ -222,7 +222,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     private AssetsDTO getAndCheckAssetsState(Long boothId){
         BaseOutput<AssetsDTO> output = BaseOutput.failure();
         try {
-            output = assetsRpc.getBoothById(boothId);
+            output = assetsRpc.getAssetsById(boothId);
         }catch (Exception e){
             LOG.error("资产接口调用失败！ "+e.getMessage(),e);
             throw new BusinessException(ResultCode.APP_ERROR, "资产接口调用失败！ ");
