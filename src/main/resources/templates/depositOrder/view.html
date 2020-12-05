@@ -32,6 +32,17 @@
                 <input type="text" class="form-control" value="${depositOrder.departmentName!}" disabled />
             </div>
             <div class="form-group col">
+                <label for="">所属区域</label>
+                <div class="input-group">
+                    <select class="form-control" id="firstDistrictId" name="firstDistrictId" disabled>
+                        <option value="${depositOrder.firstDistrictId!}">${firstDistrictName!}</option>
+                    </select>
+                    <select class="form-control" id="secondDistrictId" name="secondDistrictId" disabled>
+                        <option value="${depositOrder.secondDistrictId!}">${secondDistrictName!}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col">
                 <label for="" class="">资产类型</label>
                 <input type="text" class="form-control" value="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(depositOrder.assetsType).getName()}" disabled />
             </div>
@@ -52,8 +63,6 @@
             <div class="form-group col">
                 <label for="">联系电话</label>
                 <input type="text" class="form-control" value="${depositOrder.customerCellphone!}" disabled />
-            </div>
-            <div class="form-group col">
             </div>
             <div class="form-group col">
                 <label for="">保证金金额</label>

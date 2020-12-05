@@ -62,6 +62,14 @@
 
     });
 
+    $('#firstDistrictId').on('change', function(){
+        $('#assetsType').trigger("change");
+    })
+
+    $('#secondDistrictId').on('change', function(){
+        $('#assetsType').trigger("change");
+    })
+
     $('#assetsType').on('change', function(){
         $('#assetsId, #assetsName, #assetsNameInput').val('');
         $('#assetsName, #assetsNameInput').removeClass('d-block');

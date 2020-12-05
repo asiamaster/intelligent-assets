@@ -1,5 +1,7 @@
 package com.dili.ia.controller;
 
+import com.dili.assets.sdk.dto.DistrictDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.DepositOrderQuery;
@@ -59,6 +61,8 @@ public class DepositOrderController {
     TransferDeductionItemService transferDeductionItemService;
     @Autowired
     SettlementRpc settlementRpc;
+    @Autowired
+    AssetsRpc assetsRpc;
 
     /**
      * 跳转到DepositOrder页面
@@ -259,6 +263,17 @@ public class DepositOrderController {
             id = depositOrder.getId();
         }
         modelMap.put("depositOrder",depositOrder);
+        try{
+            BaseOutput<DistrictDTO> fdtOutput = assetsRpc.getDistrictById(depositOrder.getFirstDistrictId());
+            modelMap.put("firstDistrictName", fdtOutput.getData().getName());
+            //区域名称显示
+            if (null != depositOrder.getSecondDistrictId()){
+                BaseOutput<DistrictDTO> sdtOutput = assetsRpc.getDistrictById(depositOrder.getSecondDistrictId());
+                modelMap.put("secondDistrictName", sdtOutput.getData().getName());
+            }
+        }catch (Exception e){
+            LOG.error("区域查询异常",e);
+        }
         try{
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();

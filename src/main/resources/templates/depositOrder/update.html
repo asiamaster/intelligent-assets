@@ -44,6 +44,10 @@
                 <#bcomboProvider _log="保证金类型" _id="typeCode" _provider="dataDictionaryValueProvider" _value="${depositOrder.typeCode!}" _queryParams='{dd_code:"deposit_type"}'/>
             </div>
             <div class="form-group col">
+                <label for="typeCode">所属区域<i class="red">*</i></label>
+                <#js_district firstDistrictId="${depositOrder.firstDistrictId!}" secondDistrictId="${depositOrder.secondDistrictId!}" ></#js_district>
+        </div>
+            <div class="form-group col">
                 <label for="assetsType">资产类型<i class="red">*</i></label>
                 <select id="assetsType"  name="assetsType" class="form-control" required></select>
                 <#bcomboProvider _log="资产类型" _id="assetsType" _provider="assetsTypeProvider" _value="${depositOrder.assetsType!}" _queryParams='{emptyText:"-- 请选择 --"}'/>

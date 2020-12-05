@@ -30,11 +30,11 @@
         $('#assetsNameInput').hide();
     });
 
-    $('#firstDistrict').on('change', function(){
+    $('#firstDistrictId').on('change', function(){
         $('#assetsType').trigger("change");
     })
 
-    $('#secondDistrict').on('change', function(){
+    $('#secondDistrictId').on('change', function(){
         $('#assetsType').trigger("change");
     })
 
