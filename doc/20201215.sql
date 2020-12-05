@@ -20,17 +20,23 @@ update `dili_ia`.`assets_lease_order_item` set biz_type = '1';
 ALTER TABLE `dili_ia`.`payment_order`
 ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_code`,
 ADD COLUMN `district_id` bigint(20) DEFAULT NULL COMMENT '区域ID（末级区域ID）' AFTER `mch_id`;
+
 ALTER TABLE `dili_ia`.`refund_order`
 ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_code`,
 ADD COLUMN `district_id` bigint(20) DEFAULT NULL COMMENT '区域ID（末级区域ID）' AFTER `mch_id`;
+
 ALTER TABLE `dili_ia`.`deposit_order`
 ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_code`,
-ADD COLUMN `district_id` bigint(20) DEFAULT NULL COMMENT '区域ID（末级区域ID）' AFTER `mch_id`;
+ADD COLUMN `first_district_id` bigint(20) DEFAULT NULL COMMENT '一级区域ID' AFTER `mch_id`,
+ADD COLUMN `second_district_id` bigint(20) DEFAULT NULL COMMENT '二级区域ID' AFTER `first_district_id`;
+
 ALTER TABLE `dili_ia`.`deposit_balance`
 ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_code`,
-ADD COLUMN `district_id` bigint(20) DEFAULT NULL COMMENT '区域ID（末级区域ID）' AFTER `mch_id`;
+
 ALTER TABLE `dili_ia`.`earnest_order`
 ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_id`,
-ADD COLUMN `district_id` bigint(20) DEFAULT NULL COMMENT '区域ID（末级区域ID）' AFTER `mch_id`;
+ADD COLUMN `first_district_id` bigint(20) DEFAULT NULL COMMENT '一级区域ID' AFTER `mch_id`,
+ADD COLUMN `second_district_id` bigint(20) DEFAULT NULL COMMENT '二级区域ID' AFTER `first_district_id`;
+
 ALTER TABLE `dili_ia`.`refund_order`
 ADD COLUMN `remark` varchar(100) NULL COMMENT '备注' AFTER `canceler`;
