@@ -49,7 +49,8 @@
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
     <result column="mch_id" jdbcType="BIGINT" property="mchId" />
-    <result column="district_id" jdbcType="BIGINT" property="districtId" />
+    <result column="first_district_id" jdbcType="BIGINT" property="firstDistrictId" />
+    <result column="second_district_id" jdbcType="BIGINT" property="secondDistrictId" />
     <result column="version" jdbcType="BIGINT" property="version" />
     <result column="is_import" jdbcType="BIT" property="isImport" />
   </resultMap>
@@ -63,8 +64,8 @@
     notes, is_related, business_id, biz_type, state, pay_state, refund_state, approval_state, 
     process_instance_id, creator_id, creator, submitter_id, submitter, submit_time, withdraw_operator_id, 
     withdraw_operator, canceler_id, canceler, invalid_operator_id, invalid_operator, 
-    invalid_time, invalid_reason, market_id, market_code, mch_id, district_id, version, 
-    is_import
+    invalid_time, invalid_reason, market_id, market_code, mch_id, first_district_id, 
+    second_district_id, version, is_import
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -210,8 +211,11 @@
       <if test="mchId != null">
         mch_id = #{mchId,jdbcType=BIGINT},
       </if>
-      <if test="districtId != null">
-        district_id = #{districtId,jdbcType=BIGINT},
+      <if test="firstDistrictId != null">
+        first_district_id = #{firstDistrictId,jdbcType=BIGINT},
+      </if>
+      <if test="secondDistrictId != null">
+        second_district_id = #{secondDistrictId,jdbcType=BIGINT},
       </if>
       <if test="version != null">
         version = #{version,jdbcType=BIGINT},
