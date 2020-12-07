@@ -29,18 +29,27 @@
                 对应摊位
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true" aria-controls="boothInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
-            <div id="boothInfo" class="collapse show">
-                <table class="table table-bordered table-hover table-striped" id="boothTable" id="boothTable" style="width: 500px">
-                    <thead>
-                    <tr>
-                        <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
-                        <th style="width: 25%;font-weight:normal; ">摊位编号</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+            <div class="row row-cols-4 collapse show" >
+                <div class="form-group col-6">
+                    <label for="">所属区域<i class="red">*</i></label>
+                    <#js_district firstDistrictId="" secondDistrictId=""></#js_district>
+                </div>
             </div>
+           <div class="row row-cols-4">
+               <div id="boothInfo" class="collapse show col-6">
+                   <input type="hidden" id="assetsType" value="${@com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()}">
+                   <table class="table table-bordered table-hover table-striped" id="boothTable" id="boothTable" style="width: 100%">
+                       <thead>
+                       <tr>
+                           <th class="text-center align-middle" style="width: 5%"><a id="addBooth" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
+                           <th style="width: 25%;font-weight:normal; ">摊位编号</th>
+                       </tr>
+                       </thead>
+                       <tbody>
+                       </tbody>
+                   </table>
+               </div>
+           </div>
             <div class="breadcrumb">
                 补充信息
                 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#otherInfo" aria-expanded="true" aria-controls="otherInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>

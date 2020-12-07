@@ -61,11 +61,10 @@
                     <button id="btn_submit" type="button" class="btn btn-primary submitEvent" onclick="openSubmitHandler()"><i class="fa fa-paper-plane"></i> 提交</button>
                 </#resource>
         <%//只有摊位租赁退款单可以查看和审批流程
-        if(bizType=="1"){%>
+        if(bizType==@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()){%>
                 <#resource code="submitBoothLeaseRefundOrderApplication,submitLocationLeaseRefundOrderApplication,submitLodgingLeaseRefundOrderApplication">
                     <button id="btn_approval" type="button" class="btn btn-primary submitApprovalEvent" onclick="submitRefundOrderApplication()"><i class="fa fa-paper-plane"></i> 提交审批</button>
                 </#resource>
-
                 <button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
         <%}%>
                 <#resource code="withdrawBoothLeaseRefundOrder,withdrawLocationLeaseRefundOrder,withdrawLodgingLeaseRefundOrder,withdrawDepositRefundOrder,withdrawEarnestRefundOrder,withdrawOtherFeeRefundOrder,withdrawBoutiqueRefundOrder,withdrawPassportRefundOrder,withdrawMessageFeeRefundOrder,withdrawStockInRefundOrder,withdrawLaborVestRefundOrder" checkMenu="true">
@@ -101,7 +100,7 @@
             业务类型
         </th>
         <%//摊位租赁退款单需要提交审批
-        if(bizType=="1"){%>
+        if(bizType==@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()){%>
         <th data-field="approvalState" data-sortable="true" data-align="center" data-sort-name="approval_state" data-provider="approvalStateProvider">
             审批状态
         </th>

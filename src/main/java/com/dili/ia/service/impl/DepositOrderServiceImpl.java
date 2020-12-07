@@ -134,7 +134,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
-
+        //@TODO 根据区域ID查询商户ID
+//        depositOrder.setMchId();
         depositOrder.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
         depositOrder.setCreatorId(userTicket.getId());
         depositOrder.setCreator(userTicket.getRealName());
@@ -395,6 +396,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         pb.setCustomerId(depositOrder.getCustomerId());
         pb.setCustomerName(depositOrder.getCustomerName());
         pb.setIsSettle(YesOrNoEnum.NO.getCode());
+        //@TODO 根据区域ID查询商户ID
+//        pb.setMchId();
+        pb.setDistrictId(depositOrder.getSecondDistrictId() == null? depositOrder.getFirstDistrictId():depositOrder.getSecondDistrictId());
 
         return pb;
     }
@@ -402,6 +406,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     private SettleOrderDto buildSettleOrderDto(UserTicket userTicket,DepositOrder depositOrder, PaymentOrder paymentOrder, Long paidAmount){
         SettleOrderDto settleOrder = new SettleOrderDto();
         //以下是提交到结算中心的必填字段
+        //@TODO 提交到结算必须要穿的商户ID
         settleOrder.setMarketId(depositOrder.getMarketId()); //市场ID
         settleOrder.setMarketCode(userTicket.getFirmCode());
         settleOrder.setOrderCode(paymentOrder.getCode());//订单号 唯一
@@ -573,6 +578,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
             depositRefundOrderDto.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.DEPOSIT_ORDER.getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
             depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+            depositRefundOrderDto.setDistrictId(depositOrder.getSecondDistrictId() == null ? depositOrder.getFirstDistrictId():depositOrder.getSecondDistrictId());
+            depositRefundOrderDto.setMchId(depositOrder.getMchId());
             BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
             if (!output.isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款申请接口异常", depositRefundOrderDto.getBusinessCode());
@@ -701,6 +708,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         params.setAssetsId(depositOrder.getAssetsId());
         params.setMarketId(depositOrder.getMarketId());
         params.setAssetsName(depositOrder.getAssetsName());
+        params.setMchId(depositOrder.getMchId());
         return params;
     }
 
@@ -717,6 +725,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (depositOrder.getMarketId() == null){
             throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数市场ID不能为空！");
         }
+        //@TODO 商户ID 不能为空验证 打开
+//        if (depositOrder.getMchId() == null){
+//            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数商户ID不能为空！");
+//        }
     }
 
     private DepositBalance createDepositBalanceAccount(DepositOrder depositOrder, Long balance){
