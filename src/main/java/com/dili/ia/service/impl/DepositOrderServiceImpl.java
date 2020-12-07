@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.AssetsDTO;
+import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
@@ -126,7 +127,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
         //检查摊位状态
         if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) && depositOrder.getAssetsId() != null){
-            checkBoothState(depositOrder.getAssetsId());
+            getAndCheckAssetsState(depositOrder.getAssetsId());
         }
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
         if(!depOut.isSuccess()){
@@ -179,6 +180,27 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return BaseOutput.success();
     }
 
+    private Long getMchIdByDistrictId(Long districtId){
+        BaseOutput<DistrictDTO> output = BaseOutput.failure();
+        try {
+            //@TODO 需要重新提供接口查询 商户
+            output = assetsRpc.getDistrictById(districtId);
+        }catch (Exception e){
+            LOG.error("资产接口调用失败！assetsRpc.getDistrictById({}) "+e.getMessage(),districtId,e);
+            throw new BusinessException(ResultCode.APP_ERROR, "查询区域接口调用失败！ ");
+        }
+        if(!output.isSuccess()){
+            throw new BusinessException(ResultCode.DATA_ERROR, "查询区域接口返回结果失败！ "+output.getMessage());
+        }
+        DistrictDTO districtDTO = output.getData();
+        if(null == districtDTO){
+            throw new BusinessException(ResultCode.DATA_ERROR, "区域不存在，请核实和修改后再保存");
+        }else if(YesOrNoEnum.YES.getCode().equals(districtDTO.getIsDelete())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "区域已删除，请核实和修改后再保存");
+        }
+        return districtDTO.getMarketId();
+
+    }
     private String getBizNumber(String type){
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(type);
         if(!bizNumberOutput.isSuccess()){
@@ -197,19 +219,26 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * 检查摊位状态
      * @param boothId
      */
-    private void checkBoothState(Long boothId){
-        BaseOutput<AssetsDTO> output = assetsRpc.getBoothById(boothId);
+    private AssetsDTO getAndCheckAssetsState(Long boothId){
+        BaseOutput<AssetsDTO> output = BaseOutput.failure();
+        try {
+            output = assetsRpc.getAssetsById(boothId);
+        }catch (Exception e){
+            LOG.error("资产接口调用失败！ "+e.getMessage(),e);
+            throw new BusinessException(ResultCode.APP_ERROR, "资产接口调用失败！ ");
+        }
         if(!output.isSuccess()){
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位接口调用异常 "+output.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "资产接口返回结果失败！ "+output.getMessage());
         }
-        AssetsDTO booth = output.getData();
-        if(null == booth){
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位不存在，请核实和修改后再保存");
-        }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位已禁用，请核实和修改后再保存");
-        }else if(YesOrNoEnum.YES.getCode().equals(booth.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位已删除，请核实和修改后再保存");
+        AssetsDTO assets = output.getData();
+        if(null == assets){
+            throw new BusinessException(ResultCode.DATA_ERROR, "资产不存在，请核实和修改后再保存");
+        }else if(EnabledStateEnum.DISABLED.getCode().equals(assets.getState())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "资产已禁用，请核实和修改后再保存");
+        }else if(YesOrNoEnum.YES.getCode().equals(assets.getIsDelete())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "资产已删除，请核实和修改后再保存");
         }
+        return assets;
     }
 
     /**
@@ -249,8 +278,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         //检查客户状态
         checkCustomerState(depositOrder.getCustomerId(),oldDTO.getMarketId());
         //检查摊位状态
-        if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) && depositOrder.getAssetsId() != null){
-            checkBoothState(depositOrder.getAssetsId());
+        if(depositOrder.getAssetsId() != null && (AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) ||  AssetsTypeEnum.LOCATION.getCode().equals(depositOrder.getAssetsType()) || AssetsTypeEnum.LODGING.getCode().equals(depositOrder.getAssetsType()))){
+            getAndCheckAssetsState(depositOrder.getAssetsId());
         }
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
         if(!depOut.isSuccess()){
@@ -286,6 +315,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         oldDto.setWaitAmount(dto.getAmount());
         oldDto.setNotes(dto.getNotes());
         oldDto.setModifyTime(LocalDateTime.now());
+        oldDto.setFirstDistrictId(dto.getFirstDistrictId());
+        oldDto.setSecondDistrictId(dto.getSecondDistrictId());
+        //@TODO 调用基础信息接口，获取当前区域所属的商户ID
+//        oldDto.setMchId();
 
         return oldDto;
     }
@@ -307,7 +340,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         checkCustomerState(de.getCustomerId(),de.getMarketId());
         //检查摊位状态
         if(AssetsTypeEnum.BOOTH.getCode().equals(de.getAssetsType()) && de.getAssetsId() != null){
-            checkBoothState(de.getAssetsId());
+            AssetsDTO assetsDTO = getAndCheckAssetsState(de.getAssetsId());
+            // 资产上冗余了一级区域ID和二级区域ID
+            de.setFirstDistrictId(Long.valueOf(assetsDTO.getArea()));
+            de.setSecondDistrictId(assetsDTO.getSecondArea() == null? null:Long.valueOf(assetsDTO.getSecondArea()));
         }
         //检查是否可以进行提交付款
         checkSubmitPayment(id, amount, waitAmount, de);

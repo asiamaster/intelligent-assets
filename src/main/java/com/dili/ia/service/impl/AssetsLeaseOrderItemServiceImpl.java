@@ -1,6 +1,6 @@
 package com.dili.ia.service.impl;
 
-import com.dili.assets.sdk.dto.BoothRentDTO;
+import com.dili.assets.sdk.dto.AssetsRentDTO;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ia.domain.AssetsLeaseOrder;
@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -99,7 +98,7 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
             leaseOrderItem.setVersion(leaseOrderItemOld.getVersion());
         }
 
-        stopBoothRent(leaseOrderItemOld,leaseOrder.getStartTime(),leaseOrderItem.getStopTime());
+        stopAssetsRent(leaseOrderItemOld,leaseOrder.getStartTime(),leaseOrderItem.getStopTime());
         if(updateSelective(leaseOrderItem) == 0){
             LOG.info("摊位订单项停租异常,乐观锁生效【订单项ID:{},摊位名称:{}】", leaseOrderItemOld.getId(), leaseOrderItemOld.getAssetsName());
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
@@ -116,18 +115,18 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
      * @param stopTime
      */
     @Override
-    public void stopBoothRent(AssetsLeaseOrderItem assetsLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime) {
+    public void stopAssetsRent(AssetsLeaseOrderItem assetsLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime) {
         //修改摊位租赁时间段
-        BoothRentDTO boothRentDTO = new BoothRentDTO();
+        AssetsRentDTO boothRentDTO = new AssetsRentDTO();
         boothRentDTO.setBoothId(assetsLeaseOrderItem.getAssetsId());
         boothRentDTO.setOrderId(assetsLeaseOrderItem.getLeaseOrderId().toString());
         BaseOutput assetsOutput;
         if (stopTime.isBefore(startTime)) {
             //未生效停租 结束时间比开始时间小 直接释放时间段
-            assetsOutput = assetsRpc.deleteBoothRent(boothRentDTO);
+            assetsOutput = assetsRpc.deleteAssetsRent(boothRentDTO);
         } else {
             boothRentDTO.setEnd(DateUtils.localDateTimeToUdate(stopTime));
-            assetsOutput = assetsRpc.updateEndBoothRent(boothRentDTO);
+            assetsOutput = assetsRpc.updateEndAssetsRent(boothRentDTO);
         }
         if (!assetsOutput.isSuccess()) {
             LOG.info("摊位订单项停租异常，【订单项ID:{},摊位名称:{},异常MSG:{}】", assetsLeaseOrderItem.getId(), assetsLeaseOrderItem.getAssetsName(), assetsOutput.getMessage());

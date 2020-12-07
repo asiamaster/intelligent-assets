@@ -28,6 +28,7 @@ import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.glossary.LoggerConstant;
+import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.InvalidRequestDto;
 import com.dili.settlement.dto.SettleOrderDto;
@@ -120,6 +121,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private ApprovalProcessService approvalProcessService;
     @Autowired
     private ApportionRecordService apportionRecordService;
+    @Autowired
+    ChargeRuleRpc chargeRuleRpc;
 
     @Autowired
     @Lazy

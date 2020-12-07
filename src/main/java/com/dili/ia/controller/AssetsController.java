@@ -35,14 +35,21 @@ public class AssetsController {
      */
     @GetMapping(value = "/searchAssets.action")
     public @ResponseBody
-    BaseOutput<List<AssetsDTO>> searchAssets(String keyword, Integer assetsType) {
+    BaseOutput<List<AssetsDTO>> searchAssets(String keyword, Integer assetsType, Integer firstDistrictId, Integer secondDistrictId) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         AssetsQuery assetsQuery = new AssetsQuery();
         assetsQuery.setKeyword(keyword);
-        assetsQuery.setBusinessType(assetsType);// 资产类型
         assetsQuery.setMarketId(userTicket.getFirmId());
+        assetsQuery.setBusinessType(assetsType);// 资产类型
+        if (null != firstDistrictId){
+            assetsQuery.setArea(firstDistrictId);
+        }
+        if (null != secondDistrictId){
+            assetsQuery.setSecondArea(secondDistrictId);
+        }
+
         try {
-            List<AssetsDTO> data = assetsRpc.searchBooth(assetsQuery).getData();
+            List<AssetsDTO> data = assetsRpc.searchAssets(assetsQuery).getData();
             List<AssetsDTO> result = new ArrayList<>();
             if (CollUtil.isNotEmpty(data)) {
                 for (AssetsDTO dto : data) {
