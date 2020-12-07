@@ -69,7 +69,7 @@
                         if(ret.success){
                             //向任务中心发送消息，参数为要跳转的地址
                             window.parent.postMessage('<#config name="bpmc.server.address"/>/task/taskCenter.html', '<#config name="bpmc.server.address"/>');
-                            location.href = "${contextPath}/refundOrder/1/index.html";
+                            location.href = "${contextPath}/refundOrder/${bizType}/index.html";
                         }else{
                             bs4pop.alert(ret.message, {type: 'error'});
                         }

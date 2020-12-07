@@ -83,8 +83,6 @@ public class AssetsLeaseOrderController {
     private RefundOrderService refundOrderService;
     @Autowired
     private RefundFeeItemService refundFeeItemService;
-    @Autowired
-    private TransferDeductionItemService transferDeductionItemService;
     @SuppressWarnings("all")
     @Autowired
     private UserRpc userRpc;
@@ -152,14 +150,25 @@ public class AssetsLeaseOrderController {
     }
 
     /**
+     * 清空事件名缓存
+     * @return BaseOutput
+     */
+    @GetMapping(value="/clearEventNameCache.action")
+    @ResponseBody
+    public BaseOutput clearEventNameCache() {
+        leaseOrderEventCache.invalidateAll();
+        return BaseOutput.success("清除成功");
+    }
+
+    /**
      * 跳转到资产审批页面，任务中心调用
      *
      * @param modelMap
-     * @param assetsType 1：摊位， 2： 冷库， 3: 公寓, 4:其它
+     * @param bizType 1：摊位， 2： 定金， 3: 保证金, 4:冷库租赁, 5:公寓租赁
      * @return String
      */
-    @GetMapping(value = "/{assetsType}/approval.html")
-    public String assetsApproval(@PathVariable Integer assetsType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
+    @GetMapping(value = "/{bizType}/approval.html")
+    public String assetsApproval(@PathVariable Integer bizType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
         //查询当前流程的历史任务实例，用于展示审批流程详情
 //        BaseOutput<List<HistoricTaskInstanceMapping>> listBaseOutput = historyRpc.listHistoricTaskInstance(taskCenterParam.getProcessInstanceId(), true);
 //        if(!listBaseOutput.isSuccess()){
@@ -172,6 +181,7 @@ public class AssetsLeaseOrderController {
         modelMap.put("taskId", taskCenterParam.getTaskId());
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
+        modelMap.put("bizType", bizType);
 
         ApprovalProcess approvalProcess = new ApprovalProcess();
         approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
@@ -184,16 +194,17 @@ public class AssetsLeaseOrderController {
      * 跳转到资产审批详情页面，用于查看归档记录
      *
      * @param modelMap
-     * @param assetsType 1：摊位， 2： 冷库， 3: 公寓, 4:其它
+     * @param bizType 1：摊位， 2： 定金， 3: 保证金, 4:冷库租赁, 5:公寓租赁
      * @return String
      */
-    @GetMapping(value = "/{assetsType}/approvalDetail.html")
-    public String assetsApprovalDetail(@PathVariable Integer assetsType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
+    @GetMapping(value = "/{bizType}/approvalDetail.html")
+    public String assetsApprovalDetail(@PathVariable Integer bizType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
         modelMap.put("taskDefinitionKey", taskCenterParam.getTaskDefinitionKey());
         modelMap.put("processInstanceId", taskCenterParam.getProcessInstanceId());
         modelMap.put("taskId", taskCenterParam.getTaskId());
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
+        modelMap.put("bizType", bizType);
 
         ApprovalProcess approvalProcess = new ApprovalProcess();
         approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
@@ -392,18 +403,24 @@ public class AssetsLeaseOrderController {
     @GetMapping(value = "/refundApply.html")
     public String refundApply(ModelMap modelMap, Long leaseOrderItemId, Long refundOrderId) {
         AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(leaseOrderItemId);
+        AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(leaseOrderItem.getLeaseOrderId());
         modelMap.put("leaseOrderItem", leaseOrderItem);
         BusinessChargeItem condition = new BusinessChargeItem();
         condition.setBusinessId(leaseOrderItem.getId());
         modelMap.put("businessChargeItems", businessChargeItemService.list(condition));
-        modelMap.put("leaseOrder", assetsLeaseOrderService.get(leaseOrderItem.getLeaseOrderId()));
+        modelMap.put("leaseOrder", leaseOrder);
+
+        AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
+        itemCondition.setLeaseOrderId(leaseOrder.getId());
+        List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(itemCondition);
+        modelMap.put("leaseOrder", leaseOrder);
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+        modelMap.put("chargeItems", chargeItemDtos);
+        modelMap.put("leaseOrderItems", assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems, leaseOrder.getBizType(), chargeItemDtos));
         if (null != refundOrderId) {
             modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
             List<BusinessChargeItemDto> businessChargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrderItem.getBizType(), List.of(leaseOrderItemId));
             modelMap.put("refundFeeItemMap", refundFeeItemService.queryRefundFeeItem(List.of(refundOrderId), businessChargeItemDtos).get(0));
-            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-            transferDeductionItemCondition.setRefundOrderId(refundOrderId);
-            modelMap.put("transferDeductionItems", transferDeductionItemService.list(transferDeductionItemCondition));
         }
 
         return "assetsLeaseOrder/refundApply";

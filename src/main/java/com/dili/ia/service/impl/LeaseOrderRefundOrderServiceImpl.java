@@ -2,6 +2,7 @@ package com.dili.ia.service.impl;
 
 import com.dili.bpmc.sdk.dto.EventReceivedDto;
 import com.dili.bpmc.sdk.rpc.EventRpc;
+import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.ia.domain.*;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.BpmEventConstants;
@@ -49,6 +50,9 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     @SuppressWarnings("all")
     @Autowired
     private EventRpc eventRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    private RuntimeRpc runtimeRpc;
     @Autowired
     private CustomerAccountService customerAccountService;
     @Autowired
@@ -81,7 +85,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-        if (null != refundOrder.getProcessInstanceId()) {
+        if (null != refundOrder.getBizProcessInstanceId()) {
             EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
             eventReceivedDto.setEventName(BpmEventConstants.WITHDRAW_EVENT);
             eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());

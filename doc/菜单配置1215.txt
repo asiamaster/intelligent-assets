@@ -43,3 +43,6 @@
         撤回 withdrawLodgingLeaseRefundOrder
         取消 cancelLodgingLeaseRefundOrder
         提交审批 submitLodgingLeaseRefundOrderApplication
+
+计费规则数据源配置
+    客户组织类型

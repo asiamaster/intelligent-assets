@@ -1,6 +1,8 @@
 package com.dili.ia.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.dili.assets.sdk.dto.DistrictDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ia.domain.PaymentOrder;
@@ -59,6 +61,8 @@ public class EarnestOrderController {
     DataAuthService dataAuthService;
     @Autowired
     PaymentOrderService paymentOrderService;
+    @Autowired
+    AssetsRpc assetsRpc;
 
     /**
      * 跳转到定金管理页面
@@ -112,6 +116,17 @@ public class EarnestOrderController {
         List<EarnestOrderDetail> earnestOrderDetails = earnestOrderDetailService.list(condition);
         modelMap.put("earnestOrder",earnestOrder);
         modelMap.put("earnestOrderDetails", earnestOrderDetails);
+        try{
+            BaseOutput<DistrictDTO> fdtOutput = assetsRpc.getDistrictById(earnestOrder.getFirstDistrictId());
+            modelMap.put("firstDistrictName", fdtOutput.getData().getName());
+            //区域名称显示
+            if (null != earnestOrder.getSecondDistrictId()){
+                BaseOutput<DistrictDTO> sdtOutput = assetsRpc.getDistrictById(earnestOrder.getSecondDistrictId());
+                modelMap.put("secondDistrictName", sdtOutput.getData().getName());
+            }
+        }catch (Exception e){
+            LOG.error("区域查询异常",e);
+        }
         try{
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();

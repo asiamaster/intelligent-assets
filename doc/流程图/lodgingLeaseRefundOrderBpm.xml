@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <message id="修改" name="updateEvent"></message>
+  <message id="取消" name="cancelEvent"></message>
+  <message id="提交" name="submitEvent"></message>
+  <message id="撤回" name="withdrawEvent"></message>
+  <message id="确认付款" name="paidEvent"></message>
+  <message id="提交审批" name="submitApprovalEvent"></message>
+  <process id="lodgingLeaseRefundOrderBpm" name="摊位退款业务流程模型" isExecutable="true">
+    <documentation>摊位退款业务流程图</documentation>
+    <startEvent id="start" name="开始"></startEvent>
+    <userTask id="created" name="已创建"></userTask>
+    <sequenceFlow id="sid-69C07086-2EEC-4C9A-B7F1-D6F9E5EA2996" sourceRef="start" targetRef="created"></sequenceFlow>
+    <sequenceFlow id="sid-8D1C6236-ADAF-49C9-A7F4-6BAA7A417BBA" sourceRef="cancelCreated" targetRef="cancelCreatedEnd"></sequenceFlow>
+    <endEvent id="cancelCreatedEnd" name="已取消">
+      <terminateEventDefinition></terminateEventDefinition>
+    </endEvent>
+    <sequenceFlow id="sid-02D41024-EC57-4D88-905A-E10C45FF55DF" sourceRef="submitCreated" targetRef="submitted"></sequenceFlow>
+    <endEvent id="cancelSubmittedEnd" name="已取消">
+      <terminateEventDefinition></terminateEventDefinition>
+    </endEvent>
+    <sequenceFlow id="sid-8C1421AC-990C-4B85-8AC2-6DEFF14CA887" sourceRef="withdrawSubmitted" targetRef="created">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalState != 3}]]></conditionExpression>
+    </sequenceFlow>
+    <receiveTask id="submitted" name="已提交"></receiveTask>
+    <endEvent id="refundEnd" name="结束">
+      <terminateEventDefinition></terminateEventDefinition>
+    </endEvent>
+    <sequenceFlow id="sid-490A6D4C-9AC7-4CD1-94FF-A945961D6BF4" name="确认退款" sourceRef="submitted" targetRef="refundEnd"></sequenceFlow>
+    <sequenceFlow id="sid-A2E30DC1-4151-43F4-B74C-6BB460BA8B20" sourceRef="cancelSubmitted" targetRef="cancelSubmittedEnd"></sequenceFlow>
+    <boundaryEvent id="withdrawSubmitted" name="撤回" attachedToRef="submitted" cancelActivity="true">
+      <messageEventDefinition messageRef="撤回"></messageEventDefinition>
+    </boundaryEvent>
+    <boundaryEvent id="updateCreated" name="修改" attachedToRef="created" cancelActivity="false">
+      <messageEventDefinition messageRef="修改"></messageEventDefinition>
+    </boundaryEvent>
+    <boundaryEvent id="submitCreated" name="提交付款" attachedToRef="created" cancelActivity="true">
+      <messageEventDefinition messageRef="提交"></messageEventDefinition>
+    </boundaryEvent>
+    <boundaryEvent id="cancelCreated" name="取消" attachedToRef="created" cancelActivity="true">
+      <messageEventDefinition messageRef="取消"></messageEventDefinition>
+    </boundaryEvent>
+    <boundaryEvent id="cancelSubmitted" name="取消" attachedToRef="submitted" cancelActivity="true">
+      <messageEventDefinition messageRef="取消"></messageEventDefinition>
+    </boundaryEvent>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_lodgingLeaseRefundOrderBpm">
+    <bpmndi:BPMNPlane bpmnElement="lodgingLeaseRefundOrderBpm" id="BPMNPlane_lodgingLeaseRefundOrderBpm">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="30.0" width="30.0" x="60.0" y="244.2913945031808"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="created" id="BPMNShape_created">
+        <omgdc:Bounds height="79.99999999999994" width="100.0" x="135.0" y="219.2913945031808"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cancelCreatedEnd" id="BPMNShape_cancelCreatedEnd">
+        <omgdc:Bounds height="28.0" width="28.0" x="171.0" y="137.70517059009626"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cancelSubmittedEnd" id="BPMNShape_cancelSubmittedEnd">
+        <omgdc:Bounds height="28.0" width="28.0" x="374.94444679873664" y="137.70517059009626"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="submitted" id="BPMNShape_submitted">
+        <omgdc:Bounds height="79.99999999999994" width="100.0" x="342.0" y="219.2913945031808"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="refundEnd" id="BPMNShape_refundEnd">
+        <omgdc:Bounds height="28.0" width="28.0" x="505.0" y="245.29139450318075"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="withdrawSubmitted" id="BPMNShape_withdrawSubmitted">
+        <omgdc:Bounds height="30.0" width="30.0" x="373.18036604641674" y="284.7217299131252"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="updateCreated" id="BPMNShape_updateCreated">
+        <omgdc:Bounds height="30.0" width="30.0" x="142.06106661642764" y="285.00582839858276"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="submitCreated" id="BPMNShape_submitCreated">
+        <omgdc:Bounds height="29.99999999999997" width="30.0" x="220.30053270132112" y="242.81298013191363"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cancelCreated" id="BPMNShape_cancelCreated">
+        <omgdc:Bounds height="30.0" width="30.0" x="170.42285799329332" y="203.67747779580108"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cancelSubmitted" id="BPMNShape_cancelSubmitted">
+        <omgdc:Bounds height="30.0" width="30.0" x="374.06570691620203" y="203.68002367060677"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-490A6D4C-9AC7-4CD1-94FF-A945961D6BF4" id="BPMNEdge_sid-490A6D4C-9AC7-4CD1-94FF-A945961D6BF4">
+        <omgdi:waypoint x="442.0" y="259.29139450318075"></omgdi:waypoint>
+        <omgdi:waypoint x="505.0" y="259.29139450318075"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-8D1C6236-ADAF-49C9-A7F4-6BAA7A417BBA" id="BPMNEdge_sid-8D1C6236-ADAF-49C9-A7F4-6BAA7A417BBA">
+        <omgdi:waypoint x="185.3281510354986" y="203.6777767790426"></omgdi:waypoint>
+        <omgdi:waypoint x="185.08839316060843" y="165.70489153907084"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-8C1421AC-990C-4B85-8AC2-6DEFF14CA887" id="BPMNEdge_sid-8C1421AC-990C-4B85-8AC2-6DEFF14CA887">
+        <omgdi:waypoint x="388.38044526739327" y="314.7203954639445"></omgdi:waypoint>
+        <omgdi:waypoint x="388.94444679873664" y="357.0"></omgdi:waypoint>
+        <omgdi:waypoint x="185.0" y="357.0"></omgdi:waypoint>
+        <omgdi:waypoint x="185.0" y="299.29139450318075"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-02D41024-EC57-4D88-905A-E10C45FF55DF" id="BPMNEdge_sid-02D41024-EC57-4D88-905A-E10C45FF55DF">
+        <omgdi:waypoint x="250.29981383464224" y="257.95983204234307"></omgdi:waypoint>
+        <omgdi:waypoint x="342.0" y="258.8576315705622"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-A2E30DC1-4151-43F4-B74C-6BB460BA8B20" id="BPMNEdge_sid-A2E30DC1-4151-43F4-B74C-6BB460BA8B20">
+        <omgdi:waypoint x="389.03854898009433" y="203.68004825574337"></omgdi:waypoint>
+        <omgdi:waypoint x="388.96979420577054" y="165.70514764396876"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-69C07086-2EEC-4C9A-B7F1-D6F9E5EA2996" id="BPMNEdge_sid-69C07086-2EEC-4C9A-B7F1-D6F9E5EA2996">
+        <omgdi:waypoint x="90.0" y="259.2913945031808"></omgdi:waypoint>
+        <omgdi:waypoint x="135.0" y="259.29139450318075"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

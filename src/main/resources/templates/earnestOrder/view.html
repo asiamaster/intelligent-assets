@@ -43,27 +43,42 @@
             对应摊位
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true" aria-controls="boothInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div id="boothInfo" class="collapse show">
-            <table class="table table-bordered table-hover table-striped" id="boothTable" style="width: 500px">
-                <thead>
-                <tr>
-                    <th class="text-center align-middle" style="width: 5%"><a id="addStall" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
-                    <th style="width: 25%;font-weight:normal; ">摊位编号</th>
-                </tr>
-                </thead>
-                <tbody>
-                <%
-                if(earnestOrderDetails.~size>0){
-                for(item in earnestOrderDetails){%>
-                <tr>
-                    <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
-                    <td>
-                        ${item.assetsName!}
-                    </td>
-                </tr>
-                <% } } %>
-                </tbody>
-            </table>
+        <div class="row  row-cols-4 collapse show" >
+            <div class="form-group col-6">
+                <label for="">所属区域<i class="red">*</i></label>
+                <div class="input-group">
+                    <select class="form-control" id="firstDistrictId" name="firstDistrictId" disabled>
+                        <option value="${earnestOrder.firstDistrictId!}">${firstDistrictName!}</option>
+                    </select>
+                    <select class="form-control" id="secondDistrictId" name="secondDistrictId" disabled>
+                        <option value="${earnestOrder.secondDistrictId!}">${secondDistrictName!}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row row-cols-4">
+            <div id="boothInfo" class="collapse show col-6">
+                <table class="table table-bordered table-hover table-striped" id="boothTable" style="width: 500px">
+                    <thead>
+                    <tr>
+                        <th class="text-center align-middle" style="width: 5%"><a id="addStall" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
+                        <th style="width: 25%;font-weight:normal; ">摊位编号</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <%
+                    if(earnestOrderDetails.~size>0){
+                    for(item in earnestOrderDetails){%>
+                    <tr>
+                        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
+                        <td>
+                            ${item.assetsName!}
+                        </td>
+                    </tr>
+                    <% } } %>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="breadcrumb">
             补充信息

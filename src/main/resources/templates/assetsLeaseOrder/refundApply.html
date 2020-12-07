@@ -11,115 +11,177 @@
         <input type="hidden" name="departmentName" value="${leaseOrder.departmentName!}"/>
         <input type="hidden" name="customerId" value="${leaseOrder.customerId!}"/>
         <input type="hidden" name="bizType" value="${leaseOrder.bizType!}"/>
-        <div class="row row-cols-4">
-            <div class="form-group col">
-                <label for="customerName" _log>客户名称<i class="red">*</i></label>
-                <input type="text" class="form-control" id="customerName" name="customerName" value="${leaseOrder.customerName!}" readonly/>
-            </div>
-            <div class="form-group col">
-                <label for="certificateNumber" _log>证件号码<i class="red">*</i></label>
-                <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${leaseOrder.certificateNumber!}" readonly/>
-            </div>
-            <div class="form-group col">
-                <label for="customerCellphone" _log>联系电话<i class="red">*</i></label>
-                <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${leaseOrder.customerCellphone!}" readonly/>
-            </div>
-            <div class="form-group col">
-                <label for="customerName" _log>退场时间</label>
-                <input type="text" class="form-control" id="exitTime" name="exitTime" value="${leaseOrderItem.exitTime!,localDateTimeFormat='yyyy-MM-dd'}"/>
-            </div>
-            <script>
-                $(function () {
-                    laydate.render({
-                        elem: '#exitTime',
-                        type: 'date',
-                        theme: '#007bff',
-                        trigger:'click',
-                        done: function(value, date){
-                            $(this.elem).valid();
-                        }
-                    });
-                    $('#refundApplyForm').validate({
-                        rules: {
-                            exitTime: {
-                                minDate: "${leaseOrder.startTime!,localDateTimeFormat='yyyy-MM-dd'}",
-                                maxDate: "${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}"
-                            }
-                        }
-                    });
-                });
-            </script>
-        </div>
-        <% if(isNotEmpty(leaseOrderItem)){ %>
-        <div class="row row-cols-4">
-            <div class="form-group col">
-                <label for="assetsName">${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.assetsType).getName()}编号<i class="red">*</i></label>
-                <input type="text" class="form-control" id="assetsName" name="assetsName" value="${leaseOrderItem.assetsName}" required readonly/>
-            </div>
-            <%if(isNotEmpty(businessChargeItems) && businessChargeItems.~size>0){
-            for(item in businessChargeItems){
-            %>
-            <div class="form-group col">
-                <label for="chargeItem_${item.chargeItemId!}" _log>${item.chargeItemName!}<i class="red">*</i></label>
-                <input type="number" data-charge-item-id="${item.chargeItemId!}" data-charge-item-name="${item.chargeItemName!}" isRefundFeeItem class="form-control floatReserve money" id="chargeItem_${item.chargeItemId!}" name="chargeItem_${item.chargeItemId!}" oninput="calcTotalRefundAmount()" step="0.01" placeholder="可退<#centToYuan value='${item.paidAmount!}'/>" value="${refundFeeItemMap['chargeItemYuan'+item.chargeItemId]!}" min="0" max="<#centToYuan value='${item.paidAmount!}'/>" required/>
-            </div>
-            <% } }%>
-        </div>
-        <% } %>
-        <div class="row row-cols-4">
-            <div class="form-group col align-items-end">
-                <label for="totalRefundAmount" _log>退款金额<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount" min="0" value="<#centToYuan value='${refundOrder.totalRefundAmount!0}'/>"  required readonly/>
-            </div>
-        </div>
         <div class="breadcrumb">
-            基础信息
-            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            原始业务信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#originalInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="collapse show" id="baseInfo">
-            <#refundInfo customerName="${leaseOrder.customerName!}" customerId="${leaseOrder.customerId!}" certificateNumber="${leaseOrder.certificateNumber!}"></#refundInfo>
+        <div id="originalInfo" class="collapse show">
+            <div class="row row-cols-3">
+                <div class="form-group col">
+                    <label for="customerName" _log>客户名称<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="customerName" name="customerName" value="${leaseOrder.customerName!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="certificateNumber" _log>证件号码<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="certificateNumber" name="certificateNumber" value="${leaseOrder.certificateNumber!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="customerCellphone" _log>联系电话<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${leaseOrder.customerCellphone!}" readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="startTime">开始日期</label>
+                    <input type="text" id="startTime" name="startTime" class="form-control" value="${leaseOrder.startTime!,localDateTimeFormat='yyyy-MM-dd'}" readonly>
+                </div>
+                <div class="form-group col">
+                    <label for="endTime">结束日期</label>
+                    <input type="text" id="endTime" name="endTime" class="form-control" value="${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}" readonly>
+                </div>
+                <script>
+                    $(function () {
+                        laydate.render({
+                            elem: '#exitTime',
+                            type: 'date',
+                            theme: '#007bff',
+                            trigger:'click',
+                            done: function(value, date){
+                                $(this.elem).valid();
+                            }
+                        });
+                        $('#refundApplyForm').validate({
+                            rules: {
+                                exitTime: {
+                                    minDate: "${leaseOrder.startTime!,localDateTimeFormat='yyyy-MM-dd'}",
+                                    maxDate: "${leaseOrder.endTime!,localDateTimeFormat='yyyy-MM-dd'}"
+                                }
+                            }
+                        });
+                    });
+                </script>
+            </div>
+            <div id="assetInfo" class="row">
+                <div class="form-group col-12">
+                    <table class="table table-bordered table-hover table-striped" id="assetTable">
+                        <thead>
+                        <tr>
+                            <th class="text-center align-middle" style="font-weight:normal;">${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.assetsType).getName()}编号</th>
+                            <th class="text-center align-middle" style="font-weight:normal;">规格</th>
+                            <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
+                            <th class="text-center align-middle" style="font-weight:normal;">转角</th>
+                            <th class="text-center align-middle" style="font-weight:normal;">单价</th>
+                            <th class="text-center align-middle" style="font-weight:normal;">应交月数</th>
+                            <th class="text-center align-middle" style="font-weight:normal;">优惠金额</th>
+                            <% } %>
+                            <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+                            <th class="text-center align-middle" style="font-weight:normal;">租赁数量</th>
+                            <% } %>
+                            <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+                            for(item in chargeItems){
+                            %>
+                            <th style="font-weight:normal; ">${item.chargeItem!}</th>
+                            <% } }%>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%
+                        if(leaseOrderItems.~size>0){
+                        for(item in leaseOrderItems){%>
+                        <tr>
+                            <input type="hidden" class="assets" id="assetsId_${itemLP.index}" name="assetsId_${itemLP.index}" value="${item.assetsId!}"/>
+                            <td class="text-center align-middle" title="${item.assetsName!}">${item.assetsName!}</td>
+                            <td class="text-center align-middle" >${item.number!}${item.unitName!}</td>
+                            <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
+                            <td class="text-center align-middle" >${item.isCorner!}</td>
+                            <td class="text-center align-middle" ><#centToYuan value='${item.unitPrice!0}'/></td>
+                            <td class="text-center align-middle" >${item.paymentMonth!}</td>
+                            <td class="text-center align-middle" ><#centToYuan value='${item.discountAmount!0}'/></td>
+                            <% } %>
+                            <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
+                            <td style="padding: .25rem!important;"><input type="number" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" readonly></td>
+                            <% } %>
+                            <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
+                            for(chargeItem in chargeItems){
+                            %>
+                            <td style="padding: .25rem!important;"><input data-charge-item-name="${chargeItem.chargeItem!}" type="number" id="chargeItem_${chargeItem.id!}_${itemLP.index}" name="chargeItem_${chargeItem.id!}_${itemLP.index}" value="${item.businessChargeItem['chargeItemYuan'+chargeItem.id]!}" data-charge-item-id="${chargeItem.id!}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" readonly></td>
+                            <% } }%>
+                        </tr>
+                        <% } } %>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
         </div>
 
         <div class="breadcrumb">
-            转抵信息
-            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#transferInfo" aria-expanded="true" aria-controls="transferInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+            退款信息
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#refundInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div id="transferInfo" ${isNotEmpty(transferDeductionItems) && transferDeductionItems.~size > 0?'':'class="collapse"'}>
-            <table class="table table-bordered table-hover table-striped" id="transferTable" _logTable="转抵项">
-                <thead>
-                <tr>
-                    <th class="text-center align-middle" style="width: 5%"><a id="addTransfer" href="javascript:;" style="padding: 8px 18px;"><i class="fa fa-plus-square fa-lg"></i></a></th>
-                    <th style="font-weight:normal;" >收款人<i class="red">*</i></th>
-                    <th style="font-weight:normal;" >证件号<i class="red">*</i></th>
-                    <th style="font-weight:normal; ">收款金额<i class="red">*</i></th>
-                </tr>
-                </thead>
-                <tbody>
-                <%if(isNotEmpty(transferDeductionItems) && transferDeductionItems.~size>0){
-                for(item in transferDeductionItems){
+        <div id="refundInfo" class="collapse show">
+            <% if(isNotEmpty(leaseOrderItem)){ %>
+            <div class="row row-cols-3">
+                <div class="form-group col">
+                    <label for="assetsName">${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.assetsType).getName()}编号<i class="red">*</i></label>
+                    <input type="text" class="form-control" id="assetsName" name="assetsName" value="${leaseOrderItem.assetsName}" required readonly/>
+                </div>
+                <%if(isNotEmpty(businessChargeItems) && businessChargeItems.~size>0){
+                for(item in businessChargeItems){
                 %>
-                <tr data-index="${itemLP.index}">
-                    <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
-                    <td style="padding: .25rem!important;">
-                        <#bautoCompleteProvider _log="收款人" _hiddenDomainId="payeeId_${itemLP.index}" _hiddenDomainName="payeeId_${itemLP.index}" _displayDomainId="payee_${itemLP.index}" _displayDomainName="payee_${itemLP.index}" _validatorMethod="isSelected" _required="true" _value="${item.payeeId!}" _text="${item.payee!}" _optionVariable="customerNameTableAutoCompleteOption"/>
-                    </td>
-                    <td style="padding: .25rem!important;" class="text-center align-middle"><input _log="证件号" type="text" class="form-control" id="payeeCertificateNumber_${itemLP.index}" name="payeeCertificateNumber_${itemLP.index}" value="${item.payeeCertificateNumber!}" readonly uncheck/></td>
-                    <td style="padding: .25rem!important;"><input _log="收款金额" type="number" id="payeeAmount_${itemLP.index}" name="payeeAmount_${itemLP.index}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" value="<#centToYuan value='${item.payeeAmount!}'/>" required></td>
-                </tr>
+                <div class="form-group col">
+                    <label for="chargeItem_${item.chargeItemId!}" _log>${item.chargeItemName!}<i class="red">*</i></label>
+                    <input type="number" data-charge-item-id="${item.chargeItemId!}" data-charge-item-name="${item.chargeItemName!}" isRefundFeeItem class="form-control floatReserve money" id="chargeItem_${item.chargeItemId!}" name="chargeItem_${item.chargeItemId!}" oninput="calcTotalRefundAmount()" step="0.01" placeholder="可退<#centToYuan value='${item.paidAmount!}'/>" value="${refundFeeItemMap['chargeItemYuan'+item.chargeItemId]!}" min="0" max="<#centToYuan value='${item.paidAmount!}'/>" required/>
+                </div>
                 <% } }%>
-                </tbody>
-            </table>
-        </div>
-        <div>
-            <label>营业执照状态<i class="red">*</i></label>
-            <div id="licenseStateContainer">
-            <#bradioGroupProvider _log="营业执照状态" _containerId="licenseStateContainer" _name="licenseState" _provider="licenseStateProvider"  _queryParams='{required:true}' _value="${refundOrder.licenseState!}" _required="true"/>
             </div>
-        </div>
-        <div class="row mt-1">
-            <div class="form-group col-8">
-                <label for="refundReason" _log>退款原因及详情<i class="red">*</i></label>
-                <textarea class="form-control" id="refundReason" name="refundReason" rows="1" maxlength="100" required>${refundOrder.refundReason!}</textarea>
+            <% } %>
+            <div class="row row-cols-3">
+                <div class="form-group col align-items-end">
+                    <label for="totalRefundAmount" _log>退款金额<i class="red">*</i></label>
+                    <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount" min="0" value="<#centToYuan value='${refundOrder.totalRefundAmount!0}'/>"  required readonly/>
+                </div>
+                <div class="form-group col">
+                    <label for="customerName" _log>退场时间</label>
+                    <input type="text" class="form-control" id="exitTime" name="exitTime" value="${leaseOrderItem.exitTime!,localDateTimeFormat='yyyy-MM-dd'}"/>
+                </div>
+            </div>
+            <div class="row row-cols-3">
+                <div class="form-group col">
+                    <label for="payee">收款人<i class="red">*</i></label>
+                    <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='sg'){%>
+                    <input type="text" class="form-control" name="payee" value="${customerName!}" readonly/>
+                    <input type="hidden" class="form-control" name="payeeId" value="${customerId!}"/>
+                    <%}else{%>
+                    <#bautoCompleteProvider _log="收款人" _hiddenDomainId="payeeId" _hiddenDomainName="payeeId" _displayDomainId="payee" _displayDomainName="payee" _validatorMethod="isSelected" _required="true" _value="${refundOrder.payeeId!}" _text="${refundOrder.payee!}" _optionVariable="customerNameAutoCompleteOption"/>
+                    <%}%>
+                </div>
+                <div class="form-group col">
+                    <label for="payeeCertificateNumber" class="">证件号<i class="red">*</i></label>
+                    <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode()=='sg'){%>
+                    <input type="text" class="form-control" name="payeeCertificateNumber" value="${certificateNumber!}" readonly/>
+                    <%}else{%>
+                    <input type="text" class="form-control" id="payeeCertificateNumber" name="payeeCertificateNumber" value="${refundOrder.payeeCertificateNumber!}" readonly/>
+                    <%}%>
+                </div>
+                <!-- 待删 -->
+                <input type="hidden" name="refundType" value="1"/>
+            </div>
+            <div>
+                <label>营业执照状态<i class="red">*</i></label>
+                <div id="licenseStateContainer">
+                    <#bradioGroupProvider _log="营业执照状态" _containerId="licenseStateContainer" _name="licenseState" _provider="licenseStateProvider"  _queryParams='{required:true}' _value="${refundOrder.licenseState!}" _required="true"/>
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="form-group col-8">
+                    <label for="refundReason" _log>退款原因<i class="red">*</i></label>
+                    <textarea class="form-control" id="refundReason" name="refundReason" rows="1" maxlength="100" required>${refundOrder.refundReason!}</textarea>
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="form-group col-8">
+                    <label for="remark" _log>补充信息</label>
+                    <textarea class="form-control" id="remark" name="remark" rows="1" maxlength="100">${refundOrder.remark!}</textarea>
+                </div>
             </div>
         </div>
         <div class="modal-footer-wrap">
@@ -133,13 +195,3 @@
 
 </#bs4Body>
 <#assetsLeaseOrder_refundApplyJs />
-<script id="transferItemTpl" type="text/html">
-    <tr data-index="{{index}}">
-        <td class="text-center align-middle"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
-        <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _log="收款人" _escape="true" _hiddenDomainId="payeeId_{{index}}" _hiddenDomainName="payeeId_{{index}}" _displayDomainId="payee_{{index}}" _displayDomainName="payee_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="customerNameTableAutoCompleteOption"/>
-        </td>
-        <td style="padding: .25rem!important;" class="text-center align-middle"><input _log="证件号" type="text" class="form-control" id="payeeCertificateNumber_{{index}}" name="payeeCertificateNumber_{{index}}" readonly uncheck/></td>
-        <td style="padding: .25rem!important;"><input _log="收款金额" type="number" id="payeeAmount_{{index}}" name="payeeAmount_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
-    </tr>
-</script>

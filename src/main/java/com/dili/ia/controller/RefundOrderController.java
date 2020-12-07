@@ -101,6 +101,7 @@ public class RefundOrderController {
         modelMap.put("taskId", taskCenterParam.getTaskId());
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
+        modelMap.put("bizType", bizType);
         ApprovalProcess approvalProcess = new ApprovalProcess();
         approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
         //查询审批记录
@@ -112,16 +113,17 @@ public class RefundOrderController {
     /**
      * 跳转到退款单审批详情页面，用于查看归档记录
      * @param modelMap
-     * @param assetsType 1：摊位， 2： 冷库， 3: 公寓, 4:其它
+     * @param bizType 1：摊位， 2： 定金， 3: 保证金, 4:冷库租赁, 5:公寓租赁
      * @return String
      */
-    @GetMapping(value="/{assetsType}/approvalDetail.html")
-    public String assetsApprovalDetail(@PathVariable Integer assetsType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
+    @GetMapping(value="/{bizType}/approvalDetail.html")
+    public String assetsApprovalDetail(@PathVariable Integer bizType, TaskCenterParam taskCenterParam, ModelMap modelMap) {
         modelMap.put("taskDefinitionKey", taskCenterParam.getTaskDefinitionKey());
         modelMap.put("processInstanceId", taskCenterParam.getProcessInstanceId());
         modelMap.put("taskId", taskCenterParam.getTaskId());
         modelMap.put("businessKey", taskCenterParam.getBusinessKey());
         modelMap.put("formKey", taskCenterParam.getFormKey());
+        modelMap.put("bizType", bizType);
         ApprovalProcess approvalProcess = new ApprovalProcess();
         approvalProcess.setBusinessKey(taskCenterParam.getBusinessKey());
         List<ApprovalProcess> approvalProcesses = approvalProcessService.list(approvalProcess);
@@ -154,6 +156,17 @@ public class RefundOrderController {
         } catch (Exception e) {
             return BaseOutput.failure(e.getMessage());
         }
+    }
+
+    /**
+     * 清空事件名缓存
+     * @return BaseOutput
+     */
+    @GetMapping(value="/clearEventNameCache.action")
+    @ResponseBody
+    public BaseOutput clearEventNameCache() {
+        refundOrderEventCache.invalidateAll();
+        return BaseOutput.success("清除成功");
     }
 
     /**
@@ -224,11 +237,9 @@ public class RefundOrderController {
             		|| refundOrder.getBizType().equals(BizTypeEnum.OTHER_FEE.getCode())
             		|| refundOrder.getBizType().equals(BizTypeEnum.STOCKIN.getCode())){
                 return "refundOrder/commonRefundOrderView";
-            } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
-                TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-                transferDeductionItemCondition.setRefundOrderId(id);
-                modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
-
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())
+                    || refundOrder.getBizType().equals(BizTypeEnum.LOCATION_LEASE.getCode())
+                    || refundOrder.getBizType().equals(BizTypeEnum.LODGING_LEASE.getCode())) {
                 if(null != refundOrder.getBusinessItemId()){
                     AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId());
                     modelMap.put("leaseOrderItem", leaseOrderItem);

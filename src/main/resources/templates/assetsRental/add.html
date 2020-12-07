@@ -1,56 +1,104 @@
 <#bs4Body>
-<!--<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>-->
-<div class="container-fluid">
-    <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.meter'/>">
+<#vueElm />
+<#assetsRental_district />
+
+<style>
+    .el-transfer-panel {
+        width: 40%;
+    }
+</style>
+<div class="container-fluid pb-5" id="app">
+    <div class="row row-cols-6">
+        <div class="form-group col">
+            <label for="name">预设名称<i class="red">*</i></label>
+            <input type="text" class="form-control" id="name" name="name" maxlength="20" required />
+        </div>
+    </div>
+    <div class="breadcrumb" aria-expanded="true">
+        选择预设对象
+    </div>
+
+   <div class="border p-3">
+       <form id="searchForm" role="form" style="width:40%" novalidate>
+           <div class="row row-cols-2">
+               <div class="form-group col">
+                   <label for="" class="">区域<i class="red">*</i></label>
+                   <#js_district firstDistrictID="8" secondDistrictID="43" ></#js_district>
+               </div>
+               <div class="form-group col">
+                   <label for="" class="">摊位编号<i class="red">*</i></label>
+                   <input id="" type="" class="form-control digits" maxlength="50" name="" />
+               </div>
+               <div class="form-group col">
+                   <label for="" class="">数量<i class="red">*</i></label>
+                   <div class="input-group">
+                       <input id="" type="" class="form-control digits" name="" />
+                       <span class="align-self-center">至</span>
+                       <input id="" type="" class="form-control digits" name="" />
+                   </div>
+               </div>
+               <div class="col-auto align-self-center mt-3">
+                   <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#searchForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                   <button type="button" class="btn btn-outline-primary" onclick="queryBoothDataHandler()"><i class="fa fa-search"></i> 查询</button>
+               </div>
+           </div>
+           <hr>
+       </form>
+
+       <div class="row">
+           <div class="col-12">
+               <el-transfer v-model="boothChecked" :data="boothData"
+                            :props="{key: 'key',label: 'label'}"
+                            :titles="['待选摊位', '已选摊位']"
+               >
+                  <!-- <sapn class="text-center align-center w-100" slot="left-footer" >待选摊位</sapn>
+                   <sapn class="text-center w-100" slot="right-footer" >已选摊位</sapn>-->
+               </el-transfer>
+           </div>
+       </div>
+   </div>
     <form id="saveForm" role="form" novalidate>
-        <div class="row row-cols-2">
+        <div class="breadcrumb" aria-expanded="true">
+            设置预设信息
+        </div>
+        <div class="row row-cols-6">
             <div class="form-group col">
-                <label for="number">表编号<i class="red">*</i></label>
-                <input type="text" class="form-control" id="number" name="number" required />
-            </div>
-            <div class="form-group col">
-                <label for="type">表类型<i class="red">*</i></label>
+                <label for="type">经营范围<i class="red">*</i></label>
                 <select id="type"  name="type" class="form-control" required></select>
                 <#bcomboProvider _id="type" _provider="meterTypeProvider"/>
             </div>
             <div class="form-group col">
-                <label for="assetsType">类别<i class="red">*</i></label>
-                <select id="assetsType"  name="assetsType" class="form-control" required></select>
-                <#bcomboProvider _id="assetsType" _provider="assetsTypeProvider"/>
+                <label for="type">租赁期限<i class="red">*</i></label>
+                <select id="type"  name="type" class="form-control" required></select>
+                <#bcomboProvider _id="type" _provider="meterTypeProvider"/>
             </div>
-
             <div class="form-group col">
-                <label for="assetsName">表地址<i class="red">*</i></label>
-                <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption" _required="true"/>
+                <label tlog >经营品类</label>
+                <select id="customerNames" name="customerNames" class="form-control" required multiple></select>
+                <#bselect2 _id="customerNames" _mode="remote" _value="[2,4,8,55]" _option="" _optionVariable=""/>
             </div>
-
             <div class="form-group col">
-                <label for="thisAmount">当前指数<i class="red">*</i></label>
-                <input type="text" class="form-control" id="thisAmount" name="thisAmount" required />
+                <label for="days" class="">租赁天数<i class="red">*</i></label>
+                <input type="number" id="days" class="form-control isNaturalNum" name=""  />
             </div>
-
             <div class="form-group col">
-                <label for="price" class="">单价<i class="red">*</i></label>
-                <input id="price" type="number" class="form-control floatReserve money" name="price" range="0 9999999.99" required />
+                <label for="startTime">开始日期</label>
+                <input type="text" id="startTime" name="" class="form-control" >
             </div>
-
             <div class="form-group col">
-                <label for="notes">备注</label>
-                <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100"></textarea>
+                <label for="endTime">结束日期</label>
+<!--                <input type="text" id="endTime" name="" class="form-control" readonly>-->
+                <input type="text" id="endTime" name="" class="form-control" >
             </div>
-
         </div>
-        <div class="text-right btn-r-b">
-            <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
-            <button type="button" class="btn btn-primary px-5" id="save">保存</button>
+        <div class="modal-footer-wrap">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary px-5" id="formCancel" onclick="javascript:parent.dia.hide()">取消</button>
+                <button type="button" class="btn btn-primary px-5" id="save">确定</button>
+            </div>
         </div>
     </form>
 </div>
 
 </#bs4Body>
-
-
-<#js_customerAutocompleteJs/>
-
-<#meter_preSaveJs />
-
+<#assetsRental_saveJs />

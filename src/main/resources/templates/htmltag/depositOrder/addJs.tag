@@ -30,6 +30,14 @@
         $('#assetsNameInput').hide();
     });
 
+    $('#firstDistrictId').on('change', function(){
+        $('#assetsType').trigger("change");
+    })
+
+    $('#secondDistrictId').on('change', function(){
+        $('#assetsType').trigger("change");
+    })
+
     $('#assetsType').on('change', function(){
         $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
         $('#assetsName-error').remove();
@@ -42,12 +50,16 @@
     })
 
     let assetsType = $('[name="assetsType"]').val();
+    let firstDistrictId = $('[name="firstDistrictId"]').val();
+    let secondDistrictId = $('[name="secondDistrictId"]').val();
     var boothAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/assets/searchAssets.action',
         onSearchStart: function (params) {
             params['assetsType'] = $('[name="assetsType"]').val();
+            params['firstDistrictId'] = $('[name="firstDistrictId"]').val();
+            params['secondDistrictId'] = $('[name="secondDistrictId"]').val();
             return params;
         },
         transformResult: function (result) {

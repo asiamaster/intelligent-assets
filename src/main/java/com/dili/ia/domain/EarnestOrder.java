@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 /**
  * 由MyBatis Generator工具自动生成
  * 定金的业务单
- * This file was generated on 2020-10-28 16:31:00.
+ * This file was generated on 2020-12-03 14:40:39.
  */
 @Table(name = "`earnest_order`")
 public class EarnestOrder extends BaseDomain {
@@ -207,6 +207,24 @@ public class EarnestOrder extends BaseDomain {
      */
     @Column(name = "`market_id`")
     private Long marketId;
+
+    /**
+     * 商户ID
+     */
+    @Column(name = "`mch_id`")
+    private Long mchId;
+
+    /**
+     * 一级区域ID
+     */
+    @Column(name = "`first_district_id`")
+    private Long firstDistrictId;
+
+    /**
+     * 二级区域ID
+     */
+    @Column(name = "`second_district_id`")
+    private Long secondDistrictId;
 
     /**
      * 版本控制,乐观锁
@@ -813,6 +831,66 @@ public class EarnestOrder extends BaseDomain {
      */
     public void setMarketId(Long marketId) {
         this.marketId = marketId;
+    }
+
+    /**
+     * 获取商户ID
+     *
+     * @return mch_id - 商户ID
+     */
+    @FieldDef(label="商户ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getMchId() {
+        return mchId;
+    }
+
+    /**
+     * 设置商户ID
+     *
+     * @param mchId 商户ID
+     */
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
+    }
+
+    /**
+     * 获取一级区域ID
+     *
+     * @return first_district_id - 一级区域ID
+     */
+    @FieldDef(label="一级区域ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getFirstDistrictId() {
+        return firstDistrictId;
+    }
+
+    /**
+     * 设置一级区域ID
+     *
+     * @param firstDistrictId 一级区域ID
+     */
+    public void setFirstDistrictId(Long firstDistrictId) {
+        this.firstDistrictId = firstDistrictId;
+    }
+
+    /**
+     * 获取二级区域ID
+     *
+     * @return second_district_id - 二级区域ID
+     */
+    @FieldDef(label="二级区域ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getSecondDistrictId() {
+        return secondDistrictId;
+    }
+
+    /**
+     * 设置二级区域ID
+     *
+     * @param secondDistrictId 二级区域ID
+     */
+    public void setSecondDistrictId(Long secondDistrictId) {
+        this.secondDistrictId = secondDistrictId;
     }
 
     /**
