@@ -182,11 +182,13 @@
           on
             ari.assets_rental_id = ar.id
         where
+            ar.state = #{state}
+          and
             ar.batch_id = #{batchId,jdbcType=BIGINT}
           and
             ar.mch_id = #{mchId,jdbcType=BIGINT}
           and
-            ari.assets_name like concat('%',#{name},'%')
+            ari.assets_name like concat('%',#{keyword},'%')
     </select>
 
     <select id="belongBatchAndMchByAssetsIds" resultType="com.dili.ia.domain.dto.AssetsRentalDto">
