@@ -435,6 +435,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         settleOrder.setEditEnable(EditEnableEnum.NO.getCode());
         settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
+        //@TODO 结算单号需要增加商户ID，业务需要传入
 
         return settleOrder;
     }
