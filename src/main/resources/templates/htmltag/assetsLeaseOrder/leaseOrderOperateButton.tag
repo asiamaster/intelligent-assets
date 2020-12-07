@@ -1,5 +1,8 @@
 <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 查看</button>
+<%//摊位租赁单才有审批流程
+if(bizType==@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()){%>
 <button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-eye"></i> 查看流程</button>
+<%}%>
 <!-- 摊位操作button -->
 <#resource code="addBoothLeaseOrder" checkMenu="true">
 <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
