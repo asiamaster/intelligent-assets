@@ -48,9 +48,7 @@
 <#resource code="invalidLocationLeaseOrder" checkMenu="true">
 <button id="btn_invalid" type="button" class="btn btn-primary obsoleteEvent" onclick="openInvalidHandler()"><i class="fa fa-window-close"></i> 作废</button>
 </#resource>
-<#resource code="submitLocationLeaseOrderApplication" checkMenu="true">
-<button id="btn_approval" type="button" class="btn btn-primary submitApprovalEvent" onclick="submitForApproval()"><i class="fa fa-paper-plane"></i> 提交审批</button>
-</#resource>
+
 <#resource code="submitPaymentLocationLeaseOrder" checkMenu="true">
 <button id="btn_submit" type="button" class="btn btn-primary submitEvent" onclick="openSubmitPaymentHandler()"><i class="fa fa-paper-plane"></i> 提交付款</button>
 </#resource>
@@ -82,9 +80,6 @@
 </#resource>
 <#resource code="invalidLodgingLeaseOrder" checkMenu="true">
 <button id="btn_invalid" type="button" class="btn btn-primary obsoleteEvent" onclick="openInvalidHandler()"><i class="fa fa-window-close"></i> 作废</button>
-</#resource>
-<#resource code="submitLodgingLeaseOrderApplication" checkMenu="true">
-<button id="btn_approval" type="button" class="btn btn-primary submitApprovalEvent" onclick="submitForApproval()"><i class="fa fa-paper-plane"></i> 提交审批</button>
 </#resource>
 
 <#resource code="submitPaymentLodgingLeaseOrder" checkMenu="true">
