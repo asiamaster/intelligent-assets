@@ -1,10 +1,13 @@
 package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.AssetsRentalItem;
+import com.dili.ia.glossary.AssetsRentalStateEnum;
 import com.dili.ia.mapper.AssetsRentalItemMapper;
 import com.dili.ia.service.AssetsRentalItemService;
 import com.dili.ss.base.BaseServiceImpl;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author:       xiaosa
@@ -22,12 +25,25 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
     /**
      * 根据关联主键删除对应的资产
      *
-     * @param   stallRentPresetId
+     * @param   assetsRentalId
      * @return
      * @date    2020/11/26
      */
     @Override
-    public void deleteByRentalId(Long stallRentPresetId) {
-        this.getActualDao().deleteByRentalId(stallRentPresetId);
+    public void deleteByRentalId(Long assetsRentalId) {
+        this.getActualDao().deleteByRentalId(assetsRentalId);
+    }
+
+    /**
+     * 根据 assetsIds 查询属于表中的 assetsId 的集合,摊位出租预设的主表状态是启用
+     *
+     * @param  assetsIds
+     * @param  state
+     * @return assetsIds
+     * @date   2020/12/7
+     */
+    @Override
+    public List<Long> listRentalItemsByAssetsIds(List<Long> assetsIds, Integer state) {
+        return this.getActualDao().listRentalItemsByAssetsIds(assetsIds, state);
     }
 }
