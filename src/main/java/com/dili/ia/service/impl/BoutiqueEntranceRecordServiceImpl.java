@@ -559,6 +559,8 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             printDto.setBusinessType(BizTypeEnum.BOUTIQUE_ENTRANCE.getName());
             printDto.setAmount(String.valueOf(orderInfo.getAmount()));
             printDto.setCustomerCellphone(recordInfo.getCustomerCellphone());
+            printDto.setBusinessCode(refundOrder.getBusinessId());
+
             //TODO 判断支付方式
             //园区卡号
             printDto.setAccountCardNo(order.getAccountNumber());

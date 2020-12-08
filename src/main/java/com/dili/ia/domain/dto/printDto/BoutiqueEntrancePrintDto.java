@@ -101,6 +101,19 @@ public class BoutiqueEntrancePrintDto {
      */
     private String refundReason;
 
+    /**
+     * 票据编号
+     */
+    private Long businessCode;
+
+    public Long getBusinessCode() {
+        return businessCode;
+    }
+
+    public void setBusinessCode(Long businessCode) {
+        this.businessCode = businessCode;
+    }
+
     public String getRefundReason() {
         return refundReason;
     }
