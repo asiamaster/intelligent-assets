@@ -19,6 +19,8 @@ import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
+import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -782,5 +784,24 @@ public class AssetsLeaseOrderController {
 
     }
 
+    /**
+     * 费用批量计算
+     *
+     * @param queryFeeInputList
+     * @return
+     */
+    @PostMapping(value = "/batchQueryFeeWithoutShortcut.action")
+    public @ResponseBody
+    BaseOutput<List<QueryFeeOutput>> batchQueryFeeWithoutShortcut(List<QueryFeeInput> queryFeeInputList) {
+        try {
+            return assetsLeaseOrderService.batchQueryFeeWithoutShortcut(queryFeeInputList);
+        } catch (BusinessException e) {
+            LOG.info("租赁单费用批量计算异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("租赁单费用批量计算异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
 
 }

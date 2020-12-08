@@ -7,9 +7,14 @@ import com.dili.ia.domain.dto.AssetsLeaseSubmitPaymentDto;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.LeaseRefundOrderDto;
+import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -126,4 +131,11 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
      * @return
      */
     void approvedDeniedHandler(ApprovalParam approvalParam);
+
+    /**
+     * 费用计算
+     * @param queryFeeInputList
+     * @return
+     */
+    BaseOutput<List<QueryFeeOutput>> batchQueryFeeWithoutShortcut(List<QueryFeeInput> queryFeeInputList);
 }

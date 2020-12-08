@@ -28,6 +28,8 @@ import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.glossary.LoggerConstant;
+import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.InvalidRequestDto;
@@ -1297,6 +1299,11 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
             return parentDistrictOutput.getData().getName();
         }
+    }
+
+    @Override
+    public BaseOutput<List<QueryFeeOutput>> batchQueryFeeWithoutShortcut(List<QueryFeeInput> queryFeeInputList) {
+        return chargeRuleRpc.batchQueryFeeWithoutShortcut(queryFeeInputList);
     }
 
     /**
