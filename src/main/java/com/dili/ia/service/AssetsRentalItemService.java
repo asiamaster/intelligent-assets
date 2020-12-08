@@ -3,6 +3,8 @@ package com.dili.ia.service;
 import com.dili.ia.domain.AssetsRentalItem;
 import com.dili.ss.base.BaseService;
 
+import java.util.List;
+
 /**
  * @author:       xiaosa
  * @date:         2020/11/25
@@ -19,4 +21,14 @@ public interface AssetsRentalItemService extends BaseService<AssetsRentalItem, L
      * @date    2020/11/26
      */
     void deleteByRentalId(Long stallRentPresetId);
+
+    /**
+     * 根据 assetsIds 查询属于表中的 assetsId 的集合,摊位出租预设的主表状态是启用
+     *
+     * @param  assetsIds
+     * @param  state
+     * @return assetsIds
+     * @date   2020/12/7
+     */
+    List<Long> listRentalItemsByAssetsIds(List<Long> assetsIds, Integer state);
 }

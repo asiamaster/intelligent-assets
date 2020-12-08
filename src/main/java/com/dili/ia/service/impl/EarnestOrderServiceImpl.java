@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.AssetsDTO;
+import com.dili.assets.sdk.rpc.AreaMarketRpc;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
@@ -79,6 +80,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     TransactionDetailsService transactionDetailsService;
     @Autowired
     UidFeignRpc uidFeignRpc;
+    @Autowired
+    AreaMarketRpc areaMarketRpc;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -113,9 +116,38 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setState(EarnestOrderStateEnum.CREATED.getCode());
         earnestOrder.setAssetsType(AssetsTypeEnum.BOOTH.getCode());
         earnestOrder.setVersion(0L);
+        if (earnestOrder.getFirstDistrictId() !=  null || earnestOrder.getSecondDistrictId() != null){
+            earnestOrder.setMchId(getMchIdByDistrictId(earnestOrder.getSecondDistrictId() == null?earnestOrder.getFirstDistrictId():earnestOrder.getSecondDistrictId()));
+        }else {
+            earnestOrder.setMchId(userTicket.getFirmId());
+        }
         this.insertSelective(earnestOrder);
         this.insertEarnestOrderDetails(earnestOrder);
         return BaseOutput.success().setData(earnestOrder);
+    }
+
+    private Long getMchIdByDistrictId(Long districtId){
+        if (districtId == null){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "查询商户，区域ID不能为空!");
+        }
+        Long mchId = null;
+        //@TODO 为空抛异常，现在基础数据有问题，暂时注释掉代码，后期打开
+//        try {
+//            BaseOutput<Long> mchOutput = areaMarketRpc.getMarketByArea(districtId);
+//            if (!mchOutput.isSuccess()){
+//                LOG.error("根据区域ID查询商户，返回失败：{}", mchOutput.getMessage());
+//                throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回失败!");
+//            }
+//            mchId = mchOutput.getData();
+//        }catch (Exception e){
+//            LOG.error("根据区域ID查询商户，接口调用异常："+e.getMessage(),e);
+//            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，接口调用异常！");
+//        }
+//        if (mchId == null){
+//            LOG.error("根据区域ID查询商户，返回为空，districtId:{}", districtId);
+//            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回为空！");
+//        }
+        return mchId;
     }
 
     private String getBizNumber(String type){
@@ -234,7 +266,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         oldDTO.setNotes(dto.getNotes());
         oldDTO.setModifyTime(LocalDateTime.now());
         oldDTO.setVersion(dto.getVersion());
-
+        if (dto.getFirstDistrictId() !=  null || dto.getSecondDistrictId() != null){
+            oldDTO.setMchId(this.getMchIdByDistrictId(dto.getSecondDistrictId() == null?dto.getFirstDistrictId():dto.getSecondDistrictId()));
+        }
         return oldDTO;
     }
 
@@ -269,6 +303,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setSubmitterId(userTicket.getId());
         ea.setSubmitter(userTicket.getRealName());
         ea.setSubDate(LocalDateTime.now());
+        //获取商户
+        if (ea.getFirstDistrictId() !=  null || ea.getSecondDistrictId() != null){
+            ea.setMchId(this.getMchIdByDistrictId(ea.getSecondDistrictId() == null?ea.getFirstDistrictId():ea.getSecondDistrictId()));
+        }
         if (this.updateSelective(ea) == 0) {
             LOG.info("提交定金【修改定金单状态】失败 ,乐观锁生效！【定金单ID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
@@ -316,7 +354,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
-
+        //@TODO 提交到结算必须要穿的商户ID
         return settleOrder;
     }
 
@@ -336,6 +374,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         pb.setCustomerId(earnestOrder.getCustomerId());
         pb.setCustomerName(earnestOrder.getCustomerName());
         pb.setVersion(0);
+        pb.setMchId(earnestOrder.getMchId());
+        pb.setDistrictId(earnestOrder.getSecondDistrictId() == null? earnestOrder.getFirstDistrictId():earnestOrder.getSecondDistrictId());
         return pb;
     }
 

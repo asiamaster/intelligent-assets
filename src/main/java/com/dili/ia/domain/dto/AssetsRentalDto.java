@@ -45,6 +45,19 @@ public class AssetsRentalDto extends AssetsRental {
      */
     private List<Long> assetsIds;
 
+    /**
+     * 关键字
+     */
+    private String keyword;
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+
     // 一个出租预设可能有多个摊位
     private List<AssetsRentalItem> assetsRentalItemList;
 

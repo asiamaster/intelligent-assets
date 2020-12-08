@@ -155,30 +155,4 @@ public class AssetsRentalController {
         assetsRentalService.enableOrDisable(id);
         return BaseOutput.success();
     }
-
-    /**
-     * 根据摊位 id 查询相关的预设信息
-     *
-     * @param  assetsId
-     * @return BaseOutput
-     * @date   2020/12/2
-     */
-    @RequestMapping(value="/getRentalByAssetsId.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getRentalByAssetsId(@RequestParam("assetsId") Long assetsId) {
-        AssetsRentalDto assetsRentalDto = assetsRentalService.getRentalByAssetsId(assetsId);
-        return BaseOutput.success().setData(assetsRentalDto);
-    }
-
-    /**
-     * 根据摊位 ids 查询是否属于一个批次
-     *
-     * @param  assetsRentalDto
-     * @return BaseOutput
-     * @date   2020/12/2
-     */
-    @RequestMapping(value="/belongsOneBatchByAssetsIds.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput belongsBatchByAssetsIds(@RequestBody AssetsRentalDto assetsRentalDto) {
-        boolean belongsBatchByAssetsIds = assetsRentalService.belongsBatchByAssetsIds(assetsRentalDto.getAssetsIds());
-        return BaseOutput.success().setData(belongsBatchByAssetsIds);
-    }
 }
