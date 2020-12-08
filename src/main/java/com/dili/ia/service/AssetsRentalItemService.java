@@ -1,6 +1,7 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.AssetsRentalItem;
+import com.dili.ia.domain.dto.AssetsRentalItemDto;
 import com.dili.ss.base.BaseService;
 
 import java.util.List;
@@ -31,4 +32,22 @@ public interface AssetsRentalItemService extends BaseService<AssetsRentalItem, L
      * @date   2020/12/7
      */
     List<Long> listRentalItemsByAssetsIds(List<Long> assetsIds, Integer state);
+
+    /**
+     * 过滤出不属于预设池中的摊位集合
+     *
+     * @param  assetsRentalItemDtoList
+     * @return list
+     * @date   2020/12/8
+     */
+    List<AssetsRentalItemDto> filterAssets(List<AssetsRentalItemDto> assetsRentalItemDtoList);
+
+    /**
+     * 修改摊位的信息
+     *
+     * @param
+     * @return
+     * @date   2020/12/8
+     */
+    void updateAssetsToRental(AssetsRentalItemDto assetsRentalItemDto) throws Exception;
 }

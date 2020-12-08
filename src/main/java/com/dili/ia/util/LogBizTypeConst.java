@@ -69,5 +69,8 @@ public class LogBizTypeConst {
     
     public static final String MESSAGE_FEE="message_fee";
 
-
+    /**
+     * 摊位出租预设
+     */
+    public static final String ASSETS_RENTAL_PRESET="assets_rental_perset";
 }
