@@ -45,3 +45,5 @@ ADD COLUMN `remark` varchar(100) NULL COMMENT '备注' AFTER `canceler`;
 
 ALTER TABLE `dili_ia`.`business_charge_item`
 ADD COLUMN `rule_id` bigint(20) NULL COMMENT '规则ID' AFTER `charge_item_name`;
+ALTER TABLE `dili_ia`.`business_charge_item`
+ADD COLUMN `rule_name` varchar(100) NULL AFTER `rule_id`;

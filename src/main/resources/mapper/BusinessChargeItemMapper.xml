@@ -17,6 +17,7 @@
                 )
                 as char
             ) as businessChargeItemId${chargeItem.id},
+
             cast(
                 MAX(
                     CASE charge_item_id
@@ -28,6 +29,27 @@
                 )
                 as char
             ) as chargeItem${chargeItem.id},
+
+            cast(
+                MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    rule_id
+                    END
+                )
+                as char
+            ) as chargeItemRuleId${chargeItem.id},
+
+            cast(
+                MAX(
+                    CASE charge_item_id
+                    WHEN #{chargeItem.id} THEN
+                    rule_name
+                    END
+                )
+                as char
+            ) as chargeItemRuleName${chargeItem.id},
+
             cast(
                 truncate(
                     MAX(

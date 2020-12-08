@@ -120,7 +120,6 @@ $(document).on('hide.bs.collapse', 'form .collapse', function () {
     $('[data-target="#'+ id +'"]').html('展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i>');
 });
 $(document).on('show.bs.collapse', 'form .collapse', function () {
-    debugger
     let id = $(this).attr('id');
     $('[data-target="#'+ id +'"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
 });

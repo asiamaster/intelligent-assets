@@ -792,7 +792,7 @@ public class AssetsLeaseOrderController {
      */
     @PostMapping(value = "/batchQueryFeeWithoutShortcut.action")
     public @ResponseBody
-    BaseOutput<List<QueryFeeOutput>> batchQueryFeeWithoutShortcut(List<QueryFeeInput> queryFeeInputList) {
+    BaseOutput<List<QueryFeeOutput>> batchQueryFeeWithoutShortcut(@RequestBody List<QueryFeeInput> queryFeeInputList) {
         try {
             return assetsLeaseOrderService.batchQueryFeeWithoutShortcut(queryFeeInputList);
         } catch (BusinessException e) {
