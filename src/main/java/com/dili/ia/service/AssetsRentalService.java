@@ -2,6 +2,7 @@ package com.dili.ia.service;
 
 import com.dili.ia.domain.AssetsRental;
 import com.dili.ia.domain.dto.AssetsRentalDto;
+import com.dili.ia.domain.dto.AssetsRentalItemDto;
 import com.dili.ss.base.BaseService;
 import com.dili.uap.sdk.domain.UserTicket;
 
@@ -78,4 +79,13 @@ public interface AssetsRentalService extends BaseService<AssetsRental, Long> {
      * @date   2020/12/2
      */
     boolean belongBatchAndMchByAssetsIds(List<Long> assetsIds);
+
+    /**
+     * 根据区域id删除对应的关联摊位
+     *
+     * @param
+     * @return
+     * @date   2020/12/8
+     */
+    void deleteAssetsByDistrictId(Long districtId) throws Exception;
 }

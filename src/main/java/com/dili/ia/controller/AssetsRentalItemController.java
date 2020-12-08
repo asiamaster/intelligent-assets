@@ -1,15 +1,20 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.AssetsRentalItem;
+import com.dili.ia.domain.dto.AssetsRentalDto;
+import com.dili.ia.domain.dto.AssetsRentalItemDto;
 import com.dili.ia.service.AssetsRentalItemService;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 /**
  * @author:       xiaosa
@@ -75,5 +80,18 @@ public class AssetsRentalItemController {
     public @ResponseBody BaseOutput delete(Long id) {
         assetsRentalItemService.delete(id);
         return BaseOutput.success("删除成功");
+    }
+
+    /**
+     * 拉取所有摊位，过滤掉预设池已有的摊位，返回没有添加到预设池的摊位集合，用于预设
+     *
+     * @param  assetsRentalItemDtoList
+     * @return BaseOutput
+     * @date   2020/12/8
+     */
+    @RequestMapping(value="/viewAssetsByNoTable.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput viewAssetsByNoTable(@RequestBody List<AssetsRentalItemDto> assetsRentalItemDtoList) {
+        List<AssetsRentalItemDto> assetsRentalItemDtoInfoList = assetsRentalItemService.filterAssets(assetsRentalItemDtoList);
+        return BaseOutput.success();
     }
 }

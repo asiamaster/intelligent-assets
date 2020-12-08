@@ -86,4 +86,36 @@
                 #{assetsId}
             </foreach>
     </select>
+
+    <select id="listAssetsItemsByAssetsIds" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List" />
+        from
+            assets_rental_item
+        where
+            assets_id in
+            <foreach collection="assetsIds" item="assetsId" index="index" open="(" close=")" separator=",">
+                #{assetsId}
+            </foreach>
+    </select>
+
+    <update id="updateByAssetsId" parameterType="com.dili.ia.domain.AssetsRentalItem">
+        update assets_rental_item
+        <set>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="assetsId != null">
+                assets_id = #{assetsId,jdbcType=BIGINT},
+            </if>
+            <if test="assetsName != null">
+                assets_name = #{assetsName,jdbcType=VARCHAR},
+            </if>
+            <if test="assetsType != null">
+                assets_type = #{assetsType,jdbcType=BIT},
+            </if>
+        </set>
+        where
+            assets_id = #{assetsId}
+    </update>
 </mapper>

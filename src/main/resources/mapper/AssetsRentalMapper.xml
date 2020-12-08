@@ -208,4 +208,16 @@
                 #{assetsId}
             </foreach>
     </select>
+
+    <delete id="deleteAssetsByDistrictId" parameterType="java.lang.Long">
+        delete ar,ari
+        from
+            assets_rental_item as ari
+        left join
+            assets_rental as ar
+        on
+            ari.assets_rental_id = ar.id
+        where
+            ar.first_district_id = #{districtId,jdbcType=BIGINT} or ar.first_district_id = #{districtId,jdbcType=BIGINT}
+    </delete>
 </mapper>

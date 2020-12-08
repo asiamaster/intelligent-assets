@@ -206,4 +206,16 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         }
         return true;
     }
+
+    /**
+     * 根据区域id删除对应的关联摊位
+     *
+     * @param
+     * @return
+     * @date   2020/12/8
+     */
+    @Override
+    public void deleteAssetsByDistrictId(Long districtId) throws Exception {
+        this.getActualDao().deleteAssetsByDistrictId(districtId);
+    }
 }

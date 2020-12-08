@@ -155,4 +155,5 @@ public class AssetsRentalController {
         assetsRentalService.enableOrDisable(id);
         return BaseOutput.success();
     }
+
 }
