@@ -118,12 +118,6 @@ public class DepositBalance extends BaseDomain {
     private Long mchId;
 
     /**
-     * 区域ID（末级区域ID）
-     */
-    @Column(name = "`district_id`")
-    private Long districtId;
-
-    /**
      * 版本控制,乐观锁
      */
     @Version
@@ -444,26 +438,6 @@ public class DepositBalance extends BaseDomain {
      */
     public void setMchId(Long mchId) {
         this.mchId = mchId;
-    }
-
-    /**
-     * 获取区域ID（末级区域ID）
-     *
-     * @return district_id - 区域ID（末级区域ID）
-     */
-    @FieldDef(label="区域ID（末级区域ID）")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getDistrictId() {
-        return districtId;
-    }
-
-    /**
-     * 设置区域ID（末级区域ID）
-     *
-     * @param districtId 区域ID（末级区域ID）
-     */
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
     }
 
     /**
