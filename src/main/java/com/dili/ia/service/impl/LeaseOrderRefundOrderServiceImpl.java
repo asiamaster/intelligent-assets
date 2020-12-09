@@ -3,7 +3,9 @@ package com.dili.ia.service.impl;
 import com.dili.bpmc.sdk.dto.EventReceivedDto;
 import com.dili.bpmc.sdk.rpc.EventRpc;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
-import com.dili.ia.domain.*;
+import com.dili.ia.domain.AssetsLeaseOrderItem;
+import com.dili.ia.domain.RefundFeeItem;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.BpmEventConstants;
 import com.dili.ia.glossary.PrintTemplateEnum;
@@ -18,14 +20,15 @@ import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.google.common.collect.Sets;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -37,8 +40,9 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
 
     public RefundOrderMapper getActualDao() {
-        return (RefundOrderMapper)getDao();
+        return (RefundOrderMapper) getDao();
     }
+
     @Autowired
     AssetsLeaseOrderService assetsLeaseOrderService;
     @Autowired
@@ -54,32 +58,15 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     @Autowired
     private RuntimeRpc runtimeRpc;
     @Autowired
-    private CustomerAccountService customerAccountService;
-    @Autowired
     CustomerRpc customerRpc;
+
     @Override
     public Set<String> getBizType() {
-        return Sets.newHashSet(BizTypeEnum.BOOTH_LEASE.getCode());
+        return Sets.newHashSet(BizTypeEnum.BOOTH_LEASE.getCode(), BizTypeEnum.LOCATION_LEASE.getCode(), BizTypeEnum.LODGING_LEASE.getCode());
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
-        TransferDeductionItem condition = new TransferDeductionItem();
-        condition.setRefundOrderId(refundOrder.getId());
-        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(condition);
-        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
-            transferDeductionItems.forEach(o->{
-                assetsLeaseOrderService.checkCustomerState(o.getPayeeId(),refundOrder.getMarketId());
-                CustomerAccount ca = customerAccountService.getCustomerAccountByCustomerId(o.getPayeeId(), refundOrder.getMarketId());
-                //判断转入方客户账户是否存在,不存在先创建客户账户
-                if (null == ca){
-                    BaseOutput<Customer> output = customerRpc.get(o.getPayeeId(), refundOrder.getMarketId());
-                    Customer customer = output.getData();
-                    customerAccountService.addCustomerAccountByCustomerInfo(customer.getId(), customer.getName(), customer.getContactsPhone(), customer.getCertificateNumber(), refundOrder.getMarketId());
-                }
-            });
-        }
         return BaseOutput.success();
     }
 
@@ -100,64 +87,37 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
     @Override
     public BaseOutput refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
-        try{
+        try {
             return assetsLeaseOrderService.settleSuccessRefundOrderHandler(refundOrder);
-        }catch (Exception e){
-            LOG.info("租赁退款单成功回调异常",e);
+        } catch (Exception e) {
+            LOG.info("租赁退款单成功回调异常", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
 
     @Override
     public BaseOutput cancelHandler(RefundOrder refundOrder) {
-        try{
+        try {
             return assetsLeaseOrderService.cancelRefundOrderHandler(refundOrder.getBusinessItemId());
-        }catch (Exception e){
-            LOG.info("租赁退款单取消回调异常",e);
+        } catch (Exception e) {
+            LOG.info("租赁退款单取消回调异常", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
 
     @Override
-    public BaseOutput<Map<String,Object>> buildBusinessPrintData(RefundOrder refundOrder) {
-        Map<String,Object> resultMap = new HashMap<>();
+    public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
+        Map<String, Object> resultMap = new HashMap<>();
         //已交清退款单打印数据
         resultMap.put("printTemplateCode", PrintTemplateEnum.BOOTH_LEASE_REFUND_PAID.getCode());
         //根据要求拼装订单项
         buildLeaseOrderItem(refundOrder, resultMap);
-        buildTransferDeductionItems(refundOrder.getId(), resultMap);
         return BaseOutput.success().setData(resultMap);
     }
 
     /**
-     * 构建退款单转低打印数据
-     * @param refundOrderId
-     * @return
-     */
-    private void buildTransferDeductionItems(Long refundOrderId, Map<String, Object> resultMap) {
-        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-        transferDeductionItemCondition.setRefundOrderId(refundOrderId);
-        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-        List<Map<String,Object>> transferMaps = new ArrayList<>();
-        StringBuilder stringBuilder = new StringBuilder();
-        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
-            for (TransferDeductionItem transferDeductionItem : transferDeductionItems) {
-                Map<String,Object> transferMap = new HashMap<>();
-                transferMap.put("payee",transferDeductionItem.getPayee());
-                transferMap.put("payeeAmount", MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount()));
-                transferMaps.add(transferMap);
-                stringBuilder.append(transferDeductionItem.getPayee()).append("  金额: ").append(MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount()));
-                if(transferDeductionItems.size() > 1){
-                    stringBuilder.append(";  ");
-                }
-            }
-        }
-        resultMap.put("transferDeductionItems", transferMaps);
-        resultMap.put("transferDeductionItemsStr", stringBuilder.toString());
-    }
-
-    /**
      * 构建打印map外层订单项
+     *
      * @param refundOrder
      * @return
      */
