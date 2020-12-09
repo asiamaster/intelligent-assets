@@ -431,31 +431,79 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         }
         BoutiqueEntranceRecord recordInfo = this.get(feeOrder.getRecordId());
         BoutiqueEntrancePrintDto boutiqueTrancePrintDto = new BoutiqueEntrancePrintDto();
-        boutiqueTrancePrintDto.setPrintTime(LocalDateTime.now());
         boutiqueTrancePrintDto.setReprint(reprint == 2 ? "(补打)" : "");
+        boutiqueTrancePrintDto.setPrintTime(LocalDateTime.now());
         boutiqueTrancePrintDto.setCode(feeOrder.getCode());
         boutiqueTrancePrintDto.setCustomerName(recordInfo.getCustomerName());
         boutiqueTrancePrintDto.setCustomerCellphone(recordInfo.getCustomerCellphone());
-
-        boutiqueTrancePrintDto.setNotes(feeOrder.getNotes());
         boutiqueTrancePrintDto.setAmount(MoneyUtils.centToYuan(feeOrder.getAmount()));
-        boutiqueTrancePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
-        boutiqueTrancePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-        boutiqueTrancePrintDto.setSubmitter(paymentOrder.getCreator());
         boutiqueTrancePrintDto.setBusinessType(BizTypeEnum.BOUTIQUE_ENTRANCE.getName());
-
-        // 精品停车特殊字段以及开始时间结束时间
         boutiqueTrancePrintDto.setPlate(recordInfo.getPlate());
         boutiqueTrancePrintDto.setConfirmTime(recordInfo.getConfirmTime());
         boutiqueTrancePrintDto.setEndTime(feeOrder.getEndTime());
         boutiqueTrancePrintDto.setStartTime(feeOrder.getStartTime());
-
+        boutiqueTrancePrintDto.setNotes(feeOrder.getNotes());
+        boutiqueTrancePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
+        boutiqueTrancePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        boutiqueTrancePrintDto.setSubmitter(paymentOrder.getCreator());
         PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getCode());
         printDataDto.setItem(boutiqueTrancePrintDto);
 
         return printDataDto;
     }
+
+    /**
+     * 打印退款
+     *
+     * @param  orderCode
+     * @param  reprint
+     * @return PrintDataDto
+     * @date   2020/8/11
+     */
+    @Override
+    public PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, String reprint) throws BusinessException {
+        RefundOrder condtion = new RefundOrder();
+        condtion.setCode(orderCode);
+        List<RefundOrder> refundOrders = refundOrderService.list(condtion);
+        if (CollectionUtil.isEmpty(refundOrders)) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
+        } else {
+            RefundOrder refundOrder = refundOrders.get(0);
+            BoutiqueFeeOrder orderInfo = boutiqueFeeOrderService.get(refundOrder.getBusinessId());
+            BoutiqueEntranceRecord recordInfo = this.get(orderInfo.getRecordId());
+            SettleOrder order = settlementRpcResolver.get(settlementAppId, orderInfo.getCode());
+
+            // 组装退款单信息
+            BoutiqueEntrancePrintDto printDto = new BoutiqueEntrancePrintDto();
+            printDto.setReprint(reprint);
+            printDto.setNotes(orderInfo.getNotes());
+            printDto.setPrintTime(LocalDateTime.now());
+            printDto.setSubmitter(orderInfo.getSubmitter());
+            printDto.setPayeeAmount(refundOrder.getPayeeAmount());
+            printDto.setCustomerName(recordInfo.getCustomerName());
+            printDto.setRefundReason(refundOrder.getRefundReason());
+            printDto.setSettlementOperator(order.getOperatorName());
+            printDto.setBusinessType(BizTypeEnum.BOUTIQUE_ENTRANCE.getName());
+            printDto.setAmount(String.valueOf(orderInfo.getAmount()));
+            printDto.setCustomerCellphone(recordInfo.getCustomerCellphone());
+            printDto.setBusinessCode(refundOrder.getBusinessId());
+
+            // 精品停车特殊字段以及开始时间结束时间
+            printDto.setPlate(recordInfo.getPlate());
+            printDto.setConfirmTime(recordInfo.getConfirmTime());
+            printDto.setEndTime(orderInfo.getEndTime());
+            printDto.setStartTime(orderInfo.getStartTime());
+
+            // 打印最外层
+            PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();
+            printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getName());
+            printDataDto.setItem(printDto);
+
+            return printDataDto;
+        }
+    }
+
 
     /**
      * 取消(进门取消，可在待确认和计费中取消)
@@ -523,57 +571,6 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         this.insertSelective(boutiqueEntranceRecord);
 
         return boutiqueEntranceRecord;
-    }
-
-    /**
-     * 打印退款
-     *
-     * @param  orderCode
-     * @param  reprint
-     * @return PrintDataDto
-     * @date   2020/8/11
-     */
-    @Override
-    public PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, String reprint) throws BusinessException {
-        RefundOrder condtion = new RefundOrder();
-        condtion.setCode(orderCode);
-        List<RefundOrder> refundOrders = refundOrderService.list(condtion);
-        if (CollectionUtil.isEmpty(refundOrders)) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
-        } else {
-            RefundOrder refundOrder = refundOrders.get(0);
-            BoutiqueFeeOrder orderInfo = boutiqueFeeOrderService.get(refundOrder.getBusinessId());
-            BoutiqueEntranceRecord recordInfo = this.get(orderInfo.getRecordId());
-            SettleOrder order = settlementRpcResolver.get(settlementAppId, orderInfo.getCode());
-
-            // 组装退款单信息
-            BoutiqueEntrancePrintDto printDto = new BoutiqueEntrancePrintDto();
-            printDto.setReprint(reprint);
-            printDto.setNotes(orderInfo.getNotes());
-            printDto.setPrintTime(LocalDateTime.now());
-            printDto.setSubmitter(orderInfo.getSubmitter());
-            printDto.setPayeeAmount(refundOrder.getPayeeAmount());
-            printDto.setCustomerName(recordInfo.getCustomerName());
-            printDto.setRefundReason(refundOrder.getRefundReason());
-            printDto.setSettlementOperator(order.getOperatorName());
-            printDto.setBusinessType(BizTypeEnum.BOUTIQUE_ENTRANCE.getName());
-            printDto.setAmount(String.valueOf(orderInfo.getAmount()));
-            printDto.setCustomerCellphone(recordInfo.getCustomerCellphone());
-            printDto.setBusinessCode(refundOrder.getBusinessId());
-
-            // 精品停车特殊字段以及开始时间结束时间
-            printDto.setPlate(recordInfo.getPlate());
-            printDto.setConfirmTime(recordInfo.getConfirmTime());
-            printDto.setEndTime(orderInfo.getEndTime());
-            printDto.setStartTime(orderInfo.getStartTime());
-
-            // 打印最外层
-            PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();
-            printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getName());
-            printDataDto.setItem(printDto);
-
-            return printDataDto;
-        }
     }
 
     /**

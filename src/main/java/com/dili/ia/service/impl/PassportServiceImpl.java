@@ -406,22 +406,16 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             throw new BusinessException(ResultCode.DATA_ERROR, "通行证单不存在!");
         }
         PassportPrintDto passportPrintDto = new PassportPrintDto();
-        passportPrintDto.setPrintTime(LocalDateTime.now());
         passportPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
+        passportPrintDto.setPrintTime(LocalDateTime.now());
         passportPrintDto.setCode(passportInfo.getCode());
         passportPrintDto.setCustomerName(passportInfo.getCustomerName());
         passportPrintDto.setCustomerCellphone(passportInfo.getCustomerCellphone());
-
-        passportPrintDto.setNotes(passportInfo.getNotes());
-        passportPrintDto.setAmount(MoneyUtils.centToYuan(passportInfo.getAmount()));
-        passportPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
-        passportPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-        passportPrintDto.setSubmitter(paymentOrder.getCreator());
         passportPrintDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
-
-        // 通行证专有字段 有效期开始时间结束时间
-        passportPrintDto.setPlate(passportInfo.getCarNumber());
+        passportPrintDto.setAmount(MoneyUtils.centToYuan(passportInfo.getAmount()));
         passportPrintDto.setLicenseNumber(passportInfo.getLicenseNumber());
+        passportPrintDto.setPlate(passportInfo.getCarNumber());
+        // 通行证专有字段 有效期开始时间结束时间
         passportPrintDto.setStartTime(passportInfo.getStartTime());
         passportPrintDto.setEndTime(passportInfo.getEndTime());
 
@@ -437,6 +431,11 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
                     + order.getNotes() + "】";
         }
         passportPrintDto.setSettleWayDetails(settleDetails);
+
+        passportPrintDto.setNotes(passportInfo.getNotes());
+        passportPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
+        passportPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        passportPrintDto.setSubmitter(paymentOrder.getCreator());
 
         PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.PASSPORT.getCode());
@@ -468,15 +467,13 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             // 组装退款单信息
             PassportPrintDto passportPrintDto = new PassportPrintDto();
             passportPrintDto.setReprint(reprint);
-            passportPrintDto.setNotes(passportInfo.getNotes());
+            passportPrintDto.setCode(passportInfo.getCode());
             passportPrintDto.setPrintTime(LocalDateTime.now());
-            passportPrintDto.setSubmitter(passportInfo.getSubmitter());
             passportPrintDto.setCustomerName(passportInfo.getCustomerName());
-            passportPrintDto.setRefundReason(refundOrder.getRefundReason());
-            passportPrintDto.setSettlementOperator(order.getOperatorName());
-            passportPrintDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
-            passportPrintDto.setAmount(String.valueOf(passportInfo.getAmount()));
             passportPrintDto.setCustomerCellphone(passportInfo.getCustomerCellphone());
+            passportPrintDto.setAmount(String.valueOf(passportInfo.getAmount()));
+            passportPrintDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
+            passportPrintDto.setPlate(passportInfo.getCarNumber());
 
             // 退款方式
             String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + refundOrder.getPayeeAmount();
@@ -491,6 +488,11 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
                 settleDetails = "退款方式：" + order.getWayName() + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
             }
             passportPrintDto.setSettleWayDetails(settleDetails);
+
+            passportPrintDto.setRefundReason(refundOrder.getRefundReason());
+            passportPrintDto.setSubmitter(passportInfo.getSubmitter());
+            passportPrintDto.setRefundReason(refundOrder.getRefundReason());
+            passportPrintDto.setSettlementOperator(order.getOperatorName());
 
             // 打印最外层
             PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();

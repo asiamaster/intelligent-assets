@@ -19,11 +19,11 @@ public class BoutiqueEntrancePrintDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime printTime;
-    //开始日期
+    //开始日期(计费时间)
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime startTime;
-    //结束日期
+    //结束日期(计费时间)
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime endTime;

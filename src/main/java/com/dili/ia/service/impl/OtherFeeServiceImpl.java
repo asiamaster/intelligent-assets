@@ -394,13 +394,9 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         otherFeePrintDto.setCode(otherFeeInfo.getCode());
         otherFeePrintDto.setCustomerName(otherFeeInfo.getCustomerName());
         otherFeePrintDto.setCustomerCellphone(otherFeeInfo.getCustomerCellphone());
-
-        otherFeePrintDto.setNotes(otherFeeInfo.getNotes());
         otherFeePrintDto.setAmount(MoneyUtils.centToYuan(otherFeeInfo.getAmount()));
-        otherFeePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
-        otherFeePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-        otherFeePrintDto.setSubmitter(paymentOrder.getCreator());
         otherFeePrintDto.setBusinessType(BizTypeEnum.OTHER_FEE.getName());
+        otherFeePrintDto.setChargeItemName(otherFeeInfo.getChargeItemName());
 
         // 支付方式
         String settleDetails = "";
@@ -414,6 +410,11 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
                     + order.getNotes() + "】";
         }
         otherFeePrintDto.setSettleWayDetails(settleDetails);
+
+        otherFeePrintDto.setNotes(otherFeeInfo.getNotes());
+        otherFeePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
+        otherFeePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        otherFeePrintDto.setSubmitter(paymentOrder.getCreator());
 
         PrintDataDto<OtherFeePrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.OTHER_FEE.getCode());
@@ -446,14 +447,13 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             // 组装退款单信息
             OtherFeePrintDto otherFeePrintDto = new OtherFeePrintDto();
             otherFeePrintDto.setReprint(reprint);
-            otherFeePrintDto.setNotes(otherFeeInfo.getNotes());
+            otherFeePrintDto.setCode(otherFeeInfo.getCode());
             otherFeePrintDto.setPrintTime(LocalDateTime.now());
             otherFeePrintDto.setCustomerName(otherFeeInfo.getCustomerName());
-            otherFeePrintDto.setRefundReason(refundOrderInfo.getRefundReason());
-            otherFeePrintDto.setSettlementOperator(order.getOperatorName());
-            otherFeePrintDto.setBusinessType(BizTypeEnum.OTHER_FEE.getName());
-            otherFeePrintDto.setAmount(String.valueOf(otherFeeInfo.getAmount()));
             otherFeePrintDto.setCustomerCellphone(otherFeeInfo.getCustomerCellphone());
+            otherFeePrintDto.setAmount(String.valueOf(otherFeeInfo.getAmount()));
+            otherFeePrintDto.setBusinessType(BizTypeEnum.OTHER_FEE.getName());
+            otherFeePrintDto.setChargeItemName(otherFeeInfo.getChargeItemName());
 
             // 退款方式
             String settleDetails = "收款人：" + refundOrderInfo.getPayee() + "金额：" + refundOrderInfo.getPayeeAmount();
@@ -468,6 +468,10 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
                 settleDetails = "退款方式：" + order.getWayName() + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
             }
             otherFeePrintDto.setSettleWayDetails(settleDetails);
+
+            otherFeePrintDto.setNotes(otherFeeInfo.getNotes());
+            otherFeePrintDto.setRefundReason(refundOrderInfo.getRefundReason());
+            otherFeePrintDto.setSettlementOperator(order.getOperatorName());
 
             // 打印最外层
             PrintDataDto<OtherFeePrintDto> printDataDto = new PrintDataDto<>();

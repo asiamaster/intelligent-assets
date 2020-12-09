@@ -641,6 +641,10 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
 
         printDataDto.setItem(meterDetailPrintDto);
+        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_FEE.getName());
+        if ( MeterTypeEnum.WATER_METER.getCode().equals(meterDetailInfo.getType()) ) {
+            printDataDto.setName(PrintTemplateEnum.WATER_FEE.getName());
+        }
 
         return printDataDto;
     }

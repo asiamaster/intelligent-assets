@@ -29,7 +29,7 @@ public class OtherFeePrintDto {
 
     //补打标记
     private String reprint;
-    //订单编号
+    // 业务编号
     private String code;
     //业务类型
     private String businessType;
@@ -39,7 +39,7 @@ public class OtherFeePrintDto {
     private String customerCellphone;
     //备注
     private String notes;
-    //总金额
+    // 收款金额（退款金额）
     private String amount;
     //结算方式
     private String settlementWay;
@@ -51,9 +51,22 @@ public class OtherFeePrintDto {
     private String settleWayDetails;
 
     /**
+     * 项目里的费用类型
+     */
+    private String chargeItemName;
+
+    /**
      * 退款原因
      */
     private String refundReason;
+
+    public String getChargeItemName() {
+        return chargeItemName;
+    }
+
+    public void setChargeItemName(String chargeItemName) {
+        this.chargeItemName = chargeItemName;
+    }
 
     public String getRefundReason() {
         return refundReason;

@@ -19,18 +19,18 @@ public class PassportPrintDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime printTime;
-    //开始日期
+    //开始日期(有效期)
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime startTime;
-    //结束日期
+    //结束日期(有效期)
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime endTime;
 
     //补打标记
     private String reprint;
-    //订单编号
+    // 业务编号
     private String code;
     //业务类型
     private String businessType;
@@ -40,7 +40,7 @@ public class PassportPrintDto {
     private String customerCellphone;
     //备注
     private String notes;
-    //总金额
+    // 收款金额（退款金额）
     private String amount;
     //结算方式
     private String settlementWay;
@@ -52,7 +52,7 @@ public class PassportPrintDto {
     private String settleWayDetails;
 
     /**
-     * 通信证特殊字段 证件号
+     * 证件号
      */
     private String licenseNumber;
 
