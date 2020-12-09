@@ -299,8 +299,12 @@
      * */
     function assetSelectHandler(suggestion,element) {
         let index = getIndex($(element).attr('id'));
+        let bizType = $('#bizType').val();
         mchId = suggestion.marketId;
         $('#number_'+index).val(suggestion.number);
+        if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
+            $('#leasesNum_'+index).val(suggestion.number);
+        }
         $('#unitCode_'+index).val(suggestion.unit);
         $('#unitName_'+index).val(suggestion.unitName);
         $('#sku_'+index).val(suggestion.number+suggestion.unitName);
@@ -310,7 +314,7 @@
         batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
         $('#id').val() && batchQueryDepositOrder({
             businessId: $('#id').val(),
-            bizType: $('#bizType').val(),
+            bizType: bizType,
             assetsId: suggestion.id
         });
     }
@@ -595,12 +599,13 @@
                 }else{
                     let calcResult = ret.data;
                     for (let chargeItemResult of calcResult) {
+                        let chargeItemDataset = $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset;
                         if (chargeItemResult.success) {
                             $('#chargeItem_'+chargeItemResult.requestDataId).val(chargeItemResult.totalFee);
-                            $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset['ruleId'] = chargeItemResult.ruleId;
-                            $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset['ruleName']= chargeItemResult.ruleName;
+                            chargeItemDataset['ruleId'] = chargeItemResult.ruleId;
+                            chargeItemDataset['ruleName'] = chargeItemResult.ruleName;
                         } else {
-                            bs4pop.notice(chargeItemResult.message, {position: 'bottomleft', type: 'danger'});
+                            bs4pop.notice(chargeItemDataset['chargeItemName'] + ' ' + chargeItemResult.message, {position: 'bottomleft', type: 'danger'});
                         }
                     }
                 }
