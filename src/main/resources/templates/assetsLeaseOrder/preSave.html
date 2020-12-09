@@ -158,6 +158,8 @@
                         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="sku_${itemLP.index}" name="sku_${itemLP.index}" value="${item.number!}${item.unitName!}" readonly uncheck/></td>
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <td style="padding: .25rem!important;"><input _log="租赁数量" type="number" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <% } else { %>
+                            <input _log="租赁数量" type="hidden" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}">
                         <% } %>
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
                         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="isCorner_${itemLP.index}" name="isCorner_${itemLP.index}" value="${item.isCorner!}" readonly uncheck/></td>
@@ -247,6 +249,8 @@
         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="sku_{{index}}" name="sku_{{index}}" readonly uncheck/></td>
         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
         <td style="padding: .25rem!important;"><input _log="租赁数量" type="number" id="leasesNum_{{index}}" name="leasesNum_{{index}}" value="{{leasesNum}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <% } else { %>
+        <input _log="租赁数量" type="hidden" id="leasesNum_{{index}}" name="leasesNum_{{index}}" value="{{leasesNum}}">
         <% } %>
         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" readonly uncheck/></td>

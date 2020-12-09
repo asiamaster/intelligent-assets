@@ -299,8 +299,12 @@
      * */
     function assetSelectHandler(suggestion,element) {
         let index = getIndex($(element).attr('id'));
+        let bizType = $('#bizType').val();
         mchId = suggestion.marketId;
         $('#number_'+index).val(suggestion.number);
+        if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
+            $('#leasesNum_'+index).val(suggestion.number);
+        }
         $('#unitCode_'+index).val(suggestion.unit);
         $('#unitName_'+index).val(suggestion.unitName);
         $('#sku_'+index).val(suggestion.number+suggestion.unitName);
@@ -310,7 +314,7 @@
         batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
         $('#id').val() && batchQueryDepositOrder({
             businessId: $('#id').val(),
-            bizType: $('#bizType').val(),
+            bizType: bizType,
             assetsId: suggestion.id
         });
     }
