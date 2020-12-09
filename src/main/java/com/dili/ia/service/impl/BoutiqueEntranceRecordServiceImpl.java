@@ -561,17 +561,11 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             printDto.setCustomerCellphone(recordInfo.getCustomerCellphone());
             printDto.setBusinessCode(refundOrder.getBusinessId());
 
-            //TODO 判断支付方式
-            //园区卡号
-            printDto.setAccountCardNo(order.getAccountNumber());
-            //银行卡号
-            printDto.setBankName(refundOrder.getBank());
-            printDto.setBankNo(refundOrder.getBankCardNo());
-
-            // 获取转抵信息
-            TransferDeductionItem transferDeductionItemQuery = new TransferDeductionItem();
-            transferDeductionItemQuery.setRefundOrderId(refundOrder.getId());
-            printDto.setTransferDeductionItems(transferDeductionItemService.list(transferDeductionItemQuery));
+            // 精品停车特殊字段以及开始时间结束时间
+            printDto.setPlate(recordInfo.getPlate());
+            printDto.setConfirmTime(recordInfo.getConfirmTime());
+            printDto.setEndTime(orderInfo.getEndTime());
+            printDto.setStartTime(orderInfo.getStartTime());
 
             // 打印最外层
             PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();

@@ -22,6 +22,12 @@
     <result column="creator" jdbcType="VARCHAR" property="creator" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
+      <result column="mch_id" jdbcType="BIGINT" property="mchId" />
+      <result column="mch_name" jdbcType="VARCHAR" property="mchName" />
+      <result column="first_district_id" jdbcType="BIGINT" property="firstDistrictId" />
+      <result column="first_district_name" jdbcType="VARCHAR" property="firstDistrictName" />
+      <result column="second_district_id" jdbcType="BIGINT" property="secondDistrictId" />
+      <result column="second_district_name" jdbcType="VARCHAR" property="secondDistrictName" />
     <result column="version" jdbcType="INTEGER" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -30,7 +36,7 @@
     -->
     id, create_time, modify_time, number, type, assets_type,
     assets_id, assets_name, this_amount, price, creator_dep_id, balance, notes, creator_id,
-    creator, market_id, market_code, version
+    creator, market_id, market_code, mch_id, mch_name, first_district_id, first_name, second_district_id, second_district_name, version
   </sql>
   <select id="getMeterById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--

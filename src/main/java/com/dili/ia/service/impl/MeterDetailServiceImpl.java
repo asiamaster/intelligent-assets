@@ -485,71 +485,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     }
 
     /**
-     * 票据打印
-     *
-     * @param  orderCode
-     * @param  reprint
-     * @return PrintDataDto
-     * @date   2020/7/10
-     */
-    @Override
-    public PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException {
-        PaymentOrder paymentOrderCondition = new PaymentOrder();
-        PrintDataDto<MeterDetailPrintDto> printDataDto = new PrintDataDto<>();
-
-        paymentOrderCondition.setCode(orderCode);
-        PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
-        if (null == paymentOrder) {
-            throw new RuntimeException("businessCode无效");
-        }
-        if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
-        }
-
-        // 组装数据
-        MeterDetailDto meterDetailInfo = this.getActualDao().getMeterDetailByCode(paymentOrder.getBusinessId());
-        if (meterDetailInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "水电费单不存在!");
-        }
-        MeterDetailPrintDto meterDetailPrintDto = new MeterDetailPrintDto();
-        meterDetailPrintDto.setPrintTime(LocalDateTime.now());
-        meterDetailPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
-        meterDetailPrintDto.setCode(meterDetailInfo.getCode());
-        meterDetailPrintDto.setCustomerName(meterDetailInfo.getCustomerName());
-        meterDetailPrintDto.setCustomerCellphone(meterDetailInfo.getCustomerCellphone());
-        meterDetailPrintDto.setStartTime(meterDetailInfo.getStartTime());
-        meterDetailPrintDto.setEndTime(meterDetailInfo.getEndTime());
-        meterDetailPrintDto.setNotes(meterDetailInfo.getNotes());
-        meterDetailPrintDto.setAmount(MoneyUtils.centToYuan(meterDetailInfo.getAmount()));
-        meterDetailPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
-        meterDetailPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-        meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
-
-        // 设置水电费特有的字段
-        meterDetailPrintDto.setNumber(meterDetailInfo.getNumber());
-        meterDetailPrintDto.setUsageTime(meterDetailInfo.getUsageTime());
-        meterDetailPrintDto.setAssetsType(meterDetailInfo.getAssetsType());
-        meterDetailPrintDto.setAssetsName(meterDetailInfo.getAssetsName());
-        meterDetailPrintDto.setLastAmount(meterDetailInfo.getLastAmount());
-        meterDetailPrintDto.setThisAmount(meterDetailInfo.getThisAmount());
-        meterDetailPrintDto.setUsageAmount(meterDetailInfo.getUsageAmount());
-        meterDetailPrintDto.setPrice(meterDetailInfo.getPrice());
-        meterDetailPrintDto.setReceivable(meterDetailInfo.getReceivable());
-        meterDetailPrintDto.setSharedAmount(meterDetailInfo.getAmount() - meterDetailInfo.getReceivable());
-
-        // 设置业务类型名称
-        meterDetailPrintDto.setBusinessType(PrintTemplateEnum.ELECTRICITY_FEE.getName());
-        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_FEE.getCode());
-        if (MeterTypeEnum.WATER_METER.equals(meterDetailInfo.getState())) {
-            printDataDto.setName(PrintTemplateEnum.WATER_FEE.getCode());
-            meterDetailPrintDto.setBusinessType(PrintTemplateEnum.WATER_FEE.getCode());
-        }
-        printDataDto.setItem(meterDetailPrintDto);
-
-        return printDataDto;
-    }
-
-    /**
      * 根据表 meterId、用户 customerId 查询未缴费的记录数量
      *
      * @param meterId
@@ -629,6 +564,86 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
 
         return batchQueryFee.getData();
+    }
+
+    /**
+     * 票据打印
+     *
+     * @param  orderCode
+     * @param  reprint
+     * @return PrintDataDto
+     * @date   2020/7/10
+     */
+    @Override
+    public PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException {
+        PaymentOrder paymentOrderCondition = new PaymentOrder();
+        PrintDataDto<MeterDetailPrintDto> printDataDto = new PrintDataDto<>();
+
+        paymentOrderCondition.setCode(orderCode);
+        PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
+        if (null == paymentOrder) {
+            throw new RuntimeException("businessCode无效");
+        }
+        if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
+        }
+
+        // 组装数据
+        MeterDetailDto meterDetailInfo = this.getActualDao().getMeterDetailByCode(paymentOrder.getBusinessId());
+        if (meterDetailInfo == null) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "水电费单不存在!");
+        }
+        SettleOrder order = settlementRpcResolver.get(settlementAppId, meterDetailInfo.getCode());
+
+        MeterDetailPrintDto meterDetailPrintDto = new MeterDetailPrintDto();
+        meterDetailPrintDto.setPrintTime(LocalDateTime.now());
+        meterDetailPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
+        meterDetailPrintDto.setCode(meterDetailInfo.getCode());
+        meterDetailPrintDto.setCustomerName(meterDetailInfo.getCustomerName());
+        meterDetailPrintDto.setCustomerCellphone(meterDetailInfo.getCustomerCellphone());
+        meterDetailPrintDto.setStartTime(meterDetailInfo.getStartTime());
+        meterDetailPrintDto.setEndTime(meterDetailInfo.getEndTime());
+        meterDetailPrintDto.setNotes(meterDetailInfo.getNotes());
+        meterDetailPrintDto.setAmount(MoneyUtils.centToYuan(meterDetailInfo.getAmount()));
+        meterDetailPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
+        meterDetailPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
+
+        // 设置水电费特有的字段
+        meterDetailPrintDto.setNumber(meterDetailInfo.getNumber());
+        meterDetailPrintDto.setUsageTime(meterDetailInfo.getUsageTime());
+        meterDetailPrintDto.setAssetsType(meterDetailInfo.getAssetsType());
+        meterDetailPrintDto.setAssetsName(meterDetailInfo.getAssetsName());
+        meterDetailPrintDto.setLastAmount(meterDetailInfo.getLastAmount());
+        meterDetailPrintDto.setThisAmount(meterDetailInfo.getThisAmount());
+        meterDetailPrintDto.setUsageAmount(meterDetailInfo.getUsageAmount());
+        meterDetailPrintDto.setPrice(meterDetailInfo.getPrice());
+        meterDetailPrintDto.setReceivable(meterDetailInfo.getReceivable());
+        meterDetailPrintDto.setSharedAmount(meterDetailInfo.getAmount() - meterDetailInfo.getReceivable());
+
+        // 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + order.getWayName() + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
+            // 现金
+            settleDetails = "付款方式：" + order.getWayName() + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        meterDetailPrintDto.setSettleWayDetails(settleDetails);
+
+        // 设置业务类型名称
+        meterDetailPrintDto.setBusinessType(PrintTemplateEnum.ELECTRICITY_FEE.getName());
+        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_FEE.getCode());
+        if (MeterTypeEnum.WATER_METER.equals(meterDetailInfo.getState())) {
+            printDataDto.setName(PrintTemplateEnum.WATER_FEE.getCode());
+            meterDetailPrintDto.setBusinessType(PrintTemplateEnum.WATER_FEE.getCode());
+        }
+        printDataDto.setItem(meterDetailPrintDto);
+
+        return printDataDto;
     }
 
     /**

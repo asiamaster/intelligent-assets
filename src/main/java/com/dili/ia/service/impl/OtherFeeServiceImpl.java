@@ -306,14 +306,6 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        // 转抵信息
-        if (CollectionUtils.isNotEmpty(refundOrderDto.getTransferDeductionItems())) {
-            refundOrderDto.getTransferDeductionItems().forEach(o -> {
-                o.setRefundOrderId(refundOrderDto.getBusinessId());
-                transferDeductionItemService.insertSelective(o);
-            });
-        }
-
         return otherFeeInfo;
     }
 
@@ -392,6 +384,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         // 组装数据
         OtherFee otherFeeInfo = this.get(paymentOrder.getBusinessId());
+        SettleOrder order = settlementRpcResolver.get(settlementAppId, otherFeeInfo.getCode());
         if (otherFeeInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "水电费单不存在!");
         }
@@ -408,6 +401,19 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         otherFeePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         otherFeePrintDto.setSubmitter(paymentOrder.getCreator());
         otherFeePrintDto.setBusinessType(BizTypeEnum.OTHER_FEE.getName());
+
+        // 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + order.getWayName() + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
+            // 现金
+            settleDetails = "付款方式：" + order.getWayName() + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        otherFeePrintDto.setSettleWayDetails(settleDetails);
 
         PrintDataDto<OtherFeePrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.OTHER_FEE.getCode());
@@ -438,33 +444,35 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             SettleOrder order = settlementRpcResolver.get(settlementAppId, otherFeeInfo.getCode());
 
             // 组装退款单信息
-            OtherFeePrintDto printDto = new OtherFeePrintDto();
-            printDto.setReprint(reprint);
-            printDto.setNotes(otherFeeInfo.getNotes());
-            printDto.setPrintTime(LocalDateTime.now());
-            printDto.setPayeeAmount(refundOrderInfo.getPayeeAmount());
-            printDto.setCustomerName(otherFeeInfo.getCustomerName());
-            printDto.setRefundReason(refundOrderInfo.getRefundReason());
-            printDto.setSettlementOperator(order.getOperatorName());
-            printDto.setBusinessType(BizTypeEnum.OTHER_FEE.getName());
-            printDto.setAmount(String.valueOf(otherFeeInfo.getAmount()));
-            printDto.setCustomerCellphone(otherFeeInfo.getCustomerCellphone());
-            //TODO 判断支付方式
-            //园区卡号
-            printDto.setAccountCardNo(order.getAccountNumber());
-            //银行卡号
-            printDto.setBankName(refundOrderInfo.getBank());
-            printDto.setBankNo(refundOrderInfo.getBankCardNo());
+            OtherFeePrintDto otherFeePrintDto = new OtherFeePrintDto();
+            otherFeePrintDto.setReprint(reprint);
+            otherFeePrintDto.setNotes(otherFeeInfo.getNotes());
+            otherFeePrintDto.setPrintTime(LocalDateTime.now());
+            otherFeePrintDto.setCustomerName(otherFeeInfo.getCustomerName());
+            otherFeePrintDto.setRefundReason(refundOrderInfo.getRefundReason());
+            otherFeePrintDto.setSettlementOperator(order.getOperatorName());
+            otherFeePrintDto.setBusinessType(BizTypeEnum.OTHER_FEE.getName());
+            otherFeePrintDto.setAmount(String.valueOf(otherFeeInfo.getAmount()));
+            otherFeePrintDto.setCustomerCellphone(otherFeeInfo.getCustomerCellphone());
 
-            // 获取转抵信息
-            TransferDeductionItem transferDeductionItemQuery = new TransferDeductionItem();
-            transferDeductionItemQuery.setRefundOrderId(refundOrderInfo.getId());
-            printDto.setTransferDeductionItems(transferDeductionItemService.list(transferDeductionItemQuery));
+            // 退款方式
+            String settleDetails = "收款人：" + refundOrderInfo.getPayee() + "金额：" + refundOrderInfo.getPayeeAmount();
+            if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+                // 园区卡支付
+                settleDetails = "退款方式：" + order.getWayName() + "     园区卡号：" + order.getAccountNumber();
+            } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
+                // 现金
+                settleDetails = "退款方式：" + order.getWayName();
+            } else if (SettleWayEnum.CASH.getCode() == order.getWay())  {
+                // 银行卡
+                settleDetails = "退款方式：" + order.getWayName() + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
+            }
+            otherFeePrintDto.setSettleWayDetails(settleDetails);
 
             // 打印最外层
             PrintDataDto<OtherFeePrintDto> printDataDto = new PrintDataDto<>();
             printDataDto.setName(PrintTemplateEnum.OTHER_FEE.getName());
-            printDataDto.setItem(printDto);
+            printDataDto.setItem(otherFeePrintDto);
 
             return printDataDto;
         }
@@ -498,7 +506,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.OTHER_FEE.getCode()).getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
 
         if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
-            logger.info("通行证【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
+            logger.info("其他收费【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
         }
         return refundOrder;

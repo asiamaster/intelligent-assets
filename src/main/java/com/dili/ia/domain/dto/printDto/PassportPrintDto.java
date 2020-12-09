@@ -62,41 +62,6 @@ public class PassportPrintDto {
     private String plate;
 
     /**
-     * 退款字段 收款人
-     */
-    private String payee;
-
-    /**
-     * 收款金额
-     */
-    private Long payeeAmount;
-
-    /**
-     * 退款方式
-     */
-    private String refundMethod;
-
-    /**
-     * 开户行
-     */
-    private String bankName;
-
-    /**
-     * 银行卡号
-     */
-    private String bankNo;
-
-    /**
-     * 园区卡号
-     */
-    private String accountCardNo;
-
-    /**
-     * 转抵信息
-     */
-    private List<TransferDeductionItem> transferDeductionItems;
-
-    /**
      * 退款原因
      */
     private String refundReason;
@@ -115,62 +80,6 @@ public class PassportPrintDto {
 
     public void setLicenseNumber(String licenseNumber) {
         this.licenseNumber = licenseNumber;
-    }
-
-    public String getPayee() {
-        return payee;
-    }
-
-    public void setPayee(String payee) {
-        this.payee = payee;
-    }
-
-    public Long getPayeeAmount() {
-        return payeeAmount;
-    }
-
-    public void setPayeeAmount(Long payeeAmount) {
-        this.payeeAmount = payeeAmount;
-    }
-
-    public String getRefundMethod() {
-        return refundMethod;
-    }
-
-    public void setRefundMethod(String refundMethod) {
-        this.refundMethod = refundMethod;
-    }
-
-    public String getBankName() {
-        return bankName;
-    }
-
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
-    }
-
-    public String getBankNo() {
-        return bankNo;
-    }
-
-    public void setBankNo(String bankNo) {
-        this.bankNo = bankNo;
-    }
-
-    public String getAccountCardNo() {
-        return accountCardNo;
-    }
-
-    public void setAccountCardNo(String accountCardNo) {
-        this.accountCardNo = accountCardNo;
-    }
-
-    public List<TransferDeductionItem> getTransferDeductionItems() {
-        return transferDeductionItems;
-    }
-
-    public void setTransferDeductionItems(List<TransferDeductionItem> transferDeductionItems) {
-        this.transferDeductionItems = transferDeductionItems;
     }
 
     public String getPlate() {
@@ -292,4 +201,5 @@ public class PassportPrintDto {
     public void setSettleWayDetails(String settleWayDetails) {
         this.settleWayDetails = settleWayDetails;
     }
+
 }

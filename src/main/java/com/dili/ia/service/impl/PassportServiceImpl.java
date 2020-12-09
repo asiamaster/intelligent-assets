@@ -401,6 +401,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
         // 组装数据
         Passport passportInfo = this.get(paymentOrder.getBusinessId());
+        SettleOrder order = settlementRpcResolver.get(settlementAppId, passportInfo.getCode());
         if (passportInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "通行证单不存在!");
         }
@@ -424,11 +425,80 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         passportPrintDto.setStartTime(passportInfo.getStartTime());
         passportPrintDto.setEndTime(passportInfo.getEndTime());
 
+        // 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + order.getWayName() + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
+            // 现金
+            settleDetails = "付款方式：" + order.getWayName() + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        passportPrintDto.setSettleWayDetails(settleDetails);
+
         PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();
         printDataDto.setName(PrintTemplateEnum.PASSPORT.getCode());
         printDataDto.setItem(passportPrintDto);
 
         return printDataDto;
+    }
+
+    /**
+     * 退款票据打印
+     *
+     * @param  orderCode
+     * @param  reprint
+     * @return PrintDataDto
+     * @date   2020/8/11
+     */
+    @Override
+    public PrintDataDto<PassportPrintDto> receiptRefundPrintData(String orderCode, String reprint) throws BusinessException {
+        RefundOrder condtion = new RefundOrder();
+        condtion.setCode(orderCode);
+        List<RefundOrder> refundOrders = refundOrderService.list(condtion);
+        if (CollectionUtil.isEmpty(refundOrders)) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
+        } else {
+            RefundOrder refundOrder = refundOrders.get(0);
+            Passport passportInfo = this.get(refundOrder.getBusinessId());
+            SettleOrder order = settlementRpcResolver.get(settlementAppId, passportInfo.getCode());
+
+            // 组装退款单信息
+            PassportPrintDto passportPrintDto = new PassportPrintDto();
+            passportPrintDto.setReprint(reprint);
+            passportPrintDto.setNotes(passportInfo.getNotes());
+            passportPrintDto.setPrintTime(LocalDateTime.now());
+            passportPrintDto.setSubmitter(passportInfo.getSubmitter());
+            passportPrintDto.setCustomerName(passportInfo.getCustomerName());
+            passportPrintDto.setRefundReason(refundOrder.getRefundReason());
+            passportPrintDto.setSettlementOperator(order.getOperatorName());
+            passportPrintDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
+            passportPrintDto.setAmount(String.valueOf(passportInfo.getAmount()));
+            passportPrintDto.setCustomerCellphone(passportInfo.getCustomerCellphone());
+
+            // 退款方式
+            String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + refundOrder.getPayeeAmount();
+            if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+                // 园区卡支付
+                settleDetails = "退款方式：" + order.getWayName() + "     园区卡号：" + order.getAccountNumber();
+            } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
+                // 现金
+                settleDetails = "退款方式：" + order.getWayName();
+            } else if (SettleWayEnum.CASH.getCode() == order.getWay())  {
+                // 银行卡
+                settleDetails = "退款方式：" + order.getWayName() + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
+            }
+            passportPrintDto.setSettleWayDetails(settleDetails);
+
+            // 打印最外层
+            PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();
+            printDataDto.setName(PrintTemplateEnum.PASSPORT.getName());
+            printDataDto.setItem(passportPrintDto);
+
+            return printDataDto;
+        }
     }
 
     /**
@@ -509,60 +579,6 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
         // 集合修改
         this.batchUpdateSelective(passportList);
-    }
-
-    /**
-     * 退款票据打印
-     *
-     * @param  orderCode
-     * @param  reprint
-     * @return PrintDataDto
-     * @date   2020/8/11
-     */
-    @Override
-    public PrintDataDto<PassportPrintDto> receiptRefundPrintData(String orderCode, String reprint) throws BusinessException {
-        RefundOrder condtion = new RefundOrder();
-        condtion.setCode(orderCode);
-        List<RefundOrder> refundOrders = refundOrderService.list(condtion);
-        if (CollectionUtil.isEmpty(refundOrders)) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
-        } else {
-            RefundOrder refundOrder = refundOrders.get(0);
-            Passport passportInfo = this.get(refundOrder.getBusinessId());
-            SettleOrder order = settlementRpcResolver.get(settlementAppId, passportInfo.getCode());
-
-            // 组装退款单信息
-            PassportPrintDto printDto = new PassportPrintDto();
-            printDto.setReprint(reprint);
-            printDto.setNotes(passportInfo.getNotes());
-            printDto.setPrintTime(LocalDateTime.now());
-            printDto.setSubmitter(passportInfo.getSubmitter());
-            printDto.setPayeeAmount(refundOrder.getPayeeAmount());
-            printDto.setCustomerName(passportInfo.getCustomerName());
-            printDto.setRefundReason(refundOrder.getRefundReason());
-            printDto.setSettlementOperator(order.getOperatorName());
-            printDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
-            printDto.setAmount(String.valueOf(passportInfo.getAmount()));
-            printDto.setCustomerCellphone(passportInfo.getCustomerCellphone());
-            //TODO 判断支付方式
-            //园区卡号
-            printDto.setAccountCardNo(order.getAccountNumber());
-            //银行卡号
-            printDto.setBankName(refundOrder.getBank());
-            printDto.setBankNo(refundOrder.getBankCardNo());
-
-            // 获取转抵信息
-            TransferDeductionItem transferDeductionItemQuery = new TransferDeductionItem();
-            transferDeductionItemQuery.setRefundOrderId(refundOrder.getId());
-            printDto.setTransferDeductionItems(transferDeductionItemService.list(transferDeductionItemQuery));
-
-            // 打印最外层
-            PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();
-            printDataDto.setName(PrintTemplateEnum.PASSPORT.getName());
-            printDataDto.setItem(printDto);
-
-            return printDataDto;
-        }
     }
 
     /**

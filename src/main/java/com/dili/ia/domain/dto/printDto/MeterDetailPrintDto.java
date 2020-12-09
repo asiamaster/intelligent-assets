@@ -28,7 +28,7 @@ public class MeterDetailPrintDto {
 
     //补打标记
     private String reprint;
-    //订单编号
+    // 业务编号
     private String code;
     //业务类型
     private String businessType;
@@ -38,7 +38,7 @@ public class MeterDetailPrintDto {
     private String customerCellphone;
     //备注
     private String notes;
-    //总金额
+    // 收费金额
     private String amount;
     //结算方式
     private String settlementWay;
