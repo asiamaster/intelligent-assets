@@ -599,12 +599,13 @@
                 }else{
                     let calcResult = ret.data;
                     for (let chargeItemResult of calcResult) {
+                        let chargeItemDataset = $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset;
                         if (chargeItemResult.success) {
                             $('#chargeItem_'+chargeItemResult.requestDataId).val(chargeItemResult.totalFee);
-                            $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset['ruleId'] = chargeItemResult.ruleId;
-                            $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset['ruleName']= chargeItemResult.ruleName;
+                            chargeItemDataset['ruleId'] = chargeItemResult.ruleId;
+                            chargeItemDataset['ruleName'] = chargeItemResult.ruleName;
                         } else {
-                            bs4pop.notice(chargeItemResult.message, {position: 'bottomleft', type: 'danger'});
+                            bs4pop.notice(chargeItemDataset['chargeItemName'] + ' ' + chargeItemResult.message, {position: 'bottomleft', type: 'danger'});
                         }
                     }
                 }
