@@ -10,13 +10,13 @@
                 <#bcomboProvider _id="type" _provider="meterTypeProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
-                <label for="assetsId">类别:</label>
-                <select id="assetsId" name="assetsId" class="form-control"></select>
-                <#bcomboProvider _id="assetsId" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+                <label for="assetsType">类别:</label>
+                <select id="assetsType" name="assetsType" class="form-control"></select>
+                <#bcomboProvider _id="assetsType" _provider="assetsTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
                 <label for="number">表编号:</label>
-                <input type="number" class="form-control" name="number" id="number" maxlength="50"/>
+                <input class="form-control" name="number" id="number" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>

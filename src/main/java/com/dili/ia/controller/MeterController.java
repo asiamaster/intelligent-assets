@@ -161,7 +161,6 @@ public class MeterController {
             // 参数校验
             AssertUtils.notNull(meterDto.getId(), "表主键不能为空");
             AssertUtils.notNull(meterDto.getPrice(), "单价不能为空");
-            AssertUtils.notNull(meterDto.getType(), "表类型不能为空");
             AssertUtils.notNull(meterDto.getAssetsId(), "表地址不能为空");
             AssertUtils.notNull(meterDto.getThisAmount(), "表编号不能为空");
             AssertUtils.notNull(meterDto.getAssetsType(), "表类别不能为空");
