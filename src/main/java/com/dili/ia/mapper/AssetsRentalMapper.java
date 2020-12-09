@@ -19,17 +19,35 @@ public interface AssetsRentalMapper extends MyMapper<AssetsRental> {
      * 根据摊位 id 查询相关的预设信息
      *
      * @param  assetsRentalDto
-     * @return BaseOutput
+     * @return AssetsRentalDto
      * @date   2020/12/2
      */
-    AssetsRentalDto getRentalByAssetsId(AssetsRentalDto assetsRentalDto);
+    AssetsRentalDto getRentalByRentalDto(AssetsRentalDto assetsRentalDto);
+
+    /**
+     * 根据同一批次、同一商户，模糊查询摊位出租预设信息集合
+     *
+     * @param  assetsRentalDto
+     * @return list
+     * @date   2020/12/7
+     */
+    List<AssetsRentalDto> listRentalsByRentalDtoAndKeyWord(AssetsRentalDto assetsRentalDto);
 
     /**
      * 根据摊位 ids 查询是否属于一个批次
      *
      * @param  assetsIds
-     * @return BaseOutput
+     * @return List
      * @date   2020/12/2
      */
-    List<Long> belongsBatchByAssetsIds(@Param("assetsIds") List<Long> assetsIds);
+    List<AssetsRentalDto> belongBatchAndMchByAssetsIds(@Param("assetsIds") List<Long> assetsIds);
+
+    /**
+     * 根据区域id删除对应的关联摊位
+     *
+     * @param
+     * @return
+     * @date   2020/12/8
+     */
+    void deleteAssetsByDistrictId(@Param("districtId")Long districtId);
 }

@@ -45,4 +45,63 @@
         提交审批 submitLodgingLeaseRefundOrderApplication
 
 计费规则数据源配置
-    客户组织类型
+    客户（线上已配）
+    组织类型
+            数据URL：http://uap.diligrp.com/dataDictionaryApi/listDataDictionaryValueByDdCode.api?ddCode=customer_organization_type
+            查询URL：http://uap.diligrp.com/dataDictionaryApi/listDataDictionaryValueByDdCode.api?ddCode=customer_organization_type
+            列设置：
+                1.name 名称 2.code 编码
+    经营范围
+            数据URL：http://uap.diligrp.com/dataDictionaryApi/listDataDictionaryValueByDdCode.api?ddCode=engage
+            查询URL：http://uap.diligrp.com/dataDictionaryApi/listDataDictionaryValueByDdCode.api?ddCode=engage
+            列设置：
+                1.name 名称 2.code 编码
+    租赁期限
+            数据URL：http://uap.diligrp.com/dataDictionaryApi/listDataDictionaryValueByDdCode.api?ddCode=lease_term
+            查询URL：http://uap.diligrp.com/dataDictionaryApi/listDataDictionaryValueByDdCode.api?ddCode=lease_term
+            列设置：
+                1.name 名称 2.code 编码
+    租赁天数（无数据源，无需配置）
+    部门（线上已配）
+    摊位
+            数据URL：http://gateway.diligrp.com:8285/assets-service/api/assets/search 查询条件：{"businessType": 1}
+            查询URL：http://gateway.diligrp.com:8285/assets-service/api/assets/search 查询字段：ids
+            列设置：
+                1.id ID 2.name 名称
+    冷库
+            数据URL：http://gateway.diligrp.com:8285/assets-service/api/assets/search 查询条件：{"businessType": 2}
+            查询URL：http://gateway.diligrp.com:8285/assets-service/api/assets/search 查询字段：ids
+            列设置：
+                1.id ID 2.name 名称
+    公寓
+            数据URL：http://gateway.diligrp.com:8285/assets-service/api/assets/search 查询条件：{"businessType": 3}
+            查询URL：http://gateway.diligrp.com:8285/assets-service/api/assets/search 查询字段：ids
+            列设置：
+                1.id ID 2.name 名称
+    区域
+            数据URL：http://gateway.diligrp.com:8285/assets-service/api/district/search
+            查询URL：http://gateway.diligrp.com:8285/assets-service/api/district/search 查询字段：ids
+            列设置：
+                1.id ID 2.name 名称
+计费规则预定义配置
+    客户(指标类型：条件指标,匹配key:customerId,值类型：整数,匹配列：ID)
+    组织类型（指标类型：条件指标,匹配key：organizationType,值类型：文本,匹配列：编码）
+    经营范围（指标类型：条件指标,匹配key：engageCode,值类型：文本,匹配列：编码）
+    租赁期限（指标类型：条件指标,匹配key：leaseTermCode,值类型：文本,匹配列：编码）
+    租赁天数（指标类型：条件指标,匹配key：days,值类型：整数,匹配列：无）
+    租赁天数（指标类型：计算指标,匹配key：days,值类型：整数）
+    业务所属部门(指标类型：条件指标,匹配key:departmentId,值类型：整数,匹配列：ID)
+    摊位(指标类型：条件指标,匹配key:assetsId,值类型：整数,匹配列：ID)
+    冷库(指标类型：条件指标,匹配key:assetsId,值类型：整数,匹配列：ID)
+    公寓(指标类型：条件指标,匹配key:assetsId,值类型：整数,匹配列：ID)
+    数量(指标类型：条件指标,匹配key：number,值类型：小数,匹配列：无)
+    数量(指标类型：计算指标,匹配key：number,值类型：小数)
+    租赁数量(指标类型：条件指标,匹配key：leasesNum,值类型：小数)
+    租赁数量(指标类型：计算指标,匹配key：leasesNum,值类型：小数)
+    整年(指标类型：计算指标,匹配key：years,值类型：整数)
+    整月(指标类型：计算指标,匹配key：months,值类型：整数)
+    零散天数(指标类型：计算指标,匹配key：scatteredDays,值类型：整数)
+
+
+
+

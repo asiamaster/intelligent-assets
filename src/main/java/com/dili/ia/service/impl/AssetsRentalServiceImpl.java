@@ -15,6 +15,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -35,6 +36,7 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         return (AssetsRentalMapper)getDao();
     }
 
+    @Autowired
     public AssetsRentalItemService assetsRentalItemService;
 
     /**
@@ -72,7 +74,7 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         // 新增到关联表
         List<AssetsRentalItem> assetsRentalItemList = assetsRentalDto.getAssetsRentalItemList();
         for (AssetsRentalItem assetsRentalItem : assetsRentalItemList) {
-            assetsRentalItem.setStallRentPresetId(assetsRental.getId());
+            assetsRentalItem.setAssetsRentalId(assetsRental.getId());
             assetsRentalItem.setVersion(0);
         }
         assetsRentalItemService.batchInsert(assetsRentalItemList);
@@ -115,7 +117,7 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         // 修改到关联表
         List<AssetsRentalItem> assetsRentalItemList = assetsRentalDto.getAssetsRentalItemList();
         for (AssetsRentalItem assetsRentalItem : assetsRentalItemList) {
-            assetsRentalItem.setStallRentPresetId(assetsRental.getId());
+            assetsRentalItem.setAssetsRentalId(assetsRental.getId());
             assetsRentalItem.setVersion(0);
         }
         assetsRentalItemService.deleteByRentalId(assetsRentalDto.getId());
@@ -153,7 +155,7 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
      * 根据摊位 id 查询相关的预设信息
      *
      * @param  assetsId
-     * @return BaseOutput
+     * @return AssetsRentalDto
      * @date   2020/12/2
      */
     @Override
@@ -161,22 +163,59 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         AssetsRentalDto assetsRentalDto = new AssetsRentalDto();
         assetsRentalDto.setAssetsId(assetsId);
         assetsRentalDto.setState(AssetsRentalStateEnum.ENABLE.getCode());
-        return this.getActualDao().getRentalByAssetsId(assetsRentalDto);
+        return this.getActualDao().getRentalByRentalDto(assetsRentalDto);
+    }
+
+    /**
+     * 根据同一批次、同一商户，模糊查询摊位出租预设信息集合
+     *
+     * @param  assetsRentalDto
+     * @return list
+     * @date   2020/12/7
+     */
+    @Override
+    public List<AssetsRentalDto> listRentalsByRentalDtoAndKeyWord(AssetsRentalDto assetsRentalDto) {
+        assetsRentalDto.setState(AssetsRentalStateEnum.ENABLE.getCode());
+        return this.getActualDao().listRentalsByRentalDtoAndKeyWord(assetsRentalDto);
+    }
+
+    /**
+     * 根据是否属于预设池，传入 assetIds, 过滤掉不属于预设池的 ids,摊位出租预设的主表状态是启用
+     *
+     * @param  assetsIds
+     * @return List
+     * @date   2020/12/7
+     */
+    @Override
+    public List<Long> filterAssetsIdsByTable(List<Long> assetsIds) {
+        return assetsRentalItemService.listRentalItemsByAssetsIds(assetsIds, AssetsRentalStateEnum.ENABLE.getCode());
     }
 
     /**
      * 根据摊位 ids 查询是否属于一个批次
      *
      * @param  assetsIds
-     * @return BaseOutput
+     * @return boolean
      * @date   2020/12/2
      */
     @Override
-    public boolean belongsBatchByAssetsIds(List<Long> assetsIds) {
-        List<Long> rentalIds = this.getActualDao().belongsBatchByAssetsIds(assetsIds);
-        if (rentalIds != null && rentalIds.size() > 1) {
+    public boolean belongBatchAndMchByAssetsIds(List<Long> assetsIds) {
+        List<AssetsRentalDto> assetsRentalDtoList = this.getActualDao().belongBatchAndMchByAssetsIds(assetsIds);
+        if (assetsRentalDtoList != null && assetsRentalDtoList.size() > 1) {
             return false;
         }
         return true;
+    }
+
+    /**
+     * 根据区域id删除对应的关联摊位
+     *
+     * @param
+     * @return
+     * @date   2020/12/8
+     */
+    @Override
+    public void deleteAssetsByDistrictId(Long districtId) throws Exception {
+        this.getActualDao().deleteAssetsByDistrictId(districtId);
     }
 }

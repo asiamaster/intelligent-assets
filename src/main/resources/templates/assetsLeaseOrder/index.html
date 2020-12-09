@@ -23,11 +23,13 @@
                         <select id="state" name="state" class="form-control"></select>
                         <#bcomboProvider _id="state" _provider="leaseOrderStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
                     </div>
+                    <% if(bizType == @com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()){%>
                     <div class="form-group col">
                         <label for="approvalState">审批状态</label>
                         <select id="approvalState" name="approvalState" class="form-control"></select>
                         <#bcomboProvider _id="approvalState" _provider="approvalStateProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
                     </div>
+                    <%}%>
                     <div class="form-group col">
                         <label for="payState">交费状态</label>
                         <select id="payState" name="payState" class="form-control"></select>
@@ -143,9 +145,11 @@
                     <th data-field="state" data-sortable="true" data-align="center" data-sort-name="State" data-provider="leaseOrderStateProvider">
                         业务状态
                     </th>
+                    <% if(bizType == @com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()){%>
                     <th data-field="approvalState" data-sortable="true" data-align="center" data-sort-name="approval_state" data-provider="approvalStateProvider">
                         审批状态
                     </th>
+                    <%}%>
                     <th data-field="payState" data-sortable="true" data-align="center" data-sort-name="pay_state" data-provider="payStateProvider">
                         交费状态
                     </th>

@@ -299,8 +299,12 @@
      * */
     function assetSelectHandler(suggestion,element) {
         let index = getIndex($(element).attr('id'));
+        let bizType = $('#bizType').val();
         mchId = suggestion.marketId;
         $('#number_'+index).val(suggestion.number);
+        if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
+            $('#leasesNum_'+index).val(suggestion.number);
+        }
         $('#unitCode_'+index).val(suggestion.unit);
         $('#unitName_'+index).val(suggestion.unitName);
         $('#sku_'+index).val(suggestion.number+suggestion.unitName);
@@ -310,7 +314,7 @@
         batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
         $('#id').val() && batchQueryDepositOrder({
             businessId: $('#id').val(),
-            bizType: $('#bizType').val(),
+            bizType: bizType,
             assetsId: suggestion.id
         });
     }
@@ -433,33 +437,37 @@
         $('#totalAmountAndDeposit').val(totalAmount.add(depositMakeUpAmount).toFixed(2));
     }
 
-
     /**
      * 构建资产租赁表单提交数据
+     * @param isYuanToCent是否元转分
      * @returns {{}|jQuery}
      */
-    function buildFormData(){
+    function buildFormData(isYuanToCent = true) {
         let formData = $("input:not(table input),textarea,select").serializeObject();
         let leaseOrderItems = [];
         let leaseTermName = $('#leaseTermCode').find("option:selected").text();
         let engageName = $('#engageCode').find("option:selected").text();
         let departmentName = $('#departmentId').find("option:selected").text();
 
-        bui.util.yuanToCentForMoneyEl(formData);
-        $("#assetTable tbody").find("tr").each(function(){
+        isYuanToCent && bui.util.yuanToCentForMoneyEl(formData);
+        $("table input[name^='assetsId']").filter(function () {
+            return this.value
+        }).parents("tr").each(function () {
             let leaseOrderItem = {};
             leaseOrderItem.businessChargeItems = [];
-            $(this).find("input").each(function(t,el){
+            $(this).find("input").each(function (t, el) {
                 let nameArr = $(this).attr("name").split('_');
                 let fieldName = nameArr[0];
-                if(fieldName.includes("chargeItem")){
+                if (fieldName.includes("chargeItem")) {
                     let businessChargeItem = {};
                     businessChargeItem.chargeItemName = this.dataset.chargeItemName;
                     businessChargeItem.chargeItemId = this.dataset.chargeItemId;
-                    businessChargeItem.amount = Number($(this).val()).mul(100);
+                    businessChargeItem.ruleId = this.dataset.ruleId;
+                    businessChargeItem.ruleName = this.dataset.ruleName;
+                    businessChargeItem.amount = isYuanToCent && $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
                     leaseOrderItem.businessChargeItems.push(businessChargeItem);
-                }else{
-                    leaseOrderItem[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
+                } else {
+                    leaseOrderItem[fieldName] = isYuanToCent && $(this).hasClass('money') ? Number($(this).val()).mul(100) : $(this).val();
                 }
             });
             leaseOrderItem.assetsType = $('#assetsType').val();
@@ -481,6 +489,37 @@
     }
 
     /**
+     * 构建费用项计算参数
+     * @returns {boolean|[]}
+     */
+    function buildChargeItemCalcParam() {
+        let bizType = $('#bizType').val();
+        let marketId = $('#marketId').val();
+        let formData = buildFormData(false);
+        // let categoryIds =  $('#categorys').val();
+        let queryFeeInputs = [];
+        for (let leaseOrderItem of formData.leaseOrderItems) {
+            let conditionParams = {...formData, ...leaseOrderItem};
+            delete conditionParams.leaseOrderItems;
+            delete conditionParams.businessChargeItems;
+            let lotQueryFeeInputs = leaseOrderItem.businessChargeItems.map(function (o) {
+                return {
+                    requestDataId: o.chargeItemId + '_' + leaseOrderItem.itemIndex ,
+                    chargeItem: o.chargeItemId,
+                    businessType: bizType,
+                    marketId,
+                    conditionParams,
+                    calcParams: conditionParams
+                }
+            });
+            queryFeeInputs = queryFeeInputs.concat(lotQueryFeeInputs);
+        }
+
+        console.log(queryFeeInputs);
+        return queryFeeInputs;
+    }
+
+    /**
      * 判断数组中的元素是否重复出现
      * 验证重复元素，有重复返回true；否则返回false
      * @param arr
@@ -499,10 +538,10 @@
     }
 
     /**
-     * 表单baocun
+     * 检查表单数据
      * @returns {boolean}
      */
-    function saveFormHandler(){
+    function checkFormData() {
         let validator = $('#saveForm').validate({ignore: ''})
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
@@ -510,6 +549,14 @@
             return false;
         }
 
+        return checkAssets();
+    }
+
+    /**
+     * 检查资产
+     * @returns {boolean}
+     */
+    function checkAssets() {
         let assetsIds = $("table input[name^='assetsId']").filter(function () {
             return this.value
         }).map(function () {
@@ -517,20 +564,67 @@
         }).get();
 
         if (assetsIds.length == 0) {
-            bs4pop.notice('请添加资产！', {position: 'leftcenter', type: 'danger'});
+            bs4pop.notice('请添加资产！', {position: 'bottomleft', type: 'danger'});
             return false;
         }
 
         if (arrRepeatCheck(assetsIds)) {
-            bs4pop.notice('存在重复资产，请检查！', {position: 'leftcenter', type: 'danger'});
+            bs4pop.notice('存在重复资产，请检查！', {position: 'bottomleft', type: 'danger'});
             return false;
         }
 
         if (assetsIds.length > 10) {
-            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'danger'});
+            bs4pop.notice('最多10个资产', {position: 'bottomleft', type: 'danger'});
             return false;
         }
+        return true;
+    }
 
+    /**
+     * 费用计算
+     */
+    function calcChargeItemHandler() {
+        if (!checkAssets())
+            return false;
+        bui.loading.show('努力计算中，请稍候。。。');
+        $.ajax({
+            type: "POST",
+            url: "/leaseOrder/batchQueryFeeWithoutShortcut.action",
+            data: JSON.stringify(buildChargeItemCalcParam()),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (ret) {
+                if(!ret.success){
+                    bs4pop.alert(ret.message, {type: 'error'});
+                }else{
+                    let calcResult = ret.data;
+                    for (let chargeItemResult of calcResult) {
+                        let chargeItemDataset = $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset;
+                        if (chargeItemResult.success) {
+                            $('#chargeItem_'+chargeItemResult.requestDataId).val(chargeItemResult.totalFee);
+                            chargeItemDataset['ruleId'] = chargeItemResult.ruleId;
+                            chargeItemDataset['ruleName'] = chargeItemResult.ruleName;
+                        } else {
+                            bs4pop.notice(chargeItemDataset['chargeItemName'] + ' ' + chargeItemResult.message, {position: 'bottomleft', type: 'danger'});
+                        }
+                    }
+                }
+                bui.loading.hide();
+            },
+            error: function (a, b, c) {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
+    /**
+     * 表单baocun
+     * @returns {boolean}
+     */
+    function saveFormHandler(){
+        if (!checkFormData())
+            return false;
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
@@ -561,7 +655,7 @@
         if ($('#assetTable tr').length < 11) {
             addBoothItem({index: ++itemIndex});
         } else {
-            bs4pop.notice('最多10个资产', {position: 'leftcenter', type: 'danger'})
+            bs4pop.notice('最多10个资产', {position: 'bottomleft', type: 'danger'})
         }
     });
 
@@ -574,6 +668,7 @@
     });
 
     $('#save').on('click', bui.util.debounce(saveFormHandler,1000,true));
+    $('#chargeItemCalc').on('click', bui.util.debounce(calcChargeItemHandler,1000,true));
 
     $('#managerId').on('select2:select', function (e) {
         var data = e.params.data;

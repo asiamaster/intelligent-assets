@@ -42,6 +42,11 @@ public class DepositBalanceParam{
      */
     @Column(name = "`market_id`")
     private Long marketId;
+    /**
+     * 商户Id
+     */
+    @Column(name = "`mch_id`")
+    private Long mchId;
 
     public Long getCustomerId() {
         return customerId;
@@ -89,5 +94,13 @@ public class DepositBalanceParam{
 
     public void setMarketId(Long marketId) {
         this.marketId = marketId;
+    }
+
+    public Long getMchId() {
+        return mchId;
+    }
+
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
     }
 }

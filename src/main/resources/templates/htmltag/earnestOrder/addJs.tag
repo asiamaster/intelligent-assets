@@ -30,15 +30,40 @@
         registerMsg();
     });
 
+    $('#firstDistrictId').on('change', function(){
+        $("#boothTable tbody").find("tr").each(function(){
+            $(this).find("input").each(function(t,el){
+                $(this).val('');
+            });
+        });
+    })
+
+    $('#secondDistrictId').on('change', function(){
+        $("#boothTable tbody").find("tr").each(function(){
+            $(this).find("input").each(function(t,el){
+                $(this).val('');
+            });
+        });
+    })
+
     //获取table Index
     function getIndex(str) {
         return str.split('_')[1];
     }
 
+    let assetsType = $('[name="assetsType"]').val();
+    let firstDistrictId = $('[name="firstDistrictId"]').val();
+    let secondDistrictId = $('[name="secondDistrictId"]').val();
     var boothAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/assets/searchAssets.action',
+        onSearchStart: function (params) {
+            params['assetsType'] = $('[name="assetsType"]').val();
+            params['firstDistrictId'] = $('[name="firstDistrictId"]').val();
+            params['secondDistrictId'] = $('[name="secondDistrictId"]').val();
+            return params;
+        },
         transformResult: function (result) {
             if(result.success){
                 let data = result.data;

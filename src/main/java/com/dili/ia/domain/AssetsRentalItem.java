@@ -26,8 +26,8 @@ public class AssetsRentalItem extends BaseDomain {
     /**
      * 资产出租预设ID
      */
-    @Column(name = "`stall_rent_preset_id`")
-    private Long stallRentPresetId;
+    @Column(name = "`assets_rental_id`")
+    private Long assetsRentalId;
 
     /**
      * 创建时间
@@ -76,17 +76,17 @@ public class AssetsRentalItem extends BaseDomain {
      */
     @FieldDef(label="资产出租预设ID")
     @EditMode(editor = FieldEditor.Number, required = true)
-    public Long getStallRentPresetId() {
-        return stallRentPresetId;
+    public Long getAssetsRentalId() {
+        return assetsRentalId;
     }
 
     /**
      * 设置资产出租预设ID
      *
-     * @param stallRentPresetId 资产出租预设ID
+     * @param assetsRentalId 资产出租预设ID
      */
-    public void setStallRentPresetId(Long stallRentPresetId) {
-        this.stallRentPresetId = stallRentPresetId;
+    public void setAssetsRentalId(Long assetsRentalId) {
+        this.assetsRentalId = assetsRentalId;
     }
 
     /**

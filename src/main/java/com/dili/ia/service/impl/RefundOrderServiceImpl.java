@@ -221,7 +221,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             }
         }
         //有流程实例id，并且是创建状态，才触发流程取消
-        if(StringUtils.isNotBlank(refundOrder.getProcessInstanceId()) && currentState == RefundOrderStateEnum.CREATED.getCode()) {
+        if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId()) && currentState == RefundOrderStateEnum.CREATED.getCode()) {
             EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
             eventReceivedDto.setEventName(BpmEventConstants.CANCEL_EVENT);
             eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
@@ -435,6 +435,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         settleOrder.setEditEnable(EditEnableEnum.NO.getCode());
         settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
+        //@TODO 结算单号需要增加商户ID，业务需要传入
 
         return settleOrder;
     }

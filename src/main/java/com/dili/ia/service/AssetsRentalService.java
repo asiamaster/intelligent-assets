@@ -2,6 +2,7 @@ package com.dili.ia.service;
 
 import com.dili.ia.domain.AssetsRental;
 import com.dili.ia.domain.dto.AssetsRentalDto;
+import com.dili.ia.domain.dto.AssetsRentalItemDto;
 import com.dili.ss.base.BaseService;
 import com.dili.uap.sdk.domain.UserTicket;
 
@@ -38,7 +39,7 @@ public interface AssetsRentalService extends BaseService<AssetsRental, Long> {
      * 启用或者禁用
      *
      * @param  id
-     * @return BaseOutput
+     * @return
      * @date   2020/11/26
      */
     void enableOrDisable(Long id);
@@ -47,17 +48,44 @@ public interface AssetsRentalService extends BaseService<AssetsRental, Long> {
      * 根据摊位 id 查询相关的预设信息
      *
      * @param  assetsId
-     * @return BaseOutput
+     * @return AssetsRentalDto
      * @date   2020/12/2
      */
     AssetsRentalDto getRentalByAssetsId(Long assetsId);
 
     /**
-     * 根据摊位 ids 查询是否属于一个批次
+     * 根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合
+     *
+     * @param  assetsRentalDto
+     * @return list
+     * @date   2020/12/7
+     */
+    List<AssetsRentalDto> listRentalsByRentalDtoAndKeyWord(AssetsRentalDto assetsRentalDto);
+
+    /**
+     * 根据是否属于预设池，传入 assetIds ，过滤掉不属于预设池的 ids
+     *
+     * @param  assetsIds
+     * @return List
+     * @date   2020/12/7
+     */
+    List<Long> filterAssetsIdsByTable(List<Long> assetsIds);
+
+    /**
+     * 根据摊位 ids 查询是否属于一个批次,一个商户
      *
      * @param  assetsIds
      * @return BaseOutput
      * @date   2020/12/2
      */
-    boolean belongsBatchByAssetsIds(List<Long> assetsIds);
+    boolean belongBatchAndMchByAssetsIds(List<Long> assetsIds);
+
+    /**
+     * 根据区域id删除对应的关联摊位
+     *
+     * @param
+     * @return
+     * @date   2020/12/8
+     */
+    void deleteAssetsByDistrictId(Long districtId) throws Exception;
 }

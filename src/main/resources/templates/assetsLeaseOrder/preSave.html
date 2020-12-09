@@ -8,6 +8,7 @@
             <input type="hidden" name="isRenew" value="${isRenew!}">
             <input type="hidden" id="assetsType" name="assetsType" value="${assetsType!}">
             <input type="hidden" id="bizType" name="bizType" value="${bizType!}">
+            <input type="hidden" id="marketId" name="marketId" value="${@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmId()}">
             <div class="breadcrumb" >
                 客户信息
                 <%
@@ -144,18 +145,21 @@
                     for(item in leaseOrderItems){
                     %>
                     <tr data-index="${itemLP.index}">
+                        <input type="hidden" id="itemIndex_${itemLP.index}" name="itemIndex_${itemLP.index}" value="${itemLP.index}">
+                        <input type="hidden" id="unitCode_${itemLP.index}" name="unitCode_${itemLP.index}" value="${item.unitCode!}">
+                        <input type="hidden" id="districtId_${itemLP.index}" name="districtId_${itemLP.index}" value="${item.districtId!}">
+                        <input type="hidden" id="districtName_${itemLP.index}" name="districtName_${itemLP.index}" value="${item.districtName!}">
+                        <input type="hidden" id="number_${itemLP.index}" name="number_${itemLP.index}" value="${item.number!}"/>
+                        <input type="hidden" id="unitName_${itemLP.index}" name="unitName_${itemLP.index}" value="${item.unitName!}"/>
                         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
                         <td style="padding: .25rem!important;">
-                            <input type="hidden" id="unitCode_${itemLP.index}" name="unitCode_${itemLP.index}" value="${item.unitCode!}">
-                            <input type="hidden" id="districtId_${itemLP.index}" name="districtId_${itemLP.index}" value="${item.districtId!}">
-                            <input type="hidden" id="districtName_${itemLP.index}" name="districtName_${itemLP.index}" value="${item.districtName!}">
-                            <input type="hidden" id="number_${itemLP.index}" name="number_${itemLP.index}" value="${item.number!}"/>
-                            <input type="hidden" id="unitName_${itemLP.index}" name="unitName_${itemLP.index}" value="${item.unitName!}"/>
                             <#bautoCompleteProvider _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" _hiddenDomainId="assetsId_${itemLP.index}" _hiddenDomainName="assetsId_${itemLP.index}" _hiddenDomainClass="assets" _displayDomainId="assetsName_${itemLP.index}" _displayDomainName="assetsName_${itemLP.index}" _value="${item.assetsId!}" _text="${item.assetsName!}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
                         </td>
                         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="sku_${itemLP.index}" name="sku_${itemLP.index}" value="${item.number!}${item.unitName!}" readonly uncheck/></td>
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
                         <td style="padding: .25rem!important;"><input _log="租赁数量" type="number" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <% } else { %>
+                            <input _log="租赁数量" type="hidden" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}">
                         <% } %>
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
                         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="isCorner_${itemLP.index}" name="isCorner_${itemLP.index}" value="${item.isCorner!}" readonly uncheck/></td>
@@ -166,7 +170,7 @@
                         <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                         for(chargeItem in chargeItems){
                         %>
-                        <td style="padding: .25rem!important;"><input _log="${chargeItem.chargeItem!}" isCharge data-charge-item-name="${chargeItem.chargeItem!}" type="number" id="chargeItem_${chargeItem.id!}_${itemLP.index}" name="chargeItem_${chargeItem.id!}_${itemLP.index}" value="${item.businessChargeItem['chargeItemYuan'+chargeItem.id]!}" data-charge-item-id="${chargeItem.id!}" oninput="calcTotalAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+                        <td style="padding: .25rem!important;"><input _log="${chargeItem.chargeItem!}" isCharge data-charge-item-name="${chargeItem.chargeItem!}" type="number" id="chargeItem_${chargeItem.id!}_${itemLP.index}" name="chargeItem_${chargeItem.id!}_${itemLP.index}" value="${item.businessChargeItem['chargeItemYuan'+chargeItem.id]!}" data-charge-item-id="${chargeItem.id!}" data-rule-id="${item.businessChargeItem['chargeItemRuleId'+chargeItem.id]!}" data-rule-name="${item.businessChargeItem['chargeItemRuleName'+chargeItem.id]!}" oninput="calcTotalAmount(true)" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
                         <% } }%>
                         <td style="padding: .25rem!important;">
                             <div class="d-flex">
@@ -199,6 +203,12 @@
             <div class="collapse show" id="moneyInfo">
                 <div class="row row-cols-4">
                     <div class="form-group col">
+                        <label>金额信息</label>
+                        <button id="chargeItemCalc" type="button" class="form-control btn btn-primary">费用计算</button>
+                    </div>
+                </div>
+                <div class="row row-cols-4">
+                    <div class="form-group col">
                         <label for="totalAmount" _log>合计金额<i class="red">*</i></label>
                         <input type="hidden" class="form-control money" id="totalAmount" name="totalAmount" value="<#centToYuan value='${leaseOrder.totalAmount!0}'/>" readonly/>
                         <input type="number" class="form-control money" id="totalAmountAndDeposit" name="totalAmountAndDeposit" readonly/>
@@ -226,18 +236,21 @@
 <#assetsLeaseOrder_preSaveJs />
 <script  id="assetItem"  type="text/html">
     <tr data-index="{{index}}">
+        <input type="hidden" id="itemIndex_{{index}}" name="itemIndex_{{index}}" value="{{index}}">
+        <input type="hidden" id="unitCode_{{index}}" name="unitCode_{{index}}">
+        <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}">
+        <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}">
+        <input type="hidden" id="number_{{index}}" name="number_{{index}}"/>
+        <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}"/>
         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
-            <input type="hidden" id="unitCode_{{index}}" name="unitCode_{{index}}">
-            <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}">
-            <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}">
-            <input type="hidden" id="number_{{index}}" name="number_{{index}}"/>
-            <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}"/>
             <#bautoCompleteProvider _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _hiddenDomainClass="assets" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
         </td>
         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="sku_{{index}}" name="sku_{{index}}" readonly uncheck/></td>
         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
         <td style="padding: .25rem!important;"><input _log="租赁数量" type="number" id="leasesNum_{{index}}" name="leasesNum_{{index}}" value="{{leasesNum}}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01" required></td>
+        <% } else { %>
+        <input _log="租赁数量" type="hidden" id="leasesNum_{{index}}" name="leasesNum_{{index}}" value="{{leasesNum}}">
         <% } %>
         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" readonly uncheck/></td>
