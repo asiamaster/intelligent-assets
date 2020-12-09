@@ -36,7 +36,7 @@ public class MeterDetailPrintDto {
     private String customerName;
     //客户电话
     private String customerCellphone;
-    //备注
+    //备注信息
     private String notes;
     // 收费金额
     private String amount;
@@ -49,9 +49,6 @@ public class MeterDetailPrintDto {
     //结算详情
     private String settleWayDetails;
 
-    /**
-     * 水电费打印特殊字段值
-     */
     /**
      * 上次指数
      */

@@ -9,6 +9,7 @@ import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
+import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.MeterDetailStateEnum;
 import com.dili.ia.glossary.MeterTypeEnum;
@@ -601,26 +602,24 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailPrintDto.setCode(meterDetailInfo.getCode());
         meterDetailPrintDto.setCustomerName(meterDetailInfo.getCustomerName());
         meterDetailPrintDto.setCustomerCellphone(meterDetailInfo.getCustomerCellphone());
-        meterDetailPrintDto.setStartTime(meterDetailInfo.getStartTime());
-        meterDetailPrintDto.setEndTime(meterDetailInfo.getEndTime());
-        meterDetailPrintDto.setNotes(meterDetailInfo.getNotes());
+        // 业务类型（判断是水费还是电费）
+        meterDetailPrintDto.setBusinessType(PrintTemplateEnum.ELECTRICITY_FEE.getName());
+        if (MeterTypeEnum.WATER_METER.equals(meterDetailInfo.getState())) {
+            meterDetailPrintDto.setBusinessType(PrintTemplateEnum.WATER_FEE.getCode());
+        }
         meterDetailPrintDto.setAmount(MoneyUtils.centToYuan(meterDetailInfo.getAmount()));
-        meterDetailPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
-        meterDetailPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-        meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
-
-        // 设置水电费特有的字段
         meterDetailPrintDto.setNumber(meterDetailInfo.getNumber());
         meterDetailPrintDto.setUsageTime(meterDetailInfo.getUsageTime());
-        meterDetailPrintDto.setAssetsType(meterDetailInfo.getAssetsType());
+        meterDetailPrintDto.setAssetsType(AssetsTypeEnum.getAssetsTypeEnumByBizType(meterDetailInfo.getAssetsType()).getName());
         meterDetailPrintDto.setAssetsName(meterDetailInfo.getAssetsName());
+
+        // 项目里的字段
         meterDetailPrintDto.setLastAmount(meterDetailInfo.getLastAmount());
         meterDetailPrintDto.setThisAmount(meterDetailInfo.getThisAmount());
         meterDetailPrintDto.setUsageAmount(meterDetailInfo.getUsageAmount());
         meterDetailPrintDto.setPrice(meterDetailInfo.getPrice());
         meterDetailPrintDto.setReceivable(meterDetailInfo.getReceivable());
         meterDetailPrintDto.setSharedAmount(meterDetailInfo.getAmount() - meterDetailInfo.getReceivable());
-
         // 支付方式
         String settleDetails = "";
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
@@ -634,13 +633,13 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
         meterDetailPrintDto.setSettleWayDetails(settleDetails);
 
-        // 设置业务类型名称
-        meterDetailPrintDto.setBusinessType(PrintTemplateEnum.ELECTRICITY_FEE.getName());
-        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_FEE.getCode());
-        if (MeterTypeEnum.WATER_METER.equals(meterDetailInfo.getState())) {
-            printDataDto.setName(PrintTemplateEnum.WATER_FEE.getCode());
-            meterDetailPrintDto.setBusinessType(PrintTemplateEnum.WATER_FEE.getCode());
-        }
+        meterDetailPrintDto.setStartTime(meterDetailInfo.getStartTime());
+        meterDetailPrintDto.setEndTime(meterDetailInfo.getEndTime());
+        meterDetailPrintDto.setNotes(meterDetailInfo.getNotes());
+        meterDetailPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
+        meterDetailPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
+        meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
+
         printDataDto.setItem(meterDetailPrintDto);
 
         return printDataDto;
