@@ -79,4 +79,11 @@ public interface RefundOrderService extends BaseService<RefundOrder, Long> {
      */
     void approvedDeniedHandler (ApprovalParam approvalParam);
 
+    
+    /**
+     * 退款单 --修改,实现业务系统功能
+     * @param refundOrder 退款单
+     * @return BaseOutput
+     * */
+    void doUpdatedHandlerV1(RefundOrder refundOrder);
 }

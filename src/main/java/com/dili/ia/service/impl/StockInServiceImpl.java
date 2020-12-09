@@ -437,6 +437,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		if(stockIn.getState() != StockInStateEnum.PAID.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
+		// 判断退款金额
+		if(refundInfoDto.getTotalRefundAmount() > stockIn.getAmount()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "退款金额不能大于总金额!");
+		}
 		// 判断库存
 		List<StockInDetail> details = getStockInDetailsByStockCode(code);
 		for (StockInDetail stockInDetail : details) {
@@ -450,13 +454,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		// 获取结算单
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, stockIn.getCode());
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, stockIn,order);
-		if (CollectionUtils.isNotEmpty(refundInfoDto.getTransferDeductionItems())) {
-			refundInfoDto.getTransferDeductionItems().forEach(o -> {
-                o.setRefundOrderId(refundOrder.getId());
-                transferDeductionItemService.insertSelective(o);
-            });
-        }
-		// refundOrderService.doSubmitDispatcher(refundOrder);
+		
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
 	}
@@ -477,20 +475,20 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), refundOrder.getCode());
 		});
 		//转抵扣充值
-        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+		/*TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
         transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
-        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
-            transferDeductionItems.forEach(o -> {
-//                BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.STOCKIN.getCode(),
-//                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
-//                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
-//                if (!accountOutput.isSuccess()) {
-//                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
-//                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
-//                }
-            });
-        }
+		List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
+		if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
+		    transferDeductionItems.forEach(o -> {
+		        BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.STOCKIN.getCode(),
+		                refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
+		                refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
+		        if (!accountOutput.isSuccess()) {
+		            LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
+		            throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
+		        }
+		    });
+		}*/
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
 
 	}
