@@ -73,10 +73,6 @@ public class RefundInfoDto {
 	 */
 	private String bankCardNo;
 
-	/**
-	 * 转抵扣
-	 */
-	private List<TransferDeductionItem> transferDeductionItems;
 
 	public String getPayeeCellphone() {
 		return payeeCellphone;
@@ -84,14 +80,6 @@ public class RefundInfoDto {
 
 	public void setPayeeCellphone(String payeeCellphone) {
 		this.payeeCellphone = payeeCellphone;
-	}
-
-	public List<TransferDeductionItem> getTransferDeductionItems() {
-		return transferDeductionItems;
-	}
-
-	public void setTransferDeductionItems(List<TransferDeductionItem> transferDeductionItems) {
-		this.transferDeductionItems = transferDeductionItems;
 	}
 
 	public String getBusinessCode() {
