@@ -1504,13 +1504,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         settleOrder.setBusinessCode(leaseOrder.getCode());
         settleOrder.setBusinessDepId(leaseOrder.getDepartmentId());
         settleOrder.setBusinessDepName(leaseOrder.getDepartmentName());
-        settleOrder.setBusinessType(Integer.valueOf(leaseOrder.getBizType()));
+        settleOrder.setBusinessType(leaseOrder.getBizType());
         settleOrder.setCustomerId(leaseOrder.getCustomerId());
         settleOrder.setCustomerName(leaseOrder.getCustomerName());
         settleOrder.setCustomerPhone(leaseOrder.getCustomerCellphone());
         settleOrder.setMarketId(userTicket.getFirmId());
         settleOrder.setMarketCode(userTicket.getFirmCode());
-        settleOrder.setReturnUrl(settlerHandlerUrl);
+//        settleOrder.setReturnUrl(settlerHandlerUrl);
         settleOrder.setSubmitterDepId(userTicket.getDepartmentId());
         settleOrder.setSubmitterDepName(null == userTicket.getDepartmentId() ? null : departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         settleOrder.setSubmitterId(userTicket.getId());

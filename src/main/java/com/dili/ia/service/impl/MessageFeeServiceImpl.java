@@ -191,19 +191,6 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
 
-		// 冻结定金和转抵
-		BaseOutput customerAccountOutput = customerAccountService.submitLeaseOrderCustomerAmountFrozen(
-				messageFee.getId(), messageFee.getCode(), messageFee.getCustomerId(), 0L,
-				messageFee.getTransactionAmount(), messageFee.getMarketId(), userTicket.getId(),
-				userTicket.getRealName());
-		if (!customerAccountOutput.isSuccess()) {
-			LOG.info("冻结定金和转抵异常【编号：{}】", messageFee.getCode());
-			if (ResultCodeConst.TRANSFER_ERROR.equals(customerAccountOutput.getCode())) {
-				throw new BusinessException(ResultCode.DATA_ERROR, "客户转抵可用金额不足，请核实修改后重新保存");
-			} else {
-				throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
-			}
-		}
 
 		// 提交结算单
 		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.MESSAGEFEE);
@@ -253,15 +240,6 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		MessageFee domain = new MessageFee(userTicket);
 		update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.CREATED);
 
-		 //解冻定金、转抵
-        BaseOutput customerAccountOutput = customerAccountService.withdrawLeaseOrderCustomerAmountUnFrozen(
-        		messageFee.getId(), messageFee.getCode(), messageFee.getCustomerId(),
-        		0L, messageFee.getTransactionAmount(),
-        		messageFee.getMarketId(), userTicket.getId(), userTicket.getRealName());
-        if (!customerAccountOutput.isSuccess()) {
-            LOG.info("租赁单撤回 解冻定金、转抵异常【编号：{},MSG:{}】", messageFee.getCode(), customerAccountOutput.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
-        }
 		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "撤回信息费单");
 
 	}
@@ -316,22 +294,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		domain.setSyncStatus(2);//默认同步信息中心失败
 		update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.REFUNDED);
 		
-		//转抵扣充值
-        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
-        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
-            transferDeductionItems.forEach(o -> {
-//                BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.MESSAGEFEE.getCode(),
-//                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
-//                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
-//                if (!accountOutput.isSuccess()) {
-//                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
-//                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
-//                }
-            });
-        }
-     // 通知消息系统
+		// 通知消息系统
         try {
         	syncState(messageFee.getCode(), 2);
 		} catch (Exception e) {
@@ -365,12 +328,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	        update(mesFee, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.NOT_STARTED);
 		}
         
-		// 转抵扣除
-		BaseOutput customerAccountOutput = customerAccountService.paySuccessLeaseOrderCustomerAmountConsume(messageFee.getId(), messageFee.getCode(), messageFee.getCustomerId(), 0L, messageFee.getTransactionAmount(), messageFee.getMarketId(), settleOrder.getOperatorId(), settleOrder.getOperatorName());
-        if (!customerAccountOutput.isSuccess()) {
-            LOG.info("结算成功，消费定金、转抵接口异常 【租赁单编号:{},定金:{},转抵:{}】", messageFee.getCode(), 0L, messageFee.getTransactionAmount());
-            throw new BusinessException(ResultCode.DATA_ERROR, customerAccountOutput.getMessage());
-        }
+
         // 通知消息系统
         try {
         	syncState(messageFee.getCode(), 1);
