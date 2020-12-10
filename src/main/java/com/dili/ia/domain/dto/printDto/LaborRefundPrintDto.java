@@ -56,7 +56,6 @@ public class LaborRefundPrintDto {
 	// 园区卡号
 	private String accountCardNo;
 	// 转抵信息
-	private List<TransferDeductionItem> transferDeductionItems;
 	public LocalDateTime getPrintTime() {
 		return printTime;
 	}
@@ -160,12 +159,7 @@ public class LaborRefundPrintDto {
 	public void setAccountCardNo(String accountCardNo) {
 		this.accountCardNo = accountCardNo;
 	}
-	public List<TransferDeductionItem> getTransferDeductionItems() {
-		return transferDeductionItems;
-	}
-	public void setTransferDeductionItems(List<TransferDeductionItem> transferDeductionItems) {
-		this.transferDeductionItems = transferDeductionItems;
-	}
+	
 	
 }
 

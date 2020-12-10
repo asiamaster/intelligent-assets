@@ -1,7 +1,6 @@
 package com.dili.ia.domain.dto.printDto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -55,8 +54,7 @@ public class MessageFeeRefundPrintDto {
 	private String bankNo;
 	// 园区卡号
 	private String accountCardNo;
-	// 转抵信息
-	private List<TransferDeductionItem> transferDeductionItems;
+	
 	public LocalDateTime getPrintTime() {
 		return printTime;
 	}
@@ -159,12 +157,6 @@ public class MessageFeeRefundPrintDto {
 	}
 	public void setAccountCardNo(String accountCardNo) {
 		this.accountCardNo = accountCardNo;
-	}
-	public List<TransferDeductionItem> getTransferDeductionItems() {
-		return transferDeductionItems;
-	}
-	public void setTransferDeductionItems(List<TransferDeductionItem> transferDeductionItems) {
-		this.transferDeductionItems = transferDeductionItems;
 	}
 	
 }
