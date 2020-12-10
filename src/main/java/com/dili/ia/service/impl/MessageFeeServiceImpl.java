@@ -1,10 +1,23 @@
 package com.dili.ia.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
-import com.dili.ia.domain.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.dili.ia.domain.BusinessChargeItem;
+import com.dili.ia.domain.MessageFee;
+import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.MessageFeeDto;
 import com.dili.ia.domain.dto.MessageFeeQuery;
 import com.dili.ia.domain.dto.RefundInfoDto;
@@ -13,14 +26,21 @@ import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import com.dili.ia.domain.dto.printDto.MessageFeePayPrintDto;
 import com.dili.ia.domain.dto.printDto.MessageFeeRefundPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
-import com.dili.ia.glossary.*;
+import com.dili.ia.glossary.BizNumberTypeEnum;
+import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.MessageFeeStateEnum;
+import com.dili.ia.glossary.PaymentOrderStateEnum;
+import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.MessageFeeMapper;
 import com.dili.ia.rpc.MessageFeeRpc;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
-import com.dili.ia.service.*;
+import com.dili.ia.service.BusinessChargeItemService;
+import com.dili.ia.service.CustomerAccountService;
+import com.dili.ia.service.MessageFeeService;
+import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LoggerUtil;
-import com.dili.ia.util.ResultCodeConst;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
@@ -37,21 +57,12 @@ import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
-import io.seata.spring.annotation.GlobalTransactional;
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import io.seata.spring.annotation.GlobalTransactional;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -519,8 +530,6 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		printDto.setBankName(refundOrder.getBank());
 		printDto.setBankNo(refundOrder.getBankCardNo());
 		// 获取转抵信息
-		TransferDeductionItem condtion = new TransferDeductionItem();
-		condtion.setRefundOrderId(refundOrder.getId());
 //		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
 		PrintDataDto<MessageFeeRefundPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getName());

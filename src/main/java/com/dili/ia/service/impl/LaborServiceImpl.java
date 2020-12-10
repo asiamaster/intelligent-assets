@@ -1,26 +1,52 @@
 package com.dili.ia.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
-import com.dili.ia.domain.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.dili.ia.domain.BusinessChargeItem;
+import com.dili.ia.domain.Labor;
+import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.LaborDto;
 import com.dili.ia.domain.dto.RefundInfoDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
 import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
-import com.dili.ia.glossary.*;
+import com.dili.ia.glossary.BizNumberTypeEnum;
+import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.LaborStateEnum;
+import com.dili.ia.glossary.PaymentOrderStateEnum;
+import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.LaborMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
-import com.dili.ia.service.*;
+import com.dili.ia.service.BusinessChargeItemService;
+import com.dili.ia.service.CustomerAccountService;
+import com.dili.ia.service.LaborService;
+import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleOrderLink;
+import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
@@ -33,23 +59,12 @@ import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
-import io.seata.spring.annotation.GlobalTransactional;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import io.seata.spring.annotation.GlobalTransactional;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -186,29 +201,46 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	public void submit(String code) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		Labor labor = getLaborByCode(code);
-		if(labor.getState() != LaborStateEnum.CREATED.getCode()) {
+		if (labor.getState() != LaborStateEnum.CREATED.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
-		
+
 		// 结算单
-		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket,BizTypeEnum.LABOR_VEST);
+		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.LABOR_VEST);
 		paymentOrder.setBusinessCode(code);
 		paymentOrder.setAmount(labor.getAmount());
 		paymentOrder.setBusinessId(labor.getId());
 		paymentOrderService.insertSelective(paymentOrder);
 		// 结算服务
-		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket,
-				labor, paymentOrder.getCode(), paymentOrder.getAmount(), BizTypeEnum.LABOR_VEST);
-		//TODO
-		//settleOrderDto.setReturnUrl(settlerHandlerUrl);
+		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, labor, paymentOrder.getCode(),
+				paymentOrder.getAmount(), BizTypeEnum.LABOR_VEST);
+		// TODO
+		// TODO
+		// 结算费用项列表
+		List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
+		// 获取费用项
+		BusinessChargeItem item = new BusinessChargeItem();
+		item.setBusinessCode(code);
+		List<BusinessChargeItem> items = businessChargeItemService.selectByExample(item);
+		items.forEach(i -> {
+			SettleFeeItem it = new SettleFeeItem();
+			it.setAmount(i.getAmount());
+			it.setFeeName(i.getChargeItemName());
+			//it.setFeeType(i.getChargeItemId());
+		});
+		// 结算单链接列表
+		List<SettleOrderLink> settleOrderLinkList = new ArrayList<>();
+		// 结算方式明细
+		List<SettleWayDetail> settleWayDetailList = new ArrayList<>();
 		settlementRpcResolver.submit(settleOrderDto);
-		
+
 		Labor domain = new Labor(userTicket);
 		domain.setPaymentOrderCode(paymentOrder.getCode());
 		domain.setSubmitter(userTicket.getRealName());
 		domain.setSubmitterId(userTicket.getId());
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.SUBMITTED_PAY);
-		LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "提交马甲单");
+		LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(),
+				userTicket.getFirmId(), "提交马甲单");
 
 	}
 
@@ -331,21 +363,6 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		}
 		Labor domain = new Labor();
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.REFUNDED);
-		//转抵扣充值
-        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
-//        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-//        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
-//            transferDeductionItems.forEach(o -> {
-//                BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.LABOR_VEST.getCode(),
-//                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
-//                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
-//                if (!accountOutput.isSuccess()) {
-//                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
-//                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
-//                }
-//            });
-//        }
 		
 	}
 	
@@ -591,9 +608,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		printDto.setBankName(refundOrder.getBank());
 		printDto.setBankNo(refundOrder.getBankCardNo());
 		// 获取转抵信息
-		TransferDeductionItem condtion = new TransferDeductionItem();
-		condtion.setRefundOrderId(refundOrder.getId());
-//		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
+		
 		PrintDataDto<LaborRefundPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getName());
 		printDataDto.setItem(printDto);
