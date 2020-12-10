@@ -105,7 +105,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
         return (MessageFeeMapper)getDao();
     }
     
-    private MessageFee getMessageFeeByCode(String code) {
+    @Override
+    public MessageFee getMessageFeeByCode(String code) {
     	MessageFee condition = new MessageFee();
 		condition.setCode(code);
 		List<MessageFee> messageFees = this.list(condition);
@@ -214,7 +215,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		// 结算服务
 		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, messageFee,
 				paymentOrder.getCode(), paymentOrder.getAmount(), BizTypeEnum.MESSAGEFEE);
-		settleOrderDto.setReturnUrl(settlerHandlerUrl);
+		//TODO
+		//settleOrderDto.setReturnUrl(settlerHandlerUrl);
 		settlementRpcResolver.submit(settleOrderDto);
 		
 		MessageFee domain = new MessageFee(userTicket);
@@ -525,8 +527,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		messageFeePrint.setNotes(messageFee.getNotes());
 		messageFeePrint.setSubmitter(messageFee.getSubmitorName());
 		messageFeePrint.setSettlementOperator(order.getOperatorName());
-		
-		messageFeePrint.setPayWay(order.getWayName());
+		//TODO
+		//messageFeePrint.setPayWay(order.getWayName());
 		// 判断支付方式
 		// 园区卡号
 		messageFeePrint.setCardNo(order.getAccountNumber());

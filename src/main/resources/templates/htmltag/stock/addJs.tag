@@ -18,9 +18,10 @@ function getIndex(str) {
 }
 
 //初始化刷卡
-initSwipeCard({
-	id: 'getCustomer',
+initSwipeIdCard({
+    id:'getCustomer',
 });
+
 
 
 //品类搜索

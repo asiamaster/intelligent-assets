@@ -34,6 +34,13 @@ public interface MessageFeeService extends BaseService<MessageFee, Long> {
 	void update(MessageFeeDto messageFeeDto);
 	
 	/**
+	 * 
+	 * @Title getMessageFeeByCode
+	 * @Description 获取
+	 */
+	MessageFee getMessageFeeByCode(String code);
+	
+	/**
 	 * @Title submit
 	 * @Description 提交
 	 * @param code

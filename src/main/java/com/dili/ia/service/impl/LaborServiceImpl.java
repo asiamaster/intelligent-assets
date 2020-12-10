@@ -202,7 +202,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		// 结算服务
 		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket,
 				labor, paymentOrder.getCode(), paymentOrder.getAmount(), BizTypeEnum.LABOR_VEST);
-		settleOrderDto.setReturnUrl(settlerHandlerUrl);
+		//TODO
+		//settleOrderDto.setReturnUrl(settlerHandlerUrl);
 		settlementRpcResolver.submit(settleOrderDto);
 		
 		Labor domain = new Labor(userTicket);
@@ -556,8 +557,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		DateTimeFormatter sdf1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		laborPrintDto.setEffectiveDate(sdf1.format(labor.getStartDate())+"至"+sdf1.format(labor.getEndDate()));
 		laborPrintDto.setNotes(labor.getNotes());
-		
-		laborPrintDto.setPayWay(order.getWayName());
+		//TODO
+		//laborPrintDto.setPayWay(order.getWayName());
 		// 判断支付方式
 		// 园区卡号
 		laborPrintDto.setCardNo(order.getAccountNumber());

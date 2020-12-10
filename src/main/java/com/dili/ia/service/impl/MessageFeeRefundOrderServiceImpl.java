@@ -6,7 +6,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dili.ia.domain.MessageFee;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.TransactionDetails;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.TransactionItemTypeEnum;
@@ -19,7 +21,10 @@ import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.TransactionDetailsService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.ss.util.SpringUtil;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -40,6 +45,18 @@ public class MessageFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 	@Autowired
 	private MessageFeeService messageFeeService;
 
+	@Override
+	public BaseOutput updateHandler(RefundOrder refundOrder) {
+		MessageFee messageFee = messageFeeService.getMessageFeeByCode(refundOrder.getBusinessCode());
+		if(messageFee == null) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "信息费单不存在!");
+		}
+		if(refundOrder.getTotalRefundAmount() > messageFee.getAmount()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "金额不正确,最大可退款金额["+MoneyUtils.centToYuan(messageFee.getAmount())+"]!");
+		}
+		return BaseOutput.success();
+	}
+	
 	@Override
 	public BaseOutput submitHandler(RefundOrder refundOrder) {
 		//冻结客户资金，写入冻结记录
