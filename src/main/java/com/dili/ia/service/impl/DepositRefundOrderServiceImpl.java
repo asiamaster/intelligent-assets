@@ -53,19 +53,6 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BaseOutput submitHandler(RefundOrder refundOrder) {
-        TransferDeductionItem condition = new TransferDeductionItem();
-        condition.setRefundOrderId(refundOrder.getId());
-        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(condition);
-        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
-            transferDeductionItems.forEach(o->{
-                Customer customer = depositOrderService.checkCustomerState(o.getPayeeId(),refundOrder.getMarketId());
-                CustomerAccount ca = customerAccountService.getCustomerAccountByCustomerId(o.getPayeeId(), refundOrder.getMarketId());
-                //判断转入方客户账户是否存在,不存在先创建客户账户
-                if (null == ca){
-                    customerAccountService.addCustomerAccountByCustomerInfo(customer.getId(), customer.getName(), customer.getContactsPhone(), customer.getCertificateNumber(), refundOrder.getMarketId());
-                }
-            });
-        }
         return BaseOutput.success();
     }
 

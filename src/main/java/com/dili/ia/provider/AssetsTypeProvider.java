@@ -1,8 +1,6 @@
 package com.dili.ia.provider;
 
 import com.dili.ia.glossary.AssetsTypeEnum;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.TransactionItemTypeEnum;
 import com.dili.ss.metadata.FieldMeta;
 import com.dili.ss.metadata.ValuePair;
 import com.dili.ss.metadata.ValuePairImpl;

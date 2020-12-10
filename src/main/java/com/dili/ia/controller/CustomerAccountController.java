@@ -3,12 +3,10 @@ package com.dili.ia.controller;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.Customer;
-import com.dili.ia.domain.CustomerAccount;
 import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.dto.CustomerAccountListDto;
 import com.dili.ia.domain.dto.EarnestRefundOrderDto;
-import com.dili.ia.domain.dto.EarnestTransferDto;
+import com.dili.ia.domain.dto.EarnestTransferOrderDto;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DataAuthService;
@@ -18,12 +16,13 @@ import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
+import com.dili.settlement.dto.CustomerAccountDto;
+import com.dili.settlement.rpc.CustomerAccountRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
-import io.seata.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +49,9 @@ public class CustomerAccountController {
     CustomerRpc customerRpc;
     @Autowired
     RefundOrderService refundOrderService;
+    @SuppressWarnings("all")
+    @Autowired
+    CustomerAccountRpc customerAccountRpc;
     /**
      * 跳转到CustomerAccount页面
      * @param modelMap
@@ -67,9 +69,9 @@ public class CustomerAccountController {
      * @throws Exception
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(CustomerAccountListDto customerAccount) throws Exception {
+    public @ResponseBody String listPage(CustomerAccountDto customerAccount) throws Exception {
         customerAccount.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
-        return customerAccountService.listEasyuiPageByExample(customerAccount, true).toString();
+        return customerAccountRpc.listPage(customerAccount).toString();
     }
 
     /**
@@ -83,8 +85,8 @@ public class CustomerAccountController {
     @RequestMapping(value="/earnestRefund.html", method = RequestMethod.GET)
     public String earnestRefund(ModelMap modelMap, Long customerAccountId, Long refundOrderId) {
         if(null != customerAccountId){
-            CustomerAccount customerAccount = customerAccountService.get(customerAccountId);
-            modelMap.put("customerAccount",customerAccount);
+//            CustomerAccount customerAccount = customerAccountService.get(customerAccountId);
+//            modelMap.put("customerAccount",customerAccount);
         }
         if (null != refundOrderId) {
             modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
@@ -101,8 +103,8 @@ public class CustomerAccountController {
     @RequestMapping(value="/earnestTransfer.html", method = RequestMethod.GET)
     public String earnestTransfer(ModelMap modelMap, Long id) {
         if(null != id){
-            CustomerAccount customerAccount = customerAccountService.get(id);
-            modelMap.put("customerAccount",customerAccount);
+//            CustomerAccount customerAccount = customerAccountService.get(id);
+//            modelMap.put("customerAccount",customerAccount);
         }
         return "customerAccount/earnestTransfer";
     }
@@ -153,7 +155,7 @@ public class CustomerAccountController {
     // @TODO 定金退款页面数据来源于 调用结算
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_ACCOUNT, content="${businessCode}客户【${payerName}】转移给客户【${customerName}】${amountYuan}元", operationType="transfer", systemCode = "IA")
     @RequestMapping(value="/doEarnestTransfer.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferDto etDto) {
+    public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferOrderDto etDto) {
         try {
             UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
             if (null == userTicket){
@@ -209,19 +211,5 @@ public class CustomerAccountController {
         }
         return BaseOutput.success();
     }
-    /**
-     * 账户余额查询
-     * @param customerId
-     * @return
-     */
-    @RequestMapping(value="/getCustomerAccountByCustomerId.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput getCustomerAccountByCustomerId(Long customerId) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        if (userTicket == null) {
-            return BaseOutput.failure("未登录");
-        }
-        return BaseOutput.success().setData(customerAccountService.getCustomerAccountByCustomerId(customerId,userTicket.getFirmId()));
-    }
-
 
 }

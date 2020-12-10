@@ -15,7 +15,7 @@ import javax.persistence.Transient;
  * @author qinkelan
  * @createTime 2020-03-02 11:32
  */
-public class EarnestTransferDto extends EarnestTransferOrder {
+public class EarnestTransferOrderDto extends EarnestTransferOrder {
     @Transient
     private Long customerId;
 

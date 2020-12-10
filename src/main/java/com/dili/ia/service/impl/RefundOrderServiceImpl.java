@@ -38,7 +38,6 @@ import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
-import com.dili.settlement.enums.EditEnableEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
@@ -57,8 +56,6 @@ import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.Serializers;
-import org.codehaus.jackson.map.util.ISO8601Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +66,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -429,13 +425,13 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             settleOrder.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         }
         settleOrder.setSubmitTime(LocalDateTime.now());
-        //@TODO 结算单需要调整类型，为String
-        settleOrder.setBusinessType(Integer.valueOf(ro.getBizType())); // 业务类型
+
+        settleOrder.setBusinessType(ro.getBizType()); // 业务类型
         settleOrder.setAppId(settlementAppId);//应用ID
         settleOrder.setType(SettleTypeEnum.REFUND.getCode());// "结算类型  -- 退款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        settleOrder.setEditEnable(EditEnableEnum.NO.getCode());
-        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
+        //@TODO 结算单回调参数
+//        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
         //@TODO 结算单号需要增加商户ID，业务需要传入
 
         return settleOrder;

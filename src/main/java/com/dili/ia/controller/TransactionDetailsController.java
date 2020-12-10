@@ -1,34 +1,22 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.dto.TransactionDetailsListDto;
-import com.dili.ia.glossary.TransactionItemTypeEnum;
 import com.dili.ia.service.DataAuthService;
-import com.dili.ia.service.TransactionDetailsService;
-import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-14 10:18:23.
  */
-@Deprecated
 @Controller
 @RequestMapping("/transactionDetails")
 public class TransactionDetailsController {
-    @Autowired
-    TransactionDetailsService transactionDetailsService;
     @Autowired
     DataAuthService dataAuthService;
     /**
@@ -81,31 +69,18 @@ public class TransactionDetailsController {
      * @return String
      * @throws Exception
      */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(TransactionDetailsListDto transactionDetails) throws Exception {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        transactionDetails.setMarketId(userTicket.getFirmId());
-        //只显示客户【定金】【转抵】的流水记录
-        List<Integer> itemTypes = new ArrayList<>();
-        itemTypes.add(TransactionItemTypeEnum.EARNEST.getCode());
-        itemTypes.add(TransactionItemTypeEnum.TRANSFER.getCode());
-        transactionDetails.setItemTypes(itemTypes);
-        transactionDetails.setMarketId(userTicket.getFirmId());
-        return transactionDetailsService.listEasyuiPageByExample(transactionDetails, true).toString();
-    }
+//    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
+//    public @ResponseBody String listPage(TransactionDetailsListDto transactionDetails) throws Exception {
+//        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//        transactionDetails.setMarketId(userTicket.getFirmId());
+//        //只显示客户【定金】【转抵】的流水记录
+//        List<Integer> itemTypes = new ArrayList<>();
+//        itemTypes.add(TransactionItemTypeEnum.EARNEST.getCode());
+//        itemTypes.add(TransactionItemTypeEnum.TRANSFER.getCode());
+//        transactionDetails.setItemTypes(itemTypes);
+//        transactionDetails.setMarketId(userTicket.getFirmId());
+//        return transactionDetailsService.listEasyuiPageByExample(transactionDetails, true).toString();
+//    }
 
-    /**
-     * 分页查询TransactionDetails，返回easyui分页信息
-     * @param transactionDetails
-     * @return String
-     * @throws Exception
-     */
-    @RequestMapping(value="/listDepositAmountPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listDepositAmountPage(TransactionDetailsListDto transactionDetails) throws Exception {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        transactionDetails.setMarketId(userTicket.getFirmId());
-        transactionDetails.setItemType(TransactionItemTypeEnum.DEPOSIT.getCode());
-        transactionDetails.setMarketId(userTicket.getFirmId());
-        return transactionDetailsService.listEasyuiPageByExample(transactionDetails, true).toString();
-    }
+
 }
