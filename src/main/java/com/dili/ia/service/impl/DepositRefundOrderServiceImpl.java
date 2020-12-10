@@ -121,8 +121,8 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
      * @return
      */
     private void buildTransferDeductionItems(Long refundOrderId, Map<String, Object> resultMap) {
-        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-        transferDeductionItemCondition.setRefundOrderId(refundOrderId);
+//        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
+//        transferDeductionItemCondition.setRefundOrderId(refundOrderId);
 //        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
 //        List<Map<String,Object>> transferMaps = new ArrayList<>();
 //        StringBuilder stringBuilder = new StringBuilder();
