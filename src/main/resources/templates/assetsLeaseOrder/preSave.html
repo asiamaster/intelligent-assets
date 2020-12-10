@@ -9,6 +9,8 @@
             <input type="hidden" id="assetsType" name="assetsType" value="${assetsType!}">
             <input type="hidden" id="bizType" name="bizType" value="${bizType!}">
             <input type="hidden" id="marketId" name="marketId" value="${@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmId()}">
+            <input type="hidden" id="matchId" name="matchId" value="${matchId!}">
+            <input type="hidden" id="batchId" name="batchId" value="${batchId!}">
             <div class="breadcrumb" >
                 客户信息
                 <%
@@ -151,6 +153,8 @@
                         <input type="hidden" id="districtName_${itemLP.index}" name="districtName_${itemLP.index}" value="${item.districtName!}">
                         <input type="hidden" id="number_${itemLP.index}" name="number_${itemLP.index}" value="${item.number!}"/>
                         <input type="hidden" id="unitName_${itemLP.index}" name="unitName_${itemLP.index}" value="${item.unitName!}"/>
+                        <input type="hidden" id="mchId_${itemLP.index}" name="mchId_${itemLP.index}"/>
+                        <input type="hidden" id="batchId_${itemLP.index}" name="batchId_${itemLP.index}"/>
                         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
                         <td style="padding: .25rem!important;">
 
@@ -246,6 +250,8 @@
         <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}">
         <input type="hidden" id="number_{{index}}" name="number_{{index}}"/>
         <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}"/>
+        <input type="hidden" id="mchId_{{index}}" name="mchId_{{index}}"/>
+        <input type="hidden" id="batchId_{{index}}" name="batchId_{{index}}"/>
         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
 

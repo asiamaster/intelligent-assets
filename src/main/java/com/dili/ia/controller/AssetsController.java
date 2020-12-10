@@ -8,6 +8,7 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,21 +50,15 @@ public class AssetsController {
         }
 
         try {
-            List<AssetsDTO> data = assetsRpc.searchAssets(assetsQuery).getData();
-            List<AssetsDTO> result = new ArrayList<>();
-            if (CollUtil.isNotEmpty(data)) {
-                for (AssetsDTO dto : data) {
-                    if (dto.getParentId() != 0 && dto.getState().equals(EnabledStateEnum.ENABLED.getCode())) {
-                        result.add(dto);
-                    } else {
-                        boolean anyMatch = data.stream().anyMatch(obj -> obj.getParentId().equals(dto.getId()));
-                        if (!anyMatch && dto.getParentId() == 0 && dto.getState().equals(EnabledStateEnum.ENABLED.getCode())) {
-                            result.add(dto);
-                        }
+            List<AssetsDTO> assets = assetsRpc.searchAssets(assetsQuery).getData();
+            if (CollectionUtils.isNotEmpty(assets)) {
+                for (int i = 0; i < assets.size(); i++) {
+                    if (i != 0) {
+                        assets.get(i).setMarketId(Long.valueOf(assets.size() - i));
                     }
                 }
             }
-            return BaseOutput.success().setData(result);
+            return BaseOutput.success().setData(assets);
         } catch (Exception e) {
             LOG.error("资产查询接口异常",e);
             return BaseOutput.success().setData(new ArrayList<>());

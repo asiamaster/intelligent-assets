@@ -8,8 +8,6 @@
 
     /*********************变量定义区 begin*************/
     let itemIndex = 0;//行索引计数器
-    let batchId = 0;//批次号
-    let mchId = 0;//商户号
     $.extend(customerNameAutoCompleteOption,{
         selectFn: function (suggestion) {
             $('#certificateNumber').val(suggestion.certificateNumber);
@@ -39,17 +37,19 @@
         ajax: {
             type:'get',
             url : function(params){
-                if (batchId) {
-                    return '/assetsRental/listRentalsByRentalDtoAndKeyWord.action';
-                } else {
+                let index = getIndex($(this).attr('id'));
+                let leaseOrderItems = buildLeaseOrderItems();
+                if (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index)) {
                     return '/assets/searchAssets.action';
+                } else {
+                    return '/assetsRental/listRentalsByRentalDtoAndKeyWord.action';
                 }
             },
             data: function (params) {
                 return {
                     keyword: params.term,
-                    mchId,
-                    batchId
+                    mchId: $('#mchId').val(),
+                    batchId: $('#batchId').val()
                 }
             },
             processResults: function (result) {
@@ -58,7 +58,7 @@
                     return {
                         results: $.map(data, function (dataItem) {
                             return $.extend(dataItem, {
-                                    text: dataItem.name + '(' + (dataItem.secondAreaName ? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
+                                    text: dataItem.name + '(' + (dataItem.secondAreaName ? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')' + dataItem.marketId
                                 }
                             );
                         })
@@ -73,7 +73,43 @@
 
     var assetEvent = {
         eventName: 'select2:selecting', 
-        eventHandler: assetSelectHandler
+        eventHandler: function (e) {
+            let suggestion = e.params.args.data;
+            let leaseOrderItems = buildLeaseOrderItems();
+            let index = getIndex($(this).attr('id'));
+            if (!suggestion.marketId) {
+                bs4pop.notice('未指定业务入账组织，不能办理业务', {position: 'bottomleft', type: 'danger'});
+                return false;
+            }
+
+            if (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index)) {
+                $('#mchId').val(suggestion.marketId);
+                let rental = getRentalByAssetsId(suggestion.id);
+                if (rental) {
+                    $('#batchId_'+index).val(rental.batchId);
+                    $('#batchId').val(rental.batchId);
+                }
+            }
+
+            let bizType = $('#bizType').val();
+            $('#mchId_'+index).val(suggestion.marketId);
+            $('#number_'+index).val(suggestion.number);
+            if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
+                $('#leasesNum_'+index).val(suggestion.number);
+            }
+            $('#unitCode_'+index).val(suggestion.unit);
+            $('#unitName_'+index).val(suggestion.unitName);
+            $('#sku_'+index).val(suggestion.number+suggestion.unitName);
+            $('#isCorner_'+index).val(suggestion.cornerName);
+            $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
+            $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
+            batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
+            $('#id').val() && batchQueryDepositOrder({
+                businessId: $('#id').val(),
+                bizType: bizType,
+                assetsId: suggestion.id
+            });
+        }
     }
 
     //品类搜索自动完成
@@ -211,7 +247,7 @@
             }
         <% }%>
 
-        let assetsIds = $("table input[name^='assetsId']").filter(function () {
+        let assetsIds = $("table select[name^='assetsId']").filter(function () {
             return this.value
         }).map(function () {
             return this.value
@@ -316,51 +352,22 @@
     }
 
     /**
-     * 资产选择事件Handler
-     * */
-    function assetSelectHandler(e) {
-        let suggestion = e.params.args.data;
-        // if (!suggestion.mchId) {
-        //     bs4pop.notice('此摊位没有绑定商户，请绑定商户后办理', {position: 'bottomleft', type: 'danger'});
-        //     return false;
-        // }
-
-        getRentalByAssetsId(suggestion.id);
-        let index = getIndex($(this).attr('id'));
-        let bizType = $('#bizType').val();
-        mchId = suggestion.marketId;
-        $('#number_'+index).val(suggestion.number);
-        if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
-            $('#leasesNum_'+index).val(suggestion.number);
-        }
-        $('#unitCode_'+index).val(suggestion.unit);
-        $('#unitName_'+index).val(suggestion.unitName);
-        $('#sku_'+index).val(suggestion.number+suggestion.unitName);
-        $('#isCorner_'+index).val(suggestion.cornerName);
-        $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
-        $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
-        batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
-        $('#id').val() && batchQueryDepositOrder({
-            businessId: $('#id').val(),
-            bizType: bizType,
-            assetsId: suggestion.id
-        });
-    }
-
-    /**
      * 查询预设
      * @param assetsId
+     * @returns {*}
      */
     function getRentalByAssetsId(assetsId) {
+        let rental;
         $.ajax({
             type: "get",
             url: "/assetsRental/getRentalByAssetsId.action",
             data: {assetsId: assetsId},
+            async: false,
             dataType: "json",
             success: function (ret) {
                 if (ret.success) {
                     if (ret.data) {
-                        batchId = ret.data.batchId;
+                        rental = ret.data;
                     }
                 } else {
                     bs4pop.notice(ret.message, {position: 'bottomleft', type: 'danger'});
@@ -370,7 +377,7 @@
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
-
+        return rental;
     }
 
     /**
@@ -471,24 +478,18 @@
     }
 
     /**
-     * 构建资产租赁表单提交数据
+     * 构建摊位项数据
      * @param isYuanToCent是否元转分
-     * @returns {{}|jQuery}
+     * @returns {[]}
      */
-    function buildFormData(isYuanToCent = true) {
-        let formData = $("input:not(table input),textarea,select").serializeObject();
+    function buildLeaseOrderItems(isYuanToCent = true) {
         let leaseOrderItems = [];
-        let leaseTermName = $('#leaseTermCode').find("option:selected").text();
-        let engageName = $('#engageCode').find("option:selected").text();
-        let departmentName = $('#departmentId').find("option:selected").text();
-
-        isYuanToCent && bui.util.yuanToCentForMoneyEl(formData);
-        $("table input[name^='assetsId']").filter(function () {
+        $("table select[name^='assetsId']").filter(function () {
             return this.value
         }).parents("tr").each(function () {
             let leaseOrderItem = {};
             leaseOrderItem.businessChargeItems = [];
-            $(this).find("input").each(function (t, el) {
+            $(this).find("input:not('.select2-search__field'),select").each(function (t, el) {
                 let nameArr = $(this).attr("name").split('_');
                 let fieldName = nameArr[0];
                 if (fieldName.includes("chargeItem")) {
@@ -507,9 +508,24 @@
             leaseOrderItem.bizType = $('#bizType').val();
             leaseOrderItems.push(leaseOrderItem);
         });
+        return leaseOrderItems;
+    }
+
+    /**
+     * 构建资产租赁表单提交数据
+     * @param isYuanToCent是否元转分
+     * @returns {{}|jQuery}
+     */
+    function buildFormData(isYuanToCent = true) {
+        let formData = $("input:not(table input),textarea,select").serializeObject();
+        let leaseTermName = $('#leaseTermCode').find("option:selected").text();
+        let engageName = $('#engageCode').find("option:selected").text();
+        let departmentName = $('#departmentId').find("option:selected").text();
+
+        isYuanToCent && bui.util.yuanToCentForMoneyEl(formData);
 
         $.extend(formData, {
-            leaseOrderItems,
+            leaseOrderItems: buildLeaseOrderItems(),
             leaseTermName,
             engageName,
             departmentName,
@@ -590,7 +606,7 @@
      * @returns {boolean}
      */
     function checkAssets() {
-        let assetsIds = $("table input[name^='assetsId']").filter(function () {
+        let assetsIds = $("table select[name^='assetsId']").filter(function () {
             return this.value
         }).map(function () {
             return $('#assetsId_' + getIndex(this.id)).val();
