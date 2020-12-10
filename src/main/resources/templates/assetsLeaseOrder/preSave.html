@@ -153,7 +153,11 @@
                         <input type="hidden" id="unitName_${itemLP.index}" name="unitName_${itemLP.index}" value="${item.unitName!}"/>
                         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
                         <td style="padding: .25rem!important;">
-                            <#bautoCompleteProvider _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" _hiddenDomainId="assetsId_${itemLP.index}" _hiddenDomainName="assetsId_${itemLP.index}" _hiddenDomainClass="assets" _displayDomainId="assetsName_${itemLP.index}" _displayDomainName="assetsName_${itemLP.index}" _value="${item.assetsId!}" _text="${item.assetsName!}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
+
+                            <select id="assetsId_${itemLP.index}" name="assetsId_${itemLP.index}" _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" required>
+                                <option value="${item.assetsId!}">${item.assetsName!}</option>
+                            </select>
+                            <#bselect2 _id="assetsId_${itemLP.index}" _mode="remote" _optionVariable="assetAutoCompleteOption" _value="${item.assetsId!}" _eventVariable="assetEvent"/>
                         </td>
                         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="sku_${itemLP.index}" name="sku_${itemLP.index}" value="${item.number!}${item.unitName!}" readonly uncheck/></td>
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>
@@ -244,7 +248,10 @@
         <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}"/>
         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
-            <#bautoCompleteProvider _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" _escape="true" _hiddenDomainId="assetsId_{{index}}" _hiddenDomainName="assetsId_{{index}}" _hiddenDomainClass="assets" _displayDomainId="assetsName_{{index}}" _displayDomainName="assetsName_{{index}}" _validatorMethod="isSelected" _required="true" _optionVariable="assetAutoCompleteOption"/>
+
+            <select id="assetsId_{{index}}" name="assetsId_{{index}}" _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" required>
+            </select>
+            <#bselect2 _escape="true" _id="assetsId_{{index}}" _mode="remote" _optionVariable="assetAutoCompleteOption" _eventVariable="assetEvent"/>
         </td>
         <td style="padding: .25rem!important;"><input type="text" class="form-control" id="sku_{{index}}" name="sku_{{index}}" readonly uncheck/></td>
         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.LOCATION.getCode()){%>

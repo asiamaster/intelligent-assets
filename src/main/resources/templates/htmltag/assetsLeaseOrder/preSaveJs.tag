@@ -32,27 +32,48 @@
 
     //资产搜索自动完成
     var assetAutoCompleteOption = {
-        paramName: 'keyword',
-        displayFieldName: 'name',
-        serviceUrl: '/assets/searchAssets.action',
-        params : {mchId},
-        selectFn: assetSelectHandler,
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
-                return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                            value: dataItem.name + '(' + (dataItem.secondAreaName ? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
-                            }
-                        );
-                    })
+        width: '100%',
+        language: 'zh-CN',
+        minimumInputLength: 1,
+        maximumSelectionLength: 10,
+        ajax: {
+            type:'get',
+            url : function(params){
+                if (batchId) {
+                    return '/assetsRental/listRentalsByRentalDtoAndKeyWord.action';
+                } else {
+                    return '/assets/searchAssets.action';
                 }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return;
+            },
+            data: function (params) {
+                return {
+                    keyword: params.term,
+                    mchId,
+                    batchId
+                }
+            },
+            processResults: function (result) {
+                if(result.success){
+                    let data = result.data;
+                    return {
+                        results: $.map(data, function (dataItem) {
+                            return $.extend(dataItem, {
+                                    text: dataItem.name + '(' + (dataItem.secondAreaName ? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
+                                }
+                            );
+                        })
+                    };
+                }else{
+                    bs4pop.alert(result.message, {type: 'error'});
+                    return;
+                }
             }
         }
+    }
+
+    var assetEvent = {
+        eventName: 'select2:selecting', 
+        eventHandler: assetSelectHandler
     }
 
     //品类搜索自动完成
@@ -297,8 +318,15 @@
     /**
      * 资产选择事件Handler
      * */
-    function assetSelectHandler(suggestion,element) {
-        let index = getIndex($(element).attr('id'));
+    function assetSelectHandler(e) {
+        let suggestion = e.params.args.data;
+        // if (!suggestion.mchId) {
+        //     bs4pop.notice('此摊位没有绑定商户，请绑定商户后办理', {position: 'bottomleft', type: 'danger'});
+        //     return false;
+        // }
+
+        getRentalByAssetsId(suggestion.id);
+        let index = getIndex($(this).attr('id'));
         let bizType = $('#bizType').val();
         mchId = suggestion.marketId;
         $('#number_'+index).val(suggestion.number);
@@ -319,11 +347,15 @@
         });
     }
 
+    /**
+     * 查询预设
+     * @param assetsId
+     */
     function getRentalByAssetsId(assetsId) {
         $.ajax({
-            type: "post",
+            type: "get",
             url: "/assetsRental/getRentalByAssetsId.action",
-            data: {assetsId:assetsId},
+            data: {assetsId: assetsId},
             dataType: "json",
             success: function (ret) {
                 if (ret.success) {
@@ -331,13 +363,14 @@
                         batchId = ret.data.batchId;
                     }
                 } else {
-                    bs4pop.alert(ret.message, {type: 'error'});
+                    bs4pop.notice(ret.message, {position: 'bottomleft', type: 'danger'});
                 }
             },
             error: function (a, b, c) {
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
+
     }
 
     /**
