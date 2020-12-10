@@ -3,8 +3,6 @@ package com.dili.ia.service;
 import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.EarnestTransferOrderDto;
-import com.dili.settlement.domain.CustomerAccount;
-import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 
 /**

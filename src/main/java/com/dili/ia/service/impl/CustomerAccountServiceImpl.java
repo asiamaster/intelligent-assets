@@ -17,7 +17,6 @@ import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.SpringUtil;
 import com.dili.settlement.domain.CustomerAccount;
 import com.dili.settlement.rpc.CustomerAccountRpc;
-import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
