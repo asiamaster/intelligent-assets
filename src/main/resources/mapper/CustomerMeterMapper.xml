@@ -156,7 +156,7 @@
         </if>
         <if test="keyword != null and keyword != ''">
             and (
-                me.number =  #{keyword}
+                me.number like concat('', #{keyword}, '%')
                 or me.assets_name like concat('', #{keyword}, '%')
                 or cm.customer_name like concat('', #{keyword}, '%')
           )
