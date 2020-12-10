@@ -525,7 +525,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		settleOrderInfoDto.setCustomerId(stockIn.getCustomerId());
 		settleOrderInfoDto.setCustomerName(stockIn.getCustomerName());
 		settleOrderInfoDto.setCustomerPhone(stockIn.getCustomerCellphone());
-		settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+		//TODO
+		//settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
 		if (userTicket.getDepartmentId() != null){
             settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
             settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
@@ -621,7 +622,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			StockInPrintItemDto stockInPrintItemDto = new StockInPrintItemDto();
 			BeanUtil.copyProperties(detail, stockInPrintItemDto);
 			stockInPrintItemDto.setExpireDate(stockIn.getExpireDate());
-			stockInPrintItemDto.setPayWay(order.getWayName());
+			//TODO
+			//stockInPrintItemDto.setPayWay(order.getWayName());
 			//stockInPrintItemDto.setProxyPayer(order.get);
 			stockInPrintItemDto.setStockInDate(stockIn.getStockInDate());
 			stockInPrintItemDto.setStockInType(String.valueOf(stockIn.getType()));

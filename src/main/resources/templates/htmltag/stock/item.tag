@@ -232,6 +232,7 @@ function changeDistrict(index,parent,value,level){
 					obj.text = obj.text || obj.name;
 					return obj;
 				});
+				
 				if (array.length == 0) {
 					$('#districtId_one_'+index).attr('name','districtId');
 					$('#districtId_two_'+index).attr('name','districtId_two');
@@ -240,7 +241,7 @@ function changeDistrict(index,parent,value,level){
 					//当index大于0 标记为新增详情,只触发当前index的更新
 					let htmlConent = '<option value="" selected="">-- 请选择--</option>';
 					for (let item of array) {
-						htmlConent+='<option value="'+item.id+'" >'+item.name+'</option>'
+						htmlConent+='<option merchantid="'+item.marketId+'" value="'+item.id+'" >'+item.name+'</option>'
 					}
 					$('#districtId_'+level+'_'+index).html(htmlConent);
 					if(value != null){
@@ -248,7 +249,7 @@ function changeDistrict(index,parent,value,level){
 					}
 					$('#districtId_two_'+index).attr('name','districtId');
 					$('#districtId_one_'+index).attr('name','parentDistrictId');
-
+					
 				}
 			}
 		}
@@ -272,7 +273,7 @@ function changeAssets(index,districtId,value){
     if(districtId && districtId!==''){
         $.ajax({
             type: "POST",
-            url: "/stock/stockIn/getColdStorage.action",
+            url: "/assets/searchAssets.action",
             data: {secondArea: districtId,
             	businessType:2
             },

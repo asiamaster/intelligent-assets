@@ -1,16 +1,11 @@
 package com.dili.ia;
 
-import cn.hutool.core.lang.Assert;
 import com.dili.ia.domain.Customer;
-import com.dili.ia.domain.dto.CustomerAccountParam;
 import com.dili.ia.domain.dto.CustomerQuery;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.TransactionSceneTypeEnum;
-import com.dili.ia.mapper.CustomerAccountMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DepositBalanceService;
-import com.dili.ia.service.DepositOrderService;
 import com.dili.ss.domain.BaseOutput;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

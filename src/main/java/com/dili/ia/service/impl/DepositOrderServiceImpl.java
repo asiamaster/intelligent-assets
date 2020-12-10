@@ -1,7 +1,6 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.AssetsDTO;
-import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AreaMarketRpc;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
@@ -93,11 +92,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Autowired
     DepositBalanceService depositBalanceService;
     @Autowired
-    TransferDeductionItemService transferDeductionItemService;
-    @Autowired
     CustomerAccountService customerAccountService;
-    @Autowired
-    TransactionDetailsService transactionDetailsService;
     @Autowired
     BusinessLogRpc businessLogRpc;
     @Autowired
@@ -438,10 +433,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
-        settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.DEPOSIT_ORDER.getCode())); // 业务类型
+        settleOrder.setBusinessType(BizTypeEnum.DEPOSIT_ORDER.getCode()); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
+        //@TODO 结算回调路径
+//        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
 
         return settleOrder;
     }

@@ -5,8 +5,10 @@ import com.dili.assets.sdk.rpc.AreaMarketRpc;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.*;
-import com.dili.ia.domain.dto.CustomerAccountParam;
+import com.dili.ia.domain.Customer;
+import com.dili.ia.domain.EarnestOrder;
+import com.dili.ia.domain.EarnestOrderDetail;
+import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
@@ -15,11 +17,16 @@ import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
-import com.dili.ia.service.*;
+import com.dili.ia.service.CustomerAccountService;
+import com.dili.ia.service.EarnestOrderDetailService;
+import com.dili.ia.service.EarnestOrderService;
+import com.dili.ia.service.PaymentOrderService;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.InvalidRequestDto;
 import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.LinkTypeEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
@@ -76,8 +83,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     PaymentOrderService paymentOrderService;
     @Autowired
     EarnestOrderDetailService earnestOrderDetailService;
-    @Autowired
-    TransactionDetailsService transactionDetailsService;
     @Autowired
     UidFeignRpc uidFeignRpc;
     @Autowired
@@ -313,11 +318,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         PaymentOrder pb = this.buildPaymentOrder(userTicket, ea);
         paymentOrderService.insertSelective(pb);
-        // @TODO 客户余额迁移，这里需要删除
-        //如果客户账户不存在，创建客户账户
-        if (!customerAccountService.checkCustomerAccountExist(ea.getCustomerId(), userTicket.getFirmId())){
-            customerAccountService.addCustomerAccountByCustomerInfo(ea.getCustomerId(), ea.getCustomerName(), ea.getCustomerCellphone(), ea.getCertificateNumber(), ea.getMarketId());
-        }
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, ea, pb));
         if (!out.isSuccess()){
@@ -350,11 +350,25 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setAppId(settlementAppId);//应用ID
         //结算单业务类型 为 Integer
-        settleOrder.setBusinessType(Integer.valueOf(BizTypeEnum.EARNEST.getCode())); // 业务类型
+        settleOrder.setBusinessType(BizTypeEnum.EARNEST.getCode()); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
-        //@TODO 提交到结算必须要穿的商户ID
+        //@TODO 待优化
+        List<SettleOrderLink> settleOrderLinkList = new ArrayList<>();
+        SettleOrderLink view = new SettleOrderLink();
+        view.setType(LinkTypeEnum.DETAIL.getCode()); // 详情
+        view.setUrl("");
+        SettleOrderLink print = new SettleOrderLink();
+        print.setType(LinkTypeEnum.PRINT.getCode()); // 打印
+        print.setUrl("");
+        SettleOrderLink callBack = new SettleOrderLink();
+        callBack.setType(LinkTypeEnum.CALLBACK.getCode()); // 回调
+        callBack.setUrl(settlerHandlerUrl);
+        settleOrderLinkList.add(view);
+        settleOrderLinkList.add(print);
+        settleOrderLinkList.add(callBack);
+        settleOrder.setSettleOrderLinkList(settleOrderLinkList);
+        settleOrder.setMchId(ea.getMchId());
         return settleOrder;
     }
 
@@ -460,13 +474,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (!rerverpaymentOrders.isEmpty() && paymentOrderService.batchInsert(rerverpaymentOrders) != rerverpaymentOrders.size()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "缴费单红冲写入失败！");
         }
-        //@TODO 客户余额迁移 此处需要 调用结算进行定金余额扣减
-        //客户定金余额扣减
-        BaseOutput result = customerAccountService.deductEarnestBalance(this.buildCustomerAccountParam(ea,userTicket.getId(), userTicket.getRealName() ,ea.getAmount(), TransactionSceneTypeEnum.INVALID_OUT.getCode()));
-        if (!result.isSuccess()){
-            LOG.info("作废定金，调用扣减定金余额失败！" + result.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "作废定金，调用扣减定金余额失败！" + result.getMessage());
-        }
         //调用结算生成结算红冲单
         BaseOutput<String> setOut = settlementRpc.invalid(this.buildInvalidRequestDto(userTicket, pb));
         if (!setOut.isSuccess()){
@@ -518,30 +525,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             }
         }
     }
-
-    /**
-     * 构建客户定金修改 的 方法参数
-     * @param ea 发生客户定金变动的业务单
-     * @param operaterId 操作员ID
-     * @param operatorName 操作员姓名
-     * @param amount 发生变动的金额
-     * @param sceneType 发生金额变动的场景，用于记录流水
-     * @return CustomerAccountParam
-     * */
-    private CustomerAccountParam buildCustomerAccountParam(EarnestOrder ea, Long operaterId, String operatorName, Long amount, Integer sceneType){
-        CustomerAccountParam caParam = new CustomerAccountParam();
-        caParam.setBizType(BizTypeEnum.EARNEST.getCode());
-        caParam.setAmount(amount);
-        caParam.setCustomerId(ea.getCustomerId());
-        caParam.setOrderId(ea.getId());
-        caParam.setOrderCode(ea.getCode());
-        caParam.setOperaterId(operaterId);
-        caParam.setOperatorName(operatorName);
-        caParam.setSceneType(sceneType);
-        caParam.setMarketId(ea.getMarketId());
-
-        return caParam;
-    }
     private InvalidRequestDto buildInvalidRequestDto(UserTicket userTicket, PaymentOrder paymentOrder){
         InvalidRequestDto param = new InvalidRequestDto();
         param.setAppId(this.settlementAppId);
@@ -590,14 +573,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (this.updateSelective(ea) == 0) {
             LOG.info("缴费单成功回调 -- 更新【定金单】状态,乐观锁生效！【定金单EarnestOrderID:{}】", ea.getId());
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-
-        //TODO 付款成功 结算自己处理余额变动及流水记录 ，此处删除
-        //更新客户账户定金余额和可用余额
-        BaseOutput output = customerAccountService.rechargeEarnestBalance(this.buildCustomerAccountParam(ea,settleOrder.getOperatorId(), settleOrder.getOperatorName(), paymentOrderPO.getAmount() ,TransactionSceneTypeEnum.PAYMENT.getCode()));
-        if (!output.isSuccess()){
-            LOG.info("【定金单支付成功回调接口】充值定金接口返回失败！EarnestOrderId={}；原因：{}", ea.getId(),output.getMessage());
-            throw new BusinessException(ResultCode.DATA_ERROR, "充值定金接口返回失败！" + output.getMessage());
         }
         return BaseOutput.success().setData(ea);
     }

@@ -6,7 +6,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.MessageFee;
+ import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.LaborDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.CustomerAccountService;
@@ -15,7 +17,10 @@ import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.TransactionDetailsService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.google.common.collect.Sets;
 
@@ -34,6 +39,18 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 	@Autowired
 	private LaborService laborService;
 	
+	@Override
+	public BaseOutput updateHandler(RefundOrder refundOrder) {
+		LaborDto labor = laborService.getLabor(refundOrder.getBusinessCode());
+		if(labor == null) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "劳务马甲单不存在!");
+		}
+		if(refundOrder.getTotalRefundAmount() > labor.getAmount()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "金额不正确,最大可退款金额["+MoneyUtils.centToYuan(labor.getAmount())+"]!");
+		}
+		return BaseOutput.success();
+	}
+
 	@Override
 	public BaseOutput submitHandler(RefundOrder refundOrder) {
 		//laborService.refundSubmitHandler(refundOrder);
