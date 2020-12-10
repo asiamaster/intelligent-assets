@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
  * This file was generated on 2020-02-14 10:18:23.
  */
 @Service
-public class CustomerAccountServiceImpl extends BaseServiceImpl<CustomerAccount, Long> implements CustomerAccountService {
+public class CustomerAccountServiceImpl implements CustomerAccountService {
     private final static Logger LOG = LoggerFactory.getLogger(CustomerAccountServiceImpl.class);
 
     @Autowired

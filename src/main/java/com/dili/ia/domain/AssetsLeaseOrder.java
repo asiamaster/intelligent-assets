@@ -259,6 +259,18 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
     private String marketCode;
 
     /**
+     * 商户ID
+     */
+    @Column(name = "`mch_id`")
+    private Long mchId;
+
+    /**
+     * 批次ID
+     */
+    @Column(name = "`batch_id`")
+    private Long batchId;
+
+    /**
      * 乐观锁，版本号
      */
     @Version
@@ -695,6 +707,22 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
 
     public void setMarketCode(String marketCode) {
         this.marketCode = marketCode;
+    }
+
+    public Long getMchId() {
+        return mchId;
+    }
+
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
+    }
+
+    public Long getBatchId() {
+        return batchId;
+    }
+
+    public void setBatchId(Long batchId) {
+        this.batchId = batchId;
     }
 
     public Integer getVersion() {
