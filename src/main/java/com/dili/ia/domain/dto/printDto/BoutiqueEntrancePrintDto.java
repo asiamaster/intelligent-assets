@@ -1,12 +1,9 @@
 package com.dili.ia.domain.dto.printDto;
 
-import com.dili.ia.domain.TransferDeductionItem;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * @author:       xiaosa

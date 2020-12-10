@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.dili.ia.domain.TransferDeductionItem;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**

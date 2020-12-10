@@ -1,9 +1,5 @@
 package com.dili.ia.domain.dto;
 
-import com.dili.ia.domain.TransferDeductionItem;
-
-import java.util.List;
-
 public class OtherFeeRefundOrderDto {
 
     /**

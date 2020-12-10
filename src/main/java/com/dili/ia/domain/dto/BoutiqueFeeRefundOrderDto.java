@@ -1,9 +1,5 @@
 package com.dili.ia.domain.dto;
 
-import com.dili.ia.domain.TransferDeductionItem;
-
-import java.util.List;
-
 /**
  * @author:       xiaosa
  * @date:         2020/7/31

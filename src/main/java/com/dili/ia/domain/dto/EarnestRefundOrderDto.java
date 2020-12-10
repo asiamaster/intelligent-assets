@@ -1,10 +1,8 @@
 package com.dili.ia.domain.dto;
 
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
 
 import javax.persistence.Transient;
-import java.util.List;
 
 public class EarnestRefundOrderDto extends RefundOrder {
     @Transient
