@@ -56,7 +56,7 @@ public class Meter extends BaseDomain {
      * 资产类型code
      */
     @Column(name = "`assets_type`")
-    private String assetsType;
+    private Integer assetsType;
 
     /**
      * 对应编号ID
@@ -208,11 +208,11 @@ public class Meter extends BaseDomain {
 
     @FieldDef(label="资产类型code", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
-    public String getAssetsType() {
+    public Integer getAssetsType() {
         return assetsType;
     }
 
-    public void setAssetsType(String assetsType) {
+    public void setAssetsType(Integer assetsType) {
         this.assetsType = assetsType;
     }
 

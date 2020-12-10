@@ -14,6 +14,12 @@
         paramName: 'keyword',
         displayFieldName: 'name',
         serviceUrl: '/assets/searchAssets.action',
+        onSearchStart: function (params) {
+            params['assetsType'] = $('[name="assetsType"]').val();
+            params['firstDistrictId'] = $('[name="firstDistrictId"]').val();
+            params['secondDistrictId'] = $('[name="secondDistrictId"]').val();
+            return params;
+        },
         transformResult: function (result) {
             if(result.success){
                 let data = result.data;

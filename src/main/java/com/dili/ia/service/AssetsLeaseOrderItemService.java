@@ -42,4 +42,13 @@ public interface AssetsLeaseOrderItemService extends BaseService<AssetsLeaseOrde
      * @return
      */
     List<AssetsLeaseOrderItemListDto> leaseOrderItemListToDto(List<AssetsLeaseOrderItem> assetsLeaseOrderItems, String bizType, List<BusinessChargeItemDto> chargeItemDtos);
+
+    /**
+     * 根据表地址查询是否处于租期状态和相应的用户
+     *
+     * @param  assetsLeaseOrderItem
+     * @return AssetsLeaseOrderItemListDto
+     * @date   2020/12/10
+     */
+    AssetsLeaseOrderItemListDto getCustomerByAssetsIdAndAssetsType(AssetsLeaseOrderItem assetsLeaseOrderItem);
 }

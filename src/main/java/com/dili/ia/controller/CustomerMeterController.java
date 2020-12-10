@@ -178,6 +178,22 @@ public class CustomerMeterController {
     }
 
     /**
+     * 根据表地址查询是否处于租期状态和相应的用户
+     *
+     * @param  assetsId
+     * @return CustomerMeterDto
+     * @date   2020/12/10
+     */
+    @RequestMapping(value="/getCustomerByAssetsId.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput getCustomerByAssetsId(Long assetsId, Integer assetsType) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        CustomerMeterDto customerMeterDto = customerMeterService.getCustomerByAssetsIdAndAssetsType(userTicket, assetsId, assetsType);
+
+        return BaseOutput.success().setData(customerMeterDto);
+    }
+
+
+    /**
      * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)(查询水表)
      *
      * @param  keyword

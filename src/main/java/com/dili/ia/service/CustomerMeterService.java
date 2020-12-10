@@ -84,4 +84,14 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * @date   2020/6/16
      */
     BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id);
+
+    /**
+     * 根据表地址查询是否处于租期状态和相应的用户
+     *
+     * @param  assetsId
+     * @param assetsType
+     * @return CustomerMeterDto
+     * @date   2020/12/10
+     */
+    CustomerMeterDto getCustomerByAssetsIdAndAssetsType(UserTicket code, Long assetsId, Integer assetsType);
 }

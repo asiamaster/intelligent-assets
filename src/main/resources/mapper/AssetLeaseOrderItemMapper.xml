@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dili.ia.mapper.AssetsLeaseOrderItemMapper">
+    <select id="getCustomerByAssetsIdAndAssetsType" parameterType="com.dili.ia.domain.AssetsLeaseOrderItem" resultType="com.dili.ia.domain.dto.AssetsLeaseOrderItemListDto">
+        select
+            alo.customer_id as customerId,
+            alo.customer_name as customerName,
+            alo.certificate_number as certificateNumber,
+            alo.customer_cellphone as customerCellphone
+        from
+            assets_lease_order_item as aloi
+        left join
+            assets_lease_order as alo
+          on
+            alo.id = aloi.lease_order_id
+        where
+            aloi.assets_id = #{assetsId}
+          and
+            aloi.assets_type = #{assetsType}
+          and
+            aloi.state = #{state}
+    </select>
 </mapper>

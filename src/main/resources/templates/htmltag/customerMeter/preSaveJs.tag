@@ -15,9 +15,9 @@
     });
 
     //初始化刷卡
-    initSwipeCard({
-        id:'getCustomer',
-    });
+    // initSwipeCard({
+    //     id:'getCustomer',
+    // });
 
     $('[name="type"]').on('change', function(){
         // $('[name="number"]').autocomplete('setOptions', {serviceUrl: '/meter/listUnbindMetersByType.action'});
@@ -47,7 +47,27 @@
             $('[name="number"]').val(suggestion.value);
             $('[name="assetsId"]').val(suggestion.assetsId);
             $('[name="assetsName"]').val(suggestion.assetsName);
+            $('[name="assetsType"]').val(suggestion.assetsType);
             $('[name="number"], [name="assetsId"], [name="assetsName"]').valid();
+            $.ajax({
+                type: "post",
+                url: '/customerMeter/getCustomerByAssetsId.action',
+                datatype: 'json',
+                data: {'assetsId': suggestion.assetsId, 'assetsType': suggestion.assetsType},
+                success: function(res){
+                    if(res.success === true) {
+                        $('#customerId').val(res.data.customerId);
+                        $('#customerName').val(res.data.customerName);
+                        $('#customerCellphone').val(res.data.customerCellphone);
+                        $('#certificateNumber').val(res.data.certificateNumber);
+                    } else {
+                        bs4pop.alert("!", {type: 'error'});
+                    }
+                },
+                error: function(error){
+                    bs4pop.alert("!", {type: 'error'});
+                }
+            })
         }
     };
 
@@ -74,7 +94,8 @@
                 if(!ret.success){
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
-                    parent.dia.hide();
+                    parent.closeDialog(parent.dia);
+                    parent.$('#grid').bootstrapTable('refresh');
                 }
             },
             error: function (error) {

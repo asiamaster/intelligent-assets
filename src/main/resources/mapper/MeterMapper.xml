@@ -10,7 +10,7 @@
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="number" jdbcType="VARCHAR" property="number" />
     <result column="type" jdbcType="INTEGER" property="type" />
-    <result column="assets_type" jdbcType="VARCHAR" property="assetsType" />
+      <result column="assets_type" jdbcType="TINYINT" property="assetsType" />
     <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
     <result column="assets_name" jdbcType="VARCHAR" property="assetsName" />
     <result column="this_amount" jdbcType="BIGINT" property="thisAmount" />
@@ -36,7 +36,7 @@
     -->
     id, create_time, modify_time, number, type, assets_type,
     assets_id, assets_name, this_amount, price, creator_dep_id, balance, notes, creator_id,
-    creator, market_id, market_code, mch_id, mch_name, first_district_id, first_name, second_district_id, second_district_name, version
+    creator, market_id, market_code, mch_id, mch_name, first_district_id, first_district_name, second_district_id, second_district_name, version
   </sql>
   <select id="getMeterById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -66,7 +66,7 @@
         type = #{type,jdbcType=INTEGER},
       </if>
       <if test="assetsType != null">
-        assets_type = #{assetsType,jdbcType=VARCHAR},
+        assets_type = #{assetsType,jdbcType=TINYINT},
       </if>
       <if test="assetsId != null">
         assets_id = #{assetsId,jdbcType=BIGINT},

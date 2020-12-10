@@ -1,10 +1,14 @@
 package com.dili.ia.service.impl;
 
+import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.Meter;
+import com.dili.ia.domain.dto.AssetsLeaseOrderItemListDto;
+import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.mapper.CustomerMeterMapper;
+import com.dili.ia.service.AssetsLeaseOrderItemService;
 import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.service.MeterService;
@@ -23,6 +27,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.print.attribute.standard.NumberUp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,6 +49,9 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
 
     @Autowired
     private MeterService meterService;
+
+    @Autowired
+    private AssetsLeaseOrderItemService assetsLeaseOrderItemService;
 
     /**
      * 根据主键 id 查询表用户关系
@@ -232,5 +240,31 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         }
 
         return BaseOutput.success().setData(customerMeter);
+    }
+
+    /**
+     * 根据表地址查询是否处于租期状态和相应的用户
+     *
+     * @param  assetsId
+     * @param  assetsType
+     * @return CustomerMeterDto
+     * @date   2020/12/10
+     */
+    @Override
+    public CustomerMeterDto getCustomerByAssetsIdAndAssetsType(UserTicket code, Long assetsId, Integer assetsType) {
+        CustomerMeterDto customerMeterDto = new CustomerMeterDto();
+        AssetsLeaseOrderItem assetsLeaseOrderItem = new AssetsLeaseOrderItem();
+        assetsLeaseOrderItem.setState(5);
+        assetsLeaseOrderItem.setAssetsId(assetsId);
+        assetsLeaseOrderItem.setAssetsType(assetsType);
+        AssetsLeaseOrderItemListDto itemListDto = assetsLeaseOrderItemService.getCustomerByAssetsIdAndAssetsType(assetsLeaseOrderItem);
+        if (itemListDto != null) {
+            customerMeterDto.setCustomerId(itemListDto.getCustomerId());
+            customerMeterDto.setCustomerName(itemListDto.getCustomerName());
+            customerMeterDto.setCertificateNumber(itemListDto.getCertificateNumber());
+            customerMeterDto.setCustomerCellphone(itemListDto.getCustomerCellphone());
+        }
+
+        return customerMeterDto;
     }
 }

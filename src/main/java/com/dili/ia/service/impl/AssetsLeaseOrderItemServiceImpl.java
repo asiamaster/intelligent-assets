@@ -211,4 +211,16 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
 
         return assetsLeaseOrderItemListDtos;
     }
+
+    /**
+     * 根据表地址查询是否处于租期状态和相应的用户
+     *
+     * @param  assetsLeaseOrderItem
+     * @return AssetsLeaseOrderItemListDto
+     * @date   2020/12/10
+     */
+    @Override
+    public AssetsLeaseOrderItemListDto getCustomerByAssetsIdAndAssetsType(AssetsLeaseOrderItem assetsLeaseOrderItem) {
+        return this.getActualDao().getCustomerByAssetsIdAndAssetsType(assetsLeaseOrderItem);
+    }
 }

@@ -72,6 +72,28 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate stopDate;
 
+    //证件号
+    private String certificateNumber;
+
+    //客户电话
+    private String customerCellphone;
+
+    public String getCertificateNumber() {
+        return certificateNumber;
+    }
+
+    public void setCertificateNumber(String certificateNumber) {
+        this.certificateNumber = certificateNumber;
+    }
+
+    public String getCustomerCellphone() {
+        return customerCellphone;
+    }
+
+    public void setCustomerCellphone(String customerCellphone) {
+        this.customerCellphone = customerCellphone;
+    }
+
     public LocalDateTime getCreatedStart() {
         return createdStart;
     }
