@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.dili.ia.domain.OtherFee;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.OtherFeeDto;
 import com.dili.ia.domain.dto.OtherFeeRefundOrderDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
@@ -21,7 +20,6 @@ import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.OtherFeeService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -33,9 +31,7 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
-import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -75,9 +71,6 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
     @Autowired
     private SettlementRpcResolver settlementRpcResolver;
-
-    @Autowired
-    private TransferDeductionItemService transferDeductionItemService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;

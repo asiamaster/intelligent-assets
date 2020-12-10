@@ -58,8 +58,6 @@ public class DepositOrderController {
     @Autowired
     RefundOrderService refundOrderService;
     @Autowired
-    TransferDeductionItemService transferDeductionItemService;
-    @Autowired
     SettlementRpc settlementRpc;
     @Autowired
     AssetsRpc assetsRpc;

@@ -48,8 +48,6 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     @Autowired
     AssetsLeaseOrderItemService assetsLeaseOrderItemService;
     @Autowired
-    TransferDeductionItemService transferDeductionItemService;
-    @Autowired
     private RefundFeeItemService refundFeeItemService;
     @SuppressWarnings("all")
     @Autowired

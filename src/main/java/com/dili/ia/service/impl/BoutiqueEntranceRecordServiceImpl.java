@@ -1,32 +1,17 @@
 package com.dili.ia.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.dili.ia.domain.BoutiqueEntranceRecord;
-import com.dili.ia.domain.BoutiqueFeeOrder;
-import com.dili.ia.domain.BoutiqueFreeSets;
-import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
-import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
-import com.dili.ia.glossary.BizNumberTypeEnum;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.BoutiqueOrderStateEnum;
-import com.dili.ia.glossary.BoutiqueStateEnum;
-import com.dili.ia.glossary.PaymentOrderStateEnum;
-import com.dili.ia.glossary.PrintTemplateEnum;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.BoutiqueEntranceRecordMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
-import com.dili.ia.service.BoutiqueEntranceRecordService;
-import com.dili.ia.service.BoutiqueFeeOrderService;
-import com.dili.ia.service.BoutiqueFreeSetsService;
-import com.dili.ia.service.PaymentOrderService;
-import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.service.TransferDeductionItemService;
+import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -34,7 +19,6 @@ import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValueProviderUtils;
@@ -94,9 +78,6 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
     @Autowired
     private RefundOrderService refundOrderService;
-
-    @Autowired
-    private TransferDeductionItemService transferDeductionItemService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;

@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.domain.dto.PassportRefundOrderDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
@@ -21,7 +20,6 @@ import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
@@ -29,7 +27,6 @@ import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValueProviderUtils;
@@ -39,7 +36,6 @@ import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.seata.spring.annotation.GlobalTransactional;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -81,9 +77,6 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
     @Autowired
     private RefundOrderService refundOrderService;
-
-    @Autowired
-    private TransferDeductionItemService transferDeductionItemService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;

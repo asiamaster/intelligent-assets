@@ -85,12 +85,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	private DepartmentRpc departmentRpc;
 	
 	@Autowired
-	private TransferDeductionItemService transferDeductionItemService;
-	
-	@Autowired
-	private CustomerAccountService customerAccountService;
-	
-	@Autowired
 	private DataAuthService dataAuthService;
 	
 	@Value("${settlement.app-id}")

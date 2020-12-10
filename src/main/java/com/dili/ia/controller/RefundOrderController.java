@@ -7,10 +7,12 @@ import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.rpc.CustomerRpc;
-import com.dili.ia.service.*;
+import com.dili.ia.service.ApprovalProcessService;
+import com.dili.ia.service.AssetsLeaseOrderItemService;
+import com.dili.ia.service.RefundFeeItemService;
+import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
-import com.dili.ia.util.SpringUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
@@ -35,7 +37,6 @@ import javax.annotation.Resource;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 退款单控制器
@@ -50,8 +51,6 @@ public class RefundOrderController {
     RefundOrderService refundOrderService;
     @Autowired
     AssetsLeaseOrderItemService assetsLeaseOrderItemService;
-    @Autowired
-    TransferDeductionItemService transferDeductionItemService;
     @Autowired
     BusinessLogRpc businessLogRpc;
     @Autowired
@@ -229,9 +228,6 @@ public class RefundOrderController {
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){
                 return "refundOrder/earnestRefundOrderView";
             } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
-                TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-                transferDeductionItemCondition.setRefundOrderId(id);
-                modelMap.put("transferDeductionItems",transferDeductionItemService.list(transferDeductionItemCondition));
                 return "refundOrder/depositRefundOrderView";
             } else if (refundOrder.getBizType().equals(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode())
             		|| refundOrder.getBizType().equals(BizTypeEnum.PASSPORT.getCode())

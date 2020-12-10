@@ -13,16 +13,13 @@ import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.BoutiqueFeeOrderService;
 import com.dili.ia.service.RefundOrderService;
-import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -55,9 +52,6 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
 
     @Autowired
     private RefundOrderService refundOrderService;
-
-    @Autowired
-    private TransferDeductionItemService transferDeductionItemService;
 
     /**
      * 根据精品停车主键 recordId 查询缴费单列表

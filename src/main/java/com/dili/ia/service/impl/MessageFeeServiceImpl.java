@@ -71,7 +71,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	
 	@Autowired
 	private SettlementRpcResolver settlementRpcResolver;
-	
+
+	@SuppressWarnings("all")
 	@Autowired
 	private DepartmentRpc departmentRpc;
 	
@@ -80,9 +81,6 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	
 	@Autowired
 	private RefundOrderService refundOrderService;
-	
-	@Autowired
-	private TransferDeductionItemService transferDeductionItemService;
 	
 	@Autowired
 	private ChargeRuleRpc chargeRuleRpc;
@@ -272,12 +270,12 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, messageFee, order);
 		
 		// 转抵信息
-		if (CollectionUtils.isNotEmpty(refundInfoDto.getTransferDeductionItems())) {
-			refundInfoDto.getTransferDeductionItems().forEach(o -> {
-				o.setRefundOrderId(refundOrder.getId());
-				transferDeductionItemService.insertSelective(o);
-			});
-		}
+//		if (CollectionUtils.isNotEmpty(refundInfoDto.getTransferDeductionItems())) {
+//			refundInfoDto.getTransferDeductionItems().forEach(o -> {
+//				o.setRefundOrderId(refundOrder.getId());
+//				transferDeductionItemService.insertSelective(o);
+//			});
+//		}
 		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "退款申请信息费单");
 
 	}
@@ -523,7 +521,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		// 获取转抵信息
 		TransferDeductionItem condtion = new TransferDeductionItem();
 		condtion.setRefundOrderId(refundOrder.getId());
-		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
+//		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
 		PrintDataDto<MessageFeeRefundPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getName());
 		return printDataDto;	

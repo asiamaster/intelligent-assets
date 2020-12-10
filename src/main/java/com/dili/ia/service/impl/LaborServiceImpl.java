@@ -77,9 +77,6 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	private RefundOrderService refundOrderService;
 	
 	@Autowired
-	private TransferDeductionItemService transferDeductionItemService;
-	
-	@Autowired
 	private ChargeRuleRpc chargeRuleRpc;
 	
 	@Autowired
@@ -305,12 +302,12 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, labor.getCode());
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, labor, order);
 		// refundOrderService.doAddHandler(refundOrder);
-		if (CollectionUtils.isNotEmpty(refundInfoDto.getTransferDeductionItems())) {
-			refundInfoDto.getTransferDeductionItems().forEach(o -> {
-                o.setRefundOrderId(refundOrder.getId());
-                transferDeductionItemService.insertSelective(o);
-            });
-        }
+//		if (CollectionUtils.isNotEmpty(refundInfoDto.getTransferDeductionItems())) {
+//			refundInfoDto.getTransferDeductionItems().forEach(o -> {
+//                o.setRefundOrderId(refundOrder.getId());
+//                transferDeductionItemService.insertSelective(o);
+//            });
+//        }
         LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 		
@@ -337,9 +334,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		//转抵扣充值
         TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
         transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
-        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
-            transferDeductionItems.forEach(o -> {
+//        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
+//        if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
+//            transferDeductionItems.forEach(o -> {
 //                BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.LABOR_VEST.getCode(),
 //                        refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
 //                        refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
@@ -347,8 +344,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 //                    LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
 //                    throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
 //                }
-            });
-        }
+//            });
+//        }
 		
 	}
 	
@@ -596,7 +593,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		// 获取转抵信息
 		TransferDeductionItem condtion = new TransferDeductionItem();
 		condtion.setRefundOrderId(refundOrder.getId());
-		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
+//		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
 		PrintDataDto<LaborRefundPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getName());
 		printDataDto.setItem(printDto);

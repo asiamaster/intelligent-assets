@@ -1,36 +1,26 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.StockIn;
-import com.dili.ia.domain.TransferDeductionItem;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.BoutiqueOrderStateEnum;
-import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.BoutiqueFeeOrderService;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.RefundOrderDispatcherService;
-import com.dili.ia.service.TransferDeductionItemService;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
-import com.dili.uap.sdk.domain.User;
-import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Sets;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,9 +35,6 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
 
     @Autowired
     private BoutiqueEntranceRecordService boutiqueEntranceRecordService;
-
-    @Autowired
-    private TransferDeductionItemService transferDeductionItemService;
 
     @Autowired
     private CustomerAccountService customerAccountService;
