@@ -515,7 +515,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		MessageFeePayPrintDto messageFeePrint = new MessageFeePayPrintDto();
 		messageFeePrint.setPrintTime(LocalDateTime.now());
 		messageFeePrint.setReprint(reprint);
-		messageFeePrint.setBusinessType(BizTypeEnum.LABOR_VEST.getName());
+		messageFeePrint.setBusinessType(BizTypeEnum.MESSAGEFEE.getName());
 		messageFeePrint.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
 		messageFeePrint.setCustomerCellphone(messageFee.getCustomerCellphone());
 		messageFeePrint.setCustomerName(messageFee.getCustomerName());

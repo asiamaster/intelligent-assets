@@ -61,12 +61,6 @@ function getIndex(str) {
 	return str.split('_')[1];
 }
 
-/**
- * 添加摊位
- */
-function addTransferItem(){
-	$('#transferTable tbody').append(bui.util.HTMLDecode(template('transferItemTpl',{index:++itemIndex})))
-}
 
 
 
@@ -119,10 +113,19 @@ function calcTotalRefundAmount(){
 		$('#totalRefundAmount').val((total.mul(100)).centToYuan());
 	});
 }
+
 //计算金额,重量,数量
 $(document).on('change', '.chargeItem', function() {
 	calcTotalRefundAmount();
 });
+
+//费用联动
+$(document).on('input', '[name="totalRefundAmount"]', function(){
+    let totalRefundAmount = $('[name="totalRefundAmount"]').val();
+    $('[name="payeeAmount"]').val(totalRefundAmount);
+})
+
+
 
 /**
  * 验证实际退款金额是否小于
@@ -213,6 +216,15 @@ function saveFormHandler(){
 /*****************************************函数区 end**************************************/
 
 /*****************************************自定义事件区 begin************************************/
+
+/**
+ * 添加转抵
+ */
+function addTransferItem(){
+	$('#transferTable tbody').append(bui.util.HTMLDecode(template('transferItemTpl',{index:++itemIndex})))
+}
+
+
 //摊位新增事件
 $('#addTransfer').on('click', function(){
 	addTransferItem({index: ++itemIndex});

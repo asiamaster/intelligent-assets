@@ -10,6 +10,7 @@ import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
+import com.dili.ia.util.SpringUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
@@ -34,6 +35,7 @@ import javax.annotation.Resource;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 退款单控制器
@@ -235,7 +237,8 @@ public class RefundOrderController {
             		|| refundOrder.getBizType().equals(BizTypeEnum.PASSPORT.getCode())
             		|| refundOrder.getBizType().equals(BizTypeEnum.LABOR_VEST.getCode())
             		|| refundOrder.getBizType().equals(BizTypeEnum.OTHER_FEE.getCode())
-            		|| refundOrder.getBizType().equals(BizTypeEnum.STOCKIN.getCode())){
+            		|| refundOrder.getBizType().equals(BizTypeEnum.STOCKIN.getCode())
+            		|| refundOrder.getBizType().equals(BizTypeEnum.MESSAGEFEE.getCode())){
                 return "refundOrder/commonRefundOrderView";
             } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())
                     || refundOrder.getBizType().equals(BizTypeEnum.LOCATION_LEASE.getCode())
@@ -435,7 +438,19 @@ public class RefundOrderController {
             } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
                 return "forward:/leaseOrder/refundApply.html?refundOrderId=" + id + "&leaseOrderItemId=" + refundOrder.getBusinessItemId();
             }
+
         }
         return "refundOrder/updateView/refundApply";
+    }
+    
+    /**
+     * 修改退款单
+     * @Title doUpdate
+     */
+    @PostMapping(value="/doUpdate.action")
+    public @ResponseBody BaseOutput doUpdate(RefundOrderDto dto) {
+    	refundOrderService.doUpdatedHandlerV1(dto);
+		return BaseOutput.success("退款单修改成功!");
+    	
     }
 }
