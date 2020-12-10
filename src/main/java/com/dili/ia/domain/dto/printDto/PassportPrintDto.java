@@ -66,6 +66,19 @@ public class PassportPrintDto {
      */
     private String refundReason;
 
+    /**
+     * 业务部门名称
+     */
+    private String departmentName;
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
     public String getRefundReason() {
         return refundReason;
     }

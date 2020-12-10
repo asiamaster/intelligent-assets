@@ -584,6 +584,48 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     }
 
     /**
+     * 通行证证件打印
+     *
+     * @param  orderCode
+     * @return BaseOutput
+     * @date   2020/7/27
+     */
+    @Override
+    public PrintDataDto<PassportPrintDto> printPaperwork(String orderCode, String reprint) {
+        PaymentOrder paymentOrderCondition = new PaymentOrder();
+
+        paymentOrderCondition.setCode(orderCode);
+        paymentOrderCondition.setBizType(BizTypeEnum.PASSPORT.getCode());
+        PaymentOrder paymentOrder = paymentOrderService.list(paymentOrderCondition).stream().findFirst().orElse(null);
+        if (null == paymentOrder) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "businessCode无效");
+        }
+        if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
+        }
+
+        // 组装数据
+        Passport passportInfo = this.get(paymentOrder.getBusinessId());
+        if (passportInfo == null) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "通行证单不存在!");
+        }
+        PassportPrintDto passportPrintDto = new PassportPrintDto();
+
+        passportPrintDto.setCustomerName(passportInfo.getCustomerName());
+        passportPrintDto.setPlate(passportInfo.getCarNumber());
+        passportPrintDto.setLicenseNumber(passportInfo.getLicenseNumber());
+        passportPrintDto.setDepartmentName(passportInfo.getDepartmentName());
+        passportPrintDto.setCustomerCellphone(passportInfo.getCustomerCellphone());
+
+        // 打印最外层
+        PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();
+        printDataDto.setName(PrintTemplateEnum.PASSPORT.getName());
+        printDataDto.setItem(passportPrintDto);
+
+        return printDataDto;
+    }
+
+    /**
      * 构建结算实体类
      *
      * @param  userTicket

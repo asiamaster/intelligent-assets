@@ -134,4 +134,13 @@ public interface PassportService extends BaseService<Passport, Long> {
      * @date 2020/8/6
      */
     void passportTasking();
+
+    /**
+     * 通行证证件打印
+     *
+     * @param  orderCode
+     * @return BaseOutput
+     * @date   2020/7/27
+     */
+    PrintDataDto<PassportPrintDto> printPaperwork(String orderCode, String reprint);
 }

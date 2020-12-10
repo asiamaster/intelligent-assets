@@ -121,4 +121,25 @@ public class PassportApi {
         LOG.info("--通行证判断是否已生效和已过期的定时任务结束--");
     }
 
+    /**
+     * 通行证证件打印
+     *
+     * @param  orderCode
+     * @return BaseOutput
+     * @date   2020/7/27
+     */
+    @RequestMapping(value = "/printPaperwork", method = {RequestMethod.POST})
+    public @ResponseBody
+    BaseOutput<PrintDataDto<PassportPrintDto>> printPaperwork(String orderCode, String reprint) {
+        try {
+            return BaseOutput.success().setData(passportService.printPaperwork(orderCode, reprint));
+        } catch (BusinessException e) {
+            LOG.info("通行证退款票据打印异常：{}", e);
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            LOG.info("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+        }
+    }
+
 }
