@@ -81,23 +81,6 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
             }
 
             this.updateState(refundOrder.getBusinessCode(), otherFeeInfo.getVersion(), OtherFeeStateEnum.REFUND);
-
-            //转抵扣充值
-            TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-            transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
-            List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-            if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
-                transferDeductionItems.forEach(o -> {
-                    //@TODO 重构调整了
-//                    BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.OTHER_FEE.getCode(),
-//                            refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(), refundOrder.getMarketId(),
-//                            refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
-//                    if (!accountOutput.isSuccess()) {
-//                        logger.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
-//                        throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
-//                    }
-                });
-            }
         }
 
         return BaseOutput.success();

@@ -423,11 +423,11 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         String settleDetails = "";
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
-            settleDetails = "付款方式：" + order.getWayName() + "     【卡号：" + order.getAccountNumber() +
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
                     "（" + order.getCustomerName() + "）】";
         } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
             // 现金
-            settleDetails = "付款方式：" + order.getWayName() + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
                     + order.getNotes() + "】";
         }
         passportPrintDto.setSettleWayDetails(settleDetails);
@@ -479,13 +479,13 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + refundOrder.getPayeeAmount();
             if (SettleWayEnum.CARD.getCode() == order.getWay()) {
                 // 园区卡支付
-                settleDetails = "退款方式：" + order.getWayName() + "     园区卡号：" + order.getAccountNumber();
+                settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     园区卡号：" + order.getAccountNumber();
             } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
                 // 现金
-                settleDetails = "退款方式：" + order.getWayName();
+                settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay());
             } else if (SettleWayEnum.CASH.getCode() == order.getWay())  {
                 // 银行卡
-                settleDetails = "退款方式：" + order.getWayName() + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
+                settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
             }
             passportPrintDto.setSettleWayDetails(settleDetails);
 
@@ -527,14 +527,6 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         passportInfo.setState(PassportStateEnum.SUBMITTED_REFUND.getCode());
         if (this.updateSelective(passportInfo) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
-        }
-
-        // 转抵信息
-        if (CollectionUtils.isNotEmpty(passportRefundOrderDto.getTransferDeductionItems())) {
-            passportRefundOrderDto.getTransferDeductionItems().forEach(o -> {
-                o.setRefundOrderId(passportRefundOrderDto.getBusinessId());
-                transferDeductionItemService.insertSelective(o);
-            });
         }
 
         return passportInfo;
@@ -650,10 +642,10 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         settleOrderInfoDto.setCustomerPhone(passportInfo.getCustomerCellphone());
         settleOrderInfoDto.setSubmitterId(userTicket.getId());
         settleOrderInfoDto.setSubmitterName(userTicket.getRealName());
-        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.PASSPORT.getCode()));
+//        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.PASSPORT.getCode()));
         settleOrderInfoDto.setType(SettleTypeEnum.PAY.getCode());
         settleOrderInfoDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+//        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
         if (userTicket.getDepartmentId() != null) {
             settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
             settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());

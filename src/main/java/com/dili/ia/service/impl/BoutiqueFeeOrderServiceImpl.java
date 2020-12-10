@@ -125,14 +125,6 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
         orderDtoInfo.setModifyTime(LocalDateTime.now());
         orderDtoInfo.setState(BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode());
         this.updateSelective(orderDtoInfo);
-
-        // 转抵信息
-        if (CollectionUtils.isNotEmpty(refundDto.getTransferDeductionItems())) {
-            refundDto.getTransferDeductionItems().forEach(o -> {
-                o.setRefundOrderId(refundDto.getBusinessId());
-                transferDeductionItemService.insertSelective(o);
-            });
-        }
     }
 
     /**

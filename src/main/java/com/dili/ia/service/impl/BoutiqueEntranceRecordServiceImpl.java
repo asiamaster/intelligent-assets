@@ -598,10 +598,10 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         settleOrderInfoDto.setCustomerPhone(recordInfo.getCustomerCellphone());
         settleOrderInfoDto.setSubmitterId(userTicket.getId());
         settleOrderInfoDto.setSubmitterName(userTicket.getRealName());
-        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode()));
+//        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode()));
         settleOrderInfoDto.setType(SettleTypeEnum.PAY.getCode());
         settleOrderInfoDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+//        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
         if (userTicket.getDepartmentId() != null) {
             settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
             settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());

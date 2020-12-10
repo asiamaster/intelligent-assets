@@ -624,11 +624,11 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         String settleDetails = "";
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
-            settleDetails = "付款方式：" + order.getWayName() + "     【卡号：" + order.getAccountNumber() +
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
                     "（" + order.getCustomerName() + "）】";
         } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
             // 现金
-            settleDetails = "付款方式：" + order.getWayName() + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
                     + order.getNotes() + "】";
         }
         meterDetailPrintDto.setSettleWayDetails(settleDetails);
@@ -733,10 +733,10 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         settleOrderInfoDto.setCustomerPhone(meterDetailDto.getCustomerCellphone());
         settleOrderInfoDto.setSubmitterId(userTicket.getId());
         settleOrderInfoDto.setSubmitterName(userTicket.getRealName());
-        settleOrderInfoDto.setBusinessType(Integer.valueOf(bizTypeEnum.getCode()));
+//        settleOrderInfoDto.setBusinessType(Integer.valueOf(bizTypeEnum.getCode()));
         settleOrderInfoDto.setType(SettleTypeEnum.PAY.getCode());
         settleOrderInfoDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+//        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
         if (userTicket.getDepartmentId() != null) {
             settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
             settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());

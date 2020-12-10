@@ -63,11 +63,6 @@ public class PassportRefundOrderDto {
      */
     private String refundReason;
 
-    /**
-     * 转抵扣
-     */
-    private List<TransferDeductionItem> transferDeductionItems;
-
     public Long getBusinessId() {
         return businessId;
     }
@@ -98,14 +93,6 @@ public class PassportRefundOrderDto {
 
     public void setPayeeCellphone(String payeeCellphone) {
         this.payeeCellphone = payeeCellphone;
-    }
-
-    public List<TransferDeductionItem> getTransferDeductionItems() {
-        return transferDeductionItems;
-    }
-
-    public void setTransferDeductionItems(List<TransferDeductionItem> transferDeductionItems) {
-        this.transferDeductionItems = transferDeductionItems;
     }
 
     public String getBusinessCode() {

@@ -402,11 +402,11 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         String settleDetails = "";
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
-            settleDetails = "付款方式：" + order.getWayName() + "     【卡号：" + order.getAccountNumber() +
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
                     "（" + order.getCustomerName() + "）】";
         } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
             // 现金
-            settleDetails = "付款方式：" + order.getWayName() + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
                     + order.getNotes() + "】";
         }
         otherFeePrintDto.setSettleWayDetails(settleDetails);
@@ -459,13 +459,13 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             String settleDetails = "收款人：" + refundOrderInfo.getPayee() + "金额：" + refundOrderInfo.getPayeeAmount();
             if (SettleWayEnum.CARD.getCode() == order.getWay()) {
                 // 园区卡支付
-                settleDetails = "退款方式：" + order.getWayName() + "     园区卡号：" + order.getAccountNumber();
+                settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     园区卡号：" + order.getAccountNumber();
             } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
                 // 现金
-                settleDetails = "退款方式：" + order.getWayName();
+                settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay());
             } else if (SettleWayEnum.CASH.getCode() == order.getWay())  {
                 // 银行卡
-                settleDetails = "退款方式：" + order.getWayName() + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
+                settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
             }
             otherFeePrintDto.setSettleWayDetails(settleDetails);
 
@@ -539,10 +539,10 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         settleOrderInfoDto.setSubmitterId(userTicket.getId());
         settleOrderInfoDto.setSubmitterName(userTicket.getRealName());
-        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.OTHER_FEE.getCode()));
+//        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.OTHER_FEE.getCode()));
         settleOrderInfoDto.setType(SettleTypeEnum.PAY.getCode());
         settleOrderInfoDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
+//        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
         if (userTicket.getDepartmentId() != null) {
             settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
             settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
