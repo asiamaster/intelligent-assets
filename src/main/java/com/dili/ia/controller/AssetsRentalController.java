@@ -16,12 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -154,6 +149,43 @@ public class AssetsRentalController {
     public @ResponseBody BaseOutput enableOrDisable(@RequestBody Long id) {
         assetsRentalService.enableOrDisable(id);
         return BaseOutput.success();
+    }
+
+    /**
+     * 根据摊位 id 查询相关的预设信息
+     * @param assetsId
+     * @return
+     */
+    @GetMapping(value="/getRentalByAssetsId.action")
+    public @ResponseBody BaseOutput<AssetsRentalDto> getRentalByAssetsId(Long assetsId){
+        try {
+            return BaseOutput.success().setData(assetsRentalService.getRentalByAssetsId(assetsId));
+        } catch (BusinessException e) {
+            logger.info("根据摊位 id 查询相关的预设信息异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            logger.error("根据摊位 id 查询相关的预设信息异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
+    /**
+     * 根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合
+     * @param assetsRentalDto
+     * @return
+     */
+    @GetMapping(value = "/listRentalsByRentalDtoAndKeyWord.action")
+    public @ResponseBody
+    BaseOutput<List<AssetsRentalDto>> listRentalsByRentalDtoAndKeyWord(AssetsRentalDto assetsRentalDto) {
+        try {
+            return BaseOutput.success().setData(assetsRentalService.listRentalsByRentalDtoAndKeyWord(assetsRentalDto));
+        } catch (BusinessException e) {
+            logger.info("根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            logger.error("根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
 }

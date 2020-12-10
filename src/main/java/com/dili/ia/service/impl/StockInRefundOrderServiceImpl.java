@@ -21,6 +21,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.BasePage;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Sets;
@@ -41,6 +42,18 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 	@Autowired
 	private StockInService stockInService;
 
+	@Override
+	public BaseOutput updateHandler(RefundOrder refundOrder) {
+		StockIn stockIn = stockInService.getStockInByCode(refundOrder.getBusinessCode());
+		if(stockIn == null) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "入库单不存在!");
+		}
+		if(refundOrder.getTotalRefundAmount() > stockIn.getAmount()) {
+			throw new BusinessException(ResultCode.DATA_ERROR, "金额不正确,最大可退款金额["+MoneyUtils.centToYuan(stockIn.getAmount())+"]!");
+		}
+		return BaseOutput.success();
+	}
+	
 	@Override
 	public BaseOutput submitHandler(RefundOrder refundOrder) {
 		/*String code = refundOrder.getBusinessCode();

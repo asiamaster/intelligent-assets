@@ -32,6 +32,7 @@ import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
+import com.dili.ia.util.SpringUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
@@ -870,4 +871,21 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     public void setRefundBiz(Map<String, RefundOrderDispatcherService> refundBiz) {
         this.refundBiz = refundBiz;
     }
+
+	@Override
+	public void doUpdatedHandlerV1(RefundOrder refundOrder) {
+		RefundOrder refundOrderDto = get(refundOrder.getId());
+        SpringUtil.copyPropertiesIgnoreNull(refundOrder, refundOrderDto);
+        //获取业务service,调用业务实现
+        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
+        if(service!=null){
+            BaseOutput refundResult = service.updateHandler(refundOrderDto);
+            if (!refundResult.isSuccess()){
+                LOG.info("退款单修改,业务单验证失败!" + refundResult.getMessage());
+                throw new BusinessException(ResultCode.DATA_ERROR, "退款单修改,业务单验证失败!" + refundResult.getMessage());
+            }
+            
+        }
+        doUpdatedHandler(refundOrderDto);
+	}
 }
