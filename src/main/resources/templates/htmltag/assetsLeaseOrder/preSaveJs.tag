@@ -37,9 +37,13 @@
         ajax: {
             type:'get',
             url : function(params){
+                let batchId = $('#batchId').val();
                 let index = getIndex($(this).attr('id'));
                 let leaseOrderItems = buildLeaseOrderItems();
                 if (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index)) {
+                    return '/assets/searchAssets.action';
+                } else if(!batchId) {
+                    params.isExcludeRental = true;
                     return '/assets/searchAssets.action';
                 } else {
                     return '/assetsRental/listRentalsByRentalDtoAndKeyWord.action';
@@ -49,7 +53,9 @@
                 return {
                     keyword: params.term,
                     mchId: $('#mchId').val(),
-                    batchId: $('#batchId').val()
+                    batchId: $('#batchId').val(),
+                    assetsType: $('#assetsType').val(),
+                    ...params
                 }
             },
             processResults: function (result) {
@@ -58,7 +64,7 @@
                     return {
                         results: $.map(data, function (dataItem) {
                             return $.extend(dataItem, {
-                                    text: dataItem.name + '(' + (dataItem.secondAreaName ? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')' + dataItem.marketId
+                                    text: dataItem.name + '(' + ((dataItem.secondAreaName || dataItem.secondDistrictName) ? (dataItem.areaName || dataItem.firstDistrictName) + '->' + (dataItem.secondAreaName || dataItem.secondDistrictName) : (dataItem.areaName || dataItem.firstDistrictName)) + ')' + dataItem.marketId
                                 }
                             );
                         })
@@ -88,6 +94,24 @@
                 if (rental) {
                     $('#batchId_'+index).val(rental.batchId);
                     $('#batchId').val(rental.batchId);
+                    rental.engageCode && $('#engageCode').val(rental.engageCode);
+                    rental.leaseTermCode && $('#leaseTermCode').val(rental.leaseTermCode);
+                    rental.leaseDays && $('#days').val(rental.leaseDays);
+                    rental.startTime && $('#startTime').val(moment(rental.startTime).format("YYYY-MM-DD"));
+                    rental.endTime && $('#endTime').val(moment(rental.endTime).format("YYYY-MM-DD"));
+
+                    if (rental.categoryId) {
+                        $('#categorys').html('');
+                        let categoryIds = rental.categoryId.split(',');
+                        let categoryNames = rental.categoryName.split(',');
+                        categoryIds.forEach((categoryId,i,arr) => {
+                            var option = new Option(categoryNames[i], categoryId, true, true);
+                            $('#categorys').append(option).trigger('change');
+                        });
+                    }
+                } else {
+                    $('#batchId_'+index).val('');
+                    $('#batchId').val('');
                 }
             }
 
@@ -101,8 +125,8 @@
             $('#unitName_'+index).val(suggestion.unitName);
             $('#sku_'+index).val(suggestion.number+suggestion.unitName);
             $('#isCorner_'+index).val(suggestion.cornerName);
-            $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
-            $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
+            $('#districtId_'+index).val((suggestion.secondArea || suggestion.secondDistrictId)?(suggestion.secondArea || suggestion.secondDistrictId) : (suggestion.area || suggestion.firstDistrictId));
+            $('#districtName_' + index).val((suggestion.secondAreaName || suggestion.secondDistrictName) ? (suggestion.areaName || suggestion.firstDistrictName)  + '->' + (suggestion.secondAreaName || suggestion.secondDistrictName) : (suggestion.areaName || suggestion.firstDistrictName));
             batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
             $('#id').val() && batchQueryDepositOrder({
                 businessId: $('#id').val(),

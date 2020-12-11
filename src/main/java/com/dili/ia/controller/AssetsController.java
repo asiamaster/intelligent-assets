@@ -5,6 +5,7 @@ import com.dili.assets.sdk.dto.*;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.service.AssetsRentalService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -15,10 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 摊位控制器
@@ -30,13 +33,15 @@ public class AssetsController {
 
     @Autowired
     private AssetsRpc assetsRpc;
+    @Autowired
+    private AssetsRentalService assetsRentalService;
 
     /**
      * 新增BoothOrderR 资产查询接口
      */
     @GetMapping(value = "/searchAssets.action")
     public @ResponseBody
-    BaseOutput<List<AssetsDTO>> searchAssets(String keyword, Integer assetsType, Integer firstDistrictId, Integer secondDistrictId) {
+    BaseOutput<List<AssetsDTO>> searchAssets(String keyword, Integer assetsType, Integer firstDistrictId, Integer secondDistrictId , boolean isExcludeRental) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         AssetsQuery assetsQuery = new AssetsQuery();
         assetsQuery.setKeyword(keyword);
@@ -51,10 +56,15 @@ public class AssetsController {
 
         try {
             List<AssetsDTO> assets = assetsRpc.searchAssets(assetsQuery).getData();
+            if (isExcludeRental) {
+                List<Long> filterIds = assetsRentalService.filterAssetsIdsByTable(assets.stream().map(o -> o.getId()).collect(Collectors.toList()));
+                assets = assets.stream().filter(o -> !filterIds.contains(o.getId())).collect(Collectors.toList());
+            }
             if (CollectionUtils.isNotEmpty(assets)) {
                 for (int i = 0; i < assets.size(); i++) {
                     if (i != 0) {
-                        assets.get(i).setMarketId(Long.valueOf(assets.size() - i));
+//                        assets.get(i).setMarketId(Long.valueOf(assets.size() - i));
+                        assets.get(i).setMarketId(1L);
                     }
                 }
             }
