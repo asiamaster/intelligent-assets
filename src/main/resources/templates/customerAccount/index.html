@@ -5,16 +5,16 @@
     <form id="queryForm" role="form" >
         <div class="row  row-cols-6">
             <div class="form-group col">
-                <label for="likeCustomerName" class="">客户名称</label>
-                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
+                <label for="customerNameMatch" class="">客户名称</label>
+                <input type="text" class="form-control" name="customerNameMatch" id="customerNameMatch" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="customerCellphone" class="">联系电话</label>
-                <input type="text" class="form-control" name="customerCellphone" id="customerCellphone" maxlength="50"/>
+                <label for="customerPhone" class="">联系电话</label>
+                <input type="text" class="form-control" name="customerPhone" id="customerPhone" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="certificateNumber" class="">证件号码</label>
-                <input type="text" class="form-control" name="certificateNumber" id="certificateNumber" maxlength="50"/>
+                <label for="customerCertificate" class="">证件号码</label>
+                <input type="text" class="form-control" name="customerCertificate" id="customerCertificate" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
@@ -46,20 +46,20 @@
                 <thead>
                 <tr>
                     <th data-radio="true"></th>
+                    <th data-field="mchId" data-sortable="true" data-align="center" data-provider="firmIdProvider">
+                        所属组织
+                    </th>
                     <th data-field="customerName" data-sortable="true" data-align="center">
                         客户名称
                     </th>
-                    <th data-field="customerCellphone" data-sortable="true" data-align="center">
+                    <th data-field="customerPhone" data-sortable="true" data-align="center">
                         联系电话
                     </th>
-                    <th data-field="certificateNumber" data-sortable="true" data-align="center">
+                    <th data-field="customerCertificate" data-sortable="true" data-align="center">
                         证件号码
                     </th>
-                    <th data-field="earnestAvailableBalance" data-sortable="true" data-align="center" data-provider="moneyProvider">
+                    <th data-field="amount" data-sortable="true" data-align="center" data-provider="moneyProvider">
                         定金金额
-                    </th>
-                    <th data-field="transferAvailableBalance" data-sortable="true" data-align="center" data-provider="moneyProvider">
-                        转抵金额
                     </th>
                 </tr>
                 </thead>
