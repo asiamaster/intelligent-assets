@@ -108,7 +108,6 @@ public class CustomerAccountController {
      * @param id 客户账户Id
      * @return String
      */
-    // @TODO 定金退款页面数据来源于 调用结算
     @RequestMapping(value="/earnestTransfer.html", method = RequestMethod.GET)
     public String earnestTransfer(ModelMap modelMap, Long id) {
         if(null != id){
@@ -123,7 +122,6 @@ public class CustomerAccountController {
      * @param order
      * @return BaseOutput
      */
-    // @TODO 定金退款页面数据来源于 调用结算
     @BusinessLogger(content = "${content}", systemCode = "IA")
     @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput saveOrUpdateRefundOrder(@RequestBody EarnestRefundOrderDto order) {
@@ -161,7 +159,6 @@ public class CustomerAccountController {
      * @param etDto 前端参数
      * @return BaseOutput
      */
-    // @TODO 定金退款页面数据来源于 调用结算
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_ACCOUNT, content="${businessCode}客户【${payerName}】转移给客户【${customerName}】${amountYuan}元", operationType="transfer", systemCode = "IA")
     @RequestMapping(value="/doEarnestTransfer.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferOrderDto etDto) {

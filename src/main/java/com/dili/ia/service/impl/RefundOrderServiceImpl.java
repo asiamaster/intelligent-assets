@@ -300,6 +300,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //获取业务service,调用业务实现
         RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
         if(service!=null){
+            //@TODO 需要各个业务组装 特别的结算单对象，比如【回调参数】【费用项列表】
             BaseOutput refundResult = service.submitHandler(refundOrder);
             if (refundOrder != null && !refundResult.isSuccess()){
                 LOG.info("提交回调业务返回失败！" + refundResult.getMessage());
@@ -416,6 +417,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setWay(ro.getRefundType());
         settleOrder.setTradeCardNo(ro.getTradeCardNo());
 
+        settleOrder.setMchId(ro.getMchId());//商户Id
         settleOrder.setBusinessDepId(ro.getDepartmentId()); //"业务部门ID
         settleOrder.setBusinessDepName(ro.getDepartmentName());//"业务部门名称
         settleOrder.setSubmitterId(userTicket.getId());// "提交人ID
@@ -432,7 +434,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
         //@TODO 结算单回调参数
 //        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
-        //@TODO 结算单号需要增加商户ID，业务需要传入
 
         return settleOrder;
     }
