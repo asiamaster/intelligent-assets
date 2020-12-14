@@ -6,11 +6,9 @@ import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
+import io.netty.util.internal.EmptyArrays;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-03-09 19:34:40.
@@ -77,6 +75,6 @@ public interface RefundOrderDispatcherService extends BaseService<RefundOrder, L
 	 * 退款单 --组装提交到结算的【费用项】
 	 */
 	default List<SettleFeeItem> buildSettleFeeItem(RefundOrder refundOrder){
-		return new ArrayList<>();
+		return Collections.emptyList();
 	};
 }
