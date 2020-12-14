@@ -9,7 +9,7 @@ import java.util.List;
 public interface DepartmentChargeItemMapper extends MyMapper<DepartmentChargeItem> {
 
     /**
-     * 根据收费项查询相关部门
+     * 根据收费项ID查询集合
      *
      * @param  chargeItemId
      * @return list

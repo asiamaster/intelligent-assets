@@ -16,6 +16,8 @@
     <result column="creator" jdbcType="VARCHAR" property="creator" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
+      <result column="mch_id" jdbcType="BIGINT" property="mchId" />
+      <result column="mch_name" jdbcType="VARCHAR" property="mchName" />
     <result column="version" jdbcType="INTEGER" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
