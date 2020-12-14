@@ -364,7 +364,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         List<SettleOrderLink> settleOrderLinkList = new ArrayList<>();
         SettleOrderLink view = new SettleOrderLink();
         view.setType(LinkTypeEnum.DETAIL.getCode()); // 详情
-        view.setUrl(settleViewUrl + "?orderCode=" + ea.getCode());
+        view.setUrl(settleViewUrl + "?id=" + ea.getId());
         SettleOrderLink print = new SettleOrderLink();
         print.setType(LinkTypeEnum.PRINT.getCode()); // 打印
         print.setUrl(settlerPrintUrl + "?orderCode=" + paymentOrder.getCode());

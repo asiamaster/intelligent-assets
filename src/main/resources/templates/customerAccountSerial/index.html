@@ -5,18 +5,18 @@
     <form id="queryForm" role="form" >
         <div class="row  row-cols-6">
             <div class="form-group col-auto">
-                <label for="createdStart">时间:</label>
+                <label for="operateTimeStart">时间:</label>
                 <div class="form-inline">
                     <div class="input-group">
-                        <input type="text" name="createdStart" id="createdStart" class="form-control date laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <input type="text" name="operateTimeStart" id="operateTimeStart" class="form-control date laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
                         <div class="input-group-append">
-                            <label for="createdStart" class="input-group-text fa fa-calendar"></label>
+                            <label for="operateTimeStart" class="input-group-text fa fa-calendar"></label>
                         </div>
                     </div>&nbsp;&nbsp;至&nbsp;&nbsp;
                     <div class="input-group" id="datetimepicker3">
-                        <input type="text" name="createdEnd" id="createdEnd" class="form-control date laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <input type="text" name="operateTimeEnd" id="operateTimeEnd" class="form-control date laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
                         <div class="input-group-append">
-                            <label for="createdEnd" class="input-group-text fa fa-calendar"></label>
+                            <label for="operateTimeEnd" class="input-group-text fa fa-calendar"></label>
                         </div>
                     </div>
                 </div>
@@ -24,25 +24,25 @@
             <div class="form-group col">
                 <label for="itemType">类型:</label>
                 <select id="itemType" name="itemType" class="form-control"></select>
-                <#bcomboProvider _id="itemType" _provider="transactionItemTypeProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
+                <#bcomboProvider _id="action" _provider="ActionProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
                 <label for="sceneType">场景:</label>
                 <select id="sceneType" name="sceneType" class="form-control"></select>
-                <#bcomboProvider _id="sceneType" _provider="transactionSceneTypeProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+                <#bcomboProvider _id="scene" _provider="SceneProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
 
             </div>
             <div class="form-group col">
-                <label for="likeCustomerName">客户名称:</label>
-                <input type="text" class="form-control" name="likeCustomerName" id="likeCustomerName" maxlength="50"/>
+                <label for="customerNameMatch">客户名称:</label>
+                <input type="text" class="form-control" name="customerNameMatch" id="customerNameMatch" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="customerCellphone">联系电话:</label>
-                <input type="text" class="form-control" name="customerCellphone" id="customerCellphone" maxlength="50"/>
+                <label for="customerPhone">联系电话:</label>
+                <input type="text" class="form-control" name="customerPhone" id="customerPhone" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="certificateNumber">证件号码:</label>
-                <input type="text" class="form-control" name="certificateNumber" id="certificateNumber" maxlength="50"/>
+                <label for="customerCertificate">证件号码:</label>
+                <input type="text" class="form-control" name="customerCertificate" id="customerCertificate" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
@@ -66,13 +66,13 @@
                    data-show-refresh="true" data-show-fullscreen="true" data-show-columns="true">
                 <thead>
                 <tr>
-                    <th data-field="createTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
+                    <th data-field="operateTime" data-sortable="true" data-align="center" data-provider="datetimeProvider">
                         时间
                     </th>
-                    <th data-field="itemType" data-sortable="true" data-sort-name="item_type" data-align="center" data-provider="transactionItemTypeProvider">
+                    <th data-field="action" data-sortable="true" data-sort-name="action" data-align="center" data-provider="actionProvider">
                         类型
                     </th>
-                    <th data-field="sceneType" data-sortable="true" data-sort-name="scene_type" data-align="center" data-provider="transactionSceneTypeProvider">
+                    <th data-field="scene" data-sortable="true" data-sort-name="scene" data-align="center" data-provider="sceneProvider">
                         场景
                     </th>
                     <th data-field="amount" data-sortable="true" data-align="center" data-provider="sceneMoneyProvider">
@@ -81,10 +81,10 @@
                     <th data-field="customerName" data-sortable="true" data-align="center">
                         客户名称
                     </th>
-                    <th data-field="certificateNumber" data-sortable="true" data-align="center">
+                    <th data-field="customerCertificate" data-sortable="true" data-align="center">
                         证件号码
                     </th>
-                    <th data-field="customerCellphone" data-sortable="true" data-align="center">
+                    <th data-field="customerPhone" data-sortable="true" data-align="center">
                         联系电话
                     </th>
                     <th data-field="notes" data-sortable="true" data-align="center" data-formatter="dataFormatterTip">
@@ -100,7 +100,7 @@
 
 </#bs4Body>
 
-<#transactionDetails_indexJs />
+<#customerAccountSerial_indexJs />
 
 <script>
 
