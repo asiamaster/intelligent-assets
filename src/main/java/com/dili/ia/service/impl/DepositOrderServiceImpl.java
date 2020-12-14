@@ -107,12 +107,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     private Long settlementAppId;
     @Value("${contextPath}")
     private String businessLogReferer;
-    @Value("${earnestOrder.settlement.handler.url}")
+    @Value("${depositOrder.settlement.handler.url}")
     private String settlerHandlerUrl;
-    @Value("${earnestOrder.settlement.view.url}")
+    @Value("${depositOrder.settlement.view.url}")
     private String settleViewUrl;
-    @Value("${earnestOrder.settlement.print.url}")
+    @Value("${depositOrder.settlement.print.url}")
     private String settlerPrintUrl;
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -783,6 +784,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         params.setCustomerCellphone(depositOrder.getCustomerCellphone());
         params.setCustomerName(depositOrder.getCustomerName());
         params.setTypeName(depositOrder.getTypeName());
+        params.setMchId(depositOrder.getMchId());
         depositBalanceService.insertSelective(params);
 
         return params;
