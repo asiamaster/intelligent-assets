@@ -39,6 +39,10 @@
                     <select id="chargeItemId"  name="chargeItemId" class="form-control" required></select>
                 </div>
                 <div class="form-group col">
+                    <label for="typeCode">所属区域<i class="red">*</i></label>
+                    <#js_district firstDistrictId="" secondDistrictId=""></#js_district>
+            </div>
+                <div class="form-group col">
                     <label for="assetsType">费用类型<i class="red">*</i></label>
                     <select id="assetsType"  name="assetsType" class="form-control" required></select>
                     <#bcomboProvider _id="assetsType" _provider="assetsTypeProvider" _value="${depositOrder.assetsType!}" _queryParams='{emptyText:"-- 请选择 --"}'/>

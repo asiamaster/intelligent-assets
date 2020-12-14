@@ -116,7 +116,6 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         BeanUtils.copyProperties(meterDto, meter);
         if (this.updateSelective(meter) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
-
         }
 
         return meter;

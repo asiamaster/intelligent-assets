@@ -146,7 +146,6 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         // 修改操作
         otherFeeParam.setModifyTime(LocalDateTime.now());
-        otherFeeParam.setVersion(otherFeeInfo.getVersion() + 1);
 
         if (this.updateSelective(otherFeeParam) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");

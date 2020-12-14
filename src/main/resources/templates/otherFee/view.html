@@ -20,6 +20,19 @@
                     <label for="chargeItemName">收费项目<i class="red">*</i></label>
                     <input type="text" class="form-control isMobile" value="${otherFee.chargeItemName}" disabled />
                 </div>
+
+                <div class="form-group col">
+                    <label for="">所属区域</label>
+                    <div class="input-group">
+                        <select class="form-control" id="firstDistrictId" name="firstDistrictId" disabled>
+                            <option value="${meter.firstDistrictId!}">${firstDistrictName!}</option>
+                        </select>
+                        <select class="form-control" id="secondDistrictId" name="secondDistrictId" disabled>
+                            <option value="${meter.secondDistrictId!}">${secondDistrictName!}</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="form-group col">
                     <label for="departmentName">业务所属部门<i class="red">*</i></label>
                     <input type="text" class="form-control isMobile" value="${otherFee.departmentName}" disabled />

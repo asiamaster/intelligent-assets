@@ -36,6 +36,12 @@
     <result column="canceler" jdbcType="VARCHAR" property="canceler" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
+      <result column="mch_id" jdbcType="BIGINT" property="mchId" />
+      <result column="mch_name" jdbcType="VARCHAR" property="mchName" />
+      <result column="first_district_id" jdbcType="BIGINT" property="firstDistrictId" />
+      <result column="first_district_name" jdbcType="VARCHAR" property="firstDistrictName" />
+      <result column="second_district_id" jdbcType="BIGINT" property="secondDistrictId" />
+      <result column="second_district_name" jdbcType="VARCHAR" property="secondDistrictName" />
     <result column="version" jdbcType="INTEGER" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -46,7 +52,7 @@
     customer_cellphone, department_id, department_name, charge_item_id, charge_item_name, 
     assets_type, assets_id, assets_name, start_time, end_time, category_id, category_name, 
     amount, refund_amount, notes, state, creator_id, creator, withdraw_operator_id, withdraw_operator, 
-    canceler_id, canceler, market_id, market_code, version
+    canceler_id, canceler, market_id, market_code, mch_id, mch_name, first_district_id, first_district_name, second_district_id, second_district_name, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--

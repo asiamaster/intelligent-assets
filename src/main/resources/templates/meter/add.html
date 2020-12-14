@@ -34,8 +34,8 @@
                 <input id="price" type="number" class="form-control floatReserve money" name="price" range="0 9999999.99" required />
             </div>
             <div class="form-group col">
-                <label for="typeCode" _log >所属区域<i class="red">*</i></label>
-                <#js_district firstDistrictId="${meter.firstDistrictId!}" secondDistrictId="${meter.secondDistrictId!}" ></#js_district>
+                <label for="typeCode">所属区域<i class="red">*</i></label>
+                <#js_district firstDistrictId="" secondDistrictId=""></#js_district>
             </div>
             <div class="form-group col">
                 <label for="notes">备注</label>

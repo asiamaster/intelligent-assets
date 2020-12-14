@@ -117,6 +117,33 @@
     }
 
     /**
+     * 打开复制
+     * @param id
+     */
+    function openCopyHandler(id) {
+        if(!id){
+            //获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            id = rows[0].id;
+        }
+
+
+        dia = bs4pop.dialog({
+            title: '表信息详情',
+            content: '/meter/copy.action?id='+id,
+            isIframe : true,
+            closeBtn: true,
+            backdrop : 'static',
+            width: '80%',
+            height : '95%'
+        });
+    }
+
+    /**
      * 业务编号formatter
      * @param value
      * @param row

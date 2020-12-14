@@ -71,6 +71,22 @@ public class MeterController {
      * @return String
      * @date   2020/6/16
      */
+    @RequestMapping(value="/copy.action", method = RequestMethod.GET)
+    public String copy(ModelMap modelMap, Long id) {
+        if (id != null) {
+            Meter meter = meterService.get(id);
+            modelMap.put("meter", meter);
+        }
+        return "meter/copy";
+    }
+
+    /**
+     * 跳转到查看页面
+     *
+     * @param  id
+     * @return String
+     * @date   2020/6/16
+     */
     @RequestMapping(value="/view.action", method = RequestMethod.GET)
     public String view(ModelMap modelMap, Long id) {
         if (id != null) {

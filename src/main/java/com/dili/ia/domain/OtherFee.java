@@ -201,6 +201,43 @@ public class OtherFee extends BaseDomain {
     @Column(name = "`market_code`")
     private String marketCode;
 
+
+    /**
+     * 商户Id
+     */
+    @Column(name = "`mch_id`")
+    private Long mchId;
+
+    /**
+     * 商户名称
+     */
+    @Column(name = "`mch_name`")
+    private String mchName;
+
+    /**
+     * 一级区域Id
+     */
+    @Column(name = "`first_district_id`")
+    private Long firstDistrictId;
+
+    /**
+     * 一级区域名称
+     */
+    @Column(name = "`first_district_name`")
+    private String firstDistrictName;
+
+    /**
+     * 二级区域Id
+     */
+    @Column(name = "`second_district_id`")
+    private Long secondDistrictId;
+
+    /**
+     * 二级区域名称
+     */
+    @Column(name = "`second_district_name`")
+    private String secondDistrictName;
+
     /**
      * 版本控制,乐观锁
      */
@@ -806,6 +843,54 @@ public class OtherFee extends BaseDomain {
      */
     public void setMarketCode(String marketCode) {
         this.marketCode = marketCode;
+    }
+
+    public Long getMchId() {
+        return mchId;
+    }
+
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
+    }
+
+    public String getMchName() {
+        return mchName;
+    }
+
+    public void setMchName(String mchName) {
+        this.mchName = mchName;
+    }
+
+    public Long getFirstDistrictId() {
+        return firstDistrictId;
+    }
+
+    public void setFirstDistrictId(Long firstDistrictId) {
+        this.firstDistrictId = firstDistrictId;
+    }
+
+    public String getFirstDistrictName() {
+        return firstDistrictName;
+    }
+
+    public void setFirstDistrictName(String firstDistrictName) {
+        this.firstDistrictName = firstDistrictName;
+    }
+
+    public Long getSecondDistrictId() {
+        return secondDistrictId;
+    }
+
+    public void setSecondDistrictId(Long secondDistrictId) {
+        this.secondDistrictId = secondDistrictId;
+    }
+
+    public String getSecondDistrictName() {
+        return secondDistrictName;
+    }
+
+    public void setSecondDistrictName(String secondDistrictName) {
+        this.secondDistrictName = secondDistrictName;
     }
 
     /**
