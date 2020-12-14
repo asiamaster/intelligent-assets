@@ -11,10 +11,10 @@ import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.domain.dto.printDto.DepositOrderPrintDto;
 import com.dili.ia.domain.dto.printDto.DepositOrdersPrintDataDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.DepositOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
-import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
@@ -23,13 +23,14 @@ import com.dili.ia.util.SpringUtil;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.InvalidRequestDto;
 import com.dili.settlement.dto.SettleOrderDto;
-import com.dili.settlement.enums.SettleStateEnum;
-import com.dili.settlement.enums.SettleTypeEnum;
-import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.enums.*;
+import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -82,8 +83,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @Autowired
     AssetsRpc assetsRpc;
     @Autowired
-    SettlementRpc settlementRpc;
-    @Autowired
     PaymentOrderService paymentOrderService;
     @Autowired
     UidFeignRpc uidFeignRpc;
@@ -97,6 +96,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     BusinessLogRpc businessLogRpc;
     @Autowired
     AreaMarketRpc areaMarketRpc;
+    @Autowired
+    SettleOrderRpc settleOrderRpc;
 
     public DepositOrderMapper getActualDao() {
         return (DepositOrderMapper)getDao();
@@ -104,10 +105,15 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
-    @Value("${depositOrder.settlement.handler.url}")
-    private String settlerHandlerUrl;
     @Value("${contextPath}")
     private String businessLogReferer;
+    @Value("${depositOrder.settlement.handler.url}")
+    private String settlerHandlerUrl;
+    @Value("${depositOrder.settlement.view.url}")
+    private String settleViewUrl;
+    @Value("${depositOrder.settlement.print.url}")
+    private String settlerPrintUrl;
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -123,8 +129,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //检查客户状态
         checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
-        //检查摊位状态
-        if(AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) && depositOrder.getAssetsId() != null){
+        //检查【摊位，公寓，冷库】状态
+        if(depositOrder.getAssetsId() != null && (AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) ||  AssetsTypeEnum.LOCATION.getCode().equals(depositOrder.getAssetsType()) || AssetsTypeEnum.LODGING.getCode().equals(depositOrder.getAssetsType()))){
             getAndCheckAssetsState(depositOrder.getAssetsId());
         }
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
@@ -188,17 +194,17 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         Long mchId = null;
         //@TODO 为空抛异常，现在基础数据有问题，暂时注释掉代码，后期打开
-//        try {
-//            BaseOutput<Long> mchOutput = areaMarketRpc.getMarketByArea(districtId);
-//            if (!mchOutput.isSuccess()){
-//                LOG.error("根据区域ID查询商户，返回失败：{}", mchOutput.getMessage());
-//                throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回失败!");
-//            }
-//            mchId = mchOutput.getData();
-//        }catch (Exception e){
-//            LOG.error("根据区域ID查询商户，接口调用异常："+e.getMessage(),e);
-//            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，接口调用异常！");
-//        }
+        try {
+            BaseOutput<Long> mchOutput = areaMarketRpc.getMarketByArea(districtId);
+            if (!mchOutput.isSuccess()){
+                LOG.error("根据区域ID查询商户，返回失败：{}", mchOutput.getMessage());
+                throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回失败!");
+            }
+            mchId = mchOutput.getData();
+        }catch (Exception e){
+            LOG.error("根据区域ID查询商户，接口调用异常："+e.getMessage(),e);
+            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，接口调用异常！");
+        }
 //        if (mchId == null){
 //            LOG.error("根据区域ID查询商户，返回为空，districtId:{}", districtId);
 //            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回为空！");
@@ -282,7 +288,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //检查客户状态
         checkCustomerState(depositOrder.getCustomerId(),oldDTO.getMarketId());
-        //检查摊位状态
+        //检查【摊位，公寓，冷库】状态
         if(depositOrder.getAssetsId() != null && (AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) ||  AssetsTypeEnum.LOCATION.getCode().equals(depositOrder.getAssetsType()) || AssetsTypeEnum.LODGING.getCode().equals(depositOrder.getAssetsType()))){
             getAndCheckAssetsState(depositOrder.getAssetsId());
         }
@@ -343,8 +349,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         //检查客户状态
         checkCustomerState(de.getCustomerId(),de.getMarketId());
-        //检查摊位状态
-        if(AssetsTypeEnum.BOOTH.getCode().equals(de.getAssetsType()) && de.getAssetsId() != null){
+        //检查【摊位，公寓，冷库】状态
+        if(de.getAssetsId() != null && (AssetsTypeEnum.BOOTH.getCode().equals(de.getAssetsType()) ||  AssetsTypeEnum.LOCATION.getCode().equals(de.getAssetsType()) || AssetsTypeEnum.LODGING.getCode().equals(de.getAssetsType()))){
             AssetsDTO assetsDTO = getAndCheckAssetsState(de.getAssetsId());
             // 资产上冗余了一级区域ID和二级区域ID
             de.setFirstDistrictId(Long.valueOf(assetsDTO.getArea()));
@@ -380,7 +386,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, de, pb, amount));
+        BaseOutput<SettleOrder> out= settleOrderRpc.submit(buildSettleOrderDto(userTicket, de, pb, amount));
         if (!out.isSuccess()){
             LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
@@ -414,7 +420,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     private SettleOrderDto buildSettleOrderDto(UserTicket userTicket,DepositOrder depositOrder, PaymentOrder paymentOrder, Long paidAmount){
         SettleOrderDto settleOrder = new SettleOrderDto();
         //以下是提交到结算中心的必填字段
-        //@TODO 提交到结算必须要穿的商户ID
         settleOrder.setMarketId(depositOrder.getMarketId()); //市场ID
         settleOrder.setMarketCode(userTicket.getFirmCode());
         settleOrder.setOrderCode(paymentOrder.getCode());//订单号 唯一
@@ -422,7 +427,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         settleOrder.setCustomerId(depositOrder.getCustomerId());//客户ID
         settleOrder.setCustomerName(depositOrder.getCustomerName());// "客户姓名
         settleOrder.setCustomerPhone(depositOrder.getCustomerCellphone());//"客户手机号
+        settleOrder.setCustomerCertificate(depositOrder.getCertificateNumber()); //客户证件号
         settleOrder.setAmount(paidAmount); //金额
+        settleOrder.setMchId(depositOrder.getMchId()); //商户ID
         settleOrder.setBusinessDepId(depositOrder.getDepartmentId()); //"业务部门ID
         settleOrder.setBusinessDepName(departmentRpc.get(depositOrder.getDepartmentId()).getData().getName());//"业务部门名称
         settleOrder.setSubmitterId(userTicket.getId());// "提交人ID
@@ -436,8 +443,31 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         settleOrder.setBusinessType(BizTypeEnum.DEPOSIT_ORDER.getCode()); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        //@TODO 结算回调路径
-//        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
+        settleOrder.setDeductEnable(EnableEnum.NO.getCode()); // 是否用于定金抵扣
+        //@TODO 待优化
+        //组装回调url
+        List<SettleOrderLink> settleOrderLinkList = new ArrayList<>();
+        SettleOrderLink view = new SettleOrderLink();
+        view.setType(LinkTypeEnum.DETAIL.getCode()); // 详情
+        view.setUrl(settleViewUrl + "?id=" + depositOrder.getId());
+        SettleOrderLink print = new SettleOrderLink();
+        print.setType(LinkTypeEnum.PRINT.getCode()); // 打印
+        print.setUrl(settlerPrintUrl + "?orderCode=" + paymentOrder.getCode());
+        SettleOrderLink callBack = new SettleOrderLink();
+        callBack.setType(LinkTypeEnum.CALLBACK.getCode()); // 回调
+        callBack.setUrl(settlerHandlerUrl);
+        settleOrderLinkList.add(view);
+        settleOrderLinkList.add(print);
+        settleOrderLinkList.add(callBack);
+        settleOrder.setSettleOrderLinkList(settleOrderLinkList);
+        //组装费用项
+        List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
+        SettleFeeItem sfItem = new SettleFeeItem();
+        sfItem.setFeeType(FeeTypeEnum.保证金.getCode()); //保证金固定
+        sfItem.setFeeName(FeeTypeEnum.保证金.getName()); //保证金固定
+        sfItem.setAmount(paymentOrder.getAmount());
+        settleFeeItemList.add(sfItem);
+        settleOrder.setSettleFeeItemList(settleFeeItemList);
 
         return settleOrder;
     }
@@ -518,7 +548,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
             String paymentCode = payingOrder.getCode();
-            BaseOutput output = settlementRpc.cancel(settlementAppId,paymentCode);
+            BaseOutput output = settleOrderRpc.cancel(settlementAppId,paymentCode);
             if (!output.isSuccess()) {
                 LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
                 throw new BusinessException(ResultCode.DATA_ERROR,output.getMessage());
@@ -754,6 +784,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         params.setCustomerCellphone(depositOrder.getCustomerCellphone());
         params.setCustomerName(depositOrder.getCustomerName());
         params.setTypeName(depositOrder.getTypeName());
+        params.setMchId(depositOrder.getMchId());
         depositBalanceService.insertSelective(params);
 
         return params;
@@ -815,7 +846,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (settlementWay.equals(SettleWayEnum.MIXED_PAY.getCode())){
             //摊位租赁单据的交款时间，也就是结算时填写的时间，显示到结算详情中，显示内容为：支付方式（组合支付的，只显示该类型下的具体支付方式）、金额、收款日期、流水号、结算备注，每个字段间隔一个空格；如没填写的则不显示；
             // 多个支付方式的，均在一行显示，当前行满之后换行，支付方式之间用;隔开；
-            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(settlementCode);
+            BaseOutput<List<SettleWayDetail>> output = settleOrderRpc.listSettleWayDetailsByCode(settlementCode);
             List<SettleWayDetail> swdList = output.getData();
             if (output.isSuccess() && CollectionUtils.isNotEmpty(swdList)){
                 for(SettleWayDetail swd : swdList){
@@ -839,7 +870,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
         } else if (settlementWay.equals(SettleWayEnum.CARD.getCode())){
             // 园区卡支付，结算详情格式：【卡号：428838247888（李四）】
-            BaseOutput<SettleOrder> output = settlementRpc.getByCode(settlementCode);
+            BaseOutput<SettleOrder> output = settleOrderRpc.getByCode(settlementCode);
             if(output.isSuccess()){
                 SettleOrder settleOrder = output.getData();
                 if (null != settleOrder.getTradeCardNo()){
@@ -853,7 +884,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
         }else{
             // 除了园区卡 和 组合支付 ，结算详情格式：【2020-08-19 4237458467568870 备注：微信付款150元】
-            BaseOutput<SettleOrder> output = settlementRpc.getByCode(settlementCode);
+            BaseOutput<SettleOrder> output = settleOrderRpc.getByCode(settlementCode);
             if(output.isSuccess()){
                 SettleOrder settleOrder = output.getData();
                 if (null != settleOrder.getChargeDate()){
@@ -1395,7 +1426,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         }
         depositBalanceService.deductDepositBalance(depositBalance.getId(), depositOrder.getAmount());
         //调用结算生成结算红冲单
-        BaseOutput<String> setOut = settlementRpc.invalid(this.buildInvalidRequestDto(userTicket, pbList));
+        BaseOutput setOut = settleOrderRpc.invalid(this.buildInvalidRequestDto(userTicket, pbList));
         if (!setOut.isSuccess()){
             LOG.info("作废，调用结算中心生成红冲单失败！" + setOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "作废，调用结算中心生成红冲单失败！" + setOut.getMessage());
@@ -1433,7 +1464,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         PaymentOrder payingOrder = paymentOrderService.get(paymentId);
         if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
             String paymentCode = payingOrder.getCode();
-            BaseOutput output = settlementRpc.cancel(settlementAppId, paymentCode);
+            BaseOutput output = settleOrderRpc.cancel(settlementAppId, paymentCode);
             if (!output.isSuccess()) {
                 LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
                 throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());

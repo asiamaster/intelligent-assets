@@ -37,10 +37,12 @@
         ajax: {
             type:'get',
             url : function(params){
+                let bizType = $('#bizType').val();
                 let batchId = $('#batchId').val();
                 let index = getIndex($(this).attr('id'));
                 let leaseOrderItems = buildLeaseOrderItems();
-                if (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index)) {
+                if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()}
+                    || (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index))) {
                     return '/assets/searchAssets.action';
                 } else if(!batchId) {
                     params.isExcludeRental = true;
@@ -80,6 +82,7 @@
     var assetEvent = {
         eventName: 'select2:selecting', 
         eventHandler: function (e) {
+            let bizType = $('#bizType').val();
             let suggestion = e.params.args.data;
             let leaseOrderItems = buildLeaseOrderItems();
             let index = getIndex($(this).attr('id'));
@@ -88,11 +91,13 @@
                 return false;
             }
 
-            if (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index)) {
+            //摊位预设信息设置
+            if (bizType == ${@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()}
+                && (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index))) {
                 $('#mchId').val(suggestion.marketId);
                 let rental = getRentalByAssetsId(suggestion.id);
                 if (rental) {
-                    $('#batchId_'+index).val(rental.batchId);
+                    $('#batchId_' + index).val(rental.batchId);
                     $('#batchId').val(rental.batchId);
                     rental.engageCode && $('#engageCode').val(rental.engageCode);
                     rental.leaseTermCode && $('#leaseTermCode').val(rental.leaseTermCode);
@@ -104,18 +109,24 @@
                         $('#categorys').html('');
                         let categoryIds = rental.categoryId.split(',');
                         let categoryNames = rental.categoryName.split(',');
-                        categoryIds.forEach((categoryId,i,arr) => {
+                        categoryIds.forEach((categoryId, i, arr) => {
                             var option = new Option(categoryNames[i], categoryId, true, true);
                             $('#categorys').append(option).trigger('change');
                         });
                     }
                 } else {
-                    $('#batchId_'+index).val('');
+                    $('#batchId_' + index).val('');
                     $('#batchId').val('');
                 }
             }
 
-            let bizType = $('#bizType').val();
+            if (bizType == ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
+                let rentBalance = getRentBalance(suggestion.id);
+                let rentBalanceYuan = Number(rentBalance).centToYuan();
+                $('#leasesNum_' + index).val(rentBalanceYuan);
+                $('#leasesNum_' + index).attr('max', rentBalanceYuan);
+            }
+
             $('#mchId_'+index).val(suggestion.marketId);
             $('#number_'+index).val(suggestion.number);
             if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
@@ -402,6 +413,35 @@
             }
         });
         return rental;
+    }
+
+
+    /**
+     * 冷库可租数量查询
+     * @returns number
+     */
+    function getRentBalance(assetsId) {
+        let rentBalance;
+        $.ajax({
+            type: "get",
+            url: "/assets/getRentBalance.action",
+            data: {assetsId: assetsId, start: $('#startTime').val(), end: $('#endTime').val()},
+            async: false,
+            dataType: "json",
+            success: function (ret) {
+                if (ret.success) {
+                    if (ret.data) {
+                        rentBalance = ret.data;
+                    }
+                } else {
+                    bs4pop.notice(ret.message, {position: 'bottomleft', type: 'danger'});
+                }
+            },
+            error: function (a, b, c) {
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+        return rentBalance;
     }
 
     /**

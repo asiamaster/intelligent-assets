@@ -1,6 +1,5 @@
 package com.dili.ia.controller;
 
-import com.dili.settlement.domain.CustomerAccount;
 import com.dili.settlement.dto.CustomerAccountSerialDto;
 import com.dili.settlement.rpc.CustomerAccountRpc;
 import com.dili.ss.domain.EasyuiPageOutput;
