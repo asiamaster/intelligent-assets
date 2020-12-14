@@ -603,9 +603,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailPrintDto.setCustomerName(meterDetailInfo.getCustomerName());
         meterDetailPrintDto.setCustomerCellphone(meterDetailInfo.getCustomerCellphone());
         // 业务类型（判断是水费还是电费）
-        meterDetailPrintDto.setBusinessType(PrintTemplateEnum.ELECTRICITY_FEE.getName());
+        meterDetailPrintDto.setBusinessType(BizTypeEnum.ELECTRICITY.getName());
         if (MeterTypeEnum.WATER_METER.equals(meterDetailInfo.getState())) {
-            meterDetailPrintDto.setBusinessType(PrintTemplateEnum.WATER_FEE.getCode());
+            meterDetailPrintDto.setBusinessType(BizTypeEnum.WATER.getCode());
         }
         meterDetailPrintDto.setAmount(MoneyUtils.centToYuan(meterDetailInfo.getAmount()));
         meterDetailPrintDto.setNumber(meterDetailInfo.getNumber());
@@ -641,9 +641,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
 
         printDataDto.setItem(meterDetailPrintDto);
-        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_FEE.getName());
+        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_PAY.getName());
         if ( MeterTypeEnum.WATER_METER.getCode().equals(meterDetailInfo.getType()) ) {
-            printDataDto.setName(PrintTemplateEnum.WATER_FEE.getName());
+            printDataDto.setName(PrintTemplateEnum.WATER_PAY.getName());
         }
 
         return printDataDto;

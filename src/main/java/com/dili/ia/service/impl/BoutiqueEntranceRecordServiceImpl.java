@@ -428,7 +428,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         boutiqueTrancePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
         boutiqueTrancePrintDto.setSubmitter(paymentOrder.getCreator());
         PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();
-        printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getCode());
+        printDataDto.setName(PrintTemplateEnum.BOUTIQUE_PAY.getCode());
         printDataDto.setItem(boutiqueTrancePrintDto);
 
         return printDataDto;
@@ -478,7 +478,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
             // 打印最外层
             PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();
-            printDataDto.setName(PrintTemplateEnum.BOUTIQUE_ENTRANCE.getName());
+            printDataDto.setName(PrintTemplateEnum.BOUTIQUE_REFUND.getName());
             printDataDto.setItem(printDto);
 
             return printDataDto;
