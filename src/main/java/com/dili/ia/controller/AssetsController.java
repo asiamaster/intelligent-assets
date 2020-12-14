@@ -5,6 +5,7 @@ import com.dili.assets.sdk.dto.*;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.service.AssetsRentalService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -71,6 +72,24 @@ public class AssetsController {
             return BaseOutput.success().setData(assets);
         } catch (Exception e) {
             LOG.error("资产查询接口异常",e);
+            return BaseOutput.success().setData(new ArrayList<>());
+        }
+
+    }
+
+    /**
+     * 冷库可租数量查询
+     */
+    @GetMapping(value = "/getRentBalance.action")
+    public @ResponseBody
+    BaseOutput<Long> getRentBalance(AssetsRentDTO input) {
+        try {
+            input.setType(AssetsTypeEnum.LOCATION.getCode());
+            //TODO 待调试
+            //return assetsRpc.getRentBalance(input);
+            return BaseOutput.success().setData(50000L);
+        } catch (Exception e) {
+            LOG.error("冷库可租数量查询异常",e);
             return BaseOutput.success().setData(new ArrayList<>());
         }
 
