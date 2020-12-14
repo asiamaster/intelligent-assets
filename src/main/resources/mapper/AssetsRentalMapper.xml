@@ -191,8 +191,8 @@
             ari.assets_name like concat('%',#{keyword},'%')
     </select>
 
-    <select id="belongBatchAndMchByAssetsIds" resultType="com.dili.ia.domain.dto.AssetsRentalDto">
-        select distinct
+    <select id="listByAssetsIds" resultType="com.dili.ia.domain.dto.AssetsRentalDto">
+        select
             ar.id,
             ar.batch_id,
             ar.mch_id

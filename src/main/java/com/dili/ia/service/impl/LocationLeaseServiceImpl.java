@@ -1,14 +1,17 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.AssetsDTO;
+import com.dili.assets.sdk.dto.AssetsQuery;
 import com.dili.assets.sdk.dto.AssetsRentDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.AssetsLeaseOrderItem;
+import com.dili.ia.domain.dto.AssetsRentalDto;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.service.AssetsLeaseService;
+import com.dili.ia.service.AssetsRentalService;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
@@ -19,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 冷库租赁相关实现
@@ -35,19 +39,25 @@ public class LocationLeaseServiceImpl implements AssetsLeaseService {
     }
 
     @Override
-    public void checkAssetState(Long assetsId) {
-        BaseOutput<AssetsDTO> output = assetsRpc.getAssetsById(assetsId);
-        if(!output.isSuccess()){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位接口调用异常 "+output.getMessage());
+    public Long checkAssets(List<Long> assetsIds, Long mchId, Long batchId) {
+        AssetsQuery assetsQuery = new AssetsQuery();
+        assetsQuery.setIds(assetsIds.stream().map(o -> o.toString()).collect(Collectors.toList()));
+        BaseOutput<List<AssetsDTO>> output = assetsRpc.searchAssets(assetsQuery);
+        if (!output.isSuccess()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "冷库接口调用异常 " + output.getMessage());
         }
-        AssetsDTO booth = output.getData();
-        if(null == booth){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位不存在，请重新修改后保存");
-        }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位"+booth.getName()+"已禁用，请重新修改后保存");
-        }else if(YesOrNoEnum.YES.getCode().equals(booth.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR,"摊位"+booth.getName()+"已删除，请重新修改后保存");
+
+        List<AssetsDTO> assetsDTOS = output.getData();
+        if (assetsDTOS.size() != assetsIds.size()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "冷库不存在，请重新修改后保存");
         }
+
+        //检查是否有不同商户的摊位
+        if (assetsDTOS.stream().collect(Collectors.groupingBy(AssetsDTO::getMarketId, Collectors.counting())).size() > 1) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "合同中冷库分属不同组织，请修改后再操作");
+        }
+
+        return assetsDTOS.get(0).getMarketId();
     }
 
     @Override
