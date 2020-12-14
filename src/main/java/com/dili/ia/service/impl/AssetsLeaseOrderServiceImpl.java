@@ -149,10 +149,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //检查客户状态
         checkCustomerState(dto.getCustomerId(), userTicket.getFirmId());
         AssetsLeaseService assetsLeaseService = assetsLeaseServiceMap.get(dto.getAssetsType());
-        dto.getLeaseOrderItems().forEach(o -> {
-            //检查资产状态
-            assetsLeaseService.checkAssetState(o.getAssetsId());
-        });
+        //检查资产合法性
+        Long latestMchId = assetsLeaseService.checkAssets(dto.getLeaseOrderItems().stream().map(lo -> lo.getAssetsId()).collect(Collectors.toList()), dto.getMchId(), dto.getBatchId());
+        dto.setMchId(latestMchId);
 
         dto.setMarketId(userTicket.getFirmId());
         dto.setMarketCode(userTicket.getFirmCode());
@@ -279,9 +278,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
             //检查客户状态
             checkCustomerState(leaseOrder.getCustomerId(), leaseOrder.getMarketId());
-            for (AssetsLeaseOrderItem leaseOrderItem : leaseOrderItems) {
-                assetsLeaseService.checkAssetState(leaseOrderItem.getAssetsId());
-            }
+            //检查资产合法性
+            Long latestMchId = assetsLeaseService.checkAssets(leaseOrderItems.stream().map(lo -> lo.getAssetsId()).collect(Collectors.toList()),leaseOrder.getMchId(),leaseOrder.getBatchId());
+            leaseOrder.setMchId(latestMchId);
         }
 
         //wm:重新提交审批时清空旧的审批流程
@@ -389,10 +388,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 AssetsLeaseOrderItem itemCondition = new AssetsLeaseOrderItem();
                 itemCondition.setLeaseOrderId(leaseOrder.getId());
                 List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.listByExample(itemCondition);
-                leaseOrderItems.forEach(o -> {
-                    //检查资产状态
-                    assetsLeaseService.checkAssetState(o.getAssetsId());
-                });
+                //检查资产合法性
+                Long latestMchId = assetsLeaseService.checkAssets(leaseOrderItems.stream().map(lo -> lo.getAssetsId()).collect(Collectors.toList()),leaseOrder.getMchId(),leaseOrder.getBatchId());
+                leaseOrder.setMchId(latestMchId);
                 //wm:保存流程审批记录
                 saveApprovalProcess(approvalParam, userTicket);
                 //wm:提交审批任务(现在不需要根据区域名称来判断流程)
@@ -505,10 +503,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {
                 //检查客户状态
                 checkCustomerState(leaseOrder.getCustomerId(), leaseOrder.getMarketId());
-                leaseOrderItems.forEach(o -> {
-                    //检查资产状态
-                    assetsLeaseService.checkAssetState(o.getAssetsId());
-                });
+                //检查资产合法性
+                Long latestMchId = assetsLeaseService.checkAssets(leaseOrderItems.stream().map(lo -> lo.getAssetsId()).collect(Collectors.toList()),leaseOrder.getMchId(),leaseOrder.getBatchId());
+                leaseOrder.setMchId(latestMchId);
             }
             //检查是否可以进行提交付款
             checkSubmitPayment(assetsLeaseSubmitPaymentDto.getLeaseOrderId(), assetsLeaseSubmitPaymentDto.getLeasePayAmount(), leaseOrder);

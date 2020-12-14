@@ -72,13 +72,13 @@ public interface AssetsRentalService extends BaseService<AssetsRental, Long> {
     List<Long> filterAssetsIdsByTable(List<Long> assetsIds);
 
     /**
-     * 根据摊位 ids 查询是否属于一个批次,一个商户
+     * 根据摊位 ids 批量查询
      *
      * @param  assetsIds
      * @return BaseOutput
      * @date   2020/12/2
      */
-    boolean belongBatchAndMchByAssetsIds(List<Long> assetsIds);
+    List<AssetsRentalDto> listByAssetsIds(List<Long> assetsIds);
 
     /**
      * 根据区域id删除对应的关联摊位

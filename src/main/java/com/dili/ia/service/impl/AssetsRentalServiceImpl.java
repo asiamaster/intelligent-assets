@@ -192,19 +192,15 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
     }
 
     /**
-     * 根据摊位 ids 查询是否属于一个批次
+     * 根据摊位 ids 批量查询
      *
      * @param  assetsIds
      * @return boolean
      * @date   2020/12/2
      */
     @Override
-    public boolean belongBatchAndMchByAssetsIds(List<Long> assetsIds) {
-        List<AssetsRentalDto> assetsRentalDtoList = this.getActualDao().belongBatchAndMchByAssetsIds(assetsIds);
-        if (assetsRentalDtoList != null && assetsRentalDtoList.size() > 1) {
-            return false;
-        }
-        return true;
+    public List<AssetsRentalDto> listByAssetsIds(List<Long> assetsIds) {
+        return this.getActualDao().listByAssetsIds(assetsIds);
     }
 
     /**
