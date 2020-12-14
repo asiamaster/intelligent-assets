@@ -404,16 +404,31 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 //wm:提交审批任务(现在不需要根据区域名称来判断流程)
                 completeTask(approvalParam.getTaskId(), "true");
 
+                //构建收费项支付金额（全额提交）
+                List<BusinessChargeItem> allBusinessChargeItems = new ArrayList<>();
+                leaseOrderItems.forEach(l -> {
+                    BusinessChargeItem chargeItemCondition = new BusinessChargeItem();
+                    chargeItemCondition.setBusinessId(l.getId());
+                    chargeItemCondition.setBizType(l.getBizType());
+                    List<BusinessChargeItem> businessChargeItems = businessChargeItemService.list(chargeItemCondition);
+                    businessChargeItems.forEach(bci -> {
+                        bci.setPaymentAmount(bci.getAmount());
+                    });
+                    if (businessChargeItemService.batchUpdateSelective(businessChargeItems) != businessChargeItems.size()) {
+                        LOG.info("批量更新收费项支付中金额 【businessId:{},bizType:{}】", l.getId(), l.getBizType());
+                        throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+                    }
+                    allBusinessChargeItems.addAll(businessChargeItems);
+                });
+
                 //提交付款
-                Long paymentId = submitPay(leaseOrder, leaseOrder.getTotalAmount(),new ArrayList<>());
+                Long paymentId = submitPay(leaseOrder, leaseOrder.getTotalAmount(), allBusinessChargeItems);
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
                 leaseOrder.setPaymentId(paymentId);
                 leaseOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
                 //更新摊位租赁单状态
                 cascadeUpdateLeaseOrderState(leaseOrder, leaseOrderItems, true, LeaseOrderItemStateEnum.SUBMITTED);
-                leaseOrderItems.forEach(l -> {
-                    businessChargeItemService.unityUpdatePaymentAmountByBusinessId(l.getId(), l.getBizType());
-                });
+
                 //保证金全额提交
                 BaseOutput depositOutput = depositOrderService.batchSubmitDepositOrderFull(leaseOrder.getBizType(), leaseOrder.getId());
                 if (!depositOutput.isSuccess()) {
@@ -528,7 +543,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
 
             //提交付款
-            Long paymentId = submitPay(leaseOrder, assetsLeaseSubmitPaymentDto.getLeasePayAmount(),new ArrayList<>());
+            Long paymentId = submitPay(leaseOrder, assetsLeaseSubmitPaymentDto.getLeasePayAmount(), assetsLeaseSubmitPaymentDto.getBusinessChargeItems());
             leaseOrder.setPaymentId(paymentId);
             if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
                 //冻结摊位
