@@ -8,13 +8,13 @@
                 <label for="operateTimeStart">时间:</label>
                 <div class="form-inline">
                     <div class="input-group">
-                        <input type="text" name="operateTimeStart" id="operateTimeStart" class="form-control date laydatetime laystart" value="${createdStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <input type="text" name="operateTimeStart" id="operateTimeStart" class="form-control date laydatetime laystart" value="${operateTimeStart!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
                         <div class="input-group-append">
                             <label for="operateTimeStart" class="input-group-text fa fa-calendar"></label>
                         </div>
                     </div>&nbsp;&nbsp;至&nbsp;&nbsp;
                     <div class="input-group" id="datetimepicker3">
-                        <input type="text" name="operateTimeEnd" id="operateTimeEnd" class="form-control date laydatetime layend" value="${createdEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
+                        <input type="text" name="operateTimeEnd" id="operateTimeEnd" class="form-control date laydatetime layend" value="${operateTimeEnd!,dateFormat='yyyy-MM-dd HH:mm:ss'}"/>
                         <div class="input-group-append">
                             <label for="operateTimeEnd" class="input-group-text fa fa-calendar"></label>
                         </div>
@@ -22,14 +22,14 @@
                 </div>
             </div>
             <div class="form-group col">
-                <label for="itemType">类型:</label>
-                <select id="itemType" name="itemType" class="form-control"></select>
-                <#bcomboProvider _id="action" _provider="ActionProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
+                <label for="action">类型:</label>
+                <select id="action" name="action" class="form-control"></select>
+                <#bcomboProvider _id="action" _provider="actionProvider" _value="" _queryParams='{emptyText:"-- 全部 --"}'/>
             </div>
             <div class="form-group col">
-                <label for="sceneType">场景:</label>
-                <select id="sceneType" name="sceneType" class="form-control"></select>
-                <#bcomboProvider _id="scene" _provider="SceneProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
+                <label for="scene">场景:</label>
+                <select id="scene" name="scene" class="form-control"></select>
+                <#bcomboProvider _id="scene" _provider="sceneProvider" _queryParams='{emptyText:"-- 全部 --"}'/>
 
             </div>
             <div class="form-group col">
@@ -75,7 +75,7 @@
                     <th data-field="scene" data-sortable="true" data-sort-name="scene" data-align="center" data-provider="sceneProvider">
                         场景
                     </th>
-                    <th data-field="amount" data-sortable="true" data-align="center" data-provider="sceneMoneyProvider">
+                    <th data-field="amount" data-sortable="true" data-align="center" data-provider="actionMoneyProvider">
                         发生金额
                     </th>
                     <th data-field="customerName" data-sortable="true" data-align="center">
