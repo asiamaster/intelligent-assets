@@ -161,10 +161,13 @@
         }).each(function (i) {
             let index = this.dataset.index;
             let chargeItemId = this.dataset.chargeItemId;
+            let chargeItemName = this.dataset.chargeItemName;
             let leaseItemId = $('#leaseItemId_'+index).val();
             let businessChargeItemId = $('#businessChargeItemId_' + chargeItemId + '_' + index).val();
             let businessChargeItem = {};
             businessChargeItem.id = businessChargeItemId;
+            businessChargeItem.chargeItemId = chargeItemId;
+            businessChargeItem.chargeItemName = chargeItemName;
             businessChargeItem.businessId = leaseItemId;
             businessChargeItem.paymentAmount = Number($(this).val()).mul(100);
             businessChargeItems.push(businessChargeItem);

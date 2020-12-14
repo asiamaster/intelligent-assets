@@ -49,7 +49,7 @@
                     %>
                     <td style="padding: .25rem!important;">
                         <input type="hidden" id="businessChargeItemId_${chargeItem.id!}_${itemLP.index}" name="businessChargeItemId_${chargeItem.id!}_${itemLP.index}" value="${item.businessChargeItem['businessChargeItemId'+chargeItem.id]!}">
-                        <input oninput="apportionedLinkageCalc()" _log="${chargeItem.chargeItem!}" isCharge data-charge-item-name="${chargeItem.chargeItem!}" data-index="${itemLP.index}" type="number" id="chargeItem_${chargeItem.id!}_${itemLP.index}" name="chargeItem_${chargeItem.id!}_${itemLP.index}" value="${item.businessChargeItem['chargeItemWaitAmountYuan'+chargeItem.id]!}" data-charge-item-id="${chargeItem.id!}" class="form-control money floatReserve" min="0" max="${item.businessChargeItem['chargeItemWaitAmountYuan'+chargeItem.id]!}" step="0.01" required>
+                        <input oninput="apportionedLinkageCalc()" _log="${chargeItem.chargeItem!}" isCharge data-charge-item-id="${chargeItem.id!}" data-charge-item-name="${chargeItem.chargeItem!}" data-index="${itemLP.index}" type="number" id="chargeItem_${chargeItem.id!}_${itemLP.index}" name="chargeItem_${chargeItem.id!}_${itemLP.index}" value="${item.businessChargeItem['chargeItemWaitAmountYuan'+chargeItem.id]!}" class="form-control money floatReserve" min="0" max="${item.businessChargeItem['chargeItemWaitAmountYuan'+chargeItem.id]!}" step="0.01" required>
                     </td>
                     <% } }%>
                     <td style="padding: .25rem!important;">

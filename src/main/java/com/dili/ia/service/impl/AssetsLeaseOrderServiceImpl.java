@@ -31,9 +31,12 @@ import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.dto.InvalidRequestDto;
 import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.LinkTypeEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
@@ -89,8 +92,13 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private PaymentOrderService paymentOrderService;
     @Value("${settlement.app-id}")
     private Long settlementAppId;
-    @Value("${settlement.handler.url}")
+    @Value("${leaseOrder.settlement.handler.url}")
     private String settlerHandlerUrl;
+    @Value("${leaseOrder.settlement.view.url}")
+    private String viewUrl;
+    @Value("${leaseOrder.settlement.print.url}")
+    private String printUrl;
+
     @Autowired
     private UidFeignRpc uidFeignRpc;
     @Autowired
@@ -397,7 +405,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 completeTask(approvalParam.getTaskId(), "true");
 
                 //提交付款
-                Long paymentId = submitPay(leaseOrder, leaseOrder.getTotalAmount());
+                Long paymentId = submitPay(leaseOrder, leaseOrder.getTotalAmount(),new ArrayList<>());
                 leaseOrder.setState(LeaseOrderStateEnum.SUBMITTED.getCode());
                 leaseOrder.setPaymentId(paymentId);
                 leaseOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
@@ -520,7 +528,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
 
             //提交付款
-            Long paymentId = submitPay(leaseOrder, assetsLeaseSubmitPaymentDto.getLeasePayAmount());
+            Long paymentId = submitPay(leaseOrder, assetsLeaseSubmitPaymentDto.getLeasePayAmount(),new ArrayList<>());
             leaseOrder.setPaymentId(paymentId);
             if (leaseOrder.getState().equals(LeaseOrderStateEnum.CREATED.getCode())) {//第一次发起付款，相关业务实现
                 //冻结摊位
@@ -1339,9 +1347,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      *
      * @param leaseOrder
      * @param amount
+     * @param businessChargeItems
      * @return
      */
-    private Long submitPay(AssetsLeaseOrder leaseOrder, Long amount) {
+    private Long submitPay(AssetsLeaseOrder leaseOrder, Long amount , List<BusinessChargeItem> businessChargeItems) {
         //新增缴费单
         PaymentOrder paymentOrder = buildPaymentOrder(leaseOrder);
         paymentOrder.setAmount(amount);
@@ -1352,6 +1361,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         settleOrder.setAmount(amount);
         settleOrder.setOrderCode(paymentOrder.getCode());//订单号
         settleOrder.setBusinessCode(paymentOrder.getBusinessCode());//业务单号
+
         BaseOutput<SettleOrder> settlementOutput = settlementRpc.submit(settleOrder);
         if (settlementOutput.isSuccess()) {
             try {
@@ -1364,6 +1374,23 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, settlementOutput.getMessage());
         }
         return paymentOrder.getId();
+    }
+
+    /**
+     *
+     * @param businessChargeItems
+     * @return
+     */
+    private List<SettleFeeItem> buildSettleFeeItem (List<BusinessChargeItem> businessChargeItems) {
+        List<SettleFeeItem> settleFeeItems = new ArrayList<>();
+        businessChargeItems.forEach(bc -> {
+            SettleFeeItem settleFeeItem = new SettleFeeItem();
+            settleFeeItem.setFeeType(0);
+            settleFeeItem.setFeeName(bc.getChargeItemName());
+            settleFeeItem.setAmount(bc.getPaymentAmount());
+            settleFeeItems.add(settleFeeItem);
+        });
+        return settleFeeItems;
     }
 
     /**
@@ -1505,9 +1532,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         settleOrder.setCustomerId(leaseOrder.getCustomerId());
         settleOrder.setCustomerName(leaseOrder.getCustomerName());
         settleOrder.setCustomerPhone(leaseOrder.getCustomerCellphone());
+        settleOrder.setCustomerCertificate(leaseOrder.getCertificateNumber());
         settleOrder.setMarketId(userTicket.getFirmId());
         settleOrder.setMarketCode(userTicket.getFirmCode());
-//        settleOrder.setReturnUrl(settlerHandlerUrl);
+        settleOrder.setSettleOrderLinkList(buildSettleOrderLink());
         settleOrder.setSubmitterDepId(userTicket.getDepartmentId());
         settleOrder.setSubmitterDepName(null == userTicket.getDepartmentId() ? null : departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
         settleOrder.setSubmitterId(userTicket.getId());
@@ -1515,7 +1543,34 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         settleOrder.setSubmitTime(LocalDateTime.now());
         settleOrder.setType(SettleTypeEnum.PAY.getCode());
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
+        settleOrder.setMchId(leaseOrder.getMchId());
         return settleOrder;
+    }
+
+    /**
+     * 构建结算链接
+     * @return
+     */
+    private List<SettleOrderLink> buildSettleOrderLink() {
+        List<SettleOrderLink> settleOrderLinks = new ArrayList<>();
+        //回调
+        SettleOrderLink callBackLink = new SettleOrderLink();
+        callBackLink.setType(LinkTypeEnum.CALLBACK.getCode());
+        callBackLink.setUrl(settlerHandlerUrl);
+        settleOrderLinks.add(callBackLink);
+
+        //详情
+        SettleOrderLink detailLink = new SettleOrderLink();
+        callBackLink.setType(LinkTypeEnum.DETAIL.getCode());
+        callBackLink.setUrl(viewUrl);
+        settleOrderLinks.add(detailLink);
+
+        //打印
+        SettleOrderLink printLink = new SettleOrderLink();
+        callBackLink.setType(LinkTypeEnum.PRINT.getCode());
+        callBackLink.setUrl(printUrl);
+        settleOrderLinks.add(printLink);
+        return settleOrderLinks;
     }
 
     /**

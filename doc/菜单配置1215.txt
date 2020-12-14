@@ -102,6 +102,19 @@
     整月(指标类型：计算指标,匹配key：months,值类型：整数)
     零散天数(指标类型：计算指标,匹配key：scatteredDays,值类型：整数)
 
+nacos 配置
+    新增
+    #租赁结算回调url
+    leaseOrder.settlement.handler.url=http://ia.diligrp.com:8381/api/leaseOrder/settlementDealHandler
+    #租赁业务详情url
+    leaseOrder.settlement.view.url=http://ia.diligrp.com:8381/leaseOrder/view.action
+    #租赁业务打印url
+    leaseOrder.settlement.print.url=http://ia.diligrp.com:8381/api/leaseOrder/queryPrintData
+
+    删除
+    #租赁结算单缴费成功
+    settlement.handler.url=http://ia1.diligrp.com:8381/api/leaseOrder/settlementDealHandler
+
 
 
 
