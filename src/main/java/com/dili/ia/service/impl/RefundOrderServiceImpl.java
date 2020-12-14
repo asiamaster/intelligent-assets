@@ -24,7 +24,6 @@ import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderItemMapper;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
-import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.AccountService;
 import com.dili.ia.service.ApprovalProcessService;
 import com.dili.ia.service.RefundOrderDispatcherService;
@@ -43,6 +42,7 @@ import com.dili.settlement.enums.LinkTypeEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -93,7 +93,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @Autowired
     private AssetsLeaseOrderItemMapper assetsLeaseOrderItemMapper;
     @Autowired
-    private SettlementRpc settlementRpc;
+    private SettleOrderRpc settleOrderRpc;
     @SuppressWarnings("all")
     @Autowired
     private DepartmentRpc departmentRpc;
@@ -205,7 +205,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //已提交取消操作 需要把退款结算单撤回
         if (RefundOrderStateEnum.SUBMITTED.getCode().equals(refundOrder.getState())) {
             //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-            BaseOutput<String> out= settlementRpc.cancel(settlementAppId, refundOrder.getCode());
+            BaseOutput<String> out= settleOrderRpc.cancel(settlementAppId, refundOrder.getCode());
             if (!out.isSuccess()){
                 LOG.info("撤回调用结算中心失败！" + out.getMessage() + out.getErrorData());
                 throw new BusinessException(ResultCode.DATA_ERROR, "撤回调用结算中心失败！" + out.getMessage());
@@ -270,7 +270,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //TODO wm:写死现金方式，后面需要删除
         refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder, service));
+        BaseOutput<SettleOrder> out= settleOrderRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder, service));
         if (!out.isSuccess()){
             LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException(ResultCode.DATA_ERROR, "提交到结算中心失败！" + out.getMessage());
@@ -491,7 +491,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
 
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<String> out= settlementRpc.cancel(settlementAppId, refundOrder.getCode());
+        BaseOutput<String> out= settleOrderRpc.cancel(settlementAppId, refundOrder.getCode());
         if (!out.isSuccess()){
             LOG.info("撤回调用结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException(ResultCode.DATA_ERROR, "撤回调用结算中心失败！" + out.getMessage());
@@ -709,7 +709,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             //TODO wm:写死现金方式，后面需要删除
             refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
             //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-            BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder, service));
+            BaseOutput<SettleOrder> out= settleOrderRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder, service));
             if (!out.isSuccess()){
                 LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
                 throw new BusinessException(ResultCode.DATA_ERROR, "提交到结算中心失败！" + out.getMessage());
