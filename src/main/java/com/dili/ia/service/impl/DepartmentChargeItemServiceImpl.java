@@ -5,7 +5,6 @@ import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.dto.DepartmentByOtherFeeDto;
 import com.dili.ia.domain.dto.DepartmentChargeItemDto;
-import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.mapper.DepartmentChargeItemMapper;
 import com.dili.ia.service.BusinessChargeItemService;
@@ -14,14 +13,8 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
-import com.dili.ss.metadata.ValuePair;
-import com.dili.ss.metadata.ValuePairImpl;
-import com.dili.uap.sdk.domain.DataDictionaryValue;
 import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.github.pagehelper.Page;
-import com.google.common.collect.Lists;
-import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -46,8 +39,6 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
         return (DepartmentChargeItemMapper)getDao();
     }
 
-    @Autowired
-    DataDictionaryRpc dataDictionaryRpc;
 
     @Autowired
     private BusinessChargeItemService businessChargeItemService;
@@ -170,6 +161,16 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                 itemParam.setChargeItemName(itemList.get(0).getChargeItemName());
                 itemParam.setDepartmentId(departmentInfo.getDepartmentId());
                 itemParam.setDepartmentName(departmentInfo.getDepartmentName());
+
+                // 只有沈阳才需要存入商户ID和商户名称
+                if (departmentChargeItemDto.getMchId() != null) {
+                    itemParam.setMchId(departmentChargeItemDto.getMchId());
+                }
+                if (StringUtils.isNotEmpty(departmentChargeItemDto.getMchName())) {
+                    itemParam.setMchName(departmentChargeItemDto.getMchName());
+                }
+
+                itemParam.setVersion(0);
                 itemParamList.add(itemParam);
             }
             if (this.batchInsert(itemParamList) == 0) {
@@ -237,5 +238,17 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
 
         long total = chargeItemListByGroup instanceof Page ? ((Page)chargeItemListByGroup).getTotal() : (long)chargeItemListByGroup.size();
         return new EasyuiPageOutput(total, chargeItemListByGroup).toString();
+    }
+
+    /**
+     * 根据收费项查询所属组织（商户）
+     *
+     * @param  chargeItemId
+     * @return mchId
+     * @date   2020/12/14
+     */
+    @Override
+    public List<DepartmentChargeItem> getListByChargeItemId(String chargeItemId) {
+        return this.getActualDao().selectListByChargeItemId(chargeItemId);
     }
 }

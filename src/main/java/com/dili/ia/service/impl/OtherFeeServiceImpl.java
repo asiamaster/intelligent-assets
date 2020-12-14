@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.OtherFee;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -17,6 +18,7 @@ import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.OtherFeeMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
+import com.dili.ia.service.DepartmentChargeItemService;
 import com.dili.ia.service.OtherFeeService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
@@ -70,6 +72,9 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     private PaymentOrderService paymentOrderService;
 
     @Autowired
+    private DepartmentChargeItemService departmentChargeItemService;
+
+    @Autowired
     private SettlementRpcResolver settlementRpcResolver;
 
     @Value("${settlement.app-id}")
@@ -115,6 +120,15 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         otherFeeParam.setMarketCode(userTicket.getFirmCode());
         otherFeeParam.setState(OtherFeeStateEnum.CREATED.getCode());
 
+        // 如果没有区域，则根据收费项查询所属组织（商户）
+        if (otherFeeDto.getFirstDistrictId() != null && otherFeeDto.getSecondDistrictId() != null ) {
+            List<DepartmentChargeItem> listByChargeItemId = departmentChargeItemService.getListByChargeItemId(otherFeeDto.getChargeItemId());
+            if (CollectionUtil.isNotEmpty(listByChargeItemId)) {
+                otherFeeParam.setMchId(listByChargeItemId.get(0).getMchId());
+                otherFeeParam.setMchName(listByChargeItemId.get(0).getMchName());
+            }
+        }
+
         this.getActualDao().insertSelective(otherFeeParam);
 
         return otherFeeParam;
@@ -146,7 +160,6 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         // 修改操作
         otherFeeParam.setModifyTime(LocalDateTime.now());
-        otherFeeParam.setVersion(otherFeeInfo.getVersion() + 1);
 
         if (this.updateSelective(otherFeeParam) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");

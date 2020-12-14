@@ -208,7 +208,7 @@ public class OtherFeeController {
     @BusinessLogger(businessType = LogBizTypeConst.OTHER_FEE, content = "${logContent!}", operationType = "edit", systemCode = "IA")
     @RequestMapping(value = "/doUpdate.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
-    BaseOutput<OtherFee> doUpdate(OtherFeeDto otherFeeDto) {
+    BaseOutput<OtherFee> doUpdate(@RequestBody OtherFeeDto otherFeeDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验

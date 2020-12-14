@@ -7,24 +7,24 @@
 
             <div class="form-group col">
                 <label _log for="number">表编号<i class="red">*</i></label>
-                <input type="text" class="form-control" id="number" name="number" value="${meter.number!}" disabled />
+                <input type="text" class="form-control" id="number" name="number" value="${meter.number!}" required />
             </div>
 
             <div class="form-group col">
                 <label for="type">表类型<i class="red">*</i></label>
-                <select id="type"  name="type" class="form-control" disabled></select>
-                <#bcomboProvider _log="表类型" _id="type" _provider="meterTypeProvider" _value="${meter.type!}" />
+                <select id="type"  name="type" class="form-control" required></select>
+                <#bcomboProvider _log="表类型" _id="type" _provider="meterTypeProvider" _value="${meter.type!}"/>
             </div>
 
             <div class="form-group col">
                 <label for="assetsType">类别<i class="red">*</i></label>
-                <select id="assetsType"  name="assetsType" class="form-control" disabled ></select>
-                <#bcomboProvider _log="类别" _id="assetsType" _provider="assetsTypeProvider" _value="${meter.assetsType!}" />
+                <select id="assetsType"  name="assetsType" class="form-control" required ></select>
+                <#bcomboProvider _log="类别" _id="assetsType" _provider="assetsTypeProvider" _value="${meter.assetsType!}"/>
             </div>
 
             <div class="form-group col">
                 <label _log  for="thisAmount">表初始值<i class="red">*</i></label>
-                <input type="text" class="form-control" id="thisAmount" name="thisAmount" value="${meter.thisAmount!}" disabled />
+                <input type="text" class="form-control" id="thisAmount" name="thisAmount" value="${meter.thisAmount!}" required />
             </div>
 
             <div class="form-group col">
@@ -34,25 +34,23 @@
 
             <div class="form-group col">
                 <label _log for="price">单价<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="price" name="price" value="<#centToYuan value='${meter.price!}'/>" disabled />
+                <input type="number" class="form-control floatReserve money" id="price" name="price" value="<#centToYuan value='${meter.price!}'/>" required />
             </div>
 
-            <div class="form-group col">
-                <label for="">所属区域</label>
-                <div class="input-group">
-                    <select class="form-control" id="firstDistrictId" name="firstDistrictId" disabled>
-                        <option value="${meter.firstDistrictId!}">${firstDistrictName!}</option>
-                    </select>
-                    <select class="form-control" id="secondDistrictId" name="secondDistrictId" disabled>
-                        <option value="${meter.secondDistrictId!}">${secondDistrictName!}</option>
-                    </select>
-                </div>
+            <div class="form-group col-6">
+                <label for="" _log>所属区域<i class="red">*</i></label>
+                <#js_district firstDistrictId="${meter.firstDistrictId!}" secondDistrictId="${meter.secondDistrictId!}"></#js_district>
             </div>
 
             <div class="form-group col">
                 <label _log for="notes">备注</label>
-                <input type="text" class="form-control" id="notes" name="notes" value="${meter.notes!}" disabled />
+                <input type="text" class="form-control" id="notes" name="notes" value="${meter.notes!}" required />
             </div>
+        </div>
+
+        <div class="text-right btn-r-b">
+            <button type="button" class="btn btn-secondary px-5" onclick="javascript: parent.dia.hide()">取消</button>
+            <button type="button" class="btn btn-primary px-5" id="save">保存</button>
         </div>
     </form>
 </div>

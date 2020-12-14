@@ -63,4 +63,13 @@ public interface DepartmentChargeItemService extends BaseService<DepartmentCharg
      * @date   2020/8/24
      */
     String listNoParam();
+
+    /**
+     * 根据收费项查询所属组织（商户）
+     *
+     * @param  chargeItemId
+     * @return mchId
+     * @date   2020/12/14
+     */
+    List<DepartmentChargeItem> getListByChargeItemId(String chargeItemId);
 }
