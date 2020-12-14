@@ -1,10 +1,14 @@
 package com.dili.ia.service;
 
 import com.dili.ia.domain.RefundOrder;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,4 +72,11 @@ public interface RefundOrderDispatcherService extends BaseService<RefundOrder, L
 	 * 退款单 --获取业务类型
 	 */
 	Set<String> getBizType();
+
+	/**
+	 * 退款单 --组装提交到结算的【费用项】
+	 */
+	default List<SettleFeeItem> buildSettleFeeItem(RefundOrder refundOrder){
+		return new ArrayList<>();
+	};
 }

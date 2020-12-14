@@ -37,7 +37,9 @@ import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.LinkTypeEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
@@ -66,6 +68,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,6 +118,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     private Long settlementAppId;
     @Value("${refundOrder.settlement.handler.url}")
     private String settlerHandlerUrl;
+    @Value("${refundOrder.settlement.view.url}")
+    private String settleViewUrl;
+    @Value("${refundOrder.settlement.print.url}")
+    private String settlerPrintUrl;
+
     @Autowired
     private UserResourceRedis userResourceRedis;
     @Autowired
@@ -250,7 +258,9 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     @GlobalTransactional
     @Override
     public BaseOutput doSubmitDispatcher(RefundOrder refundOrder) {
-        BaseOutput businessOutput = doSubmitBusiness(refundOrder);
+        //获取业务service,调用业务实现
+        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
+        BaseOutput businessOutput = doSubmitBusiness(refundOrder, service);
         if(!businessOutput.isSuccess()){
             return businessOutput;
         }
@@ -260,7 +270,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //TODO wm:写死现金方式，后面需要删除
         refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder));
+        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder, service));
         if (!out.isSuccess()){
             LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException(ResultCode.DATA_ERROR, "提交到结算中心失败！" + out.getMessage());
@@ -275,7 +285,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
      * @param refundOrder
      * @throws BusinessException
      */
-    private BaseOutput doSubmitBusiness(RefundOrder refundOrder){
+    private BaseOutput doSubmitBusiness(RefundOrder refundOrder, RefundOrderDispatcherService service){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
@@ -296,11 +306,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         if (refundOrderService.updateSelective(refundOrder) == 0){
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作退款单，请重试！");
         }
-
-        //获取业务service,调用业务实现
-        RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
         if(service!=null){
-            //@TODO 需要各个业务组装 特别的结算单对象，比如【回调参数】【费用项列表】
             BaseOutput refundResult = service.submitHandler(refundOrder);
             if (refundOrder != null && !refundResult.isSuccess()){
                 LOG.info("提交回调业务返回失败！" + refundResult.getMessage());
@@ -354,9 +360,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
      */
     private BaseOutput doSubmitCheck(RefundOrder refundOrder){
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//        if (!refundOrder.getState().equals(RefundOrderStateEnum.CREATED.getCode())){
-//            return BaseOutput.failure("提交失败，状态已变更！");
-//        }
         //园区卡退款，检查退款人 与 退款园区卡是否匹配
         if(refundOrder.getRefundType() != null && refundOrder.getRefundType().equals(SettleWayEnum.CARD.getCode())){
             BaseOutput output = this.checkCard(refundOrder.getPayeeId(), refundOrder.getTradeCardNo());
@@ -398,7 +401,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
     //组装 -- 结算中心缴费单 SettleOrder
-    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, RefundOrder ro){
+    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, RefundOrder ro, RefundOrderDispatcherService service){
         SettleOrderDto settleOrder = new SettleOrderDto();
         //以下是提交到结算中心的必填字段
         settleOrder.setMarketId(ro.getMarketId()); //市场ID
@@ -408,8 +411,9 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //收款人信息
         settleOrder.setCustomerId(ro.getPayeeId());//客户ID
         Customer customer = customerRpc.get(ro.getPayeeId(), userTicket.getFirmId()).getData();
-        settleOrder.setCustomerPhone(customer.getContactsPhone());//"客户手机号
-        settleOrder.setCustomerName(customer.getName());// "客户姓名
+        settleOrder.setCustomerPhone(customer.getContactsPhone());//客户手机号
+        settleOrder.setCustomerName(customer.getName());// 客户姓名
+        settleOrder.setCustomerCertificate(customer.getCertificateNumber()); //客户证件号
         settleOrder.setAmount(ro.getPayeeAmount()); //金额
         settleOrder.setAccountNumber(ro.getBankCardNo());
         settleOrder.setBankName(ro.getBank());
@@ -432,8 +436,23 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setAppId(settlementAppId);//应用ID
         settleOrder.setType(SettleTypeEnum.REFUND.getCode());// "结算类型  -- 退款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        //@TODO 结算单回调参数
-//        settleOrder.setReturnUrl(settlerHandlerUrl); // 结算-- 缴费成功后回调路径
+        //@TODO 待优化
+        //组装回调url
+        List<SettleOrderLink> settleOrderLinkList = new ArrayList<>();
+        SettleOrderLink view = new SettleOrderLink();
+        view.setType(LinkTypeEnum.DETAIL.getCode()); // 详情
+        view.setUrl(settleViewUrl + "?id=" + ro.getId());
+        SettleOrderLink print = new SettleOrderLink();
+        print.setType(LinkTypeEnum.PRINT.getCode()); // 打印
+        print.setUrl(settlerPrintUrl + "?orderCode=" + ro.getCode());
+        SettleOrderLink callBack = new SettleOrderLink();
+        callBack.setType(LinkTypeEnum.CALLBACK.getCode()); // 回调
+        callBack.setUrl(settlerHandlerUrl);
+        settleOrderLinkList.add(view);
+        settleOrderLinkList.add(print);
+        settleOrderLinkList.add(callBack);
+        settleOrder.setSettleOrderLinkList(settleOrderLinkList); //结算回调url
+        settleOrder.setSettleFeeItemList(service.buildSettleFeeItem(ro));//组装费用项
 
         return settleOrder;
     }
@@ -676,8 +695,10 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //总经理审批通过需要更新审批状态
         if ("generalManagerApproval".equals(approvalParam.getTaskDefinitionKey())) {
             refundOrder.setApprovalState(ApprovalStateEnum.APPROVED.getCode());
+            //获取业务service,调用业务实现
+            RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
             //提交退款单
-            BaseOutput businessOutput = doSubmitBusiness(refundOrder);
+            BaseOutput businessOutput = doSubmitBusiness(refundOrder, service);
             if(!businessOutput.isSuccess()){
                 throw new BusinessException(businessOutput.getCode(), businessOutput.getMessage());
             }
@@ -688,7 +709,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             //TODO wm:写死现金方式，后面需要删除
             refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
             //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-            BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder));
+            BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder, service));
             if (!out.isSuccess()){
                 LOG.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
                 throw new BusinessException(ResultCode.DATA_ERROR, "提交到结算中心失败！" + out.getMessage());

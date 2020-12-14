@@ -8,7 +8,9 @@ import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.RefundOrderDispatcherService;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.enums.FeeTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -21,9 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -111,34 +111,19 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         resultMap.put("assetsType", AssetsTypeEnum.getAssetsTypeEnum(depositOrder.getAssetsType()).getName());
         //资产名称
         resultMap.put("assetsName", depositOrder.getAssetsName());
-        buildTransferDeductionItems(refundOrder.getId(), resultMap);
         return BaseOutput.success().setData(resultMap);
     }
 
-    /**
-     * 构建退款单转低打印数据
-     * @param refundOrderId
-     * @return
-     */
-    private void buildTransferDeductionItems(Long refundOrderId, Map<String, Object> resultMap) {
-//        TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-//        transferDeductionItemCondition.setRefundOrderId(refundOrderId);
-//        List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-//        List<Map<String,Object>> transferMaps = new ArrayList<>();
-//        StringBuilder stringBuilder = new StringBuilder();
-//        if(CollectionUtils.isNotEmpty(transferDeductionItems)){
-//            for (TransferDeductionItem transferDeductionItem : transferDeductionItems) {
-//                Map<String,Object> transferMap = new HashMap<>();
-//                transferMap.put("payee",transferDeductionItem.getPayee());
-//                transferMap.put("payeeAmount", MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount()));
-//                transferMaps.add(transferMap);
-//                stringBuilder.append(transferDeductionItem.getPayee()).append("  金额: ").append(MoneyUtils.centToYuan(transferDeductionItem.getPayeeAmount()));
-//                if(transferDeductionItems.size() > 1){
-//                    stringBuilder.append(";  ");
-//                }
-//            }
-////        }
-//        resultMap.put("transferDeductionItems", transferMaps);
-//        resultMap.put("transferDeductionItemsStr", stringBuilder.toString());
+    @Override
+    public List<SettleFeeItem> buildSettleFeeItem(RefundOrder refundOrder) {
+        //组装费用项
+        List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
+        SettleFeeItem sfItem = new SettleFeeItem();
+        sfItem.setFeeType(FeeTypeEnum.保证金.getCode()); //保证金固定
+        sfItem.setFeeName(FeeTypeEnum.保证金.getName()); //保证金固定
+        sfItem.setAmount(refundOrder.getTotalRefundAmount());
+        settleFeeItemList.add(sfItem);
+
+        return settleFeeItemList;
     }
 }
