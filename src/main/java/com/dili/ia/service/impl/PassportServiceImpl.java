@@ -431,7 +431,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         passportPrintDto.setSubmitter(paymentOrder.getCreator());
 
         PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();
-        printDataDto.setName(PrintTemplateEnum.PASSPORT.getCode());
+        printDataDto.setName(PrintTemplateEnum.PASSPORT_PAY.getCode());
         printDataDto.setItem(passportPrintDto);
 
         return printDataDto;
@@ -489,7 +489,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
             // 打印最外层
             PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();
-            printDataDto.setName(PrintTemplateEnum.PASSPORT.getName());
+            printDataDto.setName(PrintTemplateEnum.PASSPORT_REFUND.getName());
             printDataDto.setItem(passportPrintDto);
 
             return printDataDto;
@@ -604,7 +604,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
         // 打印最外层
         PrintDataDto<PassportPrintDto> printDataDto = new PrintDataDto<>();
-        printDataDto.setName(PrintTemplateEnum.PASSPORT.getName());
+        printDataDto.setName(PrintTemplateEnum.PASSPORT_PRINT.getName());
         printDataDto.setItem(passportPrintDto);
 
         return printDataDto;

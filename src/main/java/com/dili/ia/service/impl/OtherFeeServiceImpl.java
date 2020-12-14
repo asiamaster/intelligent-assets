@@ -410,7 +410,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         otherFeePrintDto.setSubmitter(paymentOrder.getCreator());
 
         PrintDataDto<OtherFeePrintDto> printDataDto = new PrintDataDto<>();
-        printDataDto.setName(PrintTemplateEnum.OTHER_FEE.getCode());
+        printDataDto.setName(PrintTemplateEnum.OTHER_FEE_PAY.getCode());
         printDataDto.setItem(otherFeePrintDto);
 
         return printDataDto;
@@ -468,7 +468,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
             // 打印最外层
             PrintDataDto<OtherFeePrintDto> printDataDto = new PrintDataDto<>();
-            printDataDto.setName(PrintTemplateEnum.OTHER_FEE.getName());
+            printDataDto.setName(PrintTemplateEnum.OTHER_FEE_REFUND.getName());
             printDataDto.setItem(otherFeePrintDto);
 
             return printDataDto;
