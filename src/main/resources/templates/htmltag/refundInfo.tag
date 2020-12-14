@@ -19,6 +19,6 @@
     </div>
     <div class="form-group col">
         <label  class="" _log>金额<i class="red">*</i></label>
-        <input type="number" class="form-control floatReserve money" id="payeeAmount" name="payeeAmount" value="<#centToYuan value='${refundOrder.payeeAmount!0}'/>"  min="0" />
+        <input type="number" class="form-control floatReserve money" id="payeeAmount" name="payeeAmount" value="<#centToYuan value='${refundOrder.payeeAmount!0}'/>" min="0" readonly/>
     </div>
 </div>

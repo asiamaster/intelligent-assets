@@ -16,6 +16,7 @@ import com.dili.ia.service.EarnestTransferOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.SpringUtil;
 import com.dili.settlement.domain.CustomerAccount;
+import com.dili.settlement.dto.EarnestTransferDto;
 import com.dili.settlement.rpc.CustomerAccountRpc;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -77,11 +78,35 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
         }
         //创建定金转移单
         BaseOutput<EarnestTransferOrder> output = this.addEarnestTransferOrder(etDto, userTicket);
-        EarnestTransferOrder order = output.getData(); // 定金转移单
+        if (!output.isSuccess()){
+            return output;
+        }
+        try {
+            BaseOutput caOutput = customerAccountRpc.transfer(this.buildEarnestTransferDto(output.getData()));
+            if (!caOutput.isSuccess()){
+                LOG.info("定金转移提交到结算返回失败！转移单号：code={}", output.getData().getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR,"定金转移提交到结算返回失败！");
+            }
+        }catch (Exception e){
+            LOG.info("调用结算【customerAccountRpc.transfer】定金转移接口异常！");
+            throw new BusinessException(ResultCode.APP_ERROR,"调用结算定金转移接口异常！！");
+        }
+        return BaseOutput.success().setData(output.getData());
+    }
 
-
-        customerAccountRpc.transfer(new com.dili.settlement.dto.EarnestTransferDto());
-        return BaseOutput.success().setData(order);
+    private EarnestTransferDto buildEarnestTransferDto(EarnestTransferOrder param){
+        EarnestTransferDto etDto = new EarnestTransferDto();
+        etDto.setAccountId(param.getPayerCustomerAccountId());
+        etDto.setCustomerId(param.getPayeeId());
+        etDto.setCustomerName(param.getPayeeName());
+        etDto.setCustomerPhone(param.getPayeeCellphone());
+        etDto.setCustomerCertificate(param.getPayeeCertificateNumber());
+        etDto.setAmount(param.getAmount());
+        etDto.setRelationCode(param.getCode());
+        etDto.setOperatorId(param.getCreatorId());
+        etDto.setOperatorName(param.getCreator());
+        etDto.setNotes(param.getTransferReason());
+       return  etDto;
     }
 
 
@@ -96,7 +121,6 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
             throw new BusinessException(ResultCode.DATA_ERROR, "转移金额不能大于可用余额！");
         }
         //保存定金转移单
-//        efDto.setPayeeCustomerAccountId(payeeCustomerAccount.getId());
         efDto.setPayeeId(efDto.getCustomerId());
         efDto.setPayeeCellphone(efDto.getCustomerCellphone());
         efDto.setPayeeCertificateNumber(efDto.getCertificateNumber());
@@ -138,6 +162,8 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
             }
             refundOrder.setCode(bizNumberOutput.getData());
             refundOrder.setBizType(BizTypeEnum.EARNEST.getCode());
+            refundOrder.setMchId(customerAccount.getMchId()); //商户ID
+//            refundOrder.setDistrictId(); //没有在业务单上发起，区域为空
             BaseOutput output = refundOrderService.doAddHandler(refundOrder);
             if (!output.isSuccess()) {
                 LOG.info("客户账户定金退款【业务ID：{}】退款申请接口异常,原因：{}", customerAccount.getId(), output.getMessage());

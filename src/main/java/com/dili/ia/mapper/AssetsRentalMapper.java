@@ -34,13 +34,13 @@ public interface AssetsRentalMapper extends MyMapper<AssetsRental> {
     List<AssetsRentalDto> listRentalsByRentalDtoAndKeyWord(AssetsRentalDto assetsRentalDto);
 
     /**
-     * 根据摊位 ids 查询是否属于一个批次
+     * 根据摊位 ids 批量查询
      *
      * @param  assetsIds
      * @return List
      * @date   2020/12/2
      */
-    List<AssetsRentalDto> belongBatchAndMchByAssetsIds(@Param("assetsIds") List<Long> assetsIds);
+    List<AssetsRentalDto> listByAssetsIds(@Param("assetsIds") List<Long> assetsIds);
 
     /**
      * 根据区域id删除对应的关联摊位

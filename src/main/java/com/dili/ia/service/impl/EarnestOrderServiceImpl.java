@@ -13,23 +13,22 @@ import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.*;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
-import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.EarnestOrderDetailService;
 import com.dili.ia.service.EarnestOrderService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.InvalidRequestDto;
 import com.dili.settlement.dto.SettleOrderDto;
-import com.dili.settlement.enums.LinkTypeEnum;
-import com.dili.settlement.enums.SettleStateEnum;
-import com.dili.settlement.enums.SettleTypeEnum;
-import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.enums.*;
+import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -76,7 +75,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @Autowired
     AssetsRpc assetsRpc;
     @Autowired
-    SettlementRpc settlementRpc;
+    SettleOrderRpc settleOrderRpc;
     @Autowired
     CustomerAccountService customerAccountService;
     @Autowired
@@ -92,6 +91,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     private Long settlementAppId;
     @Value("${earnestOrder.settlement.handler.url}")
     private String settlerHandlerUrl;
+    @Value("${earnestOrder.settlement.view.url}")
+    private String settleViewUrl;
+    @Value("${earnestOrder.settlement.print.url}")
+    private String settlerPrintUrl;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -137,17 +140,17 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         Long mchId = null;
         //@TODO 为空抛异常，现在基础数据有问题，暂时注释掉代码，后期打开
-//        try {
-//            BaseOutput<Long> mchOutput = areaMarketRpc.getMarketByArea(districtId);
-//            if (!mchOutput.isSuccess()){
-//                LOG.error("根据区域ID查询商户，返回失败：{}", mchOutput.getMessage());
-//                throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回失败!");
-//            }
-//            mchId = mchOutput.getData();
-//        }catch (Exception e){
-//            LOG.error("根据区域ID查询商户，接口调用异常："+e.getMessage(),e);
-//            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，接口调用异常！");
-//        }
+        try {
+            BaseOutput<Long> mchOutput = areaMarketRpc.getMarketByArea(districtId);
+            if (!mchOutput.isSuccess()){
+                LOG.error("根据区域ID查询商户，返回失败：{}", mchOutput.getMessage());
+                throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回失败!");
+            }
+            mchId = mchOutput.getData();
+        }catch (Exception e){
+            LOG.error("根据区域ID查询商户，接口调用异常："+e.getMessage(),e);
+            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，接口调用异常！");
+        }
 //        if (mchId == null){
 //            LOG.error("根据区域ID查询商户，返回为空，districtId:{}", districtId);
 //            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回为空！");
@@ -319,7 +322,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         PaymentOrder pb = this.buildPaymentOrder(userTicket, ea);
         paymentOrderService.insertSelective(pb);
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
-        BaseOutput<SettleOrder> out= settlementRpc.submit(buildSettleOrderDto(userTicket, ea, pb));
+        BaseOutput<SettleOrder> out= settleOrderRpc.submit(buildSettleOrderDto(userTicket, ea, pb));
         if (!out.isSuccess()){
             LOGGER.info("提交到结算中心失败！" + out.getMessage() + out.getErrorData());
             throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
@@ -338,8 +341,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         settleOrder.setCustomerId(ea.getCustomerId());//客户ID
         settleOrder.setCustomerName(ea.getCustomerName());// "客户姓名
         settleOrder.setCustomerPhone(ea.getCustomerCellphone());//"客户手机号
+        settleOrder.setCustomerCertificate(ea.getCertificateNumber());
         settleOrder.setAmount(ea.getAmount()); //金额
         settleOrder.setBusinessDepId(ea.getDepartmentId()); //"业务部门ID
+        settleOrder.setMchId(ea.getMchId()); //商户ID
         settleOrder.setBusinessDepName(departmentRpc.get(ea.getDepartmentId()).getData().getName());//"业务部门名称
         settleOrder.setSubmitterId(userTicket.getId());// "提交人ID
         settleOrder.setSubmitterName(userTicket.getRealName());// "提交人姓名
@@ -353,14 +358,16 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         settleOrder.setBusinessType(BizTypeEnum.EARNEST.getCode()); // 业务类型
         settleOrder.setType(SettleTypeEnum.PAY.getCode());// "结算类型  -- 付款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
+        settleOrder.setDeductEnable(EnableEnum.NO.getCode()); // 是否用于定金抵扣
         //@TODO 待优化
+        //组装回调url
         List<SettleOrderLink> settleOrderLinkList = new ArrayList<>();
         SettleOrderLink view = new SettleOrderLink();
         view.setType(LinkTypeEnum.DETAIL.getCode()); // 详情
-        view.setUrl("");
+        view.setUrl(settleViewUrl + "?id=" + ea.getId());
         SettleOrderLink print = new SettleOrderLink();
         print.setType(LinkTypeEnum.PRINT.getCode()); // 打印
-        print.setUrl("");
+        print.setUrl(settlerPrintUrl + "?orderCode=" + paymentOrder.getCode());
         SettleOrderLink callBack = new SettleOrderLink();
         callBack.setType(LinkTypeEnum.CALLBACK.getCode()); // 回调
         callBack.setUrl(settlerHandlerUrl);
@@ -368,7 +375,14 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         settleOrderLinkList.add(print);
         settleOrderLinkList.add(callBack);
         settleOrder.setSettleOrderLinkList(settleOrderLinkList);
-        settleOrder.setMchId(ea.getMchId());
+        //组装费用项
+        List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
+        SettleFeeItem sfItem = new SettleFeeItem();
+        sfItem.setFeeType(FeeTypeEnum.定金.getCode()); //定金固定
+        sfItem.setFeeName(FeeTypeEnum.定金.getName()); //定金固定
+        sfItem.setAmount(paymentOrder.getAmount());
+        settleFeeItemList.add(sfItem);
+        settleOrder.setSettleFeeItemList(settleFeeItemList);
         return settleOrder;
     }
 
@@ -434,7 +448,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOG.info("撤回定金【删除缴费单】失败.");
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
-        BaseOutput<String>  setOut = settlementRpc.cancel(settlementAppId, pb.getCode());
+        BaseOutput<String>  setOut = settleOrderRpc.cancel(settlementAppId, pb.getCode());
         if (!setOut.isSuccess()){
             LOG.info("撤回，调用结算中心修改状态失败！" + setOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "撤回，调用结算中心修改状态失败！" + setOut.getMessage());
@@ -475,7 +489,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "缴费单红冲写入失败！");
         }
         //调用结算生成结算红冲单
-        BaseOutput<String> setOut = settlementRpc.invalid(this.buildInvalidRequestDto(userTicket, pb));
+        BaseOutput<?> setOut = settleOrderRpc.invalid(this.buildInvalidRequestDto(userTicket, pb));
         if (!setOut.isSuccess()){
             LOG.info("作废，调用结算中心生成红冲单失败！" + setOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "作废，调用结算中心生成红冲单失败！" + setOut.getMessage());
@@ -512,7 +526,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         PaymentOrder payingOrder = paymentOrderService.get(paymentId);
         if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
             String paymentCode = payingOrder.getCode();
-            BaseOutput output = settlementRpc.cancel(settlementAppId, paymentCode);
+            BaseOutput output = settleOrderRpc.cancel(settlementAppId, paymentCode);
             if (!output.isSuccess()) {
                 LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
                 throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
@@ -640,7 +654,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (settlementWay.equals(SettleWayEnum.MIXED_PAY.getCode())){
             //摊位租赁单据的交款时间，也就是结算时填写的时间，显示到结算详情中，显示内容为：支付方式（组合支付的，只显示该类型下的具体支付方式）、金额、收款日期、流水号、结算备注，每个字段间隔一个空格；如没填写的则不显示；
             // 多个支付方式的，均在一行显示，当前行满之后换行，支付方式之间用;隔开；
-            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(settlementCode);
+            BaseOutput<List<SettleWayDetail>> output = settleOrderRpc.listSettleWayDetailsByCode(settlementCode);
             List<SettleWayDetail> swdList = output.getData();
             if (output.isSuccess() && CollectionUtils.isNotEmpty(swdList)){
                 for(SettleWayDetail swd : swdList){
@@ -664,7 +678,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             }
         } else if (settlementWay.equals(SettleWayEnum.CARD.getCode())){
             // 园区卡支付，结算详情格式：【卡号：428838247888（李四）】
-            BaseOutput<SettleOrder> output = settlementRpc.getByCode(settlementCode);
+            BaseOutput<SettleOrder> output = settleOrderRpc.getByCode(settlementCode);
             if(output.isSuccess()){
                 SettleOrder settleOrder = output.getData();
                 if (null != settleOrder.getTradeCardNo()){
@@ -678,7 +692,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             }
         }else{
             // 除了园区卡 和 组合支付 ，结算详情格式：【2020-08-19 4237458467568870 备注：微信付款150元】
-            BaseOutput<SettleOrder> output = settlementRpc.getByCode(settlementCode);
+            BaseOutput<SettleOrder> output = settleOrderRpc.getByCode(settlementCode);
             if(output.isSuccess()){
                 SettleOrder settleOrder = output.getData();
                 if (null != settleOrder.getChargeDate()){

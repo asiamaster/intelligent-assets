@@ -21,6 +21,7 @@ import java.util.List;
  * @author qinkelan
  * @createTime 2020-02-24 15:49
  */
+@Deprecated
 @FeignClient(name = "settlement-service", url="${SettleRpc.url:}")
 public interface SettlementRpc {
 

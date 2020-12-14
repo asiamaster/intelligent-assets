@@ -16,10 +16,14 @@ import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
+import com.dili.settlement.domain.CustomerAccount;
 import com.dili.settlement.dto.CustomerAccountDto;
 import com.dili.settlement.rpc.CustomerAccountRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -32,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -71,7 +77,10 @@ public class CustomerAccountController {
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(CustomerAccountDto customerAccount) throws Exception {
         customerAccount.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
-        return customerAccountRpc.listPage(customerAccount).toString();
+        PageOutput<List<CustomerAccount>> caOutput = customerAccountRpc.listPage(customerAccount);
+        long total = caOutput.getTotal();
+        List results = ValueProviderUtils.buildDataByProvider(customerAccount, caOutput.getData());
+        return new EasyuiPageOutput(total, results).toString();
     }
 
     /**
@@ -85,8 +94,8 @@ public class CustomerAccountController {
     @RequestMapping(value="/earnestRefund.html", method = RequestMethod.GET)
     public String earnestRefund(ModelMap modelMap, Long customerAccountId, Long refundOrderId) {
         if(null != customerAccountId){
-//            CustomerAccount customerAccount = customerAccountService.get(customerAccountId);
-//            modelMap.put("customerAccount",customerAccount);
+            BaseOutput<CustomerAccount> caOutput = customerAccountRpc.getById(customerAccountId);
+            modelMap.put("customerAccount",caOutput.getData());
         }
         if (null != refundOrderId) {
             modelMap.put("refundOrder", refundOrderService.get(refundOrderId));
@@ -99,12 +108,11 @@ public class CustomerAccountController {
      * @param id 客户账户Id
      * @return String
      */
-    // @TODO 定金退款页面数据来源于 调用结算
     @RequestMapping(value="/earnestTransfer.html", method = RequestMethod.GET)
     public String earnestTransfer(ModelMap modelMap, Long id) {
         if(null != id){
-//            CustomerAccount customerAccount = customerAccountService.get(id);
-//            modelMap.put("customerAccount",customerAccount);
+            BaseOutput<CustomerAccount> caOutput = customerAccountRpc.getById(id);
+            modelMap.put("customerAccount",caOutput.getData());
         }
         return "customerAccount/earnestTransfer";
     }
@@ -114,7 +122,6 @@ public class CustomerAccountController {
      * @param order
      * @return BaseOutput
      */
-    // @TODO 定金退款页面数据来源于 调用结算
     @BusinessLogger(content = "${content}", systemCode = "IA")
     @RequestMapping(value="/saveOrUpdateRefundOrder.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput saveOrUpdateRefundOrder(@RequestBody EarnestRefundOrderDto order) {
@@ -152,7 +159,6 @@ public class CustomerAccountController {
      * @param etDto 前端参数
      * @return BaseOutput
      */
-    // @TODO 定金退款页面数据来源于 调用结算
     @BusinessLogger(businessType = LogBizTypeConst.CUSTOMER_ACCOUNT, content="${businessCode}客户【${payerName}】转移给客户【${customerName}】${amountYuan}元", operationType="transfer", systemCode = "IA")
     @RequestMapping(value="/doEarnestTransfer.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput doEarnestTransfer(EarnestTransferOrderDto etDto) {
@@ -211,5 +217,4 @@ public class CustomerAccountController {
         }
         return BaseOutput.success();
     }
-
 }

@@ -14,11 +14,15 @@ public interface AssetsLeaseService {
      * @return
      */
     Integer getAssetsType();
+
     /**
-     * 检查资产状态
-     * @param assetsId
+     * 检查资产
+     * @param assetsIds
+     * @param mchId
+     * @param batchId
+     * @return 最新商户
      */
-    void checkAssetState(Long assetsId);
+    Long checkAssets(List<Long> assetsIds, Long mchId , Long batchId);
 
     /**
      * 冻结资产
