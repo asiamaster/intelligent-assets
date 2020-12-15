@@ -331,7 +331,7 @@
         <input type="hidden" name="assetsName" value="{{assetsName}}"/>
         <div class="form-group">
             <label for="stopRentObj">停租对象</label>
-            <input type="text" class="form-control" id="stopRentObj" name="stopRentObj" value="{{assetsName}}【{{districtName}}】" readonly/>
+            <input type="text" class="form-control" id="stopRentObj" name="stopRentObj" value="{{assetsName}}【{{secondDistrictName ? firstDistrictName + '->' + secondDistrictName : firstDistrictName}}】" readonly/>
         </div>
         <div class="form-group">
             <label>停租日期</label>
