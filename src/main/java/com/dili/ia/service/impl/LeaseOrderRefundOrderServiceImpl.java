@@ -105,7 +105,7 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
         Map<String, Object> resultMap = new HashMap<>();
         //已交清退款单打印数据
-        resultMap.put("printTemplateCode", PrintTemplateEnum.BOOTH_LEASE_REFUND_PAID.getCode());
+        resultMap.put("printTemplateCode", PrintTemplateEnum.LEASE_SETTLEMENT_REFUND_BILL.getCode());
         //根据要求拼装订单项
         buildLeaseOrderItem(refundOrder, resultMap);
         return BaseOutput.success().setData(resultMap);

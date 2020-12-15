@@ -38,6 +38,8 @@ public class LeaseOrderPrintDto {
     private String notes;
     //总金额
     private String totalAmount;
+    //抵扣
+    private String deduction;
     //保证金转抵
     private String depositDeduction;
     //定金转抵
@@ -159,6 +161,14 @@ public class LeaseOrderPrintDto {
 
     public void setTotalAmount(String totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public String getDeduction() {
+        return deduction;
+    }
+
+    public void setDeduction(String deduction) {
+        this.deduction = deduction;
     }
 
     public String getDepositDeduction() {

@@ -42,12 +42,13 @@ public class AssetsController {
      */
     @GetMapping(value = "/searchAssets.action")
     public @ResponseBody
-    BaseOutput<List<AssetsDTO>> searchAssets(String keyword, Integer assetsType, Integer firstDistrictId, Integer secondDistrictId , boolean isExcludeRental) {
+    BaseOutput<List<AssetsDTO>> searchAssets(String keyword, Integer assetsType, Long mchId, Integer firstDistrictId, Integer secondDistrictId, boolean isExcludeRental) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         AssetsQuery assetsQuery = new AssetsQuery();
         assetsQuery.setKeyword(keyword);
         assetsQuery.setMarketId(userTicket.getFirmId());
         assetsQuery.setBusinessType(assetsType);// 资产类型
+        assetsQuery.setMchId(mchId);
         if (null != firstDistrictId){
             assetsQuery.setArea(firstDistrictId);
         }
@@ -61,14 +62,14 @@ public class AssetsController {
                 List<Long> filterIds = assetsRentalService.filterAssetsIdsByTable(assets.stream().map(o -> o.getId()).collect(Collectors.toList()));
                 assets = assets.stream().filter(o -> !filterIds.contains(o.getId())).collect(Collectors.toList());
             }
-            if (CollectionUtils.isNotEmpty(assets)) {
-                for (int i = 0; i < assets.size(); i++) {
-                    if (i != 0) {
-//                        assets.get(i).setMarketId(Long.valueOf(assets.size() - i));
-                        assets.get(i).setMarketId(1L);
-                    }
-                }
-            }
+//            if (CollectionUtils.isNotEmpty(assets)) {
+//                for (int i = 0; i < assets.size(); i++) {
+//                    if (i != 0) {
+////                        assets.get(i).setMarketId(Long.valueOf(assets.size() - i));
+//                        assets.get(i).setMarketId(1L);
+//                    }
+//                }
+//            }
             return BaseOutput.success().setData(assets);
         } catch (Exception e) {
             LOG.error("资产查询接口异常",e);

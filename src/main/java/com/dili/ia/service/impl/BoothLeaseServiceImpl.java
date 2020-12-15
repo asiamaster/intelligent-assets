@@ -14,6 +14,8 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +39,12 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
 
     @Override
     public Long checkAssets(List<Long> assetsIds, Long mchId, Long batchId) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "登录过期或未登录");
+        }
         AssetsQuery assetsQuery = new AssetsQuery();
+        assetsQuery.setMarketId(userTicket.getFirmId());
         assetsQuery.setIds(assetsIds.stream().map(o -> o.toString()).collect(Collectors.toList()));
         BaseOutput<List<AssetsDTO>> output = assetsRpc.searchAssets(assetsQuery);
         if (!output.isSuccess()) {

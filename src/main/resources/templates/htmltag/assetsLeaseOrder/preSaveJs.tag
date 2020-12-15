@@ -46,15 +46,16 @@
                     return '/assets/searchAssets.action';
                 } else if(!batchId) {
                     params.isExcludeRental = true;
+                    params.mchId = $('#mchId').val();
                     return '/assets/searchAssets.action';
                 } else {
+                    params.mchId = $('#mchId').val();
                     return '/assetsRental/listRentalsByRentalDtoAndKeyWord.action';
                 }
             },
             data: function (params) {
                 return {
                     keyword: params.term,
-                    mchId: $('#mchId').val(),
                     batchId: $('#batchId').val(),
                     assetsType: $('#assetsType').val(),
                     ...params

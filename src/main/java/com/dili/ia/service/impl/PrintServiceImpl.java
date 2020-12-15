@@ -15,6 +15,7 @@ import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
@@ -46,7 +47,7 @@ public class PrintServiceImpl implements PrintService {
     @Autowired
     private AssetsLeaseOrderItemService assetsLeaseOrderItemService;
     @Autowired
-    private SettlementRpc settlementRpc;
+    private SettleOrderRpc settleOrderRpc;
     @Autowired
     private PaymentOrderService paymentOrderService;
     @Autowired
@@ -81,13 +82,9 @@ public class PrintServiceImpl implements PrintService {
         leaseOrderPrintDto.setPrintTime(LocalDate.now());
         leaseOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         leaseOrderPrintDto.setLeaseOrderCode(leaseOrder.getCode());
-        if (YesOrNoEnum.YES.getCode().equals(paymentOrder.getIsSettle())) {
-            leaseOrderPrintDto.setBusinessType(BizTypeEnum.BOOTH_LEASE.getName());
-            printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_PAID.getCode());
-        } else {
-            leaseOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
-            printDataDto.setName(PrintTemplateEnum.BOOTH_LEASE_NOT_PAID.getCode());
-        }
+        leaseOrderPrintDto.setBusinessType(BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getName());
+        printDataDto.setName(PrintTemplateEnum.LEASE_SETTLEMENT_PAY_BILL.getCode());
+
         leaseOrderPrintDto.setCustomerName(leaseOrder.getCustomerName());
         leaseOrderPrintDto.setCustomerCellphone(leaseOrder.getCustomerCellphone());
         leaseOrderPrintDto.setStartTime(leaseOrder.getStartTime().toLocalDate());
@@ -98,25 +95,12 @@ public class PrintServiceImpl implements PrintService {
         leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
         leaseOrderPrintDto.setWaitAmount(MoneyUtils.centToYuan(leaseOrder.getWaitAmount()));
 
-        Long totalPayAmountExcludeLast = 0L;
-        //已结清时  定金需要加前几次支付金额
-        if (YesOrNoEnum.YES.getCode().equals(paymentOrder.getIsSettle())) {
-            PaymentOrder paymentOrderConditions = new PaymentOrder();
-            paymentOrderConditions.setBusinessId(paymentOrder.getBusinessId());
-            paymentOrderConditions.setBizType(BizTypeEnum.BOOTH_LEASE.getCode());
-            List<PaymentOrder> paymentOrders = paymentOrderService.list(paymentOrderConditions);
-
-            for (PaymentOrder order : paymentOrders) {
-                if (!order.getCode().equals(orderCode) && order.getState().equals(PaymentOrderStateEnum.PAID.getCode())) {
-                    totalPayAmountExcludeLast += order.getAmount();
-                }
-            }
+        //抵扣金额 结算查询
+        BaseOutput<SettleOrder> output = settleOrderRpc.getByCode(paymentOrder.getSettlementCode());
+        if (output.isSuccess()) {
+            leaseOrderPrintDto.setDeduction(MoneyUtils.centToYuan(output.getData().getDeductAmount()));
         }
 
-        //除最后一次所交费用+定金抵扣 之和未总定金
-//        leaseOrderPrintDto.setEarnestDeduction(MoneyUtils.centToYuan(leaseOrder.getEarnestDeduction() + totalPayAmountExcludeLast));
-//        leaseOrderPrintDto.setTransferDeduction(MoneyUtils.centToYuan(leaseOrder.getTransferDeduction()));
-//        leaseOrderPrintDto.setPayAmount(MoneyUtils.centToYuan(leaseOrder.getPayAmount()));
         leaseOrderPrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount()));
         leaseOrderPrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
         leaseOrderPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
@@ -195,7 +179,7 @@ public class PrintServiceImpl implements PrintService {
         if (settlementWay.equals(SettleWayEnum.MIXED_PAY.getCode())) {
             //摊位租赁单据的交款时间，也就是结算时填写的时间，显示到结算详情中，显示内容为：支付方式（组合支付的，只显示该类型下的具体支付方式）、金额、收款日期、流水号、结算备注，每个字段间隔一个空格；如没填写的则不显示；
             // 多个支付方式的，均在一行显示，当前行满之后换行，支付方式之间用;隔开；
-            BaseOutput<List<SettleWayDetail>> output = settlementRpc.listSettleWayDetailsByCode(settlementCode);
+            BaseOutput<List<SettleWayDetail>> output = settleOrderRpc.listSettleWayDetailsByCode(settlementCode);
             List<SettleWayDetail> swdList = output.getData();
             if (output.isSuccess() && CollectionUtils.isNotEmpty(swdList)) {
                 for (SettleWayDetail swd : swdList) {
@@ -219,7 +203,7 @@ public class PrintServiceImpl implements PrintService {
             }
         } else if (settlementWay.equals(SettleWayEnum.CARD.getCode())) {
             // 园区卡支付，结算详情格式：【卡号：428838247888（李四）】
-            BaseOutput<SettleOrder> output = settlementRpc.getByCode(settlementCode);
+            BaseOutput<SettleOrder> output = settleOrderRpc.getByCode(settlementCode);
             if (output.isSuccess()) {
                 SettleOrder settleOrder = output.getData();
                 if (null != settleOrder.getTradeCardNo()) {
@@ -233,7 +217,7 @@ public class PrintServiceImpl implements PrintService {
             }
         } else {
             // 除了园区卡 和 组合支付 ，结算详情格式：【2020-08-19 4237458467568870 备注：微信付款150元】
-            BaseOutput<SettleOrder> output = settlementRpc.getByCode(settlementCode);
+            BaseOutput<SettleOrder> output = settleOrderRpc.getByCode(settlementCode);
             if (output.isSuccess()) {
                 SettleOrder settleOrder = output.getData();
                 if (null != settleOrder.getChargeDate()) {
