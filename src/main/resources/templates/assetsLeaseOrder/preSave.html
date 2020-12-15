@@ -149,8 +149,10 @@
                     <tr data-index="${itemLP.index}">
                         <input type="hidden" id="itemIndex_${itemLP.index}" name="itemIndex_${itemLP.index}" value="${itemLP.index}">
                         <input type="hidden" id="unitCode_${itemLP.index}" name="unitCode_${itemLP.index}" value="${item.unitCode!}">
-                        <input type="hidden" id="districtId_${itemLP.index}" name="districtId_${itemLP.index}" value="${item.districtId!}">
-                        <input type="hidden" id="districtName_${itemLP.index}" name="districtName_${itemLP.index}" value="${item.districtName!}">
+                        <input type="hidden" id="firstDistrictId_${itemLP.index}" name="firstDistrictId_${itemLP.index}" value="${item.firstDistrictId!}">
+                        <input type="hidden" id="firstDistrictName_${itemLP.index}" name="firstDistrictName_${itemLP.index}" value="${item.firstDistrictName!}">
+                        <input type="hidden" id="secondDistrictId_${itemLP.index}" name="secondDistrictId_${itemLP.index}" value="${item.secondDistrictId!}">
+                        <input type="hidden" id="secondDistrictName_${itemLP.index}" name="secondDistrictName_${itemLP.index}" value="${item.secondDistrictName!}">
                         <input type="hidden" id="number_${itemLP.index}" name="number_${itemLP.index}" value="${item.number!}"/>
                         <input type="hidden" id="unitName_${itemLP.index}" name="unitName_${itemLP.index}" value="${item.unitName!}"/>
                         <input type="hidden" id="mchId_${itemLP.index}" name="mchId_${itemLP.index}"/>
@@ -246,8 +248,10 @@
     <tr data-index="{{index}}">
         <input type="hidden" id="itemIndex_{{index}}" name="itemIndex_{{index}}" value="{{index}}">
         <input type="hidden" id="unitCode_{{index}}" name="unitCode_{{index}}">
-        <input type="hidden" id="districtId_{{index}}" name="districtId_{{index}}">
-        <input type="hidden" id="districtName_{{index}}" name="districtName_{{index}}">
+        <input type="hidden" id="firstDistrictId_{{index}}" name="firstDistrictId_{{index}}" value="${item.firstDistrictId!}">
+        <input type="hidden" id="firstDistrictName_{{index}}" name="firstDistrictName_{{index}}" value="${item.firstDistrictName!}">
+        <input type="hidden" id="secondDistrictId_{{index}}" name="secondDistrictId_{{index}}" value="${item.secondDistrictId!}">
+        <input type="hidden" id="secondDistrictName_{{index}}" name="secondDistrictName_{{index}}" value="${item.secondDistrictName!}">
         <input type="hidden" id="number_{{index}}" name="number_{{index}}"/>
         <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}"/>
         <input type="hidden" id="mchId_{{index}}" name="mchId_{{index}}"/>

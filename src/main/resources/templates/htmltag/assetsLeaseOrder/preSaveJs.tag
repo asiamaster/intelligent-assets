@@ -81,7 +81,7 @@
     }
 
     var assetEvent = {
-        eventName: 'select2:selecting', 
+        eventName: 'select2:selecting',
         eventHandler: function (e) {
             let bizType = $('#bizType').val();
             let suggestion = e.params.args.data;
@@ -128,17 +128,19 @@
                 $('#leasesNum_' + index).attr('max', rentBalanceYuan);
             }
 
-            $('#mchId_'+index).val(suggestion.marketId);
-            $('#number_'+index).val(suggestion.number);
+            $('#mchId_' + index).val(suggestion.marketId);
+            $('#number_' + index).val(suggestion.number);
             if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
-                $('#leasesNum_'+index).val(suggestion.number);
+                $('#leasesNum_' + index).val(suggestion.number);
             }
-            $('#unitCode_'+index).val(suggestion.unit);
-            $('#unitName_'+index).val(suggestion.unitName);
-            $('#sku_'+index).val(suggestion.number+suggestion.unitName);
-            $('#isCorner_'+index).val(suggestion.cornerName);
-            $('#districtId_'+index).val((suggestion.secondArea || suggestion.secondDistrictId)?(suggestion.secondArea || suggestion.secondDistrictId) : (suggestion.area || suggestion.firstDistrictId));
-            $('#districtName_' + index).val((suggestion.secondAreaName || suggestion.secondDistrictName) ? (suggestion.areaName || suggestion.firstDistrictName)  + '->' + (suggestion.secondAreaName || suggestion.secondDistrictName) : (suggestion.areaName || suggestion.firstDistrictName));
+            $('#unitCode_' + index).val(suggestion.unit);
+            $('#unitName_' + index).val(suggestion.unitName);
+            $('#sku_' + index).val(suggestion.number + suggestion.unitName);
+            $('#isCorner_' + index).val(suggestion.cornerName);
+            $('#firstDistrictId_' + index).val(suggestion.area);
+            $('#firstDistrictName_' + index).val(suggestion.areaName);
+            $('#secondDistrictId_' + index).val(suggestion.secondArea);
+            $('#secondDistrictName_' + index).val(suggestion.secondAreaName);
             batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
             $('#id').val() && batchQueryDepositOrder({
                 businessId: $('#id').val(),

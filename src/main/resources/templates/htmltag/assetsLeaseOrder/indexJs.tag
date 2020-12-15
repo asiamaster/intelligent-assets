@@ -820,6 +820,11 @@
         return businessChareItems;
     }
 
+    //区域Formatter
+    function districtNameFormatter(value, item, index) {
+        return item.secondDistrictName ? item.firstDistrictName + '->' + item.secondDistrictName : item.firstDistrictName;
+    }
+
     /*****************************************函数区 end**************************************/
 
     /*****************************************自定义事件区 begin************************************/
@@ -1020,5 +1025,6 @@
         }
         $('#btn_print').attr('disabled', false);
     }
+
     /*****************************************自定义事件区 end**************************************/
 </script>

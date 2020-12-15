@@ -73,9 +73,11 @@ public class AssetsLeaseOrderItemListDto extends AssetsLeaseOrderItem {
     private LocalDate stopDate;
 
     //证件号
+    @Transient
     private String certificateNumber;
 
     //客户电话
+    @Transient
     private String customerCellphone;
 
     public String getCertificateNumber() {

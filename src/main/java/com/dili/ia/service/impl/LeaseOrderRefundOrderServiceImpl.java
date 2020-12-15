@@ -120,7 +120,6 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
     public void buildLeaseOrderItem(RefundOrder refundOrder, Map<String, Object> resultMap) {
         AssetsLeaseOrderItem leaseOrderItem = assetsLeaseOrderItemService.get(refundOrder.getBusinessItemId());
         resultMap.put("assetsName", leaseOrderItem.getAssetsName());
-        resultMap.put("districtName", leaseOrderItem.getDistrictName());
         resultMap.put("number", String.valueOf(leaseOrderItem.getNumber()));
         resultMap.put("unitName", leaseOrderItem.getUnitName());
         resultMap.put("unitPrice", MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));

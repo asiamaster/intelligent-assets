@@ -166,13 +166,28 @@ public class AssetsLeaseOrderItem extends BaseDomain {
     private Integer stopRentState;
 
     /**
-     * 区域id
+     * 一级区域Id
      */
-    @Column(name = "`district_id`")
-    private Long districtId;
+    @Column(name = "`first_district_id`")
+    private Long firstDistrictId;
 
-    @Column(name = "`district_name`")
-    private String districtName;
+    /**
+     * 一级区域名称
+     */
+    @Column(name = "`first_district_name`")
+    private String firstDistrictName;
+
+    /**
+     * 二级区域Id
+     */
+    @Column(name = "`second_district_id`")
+    private Long secondDistrictId;
+
+    /**
+     * 二级区域名称
+     */
+    @Column(name = "`second_district_name`")
+    private String secondDistrictName;
 
     /**
      * 保证金余额快照
@@ -452,20 +467,36 @@ public class AssetsLeaseOrderItem extends BaseDomain {
         this.stopRentState = stopRentState;
     }
 
-    public Long getDistrictId() {
-        return districtId;
+    public Long getFirstDistrictId() {
+        return firstDistrictId;
     }
 
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
+    public void setFirstDistrictId(Long firstDistrictId) {
+        this.firstDistrictId = firstDistrictId;
     }
 
-    public String getDistrictName() {
-        return districtName;
+    public String getFirstDistrictName() {
+        return firstDistrictName;
     }
 
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
+    public void setFirstDistrictName(String firstDistrictName) {
+        this.firstDistrictName = firstDistrictName;
+    }
+
+    public Long getSecondDistrictId() {
+        return secondDistrictId;
+    }
+
+    public void setSecondDistrictId(Long secondDistrictId) {
+        this.secondDistrictId = secondDistrictId;
+    }
+
+    public String getSecondDistrictName() {
+        return secondDistrictName;
+    }
+
+    public void setSecondDistrictName(String secondDistrictName) {
+        this.secondDistrictName = secondDistrictName;
     }
 
     public Long getDepositBalance() {

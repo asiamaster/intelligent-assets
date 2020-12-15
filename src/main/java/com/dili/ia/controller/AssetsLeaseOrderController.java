@@ -444,15 +444,8 @@ public class AssetsLeaseOrderController {
         }
 
         if (null != leaseOrder.getFirstDistrictId()) {
-            //区域查询
-            DistrictDTO districtDTO = new DistrictDTO();
-            districtDTO.setParentId(leaseOrder.getFirstDistrictId());
-            districtDTO.setMarketId(userTicket.getFirmId());
-            List<Long> districtIds = assetsRpc.searchDistrict(districtDTO).getData().stream().map(o -> o.getId()).collect(Collectors.toList());
-            districtIds.add(leaseOrder.getFirstDistrictId());
-
             AssetsLeaseOrderItemListDto assetsLeaseOrderItemListDto = new AssetsLeaseOrderItemListDto();
-            assetsLeaseOrderItemListDto.setDistrictIds(districtIds);
+            assetsLeaseOrderItemListDto.setFirstDistrictId(leaseOrder.getFirstDistrictId());
             leaseOrder.setIds(new ArrayList<>(assetsLeaseOrderItemService.listByExample(assetsLeaseOrderItemListDto).stream().map(AssetsLeaseOrderItem::getLeaseOrderId).collect(Collectors.toSet())));
             if (CollectionUtils.isEmpty(leaseOrder.getIds())) {
                 return new EasyuiPageOutput(0L, Collections.emptyList()).toString();

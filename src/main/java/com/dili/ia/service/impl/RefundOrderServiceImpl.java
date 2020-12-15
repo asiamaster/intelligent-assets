@@ -783,27 +783,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
     }
 
-    /**
-     * 获取一级区域名称,用于流程判断
-     * @return
-     */
-    public String getLevel1DistrictName(Long districtId){
-        BaseOutput<DistrictDTO> districtOutput = assetsRpc.getDistrictById(districtId);
-        if(!districtOutput.isSuccess()){
-            throw new AppException(ResultCode.DATA_ERROR, districtOutput.getMessage());
-        }
-        //构建一级区域名称，用于流程流转
-        String districtName = null;
-        if(districtOutput.getData().getParentId() == 0L || "0".equals(districtOutput.getData().getParentId())){
-            return districtOutput.getData().getName();
-        }else{
-            BaseOutput<DistrictDTO> parentDistrictOutput = assetsRpc.getDistrictById(districtOutput.getData().getParentId());
-            if(!parentDistrictOutput.isSuccess()){
-                throw new AppException(ResultCode.DATA_ERROR, parentDistrictOutput.getMessage());
-            }
-            return parentDistrictOutput.getData().getName();
-        }
-    }
 
     /**
      * 保存流程审批记录

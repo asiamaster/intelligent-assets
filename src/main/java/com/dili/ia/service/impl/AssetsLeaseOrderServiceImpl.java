@@ -1641,6 +1641,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             depositOrder.setIsRelated(YesOrNoEnum.YES.getCode());
             depositOrder.setBusinessId(dto.getId());
             depositOrder.setBizType(dto.getBizType());
+            depositOrder.setFirstDistrictId(l.getFirstDistrictId());
+            depositOrder.setSecondDistrictId(l.getSecondDistrictId());
             depositOrders.add(depositOrder);
         });
         depositOrderService.batchAddOrUpdateDepositOrder(dto.getBizType(), dto.getId(), depositOrders);

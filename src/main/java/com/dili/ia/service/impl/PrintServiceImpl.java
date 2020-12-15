@@ -132,7 +132,6 @@ public class PrintServiceImpl implements PrintService {
     private LeaseOrderItemPrintDto leaseOrderItem2PrintDto(AssetsLeaseOrderItemListDto leaseOrderItem) {
         LeaseOrderItemPrintDto leaseOrderItemPrintDto = new LeaseOrderItemPrintDto();
         leaseOrderItemPrintDto.setAssetsName(leaseOrderItem.getAssetsName());
-        leaseOrderItemPrintDto.setDistrictName(leaseOrderItem.getDistrictName());
         leaseOrderItemPrintDto.setNumber(leaseOrderItem.getNumber().toString());
         leaseOrderItemPrintDto.setUnitName(leaseOrderItem.getUnitName());
         leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
@@ -152,7 +151,6 @@ public class PrintServiceImpl implements PrintService {
     private LeaseOrderItemPrintDto leaseOrderItem2PrintDto(AssetsLeaseOrderItem leaseOrderItem) {
         LeaseOrderItemPrintDto leaseOrderItemPrintDto = new LeaseOrderItemPrintDto();
         leaseOrderItemPrintDto.setAssetsName(leaseOrderItem.getAssetsName());
-        leaseOrderItemPrintDto.setDistrictName(leaseOrderItem.getDistrictName());
         leaseOrderItemPrintDto.setNumber(leaseOrderItem.getNumber().toString());
         leaseOrderItemPrintDto.setUnitName(leaseOrderItem.getUnitName());
         leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));

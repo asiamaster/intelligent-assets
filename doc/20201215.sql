@@ -51,3 +51,40 @@ ADD COLUMN `rule_name` varchar(100) NULL AFTER `rule_id`;
 
 ALTER TABLE `dili_ia`.`assets_lease_order`
 ADD COLUMN `batch_id` bigint(20) NULL DEFAULT NULL COMMENT '批次号' AFTER `mch_id`;
+
+ALTER TABLE `dili_ia`.`assets_lease_order_item`
+ADD COLUMN `first_district_id` bigint(20) NULL DEFAULT NULL COMMENT '一级区域ID' AFTER `stop_rent_state`,
+ADD COLUMN `first_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '一级区域名称' AFTER `first_district_id`,
+ADD COLUMN `second_district_id` bigint(20) NULL DEFAULT NULL COMMENT '二级区域ID' AFTER `first_district_name`,
+ADD COLUMN `second_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '二级区域名称' AFTER `second_district_id`;
+
+-- 处理租赁单区域老数据
+UPDATE `dili_ia`.assets_lease_order_item ali ,`dili-basic-data`.district dt
+SET ali.first_district_id = (
+	CASE dt.parent_id
+	WHEN 0 THEN
+		dt.id
+	ELSE
+		dt.parent_id
+	END
+),
+ali.second_district_id = (
+	CASE dt.parent_id
+	WHEN 0 THEN
+		NULL
+	ELSE
+		dt.id
+	END
+)
+WHERE ali.district_id = dt.id;
+
+-- 处理租赁单区域老数据
+UPDATE `dili_ia`.assets_lease_order_item ali,`dili-basic-data`.district dt
+set ali.first_district_name = dt.name
+WHERE ali.first_district_id = dt.id;
+
+-- 处理租赁单区域老数据
+UPDATE `dili_ia`.assets_lease_order_item ali,`dili-basic-data`.district dt
+set ali.second_district_name = dt.name
+WHERE ali.second_district_id = dt.id;
+
