@@ -349,7 +349,7 @@ public class PrintServiceImpl implements PrintService {
         leaseOrderPrintDto.setNotes(leaseOrder.getNotes());
         leaseOrderPrintDto.setManager(leaseOrder.getManager());
         leaseOrderPrintDto.setSubmitter(null != paymentOrder ? paymentOrder.getCreator() : null);
-//        leaseOrderPrintDto.setTransferDeduction(MoneyUtils.centToYuan(leaseOrder.getTransferDeduction()));
+        leaseOrderPrintDto.setTransferDeduction(MoneyUtils.centToYuan(0));
 
 
 
@@ -377,10 +377,10 @@ public class PrintServiceImpl implements PrintService {
 
         leaseOrderPrintDto.setDepositDeduction(MoneyUtils.centToYuan(depositSnapshotAmountTotal));
         //定金转抵 = 定金抵扣 + 租赁已交金额 + 保证金补交已交金额
-//        leaseOrderPrintDto.setEarnestDeduction(MoneyUtils.centToYuan(leaseOrder.getEarnestDeduction() + leaseOrder.getPaidAmount() + depositPaidAmountTotal));
-//        leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount() + depositSnapshotAmountTotal + depositMakeUpAmountTotal));
-//        //实付金额 = 租赁实付金额 + 补交保证金金额
-//        leaseOrderPrintDto.setPayAmount(MoneyUtils.centToYuan(leaseOrder.getPayAmount() + depositMakeUpAmountTotal));
+        leaseOrderPrintDto.setEarnestDeduction(MoneyUtils.centToYuan(leaseOrder.getPaidAmount() + depositPaidAmountTotal));
+        leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount() + depositSnapshotAmountTotal + depositMakeUpAmountTotal));
+        //实付金额 = 租赁实付金额 + 补交保证金金额
+        leaseOrderPrintDto.setPayAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount() + depositMakeUpAmountTotal));
         if (isBuildChargeItem) {
             List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
             leaseOrderPrintDto.setChargeItems(chargeItemDtos);
