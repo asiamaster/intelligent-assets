@@ -19,7 +19,6 @@ import com.dili.ia.domain.dto.*;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
-import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LoggerUtil;
@@ -40,6 +39,7 @@ import com.dili.settlement.enums.EnableEnum;
 import com.dili.settlement.enums.LinkTypeEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
+import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -88,7 +88,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     @Autowired
     private AssetsLeaseOrderItemService assetsLeaseOrderItemService;
     @Autowired
-    private SettlementRpc settlementRpc;
+    private SettleOrderRpc settleOrderRpc;
     @Autowired
     private PaymentOrderService paymentOrderService;
     @Value("${settlement.app-id}")
@@ -719,7 +719,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             notPaidOrderCondition.setAppId(settlementAppId);
             notPaidOrderCondition.setMarketId(leaseOrder.getMarketId());
             notPaidOrderCondition.setOrderCodeList(notPaidPaymentOrders);
-            List<SettleOrder> settleOrders = settlementRpc.list(notPaidOrderCondition).getData();
+            List<SettleOrder> settleOrders = settleOrderRpc.list(notPaidOrderCondition).getData();
             if (CollectionUtils.isNotEmpty(settleOrders.stream().filter(s -> SettleStateEnum.DEAL.getCode() == s.getState()).collect(Collectors.toList()))) {
                 LOG.error("缴费状态未同步 【租赁单CODE {}】", leaseOrder.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "缴费状态未同步，不能进行此操作");
@@ -786,7 +786,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         invalidRequestDto.setOperatorId(userTicket.getId());
         invalidRequestDto.setOperatorName(userTicket.getRealName());
         invalidRequestDto.setOrderCodeList(paymentOrders.stream().map(o -> o.getCode()).collect(Collectors.toList()));
-        BaseOutput settlementInvalidOutput = settlementRpc.invalid(invalidRequestDto);
+        BaseOutput settlementInvalidOutput = settleOrderRpc.invalid(invalidRequestDto);
         if (!settlementInvalidOutput.isSuccess()) {
             LOG.error("租赁单作废调用结算单作废异常 【租赁单CODE {}】", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, settlementInvalidOutput.getMessage());
@@ -1372,7 +1372,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         paymentOrder.setAmount(amount);
         paymentOrderService.insertSelective(paymentOrder);
 
-        BaseOutput<SettleOrder> settlementOutput = settlementRpc.submit(buildSettleOrderDto(leaseOrder, paymentOrder, amount, buildSettleFeeItems(businessChargeItems)));
+        BaseOutput<SettleOrder> settlementOutput = settleOrderRpc.submit(buildSettleOrderDto(leaseOrder, paymentOrder, amount, buildSettleFeeItems(businessChargeItems)));
         if (settlementOutput.isSuccess()) {
             try {
                 saveSettlementCode(paymentOrder.getId(), settlementOutput.getData().getCode());
@@ -1602,7 +1602,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         PaymentOrder payingOrder = paymentOrderService.get(paymentId);
         if (PaymentOrderStateEnum.NOT_PAID.getCode().equals(payingOrder.getState())) {
             String paymentCode = payingOrder.getCode();
-            BaseOutput output = settlementRpc.cancel(settlementAppId, paymentCode);
+            BaseOutput output = settleOrderRpc.cancel(settlementAppId, paymentCode);
             if (!output.isSuccess()) {
                 LOG.info("结算单撤回异常 【缴费单CODE {}】", paymentCode);
                 throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
