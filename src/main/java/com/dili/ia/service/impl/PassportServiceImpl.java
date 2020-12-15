@@ -418,8 +418,8 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             // 园区卡支付
             settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
                     "（" + order.getCustomerName() + "）】";
-        } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
-            // 现金
+        } else {
+            // 现金以及其他方式
             settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
                     + order.getNotes() + "】";
         }
@@ -468,7 +468,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             passportPrintDto.setBusinessType(BizTypeEnum.PASSPORT.getName());
             passportPrintDto.setPlate(passportInfo.getCarNumber());
 
-            // 退款方式
+            // 退款方式,只要如下三种退款方式
             String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + refundOrder.getPayeeAmount();
             if (SettleWayEnum.CARD.getCode() == order.getWay()) {
                 // 园区卡支付
@@ -476,7 +476,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
                 // 现金
                 settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay());
-            } else if (SettleWayEnum.CASH.getCode() == order.getWay())  {
+            } else if (SettleWayEnum.BANK.getCode() == order.getWay())  {
                 // 银行卡
                 settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
             }
