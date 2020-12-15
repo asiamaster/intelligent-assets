@@ -133,6 +133,7 @@
             if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
                 $('#leasesNum_' + index).val(suggestion.number);
             }
+            $('#assetsName_' + index).val(suggestion.name);
             $('#unitCode_' + index).val(suggestion.unit);
             $('#unitName_' + index).val(suggestion.unitName);
             $('#sku_' + index).val(suggestion.number + suggestion.unitName);
@@ -720,6 +721,7 @@
                             $('#chargeItem_'+chargeItemResult.requestDataId).val(chargeItemResult.totalFee);
                             chargeItemDataset['ruleId'] = chargeItemResult.ruleId;
                             chargeItemDataset['ruleName'] = chargeItemResult.ruleName;
+                            calcTotalAmount(true);
                         } else {
                             bs4pop.notice(chargeItemDataset['chargeItemName'] + ' ' + chargeItemResult.message, {position: 'bottomleft', type: 'danger'});
                         }

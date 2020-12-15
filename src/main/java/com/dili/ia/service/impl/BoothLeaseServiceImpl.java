@@ -16,6 +16,7 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,16 +64,23 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
 
         //检查预设批次号
         List<AssetsRentalDto> assetsRentalDtos = assetsRentalService.listByAssetsIds(assetsIds);
-        if (assetsRentalDtos.size() != assetsIds.size()) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "合同中摊位预设发生变更");
-        }
-        if (assetsRentalDtos.stream().collect(Collectors.groupingBy(AssetsRentalDto::getBatchId, Collectors.counting())).size() > 1) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "合同中摊位预设为不同预设批次");
+        if (null != batchId) {
+            if (assetsRentalDtos.size() != assetsIds.size()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "合同中摊位预设发生变更");
+            }
+            if (assetsRentalDtos.stream().collect(Collectors.groupingBy(AssetsRentalDto::getBatchId, Collectors.counting())).size() > 1) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "合同中摊位预设为不同预设批次");
+            }
+
+            if (!batchId.equals(assetsRentalDtos.get(0).getBatchId())) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "合同中预设批次整体发生变更");
+            }
+        } else {
+            if (CollectionUtils.isNotEmpty(assetsRentalDtos)) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "合同中摊位预设发生变更");
+            }
         }
 
-        if (!batchId.equals(assetsRentalDtos.get(0).getBatchId())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "合同中预设批次整体发生变更");
-        }
         return assetsDTOS.get(0).getMarketId();
     }
 

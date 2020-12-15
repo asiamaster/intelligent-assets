@@ -159,7 +159,7 @@
                         <input type="hidden" id="batchId_${itemLP.index}" name="batchId_${itemLP.index}"/>
                         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
                         <td style="padding: .25rem!important;">
-
+                            <input type="hidden" id="assetsName_${itemLP.index}" name="assetsName_${itemLP.index}">
                             <select id="assetsId_${itemLP.index}" name="assetsId_${itemLP.index}" _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" required>
                                 <option value="${item.assetsId!}">${item.assetsName!}</option>
                             </select>
@@ -258,7 +258,7 @@
         <input type="hidden" id="batchId_{{index}}" name="batchId_{{index}}"/>
         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
-
+            <input type="hidden" id="assetsName_{{index}}" name="assetsName_{{index}}">
             <select id="assetsId_{{index}}" name="assetsId_{{index}}" _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" required>
             </select>
             <#bselect2 _escape="true" _id="assetsId_{{index}}" _mode="remote" _optionVariable="assetAutoCompleteOption" _eventVariable="assetEvent"/>

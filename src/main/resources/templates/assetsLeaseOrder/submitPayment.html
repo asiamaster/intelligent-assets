@@ -42,7 +42,7 @@
                     <td>
                         <input type="hidden" id="leaseItemId_${itemLP.index}" name="leaseItemId_${itemLP.index}" value="${item.id!}">
                         <input type="hidden" class="assets" id="assetsId_${itemLP.index}" name="assetsId_${itemLP.index}" value="${item.assetsId!}">
-                        <span>${item.assetsName!} 【${item.districtName!}】</span>
+                        <span>${item.assetsName!} 【${isNotEmpty(item.secondDistrictName) ? item.firstDistrictName + '->' + item.secondDistrictName : item.firstDistrictName}】</span>
                     </td>
                     <%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
                     for(chargeItem in chargeItems){
