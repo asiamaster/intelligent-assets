@@ -4,8 +4,6 @@ import com.dili.assets.sdk.dto.AssetsDTO;
 import com.dili.assets.sdk.dto.AssetsQuery;
 import com.dili.assets.sdk.dto.AssetsRentDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
-import com.dili.commons.glossary.EnabledStateEnum;
-import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.dto.AssetsRentalDto;
@@ -16,16 +14,12 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service

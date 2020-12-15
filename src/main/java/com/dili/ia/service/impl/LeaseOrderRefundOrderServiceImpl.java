@@ -12,6 +12,7 @@ import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.*;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -25,10 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -143,5 +141,21 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
         }
         resultMap.put("refundFeeItemsStr", refundFeeItemsStr);
+    }
+
+    @Override
+    public List<SettleFeeItem> buildSettleFeeItem(RefundOrder refundOrder) {
+        RefundFeeItem condition = new RefundFeeItem();
+        condition.setRefundOrderId(refundOrder.getId());
+        List<RefundFeeItem> refundFeeItems = refundFeeItemService.listByExample(condition);
+        List<SettleFeeItem> settleFeeItems = new ArrayList<>();
+        refundFeeItems.forEach(rf -> {
+            SettleFeeItem settleFeeItem = new SettleFeeItem();
+            settleFeeItem.setFeeType(0);
+            settleFeeItem.setFeeName(rf.getChargeItemName());
+            settleFeeItem.setAmount(rf.getAmount());
+            settleFeeItems.add(settleFeeItem);
+        });
+        return settleFeeItems;
     }
 }
