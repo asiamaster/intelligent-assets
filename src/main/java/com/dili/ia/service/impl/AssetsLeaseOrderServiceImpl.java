@@ -1580,14 +1580,14 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
         //详情
         SettleOrderLink detailLink = new SettleOrderLink();
-        callBackLink.setType(LinkTypeEnum.DETAIL.getCode());
-        callBackLink.setUrl(viewUrl + "?orderCode=" + paymentOrder.getCode());
+        detailLink.setType(LinkTypeEnum.DETAIL.getCode());
+        detailLink.setUrl(viewUrl + "?orderCode=" + paymentOrder.getCode());
         settleOrderLinks.add(detailLink);
 
         //打印
         SettleOrderLink printLink = new SettleOrderLink();
-        callBackLink.setType(LinkTypeEnum.PRINT.getCode());
-        callBackLink.setUrl(printUrl + "?orderCode=" + paymentOrder.getCode());
+        printLink.setType(LinkTypeEnum.PRINT.getCode());
+        printLink.setUrl(printUrl + "?orderCode=" + paymentOrder.getCode());
         settleOrderLinks.add(printLink);
         return settleOrderLinks;
     }
