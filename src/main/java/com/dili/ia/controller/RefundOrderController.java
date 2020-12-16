@@ -1,7 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
-import com.dili.bpmc.sdk.rpc.EventRpc;
+import com.dili.bpmc.sdk.rpc.restful.EventRpc;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;

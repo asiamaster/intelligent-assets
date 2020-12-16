@@ -43,5 +43,13 @@ public interface BpmConstants {
      */
 //    String PK_LOCATION_LEASE_REFUND_ORDER_PROCESS = "locationLeaseRefundOrderBpm";
     String PK_LOCATION_LEASE_REFUND_ORDER_PROCESS = "lodgingLeaseRefundOrderBpm";
+    /**
+     * 定金业务流程KEY，现在使用和公寓一样的业务流程
+     */
+    String PK_EARNEST_REFUND_ORDER_PROCESS = "lodgingLeaseRefundOrderBpm";
+    /**
+     * 保证金业务流程KEY，现在使用和公寓一样的业务流程
+     */
+    String PK_DEPOSIT_ORDER_REFUND_ORDER_PROCESS = "lodgingLeaseRefundOrderBpm";
 
 }

@@ -25,6 +25,8 @@ public class BpmDefKeyConfig {
         refundProcessDefinitionKeyCache.put(BizTypeEnum.BOOTH_LEASE.getCode(), BpmConstants.PK_BOOTH_LEASE_REFUND_ORDER_PROCESS);
         refundProcessDefinitionKeyCache.put(BizTypeEnum.LOCATION_LEASE.getCode(), BpmConstants.PK_LODGING_LEASE_REFUND_ORDER_PROCESS);
         refundProcessDefinitionKeyCache.put(BizTypeEnum.LODGING_LEASE.getCode(), BpmConstants.PK_LOCATION_LEASE_REFUND_ORDER_PROCESS);
+        refundProcessDefinitionKeyCache.put(BizTypeEnum.DEPOSIT_ORDER.getCode(), BpmConstants.PK_DEPOSIT_ORDER_REFUND_ORDER_PROCESS);
+        refundProcessDefinitionKeyCache.put(BizTypeEnum.EARNEST.getCode(), BpmConstants.PK_EARNEST_REFUND_ORDER_PROCESS);
     }
 
     public static String getLeaseDefKey(String bizType){
