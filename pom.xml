@@ -285,8 +285,8 @@
             <scope>compile</scope>
         </dependency>
 		<dependency>
-		    <groupId>org.apache.httpcomponents</groupId>
-		    <artifactId>httpclient</artifactId>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-okhttp</artifactId>
 		</dependency>
 
     </dependencies>
