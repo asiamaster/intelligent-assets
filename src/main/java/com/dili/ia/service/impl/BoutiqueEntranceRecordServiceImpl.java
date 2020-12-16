@@ -17,6 +17,7 @@ import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.EasyuiPageOutput;
@@ -75,6 +76,9 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
     @Autowired
     private SettlementRpcResolver settlementRpcResolver;
+
+    @Autowired
+    private SettleOrderRpc settleOrderRpc;
 
     @Autowired
     private RefundOrderService refundOrderService;
@@ -453,8 +457,10 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             RefundOrder refundOrder = refundOrders.get(0);
             BoutiqueFeeOrder orderInfo = boutiqueFeeOrderService.get(refundOrder.getBusinessId());
             BoutiqueEntranceRecord recordInfo = this.get(orderInfo.getRecordId());
-            SettleOrder order = settlementRpcResolver.get(settlementAppId, orderInfo.getCode());
-
+            SettleOrder order = settleOrderRpc.get(settlementAppId, orderInfo.getCode()).getData();
+            if (order == null) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "精品黄楼退款费单不存在!");
+            }
             // 组装退款单信息
             BoutiqueEntrancePrintDto printDto = new BoutiqueEntrancePrintDto();
             printDto.setReprint(reprint);
@@ -495,7 +501,8 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      */
     @Override
     public BoutiqueEntranceRecord cancel(BoutiqueEntranceRecordDto recordDto) throws BusinessException {
-        BoutiqueEntranceRecord recordInfo = this.get(recordDto.getId());
+        // 根据bid 查询数据
+        BoutiqueEntranceRecordDto recordInfo = this.getActualDao().getBoutiqueByBid(recordDto.getBid());
         if (recordInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，取消失败。");
         }

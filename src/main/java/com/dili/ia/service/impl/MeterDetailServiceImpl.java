@@ -31,6 +31,7 @@ import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseDomain;
@@ -98,6 +99,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
     @Autowired
     private CustomerMeterService customerMeterService;
+
+    @Autowired
+    private SettleOrderRpc settleOrderRpc;
 
     @Autowired
     private SettlementRpcResolver settlementRpcResolver;
@@ -594,7 +598,10 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         if (meterDetailInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "水电费单不存在!");
         }
-        SettleOrder order = settlementRpcResolver.get(settlementAppId, meterDetailInfo.getCode());
+        SettleOrder order = settleOrderRpc.get(settlementAppId, meterDetailInfo.getCode()).getData();
+        if (order == null) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "水电费单不存在!");
+        }
 
         MeterDetailPrintDto meterDetailPrintDto = new MeterDetailPrintDto();
         meterDetailPrintDto.setPrintTime(LocalDateTime.now());

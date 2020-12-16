@@ -1,6 +1,9 @@
 package com.dili.ia.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.dili.commons.glossary.EnabledStateEnum;
+import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.OtherFee;
 import com.dili.ia.domain.PaymentOrder;
@@ -16,19 +19,27 @@ import com.dili.ia.glossary.OtherFeeStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.OtherFeeMapper;
+import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.DepartmentChargeItemService;
 import com.dili.ia.service.OtherFeeService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.EnableEnum;
+import com.dili.settlement.enums.FeeTypeEnum;
+import com.dili.settlement.enums.LinkTypeEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -42,6 +53,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,6 +72,9 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     }
 
     @Autowired
+    CustomerRpc customerRpc;
+
+    @Autowired
     private UidRpcResolver uidRpcResolver;
 
     @Autowired
@@ -75,12 +90,16 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     private DepartmentChargeItemService departmentChargeItemService;
 
     @Autowired
-    private SettlementRpcResolver settlementRpcResolver;
+    private SettleOrderRpc settleOrderRpc;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
-
-    private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/otherFee/settlementDealHandler";
+    @Value("${otherFee.settlement.handler.url}")
+    private String settlerHandlerUrl;
+    @Value("${otherFee.settlement.view.url}")
+    private String settleViewUrl;
+    @Value("${otherFee.settlement.print.url}")
+    private String settlerPrintUrl;
 
     /**
      * 根据code查询数据实例
@@ -196,19 +215,86 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
 
-        // 创建缴费单
+        // 创建缴费单,添加到缴费表中
         PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.OTHER_FEE);
-        paymentOrder.setBusinessId(otherFeeInfo.getId());
         paymentOrder.setAmount(otherFeeInfo.getAmount());
+        paymentOrder.setBusinessId(otherFeeInfo.getId());
         paymentOrder.setBusinessCode(otherFeeInfo.getCode());
         paymentOrder.setBizType(BizTypeEnum.OTHER_FEE.getCode());
+        paymentOrder.setCustomerId(otherFeeInfo.getCustomerId());
+        paymentOrder.setCustomerName(otherFeeInfo.getCustomerName());
+        paymentOrder.setMchId(otherFeeInfo.getMchId());
+        paymentOrder.setDistrictId(otherFeeInfo.getSecondDistrictId() == null? otherFeeInfo.getFirstDistrictId():otherFeeInfo.getSecondDistrictId());
+        paymentOrder.setVersion(0);
         paymentOrderService.insertSelective(paymentOrder);
 
-        // 调用结算接口,缴费
-        SettleOrderDto settleOrderDto = this.buildSettleOrderDto(userTicket, otherFeeInfo, paymentOrder.getCode(), paymentOrder.getAmount());
-        settlementRpcResolver.submit(settleOrderDto);
+        // 组装数据，调用结算RPC
+        SettleOrderDto settleOrderDto = this.buildSettleOrderDto(userTicket, otherFeeInfo, paymentOrder);
+        settleOrderRpc.submit(settleOrderDto);
 
         return otherFeeInfo;
+    }
+
+    /**
+     * 组装数据，调用结算RPC
+     */
+    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, OtherFee otherFee, PaymentOrder paymentOrder) {
+        SettleOrderDto settleOrderDto = new SettleOrderDto();
+        // 必填字段
+        settleOrderDto.setOrderCode(paymentOrder.getCode());
+        settleOrderDto.setBusinessCode(paymentOrder.getBusinessCode());
+        settleOrderDto.setCustomerId(otherFee.getCustomerId());
+        settleOrderDto.setCustomerName(otherFee.getCustomerName());
+        settleOrderDto.setCustomerPhone(otherFee.getCustomerCellphone());
+        settleOrderDto.setCustomerCertificate(otherFee.getCertificateNumber());
+        settleOrderDto.setAmount(otherFee.getAmount());
+        settleOrderDto.setMchId(otherFee.getMchId());
+        settleOrderDto.setBusinessDepId(otherFee.getDepartmentId());
+        settleOrderDto.setBusinessDepName(departmentRpc.get(otherFee.getDepartmentId()).getData().getName());
+        settleOrderDto.setMarketId(otherFee.getMarketId());
+        settleOrderDto.setMarketCode(userTicket.getFirmCode());
+        settleOrderDto.setSubmitterId(userTicket.getId());
+        settleOrderDto.setSubmitterName(userTicket.getRealName());
+        if (userTicket.getDepartmentId() != null){
+            settleOrderDto.setSubmitterDepId(userTicket.getDepartmentId());
+            settleOrderDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+        }
+        settleOrderDto.setSubmitTime(LocalDateTime.now());
+        settleOrderDto.setAppId(settlementAppId);
+        //结算单业务类型 为 Integer
+        settleOrderDto.setBusinessType(BizTypeEnum.OTHER_FEE.getCode());
+        settleOrderDto.setType(SettleTypeEnum.PAY.getCode());
+        settleOrderDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
+        settleOrderDto.setDeductEnable(EnableEnum.NO.getCode());
+
+        //组装回调url
+        List<SettleOrderLink> settleOrderLinkList = new ArrayList<>();
+        // 详情
+        SettleOrderLink view = new SettleOrderLink();
+        view.setType(LinkTypeEnum.DETAIL.getCode());
+        view.setUrl(settleViewUrl + "?id=" + otherFee.getId());
+        // 打印
+        SettleOrderLink print = new SettleOrderLink();
+        print.setType(LinkTypeEnum.PRINT.getCode());
+        print.setUrl(settlerPrintUrl + "?orderCode=" + paymentOrder.getCode());
+        // 回调
+        SettleOrderLink callBack = new SettleOrderLink();
+        callBack.setType(LinkTypeEnum.CALLBACK.getCode());
+        callBack.setUrl(settlerHandlerUrl);
+        settleOrderLinkList.add(view);
+        settleOrderLinkList.add(print);
+        settleOrderLinkList.add(callBack);
+        settleOrderDto.setSettleOrderLinkList(settleOrderLinkList);
+
+        //组装费用项
+        List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
+        SettleFeeItem sfItem = new SettleFeeItem();
+        sfItem.setFeeType(Integer.valueOf(otherFee.getChargeItemId()));
+        sfItem.setFeeName(otherFee.getChargeItemName());
+        sfItem.setAmount(paymentOrder.getAmount());
+        settleFeeItemList.add(sfItem);
+        settleOrderDto.setSettleFeeItemList(settleFeeItemList);
+        return settleOrderDto;
     }
 
     /**
@@ -271,8 +357,39 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
-        // 撤销缴费单
+        // 查询缴费单（方法抽取）
         PaymentOrder paymentOrder = this.findPaymentOrder(userTicket, otherFeeInfo.getId(), otherFeeInfo.getCode());
+
+        // 撤回付款单和修改缴费单的状态（方法抽取）
+        this.withdrawPaymentOrder(paymentOrder);
+
+        return otherFeeInfo;
+    }
+
+    /**
+     * 查询缴费单
+     */
+    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode) throws BusinessException {
+        PaymentOrder pb = new PaymentOrder();
+
+        pb.setBizType(BizTypeEnum.OTHER_FEE.getCode());
+        pb.setBusinessId(businessId);
+        pb.setBusinessCode(businessCode);
+        pb.setMarketId(userTicket.getFirmId());
+        pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
+        PaymentOrder paymentOrder = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
+        if (null == paymentOrder) {
+            logger.info("没有查询到付款单PaymentOrder【业务单businessId：{}】 【业务单businessCode:{}】", businessId, businessCode);
+            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到付款单！");
+        }
+
+        return paymentOrder;
+    }
+
+    /**
+     * 撤回付款单和修改缴费单的状态
+     */
+    private void withdrawPaymentOrder(PaymentOrder paymentOrder) {
         paymentOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
         if (paymentOrderService.updateSelective(paymentOrder) == 0) {
             logger.info("撤回通行证【删除缴费单】失败.");
@@ -280,9 +397,11 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         }
 
         // 撤回结算单多人操作已判断
-        settlementRpcResolver.cancel(settlementAppId, paymentOrder.getCode());
-
-        return otherFeeInfo;
+        BaseOutput<String> baseOutput = settleOrderRpc.cancel(settlementAppId, paymentOrder.getCode());
+        if (!baseOutput.isSuccess()){
+            logger.info("撤回，调用结算中心修改状态失败！" + baseOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "撤回，调用结算中心修改状态失败！" + baseOutput.getMessage());
+        }
     }
 
     /**
@@ -296,16 +415,27 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     @Override
     @GlobalTransactional
     public OtherFee refund(OtherFeeRefundOrderDto refundOrderDto, UserTicket userTicket) throws BusinessException {
-        // 根据业务主键查询相关数据
-        OtherFee otherFeeInfo = this.get(refundOrderDto.getBusinessId());
-        if (otherFeeInfo != null && !OtherFeeStateEnum.PAID.getCode().equals(otherFeeInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-        }
+        // 退款申请的条件检查（方法抽取）
+        OtherFee otherFeeInfo = checkRefundCondition(refundOrderDto, userTicket);
+
+        // 查询缴费单（方法抽取）
+        PaymentOrder paymentOrder = this.findPaymentOrder(userTicket, otherFeeInfo.getId(), otherFeeInfo.getCode());
+
+        // 撤回付款单和修改缴费单的状态（方法抽取）
+        this.withdrawPaymentOrder(paymentOrder);
 
         // 构建退款单以及新增
-        this.buildRefundOrderDto(userTicket, otherFeeInfo, refundOrderDto);
+        refundOrderDto.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.OTHER_FEE.getCode()).getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
+        refundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+        refundOrderDto.setDistrictId(otherFeeInfo.getSecondDistrictId() == null ? otherFeeInfo.getFirstDistrictId():otherFeeInfo.getSecondDistrictId());
+        refundOrderDto.setMchId(otherFeeInfo.getMchId());
+        BaseOutput output = refundOrderService.doAddHandler(refundOrderDto);
+        if (!output.isSuccess()) {
+            logger.info("租赁单【编号：{}】退款申请接口异常", refundOrderDto.getBusinessCode());
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
+        }
 
-        // 修改状态
+        // 修改其他收费单的状态
         otherFeeInfo.setModifyTime(LocalDateTime.now());
         otherFeeInfo.setState(OtherFeeStateEnum.REFUNDING.getCode());
         if (this.updateSelective(otherFeeInfo) == 0) {
@@ -313,6 +443,53 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         }
 
         return otherFeeInfo;
+    }
+
+    /**
+     *  退款申请的条件检查
+     */
+    private OtherFee checkRefundCondition(OtherFeeRefundOrderDto refundOrderDto, UserTicket userTicket) {
+        if (null == userTicket){
+            throw new BusinessException(ResultCode.DATA_ERROR, "未登录！");
+        }
+
+        // 检查客户状态
+        checkCustomerState(refundOrderDto.getPayeeId(), userTicket.getFirmId());
+
+        // 检查其他收费缴费单的状态
+        OtherFee otherFeeInfo = this.get(refundOrderDto.getBusinessId());
+        if (otherFeeInfo == null) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "其他收费缴费单不存在！");
+        }
+        if (!OtherFeeStateEnum.PAID.getCode().equals(otherFeeInfo.getState())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
+        }
+
+        // 检查退款金额和缴费金额的大小
+        Long totalRefundAmount = otherFeeInfo.getRefundAmount() + refundOrderDto.getPayeeAmount();
+        if (otherFeeInfo.getAmount() < totalRefundAmount){
+            throw new BusinessException(ResultCode.DATA_ERROR, "退款总金额不能大于订单已交费金额！");
+        }
+
+        return otherFeeInfo;
+    }
+
+    /**
+     * 检查客户状态
+     */
+    public void checkCustomerState(Long customerId, Long marketId) {
+        BaseOutput<Customer> output = customerRpc.get(customerId, marketId);
+        if (!output.isSuccess()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 " + output.getMessage());
+        }
+        Customer customer = output.getData();
+        if (null == customer) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请重新修改后保存");
+        } else if (EnabledStateEnum.DISABLED.getCode().equals(customer.getState())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户【" + customer.getName() + "】已禁用，请重新修改后保存");
+        } else if (YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户【" + customer.getName() + "】已删除，请重新修改后保存");
+        }
     }
 
     /**
@@ -390,9 +567,9 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         // 组装数据
         OtherFee otherFeeInfo = this.get(paymentOrder.getBusinessId());
-        SettleOrder order = settlementRpcResolver.get(settlementAppId, otherFeeInfo.getCode());
-        if (otherFeeInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "水电费单不存在!");
+        SettleOrder order = settleOrderRpc.get(settlementAppId, otherFeeInfo.getCode()).getData();
+        if (order == null) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "其他收费缴费单不存在!");
         }
         OtherFeePrintDto otherFeePrintDto = new OtherFeePrintDto();
         otherFeePrintDto.setPrintTime(LocalDateTime.now());
@@ -446,7 +623,10 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         } else {
             RefundOrder refundOrderInfo = refundOrders.get(0);
             OtherFee otherFeeInfo = this.get(refundOrderInfo.getBusinessId());
-            SettleOrder order = settlementRpcResolver.get(settlementAppId, otherFeeInfo.getCode());
+            SettleOrder order = settleOrderRpc.get(settlementAppId, otherFeeInfo.getCode()).getData();
+            if (order == null) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "其他收费退款单不存在!");
+            }
 
             // 组装退款单信息
             OtherFeePrintDto otherFeePrintDto = new OtherFeePrintDto();
@@ -484,94 +664,5 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
             return printDataDto;
         }
-    }
-
-    /**
-     * 构建退款项
-     */
-    private RefundOrder buildRefundOrderDto(UserTicket userTicket, OtherFee otherFeeInfo, OtherFeeRefundOrderDto refundOrderDto) throws BusinessException {
-        //退款单
-        RefundOrder refundOrder = new RefundOrder();
-
-        refundOrder.setMarketId(userTicket.getFirmId());
-        refundOrder.setMarketCode(userTicket.getFirmCode());
-
-        refundOrder.setBusinessId(otherFeeInfo.getId());
-        refundOrder.setBusinessCode(otherFeeInfo.getCode());
-        refundOrder.setCustomerId(otherFeeInfo.getCustomerId());
-        refundOrder.setCustomerName(otherFeeInfo.getCustomerName());
-        refundOrder.setCustomerCellphone(otherFeeInfo.getCustomerCellphone());
-        refundOrder.setCertificateNumber(otherFeeInfo.getCertificateNumber());
-
-        refundOrder.setPayee(refundOrderDto.getPayee());
-        refundOrder.setPayeeId(refundOrderDto.getPayeeId());
-        refundOrder.setRefundType(refundOrderDto.getRefundType());
-        refundOrder.setPayeeAmount(refundOrderDto.getPayeeAmount());
-        refundOrder.setRefundReason(refundOrderDto.getRefundReason());
-        refundOrder.setTotalRefundAmount(refundOrderDto.getTotalRefundAmount());
-
-        refundOrder.setBizType(BizTypeEnum.OTHER_FEE.getCode());
-        refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.OTHER_FEE.getCode()).getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
-
-        if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
-            logger.info("其他收费【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
-        }
-        return refundOrder;
-    }
-
-    /**
-     * 构建缴费单，提交
-     */
-    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, OtherFee otherFeeInfo, String orderCode, Long amount) {
-
-        SettleOrderInfoDto settleOrderInfoDto = new SettleOrderInfoDto(userTicket, BizTypeEnum.OTHER_FEE, SettleTypeEnum.PAY, SettleStateEnum.WAIT_DEAL);
-        settleOrderInfoDto.setMarketId(otherFeeInfo.getMarketId());
-        settleOrderInfoDto.setMarketCode(userTicket.getFirmCode());
-        settleOrderInfoDto.setBusinessCode(otherFeeInfo.getCode());
-
-        settleOrderInfoDto.setAmount(amount);
-        settleOrderInfoDto.setOrderCode(orderCode);
-        settleOrderInfoDto.setAppId(settlementAppId);
-
-        settleOrderInfoDto.setBusinessDepId(otherFeeInfo.getDepartmentId());
-        settleOrderInfoDto.setBusinessDepName(otherFeeInfo.getDepartmentName());
-
-        settleOrderInfoDto.setCustomerId(otherFeeInfo.getCustomerId());
-        settleOrderInfoDto.setCustomerName(otherFeeInfo.getCustomerName());
-        settleOrderInfoDto.setCustomerPhone(otherFeeInfo.getCustomerCellphone());
-
-        settleOrderInfoDto.setSubmitterId(userTicket.getId());
-        settleOrderInfoDto.setSubmitterName(userTicket.getRealName());
-//        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.OTHER_FEE.getCode()));
-        settleOrderInfoDto.setType(SettleTypeEnum.PAY.getCode());
-        settleOrderInfoDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
-//        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
-        if (userTicket.getDepartmentId() != null) {
-            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
-            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
-        }
-
-        return settleOrderInfoDto;
-    }
-
-    /**
-     * 构建撤销缴费单
-     */
-    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode) throws BusinessException {
-        PaymentOrder pb = new PaymentOrder();
-
-        pb.setBizType(BizTypeEnum.OTHER_FEE.getCode());
-        pb.setBusinessId(businessId);
-        pb.setBusinessCode(businessCode);
-        pb.setMarketId(userTicket.getFirmId());
-        pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
-        PaymentOrder paymentOrder = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
-        if (null == paymentOrder) {
-            logger.info("没有查询到付款单PaymentOrder【业务单businessId：{}】 【业务单businessCode:{}】", businessId, businessCode);
-            throw new BusinessException(ResultCode.DATA_ERROR, "没有查询到付款单！");
-        }
-
-        return paymentOrder;
     }
 }
