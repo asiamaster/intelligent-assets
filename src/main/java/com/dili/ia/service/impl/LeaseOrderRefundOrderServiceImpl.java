@@ -1,8 +1,8 @@
 package com.dili.ia.service.impl;
 
 import com.dili.bpmc.sdk.dto.EventReceivedDto;
-import com.dili.bpmc.sdk.rpc.EventRpc;
-import com.dili.bpmc.sdk.rpc.RuntimeRpc;
+import com.dili.bpmc.sdk.rpc.restful.EventRpc;
+import com.dili.bpmc.sdk.rpc.restful.RuntimeRpc;
 import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
