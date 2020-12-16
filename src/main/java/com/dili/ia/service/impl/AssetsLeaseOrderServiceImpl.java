@@ -46,6 +46,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.exception.RemoteException;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -188,7 +189,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
             if (!processInstanceMappingBaseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+                throw new RemoteException(processInstanceMappingBaseOutput.getMessage());
             }
             //wm:设置流程定义和实例id，后面会更新到租赁单表
             dto.setBizProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
@@ -338,7 +339,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             startProcessInstanceDto.setVariables(variables);
             BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
             if (!processInstanceMappingBaseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+                throw new RemoteException(processInstanceMappingBaseOutput.getMessage());
             }
             //设置流程定义和实例id，后面会更新到租赁单表
             leaseOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
@@ -687,6 +688,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 LOG.info("取消订单边界事件异常 【租赁单编号:{}】", leaseOrder.getCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
             }
+        }
+        if(true){
+            throw new BusinessException(ResultCode.DATA_ERROR, "测试回滚!");
         }
 
         //日志上下文构建
@@ -1143,8 +1147,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> output = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
             if(!output.isSuccess()){
-                throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                throw new RemoteException(output.getMessage());
             }
+            //设置流程实例id和流程定义id到退款单对象
             refundOrderDto.setBizProcessInstanceId(output.getData().getProcessInstanceId());
             refundOrderDto.setBizProcessDefinitionId(output.getData().getProcessDefinitionId());
             if (!refundOrderService.doAddHandler(refundOrderDto).isSuccess()) {
