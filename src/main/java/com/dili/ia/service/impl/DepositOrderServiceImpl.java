@@ -471,8 +471,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        sfItem.setFeeType(FeeTypeEnum.保证金.getCode()); //保证金固定
-        sfItem.setFeeName(FeeTypeEnum.保证金.getName()); //保证金固定
+        sfItem.setChargeItemId(ChargeItemEnum.保证金.getId()); //静态收费项
+        sfItem.setChargeItemName(ChargeItemEnum.保证金.getName()); //静态收费项
+        sfItem.setFeeType(FeeTypeEnum.保证金.getCode()); //保证金费用类型固定，必须传，结算根据这个要做特殊处理，来源于动态收费项的（system_subject 系统科目）
+        sfItem.setFeeName(FeeTypeEnum.保证金.getName()); //保证金费用类型名称
         sfItem.setAmount(paymentOrder.getAmount());
         settleFeeItemList.add(sfItem);
         settleOrder.setSettleFeeItemList(settleFeeItemList);
@@ -785,10 +787,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (depositOrder.getMarketId() == null){
             throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数市场ID不能为空！");
         }
-        //@TODO 商户ID 不能为空验证 打开
-//        if (depositOrder.getMchId() == null){
-//            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数商户ID不能为空！");
-//        }
+        if (depositOrder.getMchId() == null){
+            throw new BusinessException(ResultCode.DATA_ERROR, "查询保证金余额，参数商户ID不能为空！");
+        }
     }
 
     private DepositBalance createDepositBalanceAccount(DepositOrder depositOrder, Long balance){

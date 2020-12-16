@@ -266,9 +266,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }
         //执行提交退款单业务流转，放在结算前面，保证能回滚结算单， 流程失败会有垃圾数据，需要手工处理，后续接入分布式事务
         doSubmitProcess(refundOrder);
-
-        //TODO wm:写死现金方式，后面需要删除
-        refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settleOrderRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder, service));
         if (!out.isSuccess()){
