@@ -1,7 +1,11 @@
 package com.dili.ia.service.impl;
 
+import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
+import com.dili.bpmc.sdk.dto.StartProcessInstanceDto;
+import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.cache.BpmDefKeyConfig;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -20,6 +24,7 @@ import com.dili.settlement.dto.EarnestTransferDto;
 import com.dili.settlement.rpc.CustomerAccountRpc;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -48,6 +53,9 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
     @SuppressWarnings("all")
     @Autowired
     CustomerAccountRpc customerAccountRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    RuntimeRpc runtimeRpc;
 
 
     public CustomerAccount getCustomerAccountById(Long customerAccountId) {
@@ -164,6 +172,18 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
             refundOrder.setBizType(BizTypeEnum.EARNEST.getCode());
             refundOrder.setMchId(customerAccount.getMchId()); //商户ID
 //            refundOrder.setDistrictId(); //没有在业务单上发起，区域为空
+            //根据退款单业务类型启动流程
+            StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
+            startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getRefundDefKey(refundOrder.getBizType()));
+            startProcessInstanceDto.setBusinessKey(refundOrder.getCode());
+            startProcessInstanceDto.setUserId(userTicket.getId().toString());
+            BaseOutput<ProcessInstanceMapping> outputP = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
+            if(!outputP.isSuccess()){
+                throw new BusinessException(ResultCode.DATA_ERROR, outputP.getMessage());
+            }
+            refundOrder.setBizProcessInstanceId(outputP.getData().getProcessInstanceId());
+            refundOrder.setBizProcessDefinitionId(outputP.getData().getProcessDefinitionId());
+
             BaseOutput output = refundOrderService.doAddHandler(refundOrder);
             if (!output.isSuccess()) {
                 LOG.info("客户账户定金退款【业务ID：{}】退款申请接口异常,原因：{}", customerAccount.getId(), output.getMessage());

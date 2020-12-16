@@ -3,8 +3,12 @@ package com.dili.ia.service.impl;
 import com.dili.assets.sdk.dto.AssetsDTO;
 import com.dili.assets.sdk.rpc.AreaMarketRpc;
 import com.dili.assets.sdk.rpc.AssetsRpc;
+import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
+import com.dili.bpmc.sdk.dto.StartProcessInstanceDto;
+import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.cache.BpmDefKeyConfig;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.DepositBalanceParam;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
@@ -34,6 +38,7 @@ import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.mvc.util.RequestUtils;
 import com.dili.ss.util.DateUtils;
@@ -98,6 +103,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     AreaMarketRpc areaMarketRpc;
     @Autowired
     SettleOrderRpc settleOrderRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    RuntimeRpc runtimeRpc;
 
     public DepositOrderMapper getActualDao() {
         return (DepositOrderMapper)getDao();
@@ -619,6 +627,19 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             depositRefundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
             depositRefundOrderDto.setDistrictId(depositOrder.getSecondDistrictId() == null ? depositOrder.getFirstDistrictId():depositOrder.getSecondDistrictId());
             depositRefundOrderDto.setMchId(depositOrder.getMchId());
+
+            //根据退款单业务类型启动流程
+            StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
+            startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getRefundDefKey(depositRefundOrderDto.getBizType()));
+            startProcessInstanceDto.setBusinessKey(depositRefundOrderDto.getCode());
+            startProcessInstanceDto.setUserId(userTicket.getId().toString());
+            BaseOutput<ProcessInstanceMapping> outputP = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
+            if(!outputP.isSuccess()){
+                throw new BusinessException(ResultCode.DATA_ERROR, outputP.getMessage());
+            }
+            depositRefundOrderDto.setBizProcessInstanceId(outputP.getData().getProcessInstanceId());
+            depositRefundOrderDto.setBizProcessDefinitionId(outputP.getData().getProcessDefinitionId());
+
             BaseOutput output = refundOrderService.doAddHandler(depositRefundOrderDto);
             if (!output.isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款申请接口异常", depositRefundOrderDto.getBusinessCode());
