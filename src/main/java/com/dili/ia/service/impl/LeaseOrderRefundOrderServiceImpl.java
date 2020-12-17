@@ -150,8 +150,8 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
         List<SettleFeeItem> settleFeeItems = new ArrayList<>();
         refundFeeItems.forEach(rf -> {
             SettleFeeItem settleFeeItem = new SettleFeeItem();
-            settleFeeItem.setFeeType(0);
-            settleFeeItem.setFeeName(rf.getChargeItemName());
+            settleFeeItem.setChargeItemId(rf.getChargeItemId());
+            settleFeeItem.setChargeItemName(rf.getChargeItemName());
             settleFeeItem.setAmount(rf.getAmount());
             settleFeeItems.add(settleFeeItem);
         });
