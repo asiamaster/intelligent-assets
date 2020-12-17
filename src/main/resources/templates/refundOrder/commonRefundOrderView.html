@@ -39,50 +39,29 @@
 
         <div class="breadcrumb">
             退款详情
-            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#detailInfo" aria-expanded="true" aria-controls="detailInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div id="detailInfo" class="collapse show">
-            <div class="row row-cols-4 ">
-                <%if(refundOrder.totalRefundAmount > refundOrder.payeeAmount){ %>
-                <div class="form-group col">
-                    <label for="" class="">扣除金额</label>
-                    <input type="text" class="form-control" value="${refundOrder.payee!}" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="" class="">转入到</label>
-                    <input type="text" class="form-control" value="<#centToYuan value='${refundOrder.payeeAmount!}'/>" disabled />
-                </div>
-                <% }%>
-                <div class="form-group col">
-                    <label for="" class="">收款人</label>
-                    <input type="text" class="form-control" value="${refundOrder.payee!}" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="" class="">退款金额</label>
-                    <input type="text" class="form-control" value="<#centToYuan value='${refundOrder.payeeAmount!}'/>" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="" class="">退款方式</label>
-                    <input type="text" class="form-control" value="${@com.dili.settlement.enums.SettleWayEnum.getNameByCode(refundOrder.refundType)}" disabled />
-                </div>
-                <%if(isNotEmpty(refundOrder.refundType) && refundOrder.refundType == 3){ %>
-                <div class="form-group col">
-                    <label for="" class="">开户行</label>
-                    <input type="text" class="form-control" value="${refundOrder.bank!}" disabled />
-                </div>
-                <div class="form-group col">
-                    <label for="" class="">银行账号</label>
-                    <input type="text" class="form-control" value="${refundOrder.bankCardNo!}" disabled />
-                </div>
-                <% }%>
+        <div class="row row-cols-4 collapse show" id="baseInfo">
+            <div class="form-group col">
+                <label >收款人<i class="red">*</i></label>
+                <input type="text" class="form-control" value="${refundOrder.payee!}" disabled />
             </div>
-            <div class="row">
-                <div class="form-group col-8">
-                    <label for="">退款原因及详情</label>
-                    <textarea class="form-control" id="" rows="1" maxlength="100" disabled >${refundOrder.refundReason!}</textarea>
-                </div>
+            <div class="form-group col">
+                <label class="">证件号<i class="red">*</i></label>
+                <input type="text" class="form-control" value="${refundOrder.payeeCertificateNumber!}" disabled />
+            </div>
+            <div class="form-group col">
+                <label  class="" _log>金额<i class="red">*</i></label>
+                <input type="text" class="form-control" value="<#centToYuan value='${refundOrder.payeeAmount!0}'/>" disabled />
             </div>
         </div>
+        <div class="row">
+            <div class="form-group col-6">
+                <label for="refundReason" _log>退款原因<i class="red">*</i></label>
+                <textarea class="form-control" id="refundReason" name="refundReason" rows="2" maxlength="100" readonly>${refundOrder.refundReason!}</textarea>
+            </div>
+        </div>
+
         <%if(isNotEmpty(logs) && logs.~size>0){ %>
             <div class="breadcrumb">
                 业务记录

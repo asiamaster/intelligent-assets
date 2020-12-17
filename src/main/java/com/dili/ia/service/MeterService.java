@@ -3,7 +3,6 @@ package com.dili.ia.service;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ss.base.BaseService;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 
 import java.util.List;
@@ -30,10 +29,11 @@ public interface MeterService extends BaseService<Meter, Long> {
      * 修改表信息
      *
      * @param  meterDto
+     * @param userTicket
      * @return Meter
      * @date   2020/6/29
      */
-    Meter updateMeter(MeterDto meterDto);
+    Meter updateMeter(MeterDto meterDto, UserTicket userTicket);
 
     /**
      * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)

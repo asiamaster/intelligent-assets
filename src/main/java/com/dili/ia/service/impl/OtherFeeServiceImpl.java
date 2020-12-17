@@ -1,8 +1,12 @@
 package com.dili.ia.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
+import com.dili.bpmc.sdk.dto.StartProcessInstanceDto;
+import com.dili.bpmc.sdk.rpc.restful.RuntimeRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.cache.BpmDefKeyConfig;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.OtherFee;
@@ -23,6 +27,7 @@ import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.DepartmentChargeItemService;
+import com.dili.ia.service.MchAndDistrictService;
 import com.dili.ia.service.OtherFeeService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
@@ -40,7 +45,9 @@ import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.exception.RemoteException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -72,6 +79,9 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     }
 
     @Autowired
+    private RuntimeRpc runtimeRpc;
+
+    @Autowired
     CustomerRpc customerRpc;
 
     @Autowired
@@ -91,6 +101,9 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
     @Autowired
     private SettleOrderRpc settleOrderRpc;
+
+    @Autowired
+    private MchAndDistrictService mchAndDistrictService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -123,7 +136,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
      */
     @Override
     @GlobalTransactional
-    public OtherFee addOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket){
+    public OtherFee addOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket) throws Exception{
         OtherFee otherFeeParam = new OtherFee();
         BeanUtils.copyProperties(otherFeeDto, otherFeeParam);
 
@@ -139,14 +152,21 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         otherFeeParam.setMarketCode(userTicket.getFirmCode());
         otherFeeParam.setState(OtherFeeStateEnum.CREATED.getCode());
 
-        // 如果没有区域，则根据收费项查询所属组织（商户）
-        if (otherFeeDto.getFirstDistrictId() != null && otherFeeDto.getSecondDistrictId() != null ) {
-            List<DepartmentChargeItem> listByChargeItemId = departmentChargeItemService.getListByChargeItemId(otherFeeDto.getChargeItemId());
-            if (CollectionUtil.isNotEmpty(listByChargeItemId)) {
-                otherFeeParam.setMchId(listByChargeItemId.get(0).getMchId());
-                otherFeeParam.setMchName(listByChargeItemId.get(0).getMchName());
-            }
+        // 根据区域ID查询商户ID,如果没有区域，则将用户所属市场ID设置为商户ID
+        Long mchId = mchAndDistrictService.getMchIdByDistrictId(otherFeeDto.getFirstDistrictId(), otherFeeParam.getSecondDistrictId());
+        if (mchId == null) {
+            mchId = userTicket.getFirmId();
         }
+        otherFeeParam.setMchId(mchId);
+
+        // 如果没有区域，则根据收费项查询所属组织（商户）
+//        if (firstDistrictId != null && secondDistrictId != null ) {
+//            List<DepartmentChargeItem> listByChargeItemId = departmentChargeItemService.getListByChargeItemId(otherFeeDto.getChargeItemId());
+//            if (CollectionUtil.isNotEmpty(listByChargeItemId)) {
+//                otherFeeParam.setMchId(listByChargeItemId.get(0).getMchId());
+//                otherFeeParam.setMchName(listByChargeItemId.get(0).getMchName());
+//            }
+//        }
 
         this.getActualDao().insertSelective(otherFeeParam);
 
@@ -177,7 +197,12 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
             throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是已创建，不能修改。");
         }
 
-        // 修改操作
+        // 根据区域ID查询商户ID,如果没有区域，则将用户所属市场ID设置为商户ID
+        Long mchId = mchAndDistrictService.getMchIdByDistrictId(otherFeeDto.getFirstDistrictId(), otherFeeParam.getSecondDistrictId());
+        if (mchId == null) {
+            mchId = userTicket.getFirmId();
+        }
+        otherFeeParam.setMchId(mchId);
         otherFeeParam.setModifyTime(LocalDateTime.now());
 
         if (this.updateSelective(otherFeeParam) == 0) {
@@ -230,7 +255,10 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         // 组装数据，调用结算RPC
         SettleOrderDto settleOrderDto = this.buildSettleOrderDto(userTicket, otherFeeInfo, paymentOrder);
-        settleOrderRpc.submit(settleOrderDto);
+        BaseOutput<SettleOrder> baseOutput = settleOrderRpc.submit(settleOrderDto);
+        if (!baseOutput.isSuccess()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "提交失败，" + baseOutput.getMessage());
+        }
 
         return otherFeeInfo;
     }
@@ -289,8 +317,8 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        sfItem.setFeeType(Integer.valueOf(otherFee.getChargeItemId()));
-        sfItem.setFeeName(otherFee.getChargeItemName());
+        sfItem.setChargeItemId(otherFee.getChargeItemId());
+        sfItem.setChargeItemName(otherFee.getChargeItemName());
         sfItem.setAmount(paymentOrder.getAmount());
         settleFeeItemList.add(sfItem);
         settleOrderDto.setSettleFeeItemList(settleFeeItemList);
@@ -358,7 +386,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         }
 
         // 查询缴费单（方法抽取）
-        PaymentOrder paymentOrder = this.findPaymentOrder(userTicket, otherFeeInfo.getId(), otherFeeInfo.getCode());
+        PaymentOrder paymentOrder = this.findPaymentOrder(userTicket, otherFeeInfo.getId(), otherFeeInfo.getCode(), PaymentOrderStateEnum.NOT_PAID.getCode());
 
         // 撤回付款单和修改缴费单的状态（方法抽取）
         this.withdrawPaymentOrder(paymentOrder);
@@ -369,14 +397,14 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     /**
      * 查询缴费单
      */
-    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode) throws BusinessException {
+    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode, Integer payState) throws BusinessException {
         PaymentOrder pb = new PaymentOrder();
 
         pb.setBizType(BizTypeEnum.OTHER_FEE.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
         pb.setMarketId(userTicket.getFirmId());
-        pb.setState(PaymentOrderStateEnum.NOT_PAID.getCode());
+        pb.setState(payState);
         PaymentOrder paymentOrder = paymentOrderService.listByExample(pb).stream().findFirst().orElse(null);
         if (null == paymentOrder) {
             logger.info("没有查询到付款单PaymentOrder【业务单businessId：{}】 【业务单businessCode:{}】", businessId, businessCode);
@@ -418,22 +446,32 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         // 退款申请的条件检查（方法抽取）
         OtherFee otherFeeInfo = checkRefundCondition(refundOrderDto, userTicket);
 
-        // 查询缴费单（方法抽取）
-        PaymentOrder paymentOrder = this.findPaymentOrder(userTicket, otherFeeInfo.getId(), otherFeeInfo.getCode());
-
-        // 撤回付款单和修改缴费单的状态（方法抽取）
-        this.withdrawPaymentOrder(paymentOrder);
+        // 查询已缴费的缴费单（方法抽取）
+        this.findPaymentOrder(userTicket, otherFeeInfo.getId(), otherFeeInfo.getCode(), PaymentOrderStateEnum.PAID.getCode());
 
         // 构建退款单以及新增
         refundOrderDto.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.OTHER_FEE.getCode()).getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
-        refundOrderDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getCode());
+        refundOrderDto.setBizType(BizTypeEnum.OTHER_FEE.getCode());
         refundOrderDto.setDistrictId(otherFeeInfo.getSecondDistrictId() == null ? otherFeeInfo.getFirstDistrictId():otherFeeInfo.getSecondDistrictId());
         refundOrderDto.setMchId(otherFeeInfo.getMchId());
         BaseOutput output = refundOrderService.doAddHandler(refundOrderDto);
         if (!output.isSuccess()) {
-            logger.info("租赁单【编号：{}】退款申请接口异常", refundOrderDto.getBusinessCode());
+            logger.info("其他收费【编号：{}】退款申请接口异常", refundOrderDto.getBusinessCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
         }
+
+        //根据退款单业务类型启动流程
+//        StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
+//        startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getRefundDefKey(refundOrderDto.getBizType()));
+//        startProcessInstanceDto.setBusinessKey(refundOrderDto.getCode());
+//        startProcessInstanceDto.setUserId(userTicket.getId().toString());
+//        BaseOutput<ProcessInstanceMapping> processOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
+//        if(!processOutput.isSuccess()){
+//            throw new RemoteException(processOutput.getMessage());
+//        }
+//        //设置流程实例id和流程定义id到退款单对象
+//        refundOrderDto.setBizProcessInstanceId(processOutput.getData().getProcessInstanceId());
+//        refundOrderDto.setBizProcessDefinitionId(processOutput.getData().getProcessDefinitionId());
 
         // 修改其他收费单的状态
         otherFeeInfo.setModifyTime(LocalDateTime.now());
