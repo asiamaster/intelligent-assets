@@ -876,6 +876,7 @@
         //允许新增和查看按钮
         $('#btn_add').attr('disabled', false);
         $('#btn_view').attr('disabled', false);
+        $('#btn_print').attr('disabled', false);
         //只要有审批流程实例id就可以查看流程图
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
