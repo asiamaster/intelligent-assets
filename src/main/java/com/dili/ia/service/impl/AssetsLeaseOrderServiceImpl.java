@@ -1400,8 +1400,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         List<SettleFeeItem> settleFeeItems = new ArrayList<>();
         businessChargeItems.forEach(bc -> {
             SettleFeeItem settleFeeItem = new SettleFeeItem();
-            settleFeeItem.setFeeType(0);
-            settleFeeItem.setFeeName(bc.getChargeItemName());
+            settleFeeItem.setChargeItemId(bc.getChargeItemId());
+            settleFeeItem.setChargeItemName(bc.getChargeItemName());
             settleFeeItem.setAmount(bc.getPaymentAmount());
             settleFeeItems.add(settleFeeItem);
         });

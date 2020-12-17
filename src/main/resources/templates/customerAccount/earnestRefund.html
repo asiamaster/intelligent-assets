@@ -36,7 +36,21 @@
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
         <div class="collapse show" id="baseInfo">
-            <#refundInfo customerName="${customerAccount.customerName!}" customerId="${customerAccount.customerId!}" certificateNumber="${customerAccount.customerCertificate!}"></#refundInfo>
+        <div class="row row-cols-4">
+            <div class="form-group col">
+                <label for="">收款人<i class="red">*</i></label>
+                <input type="text" class="form-control" name="payee" value="${customerAccount.customerName!}" readonly/>
+                <input type="hidden" class="form-control" name="payeeId" value="${customerAccount.customerId!}"/>
+            </div>
+            <div class="form-group col">
+                <label for="" class="">证件号<i class="red">*</i></label>
+                <input type="text" class="form-control" name="payeeCertificateNumber" value="${customerAccount.customerCertificate!}" readonly/>
+            </div>
+            <div class="form-group col">
+                <label  class="" _log>金额<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve money" id="payeeAmount" name="payeeAmount" value="<#centToYuan value='${refundOrder.payeeAmount!0}'/>" min="0" readonly/>
+            </div>
+        </div>
         </div>
         <div class="row">
             <div class="form-group col-6">
