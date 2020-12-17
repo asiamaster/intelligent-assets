@@ -1,8 +1,8 @@
 <div class="input-group">
-    <select class="form-control" id="firstDistrictId" name="firstDistrictId" >
+    <select class="form-control" id="firstDistrictId" name="firstDistrictId" required>
         <option value="${firstDistrictId!}"></option>
     </select>
-    <select class="form-control" id="secondDistrictId" name="secondDistrictId">
+    <select class="form-control" id="secondDistrictId" name="secondDistrictId" required>
         <option value="${secondDistrictId!}"></option>
     </select>
 </div>
