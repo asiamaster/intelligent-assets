@@ -75,6 +75,7 @@ public class LodgingLeaseServiceImpl implements AssetsLeaseService {
             assetsRentDTO.setStart(DateUtils.localDateTimeToUdate(leaseOrder.getStartTime()));
             assetsRentDTO.setEnd(DateUtils.localDateTimeToUdate(leaseOrder.getEndTime()));
             assetsRentDTO.setOrderId(leaseOrder.getId().toString());
+            assetsRentDTO.setUser(leaseOrder.getCustomerName());
             BaseOutput assetsOutput = assetsRpc.addAssetsRent(assetsRentDTO);
             if(!assetsOutput.isSuccess()){
                 LOG.info("冻结公寓异常【编号：{}】", leaseOrder.getCode());
@@ -95,7 +96,6 @@ public class LodgingLeaseServiceImpl implements AssetsLeaseService {
     public void unFrozenAllAsset(Long leaseOrderId) {
         AssetsRentDTO assetsRentDTO = new AssetsRentDTO();
         assetsRentDTO.setOrderId(leaseOrderId.toString());
-        assetsRentDTO.setType(AssetsTypeEnum.LODGING.getCode());
         BaseOutput assetsOutput = assetsRpc.deleteAssetsRent(assetsRentDTO);
         if(!assetsOutput.isSuccess()){
             LOG.info("解冻租赁订单【leaseOrderId:{}】所有公寓异常{}", leaseOrderId, assetsOutput.getMessage());
@@ -111,7 +111,6 @@ public class LodgingLeaseServiceImpl implements AssetsLeaseService {
     public void leaseAsset(AssetsLeaseOrder leaseOrder) {
         AssetsRentDTO assetsRentDTO = new AssetsRentDTO();
         assetsRentDTO.setOrderId(leaseOrder.getId().toString());
-        assetsRentDTO.setType(AssetsTypeEnum.LODGING.getCode());
         BaseOutput assetsOutput = assetsRpc.rentAssetsRent(assetsRentDTO);
         if(!assetsOutput.isSuccess()){
             LOG.info("公寓解冻出租异常{}",assetsOutput.getMessage());
