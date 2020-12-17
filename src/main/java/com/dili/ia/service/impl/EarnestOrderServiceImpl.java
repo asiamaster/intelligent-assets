@@ -12,8 +12,8 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
-import com.dili.ia.glossary.*;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidFeignRpc;
@@ -202,10 +202,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         AssetsDTO booth = output.getData();
         if(null == booth){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位不存在，请核实和修改后再保存");
-        }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位已禁用，请核实和修改后再保存");
-        }else if(YesOrNoEnum.YES.getCode().equals(booth.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位已删除，请核实和修改后再保存");
         }
     }
     /**
