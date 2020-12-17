@@ -226,7 +226,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             }
         }
         //有流程实例id，并且是创建状态，才触发流程取消
-        if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId()) && currentState == RefundOrderStateEnum.CREATED.getCode()) {
+        if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId())) {
             EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
             eventReceivedDto.setEventName(BpmEventConstants.CANCEL_EVENT);
             eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
@@ -488,6 +488,16 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             }
         }
 
+        if (null != refundOrder.getBizProcessInstanceId()) {
+            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+            eventReceivedDto.setEventName(BpmEventConstants.WITHDRAW_EVENT);
+            eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
+            //发送流程消息通知撤回
+            BaseOutput<String> baseOutput = eventRpc.messageEventReceived(eventReceivedDto);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
+            }
+        }
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<String> out= settleOrderRpc.cancel(settlementAppId, refundOrder.getCode());
         if (!out.isSuccess()){
