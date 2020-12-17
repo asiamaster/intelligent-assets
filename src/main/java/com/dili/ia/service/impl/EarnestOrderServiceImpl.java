@@ -124,9 +124,13 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setState(EarnestOrderStateEnum.CREATED.getCode());
         earnestOrder.setAssetsType(AssetsTypeEnum.BOOTH.getCode());
         earnestOrder.setVersion(0L);
-        if (earnestOrder.getFirstDistrictId() !=  null || earnestOrder.getSecondDistrictId() != null){
+        if (userTicket.getFirmCode().equals(MarketEnum.SY.getCode())){ //沈阳市场区域必填，并且根据区域获取商户ID
+            if (earnestOrder.getFirstDistrictId() ==  null && earnestOrder.getSecondDistrictId() == null){
+                LOGGER.info("区域不能为空！");
+                throw new BusinessException(ResultCode.PARAMS_ERROR, "区域不能为空！");
+            }
             earnestOrder.setMchId(getMchIdByDistrictId(earnestOrder.getSecondDistrictId() == null?earnestOrder.getFirstDistrictId():earnestOrder.getSecondDistrictId()));
-        }else {
+        } else {
             earnestOrder.setMchId(userTicket.getFirmId());
         }
         this.insertSelective(earnestOrder);
@@ -269,7 +273,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         oldDTO.setNotes(dto.getNotes());
         oldDTO.setModifyTime(LocalDateTime.now());
         oldDTO.setVersion(dto.getVersion());
-        if (dto.getFirstDistrictId() !=  null || dto.getSecondDistrictId() != null){
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket.getFirmCode().equals(MarketEnum.SY.getCode())){ //沈阳市场区域必填，并且根据区域获取商户ID
+            if (dto.getFirstDistrictId() == null &&  dto.getSecondDistrictId() == null){
+                LOGGER.info("区域不能为空！");
+                throw new BusinessException(ResultCode.PARAMS_ERROR, "区域不能为空！");
+            }
             oldDTO.setMchId(this.getMchIdByDistrictId(dto.getSecondDistrictId() == null?dto.getFirstDistrictId():dto.getSecondDistrictId()));
         }
         return oldDTO;
@@ -307,7 +316,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setSubmitter(userTicket.getRealName());
         ea.setSubDate(LocalDateTime.now());
         //获取商户
-        if (ea.getFirstDistrictId() !=  null || ea.getSecondDistrictId() != null){
+        if (userTicket.getFirmCode().equals(MarketEnum.SY.getCode())){ //沈阳市场区域必填，并且根据区域获取商户ID
+            if (ea.getFirstDistrictId() ==  null && ea.getSecondDistrictId() == null){
+                LOGGER.info("区域不能为空！");
+                throw new BusinessException(ResultCode.PARAMS_ERROR, "区域不能为空！");
+            }
             ea.setMchId(this.getMchIdByDistrictId(ea.getSecondDistrictId() == null?ea.getFirstDistrictId():ea.getSecondDistrictId()));
         }
         if (this.updateSelective(ea) == 0) {

@@ -434,7 +434,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setAppId(settlementAppId);//应用ID
         settleOrder.setType(SettleTypeEnum.REFUND.getCode());// "结算类型  -- 退款
         settleOrder.setState(SettleStateEnum.WAIT_DEAL.getCode());
-        //@TODO 待优化
         //组装回调url
         List<SettleOrderLink> settleOrderLinkList = new ArrayList<>();
         SettleOrderLink view = new SettleOrderLink();
@@ -714,8 +713,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             saveApprovalProcess(approvalParam, userTicket);
             //提交审批任务
             completeTask(approvalParam.getTaskId(), "true");
-            //TODO wm:写死现金方式，后面需要删除
-            refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
             //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
             BaseOutput<SettleOrder> out= settleOrderRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder, service));
             if (!out.isSuccess()){
