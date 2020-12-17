@@ -612,11 +612,26 @@
     function buildChargeItemCalcParam() {
         let bizType = $('#bizType').val();
         let marketId = $('#marketId').val();
+        let startTime = $('#startTime').val();
+        let endTime = $('#endTime').val();
+        let wholeDate;//时间数计算
+        if (startTime && endTime) {
+            wholeDate = wholeDateCalc(startTime, endTime);
+        }
+
         let formData = buildFormData(false);
         // let categoryIds =  $('#categorys').val();
         let queryFeeInputs = [];
         for (let leaseOrderItem of formData.leaseOrderItems) {
             let conditionParams = {...formData, ...leaseOrderItem};
+            if (wholeDate) {
+                conditionParams = {
+                    ...conditionParams,
+                    years: wholeDate.wholeYear,
+                    months: wholeDate.wholeMonth,
+                    scatteredDays: wholeDate.WholeDay
+                }
+            }
             delete conditionParams.leaseOrderItems;
             delete conditionParams.businessChargeItems;
             let lotQueryFeeInputs = leaseOrderItem.businessChargeItems.map(function (o) {
