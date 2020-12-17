@@ -378,8 +378,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        sfItem.setFeeType(FeeTypeEnum.定金.getCode()); //定金固定
-        sfItem.setFeeName(FeeTypeEnum.定金.getName()); //定金固定
+        sfItem.setChargeItemId(ChargeItemEnum.定金.getId()); //静态收费项
+        sfItem.setChargeItemName(ChargeItemEnum.定金.getName()); //静态收费项
+        sfItem.setFeeType(FeeTypeEnum.定金.getCode()); //定金费用类型固定，必须传，结算根据这个要做特殊处理，来源于动态收费项的（system_subject 系统科目）
+        sfItem.setFeeName(FeeTypeEnum.定金.getName()); //定金费用类型名称
         sfItem.setAmount(paymentOrder.getAmount());
         settleFeeItemList.add(sfItem);
         settleOrder.setSettleFeeItemList(settleFeeItemList);

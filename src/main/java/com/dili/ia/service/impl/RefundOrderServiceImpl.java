@@ -1,15 +1,14 @@
 package com.dili.ia.service.impl;
 
-import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.domain.TaskMapping;
 import com.dili.bpmc.sdk.dto.EventReceivedDto;
 import com.dili.bpmc.sdk.dto.StartProcessInstanceDto;
 import com.dili.bpmc.sdk.dto.TaskCompleteDto;
-import com.dili.bpmc.sdk.rpc.EventRpc;
-import com.dili.bpmc.sdk.rpc.RuntimeRpc;
-import com.dili.bpmc.sdk.rpc.TaskRpc;
+import com.dili.bpmc.sdk.rpc.restful.EventRpc;
+import com.dili.bpmc.sdk.rpc.restful.RuntimeRpc;
+import com.dili.bpmc.sdk.rpc.restful.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.cache.BpmDefKeyConfig;
@@ -49,6 +48,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.exception.RemoteException;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -267,8 +267,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //执行提交退款单业务流转，放在结算前面，保证能回滚结算单， 流程失败会有垃圾数据，需要手工处理，后续接入分布式事务
         doSubmitProcess(refundOrder);
 
-        //TODO wm:写死现金方式，后面需要删除
-        refundOrder.setRefundType(SettleWayEnum.CASH.getCode());
         //提交到结算中心 --- 执行顺序不可调整！！因为异常只能回滚自己系统，无法回滚其它远程系统
         BaseOutput<SettleOrder> out= settleOrderRpc.submit(buildSettleOrderDto(SessionContext.getSessionContext().getUserTicket(), refundOrder, service));
         if (!out.isSuccess()){
@@ -338,7 +336,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
                 throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
             }
             //清空流程
-            runtimeRpc.stopProcessInstanceById(refundOrder.getProcessInstanceId(), "直接提交审批");
+            runtimeRpc.stopProcessInstanceById(refundOrder.getProcessInstanceId(), "直接提交审批，清空审批工作流");
         }
         //如果有业务流程实例id，需要触发边界事件
         if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId())) {
@@ -628,7 +626,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //市场id用于决定市场任务审批人
         variables.put("firmId", refundOrder.getMarketId());
         variables.put("payAmount", String.valueOf(refundOrder.getTotalRefundAmount()/100));
-        //如果有业务流程实例id，需要触发边界事件
+        //wm:如果有业务流程实例id，需要触发边界事件，目前主要是走业务流启动子流程
         if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId())) {
             EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
             eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_APPROVAL_EVENT);
@@ -657,7 +655,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             startProcessInstanceDto.setVariables(variables);
             BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
             if (!processInstanceMappingBaseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.APP_ERROR, "流程启动失败，请联系管理员");
+                throw new RemoteException(processInstanceMappingBaseOutput.getMessage());
             }
             //设置流程定义和实例id，后面会更新到租赁单表
             refundOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
