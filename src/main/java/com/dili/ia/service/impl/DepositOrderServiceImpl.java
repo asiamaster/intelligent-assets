@@ -252,10 +252,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         AssetsDTO assets = output.getData();
         if(null == assets){
             throw new BusinessException(ResultCode.DATA_ERROR, "资产不存在，请核实和修改后再保存");
-        }else if(EnabledStateEnum.DISABLED.getCode().equals(assets.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "资产已禁用，请核实和修改后再保存");
-        }else if(YesOrNoEnum.YES.getCode().equals(assets.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "资产已删除，请核实和修改后再保存");
         }
         return assets;
     }
