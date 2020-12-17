@@ -1140,6 +1140,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
             }
             refundOrderDto.setCode(bizNumberOutput.getData());
+            refundOrderDto.setDistrictId(null != leaseOrderItem.getSecondDistrictId() ? leaseOrderItem.getSecondDistrictId() : leaseOrderItem.getFirstDistrictId());
+
             //根据退款单业务类型启动流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
             startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getRefundDefKey(refundOrderDto.getBizType()));
