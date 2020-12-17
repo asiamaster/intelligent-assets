@@ -107,8 +107,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         checkCustomerState(earnestOrder.getCustomerId(),userTicket.getFirmId());
         if(CollectionUtils.isNotEmpty(earnestOrder.getEarnestOrderdetails())){
             earnestOrder.getEarnestOrderdetails().forEach(o->{
-                //检查摊位状态
-                checkBoothState(o.getAssetsId());
+                //检查资产状态
+                checkAssetsState(o.getAssetsId());
             });
         }
         BaseOutput<Department> depOut = departmentRpc.get(earnestOrder.getDepartmentId());
@@ -190,16 +190,16 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
     }
     /**
-     * 检查摊位状态
-     * @param boothId
+     * 检查资产状态
+     * @param assetsId
      */
-    private void checkBoothState(Long boothId){
-        BaseOutput<AssetsDTO> output = assetsRpc.getAssetsById(boothId);
+    private void checkAssetsState(Long assetsId){
+        BaseOutput<AssetsDTO> output = assetsRpc.getAssetsById(assetsId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位接口调用异常 "+output.getMessage());
         }
-        AssetsDTO booth = output.getData();
-        if(null == booth){
+        AssetsDTO assets = output.getData();
+        if(null == assets){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位不存在，请核实和修改后再保存");
         }
     }
@@ -295,8 +295,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         List<EarnestOrderDetail> detailList = earnestOrderDetailService.listByExample(query);
         if (CollectionUtils.isNotEmpty(detailList)){
             detailList.forEach(o->{
-                //检查摊位状态
-                checkBoothState(o.getAssetsId());
+                //检查资产状态
+                checkAssetsState(o.getAssetsId());
             });
         }
         if (!ea.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){
