@@ -139,7 +139,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             throw new BusinessException(ResultCode.PARAMS_ERROR, "查询商户，区域ID不能为空!");
         }
         Long mchId = null;
-        //@TODO 为空抛异常，现在基础数据有问题，暂时注释掉代码，后期打开
         try {
             BaseOutput<Long> mchOutput = areaMarketRpc.getMarketByArea(districtId);
             if (!mchOutput.isSuccess()){
@@ -151,10 +150,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOG.error("根据区域ID查询商户，接口调用异常："+e.getMessage(),e);
             throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，接口调用异常！");
         }
-//        if (mchId == null){
-//            LOG.error("根据区域ID查询商户，返回为空，districtId:{}", districtId);
-//            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回为空！");
-//        }
+        if (mchId == null){
+            LOG.error("根据区域ID查询商户，返回为空，districtId:{}", districtId);
+            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回为空！");
+        }
         return mchId;
     }
 
