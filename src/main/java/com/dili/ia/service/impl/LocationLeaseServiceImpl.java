@@ -68,6 +68,7 @@ public class LocationLeaseServiceImpl implements AssetsLeaseService {
         leaseOrderItems.forEach(o->{
             AssetsRentDTO assetsRentDTO = new AssetsRentDTO();
             assetsRentDTO.setAssetsId(o.getAssetsId());
+            assetsRentDTO.setNumber(o.getLeasesNum().doubleValue());
             assetsRentDTO.setType(AssetsTypeEnum.LOCATION.getCode());
             assetsRentDTO.setStart(DateUtils.localDateTimeToUdate(leaseOrder.getStartTime()));
             assetsRentDTO.setEnd(DateUtils.localDateTimeToUdate(leaseOrder.getEndTime()));
