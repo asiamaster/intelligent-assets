@@ -87,13 +87,13 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
     @Override
     public void frozenAsset(AssetsLeaseOrder leaseOrder, List<AssetsLeaseOrderItem> leaseOrderItems) {
         leaseOrderItems.forEach(o->{
-            AssetsRentDTO boothRentDTO = new AssetsRentDTO();
-            boothRentDTO.setBoothId(o.getAssetsId());
-            boothRentDTO.setType(AssetsTypeEnum.BOOTH.getCode());
-            boothRentDTO.setStart(DateUtils.localDateTimeToUdate(leaseOrder.getStartTime()));
-            boothRentDTO.setEnd(DateUtils.localDateTimeToUdate(leaseOrder.getEndTime()));
-            boothRentDTO.setOrderId(leaseOrder.getId().toString());
-            BaseOutput assetsOutput = assetsRpc.addAssetsRent(boothRentDTO);
+            AssetsRentDTO assetsRentDTO = new AssetsRentDTO();
+            assetsRentDTO.setAssetsId(o.getAssetsId());
+            assetsRentDTO.setType(AssetsTypeEnum.BOOTH.getCode());
+            assetsRentDTO.setStart(DateUtils.localDateTimeToUdate(leaseOrder.getStartTime()));
+            assetsRentDTO.setEnd(DateUtils.localDateTimeToUdate(leaseOrder.getEndTime()));
+            assetsRentDTO.setOrderId(leaseOrder.getId().toString());
+            BaseOutput assetsOutput = assetsRpc.addAssetsRent(assetsRentDTO);
             if(!assetsOutput.isSuccess()){
                 LOG.info("冻结摊位异常【编号：{}】", leaseOrder.getCode());
                 if(assetsOutput.getCode().equals("2500")){
@@ -111,10 +111,10 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
      */
     @Override
     public void unFrozenAllAsset(Long leaseOrderId) {
-        AssetsRentDTO boothRentDTO = new AssetsRentDTO();
-        boothRentDTO.setOrderId(leaseOrderId.toString());
-        boothRentDTO.setType(AssetsTypeEnum.BOOTH.getCode());
-        BaseOutput assetsOutput = assetsRpc.deleteAssetsRent(boothRentDTO);
+        AssetsRentDTO assetsRentDTO = new AssetsRentDTO();
+        assetsRentDTO.setOrderId(leaseOrderId.toString());
+        assetsRentDTO.setType(AssetsTypeEnum.BOOTH.getCode());
+        BaseOutput assetsOutput = assetsRpc.deleteAssetsRent(assetsRentDTO);
         if(!assetsOutput.isSuccess()){
             LOG.info("解冻租赁订单【leaseOrderId:{}】所有摊位异常{}", leaseOrderId, assetsOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());
@@ -127,10 +127,10 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
      */
     @Override
     public void leaseAsset(AssetsLeaseOrder leaseOrder) {
-        AssetsRentDTO boothRentDTO = new AssetsRentDTO();
-        boothRentDTO.setOrderId(leaseOrder.getId().toString());
-        boothRentDTO.setType(AssetsTypeEnum.BOOTH.getCode());
-        BaseOutput assetsOutput = assetsRpc.rentAssetsRent(boothRentDTO);
+        AssetsRentDTO assetsRentDTO = new AssetsRentDTO();
+        assetsRentDTO.setOrderId(leaseOrder.getId().toString());
+        assetsRentDTO.setType(AssetsTypeEnum.BOOTH.getCode());
+        BaseOutput assetsOutput = assetsRpc.rentAssetsRent(assetsRentDTO);
         if(!assetsOutput.isSuccess()){
             LOG.info("摊位解冻出租异常{}",assetsOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR,assetsOutput.getMessage());

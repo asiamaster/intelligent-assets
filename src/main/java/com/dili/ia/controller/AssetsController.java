@@ -83,12 +83,10 @@ public class AssetsController {
      */
     @GetMapping(value = "/getRentBalance.action")
     public @ResponseBody
-    BaseOutput<Long> getRentBalance(AssetsRentDTO input) {
+    BaseOutput<Double> getRentBalance(AssetsRentDTO input) {
         try {
             input.setType(AssetsTypeEnum.LOCATION.getCode());
-            //TODO 待调试
-            //return assetsRpc.getRentBalance(input);
-            return BaseOutput.success().setData(50000L);
+            return assetsRpc.getRentBalance(input);
         } catch (Exception e) {
             LOG.error("冷库可租数量查询异常",e);
             return BaseOutput.success().setData(new ArrayList<>());

@@ -123,9 +123,8 @@
 
             if (bizType == ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
                 let rentBalance = getRentBalance(suggestion.id);
-                let rentBalanceYuan = Number(rentBalance).centToYuan();
-                $('#leasesNum_' + index).val(rentBalanceYuan);
-                $('#leasesNum_' + index).attr('max', rentBalanceYuan);
+                $('#leasesNum_' + index).val(rentBalance);
+                $('#leasesNum_' + index).attr('max', rentBalance);
             }
 
             $('#mchId_' + index).val(suggestion.marketId);
