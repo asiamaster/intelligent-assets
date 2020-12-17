@@ -68,16 +68,6 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
     @Override
     public BaseOutput withdrawHandler(RefundOrder refundOrder) {
-        if (null != refundOrder.getBizProcessInstanceId()) {
-            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
-            eventReceivedDto.setEventName(BpmEventConstants.WITHDRAW_EVENT);
-            eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
-            //发送流程消息通知撤回
-            BaseOutput<String> baseOutput = eventRpc.messageEventReceived(eventReceivedDto);
-            if (!baseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "流程消息发送失败");
-            }
-        }
         return BaseOutput.success();
     }
 
