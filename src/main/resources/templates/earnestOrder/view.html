@@ -43,6 +43,7 @@
             对应摊位
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#boothInfo" aria-expanded="true" aria-controls="boothInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
+        <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() == @com.dili.ia.glossary.MarketEnum.SY.getCode()){%>
         <div class="row  row-cols-4 collapse show" >
             <div class="form-group col-6">
                 <label for="">所属区域<i class="red">*</i></label>
@@ -56,6 +57,7 @@
                 </div>
             </div>
         </div>
+        <%}%>
         <div class="row row-cols-4">
             <div id="boothInfo" class="collapse show col-6">
                 <table class="table table-bordered table-hover table-striped" id="boothTable" style="width: 500px">
