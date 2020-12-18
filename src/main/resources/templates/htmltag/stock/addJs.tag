@@ -154,7 +154,7 @@ function buildFormData() {
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
 		detail.stockWeighmanRecordDto = weightItems.get(index);
-		
+		detail.mchId=mchId;
 		// 动态收费项
 		let itemBusinessChargeDtos = []
 		$(this).find('.chargeItem').each(function(){
@@ -173,6 +173,7 @@ function buildFormData() {
 			stockDetails.push(detail);
 		}
 	});
+	formData.mchId=mchId;
 	formData.stockInDetailDtos = stockDetails;
 	return JSON.stringify(formData);
 }
