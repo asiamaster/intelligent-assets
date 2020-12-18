@@ -111,6 +111,8 @@ nacos 配置
     #租赁结算单缴费成功
     settlement.handler.url=http://ia1.diligrp.com:8381/api/leaseOrder/settlementDealHandler
 
-
+	#信息中心
+	message.api.http=http://message.diligrp.com
+	message.encode=UTF-8
 
 
