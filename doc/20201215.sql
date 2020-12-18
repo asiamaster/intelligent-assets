@@ -57,9 +57,6 @@ ADD COLUMN `first_district_id` bigint(20) NULL DEFAULT NULL COMMENT '一级区�
 ADD COLUMN `first_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '一级区域名称' AFTER `first_district_id`,
 ADD COLUMN `second_district_id` bigint(20) NULL DEFAULT NULL COMMENT '二级区域ID' AFTER `first_district_name`,
 ADD COLUMN `second_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '二级区域名称' AFTER `second_district_id`;
-ALTER TABLE `dili_ia`.`assets_lease_order_item`
-DROP COLUMN `district_id`,
-DROP COLUMN `district_name`;
 
 -- 处理租赁单区域老数据
 UPDATE `dili_ia`.assets_lease_order_item ali ,`dili-basic-data`.district dt
@@ -91,3 +88,312 @@ UPDATE `dili_ia`.assets_lease_order_item ali,`dili-basic-data`.district dt
 set ali.second_district_name = dt.name
 WHERE ali.second_district_id = dt.id;
 
+-- 表管理
+CREATE TABLE `meter` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT NULL COMMENT '创建日期',
+  `modify_time` datetime DEFAULT NULL COMMENT '修改日期',
+  `number` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '表编号',
+  `type` bigint(20) DEFAULT NULL COMMENT '表类型',
+  `assets_type` tinyint(1) DEFAULT NULL COMMENT '资产类型code',
+  `assets_id` bigint(20) DEFAULT NULL COMMENT '对应编号ID',
+  `assets_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '对应编号,名称',
+  `this_amount` bigint(20) DEFAULT NULL COMMENT '表初始值',
+  `price` bigint(20) DEFAULT NULL COMMENT '单价',
+  `creator_dep_id` bigint(20) DEFAULT NULL COMMENT '创建人所属于部门ID',
+  `balance` bigint(20) DEFAULT NULL COMMENT '水电预存余额',
+  `notes` varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注',
+  `creator_id` bigint(20) DEFAULT NULL COMMENT '创建操作员ID',
+  `creator` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '创建人名称',
+  `market_id` bigint(20) DEFAULT NULL COMMENT '市场Id',
+  `market_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '市场CODE',
+  `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID',
+  `mch_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '商户名称',
+  `first_district_id` bigint(20) DEFAULT NULL COMMENT '一级区域ID',
+  `first_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '一级区域名称',
+  `second_district_id` bigint(20) DEFAULT NULL COMMENT '二级区域ID',
+  `second_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '二级区域名称',
+  `version` int(11) DEFAULT NULL COMMENT '版本控制,乐观锁',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
+
+-- 表用户
+CREATE TABLE `customer_meter` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
+  `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改日期',
+  `meter_id` bigint(20) DEFAULT NULL COMMENT '表',
+  `customer_id` bigint(20) DEFAULT NULL COMMENT '客户 id',
+  `customer_name` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '客户姓名',
+  `customer_cellphone` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '客户手机号',
+  `certificate_number` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '客户证件号',
+  `creator_dep_id` bigint(20) DEFAULT NULL COMMENT '创建人所属于部门ID',
+  `state` int(11) DEFAULT NULL COMMENT '状态，已绑定，解除绑定',
+  `notes` varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注',
+  `creator_id` bigint(20) DEFAULT NULL COMMENT '创建操作员ID',
+  `creator` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '创建人名称',
+  `market_id` bigint(20) DEFAULT NULL COMMENT '市场Id',
+  `market_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '市场CODE',
+  `version` int(11) DEFAULT NULL COMMENT '版本控制,乐观锁',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_cus_meter_id` (`meter_id`) USING BTREE COMMENT '表列表的主键'
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
+
+-- 水电费
+CREATE TABLE `meter_detail` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `code` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '业务编号',
+  `meter_id` bigint(20) DEFAULT NULL COMMENT '表ID',
+  `usage_time` datetime DEFAULT NULL COMMENT '截止月份',
+  `customer_id` bigint(20) DEFAULT NULL COMMENT '客户ID',
+  `customer_name` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '客户姓名',
+  `customer_cellphone` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '手机号',
+  `department_id` bigint(20) DEFAULT NULL COMMENT '业务部门',
+  `department_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '业务部门名称',
+  `recorder_name` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '抄表员名称',
+  `record_time` datetime DEFAULT NULL COMMENT '抄表时间',
+  `state` int(11) NOT NULL COMMENT '状态，撤销/正常',
+  `last_amount` bigint(20) DEFAULT NULL COMMENT '上次结算的数量',
+  `this_amount` bigint(20) DEFAULT NULL COMMENT '本次结算的总数量',
+  `usage_amount` bigint(20) DEFAULT NULL COMMENT '使用量',
+  `receivable` bigint(20) DEFAULT NULL COMMENT '水电费',
+  `amount` bigint(20) DEFAULT NULL COMMENT '总金额',
+  `creator_dep_id` bigint(20) DEFAULT NULL COMMENT '创建人所属于部门ID',
+  `notes` varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注',
+  `submitter_id` bigint(20) DEFAULT NULL COMMENT '提交人ID',
+  `submitter` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '提交人名称',
+  `submit_time` datetime DEFAULT NULL COMMENT '提交时间',
+  `withdraw_operator_id` bigint(20) DEFAULT NULL COMMENT '撤回人ID',
+  `withdraw_operator` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '撤回人名称',
+  `canceler_id` bigint(20) DEFAULT NULL COMMENT '取消人ID',
+  `canceler` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '取消人名称',
+  `creator_id` bigint(20) DEFAULT NULL COMMENT '创建操作员ID',
+  `creator` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '创建人名称',
+  `market_id` bigint(20) DEFAULT NULL COMMENT '市场Id',
+  `market_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '市场CODE',
+  `version` int(11) DEFAULT NULL COMMENT '版本控制,乐观锁',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_met_det_meter_id` (`meter_id`) USING BTREE COMMENT '表列表的主键',
+  KEY `idx_met_det_usage_time` (`usage_time`) USING BTREE COMMENT '使用月份查询'
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
+
+-- 其他收费
+CREATE TABLE `other_fee` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '业务编号',
+  `customer_id` bigint(20) DEFAULT NULL COMMENT '客户ID',
+  `customer_name` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '客户名称',
+  `certificate_number` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '客户证件号',
+  `customer_cellphone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '客户电话',
+  `department_id` bigint(20) DEFAULT NULL COMMENT '业务所属部门ID',
+  `department_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '业务所属部门名称',
+  `charge_item_id` bigint(20) DEFAULT NULL COMMENT '收费项ID',
+  `charge_item_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '收费项名称',
+  `assets_type` int(11) DEFAULT NULL COMMENT '资产类型，费用类型',
+  `assets_id` bigint(20) DEFAULT NULL COMMENT '资产ID',
+  `assets_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '资产名称',
+  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+  `category_id` bigint(20) DEFAULT NULL COMMENT '品类id',
+  `category_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '品类名称',
+  `amount` bigint(20) DEFAULT '0' COMMENT '金额',
+  `refund_amount` bigint(20) DEFAULT '0' COMMENT '退款金额',
+  `notes` varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注信息',
+  `state` int(11) DEFAULT NULL COMMENT '（1：已创建 2：已取消 3：已提交 4：已交费 5：退款中 6：已退款）',
+  `creator_id` bigint(20) DEFAULT NULL COMMENT '创建操作员ID',
+  `creator` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '创建人名称',
+  `withdraw_operator_id` bigint(20) DEFAULT NULL COMMENT '撤回人ID',
+  `withdraw_operator` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '撤回人名称',
+  `canceler_id` bigint(20) DEFAULT NULL COMMENT '取消人ID',
+  `canceler` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '取消人名称',
+  `market_id` bigint(20) DEFAULT NULL COMMENT '市场Id',
+  `market_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '市场CODE',
+  `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID',
+  `mch_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '商户名称',
+  `first_district_id` bigint(20) DEFAULT NULL COMMENT '一级区域ID',
+  `first_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '一级区域名称',
+  `second_district_id` bigint(20) DEFAULT NULL COMMENT '二级区域ID',
+  `second_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '二级区域名称',
+  `version` int(11) DEFAULT '0' COMMENT '版本控制,乐观锁',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+-- 其他收费关联部门收费项
+CREATE TABLE `department_charge_item` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `department_id` bigint(20) DEFAULT NULL COMMENT '业务所属部门ID',
+  `department_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '业务所属部门名称',
+  `charge_item_id` bigint(20) DEFAULT NULL COMMENT '收费项ID(对应数据字典的编码)',
+  `charge_item_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '收费项名称',
+  `creator_id` bigint(20) DEFAULT NULL COMMENT '创建操作员ID',
+  `creator` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '创建人名称',
+  `market_id` bigint(20) DEFAULT NULL COMMENT '市场Id',
+  `market_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '市场CODE',
+  `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID',
+  `mch_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '商户名称',
+  `version` int(11) DEFAULT '0' COMMENT '版本控制,乐观锁',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+-- 通行证
+CREATE TABLE `passport` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `code` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '业务编号',
+  `license_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '通行证件类型代号',
+  `license_number` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '证件号',
+  `customer_id` bigint(20) DEFAULT NULL COMMENT '客户ID',
+  `customer_name` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '客户姓名',
+  `customer_cellphone` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '手机号',
+  `certificate_number` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '客户证件号',
+  `gender` int(2) DEFAULT '1' COMMENT '客户性别',
+  `department_id` bigint(20) DEFAULT NULL COMMENT '业务部门',
+  `department_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '业务部门名称',
+  `car_number` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '车牌号',
+  `car_type` int(11) DEFAULT NULL COMMENT '车型',
+  `valid_period` int(11) DEFAULT NULL COMMENT '有效期',
+  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '截止时间',
+  `toll_amount` bigint(20) DEFAULT NULL COMMENT '通行费',
+  `amount` bigint(20) DEFAULT '0' COMMENT '金额',
+  `state` int(11) NOT NULL COMMENT '状态',
+  `creator_id` bigint(20) DEFAULT NULL COMMENT '创建人ID',
+  `creator` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '创建人名称',
+  `submitter_id` bigint(20) DEFAULT NULL COMMENT '提交人ID',
+  `submitter` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '提交人名称',
+  `submit_time` datetime DEFAULT NULL COMMENT '提交时间',
+  `withdraw_operator_id` bigint(20) DEFAULT NULL COMMENT '撤回人ID',
+  `withdraw_operator` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '撤回人名称',
+  `withdraw_time` datetime DEFAULT NULL COMMENT '撤回时间',
+  `canceler_id` bigint(20) DEFAULT NULL COMMENT '取消人ID',
+  `canceler` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '取消人名称',
+  `cancel_time` datetime DEFAULT NULL COMMENT '取消时间',
+  `notes` varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注',
+  `market_id` bigint(20) DEFAULT NULL COMMENT '市场ID',
+  `market_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '市场CODE',
+  `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID',
+  `mch_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '商户名称',
+  `version` int(11) DEFAULT NULL COMMENT '版本控制,乐观锁',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_pas_cre_time` (`create_time`) USING BTREE COMMENT '创建时间字段',
+  KEY `idx_pas_car_number` (`car_number`) USING BTREE COMMENT '车牌号字段',
+  KEY `idx_pas_lic_number` (`license_number`) USING BTREE COMMENT '证件号字段'
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='通行证';
+
+-- 精品黄楼停车记录
+CREATE TABLE `boutique_entrance_record` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `customer_id` bigint(20) DEFAULT NULL COMMENT '客户ID',
+  `customer_name` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '客户姓名',
+  `customer_cellphone` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '手机号',
+  `certificate_number` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '客户证件号',
+  `plate` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '挂号',
+  `car_type_id` bigint(20) DEFAULT NULL COMMENT '车型id',
+  `department_id` bigint(20) DEFAULT NULL COMMENT '接车部门',
+  `department_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '部门名称',
+  `enter_time` datetime DEFAULT NULL COMMENT '进场时间',
+  `confirm_time` datetime DEFAULT NULL COMMENT '确认时间',
+  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+  `count_time` datetime DEFAULT NULL COMMENT '计费时间',
+  `leave_time` datetime DEFAULT NULL COMMENT '离场时间',
+  `total_amount` bigint(20) DEFAULT '0' COMMENT '交费总额',
+  `state` int(11) NOT NULL COMMENT '状态 1 待确认 2 计费中 3 已离场 4 已取消',
+  `operator_id` bigint(20) DEFAULT NULL COMMENT '操作员ID',
+  `operator_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '操作员名称',
+  `cancel_time` datetime DEFAULT NULL COMMENT '取消时间',
+  `bid` bigint(20) DEFAULT NULL COMMENT '进门记录id',
+  `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID',
+  `mch_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '商户名称',
+  `version` int(11) DEFAULT NULL COMMENT '版本控制,乐观锁',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_bou_ent_plate` (`plate`) USING BTREE COMMENT '挂号字段'
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='精品停车记录表';
+
+-- 精品黄楼缴费
+CREATE TABLE `boutique_fee_order` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `record_id` bigint(20) DEFAULT NULL COMMENT '进门记录id',
+  `code` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '业务编号',
+  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+  `amount` bigint(20) DEFAULT NULL COMMENT '金额',
+  `state` int(11) NOT NULL COMMENT '状态 1 待交费 2 已交费',
+  `submitter_id` bigint(20) DEFAULT NULL COMMENT '提交人ID',
+  `submitter` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '提交人',
+  `canceler_id` bigint(20) DEFAULT NULL COMMENT '取消人ID',
+  `canceler` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '取消人名称',
+  `cancel_reason` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '取消原因名称',
+  `cancel_time` datetime DEFAULT NULL COMMENT '取消时间',
+  `notes` varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注',
+  `market_id` bigint(20) DEFAULT NULL COMMENT '市场ID',
+  `market_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '市场CODE',
+  `version` int(11) DEFAULT NULL COMMENT '版本控制,乐观锁',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `record_id_index` (`record_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='精品停车缴费单表';
+
+-- 精品黄楼停车时长设置
+CREATE TABLE `boutique_free_sets` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `car_type_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '车型名称',
+  `free_hours` int(11) DEFAULT NULL COMMENT '免费小时数',
+  `version` int(11) DEFAULT NULL COMMENT '版本控制,乐观锁',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='精品停车免费时长设置表';
+
+-- 摊位出租预设表
+CREATE TABLE `assets_rental` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `batch_id` bigint(20) DEFAULT NULL COMMENT '一个批次的批次号',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '预设名称',
+  `engage_code` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '经营范围CODE',
+  `engage_name` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '经营范围',
+  `category_id` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '品类id',
+  `category_name` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '品类名称',
+  `lease_term_code` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '租赁形式CODE',
+  `lease_term_name` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '租赁形式',
+  `lease_days` int(11) DEFAULT NULL COMMENT '租赁天数',
+  `start_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '开始时间',
+  `end_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '结束时间',
+  `state` tinyint(11) DEFAULT NULL COMMENT '（1启用,2禁用）',
+  `creator_id` bigint(20) DEFAULT NULL COMMENT '创建操作员ID',
+  `creator` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '创建人名称',
+  `market_id` bigint(20) DEFAULT NULL COMMENT '市场Id',
+  `market_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '市场CODE',
+  `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID',
+  `mch_name` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '商户名称',
+  `first_district_id` bigint(20) DEFAULT NULL COMMENT '一级区域ID',
+  `first_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '一级区域名称',
+  `second_district_id` bigint(20) DEFAULT NULL COMMENT '二级区域ID',
+  `second_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '二级区域名称',
+  `version` tinyint(4) DEFAULT '0' COMMENT '乐观锁，版本号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='资产出租预设';
+
+-- 摊位出租详情表
+CREATE TABLE `assets_rental_item` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `assets_rental_id` bigint(20) NOT NULL COMMENT '资产出租预设ID',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `assets_id` bigint(20) DEFAULT NULL COMMENT '资产ID',
+  `assets_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '资产名称',
+  `assets_type` tinyint(1) DEFAULT NULL COMMENT '资产类型 1：摊位 2：冷库',
+  `version` tinyint(4) DEFAULT '0' COMMENT '乐观锁，版本号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='资产出租预设摊位关联表';
