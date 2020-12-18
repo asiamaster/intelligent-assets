@@ -117,16 +117,16 @@ public class AssetsLeaseOrderItemServiceImpl extends BaseServiceImpl<AssetsLease
     @Override
     public void stopAssetsRent(AssetsLeaseOrderItem assetsLeaseOrderItem, LocalDateTime startTime, LocalDateTime stopTime) {
         //修改摊位租赁时间段
-        AssetsRentDTO boothRentDTO = new AssetsRentDTO();
-        boothRentDTO.setBoothId(assetsLeaseOrderItem.getAssetsId());
-        boothRentDTO.setOrderId(assetsLeaseOrderItem.getLeaseOrderId().toString());
+        AssetsRentDTO assetsRentDTO = new AssetsRentDTO();
+        assetsRentDTO.setAssetsId(assetsLeaseOrderItem.getAssetsId());
+        assetsRentDTO.setOrderId(assetsLeaseOrderItem.getLeaseOrderId().toString());
         BaseOutput assetsOutput;
         if (stopTime.isBefore(startTime)) {
             //未生效停租 结束时间比开始时间小 直接释放时间段
-            assetsOutput = assetsRpc.deleteAssetsRent(boothRentDTO);
+            assetsOutput = assetsRpc.deleteAssetsRent(assetsRentDTO);
         } else {
-            boothRentDTO.setEnd(DateUtils.localDateTimeToUdate(stopTime));
-            assetsOutput = assetsRpc.updateEndAssetsRent(boothRentDTO);
+            assetsRentDTO.setEnd(DateUtils.localDateTimeToUdate(stopTime));
+            assetsOutput = assetsRpc.updateEndAssetsRent(assetsRentDTO);
         }
         if (!assetsOutput.isSuccess()) {
             LOG.info("摊位订单项停租异常，【订单项ID:{},摊位名称:{},异常MSG:{}】", assetsLeaseOrderItem.getId(), assetsLeaseOrderItem.getAssetsName(), assetsOutput.getMessage());

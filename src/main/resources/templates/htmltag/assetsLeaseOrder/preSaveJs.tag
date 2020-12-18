@@ -38,25 +38,27 @@
             type:'get',
             url : function(params){
                 let bizType = $('#bizType').val();
+                let mchId = $('#mchId').val();
                 let batchId = $('#batchId').val();
                 let index = getIndex($(this).attr('id'));
                 let leaseOrderItems = buildLeaseOrderItems();
-                if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()}
-                    || (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index))) {
+                if (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index)) {
                     return '/assets/searchAssets.action';
                 } else if(!batchId) {
-                    params.isExcludeRental = true;
-                    params.mchId = $('#mchId').val();
+                    if (bizType == ${@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()}) {
+                        params.isExcludeRental = true;
+                    }
+                    params.mchId = mchId;
                     return '/assets/searchAssets.action';
                 } else {
-                    params.mchId = $('#mchId').val();
+                    params.mchId = mchId;
+                    params.batchId = batchId;
                     return '/assetsRental/listRentalsByRentalDtoAndKeyWord.action';
                 }
             },
             data: function (params) {
                 return {
                     keyword: params.term,
-                    batchId: $('#batchId').val(),
                     assetsType: $('#assetsType').val(),
                     ...params
                 }
@@ -93,39 +95,40 @@
             }
 
             //摊位预设信息设置
-            if (bizType == ${@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()}
-                && (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index))) {
+            if (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index)) {
                 $('#mchId').val(suggestion.marketId);
-                let rental = getRentalByAssetsId(suggestion.id);
-                if (rental) {
-                    $('#batchId_' + index).val(rental.batchId);
-                    $('#batchId').val(rental.batchId);
-                    rental.engageCode && $('#engageCode').val(rental.engageCode);
-                    rental.leaseTermCode && $('#leaseTermCode').val(rental.leaseTermCode);
-                    rental.leaseDays && $('#days').val(rental.leaseDays);
-                    rental.startTime && $('#startTime').val(moment(rental.startTime).format("YYYY-MM-DD"));
-                    rental.endTime && $('#endTime').val(moment(rental.endTime).format("YYYY-MM-DD"));
+                if (bizType == ${@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()}) {
+                    let rental = getRentalByAssetsId(suggestion.id);
+                    if (rental) {
+                        $('#batchId_' + index).val(rental.batchId);
+                        $('#batchId').val(rental.batchId);
+                        rental.engageCode && $('#engageCode').val(rental.engageCode);
+                        rental.leaseTermCode && $('#leaseTermCode').val(rental.leaseTermCode);
+                        rental.leaseDays && $('#days').val(rental.leaseDays);
+                        rental.startTime && $('#startTime').val(moment(rental.startTime).format("YYYY-MM-DD"));
+                        rental.endTime && $('#endTime').val(moment(rental.endTime).format("YYYY-MM-DD"));
 
-                    if (rental.categoryId) {
-                        $('#categorys').html('');
-                        let categoryIds = rental.categoryId.split(',');
-                        let categoryNames = rental.categoryName.split(',');
-                        categoryIds.forEach((categoryId, i, arr) => {
-                            var option = new Option(categoryNames[i], categoryId, true, true);
-                            $('#categorys').append(option).trigger('change');
-                        });
+                        if (rental.categoryId) {
+                            $('#categorys').html('');
+                            let categoryIds = rental.categoryId.split(',');
+                            let categoryNames = rental.categoryName.split(',');
+                            categoryIds.forEach((categoryId, i, arr) => {
+                                var option = new Option(categoryNames[i], categoryId, true, true);
+                                $('#categorys').append(option).trigger('change');
+                            });
+                        }
+                    } else {
+                        $('#batchId_' + index).val('');
+                        $('#batchId').val('');
                     }
-                } else {
-                    $('#batchId_' + index).val('');
-                    $('#batchId').val('');
                 }
+
             }
 
             if (bizType == ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
                 let rentBalance = getRentBalance(suggestion.id);
-                let rentBalanceYuan = Number(rentBalance).centToYuan();
-                $('#leasesNum_' + index).val(rentBalanceYuan);
-                $('#leasesNum_' + index).attr('max', rentBalanceYuan);
+                $('#leasesNum_' + index).val(rentBalance);
+                $('#leasesNum_' + index).attr('max', rentBalance);
             }
 
             $('#mchId_' + index).val(suggestion.marketId);
@@ -612,11 +615,26 @@
     function buildChargeItemCalcParam() {
         let bizType = $('#bizType').val();
         let marketId = $('#marketId').val();
+        let startTime = $('#startTime').val();
+        let endTime = $('#endTime').val();
+        let wholeDate;//时间数计算
+        if (startTime && endTime) {
+            wholeDate = wholeDateCalc(startTime, endTime);
+        }
+
         let formData = buildFormData(false);
         // let categoryIds =  $('#categorys').val();
         let queryFeeInputs = [];
         for (let leaseOrderItem of formData.leaseOrderItems) {
             let conditionParams = {...formData, ...leaseOrderItem};
+            if (wholeDate) {
+                conditionParams = {
+                    ...conditionParams,
+                    years: wholeDate.wholeYear,
+                    months: wholeDate.wholeMonth,
+                    scatteredDays: wholeDate.WholeDay
+                }
+            }
             delete conditionParams.leaseOrderItems;
             delete conditionParams.businessChargeItems;
             let lotQueryFeeInputs = leaseOrderItem.businessChargeItems.map(function (o) {

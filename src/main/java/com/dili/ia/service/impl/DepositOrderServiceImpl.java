@@ -146,9 +146,13 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
         }
-        if (depositOrder.getFirstDistrictId() !=  null || depositOrder.getSecondDistrictId() != null){
+        if (userTicket.getFirmCode().equals(MarketEnum.SY.getCode())){ //沈阳市场区域必填，并且根据区域获取商户ID
+            if (depositOrder.getFirstDistrictId() ==  null && depositOrder.getSecondDistrictId() == null){
+                LOGGER.info("区域不能为空！");
+                throw new BusinessException(ResultCode.PARAMS_ERROR, "区域不能为空！");
+            }
             depositOrder.setMchId(this.getMchIdByDistrictId(depositOrder.getSecondDistrictId() == null?depositOrder.getFirstDistrictId():depositOrder.getSecondDistrictId()));
-        }else {
+        } else {
             depositOrder.setMchId(userTicket.getFirmId());
         }
         depositOrder.setCode(this.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.DEPOSIT_ORDER.getCode()));
@@ -201,7 +205,6 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             throw new BusinessException(ResultCode.PARAMS_ERROR, "查询商户，区域ID不能为空!");
         }
         Long mchId = null;
-        //@TODO 为空抛异常，现在基础数据有问题，暂时注释掉代码，后期打开
         try {
             BaseOutput<Long> mchOutput = areaMarketRpc.getMarketByArea(districtId);
             if (!mchOutput.isSuccess()){
@@ -213,10 +216,10 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             LOG.error("根据区域ID查询商户，接口调用异常："+e.getMessage(),e);
             throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，接口调用异常！");
         }
-//        if (mchId == null){
-//            LOG.error("根据区域ID查询商户，返回为空，districtId:{}", districtId);
-//            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回为空！");
-//        }
+        if (mchId == null){
+            LOG.error("根据区域ID查询商户，返回为空，districtId:{}", districtId);
+            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回为空！");
+        }
         return mchId;
     }
 
@@ -332,7 +335,12 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         oldDto.setModifyTime(LocalDateTime.now());
         oldDto.setFirstDistrictId(dto.getFirstDistrictId());
         oldDto.setSecondDistrictId(dto.getSecondDistrictId());
-        if (dto.getFirstDistrictId() !=  null || dto.getSecondDistrictId() != null){
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket.getFirmCode().equals(MarketEnum.SY.getCode())){ //沈阳市场区域必填，并且根据区域获取商户ID
+            if (dto.getFirstDistrictId() == null &&  dto.getSecondDistrictId() == null){
+                LOGGER.info("区域不能为空！");
+                throw new BusinessException(ResultCode.PARAMS_ERROR, "区域不能为空！");
+            }
             oldDto.setMchId(this.getMchIdByDistrictId(dto.getSecondDistrictId() == null?dto.getFirstDistrictId():dto.getSecondDistrictId()));
         }
         return oldDto;
@@ -367,7 +375,11 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (de.getState().equals(DepositOrderStateEnum.CREATED.getCode())){
             de.setState(DepositOrderStateEnum.SUBMITTED.getCode());
             //获取商户
-            if (de.getFirstDistrictId() !=  null || de.getSecondDistrictId() != null){
+            if (userTicket.getFirmCode().equals(MarketEnum.SY.getCode())){ //沈阳市场区域必填，并且根据区域获取商户ID
+                if (de.getFirstDistrictId() == null && de.getSecondDistrictId() == null){
+                    LOGGER.info("区域不能为空！");
+                    throw new BusinessException(ResultCode.PARAMS_ERROR, "区域不能为空！");
+                }
                 de.setMchId(this.getMchIdByDistrictId(de.getSecondDistrictId() == null?de.getFirstDistrictId():de.getSecondDistrictId()));
             }
             if (this.updateSelective(de) == 0) {

@@ -431,7 +431,9 @@ public class RefundOrderController {
                 return "forward:/customerAccount/earnestRefund.html?refundOrderId=" + id + "&customerAccountId=" + refundOrder.getBusinessId();
             } else if (refundOrder.getBizType().equals(BizTypeEnum.DEPOSIT_ORDER.getCode())){
                 return "forward:/depositOrder/refundApply.html?refundOrderId=" + id + "&depositOrderId=" + refundOrder.getBusinessId();
-            } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())){
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode())
+                    || refundOrder.getBizType().equals(BizTypeEnum.LOCATION_LEASE.getCode())
+                    || refundOrder.getBizType().equals(BizTypeEnum.LODGING_LEASE.getCode())) {
                 return "forward:/leaseOrder/refundApply.html?refundOrderId=" + id + "&leaseOrderItemId=" + refundOrder.getBusinessItemId();
             }
 

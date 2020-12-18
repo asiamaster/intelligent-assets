@@ -62,14 +62,6 @@ public class AssetsController {
                 List<Long> filterIds = assetsRentalService.filterAssetsIdsByTable(assets.stream().map(o -> o.getId()).collect(Collectors.toList()));
                 assets = assets.stream().filter(o -> !filterIds.contains(o.getId())).collect(Collectors.toList());
             }
-//            if (CollectionUtils.isNotEmpty(assets)) {
-//                for (int i = 0; i < assets.size(); i++) {
-//                    if (i != 0) {
-////                        assets.get(i).setMarketId(Long.valueOf(assets.size() - i));
-//                        assets.get(i).setMarketId(1L);
-//                    }
-//                }
-//            }
             return BaseOutput.success().setData(assets);
         } catch (Exception e) {
             LOG.error("资产查询接口异常",e);
@@ -83,15 +75,12 @@ public class AssetsController {
      */
     @GetMapping(value = "/getRentBalance.action")
     public @ResponseBody
-    BaseOutput<Long> getRentBalance(AssetsRentDTO input) {
+    BaseOutput<Double> getRentBalance(AssetsRentDTO input) {
         try {
-            input.setType(AssetsTypeEnum.LOCATION.getCode());
-            //TODO 待调试
-            //return assetsRpc.getRentBalance(input);
-            return BaseOutput.success().setData(50000L);
+            return assetsRpc.getRentBalance(input);
         } catch (Exception e) {
             LOG.error("冷库可租数量查询异常",e);
-            return BaseOutput.success().setData(new ArrayList<>());
+            return BaseOutput.success();
         }
 
     }

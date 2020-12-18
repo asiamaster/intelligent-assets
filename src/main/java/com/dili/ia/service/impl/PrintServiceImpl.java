@@ -134,10 +134,16 @@ public class PrintServiceImpl implements PrintService {
         leaseOrderItemPrintDto.setAssetsName(leaseOrderItem.getAssetsName());
         leaseOrderItemPrintDto.setNumber(leaseOrderItem.getNumber().toString());
         leaseOrderItemPrintDto.setUnitName(leaseOrderItem.getUnitName());
-        leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
+        if (null != leaseOrderItem.getUnitPrice()) {
+            leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
+        }
         leaseOrderItemPrintDto.setIsCorner(leaseOrderItem.getIsCorner());
-        leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
-        leaseOrderItemPrintDto.setDiscountAmount(MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
+        if (null != leaseOrderItem.getPaymentMonth()) {
+            leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
+        }
+        if (null != leaseOrderItem.getDiscountAmount()) {
+            leaseOrderItemPrintDto.setDiscountAmount(MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
+        }
         leaseOrderItemPrintDto.setBusinessChargeItem(leaseOrderItem.getBusinessChargeItem());
         return leaseOrderItemPrintDto;
     }
@@ -153,10 +159,16 @@ public class PrintServiceImpl implements PrintService {
         leaseOrderItemPrintDto.setAssetsName(leaseOrderItem.getAssetsName());
         leaseOrderItemPrintDto.setNumber(leaseOrderItem.getNumber().toString());
         leaseOrderItemPrintDto.setUnitName(leaseOrderItem.getUnitName());
-        leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
+        if (null != leaseOrderItem.getUnitPrice()) {
+            leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
+        }
         leaseOrderItemPrintDto.setIsCorner(leaseOrderItem.getIsCorner());
-        leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
-        leaseOrderItemPrintDto.setDiscountAmount(MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
+        if (null != leaseOrderItem.getPaymentMonth()) {
+            leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
+        }
+        if (null != leaseOrderItem.getDiscountAmount()) {
+            leaseOrderItemPrintDto.setDiscountAmount(MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
+        }
         return leaseOrderItemPrintDto;
     }
 

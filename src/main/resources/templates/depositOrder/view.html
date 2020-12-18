@@ -31,6 +31,7 @@
                 <label for="" class="">业务所属部门</label>
                 <input type="text" class="form-control" value="${depositOrder.departmentName!}" disabled />
             </div>
+            <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() == @com.dili.ia.glossary.MarketEnum.SY.getCode()){%>
             <div class="form-group col">
                 <label for="">所属区域</label>
                 <div class="input-group">
@@ -42,6 +43,7 @@
                     </select>
                 </div>
             </div>
+            <%}%>
             <div class="form-group col">
                 <label for="" class="">资产类型</label>
                 <input type="text" class="form-control" value="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(depositOrder.assetsType).getName()}" disabled />

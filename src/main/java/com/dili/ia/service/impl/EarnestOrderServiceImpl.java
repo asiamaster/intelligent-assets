@@ -12,8 +12,8 @@ import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.EarnestOrderListDto;
 import com.dili.ia.domain.dto.printDto.EarnestOrderPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
-import com.dili.ia.glossary.*;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidFeignRpc;
@@ -107,8 +107,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         checkCustomerState(earnestOrder.getCustomerId(),userTicket.getFirmId());
         if(CollectionUtils.isNotEmpty(earnestOrder.getEarnestOrderdetails())){
             earnestOrder.getEarnestOrderdetails().forEach(o->{
-                //检查摊位状态
-                checkBoothState(o.getAssetsId());
+                //检查资产状态
+                checkAssetsState(o.getAssetsId());
             });
         }
         BaseOutput<Department> depOut = departmentRpc.get(earnestOrder.getDepartmentId());
@@ -124,9 +124,13 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         earnestOrder.setState(EarnestOrderStateEnum.CREATED.getCode());
         earnestOrder.setAssetsType(AssetsTypeEnum.BOOTH.getCode());
         earnestOrder.setVersion(0L);
-        if (earnestOrder.getFirstDistrictId() !=  null || earnestOrder.getSecondDistrictId() != null){
+        if (userTicket.getFirmCode().equals(MarketEnum.SY.getCode())){ //沈阳市场区域必填，并且根据区域获取商户ID
+            if (earnestOrder.getFirstDistrictId() ==  null && earnestOrder.getSecondDistrictId() == null){
+                LOGGER.info("区域不能为空！");
+                throw new BusinessException(ResultCode.PARAMS_ERROR, "区域不能为空！");
+            }
             earnestOrder.setMchId(getMchIdByDistrictId(earnestOrder.getSecondDistrictId() == null?earnestOrder.getFirstDistrictId():earnestOrder.getSecondDistrictId()));
-        }else {
+        } else {
             earnestOrder.setMchId(userTicket.getFirmId());
         }
         this.insertSelective(earnestOrder);
@@ -139,7 +143,6 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             throw new BusinessException(ResultCode.PARAMS_ERROR, "查询商户，区域ID不能为空!");
         }
         Long mchId = null;
-        //@TODO 为空抛异常，现在基础数据有问题，暂时注释掉代码，后期打开
         try {
             BaseOutput<Long> mchOutput = areaMarketRpc.getMarketByArea(districtId);
             if (!mchOutput.isSuccess()){
@@ -151,10 +154,10 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
             LOG.error("根据区域ID查询商户，接口调用异常："+e.getMessage(),e);
             throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，接口调用异常！");
         }
-//        if (mchId == null){
-//            LOG.error("根据区域ID查询商户，返回为空，districtId:{}", districtId);
-//            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回为空！");
-//        }
+        if (mchId == null){
+            LOG.error("根据区域ID查询商户，返回为空，districtId:{}", districtId);
+            throw new BusinessException(ResultCode.APP_ERROR, "根据区域ID查询商户，返回为空！");
+        }
         return mchId;
     }
 
@@ -191,21 +194,17 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
     }
     /**
-     * 检查摊位状态
-     * @param boothId
+     * 检查资产状态
+     * @param assetsId
      */
-    private void checkBoothState(Long boothId){
-        BaseOutput<AssetsDTO> output = assetsRpc.getAssetsById(boothId);
+    private void checkAssetsState(Long assetsId){
+        BaseOutput<AssetsDTO> output = assetsRpc.getAssetsById(assetsId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位接口调用异常 "+output.getMessage());
         }
-        AssetsDTO booth = output.getData();
-        if(null == booth){
+        AssetsDTO assets = output.getData();
+        if(null == assets){
             throw new BusinessException(ResultCode.DATA_ERROR, "摊位不存在，请核实和修改后再保存");
-        }else if(EnabledStateEnum.DISABLED.getCode().equals(booth.getState())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位已禁用，请核实和修改后再保存");
-        }else if(YesOrNoEnum.YES.getCode().equals(booth.getIsDelete())){
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位已删除，请核实和修改后再保存");
         }
     }
     /**
@@ -274,7 +273,12 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         oldDTO.setNotes(dto.getNotes());
         oldDTO.setModifyTime(LocalDateTime.now());
         oldDTO.setVersion(dto.getVersion());
-        if (dto.getFirstDistrictId() !=  null || dto.getSecondDistrictId() != null){
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket.getFirmCode().equals(MarketEnum.SY.getCode())){ //沈阳市场区域必填，并且根据区域获取商户ID
+            if (dto.getFirstDistrictId() == null &&  dto.getSecondDistrictId() == null){
+                LOGGER.info("区域不能为空！");
+                throw new BusinessException(ResultCode.PARAMS_ERROR, "区域不能为空！");
+            }
             oldDTO.setMchId(this.getMchIdByDistrictId(dto.getSecondDistrictId() == null?dto.getFirstDistrictId():dto.getSecondDistrictId()));
         }
         return oldDTO;
@@ -300,8 +304,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         List<EarnestOrderDetail> detailList = earnestOrderDetailService.listByExample(query);
         if (CollectionUtils.isNotEmpty(detailList)){
             detailList.forEach(o->{
-                //检查摊位状态
-                checkBoothState(o.getAssetsId());
+                //检查资产状态
+                checkAssetsState(o.getAssetsId());
             });
         }
         if (!ea.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){
@@ -312,7 +316,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         ea.setSubmitter(userTicket.getRealName());
         ea.setSubDate(LocalDateTime.now());
         //获取商户
-        if (ea.getFirstDistrictId() !=  null || ea.getSecondDistrictId() != null){
+        if (userTicket.getFirmCode().equals(MarketEnum.SY.getCode())){ //沈阳市场区域必填，并且根据区域获取商户ID
+            if (ea.getFirstDistrictId() ==  null && ea.getSecondDistrictId() == null){
+                LOGGER.info("区域不能为空！");
+                throw new BusinessException(ResultCode.PARAMS_ERROR, "区域不能为空！");
+            }
             ea.setMchId(this.getMchIdByDistrictId(ea.getSecondDistrictId() == null?ea.getFirstDistrictId():ea.getSecondDistrictId()));
         }
         if (this.updateSelective(ea) == 0) {
