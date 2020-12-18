@@ -3,6 +3,7 @@ package com.dili.ia.mapper;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ss.base.MyMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -40,4 +41,13 @@ public interface MeterMapper extends MyMapper<Meter> {
      * @date   2020/7/14
      */
     Meter getMeterByNumber(String number);
+
+    /**
+     * 根据主键查询表信息以及表用户中的身份证号
+     *
+     * @param
+     * @return
+     * @date   2020/12/18
+     */
+    MeterDto getMeterDtoById(@Param("id") Long id);
 }

@@ -127,6 +127,7 @@
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
                     parent.closeDialog(parent.dia);
+                    parent.$('#grid').bootstrapTable('refresh');
                 }
             },
             error: function (error) {
