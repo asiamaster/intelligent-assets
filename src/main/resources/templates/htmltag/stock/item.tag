@@ -37,7 +37,7 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号:<i class="red">*</i></label>
-						<select id="assetsId_{{index}}" name="assetsId" class="form-control"  required> 
+						<select id="assetsId_{{index}}" name="assetsId" class="form-control assetsId"  required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
 						
@@ -171,7 +171,7 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号:<i class="red">*</i></label>
-						<select id="assetsId_{{index}}" name="assetsId" class="form-control" required> 
+						<select id="assetsId_{{index}}" name="assetsId" class="form-control assetsId" required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
 					</div>
@@ -219,8 +219,11 @@
 
 <script>
 
-//部门变动 冷库区变更
-//index 第几个子单  parent 父级区域   value 默认值    level  区域等级(one/two)
+
+
+
+// 部门变动 冷库区变更
+// index 第几个子单  parent 父级区域   value 默认值    level  区域等级(one/two)
 function changeDistrict(index,parent,value,level){
 	$.ajax({
 		type: "POST",
@@ -265,18 +268,55 @@ $(document).on('change', '.districtId', function() {
 	if(id.split("_")[1] == "one"){
 		//加载二级区域
 		changeDistrict(index,$(this).val(),null,'two');
+		changeAssets(index,$(this).val(),null,1);
+	}else{
+		changeAssets(index,$(this).val(),null,2);
 	}
-	changeAssets(index,$(this).val(),null);
 });
 
-function changeAssets(index,districtId,value){
+//商户id
+let mchId
+//冷库区域变更  对应子单的冷库更新
+$(document).on('change', '.assetsId', function() {
+	
+	if(strIsNotEmpty($(this).val())){
+		let id = $(this).attr('id');
+		let index = id.split("_")[1];
+		mchId = $('#mchid_'+index).val();
+	}else{
+		// 判断是否清除 mchId
+		let count = 0;
+		$('.assetsId').each(function(){
+			if(strIsNotEmpty($(this).val())){
+				count++;
+			}
+		})
+		if(count == 0){
+			mchId ="";
+		}
+		console.log("mchId:"+mchId);
+	}
+	
+});
+
+function changeAssets(index,districtId,value,level){
     if(districtId && districtId!==''){
+    	let param = {};
+    	if(level == 1){
+    		param = {firstDistrictId: districtId,
+                	assetsType:2,
+                	mchId:mchId
+                }
+    	}else {
+    		param = {secondDistrictId: districtId,
+                	assetsType:2,
+                	mchId:mchId
+                }
+    	}
         $.ajax({
-            type: "POST",
+            type: "GET",
             url: "/assets/searchAssets.action",
-            data: {secondArea: districtId,
-            	businessType:2
-            },
+            data: param,
             success: function (data) {
                 if (data.code == "200") {
                     var array = $.map(data.data, function (obj) {
@@ -287,15 +327,17 @@ function changeAssets(index,districtId,value){
                     	$('#assetsId_'+index).html('<option value="" selected="">-- 请选择区域 --</option>');
                     } else {
                     	var htmlConent = '<option value="" selected>-- 请选择 --</option>';
+                    	let m; //获取商户id
                 		for (let item of array) {
+                			m = item.marketId;
                 			if(item.id == value){
-                    			htmlConent = htmlConent+'<option value="'+item.id+'" selected>'+item.text+'</option>';
+                    			htmlConent = htmlConent+'<option  value="'+item.id+'" selected>'+item.text+'</option>';
                 			}else{
-                    			htmlConent = htmlConent+'<option value="'+item.id+'" >'+item.text+'</option>';
+                    			htmlConent = htmlConent+'<option  value="'+item.id+'" >'+item.text+'</option>';
                 			}
                 		}
-                		console.log(index)
                 		$('#assetsId_'+index).html(htmlConent);
+                		$('#assetsId_'+index).after('<input type="hidden" id="mchid_'+index+'" value ="'+m+'">');
                     }
                 }
             }

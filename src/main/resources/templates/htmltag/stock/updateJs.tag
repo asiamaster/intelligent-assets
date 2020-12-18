@@ -193,6 +193,7 @@ function buildFormData() {
 		let index = $(this).attr("id").split("_")[1];
 		console.log(weightItems.get(index));
 		detail.stockWeighmanRecordDto = weightItems.get(index);
+		detail.mchId=mchId;
 		// 动态收费项
 		let itemBusinessChargeDtos = []
 		$(this).find('.chargeItem').each(function(){
@@ -216,6 +217,7 @@ function buildFormData() {
 	});
 	//stockDetails.concat(removeDetails);
 	$.merge(stockDetails, removeDetails)
+	formData.mchId=mchId;
 	formData.stockInDetailDtos = stockDetails;
 	return JSON.stringify(formData);
 }
