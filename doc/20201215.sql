@@ -89,7 +89,7 @@ set ali.second_district_name = dt.name
 WHERE ali.second_district_id = dt.id;
 
 -- 表管理
-CREATE TABLE `meter` (
+CREATE TABLE `dili_ia`.`meter` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `modify_time` datetime DEFAULT NULL COMMENT '修改日期',
@@ -118,7 +118,7 @@ CREATE TABLE `meter` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 -- 表用户
-CREATE TABLE `customer_meter` (
+CREATE TABLE `dili_ia`.`customer_meter` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
   `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改日期',
@@ -140,7 +140,7 @@ CREATE TABLE `customer_meter` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 -- 水电费
-CREATE TABLE `meter_detail` (
+CREATE TABLE `dili_ia`.`meter_detail` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -180,7 +180,7 @@ CREATE TABLE `meter_detail` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 -- 其他收费
-CREATE TABLE `other_fee` (
+CREATE TABLE `dili_ia`.`other_fee` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -223,7 +223,7 @@ CREATE TABLE `other_fee` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 -- 其他收费关联部门收费项
-CREATE TABLE `department_charge_item` (
+CREATE TABLE `dili_ia`.`department_charge_item` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -242,7 +242,7 @@ CREATE TABLE `department_charge_item` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 -- 通行证
-CREATE TABLE `passport` (
+CREATE TABLE `dili_ia`.`passport` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -288,7 +288,7 @@ CREATE TABLE `passport` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='通行证';
 
 -- 精品黄楼停车记录
-CREATE TABLE `boutique_entrance_record` (
+CREATE TABLE `dili_ia`.`boutique_entrance_record` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -319,7 +319,7 @@ CREATE TABLE `boutique_entrance_record` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='精品停车记录表';
 
 -- 精品黄楼缴费
-CREATE TABLE `boutique_fee_order` (
+CREATE TABLE `dili_ia`.`boutique_fee_order` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -344,7 +344,7 @@ CREATE TABLE `boutique_fee_order` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='精品停车缴费单表';
 
 -- 精品黄楼停车时长设置
-CREATE TABLE `boutique_free_sets` (
+CREATE TABLE `dili_ia`.`boutique_free_sets` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modify_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -355,7 +355,7 @@ CREATE TABLE `boutique_free_sets` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='精品停车免费时长设置表';
 
 -- 摊位出租预设表
-CREATE TABLE `assets_rental` (
+CREATE TABLE `dili_ia`.`assets_rental` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `batch_id` bigint(20) DEFAULT NULL COMMENT '一个批次的批次号',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -386,7 +386,7 @@ CREATE TABLE `assets_rental` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='资产出租预设';
 
 -- 摊位出租详情表
-CREATE TABLE `assets_rental_item` (
+CREATE TABLE `dili_ia`.`assets_rental_item` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `assets_rental_id` bigint(20) NOT NULL COMMENT '资产出租预设ID',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
