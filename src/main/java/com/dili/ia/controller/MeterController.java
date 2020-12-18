@@ -183,7 +183,7 @@ public class MeterController {
             AssertUtils.notEmpty(meterDto.getNumber(), "表编号不能为空");
 
             // 修改
-            Meter meter = meterService.updateMeter(meterDto);
+            Meter meter = meterService.updateMeter(meterDto, userTicket);
 
             // 写业务日志
             LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(),

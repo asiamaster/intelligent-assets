@@ -3,15 +3,14 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.MeterDto;
 import com.dili.ia.mapper.MeterMapper;
+import com.dili.ia.service.MchAndDistrictService;
 import com.dili.ia.service.MeterDetailService;
 import com.dili.ia.service.MeterService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
-import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -34,12 +33,15 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
 
     private final static Logger logger = LoggerFactory.getLogger(MeterServiceImpl.class);
 
-    @Autowired
-    DepartmentRpc departmentRpc;
-
     public MeterMapper getActualDao() {
         return (MeterMapper)getDao();
     }
+
+    @Autowired
+    DepartmentRpc departmentRpc;
+
+    @Autowired
+    private MchAndDistrictService mchAndDistrictService;
 
     @Autowired
     private MeterDetailService meterDetailService;
@@ -65,7 +67,6 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
 
         // 设置相关属性值
         meterDto.setVersion(0);
-
         meterDto.setCreatorId(userTicket.getId());
         meterDto.setCreateTime(LocalDateTime.now());
         meterDto.setModifyTime(LocalDateTime.now());
@@ -74,6 +75,12 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         meterDto.setMarketCode(userTicket.getFirmCode());
         meterDto.setCreatorDepId(userTicket.getDepartmentId());
         BeanUtils.copyProperties(meterDto, meter);
+        // 根据区域ID查询商户ID
+        Long mchId = mchAndDistrictService.getMchIdByDistrictId(meterDto.getFirstDistrictId(), meterDto.getSecondDistrictId());
+        if (mchId == null) {
+            mchId = userTicket.getFirmId();
+        }
+        meter.setMchId(mchId);
 
         this.insertSelective(meter);
 
@@ -84,11 +91,12 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * 修改表信息
      *
      * @param  meterDto
+     * @param userTicket
      * @return Meter
      * @date   2020/6/29
      */
     @Override
-    public Meter updateMeter(MeterDto meterDto) throws BusinessException {
+    public Meter updateMeter(MeterDto meterDto, UserTicket userTicket) throws BusinessException {
         Meter meter = new Meter();
 
         // 根据表 meterId、用户 customerId 查询未缴费的记录数量
@@ -111,6 +119,12 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         Meter meterInfo = this.get(meterDto.getId());
         meterDto.setModifyTime(LocalDateTime.now());
         meterDto.setVersion(meterInfo.getVersion() + 1);
+        // 根据区域ID查询商户ID
+        Long mchId = mchAndDistrictService.getMchIdByDistrictId(meterDto.getFirstDistrictId(), meterDto.getSecondDistrictId());
+        if (mchId == null) {
+            mchId = userTicket.getFirmId();
+        }
+        meterDto.setMchId(mchId);
 
         //修改操作
         BeanUtils.copyProperties(meterDto, meter);

@@ -33,7 +33,7 @@ public interface DepartmentChargeItemService extends BaseService<DepartmentCharg
      * @return list
      * @date   2020/8/19
      */
-    DepartmentChargeItemDto selectListByChargeItemId(String chargeItemId);
+    DepartmentChargeItemDto selectListByChargeItemId(Long chargeItemId);
 
 
     /**
@@ -71,5 +71,5 @@ public interface DepartmentChargeItemService extends BaseService<DepartmentCharg
      * @return mchId
      * @date   2020/12/14
      */
-    List<DepartmentChargeItem> getListByChargeItemId(String chargeItemId);
+    List<DepartmentChargeItem> getListByChargeItemId(Long chargeItemId);
 }

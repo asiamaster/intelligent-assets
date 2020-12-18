@@ -128,7 +128,7 @@ public class PassportApi {
      * @return BaseOutput
      * @date   2020/7/27
      */
-    @RequestMapping(value = "/printPaperwork", method = {RequestMethod.POST})
+    @RequestMapping(value = "/paperwork/queryPrintData", method = {RequestMethod.POST})
     public @ResponseBody
     BaseOutput<PrintDataDto<PassportPrintDto>> printPaperwork(String orderCode, String reprint) {
         try {

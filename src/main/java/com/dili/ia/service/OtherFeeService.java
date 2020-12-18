@@ -33,7 +33,7 @@ public interface OtherFeeService extends BaseService<OtherFee, Long> {
      * @return OtherFee
      * @date   2020/8/18
      */
-    OtherFee addOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket);
+    OtherFee addOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket) throws Exception;
 
     /**
      * 修改其他收费

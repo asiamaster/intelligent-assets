@@ -174,4 +174,13 @@
 
     </where>
   </select>
+
+    <select id="getBoutiqueByBid" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List" />
+        from
+            boutique_entrance_record
+        where
+            bid = #{bid}
+    </select>
 </mapper>
