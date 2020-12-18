@@ -24,6 +24,9 @@ public class StockOut extends BaseDomain {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "`mch_id`")
+   	private Long mchId;
+    
     /**
      * 创建时间
      */
@@ -547,6 +550,14 @@ public class StockOut extends BaseDomain {
 
 	public void setCreator(String creator) {
 		this.creator = creator;
+	}
+
+	public Long getMchId() {
+		return mchId;
+	}
+
+	public void setMchId(Long mchId) {
+		this.mchId = mchId;
 	}
     
     

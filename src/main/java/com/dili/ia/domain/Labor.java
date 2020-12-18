@@ -22,6 +22,9 @@ public class Labor extends BaseDomain {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "`mch_id`")
+   	private Long mchId;
+    
     @Column(name = "`code`")
     private String code;
 
@@ -1055,6 +1058,14 @@ public class Labor extends BaseDomain {
 
 	public void setPreState(Integer preState) {
 		this.preState = preState;
+	}
+
+	public Long getMchId() {
+		return mchId;
+	}
+
+	public void setMchId(Long mchId) {
+		this.mchId = mchId;
 	}
     
     

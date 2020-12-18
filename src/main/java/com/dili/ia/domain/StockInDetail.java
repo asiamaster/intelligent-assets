@@ -20,6 +20,9 @@ public class StockInDetail extends BaseDomain {
     @Column(name = "`id`")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "`mch_id`")
+   	private Long mchId;
 
     /**
      * 创建时间
@@ -90,14 +93,14 @@ public class StockInDetail extends BaseDomain {
     /**
      * 区域id
      */
-    @Column(name = "`district_id`")
+    @Column(name = "`second_district_id`")
     private Long districtId;
     
-    @Column(name = "`parent_district_id`")
+    @Column(name = "`first_district_id`")
 	private Long parentDistrictId;
 
 
-    @Column(name = "`district_name`")
+    @Column(name = "`second_district_name`")
     private String districtName;
 
     /**
@@ -692,6 +695,15 @@ public class StockInDetail extends BaseDomain {
 	public void setCarTypePublicName(String carTypePublicName) {
 		this.carTypePublicName = carTypePublicName;
 	}
+
+	public Long getMchId() {
+		return mchId;
+	}
+
+	public void setMchId(Long mchId) {
+		this.mchId = mchId;
+	}
     
+	
     
 }

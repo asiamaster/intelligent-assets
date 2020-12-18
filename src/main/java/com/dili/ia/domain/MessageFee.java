@@ -26,6 +26,9 @@ public class MessageFee extends BaseDomain {
 		this.operatorName = userTicket.getRealName();
 	}
 	
+	@Column(name = "`mch_id`")
+	private Long mchId;
+	
     @Id
     @Column(name = "`id`")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -756,4 +759,13 @@ public class MessageFee extends BaseDomain {
     public void setVersion(Integer version) {
         this.version = version;
     }
+	public Long getMchId() {
+		return mchId;
+	}
+	public void setMchId(Long mchId) {
+		this.mchId = mchId;
+	}
+    
+    
+    
 }
