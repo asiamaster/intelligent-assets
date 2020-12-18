@@ -69,7 +69,7 @@
                     return {
                         results: $.map(data, function (dataItem) {
                             return $.extend(dataItem, {
-                                    text: dataItem.name + '(' + ((dataItem.secondAreaName || dataItem.secondDistrictName) ? (dataItem.areaName || dataItem.firstDistrictName) + '->' + (dataItem.secondAreaName || dataItem.secondDistrictName) : (dataItem.areaName || dataItem.firstDistrictName)) + ')' + dataItem.marketId
+                                    text: dataItem.name + '(' + ((dataItem.secondAreaName || dataItem.secondDistrictName) ? (dataItem.areaName || dataItem.firstDistrictName) + '->' + (dataItem.secondAreaName || dataItem.secondDistrictName) : (dataItem.areaName || dataItem.firstDistrictName)) + ')'
                                 }
                             );
                         })
