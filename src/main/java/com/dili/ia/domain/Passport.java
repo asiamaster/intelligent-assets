@@ -229,6 +229,18 @@ public class Passport extends BaseDomain {
     private String marketCode;
 
     /**
+     * 商户Id
+     */
+    @Column(name = "`mch_id`")
+    private Long mchId;
+
+    /**
+     * 商户名称
+     */
+    @Column(name = "`mch_name`")
+    private String mchName;
+
+    /**
      * 版本控制,乐观锁
      */
     @Column(name = "`version`")
@@ -882,6 +894,22 @@ public class Passport extends BaseDomain {
 
     public void setMarketCode(String marketCode) {
         this.marketCode = marketCode;
+    }
+
+    public Long getMchId() {
+        return mchId;
+    }
+
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
+    }
+
+    public String getMchName() {
+        return mchName;
+    }
+
+    public void setMchName(String mchName) {
+        this.mchName = mchName;
     }
 
     /**

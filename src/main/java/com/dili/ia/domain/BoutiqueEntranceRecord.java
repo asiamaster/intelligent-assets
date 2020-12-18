@@ -152,6 +152,18 @@ public class BoutiqueEntranceRecord extends BaseDomain {
     private Long bid;
 
     /**
+     * 商户Id
+     */
+    @Column(name = "`mch_id`")
+    private Long mchId;
+
+    /**
+     * 商户名称
+     */
+    @Column(name = "`mch_name`")
+    private String mchName;
+
+    /**
      * 版本控制,乐观锁
      */
     @Column(name = "`version`")
@@ -565,6 +577,22 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     public void setBid(Long bid) {
         this.bid = bid;
+    }
+
+    public Long getMchId() {
+        return mchId;
+    }
+
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
+    }
+
+    public String getMchName() {
+        return mchName;
+    }
+
+    public void setMchName(String mchName) {
+        this.mchName = mchName;
     }
 
     /**
