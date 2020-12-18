@@ -155,4 +155,38 @@
     where
         number = #{number,jdbcType=VARCHAR}
   </select>
+
+    <select id="getMeterDtoById" resultType="com.dili.ia.domain.dto.MeterDto">
+        select
+            m.id,
+            m.create_time,
+            m.modify_time,
+            m.number,
+            m.type,
+            m.assets_type,
+            m.assets_id,
+            m.assets_name,
+            m.this_amount,
+            m.price,
+            m.creator_dep_id,
+            m.balance,
+            m.notes,
+            m.creator_id,
+            m.creator,
+            m.market_id,
+            m.market_code,
+            m.mch_id,
+            m.mch_name,
+            m.first_district_id,
+            m.first_district_name,
+            m.second_district_id,
+            m.second_district_name,
+            m.version,
+            cm.certificate_number as certificateNumber
+        from
+            meter as m
+          left join customer_meter as cm on m.id = cm.meter_id
+        where
+          m.id = #{id}
+    </select>
 </mapper>

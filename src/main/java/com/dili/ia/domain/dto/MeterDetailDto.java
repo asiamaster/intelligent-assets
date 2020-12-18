@@ -90,7 +90,9 @@ public class MeterDetailDto extends MeterDetail {
      */
     private Long sharedAmount;
 
-
+    /**
+     * 使用月份
+     */
     private String UsageMonth;
 
     public String getUsageMonth() {

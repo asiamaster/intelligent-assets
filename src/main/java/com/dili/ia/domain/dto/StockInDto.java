@@ -36,6 +36,8 @@ public class StockInDto {
 
     private String code;
 
+    private Long mchId;
+    
     /**
      * 入库时间
      */
@@ -386,6 +388,14 @@ public class StockInDto {
 
 	public void setUnitPrice(Long unitPrice) {
 		this.unitPrice = unitPrice;
+	}
+
+	public Long getMchId() {
+		return mchId;
+	}
+
+	public void setMchId(Long mchId) {
+		this.mchId = mchId;
 	}
 
 	

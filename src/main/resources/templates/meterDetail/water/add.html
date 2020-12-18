@@ -3,6 +3,8 @@
         <form id="saveForm" method="post" action="" class="pb-5">
             <input type="hidden" id="">
             <input type="hidden" id="meterType" value="1">
+            <input type="hidden" id="meterId" name="meterId">
+            <input type="hidden" id="customerId" name="customerId">
             <div class="row row-cols-4" >
                 <div class="form-group col">
                     <label for="usageTime">截止月份<i class="red">*</i></label>
@@ -30,8 +32,7 @@
                     <input type="text" class="form-control" id="assetsName" name="assetsName" readonly />
                 </div>
 
-                <input type="hidden" id="meterId" name="meterId">
-                <input type="hidden" id="customerId" name="customerId">
+
 
                 <div class="form-group col">
                     <label for="customerCellphone">手机号码<i class="red">*</i></label>

@@ -1,8 +1,8 @@
 package com.dili.ia.controller;
 
 import com.dili.bpmc.sdk.dto.EventReceivedDto;
+import com.dili.bpmc.sdk.rpc.feign.EventFeignRpc;
 import com.dili.bpmc.sdk.rpc.restful.EventRpc;
-import com.dili.bpmc.sdk.rpc.restful.RuntimeRpc;
 import com.dili.ia.domain.InvoiceRecord;
 import com.dili.ia.domain.dto.InvoiceRecordDto;
 import com.dili.ia.service.InvoiceRecordService;
@@ -31,10 +31,41 @@ public class InvoiceRecordController {
     private InvoiceRecordService invoiceRecordService;
 
     @Autowired
-    private RuntimeRpc runtimeRpc;
-
+    private EventFeignRpc eventFeignRpc;
     @Autowired
     private EventRpc eventRpc;
+
+
+    /**
+     * bpm测试
+     * @return BaseOutput
+     */
+//    @PostMapping(value="/testBpm.api")
+//    @GlobalTransactional
+    public @ResponseBody BaseOutput testBpm(@RequestParam String processInstanceId,@RequestParam String eventName) throws RemoteException {
+        EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+        eventReceivedDto.setEventName("submitEvent");
+        eventReceivedDto.setProcessInstanceId(processInstanceId);
+        BaseOutput<String> output = eventRpc.messageEventReceived(eventReceivedDto);
+        if(!output.isSuccess()){
+            throw new RemoteException();
+        }
+        eventReceivedDto.setEventName("cancelEvent");
+        output = eventRpc.messageEventReceived(eventReceivedDto);
+
+        if(!output.isSuccess()){
+            throw new RemoteException();
+        }
+        InvoiceRecord invoiceRecord = DTOUtils.newInstance(InvoiceRecord.class);
+        invoiceRecord.setFirmId(99L);
+        invoiceRecord.setAmount(99L);
+        invoiceRecord.setNotes("测试");
+        invoiceRecordService.insertSelective(invoiceRecord);
+        if(invoiceRecord != null){
+            throw new AppException("回滚测试");
+        }
+        return BaseOutput.success();
+    }
 
     /**
      * 跳转到InvoiceRecord页面
@@ -62,30 +93,6 @@ public class InvoiceRecordController {
         return invoiceRecordService.listEasyuiPageByExample(invoiceRecord, true).toString();
     }
 
-    /**
-     * bpm测试
-     * @return BaseOutput
-     */
-    @PostMapping(value="/testBpm.api")
-    @GlobalTransactional
-    public @ResponseBody BaseOutput testBpm(@RequestParam String processInstanceId,@RequestParam String eventName) throws RemoteException {
-        EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
-        eventReceivedDto.setEventName(eventName);
-        eventReceivedDto.setProcessInstanceId(processInstanceId);
-        BaseOutput<String> output = eventRpc.messageEventReceived(eventReceivedDto);
-        if(!output.isSuccess()){
-            throw new RemoteException();
-        }
-        InvoiceRecord invoiceRecord = DTOUtils.newInstance(InvoiceRecord.class);
-        invoiceRecord.setFirmId(99L);
-        invoiceRecord.setAmount(99L);
-        invoiceRecord.setNotes("测试");
-        invoiceRecordService.insertSelective(invoiceRecord);
-        if(invoiceRecord != null){
-            throw new AppException("回滚测试");
-        }
-        return BaseOutput.success();
-    }
     /**
      * 新增InvoiceRecord
      * @param invoiceRecord

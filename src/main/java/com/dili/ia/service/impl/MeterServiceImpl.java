@@ -168,4 +168,16 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         return this.getActualDao().getMeterByNumber(number);
     }
 
+    /**
+     * 根据主键查询表信息以及表用户中的身份证号
+     *
+     * @param
+     * @return
+     * @date   2020/12/18
+     */
+    @Override
+    public MeterDto getMeterDtoById(Long id) {
+        return this.getActualDao().getMeterDtoById(id);
+    }
+
 }

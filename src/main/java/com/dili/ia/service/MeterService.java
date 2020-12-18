@@ -53,4 +53,13 @@ public interface MeterService extends BaseService<Meter, Long> {
      * @date   2020/7/14
      */
     Meter getMeterByNumber(String number);
+
+    /**
+     * 根据主键查询表信息以及表用户中的身份证号
+     *
+     * @param
+     * @return
+     * @date   2020/12/18
+     */
+    MeterDto getMeterDtoById(Long meterId);
 }

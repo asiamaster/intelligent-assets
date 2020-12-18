@@ -4,7 +4,6 @@ import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.domain.dto.BoutiqueFeeRefundOrderDto;
 import com.dili.ss.base.BaseService;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 
 import java.util.List;
@@ -39,9 +38,10 @@ public interface BoutiqueFeeOrderService extends BaseService<BoutiqueFeeOrder, L
      * 退款申请
      *
      * @param  refundOrderDto
+     * @param userTicket
      * @date   2020/7/23
      */
-    void refund(BoutiqueFeeRefundOrderDto refundOrderDto) throws Exception;
+    BoutiqueFeeOrder refund(BoutiqueFeeRefundOrderDto refundOrderDto, UserTicket userTicket) throws Exception;
 
     /**
      * 取消交费单
