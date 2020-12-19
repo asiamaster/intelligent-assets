@@ -7,15 +7,13 @@ import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 
 /**
- * @author: xiaosa
- * @date: 2020/7/27
- * @version: 农批业务系统重构
+ * @author:      xiaosa
+ * @date:        2020/7/27
+ * @version:     农批业务系统重构
  * @description: 通行证
  */
 public interface PassportService extends BaseService<Passport, Long> {
@@ -23,65 +21,65 @@ public interface PassportService extends BaseService<Passport, Long> {
     /**
      * 查询列表
      *
-     * @param passportDto
-     * @param useProvider
+     * @param  passportDto
+     * @param  useProvider
      * @return EasyuiPageOutput
-     * @date 2020/7/29
+     * @date   2020/7/29
      */
     EasyuiPageOutput listPassports(PassportDto passportDto, boolean useProvider) throws Exception;
 
     /**
-     * 新增 通行证
+     * 新增通行证业务单
      *
      * @param  passportDto
      * @param  userTicket
      * @return Passport
      * @date   2020/7/27
      */
-    Passport addPassport(PassportDto passportDto, UserTicket userTicket) throws BusinessException;
+    Passport addPassport(PassportDto passportDto, UserTicket userTicket);
 
     /**
-     * 修改 通行证
+     * 修改通行证业务单
      *
      * @param  passportDto
      * @param  userTicket
      * @return Passport
      * @date   2020/7/27
      */
-    Passport updatePassport(PassportDto passportDto, UserTicket userTicket) throws BusinessException;
+    Passport updatePassport(PassportDto passportDto, UserTicket userTicket) ;
 
     /**
-     * 取消 通行证
+     * 取消通行证业务单
      *
      * @param  id
      * @param  userTicket
      * @return Passport
      * @date   2020/7/27
      */
-    Passport cancel(Long id, UserTicket userTicket) throws BusinessException;
+    Passport cancel(Long id, UserTicket userTicket) ;
 
     /**
-     * 提交 通行证缴费
+     * 提交通行证业务单交费
      *
      * @param  id
      * @param  userTicket
      * @return Passport
      * @date   2020/7/27
      */
-    Passport submit(Long id, UserTicket userTicket) throws BusinessException;
+    Passport submit(Long id, UserTicket userTicket) ;
 
     /**
-     * 撤回 通行证缴费
+     * 撤回通行证业务单交费
      *
      * @param  id
      * @param  userTicket
      * @return Passport
      * @date   2020/7/27
      */
-    Passport withdraw(Long id, UserTicket userTicket) throws BusinessException;
+    Passport withdraw(Long id, UserTicket userTicket) ;
 
     /**
-     * 通行证缴费成功回调
+     * 通行证业务单交费成功回调
      *
      * @param  settleOrder
      * @return Passport
@@ -90,14 +88,14 @@ public interface PassportService extends BaseService<Passport, Long> {
     Passport settlementDealHandler(SettleOrder settleOrder);
 
     /**
-     * 通行证打印票据
+     * 通行证打业务单印票据
      *
      * @param  orderCode
      * @param  reprint
      * @return PrintDataDto
      * @date   2020/7/27
      */
-    PrintDataDto<PassportPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException;
+    PrintDataDto<PassportPrintDto> receiptPaymentData(String orderCode, Integer reprint) ;
 
     /**
      * 根据 code 查询数据

@@ -6,7 +6,6 @@ import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.PaymentOrder;
-import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.domain.dto.BoutiqueFeeRefundOrderDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
@@ -117,20 +116,18 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     @GlobalTransactional
     public BoutiqueFeeOrder refund(BoutiqueFeeRefundOrderDto refundOrderDto, UserTicket userTicket) throws BusinessException {
         // 退款申请的条件检查（方法抽取）
-        BoutiqueFeeOrder boutiqueFeeOrder = checkRefundCondition(refundOrderDto, userTicket);
+        BoutiqueFeeOrder boutiqueFeeOrderInfo = checkRefundCondition(refundOrderDto, userTicket);
+
+        // 修改精品停车费业务单的状态
+        boutiqueFeeOrderInfo.setModifyTime(LocalDateTime.now());
+        boutiqueFeeOrderInfo.setState(BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode());
+        this.updateSelective(boutiqueFeeOrderInfo);
 
         // 查询已缴费的缴费单（方法抽取）
-        this.findPaymentOrder(userTicket, boutiqueFeeOrder.getId(), boutiqueFeeOrder.getCode(), PaymentOrderStateEnum.PAID.getCode());
-
-        // 查询相关数据
-        BoutiqueFeeOrderDto orderDtoInfo = this.getBoutiqueFeeOrderDtoById(refundOrderDto.getBusinessId());
-        if (orderDtoInfo != null && !BoutiqueOrderStateEnum.PAID.getCode().equals(orderDtoInfo.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
-        }
-
-        BoutiqueEntranceRecord recordInfo = boutiqueEntranceRecordService.get(orderDtoInfo.getRecordId());
+        this.findPaymentOrder(userTicket, boutiqueFeeOrderInfo.getId(), boutiqueFeeOrderInfo.getCode(), PaymentOrderStateEnum.PAID.getCode());
 
         // 构建退款单以及新增
+        BoutiqueEntranceRecord recordInfo = boutiqueEntranceRecordService.get(boutiqueFeeOrderInfo.getRecordId());
         refundOrderDto.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode()).getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
         refundOrderDto.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
         refundOrderDto.setMchId(recordInfo.getMchId());
@@ -140,12 +137,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
             throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
         }
 
-        // 修改状态
-        orderDtoInfo.setModifyTime(LocalDateTime.now());
-        orderDtoInfo.setState(BoutiqueOrderStateEnum.SUBMITTED_REFUND.getCode());
-        this.updateSelective(orderDtoInfo);
-
-        return boutiqueFeeOrder;
+        return boutiqueFeeOrderInfo;
     }
 
     /**
@@ -159,22 +151,16 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
         // 检查客户状态
         checkCustomerState(refundOrderDto.getPayeeId(), userTicket.getFirmId());
 
-        // 检查其他收费缴费单的状态
-        BoutiqueFeeOrder boutiqueFeeOrder = this.get(refundOrderDto.getBusinessId());
-        if (boutiqueFeeOrder == null) {
+        // 检查精品停车费缴费单的状态
+        BoutiqueFeeOrder boutiqueFeeOrderInfo = this.get(refundOrderDto.getBusinessId());
+        if (boutiqueFeeOrderInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "其他收费缴费单不存在！");
         }
-        if (!BoutiqueOrderStateEnum.PAID.getCode().equals(boutiqueFeeOrder.getState())) {
+        if (!BoutiqueOrderStateEnum.PAID.getCode().equals(boutiqueFeeOrderInfo.getState())) {
             throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
         }
 
-        // 检查退款金额和缴费金额的大小
-//        Long totalRefundAmount = boutiqueFeeOrder.getRefundAmount() + refundOrderDto.getPayeeAmount();
-//        if (boutiqueFeeOrder.getAmount() < totalRefundAmount){
-//            throw new BusinessException(ResultCode.DATA_ERROR, "退款总金额不能大于订单已交费金额！");
-//        }
-
-        return boutiqueFeeOrder;
+        return boutiqueFeeOrderInfo;
     }
 
     /**
@@ -245,40 +231,5 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
         }
 
         return orderInfo;
-    }
-
-    /**
-     * 构建退款
-     */
-    private RefundOrder buildRefundOrderDto(UserTicket userTicket, BoutiqueFeeRefundOrderDto refundOrderDto, BoutiqueFeeOrderDto orderDto)
-            throws BusinessException {
-        //退款单
-        RefundOrder refundOrder = new RefundOrder();
-
-        refundOrder.setMarketId(userTicket.getFirmId());
-        refundOrder.setMarketCode(userTicket.getFirmCode());
-
-        refundOrder.setBusinessId(orderDto.getId());
-        refundOrder.setBusinessCode(orderDto.getCode());
-        refundOrder.setCustomerId(orderDto.getCustomerId());
-        refundOrder.setCustomerName(orderDto.getCustomerName());
-        refundOrder.setCertificateNumber(orderDto.getCertificateNumber());
-        refundOrder.setCustomerCellphone(orderDto.getCustomerCellphone());
-
-        refundOrder.setPayee(refundOrderDto.getPayee());
-        refundOrder.setPayeeId(refundOrderDto.getPayeeId());
-        refundOrder.setRefundType(refundOrderDto.getRefundType());
-        refundOrder.setPayeeAmount(refundOrderDto.getPayeeAmount());
-        refundOrder.setRefundReason(refundOrderDto.getRefundReason());
-        refundOrder.setTotalRefundAmount(refundOrderDto.getTotalRefundAmount());
-
-        refundOrder.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
-        refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode()).getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode()));
-
-        if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
-            logger.info("通行证【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");
-        }
-        return refundOrder;
     }
 }

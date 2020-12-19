@@ -6,12 +6,10 @@ import com.dili.assets.sdk.rpc.TypeMarketRpc;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
-import com.dili.ia.domain.dto.SettleOrderInfoDto;
 import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.BoutiqueEntranceRecordMapper;
-import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.*;
 import com.dili.settlement.domain.SettleFeeItem;
@@ -68,22 +66,13 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     }
 
     @Autowired
+    private TypeMarketRpc typeMarketRpc;
+
+    @Autowired
     private DepartmentRpc departmentRpc;
 
     @Autowired
-    private BoutiqueFeeOrderService boutiqueFeeOrderService;
-
-    @Autowired
-    private BoutiqueFreeSetsService boutiqueFreeSetsService;
-
-    @Autowired
     private UidRpcResolver uidRpcResolver;
-
-    @Autowired
-    private PaymentOrderService paymentOrderService;
-
-    @Autowired
-    private SettlementRpcResolver settlementRpcResolver;
 
     @Autowired
     private SettleOrderRpc settleOrderRpc;
@@ -92,7 +81,13 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     private RefundOrderService refundOrderService;
 
     @Autowired
-    private TypeMarketRpc typeMarketRpc;
+    private PaymentOrderService paymentOrderService;
+
+    @Autowired
+    private BoutiqueFeeOrderService boutiqueFeeOrderService;
+
+    @Autowired
+    private BoutiqueFreeSetsService boutiqueFreeSetsService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -103,7 +98,13 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     @Value("${boutiqueEntrance.settlement.print.url}")
     private String settlerPrintUrl;
 
-
+    /**
+     * 列表查询
+     *
+     * @param  boutiqueDto
+     * @return EasyuiPageOutput
+     * @date   2020/8/17
+     */
     @Override
     public EasyuiPageOutput listBoutiques(BoutiqueEntranceRecordDto boutiqueDto, boolean useProvider) throws Exception {
         // 分页
@@ -126,7 +127,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      *
      * @param  code
      * @return BoutiqueFeeOrderDto
-     * @date  2020/7/23
+     * @date   2020/7/23
      */
     @Override
     public BoutiqueFeeOrderDto getBoutiqueAndOrderByCode(String code) {
@@ -167,14 +168,14 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      */
     @Override
     @GlobalTransactional
-    public BoutiqueEntranceRecord confirm(BoutiqueEntranceRecord boutiqueEntranceRecord, UserTicket userTicket) throws BusinessException {
+    public BoutiqueEntranceRecord confirm(BoutiqueEntranceRecord boutiqueEntranceRecord, UserTicket userTicket)  {
         BoutiqueEntranceRecord recordInfo = this.get(boutiqueEntranceRecord.getId());
         if (recordInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，确认计费失败。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，确认计费失败！");
         }
 
         if (!recordInfo.getState().equals(BoutiqueStateEnum.NOCONFIRM.getCode())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是待确认，不能确认计费。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是待确认，不能确认计费！");
         }
 
         // 根据车型查询免费时长
@@ -217,11 +218,11 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      */
     @Override
     @GlobalTransactional
-    public BoutiqueEntranceRecord submit(BoutiqueFeeOrder feeOrder, UserTicket userTicket) throws BusinessException {
+    public BoutiqueEntranceRecord submit(BoutiqueFeeOrder feeOrder, UserTicket userTicket)  {
         // 先查询精品停车信息
         BoutiqueEntranceRecord recordInfo = this.get(feeOrder.getRecordId());
         if (recordInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，提交失败。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，提交失败！");
         }
 
         // 先根据 recordId 查询是否已存在已提交状态的交费单
@@ -229,7 +230,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         if (orderDtoList != null && orderDtoList.size() > 0) {
             for (BoutiqueFeeOrderDto feeOrderDto : orderDtoList) {
                 if (BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode().equals(feeOrderDto.getState())) {
-                    throw new BusinessException(ResultCode.DATA_ERROR, "已存在已提交的交费单，请先处理。");
+                    throw new BusinessException(ResultCode.DATA_ERROR, "已存在已提交的交费单，请先处理！");
                 }
             }
         }
@@ -250,8 +251,8 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
         boutiqueFeeOrderService.insertSelective(feeOrder);
 
-        // 创建缴费单,添加到缴费表中
-        PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.OTHER_FEE);
+        // 创建缴费单，添加到缴费表中
+        PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.BOUTIQUE_ENTRANCE);
         paymentOrder.setAmount(feeOrder.getAmount());
         paymentOrder.setBusinessId(feeOrder.getId());
         paymentOrder.setBusinessCode(feeOrder.getCode());
@@ -343,25 +344,25 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/7/13
      */
     @Override
-    public BoutiqueEntranceRecord leave(Long id, UserTicket userTicket) throws BusinessException {
+    public BoutiqueEntranceRecord leave(Long id, UserTicket userTicket)  {
         BoutiqueEntranceRecord recordInfo = this.get(id);
         if (recordInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，离场失败。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，离场失败！");
         }
 
         if (!(recordInfo.getState().equals(BoutiqueStateEnum.NOCONFIRM.getCode()) || recordInfo.getState().equals(BoutiqueStateEnum.COUNTING.getCode()))) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "所选记录状态已变更,请刷新重试。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "所选记录状态已变更，请刷新重试！");
         }
 
         if (recordInfo.getCountTime() != null && recordInfo.getCountTime().isBefore(LocalDateTime.now())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, recordInfo.getPlate() + " 有停车费未结清，请结清后再离场。");
+            throw new BusinessException(ResultCode.DATA_ERROR, recordInfo.getPlate() + " 有停车费未结清，请结清后再离场！");
         }
 
         List<BoutiqueFeeOrderDto> orderDtoList = boutiqueFeeOrderService.listByRecordId(recordInfo.getId());
         if (orderDtoList != null && orderDtoList.size() > 0) {
             for (BoutiqueFeeOrderDto orderDto : orderDtoList) {
                 if (BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode().equals(orderDto.getState())) {
-                    throw new BusinessException(ResultCode.DATA_ERROR, recordInfo.getPlate() + " 有停车费未结清，请结清后再离场。");
+                    throw new BusinessException(ResultCode.DATA_ERROR, recordInfo.getPlate() + " 有停车费未结清，请结清后再离场！");
                 }
             }
         }
@@ -389,14 +390,14 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/7/13
      */
     @Override
-    public BoutiqueEntranceRecord forceLeave(Long id, UserTicket userTicket) throws BusinessException {
+    public BoutiqueEntranceRecord forceLeave(Long id, UserTicket userTicket)  {
         BoutiqueEntranceRecord recordInfo = this.get(id);
 
         if (recordInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "所选记录不存在");
+            throw new BusinessException(ResultCode.DATA_ERROR, "所选记录不存在！");
         }
         if (!recordInfo.getState().equals(BoutiqueStateEnum.COUNTING.getCode())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "所选记录状态已变更,请刷新重试");
+            throw new BusinessException(ResultCode.DATA_ERROR, "所选记录状态已变更，请刷新重试！");
         }
         //修改记录状态为已离场
         recordInfo.setState(BoutiqueStateEnum.LEAVE.getCode());
@@ -423,7 +424,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/7/14
      */
     @Override
-    public BoutiqueFeeOrder settlementDealHandler(SettleOrder settleOrder) throws BusinessException {
+    public BoutiqueFeeOrder settlementDealHandler(SettleOrder settleOrder)  {
         // 修改缴费单相关数据
         if (null == settleOrder) {
             throw new BusinessException(ResultCode.PARAMS_ERROR, "回调参数为空！");
@@ -482,7 +483,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/7/14
      */
     @Override
-    public PrintDataDto<BoutiqueEntrancePrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException {
+    public PrintDataDto<BoutiqueEntrancePrintDto> receiptPaymentData(String orderCode, Integer reprint)  {
         PaymentOrder paymentOrderCondition = new PaymentOrder();
         paymentOrderCondition.setCode(orderCode);
         paymentOrderCondition.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
@@ -491,7 +492,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             throw new BusinessException(ResultCode.DATA_ERROR,"businessCode无效。");
         }
         if (!PaymentOrderStateEnum.PAID.getCode().equals(paymentOrder.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
+            throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付！");
         }
 
         // 组装数据
@@ -532,19 +533,19 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/8/11
      */
     @Override
-    public PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, String reprint) throws BusinessException {
+    public PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, String reprint)  {
         RefundOrder condtion = new RefundOrder();
         condtion.setCode(orderCode);
         List<RefundOrder> refundOrders = refundOrderService.list(condtion);
         if (CollectionUtil.isEmpty(refundOrders)) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
+            throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单！");
         } else {
             RefundOrder refundOrder = refundOrders.get(0);
             BoutiqueFeeOrder orderInfo = boutiqueFeeOrderService.get(refundOrder.getBusinessId());
             BoutiqueEntranceRecord recordInfo = this.get(orderInfo.getRecordId());
             SettleOrder order = settleOrderRpc.get(settlementAppId, orderInfo.getCode()).getData();
             if (order == null) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "精品黄楼退款费单不存在!");
+                throw new BusinessException(ResultCode.DATA_ERROR, "精品黄楼退款费单不存在！");
             }
             // 组装退款单信息
             BoutiqueEntrancePrintDto printDto = new BoutiqueEntrancePrintDto();
@@ -585,11 +586,11 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/8/5
      */
     @Override
-    public BoutiqueEntranceRecord cancel(BoutiqueEntranceRecordDto recordDto) throws BusinessException {
+    public BoutiqueEntranceRecord cancel(BoutiqueEntranceRecordDto recordDto)  {
         // 根据bid 查询数据
         BoutiqueEntranceRecordDto recordInfo = this.getActualDao().getBoutiqueByBid(recordDto.getBid());
         if (recordInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，取消失败。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，取消失败！");
         }
 
         if (!(BoutiqueStateEnum.NOCONFIRM.getCode().equals(recordInfo.getState()) || BoutiqueStateEnum.COUNTING.getCode().equals(recordInfo.getState()))) {
@@ -658,7 +659,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     /**
      * 修改交费单的状态（作废交费单）
      */
-    private void invalidOrders(BoutiqueEntranceRecord record, UserTicket userTicket) throws BusinessException {
+    private void invalidOrders(BoutiqueEntranceRecord record, UserTicket userTicket)  {
         List<BoutiqueFeeOrderDto> orderDtoList = boutiqueFeeOrderService.listByRecordId(record.getId());
         if (orderDtoList != null && orderDtoList.size() > 0) {
             orderDtoList.stream().filter(feeOrderDto -> feeOrderDto.getState().equals(BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode())).forEach(feeOrderDto -> {
@@ -679,7 +680,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
                 }
 
                 // 撤回结算单多人操作已判断
-                settlementRpcResolver.cancel(settlementAppId, paymentOrder.getCode());
+                settleOrderRpc.cancel(settlementAppId, paymentOrder.getCode());
             });
         }
     }
@@ -692,7 +693,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @param  businessCode
      * @return PaymentOrder
      */
-    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode) throws BusinessException {
+    private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode)  {
         PaymentOrder pb = new PaymentOrder();
         pb.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
         pb.setBusinessId(businessId);

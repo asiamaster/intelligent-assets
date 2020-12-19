@@ -15,7 +15,7 @@ public interface DepartmentChargeItemMapper extends MyMapper<DepartmentChargeIte
      * @return list
      * @date   2020/8/19
      */
-    List<DepartmentChargeItem> selectListByChargeItemId(Long chargeItemId);
+    List<DepartmentChargeItem> listChargeByChargeItemId(Long chargeItemId);
 
     /**
      * 新增其他收费的时候，选择部门，查询相关联的收费项
@@ -24,7 +24,7 @@ public interface DepartmentChargeItemMapper extends MyMapper<DepartmentChargeIte
      * @return List
      * @date   2020/8/20
      */
-    List<DepartmentChargeItemDto> getChargeItemsByDepartment(Long departmentId);
+    List<DepartmentChargeItemDto> listChargeItemsByDepartmentId(Long departmentId);
 
     /**
      * 根据字段删除数据
@@ -44,12 +44,4 @@ public interface DepartmentChargeItemMapper extends MyMapper<DepartmentChargeIte
      */
     List<DepartmentChargeItem> listGroupByChargeItemId();
 
-    /**
-     * 根据 chargeItemId 删除
-     * 
-     * @param  chargeItemId
-     * @return int
-     * @date   2020/8/26
-     */
-    int deleteListByChargeItemId(String chargeItemId);
 }

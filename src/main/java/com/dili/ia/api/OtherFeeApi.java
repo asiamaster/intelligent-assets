@@ -8,6 +8,7 @@ import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
@@ -21,10 +22,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author: xiaosa
- * @date: 2020/8/19
- * @version: 农批业务系统重构
- * @description: 通行证回调
+ * @author:       xiaosa
+ * @date:         2020/8/19
+ * @version:      农批业务系统重构
+ * @description:  通行证回调
  */
 @RestController
 @RequestMapping("/api/otherFee")
@@ -36,7 +37,7 @@ public class OtherFeeApi {
     private OtherFeeService otherFeeService;
 
     /**
-     * 其他收费 缴费成功回调
+     * 其他收费业务单缴费成功回调
      *
      * @param  settleOrder
      * @return BaseOutput
@@ -49,7 +50,7 @@ public class OtherFeeApi {
             OtherFee otherFee = otherFeeService.settlementDealHandler(settleOrder);
 
             //记录业务日志
-            LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), otherFee.getMarketId(), null);
+            LoggerUtil.buildLoggerContext(otherFee.getId(), otherFee.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), otherFee.getMarketId(), "其他收费业务单交费成功回调");
 
             return BaseOutput.success().setData(true);
         } catch (BusinessException e) {
@@ -57,7 +58,7 @@ public class OtherFeeApi {
             return BaseOutput.failure(e.getCode(), e.getMessage()).setData(false);
         } catch (Exception e) {
             LOG.error("其他收费缴费回调异常！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 

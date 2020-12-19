@@ -8,34 +8,33 @@ import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 
 /**
- * @author: xiaosa
- * @date: 2020/7/13
- * @version: 农批业务系统重构
- * @description: 精品停车
+ * @author:       xiaosa
+ * @date:         2020/7/13
+ * @version:      农批业务系统重构
+ * @description:  精品停车
  */
 public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntranceRecord, Long> {
 
     /**
      * 列表查询
      *
-     * @param boutiqueEntranceRecordDto
-     * @return
-     * @date 2020/8/17
+     * @param  boutiqueEntranceRecordDto
+     * @return EasyuiPageOutput
+     * @date   2020/8/17
      */
     EasyuiPageOutput listBoutiques(BoutiqueEntranceRecordDto boutiqueEntranceRecordDto, boolean b) throws Exception;
 
     /**
      * 根据主键获取精品停车数据以及精品停车交费列表
      *
-     * @param
-     * @return
-     * @date 2020/7/13
+     * @param  id
+     * @return BoutiqueEntranceRecordDto
+     * @date   2020/7/13
      */
     BoutiqueEntranceRecordDto getBoutiqueEntranceDtoById(Long id);
 
@@ -47,7 +46,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return BoutiqueEntranceRecord
      * @date   2020/7/13
      */
-    BoutiqueEntranceRecord confirm(BoutiqueEntranceRecord boutiqueEntranceRecord, UserTicket userTicket) throws BusinessException;
+    BoutiqueEntranceRecord confirm(BoutiqueEntranceRecord boutiqueEntranceRecord, UserTicket userTicket);
 
     /**
      * 交费提交
@@ -57,7 +56,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return BoutiqueEntranceRecord
      * @date   2020/7/14
      */
-    BoutiqueEntranceRecord submit(BoutiqueFeeOrder id, UserTicket userTicket) throws BusinessException;
+    BoutiqueEntranceRecord submit(BoutiqueFeeOrder id, UserTicket userTicket);
 
     /**
      * 离场
@@ -67,7 +66,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return BoutiqueEntranceRecord
      * @date   2020/7/13
      */
-    BoutiqueEntranceRecord leave(Long id, UserTicket userTicket) throws BusinessException;
+    BoutiqueEntranceRecord leave(Long id, UserTicket userTicket);
 
     /**
      * 强制离场
@@ -77,7 +76,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return BoutiqueEntranceRecord
      * @date   2020/7/13
      */
-    BoutiqueEntranceRecord forceLeave(Long id, UserTicket userTicket) throws BusinessException;
+    BoutiqueEntranceRecord forceLeave(Long id, UserTicket userTicket);
 
     /**
      * 缴费成功回调
@@ -86,7 +85,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return BaseOutput
      * @date   2020/7/14
      */
-    BoutiqueFeeOrder settlementDealHandler(SettleOrder settleOrder) throws BusinessException;
+    BoutiqueFeeOrder settlementDealHandler(SettleOrder settleOrder);
 
     /**
      * 打印票据
@@ -96,7 +95,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return PrintDataDto
      * @date   2020/7/14
      */
-    PrintDataDto<BoutiqueEntrancePrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException;
+    PrintDataDto<BoutiqueEntrancePrintDto> receiptPaymentData(String orderCode, Integer reprint);
 
     /**
      * 根据code获取交费单相关数据
@@ -108,13 +107,14 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
     BoutiqueFeeOrderDto getBoutiqueAndOrderByCode(String code);
 
     /**
-     * 取消(进门取消，可在待确认和计费中取消)
+     * 打印退款
      *
-     * @param  recordDto
-     * @return BoutiqueFeeOrder
-     * @date   2020/8/5
+     * @param  orderCode
+     * @param  reprint
+     * @return PrintDataDto
+     * @date   2020/8/11
      */
-    BoutiqueEntranceRecord cancel(BoutiqueEntranceRecordDto recordDto) throws BusinessException ;
+    PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, String reprint);
 
     /**
      * 新增计费（提供给其他服务调用者）
@@ -126,13 +126,11 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
     BoutiqueEntranceRecord addBoutique(BoutiqueEntranceRecord boutiqueEntranceRecord);
 
     /**
-     * 打印退款
+     * 取消(进门取消，可在待确认和计费中取消)
      *
-     * @param  orderCode
-     * @param  reprint
-     * @return PrintDataDto
-     * @date   2020/8/11
+     * @param  recordDto
+     * @return BoutiqueFeeOrder
+     * @date   2020/8/5
      */
-    PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, String reprint) throws BusinessException ;
-
+    BoutiqueEntranceRecord cancel(BoutiqueEntranceRecordDto recordDto);
 }

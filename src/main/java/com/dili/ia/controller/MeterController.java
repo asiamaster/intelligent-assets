@@ -29,7 +29,7 @@ import java.util.List;
  * @author:      xiaosa
  * @date:        2020/6/12
  * @version:     农批业务系统重构
- * @description: 水电费 - 表的相关业务 web 层
+ * @description: 表管理 web 层
  */
 @Controller
 @RequestMapping("/meter")
@@ -137,19 +137,19 @@ public class MeterController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(meterDto.getType(), "表类型不能为空");
-            AssertUtils.notNull(meterDto.getPrice(), "单价不能为空");
-            AssertUtils.notNull(meterDto.getAssetsId(), "表地址不能为空");
-            AssertUtils.notNull(meterDto.getThisAmount(), "表编号不能为空");
-            AssertUtils.notNull(meterDto.getAssetsType(), "表类别不能为空");
-            AssertUtils.notEmpty(meterDto.getNumber(), "表编号不能为空");
+            AssertUtils.notNull(meterDto.getType(), "表类型不能为空！");
+            AssertUtils.notNull(meterDto.getPrice(), "单价不能为空！");
+            AssertUtils.notNull(meterDto.getAssetsId(), "表地址不能为空！");
+            AssertUtils.notNull(meterDto.getThisAmount(), "表编号不能为空！");
+            AssertUtils.notNull(meterDto.getAssetsType(), "表类别不能为空！");
+            AssertUtils.notEmpty(meterDto.getNumber(), "表编号不能为空！");
 
             // 新增
             Meter meter = meterService.addMeter(meterDto, userTicket);
 
             // 写业务日志
             LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(),
-                    userTicket.getFirmId(), "新增水电表信息");
+                    userTicket.getFirmId(), "新增水电表信息。");
 
             return BaseOutput.success().setData(meter);
         } catch (BusinessException e) {
@@ -157,7 +157,7 @@ public class MeterController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -175,19 +175,19 @@ public class MeterController {
 
         try {
             // 参数校验
-            AssertUtils.notNull(meterDto.getId(), "表主键不能为空");
-            AssertUtils.notNull(meterDto.getPrice(), "单价不能为空");
-            AssertUtils.notNull(meterDto.getAssetsId(), "表地址不能为空");
-            AssertUtils.notNull(meterDto.getThisAmount(), "表编号不能为空");
-            AssertUtils.notNull(meterDto.getAssetsType(), "表类别不能为空");
-            AssertUtils.notEmpty(meterDto.getNumber(), "表编号不能为空");
+            AssertUtils.notNull(meterDto.getId(), "表主键不能为空！");
+            AssertUtils.notNull(meterDto.getPrice(), "单价不能为空！");
+            AssertUtils.notNull(meterDto.getAssetsId(), "表地址不能为空！");
+            AssertUtils.notNull(meterDto.getThisAmount(), "表编号不能为空！");
+            AssertUtils.notNull(meterDto.getAssetsType(), "表类别不能为空！");
+            AssertUtils.notEmpty(meterDto.getNumber(), "表编号不能为空！");
 
             // 修改
             Meter meter = meterService.updateMeter(meterDto, userTicket);
 
             // 写业务日志
             LoggerUtil.buildLoggerContext(meter.getId(), null, userTicket.getId(), userTicket.getRealName(),
-                    userTicket.getFirmId(), "修改水电表信息");
+                    userTicket.getFirmId(), "修改水电表信息。");
 
             return BaseOutput.success().setData(meter);
         } catch (BusinessException e) {
@@ -195,14 +195,14 @@ public class MeterController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
     /**
-     * 根据表类型, 输入的关键字, 模糊获取"未绑定"的表编号集合(新增表用户关系页面回显)
+     * 根据表类型，输入的关键字，模糊获取"未绑定"的表编号集合(新增表用户关系页面回显)
      *
-     * @param  type 表类型,有枚举 meterTypeEnum
+     * @param  type 表类型，有枚举 meterTypeEnum
      * @return meterList
      * @date   2020/6/16
      */
@@ -210,7 +210,7 @@ public class MeterController {
     public @ResponseBody BaseOutput listUnbindMetersByType(Integer type, String keyword) {
         try {
             // 参数校验
-            AssertUtils.notNull(type, "表类型不能为空");
+            AssertUtils.notNull(type, "表类型不能为空！");
 
             // 查询
             List<Meter> meterList = meterService.listUnbindMetersByType(type, keyword);

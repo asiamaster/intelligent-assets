@@ -21,7 +21,7 @@ public interface CustomerMeterMapper extends MyMapper<CustomerMeter> {
      * meter、customerMeter 查询表用户关系的集合(分页)
      *
      * @param  customerMeterDto
-     * @return customerMeterDtoList
+     * @return CustomerMeterDtoList
      * @date   2020/6/17
      */
     List<CustomerMeterDto> listCustomerMeters(CustomerMeterDto customerMeterDto);
@@ -41,7 +41,7 @@ public interface CustomerMeterMapper extends MyMapper<CustomerMeter> {
      *
      *
      * @param  customerMeterDto
-     * @return List
+     * @return CustomerMeterDtoList
      * @date   2020/7/10
      */
     List<CustomerMeterDto> listCustomerMetersByLikeName(CustomerMeterDto customerMeterDto);

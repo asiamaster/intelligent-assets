@@ -11,7 +11,7 @@ import java.util.List;
  * @author:      xiaosa
  * @date:        2020/6/12
  * @version:     农批业务系统重构
- * @description: 水电费 - 表的相关业务 service 层
+ * @description: 表管理 service 层
  */
 public interface MeterService extends BaseService<Meter, Long> {
 
@@ -19,7 +19,7 @@ public interface MeterService extends BaseService<Meter, Long> {
      * 新增表信息
      *
      * @param  meterDto
-     * @param userTicket
+     * @param  userTicket
      * @return Meter
      * @date   2020/6/16
      */
@@ -29,18 +29,18 @@ public interface MeterService extends BaseService<Meter, Long> {
      * 修改表信息
      *
      * @param  meterDto
-     * @param userTicket
+     * @param  userTicket
      * @return Meter
      * @date   2020/6/29
      */
     Meter updateMeter(MeterDto meterDto, UserTicket userTicket);
 
     /**
-     * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)
+     * 根据表类型，获取未绑定的表编号集合(新增表用户关系页面回显)
      *
-     * @param  type 表类型,有枚举 meterTypeEnum
+     * @param  type 表类型，有枚举 meterTypeEnum
      * @param  likeName
-     * @return meterList
+     * @return MeterList
      * @date   2020/6/16
      */
     List<Meter> listUnbindMetersByType(Integer type, String likeName);
@@ -57,8 +57,8 @@ public interface MeterService extends BaseService<Meter, Long> {
     /**
      * 根据主键查询表信息以及表用户中的身份证号
      *
-     * @param
-     * @return
+     * @param  meterId
+     * @return MeterDto
      * @date   2020/12/18
      */
     MeterDto getMeterDtoById(Long meterId);

@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.glossary.BizTypeEnum;
@@ -7,7 +8,12 @@ import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.service.RefundOrderDispatcherService;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.logger.sdk.component.MsgService;
+import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.enums.ChargeItemEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -19,12 +25,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 @Service
 public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> implements RefundOrderDispatcherService {
 
     private final static Logger logger = LoggerFactory.getLogger(PassportRefundOrderServiceImpl.class);
+
+    @Autowired
+    MsgService msgService;
 
     @Autowired
     private PassportService passportService;
@@ -74,6 +85,9 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
 
             this.updateState(refundOrder.getBusinessCode(), passportInfo.getVersion(), PassportStateEnum.REFUNDED);
         }
+
+        //记录退款日志
+        msgService.sendBusinessLog(recordRefundLog(refundOrder));
 
         return BaseOutput.success();
     }
@@ -151,5 +165,49 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         if (row != 1) {
             throw new BusinessException(ResultCode.DATA_ERROR, "业务繁忙,稍后再试");
         }
+    }
+
+    /**
+     * 退款时,组装收费项
+     *
+     * @param
+     * @return
+     * @date   2020/12/17
+     */
+    @Override
+    public List<SettleFeeItem> buildSettleFeeItem(RefundOrder refundOrder) {
+        //组装费用项
+        Passport passport = passportService.get(refundOrder.getBusinessId());
+        if (passport == null) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "通行证业务单已删除");
+        }
+        //组装费用项
+        List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
+        SettleFeeItem sfItem = new SettleFeeItem();
+        sfItem.setChargeItemId(ChargeItemEnum.通行费.getId());
+        sfItem.setChargeItemName(ChargeItemEnum.通行费.getName());
+        sfItem.setAmount(refundOrder.getTotalRefundAmount());
+        settleFeeItemList.add(sfItem);
+
+        return settleFeeItemList;
+    }
+
+    /**
+     * 记录退款日志
+     *
+     * @param refundOrder 退款单
+     */
+    private BusinessLog recordRefundLog(RefundOrder refundOrder) {
+        BusinessLog businessLog = new BusinessLog();
+        businessLog.setBusinessId(refundOrder.getBusinessId());
+        businessLog.setBusinessCode(refundOrder.getBusinessCode());
+        businessLog.setContent(refundOrder.getSettlementCode());
+        businessLog.setOperationType("refund");
+        businessLog.setMarketId(refundOrder.getMarketId());
+        businessLog.setOperatorId(refundOrder.getRefundOperatorId());
+        businessLog.setOperatorName(refundOrder.getRefundOperator());
+        businessLog.setBusinessType(LogBizTypeConst.PASSPORT);
+        businessLog.setSystemCode("IA");
+        return businessLog;
     }
 }

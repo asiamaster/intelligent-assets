@@ -46,9 +46,6 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
     @Autowired
     private BoutiqueEntranceRecordService boutiqueEntranceRecordService;
 
-    @Autowired
-    private CustomerAccountService customerAccountService;
-
     /**
      * 退款单 -- 提交(退款的提交无需改变通行证缴费单的信息)
      * 
@@ -181,7 +178,7 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         //组装费用项
         BoutiqueFeeOrder boutiqueFeeOrder = boutiqueFeeOrderService.get(refundOrder.getBusinessId());
         if (boutiqueFeeOrder == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "其他收费业务单已删除");
+            throw new BusinessException(ResultCode.DATA_ERROR, "精品停车业务单已删除");
         }
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();

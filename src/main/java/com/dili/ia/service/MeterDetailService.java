@@ -25,96 +25,96 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
     /**
      * 根据主键 id 查看详情
      *
-     * @param id
+     * @param  id
      * @return MeterDetail
-     * @date 2020/7/1
+     * @date   2020/7/1
      */
     MeterDetailDto getMeterDetailDtoById(Long id);
 
     /**
      * 查询水电费单的集合(分页)
      *
-     * @param meterDetailDto
-     * @param useProvider
+     * @param  meterDetailDto
+     * @param  useProvider
      * @return MeterDetailDtoList
-     * @date 2020/6/28
+     * @date   2020/6/28
      */
     EasyuiPageOutput listMeterDetails(MeterDetailDto meterDetailDto, boolean useProvider) throws Exception;
 
     /**
-     * 新增水电费单
+     * 新增水电费业务单
      *
      * @param  meterDetailDto
      * @param  userTicket
      * @return MeterDetailDto
      * @date   2020/6/28
      */
-    MeterDetailDto addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket) throws BusinessException;
+    MeterDetailDto addMeterDetail(MeterDetailDto meterDetailDto, UserTicket userTicket);
 
     /**
-     * 修改 水电费单
+     * 修改水电费业务单
      *
      * @param  meterDetailDto
      * @return MeterDetailDto
      * @date   2020/7/1
      */
-    MeterDetailDto updateMeterDetail(MeterDetailDto meterDetailDto) throws BusinessException;
+    MeterDetailDto updateMeterDetail(MeterDetailDto meterDetailDto);
 
     /**
-     * 提交水电费单(生缴费单和结算单)
+     * 提交水电费业务单(生成缴费单和结算单)
      *
      * @param  idList
      * @return List
      * @date   2020/7/6
      */
-    List<MeterDetailDto> submit(List<Long> idList, UserTicket userTicket) throws BusinessException;
+    List<MeterDetailDto> submit(List<Long> idList, UserTicket userTicket);
 
     /**
-     * 全部提交水电费单(生缴费单和结算单)
+     * 全部提交水电费业务单(生成缴费单和结算单)
      *
      * @param  userTicket
      * @param  metertype
      * @return List
      * @date   2020/7/29
      */
-    List<MeterDetailDto> submitAll(UserTicket userTicket, Integer metertype) throws BusinessException;
+    List<MeterDetailDto> submitAll(UserTicket userTicket, Integer metertype);
 
     /**
-     * 撤回水电费单(取消缴费单和结算单,将水电费单修改为已创建)
+     * 撤回水电费业务单(取消缴费单和结算单,将水电费单修改为已创建)
      *
      * @param  id
      * @param  userTicket
      * @return MeterDetailDto
      * @date   2020/7/6
      */
-    MeterDetailDto withdraw(Long id, UserTicket userTicket) throws BusinessException;
+    MeterDetailDto withdraw(Long id, UserTicket userTicket);
 
     /**
-     * 取消水电费单(取消缴费单和结算单,将水电费单修改为已创建)
+     * 取消水电费业务单
      *
      * @param  id
      * @param  userTicket
      * @return MeterDetailDto
      * @date   2020/7/6
      */
-    MeterDetailDto cancel(Long id, UserTicket userTicket) throws BusinessException;
+    MeterDetailDto cancel(Long id, UserTicket userTicket);
 
     /**
      * 根据 meterId 获取初始值
      *
      * @param  meterId
      * @return 初始值(上期指数)
-     * @date  2020/6/29
+     * @date   2020/6/29
      */
     BaseOutput getLastAmount(Long meterId);
 
     /**
      * 根据 meterId、customerId 查询未缴费单的数量
      *
-     * @param meterId
-     * @param customerId
-     * @return 未缴费单的数量
-     * @date 2020/6/28
+     * @param  meterId
+     * @param  customerId
+     * @return count
+     * @date   2020/6/28
      */
     Integer countUnPayByMeterAndCustomer(Long meterId, Long customerId);
 
@@ -125,24 +125,24 @@ public interface MeterDetailService extends BaseService<MeterDetail, Long> {
      * @return MeterDetail
      * @date   2020/7/6
      */
-    MeterDetailDto settlementDealHandler(SettleOrder settleOrder) throws BusinessException;
+    MeterDetailDto settlementDealHandler(SettleOrder settleOrder);
 
     /**
      * 票据打印
      *
-     * @param orderCode
-     * @param reprint
-     * @return
-     * @date 2020/7/10
+     * @param  orderCode
+     * @param  reprint
+     * @return PrintDataDto
+     * @date   2020/7/10
      */
-    PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException;
+    PrintDataDto<MeterDetailPrintDto> receiptPaymentData(String orderCode, Integer reprint);
 
     /**
      * 计费规则
      *
-     * @param meterDetailDto
+     * @param  meterDetailDto
      * @return list
-     * @date 2020/7/17
+     * @date   2020/7/17
      */
     List<QueryFeeOutput> getCost(MeterDetailDto meterDetailDto);
 }

@@ -4,7 +4,6 @@ import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.AssetsLeaseOrderItemListDto;
-import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.mapper.CustomerMeterMapper;
@@ -27,7 +26,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.print.attribute.standard.NumberUp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,7 +33,7 @@ import java.util.List;
  * @author:      xiaosa
  * @date:        2020/6/16
  * @version:     农批业务系统重构
- * @description: 表用户关系 service 实现层
+ * @description: 表用户关系 service 层
  */
 @Service
 public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Long> implements CustomerMeterService {
@@ -146,13 +144,13 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         customerMeterDto.setState(CustomerMeterStateEnum.CANCELD.getCode());
         CustomerMeter customerMeterInfo = this.get(customerMeterDto.getId());
         if (customerMeterInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，解绑失败。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，解绑失败！");
         }
 
         // 根据表 meterId、用户 customerId 查询未缴费的记录数量
         Integer count = meterDetailService.countUnPayByMeterAndCustomer(customerMeterInfo.getMeterId(), customerMeterInfo.getCustomerId());
         if (count > 0) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该表用户当前存在交费记录，不允许删除。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该表用户当前存在交费记录，不允许删除！");
         }
 
         customerMeterDto.setModifyTime(LocalDateTime.now());
@@ -179,7 +177,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
 
         CustomerMeter customerMeterInfo = this.getActualDao().getBindInfoByMeterId(meterId);
         if (customerMeterInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "表已被删除。");
+            throw new BusinessException(ResultCode.DATA_ERROR, "表已被删除！");
         }
         BeanUtils.copyProperties(customerMeterInfo, customerMeterDto);
 
@@ -209,37 +207,6 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
         }
         List<CustomerMeterDto> customerMeterDtoList = this.getActualDao().listCustomerMetersByLikeName(customerMeterDto);
         return customerMeterDtoList;
-    }
-
-    /**
-     * 删除表用户关系,如果有未缴费的单,则不能删除（暂时不用）
-     *
-     * @param  id 表用户关系主键
-     * @return BaseOutput
-     * @date   2020/6/16
-     */
-    @Override
-    @GlobalTransactional
-    public BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id) {
-        // 先查询是否还存在该用户表关系
-        CustomerMeter customerMeter = this.getActualDao().getMeterById(id);
-        if (customerMeter == null) {
-            return BaseOutput.failure("删除失败，该数据已删除。");
-        }
-
-        // 根据表 meterId、用户 customerId 查询未缴费的记录数量
-        Integer count = meterDetailService.countUnPayByMeterAndCustomer(customerMeter.getMeterId(), customerMeter.getCustomerId());
-        if (count > 0) {
-            return BaseOutput.failure("该表用户当前存在交费记录，不允许删除。");
-        }
-
-        // 再删除(乐观锁)
-        int code = this.delete(id);
-        if (code == 0) {
-            return BaseOutput.failure("删除失败，数据已被其他用户操作。");
-        }
-
-        return BaseOutput.success().setData(customerMeter);
     }
 
     /**

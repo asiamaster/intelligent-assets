@@ -112,7 +112,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
         List<DepartmentByOtherFeeDto> departmentDtoList = new ArrayList<>();
         DepartmentChargeItemDto departmentChargeItemDto = new DepartmentChargeItemDto();
 
-        List<DepartmentChargeItem> itemList = this.getActualDao().selectListByChargeItemId(chargeItemId);
+        List<DepartmentChargeItem> itemList = this.getActualDao().listChargeByChargeItemId(chargeItemId);
         if (itemList != null && itemList.size() > 0) {
             for (DepartmentChargeItem item : itemList) {
                 DepartmentByOtherFeeDto departmentDto = new DepartmentByOtherFeeDto();
@@ -137,7 +137,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
     @Override
     public void addDepartmentChargeItems(DepartmentChargeItemDto departmentChargeItemDto, UserTicket userTicket) throws BusinessException {
         // 根据收费项查询关联的部门集合
-        List<DepartmentChargeItem> itemList = this.getActualDao().selectListByChargeItemId(departmentChargeItemDto.getChargeItemId());
+        List<DepartmentChargeItem> itemList = this.getActualDao().listChargeByChargeItemId(departmentChargeItemDto.getChargeItemId());
         if (itemList == null || itemList.size() == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "收费项已不存在");
         }
@@ -187,8 +187,8 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
      * @date   2020/8/20
      */
     @Override
-    public List<DepartmentChargeItemDto> getChargeItemsByDepartment(Long departmentId) {
-        List<DepartmentChargeItemDto> itemDtoList = this.getActualDao().getChargeItemsByDepartment(departmentId);
+    public List<DepartmentChargeItemDto> listChargeItemsByDepartment(Long departmentId) {
+        List<DepartmentChargeItemDto> itemDtoList = this.getActualDao().listChargeItemsByDepartmentId(departmentId);
         return itemDtoList;
     }
 
@@ -248,7 +248,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
      * @date   2020/12/14
      */
     @Override
-    public List<DepartmentChargeItem> getListByChargeItemId(Long chargeItemId) {
-        return this.getActualDao().selectListByChargeItemId(chargeItemId);
+    public List<DepartmentChargeItem> listChargeByChargeItemId(Long chargeItemId) {
+        return this.getActualDao().listChargeByChargeItemId(chargeItemId);
     }
 }

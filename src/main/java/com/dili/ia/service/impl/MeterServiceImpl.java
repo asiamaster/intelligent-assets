@@ -13,8 +13,6 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,8 +29,6 @@ import java.util.List;
 @Service
 public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements MeterService {
 
-    private final static Logger logger = LoggerFactory.getLogger(MeterServiceImpl.class);
-
     public MeterMapper getActualDao() {
         return (MeterMapper)getDao();
     }
@@ -41,28 +37,28 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
     DepartmentRpc departmentRpc;
 
     @Autowired
-    private MchAndDistrictService mchAndDistrictService;
+    private MeterDetailService meterDetailService;
 
     @Autowired
-    private MeterDetailService meterDetailService;
+    private MchAndDistrictService mchAndDistrictService;
 
     /**
      * 新增表信息
      *
      * @param  meterDto
-     * @param userTicket
+     * @param  userTicket
      * @return Meter
      * @date   2020/6/16
      */
     @Override
-    public Meter addMeter(MeterDto meterDto, UserTicket userTicket) throws BusinessException {
+    public Meter addMeter(MeterDto meterDto, UserTicket userTicket){
         Meter meter = new Meter();
 
         // 根据表编号查询是否已存在
         meter.setNumber(meterDto.getNumber());
         List<Meter> meterList = this.getActualDao().select(meter);
         if (meterList != null && meterList.size() > 0) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "表信息新增失败,表编号已存在！");
+            throw new BusinessException(ResultCode.DATA_ERROR, "表信息新增失败，表编号已存在！");
         }
 
         // 设置相关属性值
@@ -75,6 +71,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         meterDto.setMarketCode(userTicket.getFirmCode());
         meterDto.setCreatorDepId(userTicket.getDepartmentId());
         BeanUtils.copyProperties(meterDto, meter);
+
         // 根据区域ID查询商户ID
         Long mchId = mchAndDistrictService.getMchIdByDistrictId(meterDto.getFirstDistrictId(), meterDto.getSecondDistrictId());
         if (mchId == null) {
@@ -91,12 +88,12 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * 修改表信息
      *
      * @param  meterDto
-     * @param userTicket
+     * @param  userTicket
      * @return Meter
      * @date   2020/6/29
      */
     @Override
-    public Meter updateMeter(MeterDto meterDto, UserTicket userTicket) throws BusinessException {
+    public Meter updateMeter(MeterDto meterDto, UserTicket userTicket){
         Meter meter = new Meter();
 
         // 根据表 meterId、用户 customerId 查询未缴费的记录数量
@@ -111,7 +108,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         if (CollectionUtils.isNotEmpty(meterList)) {
             for (Meter meterRe : meterList) {
                 if (!meterRe.getId().equals(meterDto.getId())) {
-                    throw new BusinessException(ResultCode.DATA_ERROR, "表信息修改失败,表编号已存在");
+                    throw new BusinessException(ResultCode.DATA_ERROR, "表信息修改失败，表编号已存在！");
                 }
             }
         }
@@ -119,6 +116,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         Meter meterInfo = this.get(meterDto.getId());
         meterDto.setModifyTime(LocalDateTime.now());
         meterDto.setVersion(meterInfo.getVersion() + 1);
+
         // 根据区域ID查询商户ID
         Long mchId = mchAndDistrictService.getMchIdByDistrictId(meterDto.getFirstDistrictId(), meterDto.getSecondDistrictId());
         if (mchId == null) {
@@ -136,9 +134,9 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
     }
 
     /**
-     * 根据表类型,获取未绑定的表编号集合(新增表用户关系页面回显)
+     * 根据表类型，获取未绑定的表编号集合(新增表用户关系页面回显)
      *
-     * @param  type 表类型,有枚举 meterTypeEnum
+     * @param  type 表类型，有枚举 meterTypeEnum
      * @param  keyword
      * @return meterList
      * @date   2020/6/16
@@ -171,8 +169,8 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
     /**
      * 根据主键查询表信息以及表用户中的身份证号
      *
-     * @param
-     * @return
+     * @param  id
+     * @return MeterDto
      * @date   2020/12/18
      */
     @Override

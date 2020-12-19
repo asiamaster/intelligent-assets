@@ -80,7 +80,7 @@
   </update>
 
 
-  <select id="selectListByChargeItemId" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="listChargeByChargeItemId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
         <include refid="Base_Column_List" />
     from
@@ -89,7 +89,7 @@
         charge_item_id = #{chargeItemId,jdbcType=BIGINT}
   </select>
 
-  <select id="getChargeItemsByDepartment" parameterType="java.lang.Long" resultMap="BaseResultMap">
+  <select id="listChargeItemsByDepartmentId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
         <include refid="Base_Column_List" />
     from
@@ -115,14 +115,6 @@
     from
         department_charge_item
     group by
-        charge_item_id
-  </select>
-
-  <select id="deleteListByChargeItemId" parameterType="string" resultType="int">
-    select
-    from
-        department_charge_item
-    where
         charge_item_id
   </select>
 </mapper>
