@@ -477,6 +477,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
 		refundOrder.setMchId(labor.getMchId());
+		refundOrder.setDepartmentName(labor.getDepartmentName());
+		refundOrder.setDepartmentId(labor.getDepartmentId());
 		if(SettleWayEnum.BANK.getCode() == refundInfoDto.getRefundType()) {
 			refundOrder.setBank(refundInfoDto.getBank());
 			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
@@ -567,11 +569,17 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		DateTimeFormatter sdf1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		laborPrintDto.setEffectiveDate(sdf1.format(labor.getStartDate())+"至"+sdf1.format(labor.getEndDate()));
 		laborPrintDto.setNotes(labor.getNotes());
-		//TODO
-		//laborPrintDto.setPayWay(order.getWayName());
-		// 判断支付方式
-		// 园区卡号
-		laborPrintDto.setCardNo(order.getAccountNumber());
+		// 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else {
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        laborPrintDto.setSettleWayDetails(settleDetails);
 		// 流水号
 		laborPrintDto.setSerialNumber(order.getSerialNumber());
 		PrintDataDto<LaborPayPrintDto> printDataDto = new PrintDataDto<>();
@@ -597,13 +605,17 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		printDto.setSubmitter(labor.getSubmitter());
 		printDto.setNotes(labor.getNotes());
 		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
-		// 判断支付方式
-		// 园区卡号
-		printDto.setAccountCardNo(order.getAccountNumber());
-		// 银行卡号
-		printDto.setBankName(refundOrder.getBank());
-		printDto.setBankNo(refundOrder.getBankCardNo());
-		// 获取转抵信息
+		// 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else {
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        printDto.setSettleWayDetails(settleDetails);
 		
 		PrintDataDto<LaborRefundPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getName());
@@ -683,7 +695,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		settleOrderInfoDto.setSettleFeeItemList(settleFeeItemList);
 		// 结算单链接列表
 		settleOrderInfoDto.setSettleOrderLinkList(
-				SettleOrderLinkUtils.buildLinks(settlerHandlerUrl, settleViewUrl,settlerHandlerUrl, labor.getCode(), orderCode));
+				SettleOrderLinkUtils.buildLinks(settlerPrintUrl, settleViewUrl,settlerHandlerUrl, labor.getCode(), orderCode));
 		return settleOrderInfoDto;
 	}
 

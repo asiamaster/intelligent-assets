@@ -50,6 +50,7 @@ import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.EnableEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
@@ -221,7 +222,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.MESSAGEFEE);
 		paymentOrder.setBusinessCode(code);
 		// 需要支付的金额 总金额-转抵
-		paymentOrder.setAmount(messageFee.getAmount()-messageFee.getTransactionAmount());
+		paymentOrder.setAmount(messageFee.getAmount());
 		paymentOrder.setBusinessId(messageFee.getId());
 		paymentOrderService.insertSelective(paymentOrder);
 		// 结算服务
@@ -389,6 +390,10 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		settleOrderInfoDto.setCustomerId(messageFee.getCustomerId());
 		settleOrderInfoDto.setCustomerName(messageFee.getCustomerName());
 		settleOrderInfoDto.setCustomerPhone(messageFee.getCustomerCellphone());
+		settleOrderInfoDto.setMchId(messageFee.getMchId());
+		settleOrderInfoDto.setBusinessType(BizTypeEnum.MESSAGEFEE.getCode());
+		settleOrderInfoDto.setDeductEnable(EnableEnum.NO.getCode());
+		settleOrderInfoDto.setCustomerCertificate(messageFee.getCustomerCertificateNumber());
 		if (userTicket.getDepartmentId() != null) {
 			settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
 			settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
@@ -405,7 +410,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		}
 		settleOrderInfoDto.setSettleFeeItemList(settleFeeItemList);
 		// 结算单链接列表
-		settleOrderInfoDto.setSettleOrderLinkList(SettleOrderLinkUtils.buildLinks(settlerHandlerUrl, settleViewUrl,
+		settleOrderInfoDto.setSettleOrderLinkList(SettleOrderLinkUtils.buildLinks(settlerPrintUrl, settleViewUrl,
 				settlerHandlerUrl, messageFee.getCode(), orderCode));
 		return settleOrderInfoDto;
 	}
@@ -427,6 +432,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
 		refundOrder.setMchId(messageFee.getMchId());
+		refundOrder.setDepartmentName(messageFee.getDepartmentName());
+		refundOrder.setDepartmentId(messageFee.getDepartmentId());
 		if(SettleWayEnum.BANK.getCode() == refundInfoDto.getRefundType()) {
 			refundOrder.setBank(refundInfoDto.getBank());
 			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
@@ -517,12 +524,17 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		messageFeePrint.setNotes(messageFee.getNotes());
 		messageFeePrint.setSubmitter(messageFee.getSubmitorName());
 		messageFeePrint.setSettlementOperator(order.getOperatorName());
-		//TODO
-		//messageFeePrint.setPayWay(order.getWayName());
-		// 判断支付方式
-		// 园区卡号
-		messageFeePrint.setCardNo(order.getAccountNumber());
-		// 流水号
+		// 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else {
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        messageFeePrint.setSettleWayDetails(settleDetails);
 		messageFeePrint.setSerialNumber(order.getSerialNumber());
 		PrintDataDto<MessageFeePayPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_PAY.getName());
@@ -546,12 +558,17 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		printDto.setSubmitter(messageFee.getSubmitorName());
 		printDto.setNotes(messageFee.getNotes());
 		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
-		// 判断支付方式
-		// 园区卡号
-		printDto.setAccountCardNo(order.getAccountNumber());
-		// 银行卡号
-		printDto.setBankName(refundOrder.getBank());
-		printDto.setBankNo(refundOrder.getBankCardNo());
+		// 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else {
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        printDto.setSettleWayDetails(settleDetails);
 		// 获取转抵信息
 //		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
 		PrintDataDto<MessageFeeRefundPrintDto> printDataDto = new PrintDataDto<>();

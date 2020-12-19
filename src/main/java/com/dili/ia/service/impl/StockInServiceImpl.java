@@ -509,21 +509,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		details.forEach(detail -> {
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), refundOrder.getCode());
 		});
-		//转抵扣充值
-		/*TransferDeductionItem transferDeductionItemCondition = new TransferDeductionItem();
-        transferDeductionItemCondition.setRefundOrderId(refundOrder.getId());
-		List<TransferDeductionItem> transferDeductionItems = transferDeductionItemService.list(transferDeductionItemCondition);
-		if (CollectionUtils.isNotEmpty(transferDeductionItems)) {
-		    transferDeductionItems.forEach(o -> {
-		        BaseOutput accountOutput = customerAccountService.rechargTransfer(BizTypeEnum.STOCKIN.getCode(),
-		                refundOrder.getId(), refundOrder.getCode(), o.getPayeeId(), o.getPayeeAmount(),
-		                refundOrder.getMarketId(), refundOrder.getRefundOperatorId(), refundOrder.getRefundOperator());
-		        if (!accountOutput.isSuccess()) {
-		            LOG.info("退款单转抵异常，【退款编号:{},收款人:{},收款金额:{},msg:{}】", refundOrder.getCode(), o.getPayee(), o.getPayeeAmount(), accountOutput.getMessage());
-		            throw new BusinessException(ResultCode.DATA_ERROR, accountOutput.getMessage());
-		        }
-		    });
-		}*/
+
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
 
 	}
@@ -577,7 +563,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		settleOrderInfoDto.setSettleFeeItemList(settleFeeItemList);
 	    //结算单链接列表
 		settleOrderInfoDto.setSettleOrderLinkList(
-				SettleOrderLinkUtils.buildLinks(settlerHandlerUrl, settleViewUrl,settlerHandlerUrl, stockIn.getCode(), orderCode));
+				SettleOrderLinkUtils.buildLinks(settlerPrintUrl, settleViewUrl,settlerHandlerUrl, stockIn.getCode(), orderCode));
 		//settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
 		if (userTicket.getDepartmentId() != null){
             settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
@@ -604,12 +590,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
 		refundOrder.setMchId(stockIn.getMchId());
-		if(SettleWayEnum.BANK.getCode() == refundInfoDto.getRefundType()) {
-			refundOrder.setBank(refundInfoDto.getBank());
-			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
-		}
+		refundOrder.setDepartmentName(stockIn.getDepartmentName());
+		refundOrder.setDepartmentId(stockIn.getDepartmentId());
 		refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.STOCKIN.getEnName()
-				+"_"+BizNumberTypeEnum.STOCK_IN_CODE.getCode()));
+				+"_"+BizNumberTypeEnum.REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
 			LOG.info("入库单【编号：{}】退款申请接口异常", refundOrder.getBusinessCode());
 			throw new BusinessException(ResultCode.DATA_ERROR, "退款申请接口异常");

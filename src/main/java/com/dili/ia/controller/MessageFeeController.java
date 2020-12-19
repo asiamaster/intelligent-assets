@@ -82,7 +82,7 @@ public class MessageFeeController {
     public String add(ModelMap modelMap) {
     	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
     	List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
-				queryBusinessChargeItemConfig(1L, BizTypeEnum.MESSAGEFEE.getCode(), YesOrNoEnum.YES.getCode());
+				queryBusinessChargeItemConfig(userTicket.getFirmId(), BizTypeEnum.MESSAGEFEE.getCode(), YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
         return "messageFee/add";
     }
