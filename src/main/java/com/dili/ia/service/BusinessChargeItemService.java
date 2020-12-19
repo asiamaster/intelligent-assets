@@ -58,4 +58,10 @@ public interface BusinessChargeItemService extends BaseService<BusinessChargeIte
      * @param paymentAmount (不传则按收费项全额分摊)
      */
     void unityUpdatePaymentAmountByBusinessId(Long businessId, String bizType , Long... paymentAmount);
+    
+    /**
+     * 根据业务code查询收费项
+     * @param bizCode
+     */
+    List<BusinessChargeItem> getByBizCode(String bizCode);
 }
