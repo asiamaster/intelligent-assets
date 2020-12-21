@@ -889,7 +889,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         PaymentOrder paymentOrderPO = paymentOrderService.listByExample(condition).stream().findFirst().orElse(null);
         AssetsLeaseOrder leaseOrder = get(paymentOrderPO.getBusinessId());
         if (PaymentOrderStateEnum.PAID.getCode().equals(paymentOrderPO.getState())) {
-            return BaseOutput.success().setData(true);
+            return BaseOutput.success();
         }
 
         paymentOrderPO.setState(PaymentOrderStateEnum.PAID.getCode());
@@ -1011,7 +1011,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
         }
         msgService.sendBusinessLog(recordPayLog(settleOrder, leaseOrder));
-        return BaseOutput.success().setData(true);
+        return BaseOutput.success();
     }
 
     /**
