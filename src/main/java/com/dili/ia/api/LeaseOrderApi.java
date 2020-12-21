@@ -1,31 +1,16 @@
 package com.dili.ia.api;
 
-import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
-import com.dili.ia.glossary.AssetsTypeEnum;
-import com.dili.ia.rpc.SettlementRpc;
 import com.dili.ia.service.AssetsLeaseOrderItemService;
 import com.dili.ia.service.AssetsLeaseOrderService;
-import com.dili.ia.service.AssetsLeaseService;
 import com.dili.ia.service.LeaseOrderWorkerService;
 import com.dili.settlement.domain.SettleOrder;
-import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.exception.AppException;
 import com.dili.ss.exception.BusinessException;
-import io.seata.spring.annotation.GlobalTransactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 摊位租赁api
@@ -41,10 +26,6 @@ public class LeaseOrderApi {
     AssetsLeaseOrderItemService assetsLeaseOrderItemService;
     @Autowired
     LeaseOrderWorkerService leaseOrderWorkerService;
-
-    @Autowired
-    SettlementRpc settlementRpc;
-
     @Autowired
     AssetsRpc assetsRpc;
     /**
