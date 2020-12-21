@@ -1,8 +1,8 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.Customer;
-import com.dili.ia.domain.dto.CustomerQuery;
-import com.dili.ia.rpc.CustomerRpc;
+import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
+import com.dili.customer.sdk.domain.dto.CustomerQueryInput;
+import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
@@ -34,12 +34,12 @@ public class CustomerController {
      * @throws CloneNotSupportedException
      */
     @RequestMapping(value="/listNormal.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<List<Customer>> listNormal(String likeName, String certificateNumberMatch,String certificateNumber,String keyword) throws CloneNotSupportedException {
+    public @ResponseBody BaseOutput<List<CustomerExtendDto>> listNormal(String likeName, String certificateNumberMatch, String certificateNumber, String keyword) throws CloneNotSupportedException {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
-        CustomerQuery customerQuery = new CustomerQuery();
+        CustomerQueryInput customerQuery = new CustomerQueryInput();
         if(StringUtils.isNotBlank(likeName)){
             customerQuery.setName(likeName);
         }else if(StringUtils.isNotBlank(certificateNumberMatch)){
@@ -60,12 +60,12 @@ public class CustomerController {
      * @throws CloneNotSupportedException
      */
     @RequestMapping(value="/listNormalV1.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<List<Customer>> listNormal(String likeName) throws CloneNotSupportedException {
+    public @ResponseBody BaseOutput<List<CustomerExtendDto>> listNormal(String likeName) throws CloneNotSupportedException {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             return BaseOutput.failure("未登录");
         }
-        CustomerQuery customerQuery = new CustomerQuery();
+        CustomerQueryInput customerQuery = new CustomerQueryInput();
         if(StringUtils.isNotBlank(likeName)){
             customerQuery.setName(likeName);
         }
