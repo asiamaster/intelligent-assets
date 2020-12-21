@@ -5,7 +5,8 @@ import com.dili.assets.sdk.rpc.AreaMarketRpc;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.Customer;
+import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
+import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.ia.domain.EarnestOrder;
 import com.dili.ia.domain.EarnestOrderDetail;
 import com.dili.ia.domain.PaymentOrder;
@@ -15,7 +16,6 @@ import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
-import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.EarnestOrderDetailService;
@@ -70,6 +70,7 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     @SuppressWarnings("all")
     @Autowired
     DepartmentRpc departmentRpc;
+    @SuppressWarnings("all")
     @Autowired
     CustomerRpc customerRpc;
     @Autowired
@@ -180,11 +181,11 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
      * @param marketId
      */
     private void checkCustomerState(Long customerId,Long marketId){
-        BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
+        BaseOutput<CustomerExtendDto> output = customerRpc.get(customerId,marketId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 "+output.getMessage());
         }
-        Customer customer = output.getData();
+        CustomerExtendDto customer = output.getData();
         if(null == customer){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实！");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){

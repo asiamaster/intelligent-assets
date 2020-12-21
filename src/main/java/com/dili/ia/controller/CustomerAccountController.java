@@ -2,7 +2,8 @@ package com.dili.ia.controller;
 
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.Customer;
+import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
+import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.EarnestRefundOrderDto;
@@ -50,11 +51,15 @@ public class CustomerAccountController {
     CustomerAccountService customerAccountService;
     @Autowired
     DataAuthService dataAuthService;
+    @SuppressWarnings("all")
     @Autowired
     RefundOrderService refundOrderService;
     @SuppressWarnings("all")
     @Autowired
     CustomerAccountRpc customerAccountRpc;
+    @SuppressWarnings("all")
+    @Autowired
+    CustomerRpc customerRpc;
     /**
      * 跳转到CustomerAccount页面
      * @param modelMap
@@ -200,11 +205,11 @@ public class CustomerAccountController {
      * @param marketId
      */
     private BaseOutput checkCustomerState(Long customerId,Long marketId){
-        BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
+        BaseOutput<CustomerExtendDto> output = customerRpc.get(customerId,marketId);
         if(!output.isSuccess()){
             return BaseOutput.failure("客户接口调用异常 "+output.getMessage());
         }
-        Customer customer = output.getData();
+        CustomerExtendDto customer = output.getData();
         if(null == customer){
             return BaseOutput.failure("客户不存在，请核实！");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){

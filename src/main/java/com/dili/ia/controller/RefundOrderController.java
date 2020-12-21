@@ -2,7 +2,12 @@ package com.dili.ia.controller;
 
 import com.dili.bpmc.sdk.domain.TaskCenterParam;
 import com.dili.bpmc.sdk.rpc.restful.EventRpc;
-import com.dili.ia.domain.*;
+import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
+import com.dili.customer.sdk.rpc.CustomerRpc;
+import com.dili.ia.domain.ApprovalProcess;
+import com.dili.ia.domain.AssetsLeaseOrderItem;
+import com.dili.ia.domain.RefundFeeItem;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
@@ -61,6 +66,9 @@ public class RefundOrderController {
     EventRpc eventRpc;
     @Resource(name = "refundOrderEventCache")
     Cache<String, List<String>> refundOrderEventCache;
+    @SuppressWarnings("all")
+    @Autowired
+    CustomerRpc customerRpc;
 
     /**
      * 跳转到RefundOrder页面
@@ -421,7 +429,7 @@ public class RefundOrderController {
     public String update(ModelMap modelMap, Long id) {
         RefundOrder refundOrder = refundOrderService.get(id);
         if (refundOrder != null){
-            BaseOutput<Customer> payee = customerRpc.get(refundOrder.getPayeeId(), refundOrder.getMarketId());
+            BaseOutput<CustomerExtendDto> payee = customerRpc.get(refundOrder.getPayeeId(), refundOrder.getMarketId());
             modelMap.put("refundOrder",refundOrder);
             modelMap.put("payee", payee.getData());
             if (refundOrder.getBizType().equals(BizTypeEnum.EARNEST.getCode())){

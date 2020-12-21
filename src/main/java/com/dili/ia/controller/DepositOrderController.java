@@ -3,13 +3,17 @@ package com.dili.ia.controller;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.*;
+import com.dili.ia.domain.DepositOrder;
+import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.DepositOrderQuery;
 import com.dili.ia.domain.dto.DepositRefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.DepositOrderStateEnum;
-import com.dili.ia.rpc.SettlementRpc;
-import com.dili.ia.service.*;
+import com.dili.ia.service.DataAuthService;
+import com.dili.ia.service.DepositOrderService;
+import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
@@ -57,8 +61,6 @@ public class DepositOrderController {
     DataAuthService dataAuthService;
     @Autowired
     RefundOrderService refundOrderService;
-    @Autowired
-    SettlementRpc settlementRpc;
     @Autowired
     AssetsRpc assetsRpc;
 

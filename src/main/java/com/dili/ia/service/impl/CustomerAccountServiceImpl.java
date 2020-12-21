@@ -5,14 +5,14 @@ import com.dili.bpmc.sdk.dto.StartProcessInstanceDto;
 import com.dili.bpmc.sdk.rpc.restful.RuntimeRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
+import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.ia.cache.BpmDefKeyConfig;
-import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.EarnestTransferOrderDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.EarnestTransferOrderService;
@@ -45,6 +45,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
     EarnestTransferOrderService earnestTransferOrderService;
     @Autowired
     RefundOrderService refundOrderService;
+    @SuppressWarnings("all")
     @Autowired
     CustomerRpc customerRpc;
     @Autowired
@@ -206,11 +207,11 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
      * @param marketId
      */
     private void checkCustomerState(Long customerId,Long marketId){
-        BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
+        BaseOutput<CustomerExtendDto> output = customerRpc.get(customerId,marketId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 "+output.getMessage());
         }
-        Customer customer = output.getData();
+        CustomerExtendDto customer = output.getData();
         if(null == customer){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实！");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){

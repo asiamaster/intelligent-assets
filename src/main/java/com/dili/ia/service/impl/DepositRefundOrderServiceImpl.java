@@ -4,7 +4,6 @@ import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.RefundOrderMapper;
-import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.RefundOrderDispatcherService;
@@ -42,9 +41,6 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     DepositOrderService depositOrderService;
     @Autowired
     CustomerAccountService customerAccountService;
-    @Autowired
-    CustomerRpc customerRpc;
-
     @Override
     public Set<String> getBizType() {
         return Sets.newHashSet(BizTypeEnum.DEPOSIT_ORDER.getCode());

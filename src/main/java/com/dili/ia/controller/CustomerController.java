@@ -22,6 +22,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/customer")
 public class CustomerController {
+    @SuppressWarnings("all")
     @Autowired
     CustomerRpc customerRpc;
 
@@ -50,7 +51,7 @@ public class CustomerController {
             customerQuery.setKeyword(keyword);
         }
         customerQuery.setMarketId(userTicket.getFirmId());
-        return customerRpc.listNormalPage(customerQuery);
+        return BaseOutput.success().setData(customerRpc.listNormalPage(customerQuery).getData());
     }
     
     /**
@@ -71,6 +72,6 @@ public class CustomerController {
         }
         customerQuery.setOrganizationType("individual");
         customerQuery.setMarketId(userTicket.getFirmId());
-        return customerRpc.listNormalPage(customerQuery);
+        return BaseOutput.success().setData(customerRpc.listNormalPage(customerQuery).getData());
     }
 }

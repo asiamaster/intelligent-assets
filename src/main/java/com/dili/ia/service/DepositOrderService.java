@@ -1,6 +1,6 @@
 package com.dili.ia.service;
 
-import com.dili.ia.domain.Customer;
+import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
 import com.dili.ia.domain.DepositBalance;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -85,7 +85,7 @@ public interface DepositOrderService extends BaseService<DepositOrder, Long> {
      * @param marketId 当前市场ID
      * @return Customer 客户
      */
-    Customer checkCustomerState(Long customerId, Long marketId);
+    CustomerExtendDto checkCustomerState(Long customerId, Long marketId);
 
     /******************************************************【和租赁交互的接口】*******************************************************************/
     /**
