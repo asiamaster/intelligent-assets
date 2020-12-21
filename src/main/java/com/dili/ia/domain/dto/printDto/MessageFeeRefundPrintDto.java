@@ -55,6 +55,15 @@ public class MessageFeeRefundPrintDto {
 	// 园区卡号
 	private String accountCardNo;
 	
+	private String settleWayDetails;
+	
+	public String getSettleWayDetails() {
+		return settleWayDetails;
+	}
+	public void setSettleWayDetails(String settleWayDetails) {
+		this.settleWayDetails = settleWayDetails;
+	}
+	
 	public LocalDateTime getPrintTime() {
 		return printTime;
 	}

@@ -1,10 +1,11 @@
 <#bs4Body>
-
-<div class="container-fluid">
-    <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.meterDetail'/>">
-    <form id="saveForm" role="form" novalidate>
+<div class="container-fluid pb-5">
+    <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.otherFee'/>">
+    <form id="saveForm" role="form" novalidate class="pb-5">
         <input type="hidden" name="id" value="${meterDetail.id!}">
         <input type="hidden" name="version" value="${meterDetail.version!}">
+        <input type="hidden" name="meterId" value="${meterDetail.meterId!}">
+        <input type="hidden" name="customerId" value="${meterDetail.customerId!}">
         <input type="hidden" id="metertype" value="2">
         <div class="row row-cols-4" >
             <div class="form-group col">
@@ -41,9 +42,6 @@
                 <label for="customerName">客户名称<i class="red">*</i></label>
                 <input type="text" class="form-control" id="customerName" name="customerName" value="${meterDetail.customerName}" readonly />
             </div>
-
-            <input type="hidden" id="meterId" name="meterId">
-            <input type="hidden" id="customerId" name="customerId">
 
             <div class="form-group col">
                 <label for="lastAmount">上期指数</label>
@@ -88,7 +86,7 @@
             </div>
             <div class="form-group col">
                 <label _log for="notes">备注<i class="red">*</i></label>
-                <input type="text" class="form-control" id="notes" name="notes" value="${meter.notes!}" />
+                <input type="text" class="form-control" id="notes" name="notes" value="${meterDetail.notes!}" />
             </div>
         </div>
         <div class="text-right btn-r-b">

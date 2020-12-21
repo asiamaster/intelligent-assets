@@ -58,8 +58,8 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
         if (!CollectionUtils.isEmpty(chargeItemDtos)) {
             // 查询表中的收费项，数据字典中不存在，则从表中删除，数据字典多出来的，则添加到表中
             List<DepartmentChargeItem> itemInfoList = this.list(new DepartmentChargeItem());
-            List<String> chargeItemIdListInTable = new ArrayList<>();
-            List<String> chargeItemIdListInTableToAdd = new ArrayList<>();
+            List<Long> chargeItemIdListInTable = new ArrayList<>();
+            List<Long> chargeItemIdListInTableToAdd = new ArrayList<>();
             for (DepartmentChargeItem itemInfo : itemInfoList) {
                 chargeItemIdListInTable.add(itemInfo.getChargeItemId());
                 chargeItemIdListInTableToAdd.add(itemInfo.getChargeItemId());
@@ -83,7 +83,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
             if (chargeItemIdListByDate != null && chargeItemIdListByDate.size() > 0) {
                 List<DepartmentChargeItem> departmentChargeItemList = new ArrayList<>();
                 for (BusinessChargeItemDto chargeItemDto : chargeItemDtos) {
-                    String chargeItemId = chargeItemDto.getId().toString();
+                    Long chargeItemId = chargeItemDto.getId();
                     if (chargeItemIdListByDate.contains(chargeItemId)) {
                         DepartmentChargeItem departmentChargeItem = new DepartmentChargeItem();
                         String chargeItemName = chargeItemDto.getChargeItem();
@@ -108,7 +108,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
      * @date   2020/8/19
      */
     @Override
-    public DepartmentChargeItemDto selectListByChargeItemId(String chargeItemId) {
+    public DepartmentChargeItemDto selectListByChargeItemId(Long chargeItemId) {
         List<DepartmentByOtherFeeDto> departmentDtoList = new ArrayList<>();
         DepartmentChargeItemDto departmentChargeItemDto = new DepartmentChargeItemDto();
 
@@ -143,7 +143,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
         }
 
         // 根据 chargeItemId 删除原有关联的部门，插入新增的部门
-        List<String> chargeItemIds = new ArrayList<>();
+        List<Long> chargeItemIds = new ArrayList<>();
         chargeItemIds.add(departmentChargeItemDto.getChargeItemId());
         this.getActualDao().deleteEntityListByChargeItemIds(chargeItemIds);
 
@@ -248,7 +248,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
      * @date   2020/12/14
      */
     @Override
-    public List<DepartmentChargeItem> getListByChargeItemId(String chargeItemId) {
+    public List<DepartmentChargeItem> getListByChargeItemId(Long chargeItemId) {
         return this.getActualDao().selectListByChargeItemId(chargeItemId);
     }
 }

@@ -13,8 +13,10 @@ import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -342,7 +344,14 @@ public class OtherFeeController {
             // 参数校验
             AssertUtils.notNull(refundOrderDto.getBusinessId(), "业务编号不能为空");
 
-            return BaseOutput.success().setData(otherFeeService.refund(refundOrderDto, userTicket));
+            OtherFee refund = otherFeeService.refund(refundOrderDto, userTicket);
+
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
+//            LoggerContext.put("content", refund.getLogContent());
+            LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+            LoggerUtil.buildLoggerContext(refund.getId(), refund.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
+
+            return BaseOutput.success().setData(refund);
         } catch (BusinessException e) {
             logger.info("其他收费申请退款失败：{}", e.getMessage());
             return BaseOutput.failure(e.getMessage());
@@ -362,7 +371,7 @@ public class OtherFeeController {
         AssertUtils.notNull(otherFeeDto.getAssetsType(), "费用类型不能为空");
         AssertUtils.notNull(otherFeeDto.getDepartmentId(), "业务所属部门不能为空");
         AssertUtils.notEmpty(otherFeeDto.getCustomerName(), "客户名称不能为空");
-        AssertUtils.notEmpty(otherFeeDto.getChargeItemId(), "收费项目不能为空");
+        AssertUtils.notNull(otherFeeDto.getChargeItemId(), "收费项目不能为空");
         AssertUtils.notEmpty(otherFeeDto.getCertificateNumber(), "证件号码不能为空");
         AssertUtils.notEmpty(otherFeeDto.getCustomerCellphone(), "联系电话不能为空");
     }

@@ -8,6 +8,8 @@ import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
@@ -63,12 +65,18 @@ public class BoutiqueFeeOrderController {
     @RequestMapping(value = "/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     BaseOutput refund(@RequestBody BoutiqueFeeRefundOrderDto refundOrderDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
             AssertUtils.notNull(refundOrderDto.getBusinessId(), "业务编号不能为空");
 
             // 退款申请
-            boutiqueFeeOrderService.refund(refundOrderDto);
+            BoutiqueFeeOrder refund = boutiqueFeeOrderService.refund(refundOrderDto, userTicket);
+
+            LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
+//            LoggerContext.put("content", refund.getLogContent());
+            LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
+            LoggerUtil.buildLoggerContext(refund.getId(), refund.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
 
             return BaseOutput.success("退款成功");
         } catch (BusinessException e) {

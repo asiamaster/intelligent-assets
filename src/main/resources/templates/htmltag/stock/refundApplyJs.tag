@@ -56,10 +56,7 @@ $(function () {
 
 /*****************************************函数区 begin************************************/
 
-//获取table Index
-function getIndex(str) {
-	return str.split('_')[1];
-}
+
 
 
 
@@ -114,10 +111,7 @@ function calcTotalRefundAmount(){
 	});
 }
 
-//计算金额,重量,数量
-$(document).on('change', '.chargeItem', function() {
-	calcTotalRefundAmount();
-});
+
 
 //费用联动
 $(document).on('input', '[name="totalRefundAmount"]', function(){
@@ -127,43 +121,6 @@ $(document).on('input', '[name="totalRefundAmount"]', function(){
 
 
 
-/**
- * 验证实际退款金额是否小于
- * @returns {boolean}
- */
-function validateActualRefundAmount(){
-	let payeeAmount = Number($('#payeeAmount').val());
-	let totalRefundAmount = Number($('#totalRefundAmount').val());
-	let transferAmount = 0;
-	$("table input[name^='payeeAmount']").filter(function () {
-		return this.value
-	}).each(function (i) {
-		transferAmount = Number(this.value).add(transferAmount);
-	});
-
-	if (totalRefundAmount.mul(100) != (payeeAmount.mul(100) + transferAmount.mul(100))) {
-		return false;
-	}
-	return true;
-}
-
-/**
- * 判断数组中的元素是否重复出现
- * 验证重复元素，有重复返回true；否则返回false
- * @param arr
- * @returns {boolean}
- */
-function arrRepeatCheck(arr) {
-    var hash = {};
-    for(var i in arr) {
-        if(hash[arr[i]]) {
-            return true;
-        }
-        // 不存在该元素，则赋值为true，可以赋任意值，相应的修改if判断条件即可
-        hash[arr[i]] = true;
-    }
-    return false;
-}
 
 /**
  * 表单baocun
@@ -179,15 +136,7 @@ function saveFormHandler(){
 	}).map(function(){
 		return $('#payeeId_'+getIndex(this.id)).val();
 	}).get();
-	if(arrRepeatCheck(payeeIds)){
-		bs4pop.alert('存在重复转低收款人，请检查！');
-		return;
-	}
 
-	if(!validateActualRefundAmount()){
-		bs4pop.alert('退款金额分配错误，请重新修改再保存');
-		return;
-	}
 
 	bui.loading.show('努力提交中，请稍候。。。');
 	$.ajax({
@@ -217,25 +166,6 @@ function saveFormHandler(){
 
 /*****************************************自定义事件区 begin************************************/
 
-/**
- * 添加转抵
- */
-function addTransferItem(){
-	$('#transferTable tbody').append(bui.util.HTMLDecode(template('transferItemTpl',{index:++itemIndex})))
-}
-
-
-//摊位新增事件
-$('#addTransfer').on('click', function(){
-	addTransferItem({index: ++itemIndex});
-});
-
-//摊位删除事件
-$(document).on('click', '.item-del', function () {
-	if ($('#transferTable tr').length > 1) {
-		$(this).closest('tr').remove();
-	}
-});
 
 /*****************************************自定义事件区 end**************************************/
 </script>

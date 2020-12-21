@@ -82,9 +82,9 @@ public class DepartmentChargeItemController {
      * @date   2020/8/19
      */
     @RequestMapping(value="/addDepartment.html", method = RequestMethod.GET)
-    public String addDepartment(ModelMap modelMap, String chargeItemId) {
+    public String addDepartment(ModelMap modelMap, Long chargeItemId) {
 
-        if (StringUtils.isNotEmpty(chargeItemId)) {
+        if (chargeItemId != null) {
             // 根据类型查询
             DepartmentChargeItemDto itemDto = departmentChargeItemService.selectListByChargeItemId(chargeItemId);
             modelMap.put("departmentChargeItem", itemDto);
@@ -105,7 +105,7 @@ public class DepartmentChargeItemController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notEmpty(departmentChargeItemDto.getChargeItemId(), "收费项 id 不能为空");
+            AssertUtils.notNull(departmentChargeItemDto.getChargeItemId(), "收费项 id 不能为空");
 
             // 绑定操作
             departmentChargeItemService.addDepartmentChargeItems(departmentChargeItemDto, userTicket);

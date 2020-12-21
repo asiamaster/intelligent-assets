@@ -25,6 +25,9 @@ public class StockIn extends BaseDomain {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "`mch_id`")
+	private Long mchId;
+	
     /**
      * 创建时间
      */
@@ -805,5 +808,15 @@ public class StockIn extends BaseDomain {
 	public void setUnitPrice(Long unitPrice) {
 		this.unitPrice = unitPrice;
 	}
+
+	public Long getMchId() {
+		return mchId;
+	}
+
+	public void setMchId(Long mchId) {
+		this.mchId = mchId;
+	}
+	
+	
 	
 }

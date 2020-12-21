@@ -1,6 +1,8 @@
 package com.dili.ia.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.dili.assets.sdk.dto.TypeMarketDto;
+import com.dili.assets.sdk.rpc.TypeMarketRpc;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
@@ -12,13 +14,20 @@ import com.dili.ia.mapper.BoutiqueEntranceRecordMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.*;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.ChargeItemEnum;
+import com.dili.settlement.enums.EnableEnum;
+import com.dili.settlement.enums.LinkTypeEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.metadata.ValueProviderUtils;
@@ -77,12 +86,23 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     private SettlementRpcResolver settlementRpcResolver;
 
     @Autowired
+    private SettleOrderRpc settleOrderRpc;
+
+    @Autowired
     private RefundOrderService refundOrderService;
+
+    @Autowired
+    private TypeMarketRpc typeMarketRpc;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
+    @Value("${boutiqueEntrance.settlement.handler.url}")
+    private String settlerHandlerUrl;
+    @Value("${boutiqueEntrance.settlement.view.url}")
+    private String settleViewUrl;
+    @Value("${boutiqueEntrance.settlement.print.url}")
+    private String settlerPrintUrl;
 
-    private String settlerHandlerUrl = "http://ia.diligrp.com:8381/api/boutiqueEntrance/settlementDealHandler";
 
     @Override
     public EasyuiPageOutput listBoutiques(BoutiqueEntranceRecordDto boutiqueDto, boolean useProvider) throws Exception {
@@ -230,19 +250,88 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
         boutiqueFeeOrderService.insertSelective(feeOrder);
 
-        // 创建缴费单
-        PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.BOUTIQUE_ENTRANCE);
-        paymentOrder.setBusinessCode(code);
-        paymentOrder.setBusinessId(feeOrder.getId());
+        // 创建缴费单,添加到缴费表中
+        PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.OTHER_FEE);
         paymentOrder.setAmount(feeOrder.getAmount());
+        paymentOrder.setBusinessId(feeOrder.getId());
+        paymentOrder.setBusinessCode(feeOrder.getCode());
         paymentOrder.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
+        paymentOrder.setCustomerId(recordInfo.getCustomerId());
+        paymentOrder.setCustomerName(recordInfo.getCustomerName());
+        paymentOrder.setMchId(recordInfo.getMchId());
+        paymentOrder.setVersion(0);
         paymentOrderService.insertSelective(paymentOrder);
 
-        // 调用结算接口,缴费
-        SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, feeOrder, recordInfo, paymentOrder.getCode(), paymentOrder.getAmount());
-        settlementRpcResolver.submit(settleOrderDto);
+        // 组装数据，调用结算RPC
+        SettleOrderDto settleOrderDto = this.buildSettleOrderDto(userTicket, feeOrder, recordInfo, paymentOrder);
+        BaseOutput<SettleOrder> baseOutput = settleOrderRpc.submit(settleOrderDto);
+        if (!baseOutput.isSuccess()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "提交失败，" + baseOutput.getMessage());
+        }
 
         return recordInfo;
+    }
+
+    /**
+     * 组装数据，调用结算RPC
+     */
+    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, BoutiqueFeeOrder feeOrder, BoutiqueEntranceRecord record, PaymentOrder paymentOrder) {
+        SettleOrderDto settleOrderDto = new SettleOrderDto();
+        // 必填字段
+        settleOrderDto.setOrderCode(paymentOrder.getCode());
+        settleOrderDto.setBusinessCode(paymentOrder.getBusinessCode());
+        settleOrderDto.setCustomerId(record.getCustomerId());
+        settleOrderDto.setCustomerName(record.getCustomerName());
+        settleOrderDto.setCustomerPhone(record.getCustomerCellphone());
+        settleOrderDto.setCustomerCertificate(record.getCertificateNumber());
+        settleOrderDto.setAmount(feeOrder.getAmount());
+        settleOrderDto.setMchId(record.getMchId());
+        settleOrderDto.setBusinessDepId(record.getDepartmentId());
+        settleOrderDto.setBusinessDepName(departmentRpc.get(record.getDepartmentId()).getData().getName());
+        settleOrderDto.setMarketId(feeOrder.getMarketId());
+        settleOrderDto.setMarketCode(userTicket.getFirmCode());
+        settleOrderDto.setSubmitterId(userTicket.getId());
+        settleOrderDto.setSubmitterName(userTicket.getRealName());
+        if (userTicket.getDepartmentId() != null){
+            settleOrderDto.setSubmitterDepId(userTicket.getDepartmentId());
+            settleOrderDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+        }
+        settleOrderDto.setSubmitTime(LocalDateTime.now());
+        settleOrderDto.setAppId(settlementAppId);
+        //结算单业务类型 为 Integer
+        settleOrderDto.setBusinessType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
+        settleOrderDto.setType(SettleTypeEnum.PAY.getCode());
+        settleOrderDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
+        settleOrderDto.setDeductEnable(EnableEnum.NO.getCode());
+
+        //组装回调url
+        List<SettleOrderLink> settleOrderLinkList = new ArrayList<>();
+        // 详情
+        SettleOrderLink view = new SettleOrderLink();
+        view.setType(LinkTypeEnum.DETAIL.getCode());
+        view.setUrl(settleViewUrl + "?id=" + feeOrder.getId());
+        // 打印
+        SettleOrderLink print = new SettleOrderLink();
+        print.setType(LinkTypeEnum.PRINT.getCode());
+        print.setUrl(settlerPrintUrl + "?orderCode=" + paymentOrder.getCode());
+        // 回调
+        SettleOrderLink callBack = new SettleOrderLink();
+        callBack.setType(LinkTypeEnum.CALLBACK.getCode());
+        callBack.setUrl(settlerHandlerUrl);
+        settleOrderLinkList.add(view);
+        settleOrderLinkList.add(print);
+        settleOrderLinkList.add(callBack);
+        settleOrderDto.setSettleOrderLinkList(settleOrderLinkList);
+
+        //组装费用项
+        List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
+        SettleFeeItem sfItem = new SettleFeeItem();
+        sfItem.setChargeItemId(ChargeItemEnum.精品黄楼停车费.getId());
+        sfItem.setChargeItemName(ChargeItemEnum.精品黄楼停车费.getName());
+        sfItem.setAmount(paymentOrder.getAmount());
+        settleFeeItemList.add(sfItem);
+        settleOrderDto.setSettleFeeItemList(settleFeeItemList);
+        return settleOrderDto;
     }
 
     /**
@@ -453,8 +542,10 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             RefundOrder refundOrder = refundOrders.get(0);
             BoutiqueFeeOrder orderInfo = boutiqueFeeOrderService.get(refundOrder.getBusinessId());
             BoutiqueEntranceRecord recordInfo = this.get(orderInfo.getRecordId());
-            SettleOrder order = settlementRpcResolver.get(settlementAppId, orderInfo.getCode());
-
+            SettleOrder order = settleOrderRpc.get(settlementAppId, orderInfo.getCode()).getData();
+            if (order == null) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "精品黄楼退款费单不存在!");
+            }
             // 组装退款单信息
             BoutiqueEntrancePrintDto printDto = new BoutiqueEntrancePrintDto();
             printDto.setReprint(reprint);
@@ -495,7 +586,8 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      */
     @Override
     public BoutiqueEntranceRecord cancel(BoutiqueEntranceRecordDto recordDto) throws BusinessException {
-        BoutiqueEntranceRecord recordInfo = this.get(recordDto.getId());
+        // 根据bid 查询数据
+        BoutiqueEntranceRecordDto recordInfo = this.getActualDao().getBoutiqueByBid(recordDto.getBid());
         if (recordInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，取消失败。");
         }
@@ -545,49 +637,22 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      */
     @Override
     public BoutiqueEntranceRecord addBoutique(BoutiqueEntranceRecord boutiqueEntranceRecord) {
-        boutiqueEntranceRecord.setCreateTime(LocalDateTime.now());
-        boutiqueEntranceRecord.setModifyTime(LocalDateTime.now());
-        boutiqueEntranceRecord.setState(BoutiqueStateEnum.NOCONFIRM.getCode());
+        // 商户ID需要从基础信息中获取
+        BaseOutput<List<TypeMarketDto>> baseOutput = typeMarketRpc.queryAll();
+        if (baseOutput.isSuccess() && baseOutput.getData() != null) {
+            for (TypeMarketDto typeMarketDto : baseOutput.getData()) {
+                if (BizNumberTypeEnum.BOUTIQUE_ENTRANCE.getCode().equals(typeMarketDto.getType())) {
+                    boutiqueEntranceRecord.setMchId(typeMarketDto.getMarketId());
+                }
+            }
+            boutiqueEntranceRecord.setCreateTime(LocalDateTime.now());
+            boutiqueEntranceRecord.setModifyTime(LocalDateTime.now());
+            boutiqueEntranceRecord.setState(BoutiqueStateEnum.NOCONFIRM.getCode());
 
-        this.insertSelective(boutiqueEntranceRecord);
+            this.insertSelective(boutiqueEntranceRecord);
+        }
 
         return boutiqueEntranceRecord;
-    }
-
-    /**
-     * 构建结算实体类
-     *
-     * @param  userTicket
-     * @param  feeOrder
-     * @param  recordInfo
-     * @param  orderCode
-     * @param  amount
-     * @return SettleOrderDto
-     */
-    private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, BoutiqueFeeOrder feeOrder, BoutiqueEntranceRecord recordInfo, String orderCode, Long amount) {
-        SettleOrderInfoDto settleOrderInfoDto = new SettleOrderInfoDto(userTicket, BizTypeEnum.BOUTIQUE_ENTRANCE, SettleTypeEnum.PAY, SettleStateEnum.WAIT_DEAL);
-        settleOrderInfoDto.setMarketId(feeOrder.getMarketId());
-        settleOrderInfoDto.setMarketCode(userTicket.getFirmCode());
-        settleOrderInfoDto.setBusinessCode(feeOrder.getCode());
-        settleOrderInfoDto.setOrderCode(orderCode);
-        settleOrderInfoDto.setAmount(amount);
-        settleOrderInfoDto.setAppId(settlementAppId);
-        settleOrderInfoDto.setBusinessDepId(recordInfo.getDepartmentId());
-        settleOrderInfoDto.setBusinessDepName(recordInfo.getDepartmentName());
-        settleOrderInfoDto.setCustomerId(recordInfo.getCustomerId());
-        settleOrderInfoDto.setCustomerName(recordInfo.getCustomerName());
-        settleOrderInfoDto.setCustomerPhone(recordInfo.getCustomerCellphone());
-        settleOrderInfoDto.setSubmitterId(userTicket.getId());
-        settleOrderInfoDto.setSubmitterName(userTicket.getRealName());
-//        settleOrderInfoDto.setBusinessType(Integer.valueOf(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode()));
-        settleOrderInfoDto.setType(SettleTypeEnum.PAY.getCode());
-        settleOrderInfoDto.setState(SettleStateEnum.WAIT_DEAL.getCode());
-//        settleOrderInfoDto.setReturnUrl(settlerHandlerUrl);
-        if (userTicket.getDepartmentId() != null) {
-            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
-            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
-        }
-        return settleOrderInfoDto;
     }
 
     /**

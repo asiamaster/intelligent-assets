@@ -10,6 +10,23 @@
             }
         });
     });
+
+    $('#firstDistrictId').on('change', function(){
+        $("#boothTable tbody").find("tr").each(function(){
+            $(this).find("input").each(function(t,el){
+                $(this).val('');
+            });
+        });
+    })
+
+    $('#secondDistrictId').on('change', function(){
+        $("#boothTable tbody").find("tr").each(function(){
+            $(this).find("input").each(function(t,el){
+                $(this).val('');
+            });
+        });
+    })
+
     var boothAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',

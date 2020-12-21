@@ -17,6 +17,19 @@ public class MeterDto extends Meter {
     @Transient
     private String keyword;
 
+    /**
+     * 身份证号码，用于提交水电费
+     */
+    private String certificateNumber;
+
+    public String getCertificateNumber() {
+        return certificateNumber;
+    }
+
+    public void setCertificateNumber(String certificateNumber) {
+        this.certificateNumber = certificateNumber;
+    }
+
     public String getKeyword() {
         return keyword;
     }

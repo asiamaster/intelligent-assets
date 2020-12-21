@@ -21,6 +21,8 @@ import com.dili.ia.domain.BusinessChargeItem;
  */
 public class StockInDetailDto {
 
+	private Long mchId;
+	
 	/**
 	 * 入库详情编号
 	 */
@@ -366,6 +368,14 @@ public class StockInDetailDto {
 
 	public void setCarTypePublicName(String carTypePublicName) {
 		this.carTypePublicName = carTypePublicName;
+	}
+
+	public Long getMchId() {
+		return mchId;
+	}
+
+	public void setMchId(Long mchId) {
+		this.mchId = mchId;
 	}
 
 	
