@@ -43,8 +43,34 @@ public class StockInPrintDto {
 	private String settlementOperator;
 	// 复核人
 	private String reviewer;
-	// 订单项
-	private List<StockInPrintItemDto> stockInItems;
+
+	// 支付信息
+	private String settleWayDetails;
+
+	// 冷库编号
+	private String assetsCode;
+	// 入库方式
+	private String stockInType;
+	// 单价
+	private String unitPrice;
+	// 件数
+	private String quantity;
+	// 净重
+	private String weight;
+	// 付款方式
+	private String payWay;
+	// 代缴人
+	private String proxyPayer;
+	// 入库时间
+	@JSONField(format = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDateTime stockInDate;
+
+	@JSONField(format = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDateTime expireDate;
 
 	public LocalDateTime getPrintTime() {
 		return printTime;
@@ -174,14 +200,84 @@ public class StockInPrintDto {
 		this.reviewer = reviewer;
 	}
 
-	public List<StockInPrintItemDto> getStockInItems() {
-		return stockInItems;
+	public String getSettleWayDetails() {
+		return settleWayDetails;
 	}
 
-	public void setStockInItems(List<StockInPrintItemDto> stockInItems) {
-		this.stockInItems = stockInItems;
+	public void setSettleWayDetails(String settleWayDetails) {
+		this.settleWayDetails = settleWayDetails;
 	}
 
-	
+	public String getAssetsCode() {
+		return assetsCode;
+	}
+
+	public void setAssetsCode(String assetsCode) {
+		this.assetsCode = assetsCode;
+	}
+
+	public String getStockInType() {
+		return stockInType;
+	}
+
+	public void setStockInType(String stockInType) {
+		this.stockInType = stockInType;
+	}
+
+	public String getUnitPrice() {
+		return unitPrice;
+	}
+
+	public void setUnitPrice(String unitPrice) {
+		this.unitPrice = unitPrice;
+	}
+
+	public String getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(String quantity) {
+		this.quantity = quantity;
+	}
+
+	public String getWeight() {
+		return weight;
+	}
+
+	public void setWeight(String weight) {
+		this.weight = weight;
+	}
+
+	public String getPayWay() {
+		return payWay;
+	}
+
+	public void setPayWay(String payWay) {
+		this.payWay = payWay;
+	}
+
+	public String getProxyPayer() {
+		return proxyPayer;
+	}
+
+	public void setProxyPayer(String proxyPayer) {
+		this.proxyPayer = proxyPayer;
+	}
+
+	public LocalDateTime getStockInDate() {
+		return stockInDate;
+	}
+
+	public void setStockInDate(LocalDateTime stockInDate) {
+		this.stockInDate = stockInDate;
+	}
+
+	public LocalDateTime getExpireDate() {
+		return expireDate;
+	}
+
+	public void setExpireDate(LocalDateTime expireDate) {
+		this.expireDate = expireDate;
+	}
 
 }

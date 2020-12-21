@@ -87,4 +87,11 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
             throw new BusinessException(ResultCode.DATA_ERROR,"多人操作，请重试！");
         }
     }
+
+	@Override
+	public List<BusinessChargeItem> getByBizCode(String bizCode) {
+		BusinessChargeItem chargeItemCondition = new BusinessChargeItem();
+        chargeItemCondition.setBusinessCode(bizCode);
+		return list(chargeItemCondition);
+	}
 }

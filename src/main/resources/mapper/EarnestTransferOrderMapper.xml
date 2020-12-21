@@ -9,7 +9,6 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="code" jdbcType="VARCHAR" property="code" />
-    <result column="state" jdbcType="INTEGER" property="state" />
     <result column="amount" jdbcType="BIGINT" property="amount" />
     <result column="payer_customer_account_id" jdbcType="BIGINT" property="payerCustomerAccountId" />
     <result column="payer_id" jdbcType="BIGINT" property="payerId" />
@@ -19,14 +18,12 @@
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
     <result column="creator" jdbcType="VARCHAR" property="creator" />
     <result column="transfer_reason" jdbcType="VARCHAR" property="transferReason" />
-    <result column="payee_customer_account_id" jdbcType="BIGINT" property="payeeCustomerAccountId" />
     <result column="payee_id" jdbcType="BIGINT" property="payeeId" />
     <result column="payee_name" jdbcType="VARCHAR" property="payeeName" />
     <result column="payee_certificate_number" jdbcType="VARCHAR" property="payeeCertificateNumber" />
     <result column="payee_cellphone" jdbcType="VARCHAR" property="payeeCellphone" />
-    <result column="payer_transaction_details_code" jdbcType="VARCHAR" property="payerTransactionDetailsCode" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
-    <result column="payee_transaction_code" jdbcType="VARCHAR" property="payeeTransactionCode" />
+    <result column="mch_id" jdbcType="BIGINT" property="mchId" />
     <result column="transfer_time" jdbcType="TIMESTAMP" property="transferTime" />
     <result column="version" jdbcType="BIGINT" property="version" />
   </resultMap>
@@ -34,11 +31,10 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, create_time, modify_time, code, state, amount, payer_customer_account_id, payer_id, 
+    id, create_time, modify_time, code, amount, payer_customer_account_id, payer_id, 
     payer_certificate_number, payer_name, payer_cellphone, creator_id, creator, transfer_reason, 
-    payee_customer_account_id, payee_id, payee_name, payee_certificate_number, payee_cellphone, 
-    payer_transaction_details_code, market_id, payee_transaction_code, transfer_time, 
-    version
+    payee_id, payee_name, payee_certificate_number, payee_cellphone, market_id, mch_id, 
+    transfer_time, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -63,9 +59,6 @@
       </if>
       <if test="code != null">
         code = #{code,jdbcType=VARCHAR},
-      </if>
-      <if test="state != null">
-        state = #{state,jdbcType=INTEGER},
       </if>
       <if test="amount != null">
         amount = #{amount,jdbcType=BIGINT},
@@ -94,9 +87,6 @@
       <if test="transferReason != null">
         transfer_reason = #{transferReason,jdbcType=VARCHAR},
       </if>
-      <if test="payeeCustomerAccountId != null">
-        payee_customer_account_id = #{payeeCustomerAccountId,jdbcType=BIGINT},
-      </if>
       <if test="payeeId != null">
         payee_id = #{payeeId,jdbcType=BIGINT},
       </if>
@@ -109,14 +99,11 @@
       <if test="payeeCellphone != null">
         payee_cellphone = #{payeeCellphone,jdbcType=VARCHAR},
       </if>
-      <if test="payerTransactionDetailsCode != null">
-        payer_transaction_details_code = #{payerTransactionDetailsCode,jdbcType=VARCHAR},
-      </if>
       <if test="marketId != null">
         market_id = #{marketId,jdbcType=BIGINT},
       </if>
-      <if test="payeeTransactionCode != null">
-        payee_transaction_code = #{payeeTransactionCode,jdbcType=VARCHAR},
+      <if test="mchId != null">
+        mch_id = #{mchId,jdbcType=BIGINT},
       </if>
       <if test="transferTime != null">
         transfer_time = #{transferTime,jdbcType=TIMESTAMP},

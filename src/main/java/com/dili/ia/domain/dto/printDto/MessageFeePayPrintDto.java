@@ -57,6 +57,15 @@ public class MessageFeePayPrintDto {
 	private String cardNo;
 	// 备注信息
 	private String notes;
+	
+	private String settleWayDetails;
+	
+	public String getSettleWayDetails() {
+		return settleWayDetails;
+	}
+	public void setSettleWayDetails(String settleWayDetails) {
+		this.settleWayDetails = settleWayDetails;
+	}
 	public LocalDateTime getPrintTime() {
 		return printTime;
 	}

@@ -110,12 +110,6 @@ public class EarnestTransferOrder extends BaseDomain {
     private String transferReason;
 
     /**
-     * 转入方客户余额账户ID
-     */
-    @Column(name = "`payee_customer_account_id`")
-    private Long payeeCustomerAccountId;
-
-    /**
      * 转入方客户ID
      */
     @Column(name = "`payee_id`")
@@ -140,22 +134,16 @@ public class EarnestTransferOrder extends BaseDomain {
     private String payeeCellphone;
 
     /**
-     * 转出方的定金转出流水号
-     */
-    @Column(name = "`payer_transaction_details_code`")
-    private String payerTransactionDetailsCode;
-
-    /**
      * 市场ID
      */
     @Column(name = "`market_id`")
     private Long marketId;
 
     /**
-     * 转入方的定金转入流水号
+     * 商户ID
      */
-    @Column(name = "`payee_transaction_code`")
-    private String payeeTransactionCode;
+    @Column(name = "`mch_id`")
+    private Long mchId;
 
     /**
      * 转移成功时间
@@ -250,26 +238,6 @@ public class EarnestTransferOrder extends BaseDomain {
      */
     public void setCode(String code) {
         this.code = code;
-    }
-
-    /**
-     * 获取状态
-     *
-     * @return state - 状态
-     */
-    @FieldDef(label="状态")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Integer getState() {
-        return state;
-    }
-
-    /**
-     * 设置状态
-     *
-     * @param state 状态
-     */
-    public void setState(Integer state) {
-        this.state = state;
     }
 
     /**
@@ -453,26 +421,6 @@ public class EarnestTransferOrder extends BaseDomain {
     }
 
     /**
-     * 获取转入方客户余额账户ID
-     *
-     * @return payee_customer_account_id - 转入方客户余额账户ID
-     */
-    @FieldDef(label="转入方客户余额账户ID")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getPayeeCustomerAccountId() {
-        return payeeCustomerAccountId;
-    }
-
-    /**
-     * 设置转入方客户余额账户ID
-     *
-     * @param payeeCustomerAccountId 转入方客户余额账户ID
-     */
-    public void setPayeeCustomerAccountId(Long payeeCustomerAccountId) {
-        this.payeeCustomerAccountId = payeeCustomerAccountId;
-    }
-
-    /**
      * 获取转入方客户ID
      *
      * @return payee_id - 转入方客户ID
@@ -553,26 +501,6 @@ public class EarnestTransferOrder extends BaseDomain {
     }
 
     /**
-     * 获取转出方的定金转出流水号
-     *
-     * @return payer_transaction_details_code - 转出方的定金转出流水号
-     */
-    @FieldDef(label="转出方的定金转出流水号", maxLength = 30)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getPayerTransactionDetailsCode() {
-        return payerTransactionDetailsCode;
-    }
-
-    /**
-     * 设置转出方的定金转出流水号
-     *
-     * @param payerTransactionDetailsCode 转出方的定金转出流水号
-     */
-    public void setPayerTransactionDetailsCode(String payerTransactionDetailsCode) {
-        this.payerTransactionDetailsCode = payerTransactionDetailsCode;
-    }
-
-    /**
      * 获取市场ID
      *
      * @return market_id - 市场ID
@@ -593,23 +521,23 @@ public class EarnestTransferOrder extends BaseDomain {
     }
 
     /**
-     * 获取转入方的定金转入流水号
+     * 获取商户ID
      *
-     * @return payee_transaction_code - 转入方的定金转入流水号
+     * @return mch_id - 商户ID
      */
-    @FieldDef(label="转入方的定金转入流水号", maxLength = 30)
-    @EditMode(editor = FieldEditor.Text, required = false)
-    public String getPayeeTransactionCode() {
-        return payeeTransactionCode;
+    @FieldDef(label="商户ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getMchId() {
+        return mchId;
     }
 
     /**
-     * 设置转入方的定金转入流水号
+     * 设置商户ID
      *
-     * @param payeeTransactionCode 转入方的定金转入流水号
+     * @param mchId 商户ID
      */
-    public void setPayeeTransactionCode(String payeeTransactionCode) {
-        this.payeeTransactionCode = payeeTransactionCode;
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
     }
 
     /**

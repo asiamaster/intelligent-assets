@@ -56,6 +56,15 @@ public class LaborRefundPrintDto {
 	// 园区卡号
 	private String accountCardNo;
 	// 转抵信息
+	
+	private String settleWayDetails;
+	
+	public String getSettleWayDetails() {
+		return settleWayDetails;
+	}
+	public void setSettleWayDetails(String settleWayDetails) {
+		this.settleWayDetails = settleWayDetails;
+	}
 	public LocalDateTime getPrintTime() {
 		return printTime;
 	}

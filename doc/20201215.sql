@@ -10,6 +10,7 @@ INSERT INTO `uap`.`biz_number_rule` (`name`, `type`, `prefix`, `date_format`, `l
 INSERT INTO `uap`.`biz_number_rule` (`name`, `type`, `prefix`, `date_format`, `length`, `range`, `create_time`, `update_time`, `is_enable`, `step`) VALUES ('杭水-公寓租赁缴费单号', 'hzsc_lodging_lease_paymentOrder', 'HZSCPOGY', 'yyyyMMdd', 5, '1', '2020-11-25 15:38:46', '2020-11-25 15:38:46', 1, 50);
 INSERT INTO `uap`.`biz_number_rule` (`name`, `type`, `prefix`, `date_format`, `length`, `range`, `create_time`, `update_time`, `is_enable`, `step`) VALUES ('杭水-公寓租赁订单号', 'hzsc_lodging_lease_leaseOrder', 'HZSCGY', 'yyyyMMdd', 4, '1', '2020-11-25 15:37:46', '2020-11-25 15:37:46', 1, 50);
 
+
 update `dili_ia`.`assets_lease_order_item` set leases_num = number;
 ALTER TABLE `dili_ia`.`assets_lease_order`
 ADD COLUMN `biz_type` varchar(120) NULL COMMENT '业务类型（数据字典值编码 1：摊位租赁 4：冷库租赁 5：公寓租赁）' AFTER `assets_type`;
