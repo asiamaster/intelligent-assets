@@ -19,9 +19,9 @@ import tk.mybatis.spring.annotation.MapperScan;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableScheduling
-@EnableFeignClients(basePackages = {"com.dili.ia.rpc", "com.dili.bpmc.sdk.rpc.feign", "com.dili.logger.sdk.rpc", "com.dili.assets.sdk.rpc", "com.dili.rule.sdk.rpc","com.dili.settlement.rpc"})
+@EnableFeignClients(basePackages = {"com.dili.ia.rpc", "com.dili.bpmc.sdk.rpc.feign", "com.dili.logger.sdk.rpc", "com.dili.assets.sdk.rpc", "com.dili.rule.sdk.rpc","com.dili.settlement.rpc","com.dili.customer.sdk.rpc"})
 @MapperScan(basePackages = { "com.dili.ia.mapper", "com.dili.ss.dao"})
-@ComponentScan(basePackages={"com.dili.ss", "com.dili.ia", "com.dili.uap.sdk", "com.dili.logger.sdk", "com.dili.assets.sdk","com.dili.rule.sdk", "com.dili.bpmc.sdk.aop","com.dili.commons"})
+@ComponentScan(basePackages={"com.dili.ss", "com.dili.ia", "com.dili.uap.sdk", "com.dili.logger.sdk", "com.dili.assets.sdk","com.dili.rule.sdk", "com.dili.bpmc.sdk.aop","com.dili.commons","com.dili.customer.sdk"})
 @RestfulScan({"com.dili.ia.rpc","com.dili.uap.sdk.rpc", "com.dili.bpmc.sdk.rpc.restful"})
 @DTOScan(value={"com.dili.ss", "com.dili.ia.domain", "com.dili.uap.sdk.domain", "com.dili.bpmc.sdk"})
 public class IAApplication  extends SpringBootServletInitializer {
