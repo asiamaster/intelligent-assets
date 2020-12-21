@@ -77,6 +77,7 @@ import com.dili.uap.sdk.session.SessionContext;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.collection.CollectionUtil;
 import io.seata.spring.annotation.GlobalTransactional;
 
 /**
@@ -656,11 +657,72 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setCustomerName(stockIn.getCustomerName());
 		stockInPrintDto.setDepartmentName(stockIn.getDepartmentName());
 		stockInPrintDto.setPrintTime(LocalDateTime.now());
-		stockInPrintDto.setReprint(reprint);
+		stockInPrintDto.setReprint("2".equals(reprint) ? "(补打)" : "");
 		stockInPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
 		stockInPrintDto.setSubmitter(stockIn.getSubmitter());
 		stockInPrintDto.setReviewer("");
 		stockInPrintDto.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
+		// 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else {
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        stockInPrintDto.setSettleWayDetails(settleDetails);
+		//详情
+        Long quantity = 0L;
+        Long weight = 0L;
+        StringBuilder assetsCode = new StringBuilder();
+        StringBuilder carTypePublicName = new StringBuilder();
+        StringBuilder carPlate = new StringBuilder();
+        StringBuilder districtName = new StringBuilder();
+		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(stockIn.getCode());
+		for (StockInDetail detail : stockInDetails) {
+			quantity += detail.getQuantity();
+			weight += detail.getWeight();
+			assetsCode.append(detail.getAssetsCode()).append(",");
+			carTypePublicName.append(detail.getCarTypePublicName()).append(",");
+			carPlate.append(detail.getCarPlate()).append(",");
+			districtName.append(detail.getDistrictName()).append(",");
+		}
+		stockInPrintDto.setQuantity(String.valueOf(quantity));
+		stockInPrintDto.setWeight(String.valueOf(weight));
+		stockInPrintDto.setAssetsCode(assetsCode.substring(0, assetsCode.length()-1));
+		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
+		stockInPrintDto.setCarPlate(carPlate.substring(0, carPlate.length()-1));
+		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
+		stockInPrintDto.setUnitPrice(String.valueOf(stockIn.getUnitPrice()/100));
+		stockInPrintDto.setStockInType(String.valueOf(stockIn.getType()));
+		stockInPrintDto.setStockInDate(stockIn.getStockInDate());
+		stockInPrintDto.setExpireDate(stockIn.getExpireDate());
+
+
+		PrintDataDto<StockInPrintDto> printDataDto = new PrintDataDto<>();
+		printDataDto.setName(PrintTemplateEnum.STOCKIN_ORDER.getCode());
+		printDataDto.setItem(stockInPrintDto);
+		return printDataDto;	
+	}
+	
+	
+	@Override
+	public PrintDataDto<StockInPrintDto> receiptRefundData(RefundOrder refundOrder, String reprint) {
+		StockIn stockIn = getStockInByCode(refundOrder.getBusinessCode());
+		StockInPrintDto stockInPrintDto = new StockInPrintDto();
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, refundOrder.getCode());
+		stockInPrintDto.setBusinessType(BizTypeEnum.STOCKIN.getCode());
+		stockInPrintDto.setCardNo(order.getAccountNumber());
+		stockInPrintDto.setCategoryName(stockIn.getCategoryName());
+		stockInPrintDto.setCustomerCellphone(stockIn.getCustomerCellphone());
+		stockInPrintDto.setCustomerName(stockIn.getCustomerName());
+		stockInPrintDto.setDepartmentName(stockIn.getDepartmentName());
+		stockInPrintDto.setPrintTime(LocalDateTime.now());
+		stockInPrintDto.setReprint(reprint);
+		stockInPrintDto.setSubmitter(stockIn.getSubmitter());
+		stockInPrintDto.setReviewer("");
 		// 支付方式
         String settleDetails = "";
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
@@ -741,6 +803,17 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockIn domain = new StockIn();
 		domain.setState(StockInStateEnum.EXPIRE.getCode());
 		updateSelectiveByExample(domain, condition);
+	}
+	
+	private RefundOrder getOrderByCode(String code) {
+		RefundOrder condtion = new RefundOrder();
+		condtion.setCode(code);
+		List<RefundOrder> refundOrders = refundOrderService.list(condtion);
+		if(CollectionUtil.isNotEmpty(refundOrders)) {
+			return refundOrders.get(0);
+		}
+		throw new BusinessException(ResultCode.DATA_ERROR, "未查询到退款单!");
+
 	}
 	
 }

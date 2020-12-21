@@ -12,7 +12,6 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.EarnestTransferOrderDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.EarnestTransferOrderStateEnum;
 import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidFeignRpc;
 import com.dili.ia.service.CustomerAccountService;
@@ -133,7 +132,6 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
         efDto.setPayeeCellphone(efDto.getCustomerCellphone());
         efDto.setPayeeCertificateNumber(efDto.getCertificateNumber());
         efDto.setPayeeName(efDto.getCustomerName());
-        efDto.setState(EarnestTransferOrderStateEnum.CREATED.getCode());
         BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
             LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
@@ -144,6 +142,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
         efDto.setCreatorId(userTicket.getId());
         efDto.setCreator(userTicket.getRealName());
         efDto.setMarketId(userTicket.getFirmId());
+        efDto.setMchId(customerAccount.getMchId());
         efDto.setVersion(0L);
         earnestTransferOrderService.insertSelective(efDto);
         return BaseOutput.success().setData(efDto);
