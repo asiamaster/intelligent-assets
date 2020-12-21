@@ -729,6 +729,7 @@
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             success: function (ret) {
+                $("table input[isCharge]").attr('readonly', false);
                 if(!ret.success){
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
