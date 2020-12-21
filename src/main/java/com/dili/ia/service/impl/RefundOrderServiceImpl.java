@@ -11,9 +11,10 @@ import com.dili.bpmc.sdk.rpc.restful.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.restful.TaskRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
+import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.ia.cache.BpmDefKeyConfig;
 import com.dili.ia.domain.ApprovalProcess;
-import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.account.AccountInfo;
 import com.dili.ia.domain.dto.ApprovalParam;
@@ -22,7 +23,6 @@ import com.dili.ia.domain.dto.printDto.RefundOrderPrintDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderItemMapper;
 import com.dili.ia.mapper.RefundOrderMapper;
-import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.AccountService;
 import com.dili.ia.service.ApprovalProcessService;
 import com.dili.ia.service.RefundOrderDispatcherService;
@@ -384,11 +384,11 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
      * @param marketId
      */
     private void checkCustomerState(Long customerId,Long marketId){
-        BaseOutput<Customer> output = customerRpc.get(customerId,marketId);
+        BaseOutput<CustomerExtendDto> output = customerRpc.get(customerId,marketId);
         if(!output.isSuccess()){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 "+output.getMessage());
         }
-        Customer customer = output.getData();
+        CustomerExtendDto customer = output.getData();
         if(null == customer){
             throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请核实！");
         }else if(EnabledStateEnum.DISABLED.getCode().equals(customer.getState())){
@@ -408,7 +408,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         settleOrder.setBusinessCode(ro.getCode()); //业务单号
         //收款人信息
         settleOrder.setCustomerId(ro.getPayeeId());//客户ID
-        Customer customer = customerRpc.get(ro.getPayeeId(), userTicket.getFirmId()).getData();
+        CustomerExtendDto customer = customerRpc.get(ro.getPayeeId(), userTicket.getFirmId()).getData();
         settleOrder.setCustomerPhone(customer.getContactsPhone());//客户手机号
         settleOrder.setCustomerName(customer.getName());// 客户姓名
         settleOrder.setCustomerCertificate(customer.getCertificateNumber()); //客户证件号
