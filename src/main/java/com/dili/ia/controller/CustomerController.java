@@ -51,7 +51,7 @@ public class CustomerController {
             customerQuery.setKeyword(keyword);
         }
         customerQuery.setMarketId(userTicket.getFirmId());
-        return BaseOutput.success().setData(customerRpc.listNormalPage(customerQuery).getData());
+        return BaseOutput.success().setData(customerRpc.listSimpleNormalPage(customerQuery).getData());
     }
     
     /**
@@ -72,6 +72,6 @@ public class CustomerController {
         }
         customerQuery.setOrganizationType("individual");
         customerQuery.setMarketId(userTicket.getFirmId());
-        return BaseOutput.success().setData(customerRpc.listNormalPage(customerQuery).getData());
+        return BaseOutput.success().setData(customerRpc.listSimpleNormalPage(customerQuery).getData());
     }
 }
