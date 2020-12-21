@@ -171,7 +171,7 @@ public interface LaborService extends BaseService<Labor, Long> {
 	 * @return
 	 * @throws
 	 */
-	PrintDataDto<LaborRefundPrintDto> receiptRefundPrintData(String orderCode, String reprint);
+	PrintDataDto<LaborRefundPrintDto> receiptRefundPrintData(RefundOrder refundOrder, String reprint);
 	
 	/**
 	 * 

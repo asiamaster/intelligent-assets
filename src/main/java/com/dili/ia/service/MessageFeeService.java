@@ -146,5 +146,5 @@ public interface MessageFeeService extends BaseService<MessageFee, Long> {
 	 * @param reprint
 	 * @throws
 	 */
-	PrintDataDto<MessageFeeRefundPrintDto> receiptRefundPrintData(String orderCode, String reprint);
+	PrintDataDto<MessageFeeRefundPrintDto> receiptRefundPrintData(RefundOrder refundOrder, String reprint);
 }

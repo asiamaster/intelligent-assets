@@ -564,7 +564,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		LaborPayPrintDto laborPrintDto = new LaborPayPrintDto();
 		laborPrintDto.setPrintTime(LocalDateTime.now());
-		laborPrintDto.setReprint(reprint);
+		laborPrintDto.setReprint("2".equals(reprint) ? "(补打)" : "");
+
 		laborPrintDto.setBusinessType(BizTypeEnum.LABOR_VEST.getName());
 		laborPrintDto.setWorkCard(labor.getWorkCard());
 		laborPrintDto.setModels(labor.getModels());
@@ -596,10 +597,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	}
 
 	@Override
-	public PrintDataDto<LaborRefundPrintDto> receiptRefundPrintData(String orderCode, String reprint) {
-		RefundOrder refundOrder = getOrderByCode(orderCode);
+	public PrintDataDto<LaborRefundPrintDto> receiptRefundPrintData(RefundOrder refundOrder, String reprint) {
 		Labor labor = getLaborByCode(refundOrder.getBusinessCode());
-		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, refundOrder.getCode());
 		LaborRefundPrintDto printDto = new LaborRefundPrintDto();
 		printDto.setPrintTime(LocalDateTime.now());
 		printDto.setReprint(reprint);

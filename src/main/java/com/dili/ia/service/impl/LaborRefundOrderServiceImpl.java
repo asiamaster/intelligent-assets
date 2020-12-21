@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,10 +12,14 @@ import org.springframework.stereotype.Service;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.LaborDto;
+import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.LaborService;
 import com.dili.ia.service.RefundOrderDispatcherService;
+import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
@@ -79,8 +84,13 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 
 	@Override
 	public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
-		
-		return BaseOutput.success().setData(laborService.receiptRefundPrintData(refundOrder.getCode(), "reprint"));
+		PrintDataDto<LaborRefundPrintDto> print = laborService.receiptRefundPrintData(refundOrder, "reprint");
+		 Map<String, Object> resultMap = new HashMap<>();
+       //已交清退款单打印数据
+       resultMap.put("printTemplateCode",print.getName());
+       //根据要求拼装订单项
+       resultMap.putAll(BeanMapUtil.beanToMap(print.getItem()));
+       return BaseOutput.success().setData(resultMap);	
 	}
 
 	@Override
