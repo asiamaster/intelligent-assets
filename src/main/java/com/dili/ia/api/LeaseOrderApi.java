@@ -34,7 +34,7 @@ public class LeaseOrderApi {
      * @return
      */
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
-    public BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
+    public BaseOutput settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
             return assetsLeaseOrderService.updateLeaseOrderBySettleInfo(settleOrder);
         }catch (BusinessException e){
@@ -42,7 +42,7 @@ public class LeaseOrderApi {
             return BaseOutput.failure(e.getMessage());
         }catch (Exception e){
             LOG.error("摊位租赁结算成功回调异常！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
+            return BaseOutput.failure(e.getMessage());
         }
     }
 
