@@ -142,6 +142,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
         efDto.setCreatorId(userTicket.getId());
         efDto.setCreator(userTicket.getRealName());
         efDto.setMarketId(userTicket.getFirmId());
+        efDto.setMchId(customerAccount.getMchId());
         efDto.setVersion(0L);
         earnestTransferOrderService.insertSelective(efDto);
         return BaseOutput.success().setData(efDto);
