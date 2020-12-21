@@ -174,7 +174,7 @@
                 if(sure){
                     $.ajax({
                         type: "POST",
-                        url: "${contextPath}/boutiqueFeeOrder/cancel.action?id=' + id",
+                        url: '${contextPath}/boutiqueFeeOrder/cancel.action?id=' + id,
                         data: data,
                         processData:true,
                         dataType: "json",
@@ -319,15 +319,12 @@
             $('#btn_submit').attr('disabled', false);
             $('#btn_leave').attr('disabled', false);
             $('#btn_forceLeave').attr('disabled', false);
-            $('#btn_refund').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.LEAVE.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
-            $('#btn_refund').attr('disabled', false);
         } else if (state == ${@com.dili.ia.glossary.BoutiqueStateEnum.REVOKE.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
-            $('#btn_refund').attr('disabled', false);
         }
     });
 

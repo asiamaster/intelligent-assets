@@ -310,7 +310,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         // 详情
         SettleOrderLink view = new SettleOrderLink();
         view.setType(LinkTypeEnum.DETAIL.getCode());
-        view.setUrl(settleViewUrl + "?id=" + feeOrder.getId());
+        view.setUrl(settleViewUrl + "?id=" + record.getId());
         // 打印
         SettleOrderLink print = new SettleOrderLink();
         print.setType(LinkTypeEnum.PRINT.getCode());

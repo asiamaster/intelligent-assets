@@ -130,6 +130,7 @@ public class BoutiqueEntranceRecordController {
         try {
             // 参数校验
             AssertUtils.notNull(boutiqueEntranceRecord.getId(), "主键不能为空！");
+            AssertUtils.notNull(boutiqueEntranceRecord.getConfirmTime(), "确认时间不能为空！");
 
             // 确认计费操作
             BoutiqueEntranceRecord boutiqueEntranceRecordInfo = boutiqueEntranceRecordService.confirm(boutiqueEntranceRecord, userTicket);
@@ -161,7 +162,7 @@ public class BoutiqueEntranceRecordController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(feeOrder.getId(), "主键不能为空！");
+            AssertUtils.notNull(feeOrder.getAmount(), "停车费不能为空！");
 
             // 缴费逻辑操作
             BoutiqueEntranceRecord boutiqueEntranceRecordInfo = boutiqueEntranceRecordService.submit(feeOrder, userTicket);

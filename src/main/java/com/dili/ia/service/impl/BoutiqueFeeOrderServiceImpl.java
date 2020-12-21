@@ -19,6 +19,7 @@ import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.BoutiqueFeeOrderService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
+import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -59,10 +61,16 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     private UidRpcResolver uidRpcResolver;
 
     @Autowired
+    private SettleOrderRpc settleOrderRpc;
+
+    @Autowired
     private RefundOrderService refundOrderService;
 
     @Autowired
     private PaymentOrderService paymentOrderService;
+
+    @Value("${settlement.app-id}")
+    private Long settlementAppId;
 
     /**
      * 根据精品停车主键 recordId 查询缴费单列表
@@ -187,7 +195,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     private PaymentOrder findPaymentOrder(UserTicket userTicket, Long businessId, String businessCode, Integer payState) throws BusinessException {
         PaymentOrder pb = new PaymentOrder();
 
-        pb.setBizType(BizTypeEnum.OTHER_FEE.getCode());
+        pb.setBizType(BizTypeEnum.BOUTIQUE_ENTRANCE.getCode());
         pb.setBusinessId(businessId);
         pb.setBusinessCode(businessCode);
         pb.setMarketId(userTicket.getFirmId());
@@ -202,7 +210,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     }
 
     /**
-     * 取消精品停车的交费
+     * 取消精品停车的交费(在逻辑上是撤回缴费单)
      * 
      * @param  id
      * @param  userTicket
@@ -213,7 +221,7 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
     public BoutiqueFeeOrder cancel(Long id, UserTicket userTicket) throws BusinessException {
         BoutiqueFeeOrder orderInfo = this.get(id);
         if (orderInfo == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "该水电费单号已不存在!");
+            throw new BusinessException(ResultCode.DATA_ERROR, "该精品黄楼停车交费单号已不存在!");
         }
 
         // 精品停车缴费，缴费单就是已提交状态
@@ -230,6 +238,30 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
         }
 
+        // 查询缴费单（方法抽取）
+        PaymentOrder paymentOrder = this.findPaymentOrder(userTicket, orderInfo.getId(), orderInfo.getCode(), PaymentOrderStateEnum.NOT_PAID.getCode());
+
+        // 撤回付款单和修改缴费单的状态（方法抽取）
+        this.withdrawPaymentOrder(paymentOrder);
+
         return orderInfo;
+    }
+
+    /**
+     * 撤回付款单和修改缴费单的状态
+     */
+    private void withdrawPaymentOrder(PaymentOrder paymentOrder) {
+        paymentOrder.setState(PaymentOrderStateEnum.CANCEL.getCode());
+        if (paymentOrderService.updateSelective(paymentOrder) == 0) {
+            logger.info("撤回通行证【删除缴费单】失败.");
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
+        // 撤回结算单多人操作已判断
+        BaseOutput<String> baseOutput = settleOrderRpc.cancel(settlementAppId, paymentOrder.getCode());
+        if (!baseOutput.isSuccess()){
+            logger.info("撤回，调用结算中心修改状态失败！" + baseOutput.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "撤回，调用结算中心修改状态失败！" + baseOutput.getMessage());
+        }
     }
 }
