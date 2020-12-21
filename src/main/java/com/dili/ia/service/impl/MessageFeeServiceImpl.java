@@ -33,6 +33,7 @@ import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.MessageFeeStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
+import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.mapper.MessageFeeMapper;
 import com.dili.ia.rpc.MessageFeeRpc;
 import com.dili.ia.rpc.SettlementRpcResolver;
@@ -304,6 +305,10 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {
 		LOG.info("信息费退款成功回调{}",settleOrder.getCode());
 		MessageFee messageFee = getMessageFeeByCode(refundOrder.getBusinessCode());
+		if(messageFee.getState() == MessageFeeStateEnum.REFUNDED.getCode()) {
+			LOG.info("退款成功回调,退款单{}多次调用",refundOrder.getCode());
+			return;
+		}
 		if (messageFee.getState() != MessageFeeStateEnum.SUBMITTED_REFUND.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
@@ -324,6 +329,11 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	public void settlementDealHandler(SettleOrder settleOrder) {
 		LOG.info("信息费支付成功回调{}",settleOrder.getCode());
 		MessageFee messageFee = getMessageFeeByCode(settleOrder.getBusinessCode());
+		if(messageFee.getState() == MessageFeeStateEnum.NOT_STARTED.getCode()||
+				messageFee.getState() == MessageFeeStateEnum.IN_EFFECTIVE.getCode()) {
+			LOG.info("结算成功回调,结算单{}多次调用",settleOrder.getCode());
+			return;
+		}
 		if(messageFee.getState() != MessageFeeStateEnum.SUBMITTED_PAY.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
@@ -434,10 +444,10 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		refundOrder.setMchId(messageFee.getMchId());
 		refundOrder.setDepartmentName(messageFee.getDepartmentName());
 		refundOrder.setDepartmentId(messageFee.getDepartmentId());
-		if(SettleWayEnum.BANK.getCode() == refundInfoDto.getRefundType()) {
+		/*if(SettleWayEnum.BANK.getCode() == refundInfoDto.getRefundType()) {
 			refundOrder.setBank(refundInfoDto.getBank());
 			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
-		}
+		}*/
 		refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.MESSAGEFEE.getEnName()
 				+"_"+BizNumberTypeEnum.REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
@@ -510,7 +520,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 			throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
 		}
 		MessageFee messageFee = getMessageFeeByCode(paymentOrder.getBusinessCode());
-		SettleOrder order = settlementRpcResolver.get(settlementAppId, messageFee.getCode());
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		MessageFeePayPrintDto messageFeePrint = new MessageFeePayPrintDto();
 		messageFeePrint.setPrintTime(LocalDateTime.now());
 		messageFeePrint.setReprint(reprint);
@@ -537,7 +547,9 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
         messageFeePrint.setSettleWayDetails(settleDetails);
 		messageFeePrint.setSerialNumber(order.getSerialNumber());
 		PrintDataDto<MessageFeePayPrintDto> printDataDto = new PrintDataDto<>();
-		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_PAY.getName());
+		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_PAY.getCode());
+		printDataDto.setItem(messageFeePrint);
+
 		return printDataDto;	
 	}
 
@@ -546,7 +558,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 
 		RefundOrder refundOrder = getOrderByCode(orderCode);
 		MessageFee messageFee = getMessageFeeByCode(refundOrder.getBusinessCode());
-		SettleOrder order = settlementRpcResolver.get(settlementAppId, messageFee.getCode());
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		LaborRefundPrintDto printDto = new LaborRefundPrintDto();
 		printDto.setPrintTime(LocalDateTime.now());
 		printDto.setReprint(reprint);
@@ -572,7 +584,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		// 获取转抵信息
 //		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
 		PrintDataDto<MessageFeeRefundPrintDto> printDataDto = new PrintDataDto<>();
-		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getName());
+		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getCode());
 		return printDataDto;	
 	
 	}
