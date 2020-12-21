@@ -78,8 +78,8 @@ public class MessageFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
 	@Override
 	public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
-		// messageFeeService.receiptRefundPrintData(refundOrder.getCode(), "reprint")
-		return BaseOutput.success().setData(null);
+		
+		return BaseOutput.success().setData(messageFeeService.receiptRefundPrintData(refundOrder.getCode(), "reprint"));
 	}
 
 	@Override

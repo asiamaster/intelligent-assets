@@ -500,6 +500,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		LOG.info("退款成功回调,退款单{}",refundOrder.getCode());
 		String code = refundOrder.getBusinessCode();
 		StockIn stockIn = getStockInByCode(code);
+		if(stockIn.getState() == StockInStateEnum.REFUNDED.getCode()) {
+			LOG.info("退款成功回调,退款单{}多次调用",refundOrder.getCode());
+			return;
+		}
 		if(stockIn.getState() != StockInStateEnum.SUBMITTED_REFUND.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
@@ -607,6 +611,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		LOG.info("结算成功回调,结算单{}",settleOrder.getCode());
 		String code = settleOrder.getBusinessCode();
 		StockIn stockIn = getStockInByCode(code);
+		if (stockIn.getState() == StockInStateEnum.PAID.getCode()) {
+			LOG.info("结算成功回调,结算单{}多次调用",settleOrder.getCode());
+			return;
+		}
 		if (stockIn.getState() != StockInStateEnum.SUBMITTED_PAY.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
@@ -640,7 +648,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockIn stockIn = getStockInByCode(paymentOrder.getBusinessCode());
 		StockInPrintDto stockInPrintDto = new StockInPrintDto();
 		//TODO stockInPrintDto.set
-		SettleOrder order = settlementRpcResolver.get(settlementAppId, stockIn.getCode());
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		stockInPrintDto.setBusinessType(BizTypeEnum.STOCKIN.getCode());
 		stockInPrintDto.setCardNo(order.getAccountNumber());
 		stockInPrintDto.setCategoryName(stockIn.getCategoryName());

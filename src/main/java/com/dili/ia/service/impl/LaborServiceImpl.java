@@ -31,6 +31,7 @@ import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.LaborStateEnum;
+import com.dili.ia.glossary.MessageFeeStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.LaborMapper;
@@ -353,6 +354,10 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		LOG.info("劳务费退款成功回调{}",settleOrder.getCode());
 		String code = refundOrder.getBusinessCode();
 		Labor labor = getLaborByCode(code);
+		if(labor.getState() == LaborStateEnum.REFUNDED.getCode()) {
+			LOG.info("退款成功回调,退款单{}多次调用",refundOrder.getCode());
+			return;
+		}
 		if(labor.getState() != LaborStateEnum.SUBMITTED_REFUND.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
@@ -367,6 +372,11 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		LOG.info("劳务费支付成功回调{}",settleOrder.getCode());
 		String code = settleOrder.getBusinessCode();
 		Labor labor = getLaborByCode(code);
+		if (labor.getState() == LaborStateEnum.NOT_STARTED.getCode()
+				|| labor.getState() == LaborStateEnum.IN_EFFECTIVE.getCode()) {
+			LOG.info("结算成功回调,结算单{}多次调用",settleOrder.getCode());
+			return;
+		}
 		if (labor.getState() != LaborStateEnum.SUBMITTED_PAY.getCode()) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "数据状态已改变,请刷新页面重试");
 		}
@@ -479,10 +489,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		refundOrder.setMchId(labor.getMchId());
 		refundOrder.setDepartmentName(labor.getDepartmentName());
 		refundOrder.setDepartmentId(labor.getDepartmentId());
-		if(SettleWayEnum.BANK.getCode() == refundInfoDto.getRefundType()) {
-			refundOrder.setBank(refundInfoDto.getBank());
-			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
-		}
+		
 		refundOrder.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.LABOR_VEST.getEnName()
 				+"_"+BizNumberTypeEnum.REFUND_ORDER.getCode()));
 		if (!refundOrderService.doAddHandler(refundOrder).isSuccess()) {
@@ -554,7 +561,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 			throw new BusinessException(ResultCode.DATA_ERROR, "此单未支付!");
 		}
 		Labor labor = getLaborByCode(paymentOrder.getBusinessCode());
-		SettleOrder order = settlementRpcResolver.get(settlementAppId, labor.getCode());
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		LaborPayPrintDto laborPrintDto = new LaborPayPrintDto();
 		laborPrintDto.setPrintTime(LocalDateTime.now());
 		laborPrintDto.setReprint(reprint);
@@ -583,7 +590,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		// 流水号
 		laborPrintDto.setSerialNumber(order.getSerialNumber());
 		PrintDataDto<LaborPayPrintDto> printDataDto = new PrintDataDto<>();
-		printDataDto.setName(PrintTemplateEnum.LABOR_VEST_PAY.getName());
+		printDataDto.setName(PrintTemplateEnum.LABOR_VEST_PAY.getCode());
 		printDataDto.setItem(laborPrintDto);
 		return printDataDto;	
 	}
@@ -592,7 +599,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	public PrintDataDto<LaborRefundPrintDto> receiptRefundPrintData(String orderCode, String reprint) {
 		RefundOrder refundOrder = getOrderByCode(orderCode);
 		Labor labor = getLaborByCode(refundOrder.getBusinessCode());
-		SettleOrder order = settlementRpcResolver.get(settlementAppId, labor.getCode());
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		LaborRefundPrintDto printDto = new LaborRefundPrintDto();
 		printDto.setPrintTime(LocalDateTime.now());
 		printDto.setReprint(reprint);
@@ -618,7 +625,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
         printDto.setSettleWayDetails(settleDetails);
 		
 		PrintDataDto<LaborRefundPrintDto> printDataDto = new PrintDataDto<>();
-		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getName());
+		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getCode());
 		printDataDto.setItem(printDto);
 		return printDataDto;	
 	}
