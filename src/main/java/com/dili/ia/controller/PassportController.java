@@ -35,7 +35,7 @@ import java.util.List;
  * @author:      xiaosa
  * @date:        2020/7/27
  * @version:     农批业务系统重构
- * @description: 通行证
+ * @description: 通行证 web 层
  */
 @Controller
 @RequestMapping("/passport")
@@ -50,7 +50,7 @@ public class PassportController {
     BusinessLogRpc businessLogRpc;
 
     /**
-     * 跳转到 index 页面
+     * 跳转到index页面
      *
      * @param modelMap
      * @return String
@@ -61,7 +61,7 @@ public class PassportController {
     }
 
     /**
-     * 跳转到 查看 页面
+     * 跳转到查看页面
      *
      * @param id
      * @return String
@@ -82,14 +82,14 @@ public class PassportController {
                 modelMap.put("logs", businessLogOutput.getData());
             }
         } catch (Exception e) {
-            logger.error("日志服务查询异常", e);
+            logger.error("日志服务查询异常！", e);
         }
 
         return "passport/view";
     }
 
     /**
-     * 跳转到 查看 页面
+     * 跳转到查看页面
      *
      * @param  id
      * @return String
@@ -105,7 +105,7 @@ public class PassportController {
     }
 
     /**
-     * 跳转到 新增 页面
+     * 跳转到新增页面
      *
      * @param modelMap
      * @return String
@@ -116,7 +116,7 @@ public class PassportController {
     }
 
     /**
-     * 跳转到 修改 页面
+     * 跳转到修改页面
      *
      * @param  id
      * @return String
@@ -132,7 +132,7 @@ public class PassportController {
     }
 
     /**
-     * 跳转到 申请退款 页面
+     * 跳转到申请退款页面
      *
      * @param modelMap
      * @return String
@@ -160,7 +160,7 @@ public class PassportController {
     }
 
     /**
-     * 新增 通行证
+     * 新增通行证
      *
      * @param  passportDto
      * @return BaseOutput
@@ -178,7 +178,7 @@ public class PassportController {
             Passport passport = passportService.addPassport(passportDto, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增通行证业务单");
 
             return BaseOutput.success().setData(passport);
         } catch (BusinessException e) {
@@ -186,12 +186,12 @@ public class PassportController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
     /**
-     * 修改 通行证
+     * 修改通行证
      *
      * @param  passportDto
      * @return BaseOutput
@@ -203,14 +203,14 @@ public class PassportController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(passportDto.getId(), "主键不能为空");
+            AssertUtils.notNull(passportDto.getId(), "主键不能为空！");
             this.ParamValidate(passportDto);
 
             // 修改逻辑操作
             Passport passport = passportService.updatePassport(passportDto, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "修改通行证业务单");
 
             return BaseOutput.success().setData(passport);
         } catch (BusinessException e) {
@@ -218,12 +218,12 @@ public class PassportController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
     /**
-     * 提交 通行证缴费
+     * 提交通行证缴费
      *
      * @param  id
      * @return BaseOutput
@@ -235,13 +235,13 @@ public class PassportController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(id, "主键不能为空");
+            AssertUtils.notNull(id, "主键不能为空！");
 
             // 提交逻辑操作
             Passport passport = passportService.submit(id, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "提交通行证业务单");
 
             return BaseOutput.success().setData(passport);
         } catch (BusinessException e) {
@@ -249,12 +249,12 @@ public class PassportController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
     /**
-     * 取消 通行证
+     * 取消通行证
      *
      * @param  id
      * @return BaseOutput
@@ -266,13 +266,13 @@ public class PassportController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(id, "主键不能为空");
+            AssertUtils.notNull(id, "主键不能为空!");
 
             // 撤销逻辑操作
             Passport passport = passportService.cancel(id, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "取消通行证业务单");
 
             return BaseOutput.success().setData(passport);
         } catch (BusinessException e) {
@@ -280,12 +280,12 @@ public class PassportController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
     /**
-     * 撤回 通行证
+     * 撤回通行证
      *
      * @param  id
      * @return BaseOutput
@@ -297,13 +297,13 @@ public class PassportController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(id, "主键不能为空");
+            AssertUtils.notNull(id, "主键不能为空！");
 
             // 撤回逻辑操作
             Passport passport = passportService.withdraw(id, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "撤回通行证业务单");
 
             return BaseOutput.success().setData(passport);
         } catch (BusinessException e) {
@@ -311,7 +311,7 @@ public class PassportController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -327,13 +327,13 @@ public class PassportController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(passportRefundOrderDto.getBusinessId(), "业务编号不能为空");
+            AssertUtils.notNull(passportRefundOrderDto.getBusinessId(), "业务编号不能为空！");
 
             // 退款申请逻辑操作
             Passport passport = passportService.refund(passportRefundOrderDto, userTicket);
 
             // 写业务日志，只是退款申请
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "通行证业务单申请退款");
 
             return BaseOutput.success().setData(passport);
         } catch (BusinessException e) {
@@ -341,7 +341,7 @@ public class PassportController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.info("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -351,16 +351,16 @@ public class PassportController {
      * @param passportDto
      */
     private void ParamValidate(PassportDto passportDto) {
-        AssertUtils.notNull(passportDto.getCarType(), "车型不能为空");
-        AssertUtils.notNull(passportDto.getEndTime(), "结束日期不能为空");
-        AssertUtils.notNull(passportDto.getTollAmount(), "通行费不能为空");
-        AssertUtils.notNull(passportDto.getStartTime(), "开始日期不能为空");
-        AssertUtils.notNull(passportDto.getValidPeriod(), "有效期不能为空");
-        AssertUtils.notNull(passportDto.getDepartmentId(), "业务所属部门不能为空");
-        AssertUtils.notEmpty(passportDto.getCarNumber(), "车牌号不能为空");
-        AssertUtils.notEmpty(passportDto.getLicenseCode(), "证件类型不能为空");
-        AssertUtils.notEmpty(passportDto.getCustomerName(), "客户名称不能为空");
-        AssertUtils.notEmpty(passportDto.getCertificateNumber(), "证件号码不能为空");
-        AssertUtils.notEmpty(passportDto.getCustomerCellphone(), "联系电话不能为空");
+        AssertUtils.notNull(passportDto.getCarType(), "车型不能为空！");
+        AssertUtils.notNull(passportDto.getEndTime(), "结束日期不能为空！");
+        AssertUtils.notNull(passportDto.getTollAmount(), "通行费不能为空！");
+        AssertUtils.notNull(passportDto.getStartTime(), "开始日期不能为空！");
+        AssertUtils.notNull(passportDto.getValidPeriod(), "有效期不能为空！");
+        AssertUtils.notNull(passportDto.getDepartmentId(), "业务所属部门不能为空！");
+        AssertUtils.notEmpty(passportDto.getCarNumber(), "车牌号不能为空！");
+        AssertUtils.notEmpty(passportDto.getLicenseCode(), "证件类型不能为空！");
+        AssertUtils.notEmpty(passportDto.getCustomerName(), "客户名称不能为空！");
+        AssertUtils.notEmpty(passportDto.getCertificateNumber(), "证件号码不能为空！");
+        AssertUtils.notEmpty(passportDto.getCustomerCellphone(), "联系电话不能为空！");
     }
 }

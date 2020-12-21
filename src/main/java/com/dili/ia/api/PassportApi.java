@@ -51,7 +51,7 @@ public class PassportApi {
             Passport passport = passportService.settlementDealHandler(settleOrder);
 
             //记录业务日志
-            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), passport.getMarketId(), null);
+            LoggerUtil.buildLoggerContext(passport.getId(), passport.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), passport.getMarketId(), "通行证业务单交费成功回调");
 
             return BaseOutput.success().setData(true);
         } catch (BusinessException e) {
@@ -59,7 +59,7 @@ public class PassportApi {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             LOG.info("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -76,7 +76,7 @@ public class PassportApi {
     BaseOutput<PrintDataDto<PassportPrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {
         try {
             if (StringUtils.isBlank(orderCode) || null == reprint) {
-                return BaseOutput.failure("参数错误");
+                return BaseOutput.failure("参数错误！");
             }
             return BaseOutput.success().setData(passportService.receiptPaymentData(orderCode, reprint));
         } catch (BusinessException e) {
@@ -84,7 +84,7 @@ public class PassportApi {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             LOG.info("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -105,7 +105,7 @@ public class PassportApi {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             LOG.info("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -138,7 +138,7 @@ public class PassportApi {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             LOG.info("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 

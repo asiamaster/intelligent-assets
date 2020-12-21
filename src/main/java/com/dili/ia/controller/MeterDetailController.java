@@ -2,7 +2,6 @@ package com.dili.ia.controller;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.commons.glossary.YesOrNoEnum;
-import com.dili.ia.domain.MeterDetail;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.MeterTypeEnum;
@@ -13,6 +12,7 @@ import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * @author:      xiaosa
  * @date:        2020/6/23
  * @version:     农批业务系统重构
- * @description: 水电费
+ * @description: 水电费 web 层
  */
 @Controller
 @RequestMapping("/meterDetail")
@@ -51,10 +51,10 @@ public class MeterDetailController {
     private final static Logger logger = LoggerFactory.getLogger(MeterDetailController.class);
 
     @Autowired
-    MeterDetailService meterDetailService;
+    BusinessLogRpc businessLogRpc;
 
     @Autowired
-    BusinessLogRpc businessLogRpc;
+    MeterDetailService meterDetailService;
 
     @Autowired
     private BusinessChargeItemService businessChargeItemService;
@@ -157,7 +157,7 @@ public class MeterDetailController {
     }
 
     /**
-     * 跳转到查看页面
+     * 跳转到水电费查看页面
      *
      * @param  id
      * @return String
@@ -173,18 +173,18 @@ public class MeterDetailController {
         modelMap.put("meterDetail", meterDetailDto);
 
         try {
-            //日志查询
+            // 日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
             businessLogQueryInput.setBusinessId(id);
-            // 注：水电费日志类型拆分，需要传日志类型
+            // 水电费日志类型拆分，需要传日志类型
             businessLogQueryInput.setBusinessType(LogBizTypeConst.ELECTRICITY_CODE);
             if (MeterTypeEnum.WATER_METER.getCode().equals(meterDetailDto.getType())) {
                 businessLogQueryInput.setBusinessType(LogBizTypeConst.WATER_CODE);
             }
 
-            BaseOutput list = businessLogRpc.list(businessLogQueryInput);
-            if (list.isSuccess()) {
-                modelMap.put("logs", list.getData());
+            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            if (businessLogOutput.isSuccess()) {
+                modelMap.put("logs", businessLogOutput.getData());
             }
         } catch (Exception e) {
             logger.error("日志服务查询异常", e);
@@ -200,9 +200,9 @@ public class MeterDetailController {
     /**
      * 查询水电费单的集合(分页)
      *
-     * @param meterDetailDto
+     * @param  meterDetailDto
      * @return MeterDetailDtoList
-     * @date 2020/6/28
+     * @date   2020/6/28
      */
     @RequestMapping(value = "/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
@@ -212,7 +212,7 @@ public class MeterDetailController {
     }
 
     /**
-     * 新增 水电费单(仅保存收费单信息)
+     * 新增水电费业务单
      *
      * @param  meterDetailDto
      * @return BaseOutput
@@ -237,12 +237,12 @@ public class MeterDetailController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
     /**
-     * 修改水电费单
+     * 修改水电费业务单
      *
      * @param  meterDetailDto
      * @return BaseOutput
@@ -255,7 +255,7 @@ public class MeterDetailController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(meterDetailDto.getId(), "主键不能为空");
+            AssertUtils.notNull(meterDetailDto.getId(), "主键不能为空！");
             this.ParamValidate(meterDetailDto);
 
             // 修改操作
@@ -268,14 +268,14 @@ public class MeterDetailController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
 
 
     /**
-     * 提交 水电费单(生缴费单和结算单)
+     * 提交水电费业务单(生缴费单和结算单)
      *
      * @param  ids
      * @return BaseOutput
@@ -288,7 +288,7 @@ public class MeterDetailController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notEmpty(ids, "主键不能为空");
+            AssertUtils.notEmpty(ids, "主键不能为空！");
 
             // 提交操作
             List<Long> idList = Arrays.stream(ids.split(",")).map(Long::valueOf).collect(Collectors.toList());
@@ -300,13 +300,14 @@ public class MeterDetailController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
     /**
-     * 全部提交 水电费单(生缴费单和结算单)
+     * 全部提交水电费业务单(生缴费单和结算单)
      *
+     * @param  metertype
      * @return BaseOutput
      * @date   2020/7/29
      */
@@ -317,7 +318,7 @@ public class MeterDetailController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(metertype, "表类型不能为空");
+            AssertUtils.notNull(metertype, "表类型不能为空！");
 
             // 全部提交操作
             List<MeterDetailDto> meterDetailDtoList = meterDetailService.submitAll(userTicket, metertype);
@@ -329,12 +330,12 @@ public class MeterDetailController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
     /**
-     * 撤回 水电费单(取消缴费单和结算单,将水电费单修改为已创建)
+     * 撤回水电费业务单
      *
      * @param  id
      * @return BaseOutput
@@ -347,7 +348,7 @@ public class MeterDetailController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(id, "主键不能为空");
+            AssertUtils.notNull(id, "主键不能为空！");
 
             // 撤回操作
             MeterDetailDto meterDetailDtoInfo = meterDetailService.withdraw(id, userTicket);
@@ -359,12 +360,12 @@ public class MeterDetailController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
     /**
-     * 取消 水电费单
+     * 取消水电费业务单
      *
      * @param   id
      * @return  BaseOutput
@@ -377,7 +378,7 @@ public class MeterDetailController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(id, "主键不能为空");
+            AssertUtils.notNull(id, "主键不能为空！");
 
             // 取消操作
             MeterDetailDto meterDetailDtoInfo = meterDetailService.cancel(id, userTicket);
@@ -389,7 +390,7 @@ public class MeterDetailController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -403,7 +404,7 @@ public class MeterDetailController {
             LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.WATER_CODE);
         }
         LoggerUtil.buildLoggerContext(meterDetailDto.getId(), meterDetailDto.getCode(), userTicket.getId(), userTicket.getRealName(),
-                userTicket.getFirmId(), null);
+                userTicket.getFirmId(), "水电费的相关逻辑操作。");
 
         return BaseOutput.success().setData(meterDetailDto);
     }
@@ -422,7 +423,7 @@ public class MeterDetailController {
                     LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.WATER_CODE);
                 }
                 LoggerUtil.buildLoggerContext(meterDetailDto.getId(), meterDetailDto.getCode(), userTicket.getId(), userTicket.getRealName(),
-                        userTicket.getFirmId(), null);
+                        userTicket.getFirmId(), "水电费的相关逻辑操作。");
             });
         }
 
@@ -444,19 +445,15 @@ public class MeterDetailController {
 
     /**
      * 参数校验抽取
-     *
-     * @param meterDetailDto
      */
     private void ParamValidate(MeterDetailDto meterDetailDto) {
-        AssertUtils.notNull(meterDetailDto.getCustomerId(), "客户不能为空");
-        AssertUtils.notNull(meterDetailDto.getAssetsName(), "表地址不能为空");
-        AssertUtils.notNull(meterDetailDto.getAssetsType(), "表类别不能为空");
-        AssertUtils.notNull(meterDetailDto.getDepartmentId(), "部门不能为空");
-        AssertUtils.notNull(meterDetailDto.getUsageTime(), "截止月份不能为空");
-        AssertUtils.notNull(meterDetailDto.getThisAmount(), "本期指数不能为空");
-        AssertUtils.notEmpty(meterDetailDto.getNumber(), "表编号不能为空");
-        AssertUtils.notEmpty(meterDetailDto.getCustomerCellphone(), "客户联系电话不能为空");
+        AssertUtils.notNull(meterDetailDto.getCustomerId(), "客户不能为空！");
+        AssertUtils.notNull(meterDetailDto.getAssetsName(), "表地址不能为空！");
+        AssertUtils.notNull(meterDetailDto.getAssetsType(), "表类别不能为空！");
+        AssertUtils.notNull(meterDetailDto.getDepartmentId(), "部门不能为空！");
+        AssertUtils.notNull(meterDetailDto.getUsageTime(), "截止月份不能为空！");
+        AssertUtils.notNull(meterDetailDto.getThisAmount(), "本期指数不能为空！");
+        AssertUtils.notEmpty(meterDetailDto.getNumber(), "表编号不能为空！");
+        AssertUtils.notEmpty(meterDetailDto.getCustomerCellphone(), "客户联系电话不能为空！");
     }
-
-
 }

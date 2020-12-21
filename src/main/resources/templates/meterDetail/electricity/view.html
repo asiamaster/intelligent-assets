@@ -1,7 +1,7 @@
 <#bs4Body>
     <div class="container-fluid">
     <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.meterDetail'/>">
-        <form id="saveForm" method="post" action="" class="pb-5">
+    <form id="saveForm" role="form" novalidate>
             <div class="row row-cols-4" >
                 <div class="form-group col">
                     <label for="code">单号<i class="red">*</i></label>
@@ -98,7 +98,7 @@
                 </div>
             </div>
 
-<%if(isNotEmpty(logs) && logs.~size>0){ %>
+        <%if(isNotEmpty(logs) && logs.~size>0){ %>
         <div class="breadcrumb">
             业务记录
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#recordInfo" aria-expanded="true" aria-controls="recordInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>

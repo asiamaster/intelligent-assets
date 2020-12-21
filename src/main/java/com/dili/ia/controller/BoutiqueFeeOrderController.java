@@ -26,10 +26,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * @author: xiaosa
- * @date: 2020/7/31
- * @version: 农批业务系统重构
- * @description:
+ * @author:      xiaosa
+ * @date:        2020/7/31
+ * @version:     农批业务系统重构
+ * @description: 精品停车交费单
  */
 @Controller
 @RequestMapping("/boutiqueFeeOrder")
@@ -68,17 +68,17 @@ public class BoutiqueFeeOrderController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(refundOrderDto.getBusinessId(), "业务编号不能为空");
+            AssertUtils.notNull(refundOrderDto.getBusinessId(), "业务编号不能为空！");
 
             // 退款申请
             BoutiqueFeeOrder refund = boutiqueFeeOrderService.refund(refundOrderDto, userTicket);
 
             LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
-//            LoggerContext.put("content", refund.getLogContent());
+            LoggerContext.put("content", "申请退款。");
             LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
             LoggerUtil.buildLoggerContext(refund.getId(), refund.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), refundOrderDto.getRefundReason());
 
-            return BaseOutput.success("退款成功");
+            return BaseOutput.success("退款成功！");
         } catch (BusinessException e) {
             logger.info("精品停车退款申请失败：{}", e.getMessage());
             return BaseOutput.failure(e.getCode(), e.getMessage());
@@ -101,12 +101,12 @@ public class BoutiqueFeeOrderController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(id, "主键不能为空");
+            AssertUtils.notNull(id, "主键不能为空！");
 
             BoutiqueFeeOrder boutiqueFeeOrder = boutiqueFeeOrderService.cancel(id, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(boutiqueFeeOrder.getId(), boutiqueFeeOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(boutiqueFeeOrder.getId(), boutiqueFeeOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "取消精品黄楼停车交费。");
 
             return BaseOutput.success().setData(boutiqueFeeOrder);
         } catch (BusinessException e) {

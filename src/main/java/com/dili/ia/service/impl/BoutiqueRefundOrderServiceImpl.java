@@ -4,12 +4,15 @@ import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.OtherFee;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
+import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.BoutiqueOrderStateEnum;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.BoutiqueFeeOrderService;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.RefundOrderDispatcherService;
+import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,9 +49,6 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
 
     @Autowired
     private BoutiqueEntranceRecordService boutiqueEntranceRecordService;
-
-    @Autowired
-    private CustomerAccountService customerAccountService;
 
     /**
      * 退款单 -- 提交(退款的提交无需改变通行证缴费单的信息)
@@ -129,6 +130,12 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
      */
     @Override
     public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
+        PrintDataDto<BoutiqueEntrancePrintDto> reprint = boutiqueEntranceRecordService.receiptRefundPrintData(refundOrder.getCode(), "reprint");
+        Map<String, Object> resultMap = new HashMap<>();
+        //已交清退款单打印数据
+        resultMap.put("printTemplateCode",reprint.getName());
+        //根据要求拼装订单项
+        resultMap.putAll(BeanMapUtil.beanToMap(reprint.getItem()));
         return BaseOutput.success();
     }
 
@@ -181,7 +188,7 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         //组装费用项
         BoutiqueFeeOrder boutiqueFeeOrder = boutiqueFeeOrderService.get(refundOrder.getBusinessId());
         if (boutiqueFeeOrder == null) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "其他收费业务单已删除");
+            throw new BusinessException(ResultCode.DATA_ERROR, "精品停车业务单已删除");
         }
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();

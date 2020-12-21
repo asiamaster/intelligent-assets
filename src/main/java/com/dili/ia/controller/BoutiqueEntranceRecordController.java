@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author:      xiaosa
  * @date:        2020/7/13
  * @version:     农批业务系统重构
- * @description: 精品停车
+ * @description: 精品停车 web 层
  */
 @Controller
 @RequestMapping("/boutiqueEntranceRecord")
@@ -105,10 +105,10 @@ public class BoutiqueEntranceRecordController {
     /**
      * 分页查询精品停车列表，返回easyui分页信息
      *
-     * @param boutiqueEntranceRecordDto
+     * @param  boutiqueEntranceRecordDto
      * @return String
      * @throws Exception
-     * @date 2020/7/13
+     * @date   2020/7/13
      */
     @RequestMapping(value = "/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
@@ -129,13 +129,14 @@ public class BoutiqueEntranceRecordController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(boutiqueEntranceRecord.getId(), "主键不能为空");
+            AssertUtils.notNull(boutiqueEntranceRecord.getId(), "主键不能为空！");
+            AssertUtils.notNull(boutiqueEntranceRecord.getConfirmTime(), "确认时间不能为空！");
 
             // 确认计费操作
             BoutiqueEntranceRecord boutiqueEntranceRecordInfo = boutiqueEntranceRecordService.confirm(boutiqueEntranceRecord, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "精品黄楼确认计费");
 
             return BaseOutput.success().setData(boutiqueEntranceRecordInfo);
         } catch (BusinessException e) {
@@ -161,13 +162,13 @@ public class BoutiqueEntranceRecordController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(feeOrder.getId(), "主键不能为空");
+            AssertUtils.notNull(feeOrder.getAmount(), "停车费不能为空！");
 
             // 缴费逻辑操作
             BoutiqueEntranceRecord boutiqueEntranceRecordInfo = boutiqueEntranceRecordService.submit(feeOrder, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "精品黄楼费用提交交费。");
 
             return BaseOutput.success().setData(boutiqueEntranceRecordInfo);
         } catch (BusinessException e) {
@@ -175,7 +176,7 @@ public class BoutiqueEntranceRecordController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -193,13 +194,13 @@ public class BoutiqueEntranceRecordController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(id, "主键不能为空");
+            AssertUtils.notNull(id, "主键不能为空！");
 
             // 离场逻辑操作
             BoutiqueEntranceRecord boutiqueEntranceRecordInfo = boutiqueEntranceRecordService.leave(id, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "精品黄楼停车离场。");
 
             return BaseOutput.success().setData(boutiqueEntranceRecordInfo);
         } catch (BusinessException e) {
@@ -207,7 +208,7 @@ public class BoutiqueEntranceRecordController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -225,13 +226,13 @@ public class BoutiqueEntranceRecordController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(id, "主键不能为空");
+            AssertUtils.notNull(id, "主键不能为空！");
 
             // 强制离场操作
             BoutiqueEntranceRecord boutiqueEntranceRecordInfo = boutiqueEntranceRecordService.forceLeave(id, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(boutiqueEntranceRecordInfo.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "精品黄楼停车强制离场");
 
             return BaseOutput.success().setData(boutiqueEntranceRecordInfo);
         } catch (BusinessException e) {
@@ -239,7 +240,7 @@ public class BoutiqueEntranceRecordController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -255,7 +256,7 @@ public class BoutiqueEntranceRecordController {
     BaseOutput update(@ModelAttribute BoutiqueEntranceRecord boutiqueEntranceRecord) {
         try {
             // 参数校验
-            AssertUtils.notNull(boutiqueEntranceRecord.getId(), "主键不能为空");
+            AssertUtils.notNull(boutiqueEntranceRecord.getId(), "主键不能为空！");
 
             boutiqueEntranceRecordService.updateSelective(boutiqueEntranceRecord);
 
@@ -265,7 +266,7 @@ public class BoutiqueEntranceRecordController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 }

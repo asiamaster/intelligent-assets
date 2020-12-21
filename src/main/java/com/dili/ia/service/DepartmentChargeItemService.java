@@ -53,7 +53,7 @@ public interface DepartmentChargeItemService extends BaseService<DepartmentCharg
      * @return List
      * @date   2020/8/20
      */
-    List<DepartmentChargeItemDto> getChargeItemsByDepartment(Long departmentId);
+    List<DepartmentChargeItemDto> listChargeItemsByDepartment(Long departmentId);
 
     /**
      * 查询所有收费项
@@ -71,5 +71,5 @@ public interface DepartmentChargeItemService extends BaseService<DepartmentCharg
      * @return mchId
      * @date   2020/12/14
      */
-    List<DepartmentChargeItem> getListByChargeItemId(Long chargeItemId);
+    List<DepartmentChargeItem> listChargeByChargeItemId(Long chargeItemId);
 }

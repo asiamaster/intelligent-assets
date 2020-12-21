@@ -97,13 +97,37 @@
                 </div>
             </div>
 
-            <div class="breadcrumb">
-            业务记录 <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#details" aria-expanded="true"
-             aria-controls="details">收起
-                <i class="fa fa-angle-double-up" aria-hidden="true"></i>
-            </a>
-            </div>
-            <div class="collapse show" id="details">
+        <%if(isNotEmpty(logs) && logs.~size>0){ %>
+        <div class="breadcrumb">
+            业务记录
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#recordInfo" aria-expanded="true" aria-controls="recordInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+        </div>
+        <div class="collapse" id="recordInfo">
+            <table data-toggle="table">
+                <thead>
+                <tr>
+                    <th data-align="center">时间</th>
+                    <th data-align="center">操作</th>
+                    <th data-align="center">详情</th>
+                    <th data-align="center">补充信息</th>
+                    <th data-align="center">工作员</th>
+                </tr>
+                </thead>
+                <tbody>
+                <%
+                for(log in logs){%>
+                <tr>
+                    <td class="text-center align-middle" >${log.createTime!}</td>
+                    <td class="text-center align-middle" >${log.operationTypeText!}</td>
+                    <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.content!}" >${log.content!}</td>
+                    <td class="text-center align-middle" data-toggle="tooltip" data-placement="left" title="${log.notes!}" >${log.notes!}</td>
+                    <td class="text-center align-middle" >${log.operatorName!}</td>
+                </tr>
+                <% }%>
+                </tbody>
+            </table>
+        </div>
+        <% }%>
 
 
             </div>

@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author:         xiaosa
  * @date:           2020/7/6
  * @version:        农批业务系统重构
- * @description:    水电费缴费后回调
+ * @description:    水电费业务单缴费后回调
  */
 @RestController
 @RequestMapping("/api/meterDetail")
@@ -60,7 +60,7 @@ public class MeterDetailApi {
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.WATER_CODE);
             }
             LoggerUtil.buildLoggerContext(meterDetailDto.getId(), meterDetailDto.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(),
-                    meterDetailDto.getMarketId(), null);
+                    meterDetailDto.getMarketId(), "水电费业务单交费成功回调");
 
             return BaseOutput.success().setData(true);
         } catch (BusinessException e) {
@@ -68,7 +68,7 @@ public class MeterDetailApi {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             LOG.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -83,7 +83,7 @@ public class MeterDetailApi {
     BaseOutput<PrintDataDto<MeterDetailPrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {
         try {
             if (StringUtils.isBlank(orderCode) || null == reprint) {
-                return BaseOutput.failure("参数错误");
+                return BaseOutput.failure("参数错误！");
             }
             return BaseOutput.success().setData(meterDetailService.receiptPaymentData(orderCode, reprint));
         } catch (BusinessException e) {
@@ -91,7 +91,7 @@ public class MeterDetailApi {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             LOG.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 

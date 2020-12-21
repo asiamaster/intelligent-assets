@@ -2,7 +2,6 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
-import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.glossary.MeterTypeEnum;
 import com.dili.ia.service.CustomerMeterService;
 import com.dili.ia.util.AssertUtils;
@@ -106,7 +105,7 @@ public class CustomerMeterController {
      * 查询表用户关系的集合(分页)
      *
      * @param  customerMeterDto
-     * @return String
+     * @return customerMeterList
      * @date   2020/6/17
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -127,22 +126,22 @@ public class CustomerMeterController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(customerMeterDto.getType(), "表类型不能为空");
-            AssertUtils.notNull(customerMeterDto.getAssetsId(), "表地址不能为空");
-            AssertUtils.notNull(customerMeterDto.getCustomerId(), "客户不能为空");
-            AssertUtils.notEmpty(customerMeterDto.getNumber(), "表编号不能为空");
-            AssertUtils.notEmpty(customerMeterDto.getCustomerCellphone(), "客户联系电话不能为空");
+            AssertUtils.notNull(customerMeterDto.getType(), "表类型不能为空！");
+            AssertUtils.notNull(customerMeterDto.getAssetsId(), "表地址不能为空！");
+            AssertUtils.notNull(customerMeterDto.getCustomerId(), "客户不能为空！");
+            AssertUtils.notEmpty(customerMeterDto.getNumber(), "表编号不能为空！");
+            AssertUtils.notEmpty(customerMeterDto.getCustomerCellphone(), "客户联系电话不能为空！");
 
             // 新增
             CustomerMeter customerMeter = customerMeterService.addCustomerMeter(customerMeterDto, userTicket);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
+            LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增表用户关系。");
 
             return BaseOutput.success().setData(customerMeter);
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -159,13 +158,13 @@ public class CustomerMeterController {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 参数校验
-            AssertUtils.notNull(id, "主键不能为空");
+            AssertUtils.notNull(id, "主键不能为空！");
 
             CustomerMeter customerMeter = customerMeterService.updateCustomerMeter(id);
 
             // 写业务日志
             LoggerUtil.buildLoggerContext(customerMeter.getId(), null, userTicket.getId(), userTicket.getRealName(),
-                    userTicket.getFirmId(), "解绑");
+                    userTicket.getFirmId(), "解绑表用户关系。");
 
             return BaseOutput.success().setData(customerMeter);
         } catch (BusinessException e) {
@@ -173,7 +172,7 @@ public class CustomerMeterController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -187,6 +186,7 @@ public class CustomerMeterController {
     @RequestMapping(value="/getCustomerByAssetsId.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput getCustomerByAssetsId(Long assetsId, Integer assetsType) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+
         CustomerMeterDto customerMeterDto = customerMeterService.getCustomerByAssetsIdAndAssetsType(userTicket, assetsId, assetsType);
 
         return BaseOutput.success().setData(customerMeterDto);
@@ -197,7 +197,7 @@ public class CustomerMeterController {
      * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)(查询水表)
      *
      * @param  keyword
-     * @return List
+     * @return BaseOutput
      * @date   2020/7/10
      */
     @RequestMapping(value="/listCustomerMeterByLikeNameWater.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -211,7 +211,7 @@ public class CustomerMeterController {
      * 根据表编号模糊查询表客户信息列表(新增水电费页面回显)(查询电表)
      *
      * @param  keyword
-     * @return List
+     * @return BaseOutput
      * @date   2020/7/10
      */
     @RequestMapping(value="/listCustomerMeterByLikeNameElectricity.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -225,7 +225,7 @@ public class CustomerMeterController {
      * 根据表主键 meterId 获取表绑定的用户信息以及上期指数
      *
      * @param  meterId
-     * @return CustomerMeter
+     * @return BaseOutput
      * @date   2020/6/28
      */
     @RequestMapping(value="/getBindInfoByMeterId.action", method = {RequestMethod.GET, RequestMethod.POST})
@@ -239,7 +239,7 @@ public class CustomerMeterController {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
     }
     }
 }

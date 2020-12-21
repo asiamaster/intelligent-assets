@@ -32,10 +32,6 @@ public class LogBizTypeConst {
     public static final String CUSTOMER_METER="customer_meter";
 
     /**
-     * 水电费
-     */
-//    public static final String WATER_ELECTRICITY_CODE="water_electricity";
-    /**
      * 水费
      */
     public static final String WATER_CODE="water";

@@ -3,9 +3,7 @@ package com.dili.ia.service;
 import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ss.base.BaseService;
-import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 
 import java.util.List;
@@ -14,14 +12,14 @@ import java.util.List;
  * @author:       xiaosa
  * @date:         2020/6/12
  * @version:      农批业务系统重构
- * @description:  表用户关系 service
+ * @description:  表用户关系 service 层
  */
 public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
 
     /**
      * 根据主键 id 查询表用户关系
      *
-     * @param  id 表用户关系主键
+     * @param  id
      * @return CustomerMeterDto
      * @date   2020/6/29
      */
@@ -44,7 +42,7 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * @return CustomerMeter
      * @date   2020/6/16
      */
-    CustomerMeter updateCustomerMeter(Long id) throws BusinessException;
+    CustomerMeter updateCustomerMeter(Long id);
 
     /**
      * 查询表用户关系的集合(分页)
@@ -63,7 +61,7 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
      * @return CustomerMeterDto
      * @date   2020/6/28
      */
-    CustomerMeterDto getBindInfoByMeterId(Long meterId) throws BusinessException;
+    CustomerMeterDto getBindInfoByMeterId(Long meterId);
 
     /**
      * 根据表编号模糊查询表客户信息列表
@@ -77,19 +75,10 @@ public interface CustomerMeterService extends BaseService<CustomerMeter, Long> {
     List<CustomerMeterDto> listCustomerMetersByLikeName(Integer type, String keyword);
 
     /**
-     * 删除表用户关系
-     *
-     * @param  id 表用户关系主键
-     * @return 是否成功
-     * @date   2020/6/16
-     */
-    BaseOutput<CustomerMeter>  deleteCustomerMeter(Long id);
-
-    /**
      * 根据表地址查询是否处于租期状态和相应的用户
      *
      * @param  assetsId
-     * @param assetsType
+     * @param  assetsType
      * @return CustomerMeterDto
      * @date   2020/12/10
      */

@@ -33,7 +33,7 @@ public interface OtherFeeService extends BaseService<OtherFee, Long> {
      * @return OtherFee
      * @date   2020/8/18
      */
-    OtherFee addOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket) throws Exception;
+    OtherFee addOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket);
 
     /**
      * 修改其他收费
@@ -43,71 +43,71 @@ public interface OtherFeeService extends BaseService<OtherFee, Long> {
      * @return OtherFee
      * @date   2020/8/19
      */
-    OtherFee updateOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket) throws BusinessException;
+    OtherFee updateOtherFee(OtherFeeDto otherFeeDto, UserTicket userTicket);
 
     /**
      * 提交其他收费
      *
-     * @param id
+     * @param  id
      * @return OtherFee
-     * @date 2020/8/19
+     * @date   2020/8/19
      */
-    OtherFee submit(Long id, UserTicket userTicket) throws BusinessException;
+    OtherFee submit(Long id, UserTicket userTicket);
 
     /**
      * 取消其他收费
      *
-     * @param id
-     * @param userTicket
+     * @param  id
+     * @param  userTicket
      * @return OtherFee
-     * @date 2020/8/19
+     * @date   2020/8/19
      */
-    OtherFee cancel(Long id, UserTicket userTicket) throws BusinessException;
+    OtherFee cancel(Long id, UserTicket userTicket);
 
     /**
      * 撤回其他收费
      *
-     * @param id
-     * @param userTicket
+     * @param  id
+     * @param  userTicket
      * @return OtherFee
-     * @date 2020/8/19
+     * @date   2020/8/19
      */
-    OtherFee withdraw(Long id, UserTicket userTicket) throws BusinessException;
+    OtherFee withdraw(Long id, UserTicket userTicket);
 
     /**
      * 其他收费 退款
      *
-     * @param refundOrderDto
-     * @param userTicket
+     * @param  refundOrderDto
+     * @param  userTicket
      * @return OtherFee
-     * @date 2020/8/19
+     * @date   2020/8/19
      */
-    OtherFee refund(OtherFeeRefundOrderDto refundOrderDto, UserTicket userTicket) throws BusinessException;
+    OtherFee refund(OtherFeeRefundOrderDto refundOrderDto, UserTicket userTicket);
 
     /**
      * 缴费成功回调
      *
-     * @param settleOrder
-     * @return
-     * @date 2020/8/19
+     * @param  settleOrder
+     * @return OtherFee
+     * @date   2020/8/19
      */
-    OtherFee settlementDealHandler(SettleOrder settleOrder) throws BusinessException;
+    OtherFee settlementDealHandler(SettleOrder settleOrder);
 
     /**
      * 缴费成功票据打印
      *
-     * @param
-     * @return
-     * @date 2020/8/19
+     * @param  orderCode
+     * @return PrintDataDto
+     * @date   2020/8/19
      */
-    PrintDataDto<OtherFeePrintDto> receiptPaymentData(String orderCode, Integer reprint) throws BusinessException ;
+    PrintDataDto<OtherFeePrintDto> receiptPaymentData(String orderCode, Integer reprint);
 
     /**
      * 退款票据打印
      *
-     * @param
-     * @return
-     * @date 2020/8/19
+     * @param  orderCode
+     * @return PrintDataDto
+     * @date   2020/8/19
      */
-    PrintDataDto<OtherFeePrintDto> receiptRefundPrintData(String orderCode, String reprint) throws BusinessException;
+    PrintDataDto<OtherFeePrintDto> receiptRefundPrintData(String orderCode, String reprint);
 }

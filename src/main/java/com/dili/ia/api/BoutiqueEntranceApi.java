@@ -41,9 +41,9 @@ public class BoutiqueEntranceApi {
     /**
      * 新增计费（提供给其他服务调用者）
      *
-     * @param recordDto
+     * @param  recordDto
      * @return BaseOutput
-     * @date 2020/7/13
+     * @date   2020/7/13
      */
     @RequestMapping(value = "/add.action", method = {RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "confirm", systemCode = "IA")
@@ -53,7 +53,7 @@ public class BoutiqueEntranceApi {
         BoutiqueEntranceRecord recordInfo = boutiqueEntranceService.addBoutique(recordDto);
 
         // 写业务日志
-        LoggerUtil.buildLoggerContext(recordDto.getId(), null, recordDto.getOperatorId(), recordDto.getOperatorName(), recordDto.getMarketId(), null);
+        LoggerUtil.buildLoggerContext(recordDto.getId(), null, recordDto.getOperatorId(), recordDto.getOperatorName(), recordDto.getMarketId(), "新增精品黄楼停车");
 
         return BaseOutput.success().setData(recordInfo);
     }
@@ -68,12 +68,12 @@ public class BoutiqueEntranceApi {
     @RequestMapping(value = "/cancel.action", method = {RequestMethod.POST})
     @BusinessLogger(businessType = LogBizTypeConst.BOUTIQUE_ENTRANCE, content = "${businessCode!}", operationType = "cancel", systemCode = "IA")
     public @ResponseBody
-    BaseOutput cancel(@RequestBody BoutiqueEntranceRecordDto recordDto) throws Exception {
+    BaseOutput cancel(@RequestBody BoutiqueEntranceRecordDto recordDto){
         try {
             BoutiqueEntranceRecord boutiqueFeeOrder = boutiqueEntranceService.cancel(recordDto);
 
             // 写业务日志
-            LoggerUtil.buildLoggerContext(recordDto.getId(), null, recordDto.getOperatorId(), recordDto.getOperatorName(), recordDto.getMarketId(), null);
+            LoggerUtil.buildLoggerContext(recordDto.getId(), null, recordDto.getOperatorId(), recordDto.getOperatorName(), recordDto.getMarketId(), "取消精品黄楼停车");
 
             return BaseOutput.success().setData(boutiqueFeeOrder);
         } catch (BusinessException e) {
@@ -81,7 +81,7 @@ public class BoutiqueEntranceApi {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             LOG.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -100,7 +100,7 @@ public class BoutiqueEntranceApi {
             BoutiqueFeeOrder boutiqueFeeOrder = boutiqueEntranceService.settlementDealHandler(settleOrder);
 
             //记录业务日志
-            LoggerUtil.buildLoggerContext(boutiqueFeeOrder.getId(), boutiqueFeeOrder.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), boutiqueFeeOrder.getMarketId(), null);
+            LoggerUtil.buildLoggerContext(boutiqueFeeOrder.getId(), boutiqueFeeOrder.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), boutiqueFeeOrder.getMarketId(), "精品黄楼停车业务单交费成功回调");
 
             return BaseOutput.success().setData(true);
         } catch (BusinessException e) {
@@ -108,7 +108,7 @@ public class BoutiqueEntranceApi {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             LOG.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -125,7 +125,7 @@ public class BoutiqueEntranceApi {
     BaseOutput<PrintDataDto<BoutiqueEntrancePrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {
         try {
             if (StringUtils.isBlank(orderCode) || null == reprint) {
-                return BaseOutput.failure("参数错误");
+                return BaseOutput.failure("参数错误！");
             }
             return BaseOutput.success().setData(boutiqueEntranceService.receiptPaymentData(orderCode, reprint));
         } catch (BusinessException e) {
@@ -133,7 +133,7 @@ public class BoutiqueEntranceApi {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             LOG.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 
@@ -155,7 +155,7 @@ public class BoutiqueEntranceApi {
             return BaseOutput.failure(e.getCode(), e.getMessage());
         } catch (Exception e) {
             LOG.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误！");
         }
     }
 }
