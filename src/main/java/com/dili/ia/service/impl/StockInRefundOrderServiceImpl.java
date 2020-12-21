@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,12 +14,16 @@ import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
+import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.glossary.StockInStateEnum;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.RefundFeeItemService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.StockInService;
+import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
@@ -31,6 +36,9 @@ import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Sets;
+
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.json.JSONUtil;
 
 /**
  * <B>Description</B>
@@ -103,9 +111,14 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 
 	@Override
 	public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
-		
-		return BaseOutput.success().setData(stockInService.receiptPaymentData(refundOrder.getCode(), "reprint"));
-	}
+		PrintDataDto<StockInPrintDto> print = stockInService.receiptRefundData(refundOrder, "reprint");
+		 Map<String, Object> resultMap = new HashMap<>();
+        //已交清退款单打印数据
+        resultMap.put("printTemplateCode",print.getName());
+        //根据要求拼装订单项
+        resultMap.putAll(BeanMapUtil.beanToMap(print.getItem()));
+        return BaseOutput.success().setData(resultMap);	
+    }
 
 	@Override
 	public Set<String> getBizType() {

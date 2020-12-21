@@ -523,7 +523,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		MessageFeePayPrintDto messageFeePrint = new MessageFeePayPrintDto();
 		messageFeePrint.setPrintTime(LocalDateTime.now());
-		messageFeePrint.setReprint(reprint);
+		messageFeePrint.setReprint("2".equals(reprint) ? "(补打)" : "");
+
 		messageFeePrint.setBusinessType(BizTypeEnum.MESSAGEFEE.getName());
 		messageFeePrint.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
 		messageFeePrint.setCustomerCellphone(messageFee.getCustomerCellphone());
@@ -554,11 +555,10 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	}
 
 	@Override
-	public PrintDataDto<MessageFeeRefundPrintDto> receiptRefundPrintData(String orderCode, String reprint) {
+	public PrintDataDto<MessageFeeRefundPrintDto> receiptRefundPrintData(RefundOrder refundOrder, String reprint) {
 
-		RefundOrder refundOrder = getOrderByCode(orderCode);
 		MessageFee messageFee = getMessageFeeByCode(refundOrder.getBusinessCode());
-		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
+		SettleOrder order = settlementRpcResolver.get(settlementAppId, refundOrder.getCode());
 		LaborRefundPrintDto printDto = new LaborRefundPrintDto();
 		printDto.setPrintTime(LocalDateTime.now());
 		printDto.setReprint(reprint);

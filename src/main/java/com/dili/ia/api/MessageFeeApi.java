@@ -93,17 +93,17 @@ public class MessageFeeApi {
      * @param settleOrder
      * @return
      */
-    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.POST})
-    public @ResponseBody BaseOutput<PrintDataDto<MessageFeeRefundPrintDto>> queryRefundPrintData(String orderCode, String reprint){
-        try{
-            return BaseOutput.success().setData(messageFeeService.receiptRefundPrintData(orderCode, reprint));
-        }catch (BusinessException e){
-            LOG.error("信息费结算票据打印异常！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
-        }catch (Exception e){
-            LOG.error("信息费结算票据打印异常！", e);
-            return BaseOutput.failure("信息费票据打印异常！").setData(false);
-        }
-    }
+	/*@RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.POST})
+	public @ResponseBody BaseOutput<PrintDataDto<MessageFeeRefundPrintDto>> queryRefundPrintData(String orderCode, String reprint){
+	    try{
+	        return BaseOutput.success().setData(messageFeeService.receiptRefundPrintData(orderCode, reprint));
+	    }catch (BusinessException e){
+	        LOG.error("信息费结算票据打印异常！", e);
+	        return BaseOutput.failure(e.getMessage()).setData(false);
+	    }catch (Exception e){
+	        LOG.error("信息费结算票据打印异常！", e);
+	        return BaseOutput.failure("信息费票据打印异常！").setData(false);
+	    }
+	}*/
 	
 }

@@ -148,4 +148,10 @@ public interface StockInService extends BaseService<StockIn, Long> {
 	 * @throws
 	 */
 	void scanStockIn();
+
+	/**
+	 * @Title 退款打印
+	 * @Description 
+	 */
+	PrintDataDto<StockInPrintDto> receiptRefundData(RefundOrder refundOrder, String reprint);
 }

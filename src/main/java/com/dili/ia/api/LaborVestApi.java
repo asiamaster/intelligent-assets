@@ -89,17 +89,17 @@ public class LaborVestApi {
      * @param settleOrder
      * @return
      */
-    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.POST,RequestMethod.GET})
-    public @ResponseBody BaseOutput<PrintDataDto<LaborRefundPrintDto>> queryRefundPrintData(String orderCode, String reprint){
-        try{
-            return BaseOutput.success().setData(laborService.receiptRefundPrintData(orderCode, reprint));
-        }catch (BusinessException e){
-            LOG.error("劳务结算票据打印异常！", e);
-            return BaseOutput.failure(e.getMessage()).setData(false);
-        }catch (Exception e){
-            LOG.error("劳务结算票据打印异常！", e);
-            return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
-        }
-    }
+	/*@RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.POST,RequestMethod.GET})
+	public @ResponseBody BaseOutput<PrintDataDto<LaborRefundPrintDto>> queryRefundPrintData(String orderCode, String reprint){
+	    try{
+	        return BaseOutput.success().setData(laborService.receiptRefundPrintData(orderCode, reprint));
+	    }catch (BusinessException e){
+	        LOG.error("劳务结算票据打印异常！", e);
+	        return BaseOutput.failure(e.getMessage()).setData(false);
+	    }catch (Exception e){
+	        LOG.error("劳务结算票据打印异常！", e);
+	        return BaseOutput.failure("冷库出库票据打印异常！").setData(false);
+	    }
+	}*/
 
 }
