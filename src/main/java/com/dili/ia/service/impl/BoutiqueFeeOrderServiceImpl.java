@@ -4,7 +4,6 @@ import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.BoutiqueEntranceRecord;
 import com.dili.ia.domain.BoutiqueFeeOrder;
-import com.dili.ia.domain.Customer;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.domain.dto.BoutiqueFeeRefundOrderDto;
@@ -171,18 +170,18 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
      * 检查客户状态
      */
     public void checkCustomerState(Long customerId, Long marketId) {
-        BaseOutput<Customer> output = customerRpc.get(customerId, marketId);
-        if (!output.isSuccess()) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 " + output.getMessage());
-        }
-        Customer customer = output.getData();
-        if (null == customer) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请重新修改后保存");
-        } else if (EnabledStateEnum.DISABLED.getCode().equals(customer.getState())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户【" + customer.getName() + "】已禁用，请重新修改后保存");
-        } else if (YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "客户【" + customer.getName() + "】已删除，请重新修改后保存");
-        }
+//        BaseOutput<Customer> output = customerRpc.get(customerId, marketId);
+//        if (!output.isSuccess()) {
+//            throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 " + output.getMessage());
+//        }
+//        Customer customer = output.getData();
+//        if (null == customer) {
+//            throw new BusinessException(ResultCode.DATA_ERROR, "客户不存在，请重新修改后保存");
+//        } else if (EnabledStateEnum.DISABLED.getCode().equals(customer.getState())) {
+//            throw new BusinessException(ResultCode.DATA_ERROR, "客户【" + customer.getName() + "】已禁用，请重新修改后保存");
+//        } else if (YesOrNoEnum.YES.getCode().equals(customer.getIsDelete())) {
+//            throw new BusinessException(ResultCode.DATA_ERROR, "客户【" + customer.getName() + "】已删除，请重新修改后保存");
+//        }
     }
 
     /**
