@@ -7,7 +7,6 @@ import com.dili.ia.domain.EarnestTransferOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.EarnestRefundOrderDto;
 import com.dili.ia.domain.dto.EarnestTransferOrderDto;
-import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.RefundOrderService;
@@ -51,8 +50,6 @@ public class CustomerAccountController {
     CustomerAccountService customerAccountService;
     @Autowired
     DataAuthService dataAuthService;
-    @Autowired
-    CustomerRpc customerRpc;
     @Autowired
     RefundOrderService refundOrderService;
     @SuppressWarnings("all")

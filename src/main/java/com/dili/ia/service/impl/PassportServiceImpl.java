@@ -19,7 +19,6 @@ import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.PassportMapper;
-import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.service.PaymentOrderService;
@@ -72,9 +71,6 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     }
 
     private final static Logger logger = LoggerFactory.getLogger(PassportServiceImpl.class);
-
-    @Autowired
-    CustomerRpc customerRpc;
 
     @Autowired
     private TypeMarketRpc typeMarketRpc;
@@ -524,7 +520,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
         // 组装数据
         Passport passportInfo = this.get(paymentOrder.getBusinessId());
-        SettleOrder order = settleOrderRpc.get(settlementAppId, passportInfo.getCode()).getData();
+        SettleOrder order = settleOrderRpc.get(settlementAppId, paymentOrder.getCode()).getData();
         if (passportInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "通行证单不存在!");
         }
@@ -585,7 +581,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         } else {
             RefundOrder refundOrder = refundOrders.get(0);
             Passport passportInfo = this.get(refundOrder.getBusinessId());
-            SettleOrder order = settleOrderRpc.get(settlementAppId, passportInfo.getCode()).getData();
+            SettleOrder order = settleOrderRpc.get(settlementAppId, refundOrder.getCode()).getData();
 
             // 组装退款单信息
             PassportPrintDto passportPrintDto = new PassportPrintDto();

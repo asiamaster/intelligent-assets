@@ -713,7 +713,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         if (meterDetailInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "水电费单不存在!");
         }
-        SettleOrder order = settleOrderRpc.get(settlementAppId, meterDetailInfo.getCode()).getData();
+        SettleOrder order = settleOrderRpc.get(settlementAppId, paymentOrder.getCode()).getData();
         if (order == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "水电费单不存在!");
         }

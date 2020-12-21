@@ -6,7 +6,6 @@ import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.service.ApprovalProcessService;
 import com.dili.ia.service.AssetsLeaseOrderItemService;
 import com.dili.ia.service.RefundFeeItemService;
@@ -57,8 +56,6 @@ public class RefundOrderController {
     private ApprovalProcessService approvalProcessService;
     @Autowired
     private RefundFeeItemService refundFeeItemService;
-    @Autowired
-    CustomerRpc customerRpc;
     @SuppressWarnings("all")
     @Autowired
     EventRpc eventRpc;

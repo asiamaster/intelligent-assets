@@ -3,11 +3,15 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.BoutiqueFeeOrder;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.RefundOrder;
+import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
+import com.dili.ia.domain.dto.printDto.PassportPrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.service.RefundOrderDispatcherService;
+import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
@@ -26,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -132,6 +137,12 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
      */
     @Override
     public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
+        PrintDataDto<PassportPrintDto> reprint = passportService.receiptRefundPrintData(refundOrder.getCode(), "reprint");
+        Map<String, Object> resultMap = new HashMap<>();
+        //已交清退款单打印数据
+        resultMap.put("printTemplateCode",reprint.getName());
+        //根据要求拼装订单项
+        resultMap.putAll(BeanMapUtil.beanToMap(reprint.getItem()));
         return BaseOutput.success();
     }
 

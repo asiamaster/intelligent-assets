@@ -13,7 +13,6 @@ import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.BoutiqueOrderStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.mapper.BoutiqueFeeOrderMapper;
-import com.dili.ia.rpc.CustomerRpc;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BoutiqueEntranceRecordService;
 import com.dili.ia.service.BoutiqueFeeOrderService;
@@ -53,9 +52,6 @@ public class BoutiqueFeeOrderServiceImpl extends BaseServiceImpl<BoutiqueFeeOrde
 
     @Autowired
     private BoutiqueEntranceRecordService boutiqueEntranceRecordService;
-
-    @Autowired
-    CustomerRpc customerRpc;
 
     @Autowired
     private UidRpcResolver uidRpcResolver;

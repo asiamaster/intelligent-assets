@@ -18,8 +18,6 @@ import com.dili.ia.glossary.OtherFeeStateEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.OtherFeeMapper;
-import com.dili.ia.rpc.CustomerRpc;
-import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.DepartmentChargeItemService;
 import com.dili.ia.service.MchAndDistrictService;
@@ -69,9 +67,6 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
     public OtherFeeMapper getActualDao() {
         return (OtherFeeMapper) getDao();
     }
-
-    @Autowired
-    CustomerRpc customerRpc;
 
     @Autowired
     private DepartmentRpc departmentRpc;
@@ -592,7 +587,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 
         // 组装数据
         OtherFee otherFeeInfo = this.get(paymentOrder.getBusinessId());
-        SettleOrder order = settleOrderRpc.get(settlementAppId, otherFeeInfo.getCode()).getData();
+        SettleOrder order = settleOrderRpc.get(settlementAppId, paymentOrder.getCode()).getData();
         if (order == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "其他收费缴费单不存在！");
         }
@@ -648,7 +643,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         } else {
             RefundOrder refundOrderInfo = refundOrders.get(0);
             OtherFee otherFeeInfo = this.get(refundOrderInfo.getBusinessId());
-            SettleOrder order = settleOrderRpc.get(settlementAppId, otherFeeInfo.getCode()).getData();
+            SettleOrder order = settleOrderRpc.get(settlementAppId, refundOrderInfo.getCode()).getData();
             if (order == null) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "其他收费退款单不存在！");
             }

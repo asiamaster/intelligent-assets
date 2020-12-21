@@ -543,7 +543,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             RefundOrder refundOrder = refundOrders.get(0);
             BoutiqueFeeOrder orderInfo = boutiqueFeeOrderService.get(refundOrder.getBusinessId());
             BoutiqueEntranceRecord recordInfo = this.get(orderInfo.getRecordId());
-            SettleOrder order = settleOrderRpc.get(settlementAppId, orderInfo.getCode()).getData();
+            SettleOrder order = settleOrderRpc.get(settlementAppId, refundOrder.getCode()).getData();
             if (order == null) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "精品黄楼退款费单不存在！");
             }
