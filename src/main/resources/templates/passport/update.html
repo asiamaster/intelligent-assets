@@ -44,7 +44,9 @@
             </div>
             <div class="form-group col">
                 <label for="licenseCode">证件类型<i class="red">*</i></label>
-                <select id="licenseCode"  name="licenseType" class="form-control" required></select>
+                <select id="licenseCode"  name="licenseCode" class="form-control" required>
+                    <option value="">--请选择--</option>
+                </select>
                 <#bcomboProvider _id="licenseCode" _value="${passport.licenseCode!}"
                 _provider="dataDictionaryValueProvider"
                 _queryParams='{dd_code:"passport_license_code", required:true}' />

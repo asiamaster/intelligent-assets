@@ -12,6 +12,7 @@ import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.domain.input.BusinessLogQueryInput;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.logger.sdk.rpc.BusinessLogRpc;
@@ -181,9 +182,9 @@ public class MeterDetailController {
                 businessLogQueryInput.setBusinessType(LogBizTypeConst.WATER_CODE);
             }
 
-            BaseOutput list = businessLogRpc.list(businessLogQueryInput);
-            if (list.isSuccess()) {
-                modelMap.put("logs", list.getData());
+            BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
+            if (businessLogOutput.isSuccess()) {
+                modelMap.put("logs", businessLogOutput.getData());
             }
         } catch (Exception e) {
             logger.error("日志服务查询异常", e);

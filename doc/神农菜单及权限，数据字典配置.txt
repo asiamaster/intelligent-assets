@@ -141,16 +141,16 @@
 
 数据字典
     通行证车类型 passport_car_type
-        微型面包车 1 (值可修改)
-        小货车    2 (值可变)
+        微型面包车  1
+        小货车     2
 
     通行证证件类型代号 passport_license_code
-        营运车辆通行证     YY  (值可修改)
-        海鲜专线通行证     HX  (值可修改)
-        自用通行证        ZY   (值可修改)
-        外市县上货车辆     WS  (值可修改)
-        超市上货车辆      CS   (值可修改)
-        业主出场上货车辆   YZ   (值可修改)
+        营运车辆通行证     YY  (对应了业务规则中通行证证件类型 hzsc_passport_ 下划线后的小写字母)
+        海鲜专线通行证     HX
+        自用通行证        ZY
+        外市县上货车辆     WS
+        超市上货车辆      CS
+        业主出场上货车辆   YZ
 
     劳务办理周期 labor_interval
         一月 1
@@ -172,7 +172,8 @@
     日志
         表管理             meter
         表用户关系          customer_meter
-        水电费             water_electricity
+        电费               water
+        电费               electricity
         精品停车           boutique
         精品停车缴费单      boutique_fee_order
         通行证             passport
@@ -180,3 +181,4 @@
         劳务马甲	labor_vest
         信息费		message_fee
         冷库入库	stock
+
