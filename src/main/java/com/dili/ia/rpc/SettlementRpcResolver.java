@@ -1,31 +1,19 @@
 package com.dili.ia.rpc;
 
-import com.alibaba.fastjson.JSON;
-import com.dili.ia.domain.Labor;
-import com.dili.ia.domain.dto.SettleOrderInfoDto;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.settlement.domain.SettleOrder;
-import com.dili.settlement.domain.SettleWayDetail;
-import com.dili.settlement.dto.SettleOrderDto;
-import com.dili.settlement.enums.SettleStateEnum;
-import com.dili.settlement.enums.SettleTypeEnum;
-import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.exception.BusinessException;
-import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.rpc.DepartmentRpc;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+import com.alibaba.fastjson.JSON;
+import com.dili.settlement.domain.SettleOrder;
+import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.rpc.SettleOrderRpc;
+import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 
 /**
  * 
@@ -41,13 +29,11 @@ import java.util.List;
 public class SettlementRpcResolver {
 	private final static Logger LOG = LoggerFactory.getLogger(SettlementRpcResolver.class);
 	@Autowired
-	private SettlementRpc settlementRpc;
+	private SettleOrderRpc settleOrderRpc;
 	
 	@Value("${settlement.app-id}")
     private Long settlementAppId;
-	
-	@Autowired
-	private  DepartmentRpc departmentRpc;
+
     
     //private String settlerHandlerUrl = "http://10.28.1.187:8381/api/labor/vest/settlementDealHandler";
 	
@@ -58,9 +44,8 @@ public class SettlementRpcResolver {
      */
     public SettleOrder submit(SettleOrderDto settleOrder){
     	settleOrder.setAppId(settlementAppId);
-    	//settleOrder.setReturnUrl(settlerHandlerUrl);
-    	//LOG.info("结算成功!业务号:" + JSON.toJSONString(settleOrder));
-    	BaseOutput<SettleOrder> result = settlementRpc.submit(settleOrder);
+
+    	BaseOutput<SettleOrder> result = settleOrderRpc.submit(settleOrder);
         if(!result.isSuccess()){
         	LOG.info("结算调用失败!业务号:" + settleOrder.getBusinessCode()+",message:"+JSON.toJSONString(result));
             throw new BusinessException(ResultCode.APP_ERROR, "结算调用失败!");
@@ -76,7 +61,7 @@ public class SettlementRpcResolver {
      * @return
      */
     public String cancel(Long appId, String orderCode){
-    	BaseOutput<String> result = settlementRpc.cancel(settlementAppId,orderCode);
+    	BaseOutput<String> result = settleOrderRpc.cancel(settlementAppId,orderCode);
         if(!result.isSuccess()){
         	LOG.info("结算撤回失败!业务号:" + orderCode);
             throw new BusinessException(ResultCode.APP_ERROR, "结算调用失败!");
@@ -91,7 +76,7 @@ public class SettlementRpcResolver {
      * @return
      */
     public String cancel(String orderCode){
-    	BaseOutput<String> result = settlementRpc.cancel(settlementAppId,orderCode);
+    	BaseOutput<String> result = settleOrderRpc.cancel(settlementAppId,orderCode);
         if(!result.isSuccess()){
         	LOG.info("结算撤回失败!业务号:" + orderCode);
             throw new BusinessException(ResultCode.APP_ERROR, "结算调用失败!");
@@ -107,7 +92,7 @@ public class SettlementRpcResolver {
      * @return
      */
     public SettleOrder get(Long appId, String businessCode){
-    	BaseOutput<SettleOrder> result = settlementRpc.get(appId,businessCode);
+    	BaseOutput<SettleOrder> result = settleOrderRpc.get(appId,businessCode);
         if(!result.isSuccess()){
         	LOG.info("获取结算单失败!业务号:" + businessCode+",result:"+JSON.toJSONString(result));
             throw new BusinessException(ResultCode.APP_ERROR, "获取结算单失败!");

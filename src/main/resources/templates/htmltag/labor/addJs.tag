@@ -1,10 +1,14 @@
 <script>
 
-    //初始化刷卡
-    initSwipeCard({
-        id:'getCustomer',
-    });
-
+    $(function(){
+    	//初始化刷身份证
+        initSwipeIdCard({
+            id:'getCustomer',
+            onLoadSuccess:function(customer){
+                calcTotalAmount(true);
+            }
+        });
+    })
     function buildFormData(){
     	$('#saveForm').find('select').each(function(){
 			$(this).removeAttr("disabled"); 

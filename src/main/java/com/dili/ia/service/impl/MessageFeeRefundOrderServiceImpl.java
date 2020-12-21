@@ -1,16 +1,21 @@
 package com.dili.ia.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.MessageFee;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.MessageFeeService;
 import com.dili.ia.service.RefundOrderDispatcherService;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -32,6 +37,9 @@ public class MessageFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 
 	@Autowired
 	private MessageFeeService messageFeeService;
+	
+	@Autowired
+	private BusinessChargeItemService businessChargeItemService;
 
 	@Override
 	public BaseOutput updateHandler(RefundOrder refundOrder) {
@@ -79,4 +87,20 @@ public class MessageFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
 		return Sets.newHashSet(BizTypeEnum.MESSAGEFEE.getCode());
 	}
 
+	
+	@Override
+	public List<SettleFeeItem> buildSettleFeeItem(RefundOrder refundOrder) {
+
+		List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
+		List<BusinessChargeItem> items = businessChargeItemService.getByBizCode(refundOrder.getBusinessCode());
+		for (BusinessChargeItem item : items) {
+			SettleFeeItem settleFeeItem = new SettleFeeItem();
+			settleFeeItem.setChargeItemId(item.getChargeItemId());
+			settleFeeItem.setChargeItemName(item.getChargeItemName());
+			settleFeeItem.setAmount(item.getPaymentAmount());
+			settleFeeItemList.add(settleFeeItem);
+		}
+		return settleFeeItemList;
+
+	}
 }

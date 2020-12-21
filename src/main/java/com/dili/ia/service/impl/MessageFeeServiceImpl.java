@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dili.assets.sdk.dto.TypeMarketDto;
+import com.dili.assets.sdk.rpc.TypeMarketRpc;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.MessageFee;
 import com.dili.ia.domain.PaymentOrder;
@@ -41,11 +43,14 @@ import com.dili.ia.service.MessageFeeService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LoggerUtil;
+import com.dili.ia.util.SettleOrderLinkUtils;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
+import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.EnableEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
@@ -72,10 +77,6 @@ import io.seata.spring.annotation.GlobalTransactional;
 public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> implements MessageFeeService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(MessageFeeServiceImpl.class);
-
-	
-	@Autowired
-	private CustomerAccountService customerAccountService;
 	
 	@Autowired
 	private PaymentOrderService paymentOrderService;
@@ -97,18 +98,22 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	private ChargeRuleRpc chargeRuleRpc;
 	
 	@Autowired
+	private TypeMarketRpc typeMarketRpc;
+	
+	@Autowired
 	private BusinessChargeItemService businessChargeItemService;
 	
 	@Autowired
 	private MessageFeeRpc messageFeeRpc;
 	
-	@Value("${settlement.handler.host}")
-	private String settlerHandlerHost;
-	
-	private String settlerHandlerUrl = settlerHandlerHost+"/api/fee/message/settlementDealHandler";
-	
 	@Value("${settlement.app-id}")
-    private Long settlementAppId;
+	private Long settlementAppId;
+	@Value("${messageFee.settlement.handler.url}")
+	private String settlerHandlerUrl;
+	@Value("${messageFee.settlement.view.url}")
+	private String settleViewUrl;
+	@Value("${messageFee.settlement.print.url}")
+	private String settlerPrintUrl;
 	
     public MessageFeeMapper getActualDao() {
         return (MessageFeeMapper)getDao();
@@ -157,7 +162,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		MessageFee messageFee = new MessageFee(userTicket);
 		BeanUtil.copyProperties(messageFeeDto, messageFee);
-		messageFee.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizTypeEnum.MESSAGEFEE.getEnName()));
+		messageFee
+				.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.MESSAGEFEE.getEnName()));
 		messageFee.setCreatorId(userTicket.getId());
 		messageFee.setCreatorName(userTicket.getRealName());
 		messageFee.setMarketCode(userTicket.getFirmCode());
@@ -165,13 +171,24 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		messageFee.setCreateTime(LocalDateTime.now());
 		messageFee.setVersion(1);
 		messageFee.setState(MessageFeeStateEnum.CREATED.getCode());
+		// 商户ID需要从基础信息中获取
+		BaseOutput<List<TypeMarketDto>> baseOutput = typeMarketRpc.queryAll();
+		if (baseOutput.isSuccess() && baseOutput.getData() != null) {
+			for (TypeMarketDto typeMarketDto : baseOutput.getData()) {
+				if (BizNumberTypeEnum.LABOR_VEST.getCode().equals(typeMarketDto.getType())) {
+					messageFee.setMchId(typeMarketDto.getMarketId());
+				}
+			}
+		}
 		this.insertSelective(messageFee);
 		// 动态收费项
-		List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(messageFeeDto.getBusinessChargeItems(), messageFee.getId(), messageFee.getCode());
-		if(CollectionUtil.isNotEmpty(businessChargeItems)) {
+		List<BusinessChargeItem> businessChargeItems = buildBusinessCharge(messageFeeDto.getBusinessChargeItems(),
+				messageFee.getId(), messageFee.getCode());
+		if (CollectionUtil.isNotEmpty(businessChargeItems)) {
 			businessChargeItemService.batchInsert(businessChargeItems);
 		}
-		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "新增信息费单");
+		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(),
+				userTicket.getRealName(), userTicket.getFirmId(), "新增信息费单");
 	}
 
 	@Override
@@ -205,14 +222,13 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		PaymentOrder paymentOrder = paymentOrderService.buildPaymentOrder(userTicket, BizTypeEnum.MESSAGEFEE);
 		paymentOrder.setBusinessCode(code);
 		// 需要支付的金额 总金额-转抵
-		paymentOrder.setAmount(messageFee.getAmount()-messageFee.getTransactionAmount());
+		paymentOrder.setAmount(messageFee.getAmount());
 		paymentOrder.setBusinessId(messageFee.getId());
 		paymentOrderService.insertSelective(paymentOrder);
 		// 结算服务
 		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, messageFee,
 				paymentOrder.getCode(), paymentOrder.getAmount(), BizTypeEnum.MESSAGEFEE);
-		//TODO
-		//settleOrderDto.setReturnUrl(settlerHandlerUrl);
+
 		settlementRpcResolver.submit(settleOrderDto);
 		
 		MessageFee domain = new MessageFee(userTicket);
@@ -279,14 +295,6 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		// 获取结算单
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, messageFee.getPaymentOrderCode());
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, messageFee, order);
-		
-		// 转抵信息
-//		if (CollectionUtils.isNotEmpty(refundInfoDto.getTransferDeductionItems())) {
-//			refundInfoDto.getTransferDeductionItems().forEach(o -> {
-//				o.setRefundOrderId(refundOrder.getId());
-//				transferDeductionItemService.insertSelective(o);
-//			});
-//		}
 		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "退款申请信息费单");
 
 	}
@@ -370,9 +378,10 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
         update(domain, messageFee.getCode(), messageFee.getVersion(), MessageFeeStateEnum.getMessageFeeStateEnum(messageFee.getState()));
 	}
 	
-	private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, MessageFee messageFee,String orderCode,Long amount,BizTypeEnum bizTypeEnum) {
-		SettleOrderInfoDto settleOrderInfoDto = 
-				new SettleOrderInfoDto(userTicket, bizTypeEnum,SettleTypeEnum.PAY,SettleStateEnum.WAIT_DEAL);
+	private SettleOrderDto buildSettleOrderDto(UserTicket userTicket, MessageFee messageFee, String orderCode,
+			Long amount, BizTypeEnum bizTypeEnum) {
+		SettleOrderInfoDto settleOrderInfoDto = new SettleOrderInfoDto(userTicket, bizTypeEnum, SettleTypeEnum.PAY,
+				SettleStateEnum.WAIT_DEAL);
 		settleOrderInfoDto.setBusinessCode(messageFee.getCode());
 		settleOrderInfoDto.setOrderCode(orderCode);
 		settleOrderInfoDto.setAmount(amount);
@@ -381,10 +390,28 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		settleOrderInfoDto.setCustomerId(messageFee.getCustomerId());
 		settleOrderInfoDto.setCustomerName(messageFee.getCustomerName());
 		settleOrderInfoDto.setCustomerPhone(messageFee.getCustomerCellphone());
-		if (userTicket.getDepartmentId() != null){
-            settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
-            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
-        }
+		settleOrderInfoDto.setMchId(messageFee.getMchId());
+		settleOrderInfoDto.setBusinessType(BizTypeEnum.MESSAGEFEE.getCode());
+		settleOrderInfoDto.setDeductEnable(EnableEnum.NO.getCode());
+		settleOrderInfoDto.setCustomerCertificate(messageFee.getCustomerCertificateNumber());
+		if (userTicket.getDepartmentId() != null) {
+			settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
+			settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+		}
+		// 结算费用项列表
+		List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
+		List<BusinessChargeItem> items = businessChargeItemService.getByBizCode(messageFee.getCode());
+		for (BusinessChargeItem item : items) {
+			SettleFeeItem settleFeeItem = new SettleFeeItem();
+			settleFeeItem.setChargeItemId(item.getChargeItemId());
+			settleFeeItem.setChargeItemName(item.getChargeItemName());
+			settleFeeItem.setAmount(item.getPaymentAmount());
+			settleFeeItemList.add(settleFeeItem);
+		}
+		settleOrderInfoDto.setSettleFeeItemList(settleFeeItemList);
+		// 结算单链接列表
+		settleOrderInfoDto.setSettleOrderLinkList(SettleOrderLinkUtils.buildLinks(settlerPrintUrl, settleViewUrl,
+				settlerHandlerUrl, messageFee.getCode(), orderCode));
 		return settleOrderInfoDto;
 	}
 	
@@ -404,6 +431,9 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
+		refundOrder.setMchId(messageFee.getMchId());
+		refundOrder.setDepartmentName(messageFee.getDepartmentName());
+		refundOrder.setDepartmentId(messageFee.getDepartmentId());
 		if(SettleWayEnum.BANK.getCode() == refundInfoDto.getRefundType()) {
 			refundOrder.setBank(refundInfoDto.getBank());
 			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
@@ -494,12 +524,17 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		messageFeePrint.setNotes(messageFee.getNotes());
 		messageFeePrint.setSubmitter(messageFee.getSubmitorName());
 		messageFeePrint.setSettlementOperator(order.getOperatorName());
-		//TODO
-		//messageFeePrint.setPayWay(order.getWayName());
-		// 判断支付方式
-		// 园区卡号
-		messageFeePrint.setCardNo(order.getAccountNumber());
-		// 流水号
+		// 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else {
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        messageFeePrint.setSettleWayDetails(settleDetails);
 		messageFeePrint.setSerialNumber(order.getSerialNumber());
 		PrintDataDto<MessageFeePayPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_PAY.getName());
@@ -523,12 +558,17 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		printDto.setSubmitter(messageFee.getSubmitorName());
 		printDto.setNotes(messageFee.getNotes());
 		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
-		// 判断支付方式
-		// 园区卡号
-		printDto.setAccountCardNo(order.getAccountNumber());
-		// 银行卡号
-		printDto.setBankName(refundOrder.getBank());
-		printDto.setBankNo(refundOrder.getBankCardNo());
+		// 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else {
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        printDto.setSettleWayDetails(settleDetails);
 		// 获取转抵信息
 //		printDto.setTransferDeductionItems(transferDeductionItemService.list(condtion));
 		PrintDataDto<MessageFeeRefundPrintDto> printDataDto = new PrintDataDto<>();

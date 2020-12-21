@@ -71,7 +71,7 @@ public class LaborVestApi {
      * @param settleOrder
      * @return
      */
-    @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST})
+    @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST,RequestMethod.GET})
     public @ResponseBody BaseOutput<PrintDataDto<LaborPayPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(laborService.receiptPaymentData(orderCode, reprint));
@@ -89,7 +89,7 @@ public class LaborVestApi {
      * @param settleOrder
      * @return
      */
-    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.POST})
+    @RequestMapping(value="/queryPrintData/refund", method = {RequestMethod.POST,RequestMethod.GET})
     public @ResponseBody BaseOutput<PrintDataDto<LaborRefundPrintDto>> queryRefundPrintData(String orderCode, String reprint){
         try{
             return BaseOutput.success().setData(laborService.receiptRefundPrintData(orderCode, reprint));

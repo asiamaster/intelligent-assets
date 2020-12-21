@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dili.assets.sdk.dto.TypeMarketDto;
+import com.dili.assets.sdk.rpc.TypeMarketRpc;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.Labor;
 import com.dili.ia.domain.PaymentOrder;
@@ -40,6 +42,7 @@ import com.dili.ia.service.LaborService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LoggerUtil;
+import com.dili.ia.util.SettleOrderLinkUtils;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
@@ -48,6 +51,8 @@ import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.domain.SettleWayDetail;
 import com.dili.settlement.dto.SettleOrderDto;
+import com.dili.settlement.enums.EnableEnum;
+import com.dili.settlement.enums.LinkTypeEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
@@ -95,18 +100,22 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	private ChargeRuleRpc chargeRuleRpc;
 	
 	@Autowired
+	private TypeMarketRpc typeMarketRpc;
+	
+	@Autowired
 	private CustomerAccountService customerAccountService;
 	@SuppressWarnings("all")
 	@Autowired
 	private DepartmentRpc departmentRpc;
-	
+
 	@Value("${settlement.app-id}")
-    private Long settlementAppId;
-    
-	@Value("${settlement.handler.host}")
-	private String settlerHandlerHost;
-	
-	private String settlerHandlerUrl = settlerHandlerHost+"/api/labor/vest/settlementDealHandler";
+	private Long settlementAppId;
+	@Value("${laborVest.settlement.handler.url}")
+	private String settlerHandlerUrl;
+	@Value("${laborVest.settlement.view.url}")
+	private String settleViewUrl;
+	@Value("${laborVest.settlement.print.url}")
+	private String settlerPrintUrl;
 	
     public LaborMapper getActualDao() {
         return (LaborMapper)getDao();
@@ -142,7 +151,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	private Labor buildLabor(LaborDto laborDto, UserTicket userTicket) {
 		Labor labor = new Labor(userTicket);
 		BeanUtil.copyProperties(laborDto, labor);
-		labor.setCode(uidRpcResolver.bizNumber(userTicket.getFirmCode()+"_"+BizNumberTypeEnum.LABOR_VEST.getCode()));
+		labor.setCode(
+				uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.LABOR_VEST.getCode()));
 		labor.setCreateTime(LocalDateTime.now());
 		labor.setState(LaborStateEnum.CREATED.getCode());
 		labor.setMarketCode(userTicket.getFirmCode());
@@ -150,6 +160,15 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		labor.setCreator(userTicket.getRealName());
 		labor.setCreatorId(userTicket.getId());
 		labor.setVersion(1);
+		// 商户ID需要从基础信息中获取
+		BaseOutput<List<TypeMarketDto>> baseOutput = typeMarketRpc.queryAll();
+		if (baseOutput.isSuccess() && baseOutput.getData() != null) {
+			for (TypeMarketDto typeMarketDto : baseOutput.getData()) {
+				if (BizNumberTypeEnum.LABOR_VEST.getCode().equals(typeMarketDto.getType())) {
+					labor.setMchId(typeMarketDto.getMarketId());
+				}
+			}
+		}
 		return labor;
 	}
 
@@ -214,24 +233,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		// 结算服务
 		SettleOrderDto settleOrderDto = buildSettleOrderDto(userTicket, labor, paymentOrder.getCode(),
 				paymentOrder.getAmount(), BizTypeEnum.LABOR_VEST);
-		// TODO
-		// TODO
-		// 结算费用项列表
-		List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
-		// 获取费用项
-		BusinessChargeItem item = new BusinessChargeItem();
-		item.setBusinessCode(code);
-		List<BusinessChargeItem> items = businessChargeItemService.selectByExample(item);
-		items.forEach(i -> {
-			SettleFeeItem it = new SettleFeeItem();
-			it.setAmount(i.getAmount());
-			it.setFeeName(i.getChargeItemName());
-			//it.setFeeType(i.getChargeItemId());
-		});
-		// 结算单链接列表
-		List<SettleOrderLink> settleOrderLinkList = new ArrayList<>();
-		// 结算方式明细
-		List<SettleWayDetail> settleWayDetailList = new ArrayList<>();
+		
 		settlementRpcResolver.submit(settleOrderDto);
 
 		Labor domain = new Labor(userTicket);
@@ -333,13 +335,6 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		// 获取结算单
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, labor.getCode());
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, labor, order);
-		// refundOrderService.doAddHandler(refundOrder);
-//		if (CollectionUtils.isNotEmpty(refundInfoDto.getTransferDeductionItems())) {
-//			refundInfoDto.getTransferDeductionItems().forEach(o -> {
-//                o.setRefundOrderId(refundOrder.getId());
-//                transferDeductionItemService.insertSelective(o);
-//            });
-//        }
         LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 		
@@ -481,6 +476,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		refundOrder.setPayeeId(refundInfoDto.getPayeeId());
 		refundOrder.setPayee(refundInfoDto.getPayee());
 		refundOrder.setRefundType(refundInfoDto.getRefundType());
+		refundOrder.setMchId(labor.getMchId());
+		refundOrder.setDepartmentName(labor.getDepartmentName());
+		refundOrder.setDepartmentId(labor.getDepartmentId());
 		if(SettleWayEnum.BANK.getCode() == refundInfoDto.getRefundType()) {
 			refundOrder.setBank(refundInfoDto.getBank());
 			refundOrder.setBankCardNo(refundInfoDto.getBankCardNo());
@@ -571,11 +569,17 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		DateTimeFormatter sdf1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		laborPrintDto.setEffectiveDate(sdf1.format(labor.getStartDate())+"至"+sdf1.format(labor.getEndDate()));
 		laborPrintDto.setNotes(labor.getNotes());
-		//TODO
-		//laborPrintDto.setPayWay(order.getWayName());
-		// 判断支付方式
-		// 园区卡号
-		laborPrintDto.setCardNo(order.getAccountNumber());
+		// 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else {
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        laborPrintDto.setSettleWayDetails(settleDetails);
 		// 流水号
 		laborPrintDto.setSerialNumber(order.getSerialNumber());
 		PrintDataDto<LaborPayPrintDto> printDataDto = new PrintDataDto<>();
@@ -601,13 +605,17 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		printDto.setSubmitter(labor.getSubmitter());
 		printDto.setNotes(labor.getNotes());
 		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
-		// 判断支付方式
-		// 园区卡号
-		printDto.setAccountCardNo(order.getAccountNumber());
-		// 银行卡号
-		printDto.setBankName(refundOrder.getBank());
-		printDto.setBankNo(refundOrder.getBankCardNo());
-		// 获取转抵信息
+		// 支付方式
+        String settleDetails = "";
+        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+            // 园区卡支付
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+                    "（" + order.getCustomerName() + "）】";
+        } else {
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
+                    + order.getNotes() + "】";
+        }
+        printDto.setSettleWayDetails(settleDetails);
 		
 		PrintDataDto<LaborRefundPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getName());
@@ -666,10 +674,30 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		settleOrderInfoDto.setCustomerId(labor.getCustomerId());
 		settleOrderInfoDto.setCustomerName(labor.getCustomerName());
 		settleOrderInfoDto.setCustomerPhone(labor.getCustomerCellphone());
+		settleOrderInfoDto.setMchId(labor.getMchId());
+		settleOrderInfoDto.setBusinessType(BizTypeEnum.LABOR_VEST.getCode());
+		settleOrderInfoDto.setDeductEnable(EnableEnum.NO.getCode());
+		settleOrderInfoDto.setCustomerCertificate(labor.getCertificateNumber());
 		if (userTicket.getDepartmentId() != null){
             settleOrderInfoDto.setSubmitterDepId(userTicket.getDepartmentId());
-            settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
-        }
+			settleOrderInfoDto.setSubmitterDepName(departmentRpc.get(userTicket.getDepartmentId()).getData().getName());
+		}
+		// 结算费用项列表
+		List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
+		List<BusinessChargeItem> items = businessChargeItemService.getByBizCode(labor.getCode());
+		for (BusinessChargeItem item : items) {
+			SettleFeeItem settleFeeItem = new SettleFeeItem();
+			settleFeeItem.setChargeItemId(item.getChargeItemId());
+			settleFeeItem.setChargeItemName(item.getChargeItemName());
+			settleFeeItem.setAmount(item.getPaymentAmount());
+			settleFeeItemList.add(settleFeeItem);
+		}
+		settleOrderInfoDto.setSettleFeeItemList(settleFeeItemList);
+		// 结算单链接列表
+		settleOrderInfoDto.setSettleOrderLinkList(
+				SettleOrderLinkUtils.buildLinks(settlerPrintUrl, settleViewUrl,settlerHandlerUrl, labor.getCode(), orderCode));
 		return settleOrderInfoDto;
 	}
+
+	
 }
