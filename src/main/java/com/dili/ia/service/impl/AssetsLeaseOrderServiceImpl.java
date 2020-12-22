@@ -310,6 +310,16 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         variables.put("businessKey", leaseOrder.getCode());
         //市场id用于决定市场任务审批人
         variables.put("firmId", leaseOrder.getMarketId());
+
+        /**
+         * 冻结摊位
+         */
+        assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
+        leaseOrder.setApprovalState(ApprovalStateEnum.IN_REVIEW.getCode());
+        if (updateSelective(leaseOrder) == 0) {
+            LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
+        }
         /**
          * wm:启动租赁审批子流程
          */
@@ -347,22 +357,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             leaseOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
         }
 
-
-        try {
-            /**
-             * 冻结摊位
-             */
-            assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
-            leaseOrder.setApprovalState(ApprovalStateEnum.IN_REVIEW.getCode());
-            if (updateSelective(leaseOrder) == 0) {
-                LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
-            }
-        } catch (Exception e) {
-            //wm:有业务异常时结束启动的流程
-            runtimeRpc.stopProcessInstanceById(leaseOrder.getProcessInstanceId(), e.getMessage());
-            throw e;
-        }
         ApprovalParam approvalParam = DTOUtils.newInstance(ApprovalParam.class);
         approvalParam.setBusinessKey(leaseOrder.getCode());
         approvalParam.setProcessInstanceId(leaseOrder.getProcessInstanceId());
