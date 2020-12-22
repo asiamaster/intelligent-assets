@@ -80,7 +80,7 @@
                     <th style="font-weight:normal; ">费用时间范围</th>
                     <th style="font-weight:normal; ">缴费金额/元</th>
                     <th style="font-weight:normal; ">备注</th>
-                    <th style="font-weight:normal; ">状态</th>
+                    <th style="font-weight:normal; " data-field="state">状态</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -105,7 +105,7 @@
                     <td>
                         ${item.notes!'--'}
                     </td>
-                    <td>
+                    <td  data-field="state">
                         ${@com.dili.ia.glossary.BoutiqueOrderStateEnum.getBoutiqueOrderStateEnumName(item.state!)}
                     </td>
                 </tr>

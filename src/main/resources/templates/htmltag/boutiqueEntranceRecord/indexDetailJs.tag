@@ -3,7 +3,7 @@
     /*********************变量定义区 begin*************/
         //行索引计数器
         //如 let itemIndex = 0;
-    let _grid = $('#grid');
+    let _grid = $('#details');
     let _boutiqueListTable = $('#boutiqueListTable');
 
     let _form = $('#_form');
@@ -152,14 +152,13 @@
         currentSelectRowIndex = undefined;
     });
 
-    //选中行事件 -- 可操作按钮控制
+   //选中行事件 -- 可操作按钮控制
     _grid.on('check.bs.table', function (e, row, $element) {
-        let state = row.$_state;
-        if (state == ${@com.dili.ia.glossary.BoutiqueOrderStateEnum.SUBMITTED_PAY.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
+        let state = row.state;
+        $('#toolbar button').attr('disabled', true);
+        if (state == '${@com.dili.ia.glossary.BoutiqueOrderStateEnum.SUBMITTED_PAY.getName()}') {  //已提交 才能取消
             $('#btn_cancel').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.BoutiqueOrderStateEnum.PAID.getCode()}) {
-            $('#toolbar button').attr('disabled', true);
+        } else if (state == '${@com.dili.ia.glossary.BoutiqueOrderStateEnum.PAID.getName()}') { //已缴费 才能退款
             $('#btn_refund').attr('disabled', false);
         }
     });
