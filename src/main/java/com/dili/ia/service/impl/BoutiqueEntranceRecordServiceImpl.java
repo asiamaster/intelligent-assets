@@ -646,13 +646,17 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
                     boutiqueEntranceRecord.setMchId(typeMarketDto.getMarketId());
                 }
             }
+            if (boutiqueEntranceRecord.getMchId() == null) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "新增时没有查询到商户ID，无法新增。");
+            }
             boutiqueEntranceRecord.setCreateTime(LocalDateTime.now());
             boutiqueEntranceRecord.setModifyTime(LocalDateTime.now());
             boutiqueEntranceRecord.setState(BoutiqueStateEnum.NOCONFIRM.getCode());
 
             this.insertSelective(boutiqueEntranceRecord);
+        } else {
+            throw new BusinessException(ResultCode.DATA_ERROR, "新增时没有查询到商户ID，无法新增。");
         }
-
         return boutiqueEntranceRecord;
     }
 

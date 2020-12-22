@@ -820,6 +820,153 @@
         return businessChareItems;
     }
 
+
+    /**
+     * 附件查看/下载
+     */
+    function openAttachmentDownHandler() {
+    	
+    		 // 获取选中行的数据
+            let rows = _grid.bootstrapTable('getSelections');
+            if (null == rows || rows.length == 0) {
+                bs4pop.alert('请选中一条数据');
+                return;
+            }
+            // 获取文件
+            $.ajax({
+	            url: "${contextPath}/attachment/list.action?bizCode="+rows[0].code,
+	            type: "POST",
+	    		dataType: "json",
+	    		contentType: "application/json",
+	            success : function(result) {
+	                if(result.success){
+	                    
+	                	dia = bs4pop.dialog({
+	                        title: '附件查看/下载',
+	                        content: bui.util.HTMLDecode(template('attachmentDown',{attachments : result.data})),
+	                        closeBtn: true,
+	                        backdrop : 'static',
+	                        width: '50%',
+	                        height : '40%',
+	                        btns: [{label: '取消',className: 'btn-secondary',onClick(e){
+
+	                        }
+	                	    }, {label: '确定',className: 'btn-primary',onClick(e){
+	                	            
+	                	            return false;
+	                	        }
+	                	    }]
+	                    });
+	                	
+	                	
+	                }else{
+	                   
+	                }
+	            },
+	            error : function() {
+	                bui.loading.hide();
+	                bs4pop.alert('远程访问失败', {type: 'error'});
+	            }
+	        });
+            
+                       
+    }
+    
+    
+    let selectRows;
+    /**
+     * 附件上传
+     */
+    function openAttachmentUpHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+        upload.selectRow = rows[0];
+        this.upload.fileList=[{'name':'232','url':'http://gateway.diligrp.com:8285/dili-dfs/file/view/e2015e3056624d79ab42531fca4bfd9e'}];
+        $('#exampleModal').modal('show')
+       
+    }
+    
+    
+    var upload = new Vue({
+	    el: '.el-class',
+	    data() {
+	        return {
+	        	fileList :[],
+	        	upList:[],
+	        	successIndex : 0,
+	        	uploadurl : "http://gateway.diligrp.com:8285/dili-dfs/file/upload?accessToken=1d4e977ad7504808a892664123914e96.ibOsv54WR96-bIQT88L6uA",
+	        	downloadUrl : "http://gateway.diligrp.com:8285/dili-dfs/file/download",
+	        	selectRow :{}
+	        }
+	    },
+	    methods: {
+	    	 submitUpload() {
+	    	     this.$refs.upload.submit();
+	    	 },
+	    	 handleRemove(file, fileList) {
+	    	     console.log(file, fileList);
+	    	 },
+	    	 handlePreview(file) {
+	    	     console.log(file);
+	    	 },
+	    	 removeList(){
+	    		 this.fileList = [];
+	    	 },
+	    	 handleSucess(res,file,fileList){
+	    		 console.log("1");
+	    		 this.successIndex = this.successIndex+1;
+	    		 if(this.successIndex = fileList.length){
+	    			 console.log(fileList);
+	    			 console.log("上传完成");
+	    			 for (var i = 0; i < fileList.length; i++) {
+		    				let f = fileList[i];
+		    				let upF = {};
+		    				upF.businessCode = this.selectRow.code;
+		    				upF.firmId = this.selectRow.marketId;
+							if(f.url != null){
+								upF.name = f.name
+								upF.url = f.url
+							}else{
+								upF.name = f.name
+								upF.url = this.downloadUrl+"/"+f.response.data
+							}
+							this.upList.push(upF);
+					}
+	    			  console.log(this.upList);
+	    			 // 文件关联
+	    			  let da = {
+	    		    			"attachments" : this.upList
+  		    			}
+	    			  JSON.stringify(da)
+	    			 $.ajax({
+	    		            url: "${contextPath}/attachment/add.action?bizCode="+this.selectRow.code,
+	    		            type: "POST",
+	    		    		data: JSON.stringify(this.upList),
+	    		    		dataType: "json",
+	    		    		contentType: "application/json",
+	    		            success : function(result) {
+	    		                if(!result.success){
+	    		                    
+	    		                }else{
+	    		                   
+	    		                }
+	    		            },
+	    		            error : function() {
+	    		                bui.loading.hide();
+	    		                bs4pop.alert('远程访问失败', {type: 'error'});
+	    		            }
+	    		        });
+	    		 }
+	    	 }
+	    	      
+	    },
+	
+	})
+    
     //区域Formatter
     function districtNameFormatter(value, item, index) {
         return item.secondDistrictName ? item.firstDistrictName + '->' + item.secondDistrictName : item.firstDistrictName;
@@ -877,6 +1024,8 @@
         $('#btn_add').attr('disabled', false);
         $('#btn_view').attr('disabled', false);
         $('#btn_print').attr('disabled', false);
+        $('#btn_upload').attr('disabled', false);
+        $('#btn_download').attr('disabled', false);
         //只要有审批流程实例id就可以查看流程图
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);

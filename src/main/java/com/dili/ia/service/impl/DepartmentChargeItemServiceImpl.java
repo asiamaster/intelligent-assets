@@ -56,7 +56,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                 queryBusinessChargeItemConfig(userTicket.getFirmId(), BizTypeEnum.OTHER_FEE.getCode(), YesOrNoEnum.YES.getCode());
 
         if (!CollectionUtils.isEmpty(chargeItemDtos)) {
-            // 查询表中的收费项，数据字典中不存在，则从表中删除，数据字典多出来的，则添加到表中
+            // 查询表中的收费项，基础数据中心中不存在，则从表中删除，数据字典多出来的，则添加到表中
             List<DepartmentChargeItem> itemInfoList = this.list(new DepartmentChargeItem());
             List<Long> chargeItemIdListInTable = new ArrayList<>();
             List<Long> chargeItemIdListInTableToAdd = new ArrayList<>();
@@ -66,9 +66,9 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
             }
 
             // 收费项配置 里的 其他收费 收费项 ids
-            List<String> chargeItemIdListByDate = new ArrayList<>();
+            List<Long> chargeItemIdListByDate = new ArrayList<>();
             for (BusinessChargeItemDto chargeItemDto : chargeItemDtos) {
-                String chargeItemId = chargeItemDto.getId().toString();
+                Long chargeItemId = chargeItemDto.getId();
                 chargeItemIdListByDate.add(chargeItemId);
             }
 

@@ -138,11 +138,18 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         // 根据区域ID查询商户ID，如果没有区域，则查询收费项所属的商户ID
         Long mchId = mchAndDistrictService.getMchIdByDistrictId(otherFeeDto.getFirstDistrictId(), otherFeeParam.getSecondDistrictId());
         if (mchId == null) {
+            // 沈阳市场的收费性才会绑定组织
             List<DepartmentChargeItem> ChargeItemList = departmentChargeItemService.listChargeByChargeItemId(otherFeeDto.getChargeItemId());
             if (CollectionUtil.isEmpty(ChargeItemList)) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "区域未查询到商户，并且收费项已删除！");
             }
-            mchId = ChargeItemList.get(0).getMchId();
+            if (ChargeItemList.get(0) != null) {
+                mchId = ChargeItemList.get(0).getMchId();
+            }
+        }
+        // 新增时没有区域，也不是沈阳的商户，则添加市场ID为商户ID
+        if (mchId == null) {
+            mchId = userTicket.getFirmId();
         }
         otherFeeParam.setMchId(mchId);
 

@@ -1,4 +1,5 @@
 <#bs4Body>
+<#vueElm />
 <style>
     .w-100px{width: 100px!important;}
 
@@ -150,6 +151,9 @@
                 <#resource code="boothLeasePrint" checkMenu="true">
                 <button id="btn_print" type="button" class="btn btn-primary" onclick="openPrintHandler()"><i class="fa fa-reply"></i>业务打印</button>
                 </#resource>
+                <button id="btn_upload" type="button" class="btn btn-primary" onclick="openAttachmentUpHandler()"  ><i class="fa fa-cloud-upload"></i>上传附件</button>
+                <button id="btn_download" type="button" class="btn btn-primary" onclick="openAttachmentDownHandler()"><i class="fa fa-cloud-download"></i>下载附件</button>
+               
             </div>
             <table id="grid" data-toggle="table" data-title="租赁单列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="5"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
@@ -218,6 +222,46 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  
+  <div class="modal-dialog modal-dialog-centered el-class">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">文件上传</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+		  <div class="input-group mb-3 ">
+		  <el-upload
+		  class="upload-demo"
+		  ref="upload"
+		  :action="this.uploadurl"
+		  :on-preview="handlePreview"
+		  :on-remove="handleRemove"
+		  :file-list="fileList"
+		  :on-success="handleSucess"
+		  :auto-upload="false">
+		  <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+		  <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+		</el-upload>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="removeList">关闭</button>
+        <button type="button" class="btn btn-primary" @click="submitUpload">上传</button>
+      </div>
+    </div>
+  </div>
+  
+</div>
+</div>
+
+
+
 
 
 </#bs4Body>
@@ -447,3 +491,15 @@
     </form>
 
 </script>
+
+<script id="attachmentDown" type="text/html">
+<div class="row row-cols-12">
+	{{each attachments}}
+		<div class="form-group col-12">
+     	 <a download="xxx.xlsx" href="http://gateway.diligrp.com:8285/dili-dfs/file/download/e2015e3056624d79ab42531fca4bfd9e" >{{$value.name}}</a>
+		</div>
+	{{/each}}
+</div>
+</script>
+
+
