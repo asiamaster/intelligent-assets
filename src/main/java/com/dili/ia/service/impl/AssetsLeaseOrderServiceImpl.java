@@ -190,7 +190,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
             if (!processInstanceMappingBaseOutput.isSuccess()) {
-                throw new RemoteException(processInstanceMappingBaseOutput.getMessage());
+                throw new BusinessException(ResultCode.DATA_ERROR, "启动租赁业务流程异常" + processInstanceMappingBaseOutput.getMessage());
             }
             //wm:设置流程定义和实例id，后面会更新到租赁单表
             dto.setBizProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
