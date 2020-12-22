@@ -684,9 +684,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
             }
         }
-        if(true){
-            throw new BusinessException(ResultCode.DATA_ERROR, "测试回滚!");
-        }
 
         //日志上下文构建
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE,BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName());
