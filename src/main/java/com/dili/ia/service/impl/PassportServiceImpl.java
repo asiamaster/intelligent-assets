@@ -168,9 +168,15 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
                     passport.setMchId(typeMarketDto.getMarketId());
                 }
             }
-        }
-        this.getActualDao().insertSelective(passport);
 
+            if (passport.getMchId() == null) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "新增时没有查询到商户ID，无法新增。");
+            }
+
+            this.getActualDao().insertSelective(passport);
+        } else {
+            throw new BusinessException(ResultCode.DATA_ERROR, "新增时没有查询到商户ID，无法新增。");
+        }
         return passport;
     }
 

@@ -1,12 +1,17 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.dto.DepartmentChargeItemDto;
+import com.dili.ia.provider.AuthDepartmentProvider;
 import com.dili.ia.service.DepartmentChargeItemService;
 import com.dili.ia.util.AssertUtils;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.metadata.ValuePair;
+import com.dili.ss.metadata.ValuePairImpl;
+import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.FirmRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,6 +40,8 @@ public class DepartmentChargeItemController {
 
     @Autowired
     DepartmentChargeItemService departmentChargeItemService;
+    @Autowired
+    private FirmRpc firmRpc;
 
     /**
      * 跳转到其它收费管理 - 部门与收费项绑定列表
@@ -75,6 +83,14 @@ public class DepartmentChargeItemController {
             modelMap.put("departmentChargeItem", itemDto);
         }
 
+//        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+//        List<Firm> data = firmRpc.getAllChildrenByParentId(userTicket.getFirmId()).getData();
+//        List<ValuePair<?>> buffer = new ArrayList<ValuePair<?>>();
+//        data.forEach(o->{
+//            buffer.add(new ValuePairImpl(o.getName(),o.getId()));
+//        });
+
+
         return "otherFee/addDepartment";
     }
 
@@ -91,6 +107,7 @@ public class DepartmentChargeItemController {
         try {
             // 参数校验
             AssertUtils.notNull(departmentChargeItemDto.getChargeItemId(), "收费项 id 不能为空！");
+            AssertUtils.notNull(departmentChargeItemDto.getMchId(), "商户 id 不能为空！");
 
             // 绑定操作
             departmentChargeItemService.addDepartmentChargeItems(departmentChargeItemDto, userTicket);
