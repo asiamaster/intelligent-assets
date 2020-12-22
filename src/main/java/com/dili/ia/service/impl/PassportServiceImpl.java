@@ -3,8 +3,6 @@ package com.dili.ia.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.dili.assets.sdk.dto.TypeMarketDto;
 import com.dili.assets.sdk.rpc.TypeMarketRpc;
-import com.dili.commons.glossary.EnabledStateEnum;
-import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
@@ -97,6 +95,8 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
     private String settleViewUrl;
     @Value("${passport.settlement.print.url}")
     private String settlerPrintUrl;
+    @Value("${passport.refundOrder.settlement.print.url}")
+    private String refundSettlerPrintUrl;
 
     /**
      * 根据 code 查询通行证业务单

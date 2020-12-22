@@ -69,7 +69,7 @@ public class OtherFeeApi {
      * @param  reprint
      * @return BaseOutput
      */
-    @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST})
+    @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST, RequestMethod.GET})
     public @ResponseBody
     BaseOutput<PrintDataDto<OtherFeePrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {
         try {
@@ -92,7 +92,7 @@ public class OtherFeeApi {
      * @param orderCode
      * @return
      */
-    @RequestMapping(value = "/refundOrder/queryPrintData", method = {RequestMethod.POST})
+    @RequestMapping(value = "/refundOrder/queryPrintData", method = {RequestMethod.POST, RequestMethod.GET})
     public @ResponseBody
     BaseOutput<PrintDataDto<OtherFeePrintDto>> queryRefundPrintData(String orderCode, String reprint) {
         try {

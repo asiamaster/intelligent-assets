@@ -12,6 +12,7 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.weaver.ast.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +72,7 @@ public class PassportApi {
      * @return BaseOutput
      * @date   2020/7/27
      */
-    @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST})
+    @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST, RequestMethod.GET})
     public @ResponseBody
     BaseOutput<PrintDataDto<PassportPrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {
         try {
@@ -95,10 +96,11 @@ public class PassportApi {
      * @return BaseOutput
      * @date   2020/7/27
      */
-    @RequestMapping(value = "/refundOrder/queryPrintData", method = {RequestMethod.POST})
+    @RequestMapping(value = "/refundOrder/queryPrintData", method = {RequestMethod.POST, RequestMethod.GET})
     public @ResponseBody
     BaseOutput<PrintDataDto<PassportPrintDto>> queryRefundPrintData(String orderCode, String reprint) {
         try {
+            PrintDataDto<PassportPrintDto> passportPrintDtoPrintDataDto = passportService.receiptRefundPrintData(orderCode, reprint);
             return BaseOutput.success().setData(passportService.receiptRefundPrintData(orderCode, reprint));
         } catch (BusinessException e) {
             LOG.info("通行证退款票据打印异常：{}", e);
@@ -128,7 +130,7 @@ public class PassportApi {
      * @return BaseOutput
      * @date   2020/7/27
      */
-    @RequestMapping(value = "/paperwork/queryPrintData", method = {RequestMethod.POST})
+    @RequestMapping(value = "/paperwork/queryPrintData", method = {RequestMethod.POST, RequestMethod.GET})
     public @ResponseBody
     BaseOutput<PrintDataDto<PassportPrintDto>> printPaperwork(String orderCode, String reprint) {
         try {
