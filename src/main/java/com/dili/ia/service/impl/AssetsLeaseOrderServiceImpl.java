@@ -315,11 +315,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
          * 冻结摊位
          */
         assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
-        leaseOrder.setApprovalState(ApprovalStateEnum.IN_REVIEW.getCode());
-        if (updateSelective(leaseOrder) == 0) {
-            LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
-            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
-        }
+
         /**
          * wm:启动租赁审批子流程
          */
@@ -356,7 +352,11 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             leaseOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
             leaseOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
         }
-
+        leaseOrder.setApprovalState(ApprovalStateEnum.IN_REVIEW.getCode());
+        if (updateSelective(leaseOrder) == 0) {
+            LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
+        }
         ApprovalParam approvalParam = DTOUtils.newInstance(ApprovalParam.class);
         approvalParam.setBusinessKey(leaseOrder.getCode());
         approvalParam.setProcessInstanceId(leaseOrder.getProcessInstanceId());
