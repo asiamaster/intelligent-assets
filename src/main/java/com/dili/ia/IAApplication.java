@@ -26,20 +26,20 @@ import tk.mybatis.spring.annotation.MapperScan;
 @DTOScan(value={"com.dili.ss", "com.dili.ia.domain", "com.dili.uap.sdk.domain", "com.dili.bpmc.sdk"})
 public class IAApplication  extends SpringBootServletInitializer {
 
-//	@Bean
-	Logger.Level feignLoggerLevel(){
-		return Logger.Level.FULL;
-	}
+    //	@Bean
+    Logger.Level feignLoggerLevel(){
+        return Logger.Level.FULL;
+    }
 
-	@LoadBalanced
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
+    @LoadBalanced
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(IAApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(IAApplication.class, args);
+    }
 
 
 }
