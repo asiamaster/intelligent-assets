@@ -820,6 +820,11 @@
             $(this).closest('tr').remove();
             calcTotalAmount(true);
         }
+
+        if ($('#assetTable tr').length == 1) {
+            $('#batchId').val('');
+            $('#mchId').val('');
+        }
     });
 
     $('#save').on('click', bui.util.debounce(saveFormHandler,1000,true));
