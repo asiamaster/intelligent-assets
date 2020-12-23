@@ -3,6 +3,7 @@ package com.dili.ia.domain.dto;
 import com.dili.ia.domain.AssetsRental;
 import com.dili.ia.domain.AssetsRentalItem;
 import com.dili.ss.domain.BaseDomain;
+import com.dili.ss.domain.annotation.Operator;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
@@ -49,6 +50,32 @@ public class AssetsRentalDto extends AssetsRental {
      * 关键字
      */
     private String keyword;
+
+    /**
+     * 数量小
+     */
+    private Double startNumber;
+
+    /**
+     * 数量大
+     */
+    private Double endNumber;
+
+    public Double getStartNumber() {
+        return startNumber;
+    }
+
+    public void setStartNumber(Double startNumber) {
+        this.startNumber = startNumber;
+    }
+
+    public Double getEndNumber() {
+        return endNumber;
+    }
+
+    public void setEndNumber(Double endNumber) {
+        this.endNumber = endNumber;
+    }
 
     public String getKeyword() {
         return keyword;

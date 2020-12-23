@@ -1,6 +1,8 @@
 package com.dili.ia.service;
 
+import com.dili.assets.sdk.dto.AssetsDTO;
 import com.dili.ia.domain.AssetsRentalItem;
+import com.dili.ia.domain.dto.AssetsRentalDto;
 import com.dili.ia.domain.dto.AssetsRentalItemDto;
 import com.dili.ss.base.BaseService;
 
@@ -24,6 +26,15 @@ public interface AssetsRentalItemService extends BaseService<AssetsRentalItem, L
     void deleteByRentalId(Long stallRentPresetId);
 
     /**
+     * 根据关联主键批量删除对应的资产
+     *
+     * @param   rentalIdList
+     * @return
+     * @date    2020/11/26
+     */
+    int deleteByRentalIdList(List<Long> rentalIdList);
+
+    /**
      * 根据 assetsIds 查询属于表中的 assetsId 的集合,摊位出租预设的主表状态是启用
      *
      * @param  assetsIds
@@ -36,18 +47,9 @@ public interface AssetsRentalItemService extends BaseService<AssetsRentalItem, L
     /**
      * 过滤出不属于预设池中的摊位集合
      *
-     * @param  assetsRentalItemDtoList
+     * @param  assetsRentalDto
      * @return list
      * @date   2020/12/8
      */
-    List<AssetsRentalItemDto> filterAssets(List<AssetsRentalItemDto> assetsRentalItemDtoList);
-
-    /**
-     * 修改摊位的信息
-     *
-     * @param
-     * @return
-     * @date   2020/12/8
-     */
-    void updateAssetsToRental(AssetsRentalItemDto assetsRentalItemDto) throws Exception;
+    List<AssetsDTO> filterAssets(AssetsRentalDto assetsRentalDto);
 }
