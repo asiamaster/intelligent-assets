@@ -588,7 +588,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     @Override
     public BoutiqueEntranceRecord cancel(BoutiqueEntranceRecordDto recordDto)  {
         // 根据bid 查询数据
-        BoutiqueEntranceRecordDto recordInfo = this.getActualDao().getBoutiqueByBid(recordDto.getBid());
+        BoutiqueEntranceRecord recordInfo = this.getActualDao().getBoutiqueByBid(recordDto.getBid());
         if (recordInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，取消失败！");
         }
