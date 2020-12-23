@@ -65,6 +65,12 @@ public class BusinessChargeItem extends BaseDomain {
     private String ruleName;
 
     /**
+     * 规则计算金额
+     */
+    @Column(name = "`rule_amount`")
+    private Long ruleAmount;
+
+    /**
      * 金额
      */
     @Column(name = "`amount`")
@@ -170,6 +176,14 @@ public class BusinessChargeItem extends BaseDomain {
 
     public void setRuleName(String ruleName) {
         this.ruleName = ruleName;
+    }
+
+    public Long getRuleAmount() {
+        return ruleAmount;
+    }
+
+    public void setRuleAmount(Long ruleAmount) {
+        this.ruleAmount = ruleAmount;
     }
 
     public Long getAmount() {
