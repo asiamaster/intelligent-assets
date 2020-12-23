@@ -585,7 +585,7 @@
                     businessChargeItem.chargeItemId = this.dataset.chargeItemId;
                     businessChargeItem.ruleId = this.dataset.ruleId;
                     businessChargeItem.ruleName = this.dataset.ruleName;
-                    businessChargeItem.ruleAmount = isYuanToCent && this.dataset.ruleAmount;
+                    businessChargeItem.ruleAmount = isYuanToCent ? Number(this.dataset.ruleAmount).mul(100) : this.dataset.ruleAmount;
                     businessChargeItem.amount = isYuanToCent && $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
                     leaseOrderItem.businessChargeItems.push(businessChargeItem);
                 } else {
@@ -613,7 +613,7 @@
         isYuanToCent && bui.util.yuanToCentForMoneyEl(formData);
 
         $.extend(formData, {
-            leaseOrderItems: buildLeaseOrderItems(),
+            leaseOrderItems: buildLeaseOrderItems(isYuanToCent),
             leaseTermName,
             engageName,
             departmentName,
