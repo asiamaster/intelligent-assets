@@ -61,6 +61,17 @@ public class AssetsRentalDto extends AssetsRental {
      */
     private Double endNumber;
 
+    // 一个出租预设可能有多个摊位
+    private List<AssetsRentalItem> assetsRentalItemList;
+
+    public List<AssetsRentalItem> getAssetsRentalItemList() {
+        return assetsRentalItemList;
+    }
+
+    public void setAssetsRentalItemList(List<AssetsRentalItem> assetsRentalItemList) {
+        this.assetsRentalItemList = assetsRentalItemList;
+    }
+
     public Double getStartNumber() {
         return startNumber;
     }
@@ -83,17 +94,6 @@ public class AssetsRentalDto extends AssetsRental {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
-    }
-
-    // 一个出租预设可能有多个摊位
-    private List<AssetsRentalItem> assetsRentalItemList;
-
-    public List<AssetsRentalItem> getAssetsRentalItemList() {
-        return assetsRentalItemList;
-    }
-
-    public void setAssetsRentalItemList(List<AssetsRentalItem> assetsRentalItemList) {
-        this.assetsRentalItemList = assetsRentalItemList;
     }
 
     public Long getAssetsId() {
