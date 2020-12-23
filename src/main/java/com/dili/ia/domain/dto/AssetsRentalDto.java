@@ -3,6 +3,7 @@ package com.dili.ia.domain.dto;
 import com.dili.ia.domain.AssetsRental;
 import com.dili.ia.domain.AssetsRentalItem;
 import com.dili.ss.domain.BaseDomain;
+import com.dili.ss.domain.annotation.Operator;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
@@ -50,13 +51,15 @@ public class AssetsRentalDto extends AssetsRental {
      */
     private String keyword;
 
-    public String getKeyword() {
-        return keyword;
-    }
+    /**
+     * 数量小
+     */
+    private Double startNumber;
 
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
+    /**
+     * 数量大
+     */
+    private Double endNumber;
 
     // 一个出租预设可能有多个摊位
     private List<AssetsRentalItem> assetsRentalItemList;
@@ -67,6 +70,30 @@ public class AssetsRentalDto extends AssetsRental {
 
     public void setAssetsRentalItemList(List<AssetsRentalItem> assetsRentalItemList) {
         this.assetsRentalItemList = assetsRentalItemList;
+    }
+
+    public Double getStartNumber() {
+        return startNumber;
+    }
+
+    public void setStartNumber(Double startNumber) {
+        this.startNumber = startNumber;
+    }
+
+    public Double getEndNumber() {
+        return endNumber;
+    }
+
+    public void setEndNumber(Double endNumber) {
+        this.endNumber = endNumber;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 
     public Long getAssetsId() {

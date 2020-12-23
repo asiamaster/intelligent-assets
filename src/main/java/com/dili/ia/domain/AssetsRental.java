@@ -178,7 +178,6 @@ public class AssetsRental extends BaseDomain {
     @Column(name = "`version`")
     private Integer version;
 
-
     public Long getBatchId() {
         return batchId;
     }

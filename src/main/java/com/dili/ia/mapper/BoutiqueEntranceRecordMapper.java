@@ -36,5 +36,5 @@ public interface BoutiqueEntranceRecordMapper extends MyMapper<BoutiqueEntranceR
      * @return BoutiqueEntranceRecord
      * @date   2020/12/16
      */
-    BoutiqueEntranceRecordDto getBoutiqueByBid(@Param("bid") Long bid);
+    BoutiqueEntranceRecord getBoutiqueByBid(@Param("bid") Long bid);
 }

@@ -282,6 +282,11 @@
 			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-okhttp</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.dili</groupId>
+			<artifactId>uid-sdk</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
 
     </dependencies>
 

@@ -127,7 +127,7 @@ public class BoutiqueEntranceApi {
      * @return BaseOutput
      * @date   2020/7/13
      */
-    @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST})
+    @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST, RequestMethod.GET})
     public @ResponseBody
     BaseOutput<PrintDataDto<BoutiqueEntrancePrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {
         try {
@@ -152,7 +152,7 @@ public class BoutiqueEntranceApi {
      * @return BaseOutput
      * @date   2020/7/13
      */
-    @RequestMapping(value = "/refundOrder/queryPrintData", method = {RequestMethod.POST})
+    @RequestMapping(value = "/refundOrder/queryPrintData", method = {RequestMethod.POST, RequestMethod.GET})
     public @ResponseBody
     BaseOutput<PrintDataDto<BoutiqueEntrancePrintDto>> queryRefundPrintData(String orderCode, String reprint) {
         try {

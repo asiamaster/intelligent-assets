@@ -88,4 +88,5 @@ public interface AssetsRentalService extends BaseService<AssetsRental, Long> {
      * @date   2020/12/8
      */
     void deleteAssetsByDistrictId(Long districtId) throws Exception;
+
 }

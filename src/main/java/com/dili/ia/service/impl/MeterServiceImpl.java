@@ -58,7 +58,11 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         meter.setNumber(meterDto.getNumber());
         List<Meter> meterList = this.getActualDao().select(meter);
         if (meterList != null && meterList.size() > 0) {
-            throw new BusinessException(ResultCode.DATA_ERROR, "表信息新增失败，表编号已存在！");
+            for (Meter meterInfo : meterList) {
+                if (meterInfo.getType().equals(meterDto.getType())) {
+                    throw new BusinessException(ResultCode.DATA_ERROR, "表信息新增失败，表编号已存在！");
+                }
+            }
         }
 
         // 设置相关属性值
@@ -107,7 +111,7 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
         List<Meter> meterList = this.getActualDao().select(meter);
         if (CollectionUtils.isNotEmpty(meterList)) {
             for (Meter meterRe : meterList) {
-                if (!meterRe.getId().equals(meterDto.getId())) {
+                if (!meterRe.getId().equals(meterDto.getId()) && meterRe.getType().equals(meterDto.getType())) {
                     throw new BusinessException(ResultCode.DATA_ERROR, "表信息修改失败，表编号已存在！");
                 }
             }

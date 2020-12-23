@@ -69,7 +69,9 @@
                     return {
                         results: $.map(data, function (dataItem) {
                             return $.extend(dataItem, {
-                                    text: dataItem.name + '(' + ((dataItem.secondAreaName || dataItem.secondDistrictName) ? (dataItem.areaName || dataItem.firstDistrictName) + '->' + (dataItem.secondAreaName || dataItem.secondDistrictName) : (dataItem.areaName || dataItem.firstDistrictName)) + ')'
+                                    id: dataItem.assetsId || dataItem.id,//预设池则取资产ID 基础信息则取ID
+                                    name: dataItem.assetsName || dataItem.name,
+                                    text: (dataItem.assetsName || dataItem.name) + '(' + ((dataItem.secondAreaName || dataItem.secondDistrictName) ? (dataItem.areaName || dataItem.firstDistrictName) + '->' + (dataItem.secondAreaName || dataItem.secondDistrictName) : (dataItem.areaName || dataItem.firstDistrictName)) + ')'
                                 }
                             );
                         })
@@ -82,6 +84,7 @@
         }
     }
 
+    //资产组件事件
     var assetEvent = {
         eventName: 'select2:selecting',
         eventHandler: function (e) {
@@ -94,6 +97,7 @@
                 return false;
             }
 
+            clearAssetsInputData(index);
             //摊位预设信息设置
             if (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index)) {
                 $('#mchId').val(suggestion.marketId);
@@ -394,6 +398,18 @@
     }
 
     /**
+     * 清除资产项填充数据
+     * @param index
+     */
+    function clearAssetsInputData(index) {
+        $('#unitPrice_' + index).val('');
+        $('#paymentMonth_' + index).val('');
+        $('#discountAmount_' + index).val('');
+        $('#depositMakeUpAmount_' + index).val('');
+        $("tr[data-index='" + index + "']").find("input[isCharge]").val('').attr('readonly', true);
+    }
+
+    /**
      * 查询预设
      * @param assetsId
      * @returns {*}
@@ -499,9 +515,9 @@
                         for (let depositOrder of depositOrders){
                             let index = getIndex($("table input.assets[value='"+depositOrder.assetsId+"']").attr('id'));
                             if(depositOrder.state != ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()}){
-                                $('#depositMakeUpAmount_'+index).val(Number(depositOrder.amount).centToYuan()).attr('readonly',true);
+                                $('#depositMakeUpAmount_' + index).val(Number(depositOrder.amount).centToYuan()).attr('readonly', true);
                             }else{
-                                $('#depositMakeUpAmount_'+index).val(Number(depositOrder.amount).centToYuan());
+                                $('#depositMakeUpAmount_' + index).val(Number(depositOrder.amount).centToYuan());
                             }
                         }
                     }
@@ -569,6 +585,7 @@
                     businessChargeItem.chargeItemId = this.dataset.chargeItemId;
                     businessChargeItem.ruleId = this.dataset.ruleId;
                     businessChargeItem.ruleName = this.dataset.ruleName;
+                    businessChargeItem.ruleAmount = isYuanToCent ? Number(this.dataset.ruleAmount).mul(100) : this.dataset.ruleAmount;
                     businessChargeItem.amount = isYuanToCent && $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
                     leaseOrderItem.businessChargeItems.push(businessChargeItem);
                 } else {
@@ -596,7 +613,7 @@
         isYuanToCent && bui.util.yuanToCentForMoneyEl(formData);
 
         $.extend(formData, {
-            leaseOrderItems: buildLeaseOrderItems(),
+            leaseOrderItems: buildLeaseOrderItems(isYuanToCent),
             leaseTermName,
             engageName,
             departmentName,
@@ -729,7 +746,9 @@
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             success: function (ret) {
-                $("table input[isCharge]").attr('readonly', false);
+                $("table select[name^='assetsId']").filter(function () {
+                    return this.value
+                }).parents("tr").find("input[isCharge]").attr('readonly', false);
                 if(!ret.success){
                     bs4pop.alert(ret.message, {type: 'error'});
                 }else{
@@ -737,9 +756,11 @@
                     for (let chargeItemResult of calcResult) {
                         let chargeItemDataset = $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset;
                         if (chargeItemResult.success) {
-                            $('#chargeItem_'+chargeItemResult.requestDataId).val(chargeItemResult.totalFee);
+                            let ruleAmount = Math.round(Number(chargeItemResult.totalFee).mul(100)).centToYuan();
+                            $('#chargeItem_'+chargeItemResult.requestDataId).val(ruleAmount);
                             chargeItemDataset['ruleId'] = chargeItemResult.ruleId;
                             chargeItemDataset['ruleName'] = chargeItemResult.ruleName;
+                            chargeItemDataset['ruleAmount'] = ruleAmount;
                             calcTotalAmount(true);
                         } else {
                             bs4pop.notice(chargeItemDataset['chargeItemName'] + ' ' + chargeItemResult.message, {position: 'bottomleft', type: 'danger'});
@@ -801,6 +822,11 @@
         if ($('#assetTable tr').length > 1) {
             $(this).closest('tr').remove();
             calcTotalAmount(true);
+        }
+
+        if ($('#assetTable tr').length == 1) {
+            $('#batchId').val('');
+            $('#mchId').val('');
         }
     });
 

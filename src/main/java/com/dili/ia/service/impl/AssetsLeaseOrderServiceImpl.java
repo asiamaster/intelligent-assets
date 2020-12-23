@@ -22,7 +22,7 @@ import com.dili.ia.domain.dto.*;
 import com.dili.ia.domain.dto.printDto.ContractDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderMapper;
-import com.dili.ia.rpc.UidFeignRpc;
+import com.dili.uid.sdk.rpc.feign.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.SpringUtil;
@@ -178,7 +178,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         if (null == dto.getId()) {
             //租赁单新增
             checkContractNo(null, dto.getContractNo(), true);//合同编号验证重复
-            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(dto.getBizType()).getEnName() + "_" + BizNumberTypeEnum.LEASE_ORDER.getCode());
+            BaseOutput<String> bizNumberOutput = uidFeignRpc.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(dto.getBizType()).getEnName() + "_" + BizNumberTypeEnum.LEASE_ORDER.getCode());
             if (!bizNumberOutput.isSuccess()) {
                 LOG.info("租赁单编号生成异常");
                 throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
@@ -192,7 +192,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
             if (!processInstanceMappingBaseOutput.isSuccess()) {
-                throw new RemoteException(processInstanceMappingBaseOutput.getMessage());
+                throw new BusinessException(ResultCode.DATA_ERROR, "启动租赁业务流程异常" + processInstanceMappingBaseOutput.getMessage());
             }
             //wm:设置流程定义和实例id，后面会更新到租赁单表
             dto.setBizProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
@@ -312,6 +312,12 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         variables.put("businessKey", leaseOrder.getCode());
         //市场id用于决定市场任务审批人
         variables.put("firmId", leaseOrder.getMarketId());
+
+        /**
+         * 冻结摊位
+         */
+        assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
+
         /**
          * wm:启动租赁审批子流程
          */
@@ -348,22 +354,10 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             leaseOrder.setProcessDefinitionId(processInstanceMappingBaseOutput.getData().getProcessDefinitionId());
             leaseOrder.setProcessInstanceId(processInstanceMappingBaseOutput.getData().getProcessInstanceId());
         }
-
-
-        try {
-            /**
-             * 冻结摊位
-             */
-            assetsLeaseService.frozenAsset(leaseOrder, leaseOrderItems);
-            leaseOrder.setApprovalState(ApprovalStateEnum.IN_REVIEW.getCode());
-            if (updateSelective(leaseOrder) == 0) {
-                LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
-                throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
-            }
-        } catch (Exception e) {
-            //wm:有业务异常时结束启动的流程
-            runtimeRpc.stopProcessInstanceById(leaseOrder.getProcessInstanceId(), e.getMessage());
-            throw e;
+        leaseOrder.setApprovalState(ApprovalStateEnum.IN_REVIEW.getCode());
+        if (updateSelective(leaseOrder) == 0) {
+            LOG.info("摊位租赁单提交状态更新失败 乐观锁生效 【租赁单ID {}】", leaseOrder.getId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
         }
         ApprovalParam approvalParam = DTOUtils.newInstance(ApprovalParam.class);
         approvalParam.setBusinessKey(leaseOrder.getCode());
@@ -692,9 +686,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
             }
         }
-        if(true){
-            throw new BusinessException(ResultCode.DATA_ERROR, "测试回滚!");
-        }
 
         //日志上下文构建
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE,BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName());
@@ -746,7 +737,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 newPaymentOrder.setParentId(o.getId());
                 newPaymentOrder.setId(null);
 
-                BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(o.getBizType()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+                BaseOutput<String> bizNumberOutput = uidFeignRpc.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(o.getBizType()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
                 if (!bizNumberOutput.isSuccess()) {
                     LOG.info("租赁单【编号：{}】,缴费单编号生成异常", leaseOrder.getCode());
                     throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
@@ -1137,7 +1128,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试");
             }
 
-            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(refundOrderDto.getBizType()).getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode());
+            BaseOutput<String> bizNumberOutput = uidFeignRpc.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(refundOrderDto.getBizType()).getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode());
             if (!bizNumberOutput.isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款单编号生成异常", refundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
@@ -1486,7 +1477,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             throw new BusinessException(ResultCode.DATA_ERROR, "未登录");
         }
         PaymentOrder paymentOrder = new PaymentOrder();
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName() + "_" + BizNumberTypeEnum.PAYMENT_ORDER.getCode());
         if (!bizNumberOutput.isSuccess()) {
             LOG.info("租赁单【编号：{}】,缴费单编号生成异常", leaseOrder.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");

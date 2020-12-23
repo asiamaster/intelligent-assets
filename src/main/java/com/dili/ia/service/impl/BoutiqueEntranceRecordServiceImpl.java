@@ -179,7 +179,8 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         }
 
         // 根据车型查询免费时长
-        BoutiqueFreeSets sets = boutiqueFreeSetsService.get(recordInfo.getCarTypeId());
+        String carTypeName = BoutiqueCarTypeEnum.getCarTypeEnumName(Integer.parseInt(recordInfo.getCarTypeId().toString()));
+        BoutiqueFreeSets sets = boutiqueFreeSetsService.getByCarTypeName(carTypeName);
         if (sets != null) {
             ZoneId zoneId = ZoneId.systemDefault();
             ZonedDateTime zdt = boutiqueEntranceRecord.getConfirmTime().atZone(zoneId);
@@ -570,7 +571,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
             // 打印最外层
             PrintDataDto<BoutiqueEntrancePrintDto> printDataDto = new PrintDataDto<>();
-            printDataDto.setName(PrintTemplateEnum.BOUTIQUE_REFUND.getName());
+            printDataDto.setName(PrintTemplateEnum.BOUTIQUE_REFUND.getCode());
             printDataDto.setItem(printDto);
 
             return printDataDto;
@@ -588,7 +589,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
     @Override
     public BoutiqueEntranceRecord cancel(BoutiqueEntranceRecordDto recordDto)  {
         // 根据bid 查询数据
-        BoutiqueEntranceRecordDto recordInfo = this.getActualDao().getBoutiqueByBid(recordDto.getBid());
+        BoutiqueEntranceRecord recordInfo = this.getActualDao().getBoutiqueByBid(recordDto.getBid());
         if (recordInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "该记录已删除，取消失败！");
         }

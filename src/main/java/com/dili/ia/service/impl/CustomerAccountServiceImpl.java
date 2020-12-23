@@ -13,7 +13,7 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.EarnestTransferOrderDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.rpc.UidFeignRpc;
+import com.dili.uid.sdk.rpc.feign.UidFeignRpc;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.EarnestTransferOrderService;
 import com.dili.ia.service.RefundOrderService;
@@ -133,7 +133,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
         efDto.setPayeeCellphone(efDto.getCustomerCellphone());
         efDto.setPayeeCertificateNumber(efDto.getCertificateNumber());
         efDto.setPayeeName(efDto.getCustomerName());
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.getBizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.EARNEST_TRANSFER_ORDER.getCode());
         if(!bizNumberOutput.isSuccess()){
             LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成器微服务异常");
@@ -163,7 +163,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
         }
         //新增
         if(null == refundOrder.getId()){
-            BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode());
+            BaseOutput<String> bizNumberOutput = uidFeignRpc.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.EARNEST.getEnName() + "_" + BizNumberTypeEnum.REFUND_ORDER.getCode());
             if(!bizNumberOutput.isSuccess()){
                 LOG.info("编号生成器返回失败，{}", bizNumberOutput.getMessage());
                 return BaseOutput.failure("编号生成器微服务异常");
