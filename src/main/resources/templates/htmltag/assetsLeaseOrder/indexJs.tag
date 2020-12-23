@@ -885,7 +885,7 @@
             return;
         }
         upload.selectRow = rows[0];
-        this.upload.fileList=[{'name':'232','url':'http://gateway.diligrp.com:8285/dili-dfs/file/view/e2015e3056624d79ab42531fca4bfd9e'}];
+        //this.upload.fileList=[{'name':'232','url':'http://gateway.diligrp.com:8285/dili-dfs/file/view/e2015e3056624d79ab42531fca4bfd9e'}];
         $('#exampleModal').modal('show')
        
     }

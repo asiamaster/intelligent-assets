@@ -9,6 +9,7 @@ import com.dili.bpmc.sdk.rpc.restful.HistoryRpc;
 import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
+import com.dili.ia.domain.dto.printDto.ContractDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.service.*;
 import com.dili.ia.util.LogBizTypeConst;
@@ -793,6 +794,26 @@ public class AssetsLeaseOrderController {
             return BaseOutput.failure(e.getMessage());
         } catch (Exception e) {
             LOG.error("租赁单费用批量计算异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+    
+    /**
+     * 费用批量计算
+     *
+     * @param queryFeeInputList
+     * @return
+     */
+    @PostMapping(value = "/getPrintData.action")
+    public @ResponseBody
+    BaseOutput<ContractDto> getPrintData(Long id) {
+        try {
+            return BaseOutput.successData(assetsLeaseOrderService.getPrintData(id));
+        } catch (BusinessException e) {
+            LOG.info("获取合同数据异常！", e);
+            return BaseOutput.failure(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("获取合同数据异常！", e);
             return BaseOutput.failure(e.getMessage());
         }
     }
