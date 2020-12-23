@@ -18,11 +18,11 @@ public interface AssetsRentalItemMapper extends MyMapper<AssetsRentalItem> {
     /**
      * 根据关联主键删除对应的资产
      *
-     * @param   assetsRentalId
+     * @param   assetsRentalIdList
      * @return
      * @date    2020/11/26
      */
-    void deleteByRentalId(@Param("assetsRentalId")Long assetsRentalId);
+    int deleteByRentalIdList(@Param("assetsRentalIdList")List<Long> assetsRentalIdList);
 
     /**
      * 根据 assetsIds 查询属于表中的 assetsId 的集合,摊位出租预设的主表状态是启用
@@ -51,4 +51,13 @@ public interface AssetsRentalItemMapper extends MyMapper<AssetsRentalItem> {
      * @date   2020/12/8
      */
     void updateByAssetsId(AssetsRentalItemDto assetsRentalItemDto);
+
+    /**
+     * 根据摊位ID查询预设池中的预设摊位
+     *
+     * @param  assetId
+     * @return AssetsRentalItemDto
+     * @date   2020/12/22
+     */
+    AssetsRentalItemDto getAssetsItemsByAssetsId(@Param("assetsIds")Long assetId);
 }

@@ -1,8 +1,13 @@
 package com.dili.ia.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.dili.customer.sdk.constants.MqConstant;
 import com.dili.ia.domain.AssetsRental;
 import com.dili.ia.domain.AssetsRentalItem;
 import com.dili.ia.domain.dto.AssetsRentalDto;
+import com.dili.ia.domain.dto.AssetsRentalMchDistrictDto;
+import com.dili.ia.domain.dto.AssetsRentalMchDistrictListDto;
 import com.dili.ia.glossary.AssetsRentalStateEnum;
 import com.dili.ia.mapper.AssetsRentalMapper;
 import com.dili.ia.service.AssetsRentalItemService;
@@ -11,14 +16,22 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.rabbitmq.client.Channel;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.ExchangeTypes;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,8 +70,8 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         if (CollectionUtils.isNotEmpty(assetsRentalList)) {
             throw new BusinessException(ResultCode.DATA_ERROR, "新增资产出租预设失败,资产名称已存在！");
         }
+        // TODO 区域和商户ID，批次未完成
 
-        //TODO 关于同一批设置的资产一个批次号，是否该加一个字段
         assetsRentalDto.setVersion(0);
         assetsRentalDto.setState(AssetsRentalStateEnum.ENABLE.getCode());
         assetsRentalDto.setCreatorId(userTicket.getId());
@@ -213,5 +226,59 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
     @Override
     public void deleteAssetsByDistrictId(Long districtId) throws Exception {
         this.getActualDao().deleteAssetsByDistrictId(districtId);
+    }
+
+    /**
+     * MQ 监听 商户区域关联改变
+     */
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "customer.info", autoDelete = "false"),
+            exchange = @Exchange(value = MqConstant.CUSTOMER_MQ_FANOUT_EXCHANGE, type = ExchangeTypes.FANOUT)
+    ))
+    public void processCustomerInfo(Channel channel, Message message) {
+        try {
+            String data = new String(message.getBody(), "UTF-8");
+            LOGGER.info("商户区域信息修改同步>>>>>" + data);
+            if (!StrUtil.isBlank(data)) {
+                // 新的商户-区域的一对多关系
+                AssetsRentalMchDistrictListDto mchDistrictListDto = JSONObject.parseObject(data, AssetsRentalMchDistrictListDto.class);
+                List<AssetsRentalMchDistrictDto> mchDistrictDtoList = mchDistrictListDto.getMchDistrictListDtoList();
+                List<AssetsRental> assetsRentalList = this.getActualDao().selectAll();
+                List<Long> allAsssetRentalIds = new ArrayList<>();
+                List<Long> notAsssetRentalIds = new ArrayList<>();
+                if (mchDistrictListDto != null && CollectionUtils.isNotEmpty(mchDistrictDtoList) && CollectionUtils.isNotEmpty(assetsRentalList)) {
+                    for (AssetsRental assetsRental : assetsRentalList) {
+                        allAsssetRentalIds.add(assetsRental.getId());
+                        // 查询出预设池中区域ID和商户ID，再和MQ消息中对比
+                        Long districtId = null;
+                        Long mchId = assetsRental.getMchId();
+                        Long firstDistrictId = assetsRental.getFirstDistrictId();
+                        Long secondDistrictId = assetsRental.getSecondDistrictId();
+                        if (secondDistrictId != null) {
+                            districtId = secondDistrictId;
+                        } else if (secondDistrictId == null && firstDistrictId != null) {
+                            districtId = firstDistrictId;
+                        }
+
+                        // 遍历商户-区域集合
+                        for (AssetsRentalMchDistrictDto mchDistrictDto : mchDistrictDtoList) {
+                            Long mchIdNew = mchDistrictDto.getMchId();
+                            Long districtIdNew = mchDistrictDto.getDistrictId();
+                            if (mchIdNew.equals(mchId) && districtIdNew.equals(districtId)) {
+                                // 预设池中商户和区域未改变的数据
+                                notAsssetRentalIds.add(assetsRental.getId());
+                            }
+                        }
+                    }
+
+                    // 获取需要删除的ID，批量删除预设表和预设关联表
+                    allAsssetRentalIds.removeAll(notAsssetRentalIds);
+                    this.delete(allAsssetRentalIds);
+                    assetsRentalItemService.deleteByRentalIdList(allAsssetRentalIds);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("商户区域信息修改失败", e);
+        }
     }
 }

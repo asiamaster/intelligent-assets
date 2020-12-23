@@ -726,13 +726,14 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailPrintDto.setCustomerCellphone(meterDetailInfo.getCustomerCellphone());
         // 业务类型（判断是水费还是电费）
         meterDetailPrintDto.setBusinessType(BizTypeEnum.ELECTRICITY.getName());
-        if (MeterTypeEnum.WATER_METER.equals(meterDetailInfo.getState())) {
-            meterDetailPrintDto.setBusinessType(BizTypeEnum.WATER.getCode());
+        if (MeterTypeEnum.WATER_METER.getCode().equals(meterDetailInfo.getType())) {
+            meterDetailPrintDto.setBusinessType(BizTypeEnum.WATER.getName());
         }
         meterDetailPrintDto.setAmount(MoneyUtils.centToYuan(meterDetailInfo.getAmount()));
         meterDetailPrintDto.setNumber(meterDetailInfo.getNumber());
         meterDetailPrintDto.setUsageTime(meterDetailInfo.getUsageTime());
-        meterDetailPrintDto.setAssetsType(AssetsTypeEnum.getAssetsTypeEnumByBizType(meterDetailInfo.getAssetsType()).getName());
+        String assetsTypeName = AssetsTypeEnum.getAssetsTypeEnum(Integer.valueOf(meterDetailInfo.getAssetsType())).getName();
+        meterDetailPrintDto.setAssetsType(assetsTypeName);
         meterDetailPrintDto.setAssetsName(meterDetailInfo.getAssetsName());
 
         // 项目里的字段

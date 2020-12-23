@@ -25,7 +25,6 @@ public enum BizTypeEnum {
     MESSAGEFEE("14", "信息费", "messageFee"),
     WATER("15", "水费", "water"),
     ELECTRICITY("16", "电费", "electricity"),
-//    WATER_ELECTRICITY("17", "水电费", "waterElectricity"),
     ;
 
     private String name;

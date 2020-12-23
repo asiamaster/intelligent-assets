@@ -35,7 +35,7 @@ ADD COLUMN `first_district_id` bigint(20) DEFAULT NULL COMMENT '一级区域ID' 
 ADD COLUMN `second_district_id` bigint(20) DEFAULT NULL COMMENT '二级区域ID' AFTER `first_district_id`;
 
 ALTER TABLE `dili_ia`.`deposit_balance`
-ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_code`,
+ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_code`;
 
 ALTER TABLE `dili_ia`.`earnest_order`
 ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_id`,
@@ -60,6 +60,13 @@ ADD COLUMN `first_district_id` bigint(20) NULL DEFAULT NULL COMMENT '一级区�
 ADD COLUMN `first_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '一级区域名称' AFTER `first_district_id`,
 ADD COLUMN `second_district_id` bigint(20) NULL DEFAULT NULL COMMENT '二级区域ID' AFTER `first_district_name`,
 ADD COLUMN `second_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '二级区域名称' AFTER `second_district_id`;
+
+ALTER TABLE `dili_ia`.`earnest_transfer_order`
+ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_id`,
+DROP COLUMN state,
+DROP COLUMN payee_customer_account_id,
+DROP COLUMN payer_transaction_details_code,
+DROP COLUMN payee_transaction_code;
 
 -- 处理租赁单区域老数据
 UPDATE `dili_ia`.assets_lease_order_item ali ,`dili-basic-data`.district dt

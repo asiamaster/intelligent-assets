@@ -12,14 +12,17 @@
     <result column="assets_id" jdbcType="BIGINT" property="assetsId" />
     <result column="assets_name" jdbcType="VARCHAR" property="assetsName" />
     <result column="assets_type" jdbcType="TINYINT" property="assetsType" />
+      <result column="number" jdbcType="DECIMAL" property="number" />
+      <result column="unit" jdbcType="VARCHAR" property="unit" />
+      <result column="corner" jdbcType="TINYINT" property="corner" />
     <result column="version" jdbcType="TINYINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbg.generated
     -->
-    id, assets_rental_id, create_time, modify_time, assets_id, assets_name, assets_type,
-    version
+    id, assets_rental_id, create_time, modify_time, assets_id, assets_name, assets_type, number, unit, corner, version
+
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -61,12 +64,15 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-    <delete id="deleteByRentalId" parameterType="java.lang.Long">
+    <delete id="deleteByRentalIdList">
         delete
         from
             assets_rental_item
         where
-            assets_rental_id = #{assetsRentalId,jdbcType=BIGINT}
+            assets_rental_id in
+            <foreach collection="assetsRentalIdList" item="assetsRentalId" index="index" open="(" close=")" separator=",">
+                #{assetsRentalId}
+            </foreach>
     </delete>
 
     <select id="listRentalItemsByAssetsIds" resultType="long">
@@ -118,4 +124,29 @@
         where
             assets_id = #{assetsId}
     </update>
+
+    <select id="getAssetsItemsByAssetsId" resultType="com.dili.ia.domain.dto.AssetsRentalItemDto">
+        select
+            ar.mch_id as mchId,
+            ar.first_district_id as firstDistrictId,
+            ar.second_district_id as secondDistrictId,
+            ari.id,
+            ari.assets_rental_id,
+            ari.create_time,
+            ari.modify_time,
+            ari.assets_id,
+            ari.assets_name,
+            ari.assets_type,
+            ari.number,
+            ari.unit,
+            ari.corner,
+            ari.version
+        from
+            assets_rental as ar
+          left join
+            assets_rental_item as ari
+          on ar.id = ari.assets_rental_id
+        where
+            ari.assets_id = #{assetsId}
+    </select>
 </mapper>

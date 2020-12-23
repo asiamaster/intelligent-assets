@@ -78,7 +78,7 @@ public class MeterDetailApi {
      * @param orderCode
      * @return
      */
-    @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST})
+    @RequestMapping(value = "/queryPrintData", method = {RequestMethod.POST, RequestMethod.GET})
     public @ResponseBody
     BaseOutput<PrintDataDto<MeterDetailPrintDto>> queryPaymentPrintData(String orderCode, Integer reprint) {
         try {
