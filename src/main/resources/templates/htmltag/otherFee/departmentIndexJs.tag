@@ -84,18 +84,12 @@
             return false;
         }
         bui.loading.show('努力提交中，请稍候。。。');
-        let department  = []
-        let mch  = []
+        let departmentList  = []
         $.each($('[name="department"]:checked'), function (index, element) {
-            department.push({departmentId: $(element).val(), departmentName: $(element).siblings('.custom-control-label').text()})
+            departmentList.push({departmentId: $(element).val(), departmentName: $(element).siblings('.custom-control-label').text()})
         })
-
-        $.each($('[name="mch"]:checked'), function (index, element) {
-            department.push({mchId: $(element).val(), mchName: $(element).siblings('.custom-control-label').text()})
-        })
-
-        let data =  $.extend({}, $('#chargeItemId').serializeObject(), {departmentList: department})
-
+        let mchName = $('[name="mch"]:checked').siblings('.custom-control-label').text();
+        let data =  $.extend({}, $('#saveForm :not([name="department"])').serializeObject(), {mchName},  {departmentList})
         $.ajax({
             type: "POST",
             url: "${contextPath}/departmentChargeItem/doAddDepartment.action",
