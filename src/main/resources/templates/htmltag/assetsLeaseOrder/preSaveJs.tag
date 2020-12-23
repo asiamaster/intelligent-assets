@@ -585,6 +585,7 @@
                     businessChargeItem.chargeItemId = this.dataset.chargeItemId;
                     businessChargeItem.ruleId = this.dataset.ruleId;
                     businessChargeItem.ruleName = this.dataset.ruleName;
+                    businessChargeItem.ruleAmount = isYuanToCent && this.dataset.ruleAmount;
                     businessChargeItem.amount = isYuanToCent && $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
                     leaseOrderItem.businessChargeItems.push(businessChargeItem);
                 } else {
@@ -755,9 +756,11 @@
                     for (let chargeItemResult of calcResult) {
                         let chargeItemDataset = $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset;
                         if (chargeItemResult.success) {
-                            $('#chargeItem_'+chargeItemResult.requestDataId).val(chargeItemResult.totalFee);
+                            let ruleAmount = Math.round(Number(chargeItemResult.totalFee).mul(100)).centToYuan();
+                            $('#chargeItem_'+chargeItemResult.requestDataId).val(ruleAmount);
                             chargeItemDataset['ruleId'] = chargeItemResult.ruleId;
                             chargeItemDataset['ruleName'] = chargeItemResult.ruleName;
+                            chargeItemDataset['ruleAmount'] = ruleAmount;
                             calcTotalAmount(true);
                         } else {
                             bs4pop.notice(chargeItemDataset['chargeItemName'] + ' ' + chargeItemResult.message, {position: 'bottomleft', type: 'danger'});

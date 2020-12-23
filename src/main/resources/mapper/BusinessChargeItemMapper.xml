@@ -50,6 +50,17 @@
                 as char
             ) as chargeItemRuleName${chargeItem.id},
 
+            MAX(
+                CASE charge_item_id
+                WHEN #{chargeItem.id} THEN
+                    IF(
+                        rule_amount IS NULL,
+                        NULL,
+                        cast(TRUNCATE (rule_amount / 100, 2 ) AS CHAR )
+                    )
+                END
+            ) as chargeItemRuleAmountYuan${chargeItem.id},
+
             cast(
                 truncate(
                     MAX(

@@ -49,6 +49,8 @@ ALTER TABLE `dili_ia`.`business_charge_item`
 ADD COLUMN `rule_id` bigint(20) NULL COMMENT '规则ID' AFTER `charge_item_name`;
 ALTER TABLE `dili_ia`.`business_charge_item`
 ADD COLUMN `rule_name` varchar(100) NULL AFTER `rule_id`;
+ALTER TABLE `dili_ia`.`business_charge_item`
+ADD COLUMN `rule_amount` bigint(20) NULL COMMENT '规则计算金额' AFTER `rule_name`;
 
 ALTER TABLE `dili_ia`.`assets_lease_order`
 ADD COLUMN `batch_id` bigint(20) NULL DEFAULT NULL COMMENT '批次号' AFTER `mch_id`;
