@@ -581,7 +581,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
         String settleDetails = "";
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getTradeCardNo() +
                     "（" + order.getCustomerName() + "）】";
         } else {
             settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
@@ -609,23 +609,25 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		printDto.setCustomerCellphone(labor.getCustomerCellphone());
 		printDto.setCustomerName(labor.getCustomerName());
 		printDto.setSettlementOperator(order.getOperatorName());
-		printDto.setSubmitter(labor.getSubmitter());
-		printDto.setNotes(labor.getNotes());
+		printDto.setSubmitter(refundOrder.getSubmitter());
+		printDto.setNotes(refundOrder.getRefundReason());
 		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
 		// 支付方式
-        String settleDetails = "";
+		String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + refundOrder.getPayeeAmount();
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
-                    "（" + order.getCustomerName() + "）】";
-        } else {
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
-                    + order.getNotes() + "】";
+            settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     园区卡号：" + order.getTradeCardNo();
+        } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
+            // 现金
+            settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay());
+        } else if (SettleWayEnum.BANK.getCode() == order.getWay())  {
+            // 银行卡
+            settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
         }
         printDto.setSettleWayDetails(settleDetails);
 		
 		PrintDataDto<LaborRefundPrintDto> printDataDto = new PrintDataDto<>();
-		printDataDto.setName(PrintTemplateEnum.MESSAGEFEE_REFUND.getCode());
+		printDataDto.setName(PrintTemplateEnum.LABOR_VEST_REFUND.getCode());
 		printDataDto.setItem(printDto);
 		return printDataDto;	
 	}
