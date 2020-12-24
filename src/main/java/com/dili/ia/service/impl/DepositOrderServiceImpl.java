@@ -60,6 +60,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -108,6 +109,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     @SuppressWarnings("all")
     @Autowired
     RuntimeRpc runtimeRpc;
+    @Resource
+    BpmDefKeyConfig bpmDefKeyConfig;
 
     public DepositOrderMapper getActualDao() {
         return (DepositOrderMapper)getDao();
@@ -642,7 +645,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
             //根据退款单业务类型启动流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getRefundDefKey(depositRefundOrderDto.getBizType()));
+            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(depositRefundOrderDto.getBizType(), depositRefundOrderDto.getMarketCode()));
             startProcessInstanceDto.setBusinessKey(depositRefundOrderDto.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> outputP = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
