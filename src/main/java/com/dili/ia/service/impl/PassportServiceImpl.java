@@ -547,7 +547,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         String settleDetails = "";
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getTradeCardNo() +
                     "（" + order.getCustomerName() + "）】";
         } else {
             // 现金以及其他方式
@@ -603,7 +603,7 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
             String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + refundOrder.getPayeeAmount();
             if (SettleWayEnum.CARD.getCode() == order.getWay()) {
                 // 园区卡支付
-                settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     园区卡号：" + order.getAccountNumber();
+                settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     园区卡号：" + order.getTradeCardNo();
             } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
                 // 现金
                 settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay());

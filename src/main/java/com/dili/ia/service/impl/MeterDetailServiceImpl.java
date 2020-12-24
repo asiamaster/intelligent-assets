@@ -746,7 +746,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         String settleDetails = "";
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() + "（" + order.getCustomerName() + "）】";
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getTradeCardNo() + "（" + order.getCustomerName() + "）】";
         } else {
             // 现金以及其他方式
             settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注：" + order.getNotes() + "】";
