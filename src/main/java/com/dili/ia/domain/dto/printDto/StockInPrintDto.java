@@ -37,6 +37,8 @@ public class StockInPrintDto {
 	private String districtName;
 	// 总金额
 	private String totalAmount;
+	// 总金额 大写
+	private String totalAmountCn;
 	// 提交人
 	private String submitter;
 	// 结算员
@@ -280,4 +282,14 @@ public class StockInPrintDto {
 		this.expireDate = expireDate;
 	}
 
+	public String getTotalAmountCn() {
+		return totalAmountCn;
+	}
+
+	public void setTotalAmountCn(String totalAmountCn) {
+		this.totalAmountCn = totalAmountCn;
+	}
+
+	
+	
 }

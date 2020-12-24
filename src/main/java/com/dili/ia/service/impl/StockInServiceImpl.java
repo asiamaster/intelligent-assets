@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
@@ -78,6 +80,8 @@ import com.dili.uap.sdk.session.SessionContext;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.math.Money;
 import io.seata.spring.annotation.GlobalTransactional;
 
 /**
@@ -663,9 +667,11 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		
 		stockInPrintDto.setSettlementOperator(order.getOperatorName());
 		stockInPrintDto.setReviewer("");
-		stockInPrintDto.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
+		
+		stockInPrintDto.setTotalAmount(MoneyUtils.centToYuan(paymentOrder.getAmount()));
+		stockInPrintDto.setTotalAmountCn(Convert.digitToChinese(new BigDecimal(MoneyUtils.centToYuan(paymentOrder.getAmount()))));
 		// 支付方式
-        stockInPrintDto.setSettleWayDetails(SettleWayEnum.getNameByCode(order.getWay()));
+        stockInPrintDto.setPayWay(SettleWayEnum.getNameByCode(order.getWay()));
 		//详情
         Long quantity = 0L;
         Long weight = 0L;
@@ -688,11 +694,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
 		stockInPrintDto.setCarPlate(carPlate.substring(0, carPlate.length()-1));
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
-		stockInPrintDto.setUnitPrice(String.valueOf(stockIn.getUnitPrice()/100));
-		stockInPrintDto.setStockInType(String.valueOf(stockIn.getType()));
+		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
+		stockInPrintDto.setStockInType(StockInTypeEnum.getStockInTypeEnum(stockIn.getType()).getName());
 		stockInPrintDto.setStockInDate(stockIn.getStockInDate());
 		stockInPrintDto.setExpireDate(stockIn.getExpireDate());
-
 
 		PrintDataDto<StockInPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.STOCKIN_ORDER.getCode());
@@ -718,6 +723,11 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setReviewer("");
 		stockInPrintDto.setSettlementOperator(order.getOperatorName());
         stockInPrintDto.setSettleWayDetails(SettleWayEnum.getNameByCode(order.getWay()));
+        stockInPrintDto.setTotalAmount(MoneyUtils.centToYuan(order.getAmount()));
+		stockInPrintDto.setTotalAmountCn(Convert.digitToChinese(new BigDecimal(MoneyUtils.centToYuan(order.getAmount()))));
+		// 支付方式
+        stockInPrintDto.setPayWay(SettleWayEnum.getNameByCode(order.getWay()));
+
 		//详情
         Long quantity = 0L;
         Long weight = 0L;
@@ -740,8 +750,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
 		stockInPrintDto.setCarPlate(carPlate.substring(0, carPlate.length()-1));
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
-		stockInPrintDto.setUnitPrice(String.valueOf(stockIn.getUnitPrice()/100));
-		stockInPrintDto.setStockInType(String.valueOf(stockIn.getType()));
+		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
+		stockInPrintDto.setStockInType(StockInTypeEnum.getStockInTypeEnum(stockIn.getType()).getName());
 		stockInPrintDto.setStockInDate(stockIn.getStockInDate());
 		stockInPrintDto.setExpireDate(stockIn.getExpireDate());
 

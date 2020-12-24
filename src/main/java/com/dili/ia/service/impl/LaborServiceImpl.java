@@ -62,6 +62,7 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
@@ -563,6 +564,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		Labor labor = getLaborByCode(paymentOrder.getBusinessCode());
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		LaborPayPrintDto laborPrintDto = new LaborPayPrintDto();
+		laborPrintDto.setCode(labor.getCode());
 		laborPrintDto.setPrintTime(LocalDateTime.now());
 		laborPrintDto.setReprint("2".equals(reprint) ? "(补打)" : "");
 
@@ -574,6 +576,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		laborPrintDto.setCustomerName(labor.getCustomerName());
 		laborPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
 		laborPrintDto.setSubmitter(labor.getSubmitter());
+		laborPrintDto.setTotalAmount(MoneyUtils.centToYuan(paymentOrder.getAmount()));
 		DateTimeFormatter sdf1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		laborPrintDto.setEffectiveDate(sdf1.format(labor.getStartDate())+"至"+sdf1.format(labor.getEndDate()));
 		laborPrintDto.setNotes(labor.getNotes());
@@ -612,6 +615,10 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		printDto.setSubmitter(refundOrder.getSubmitter());
 		printDto.setNotes(refundOrder.getRefundReason());
 		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
+		printDto.setTotalAmount(MoneyUtils.centToYuan(order.getAmount()));
+		printDto.setCode(labor.getCode());
+
+
 		// 支付方式
 		String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + refundOrder.getPayeeAmount();
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
