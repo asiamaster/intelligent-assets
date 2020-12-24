@@ -28,6 +28,7 @@
             <div class="row row-cols-4 collapse show" id="customerInfo">
                 <div class="form-group col">
                     <label for="customerName">客户名称<i class="red">*</i></label>
+                    <input type="hidden" name="organizationType" id="organizationType" value="${leaseOrder.organizationType!}">
                     <% if(isNotEmpty(isRenew) && isRenew == 1 ){%>
                     <input type="text" class="form-control" id="customerName" name="customerName" value="${leaseOrder.customerName!}" placeholder="" _log="客户名称" required readonly autocomplete="off">
                     <input type="hidden" name="customerId" id="customerId" value="${leaseOrder.customerId!}" text="${leaseOrder.customerName!}">
