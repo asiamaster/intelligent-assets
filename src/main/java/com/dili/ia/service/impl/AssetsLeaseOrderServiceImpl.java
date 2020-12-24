@@ -56,6 +56,7 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.exception.NotLoginException;
 import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
+import com.dili.uap.sdk.rpc.FirmRpc;
 import com.dili.uap.sdk.session.SessionContext;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections.CollectionUtils;
@@ -70,6 +71,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -138,6 +141,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     private ApportionRecordService apportionRecordService;
     @Autowired
     ChargeRuleRpc chargeRuleRpc;
+    @Autowired
+    private FirmRpc firmRpc;
 
     @Autowired
     @Lazy
@@ -1883,47 +1888,67 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
     @Override
 	public ContractDto getPrintData(Long id) {
+    	UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (userTicket == null) {
+             throw new BusinessException(ResultCode.CSRF_ERROR, "登录已过期!");
+        }
 		ContractDto contractDto = new ContractDto();
 		AssetsLeaseOrder leaseOrder = this.get(id);
+		// 合同市场获取,客户地址获取 
+		BaseOutput<CustomerExtendDto> output = customerRpc.get(leaseOrder.getCustomerId(), leaseOrder.getMarketId());
+        if (!output.isSuccess()) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 " + output.getMessage());
+        }
+        CustomerExtendDto customer = output.getData();
 		// 获取基本数据
+		contractDto.setPartya(firmRpc.getById(leaseOrder.getMarketId()).getData().getName());
 		contractDto.setPartyb(leaseOrder.getCustomerName());
-		contractDto.setAddress(leaseOrder.getCertificateNumber());
+		contractDto.setAddress(customer.getCertificateAddr());
 		contractDto.setCertificateNo(leaseOrder.getCertificateNumber());
 		contractDto.setPhone(leaseOrder.getCustomerCellphone());
 		contractDto.setAssetsType(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getName());
-		//TODO 面积
-		//contractDto.setArea(leaseOrder.geta);
+		
 		contractDto.setsTime(leaseOrder.getStartTime());
 		contractDto.seteTime(leaseOrder.getEndTime());
 		contractDto.setDays(String.valueOf(leaseOrder.getDays()));
-		
-		
+
 		AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
 		condition.setLeaseOrderId(leaseOrder.getId());
 		List<String> items = new ArrayList<>();
 		List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
+		BigDecimal big = new BigDecimal(0);
+		StringBuilder unitName = new StringBuilder();
 		leaseOrderItems.stream().forEach(it -> {
-			items.add(String.format("【%s】【%s】【%s】", it.getFirstDistrictName(),it.getSecondDistrictName(),it.getAssetsName()));
+			big.add(it.getNumber());
+			StringBuilder str = new StringBuilder();
+			str.append(String.format("【%s】【%s】【%s】", it.getFirstDistrictName(), it.getSecondDistrictName(),
+					it.getAssetsName())).append(" ").append(it.getNumber()).append(it.getUnitName());
+			items.add(str.toString());
+			unitName.append(it.getUnitName());
 		});
-		// modelMap.put("leaseOrder", leaseOrder);
+		// 面积
+		contractDto.setArea(big.toString()+unitName.toString());
+		contractDto.setItems(items);
 		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(
 				leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
-		List<AssetsLeaseOrderItemListDto> itmesAssetsLeaseOrderItemListDtos = assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems,
-				leaseOrder.getBizType(), chargeItemDtos);
+		List<AssetsLeaseOrderItemListDto> itmesAssetsLeaseOrderItemListDtos = assetsLeaseOrderItemService
+				.leaseOrderItemListToDto(leaseOrderItems, leaseOrder.getBizType(), chargeItemDtos);
+		System.err.println(JSON.toJSONString(itmesAssetsLeaseOrderItemListDtos));
 		List<String> feeItems = new ArrayList<>();
 		itmesAssetsLeaseOrderItemListDtos.stream().forEach(it -> {
-			List<BusinessChargeItem> charItem = it.getBusinessChargeItems();
 			StringBuilder str = new StringBuilder();
-			str.append(String.format("【%s】【%s】【%s】:", 
-					it.getFirstDistrictName(),it.getSecondDistrictName(),it.getAssetsName()
-					));
-			charItem.stream().forEach(it1 -> {
-				str.append(it1.getChargeItemName()).append(it1.getAmount()).append(";");
+			str.append(String.format("【%s】【%s】【%s】:", it.getFirstDistrictName(), it.getSecondDistrictName(),
+					it.getAssetsName()));
+			chargeItemDtos.stream().forEach(it1 -> {
+				str.append(it1.getChargeItem()).append(it.getBusinessChargeItem().get("chargeItemYuan" + it1.getId()))
+						.append(";");
+				;
 			});
+
 			feeItems.add(str.toString());
-			
 		});
+		contractDto.setFeeItems(feeItems);
 		return contractDto;
 	}
-    
+
 }
