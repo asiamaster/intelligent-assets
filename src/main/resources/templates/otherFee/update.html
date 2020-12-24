@@ -42,10 +42,14 @@
                         <option value="${otherFee.chargeItemId}" selected>${otherFee.chargeItemName}</option>
                     </select>
                 </div>
+
+                <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() == @com.dili.ia.glossary.MarketEnum.SY.getCode()){%>
                 <div class="form-group col-6">
                     <label for="" _log>所属区域<i class="red">*</i></label>
                     <#js_district firstDistrictId="${otherFee.firstDistrictId!}" secondDistrictId="${otherFee.secondDistrictId!}"></#js_district>
                 </div>
+                <%}%>
+
                 <div class="form-group col">
                     <label for="assetsType">费用类型<i class="red">*</i></label>
                     <select id="assetsType"  name="assetsType" class="form-control" required></select>

@@ -162,10 +162,13 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                 itemParam.setDepartmentId(departmentInfo.getDepartmentId());
                 itemParam.setDepartmentName(departmentInfo.getDepartmentName());
 
-                // 只有沈阳才需要存入商户ID和商户名称
+                // 只有沈阳用户存入组织ID（商户ID），其他用户存入市场ID
                 if (departmentChargeItemDto.getMchId() != null) {
                     itemParam.setMchId(departmentChargeItemDto.getMchId());
+                } else {
+                    itemParam.setMchId(userTicket.getFirmId());
                 }
+
                 if (StringUtils.isNotEmpty(departmentChargeItemDto.getMchName())) {
                     itemParam.setMchName(departmentChargeItemDto.getMchName());
                 }
