@@ -165,8 +165,8 @@ function buildFormData() {
 	formData.departmentName = departmentName;
 	//formData.categoryName = categoryName;
 	
-	formData.origin = upload.value.join(",");
-    formData.originName = upload.originName;
+	formData.origin = city.value.join(",");
+    formData.originPath = city.originName;
     
 	let stockDetails = [];
 	// 动态收费项

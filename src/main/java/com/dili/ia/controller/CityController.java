@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.dili.assets.sdk.dto.CityDto;
 import com.dili.assets.sdk.rpc.CityRpc;
+import com.dili.ia.cache.CityCache;
 import com.dili.ia.domain.dto.CityTreeDto;
 import com.dili.ss.domain.BaseOutput;
 
@@ -39,16 +40,18 @@ public class CityController {
 	 * @Title cityTree
 	 */
     @RequestMapping(value="/tree.action", method = RequestMethod.GET)
-	public @ResponseBody BaseOutput<Object> cityTree(){
-    	//CityTreeDto cacheTree = OcrmCache.getInstance().TREE;
-		/*
-		 * if(cacheTree != null) { return BaseOutput.successData(cacheTree); }
-		 */
+	public @ResponseBody BaseOutput<Object> cityTree() {
+		CityTreeDto cacheTree = CityCache.getInstance().TREE;
+
+		if (cacheTree != null) {
+			return BaseOutput.successData(cacheTree);
+		}
+
 		List<CityDto> cityDtos = cityRpc.list(new CityDto()).getData();
 		CityTreeDto tree = new CityTreeDto();
 		tree.setId(100000L);
 		child(cityDtos, tree);
-		//OcrmCache.getInstance().TREE = tree;
+		CityCache.getInstance().TREE = tree;
 		return BaseOutput.successData(tree);
 	}
 	

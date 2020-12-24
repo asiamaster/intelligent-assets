@@ -29,8 +29,7 @@ var city = new Vue({
   				this.originName = this.originName+pathvalue.parent.label+"/"
   			}
   			this.originName = this.originName+pathvalue.label
-    		console.log(this.originName);
-            this.customerCity = value;
+            this.value = value;
          },
           getCity(){
             let that = this;
@@ -40,12 +39,12 @@ var city = new Vue({
                   success: function (ret) {
                 	  that.options = ret.data.childs;
                 	  //销地城市
-                	 /*  let city2 = '${customer.biz.salesArea.id!}'.split(',');
+                	  let city2 = '${stockIn.origin!}'.split(',');
                 	  let c2 = [];
                 	  for (var i = 0; i < city2.length; i++) {
                 		  c2.push(parseInt(city2[i]));
                 	  }
-                	  that.salesArea = c2; */
+                	  that.value = c2; 
                   },
                   error: function (error) {
                      
