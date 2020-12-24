@@ -111,6 +111,12 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         if (boutiqueDto.getRows() != null && boutiqueDto.getRows() >= 1) {
             PageHelper.startPage(boutiqueDto.getPage(), boutiqueDto.getRows());
         }
+        // 挂车和柜车用枚举转换成name
+        if (boutiqueDto.getCarTypeId() != null) {
+            String carTypeName = BoutiqueCarTypeEnum.getCarTypeEnumName(Integer.parseInt(boutiqueDto.getCarTypeId().toString()));
+            boutiqueDto.setCarTypeId(null);
+            boutiqueDto.setCarTypeName(carTypeName);
+        }
 
         // 查询列表
         List<BoutiqueEntranceRecordDto> boutiqueList = this.getActualDao().listBoutiques(boutiqueDto);
@@ -179,8 +185,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         }
 
         // 根据车型查询免费时长
-        String carTypeName = BoutiqueCarTypeEnum.getCarTypeEnumName(Integer.parseInt(recordInfo.getCarTypeId().toString()));
-        BoutiqueFreeSets sets = boutiqueFreeSetsService.getByCarTypeName(carTypeName);
+        BoutiqueFreeSets sets = boutiqueFreeSetsService.getByCarTypeName(recordInfo.getCarTypeName());
         if (sets != null) {
             ZoneId zoneId = ZoneId.systemDefault();
             ZonedDateTime zdt = boutiqueEntranceRecord.getConfirmTime().atZone(zoneId);

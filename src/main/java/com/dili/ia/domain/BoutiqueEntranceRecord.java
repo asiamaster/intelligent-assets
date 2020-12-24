@@ -74,6 +74,12 @@ public class BoutiqueEntranceRecord extends BaseDomain {
     private Long carTypeId;
 
     /**
+     * 车型名称
+     */
+    @Column(name = "`car_type_name`")
+    private String carTypeName;
+
+    /**
      * 接车部门
      */
     @Column(name = "`department_id`")
@@ -327,6 +333,26 @@ public class BoutiqueEntranceRecord extends BaseDomain {
      */
     public void setCarTypeId(Long carTypeId) {
         this.carTypeId = carTypeId;
+    }
+
+    /**
+     * 获取车型名称
+     *
+     * @return car_type_name - 车型名称
+     */
+    @FieldDef(label="车型名称", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getCarTypeName() {
+        return carTypeName;
+    }
+
+    /**
+     * 设置车型名称
+     *
+     * @param carTypeName 车型名称
+     */
+    public void setCarTypeName(String carTypeName) {
+        this.carTypeName = carTypeName;
     }
 
     /**
