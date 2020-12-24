@@ -49,5 +49,5 @@ public interface MeterMapper extends MyMapper<Meter> {
      * @return meterDto
      * @date   2020/12/18
      */
-    MeterDto getMeterDtoById(@Param("id") Long id);
+    MeterDto getMeterDtoById(@Param("id") Long id, @Param("state")Integer state);
 }

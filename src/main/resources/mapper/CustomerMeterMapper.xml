@@ -193,14 +193,17 @@
             cm.customer_cellphone as customerCellphone ,
             cm.certificate_number as certificateNumber
         FROM
-            meter as me
-        left join customer_meter as cm on cm.meter_id = me.id
+            customer_meter as cm
+        left join meter as me on cm.meter_id = me.id
         <where>
             <if test="type != null">
                 and me.type = #{type,jdbcType=INTEGER}
             </if>
             <if test="keyword != null">
                 and me.number like concat('', #{keyword}, '%')
+            </if>
+            <if test="state != null">
+                and cm.state = #{state,jdbcType=INTEGER}
             </if>
         </where>
     </select>

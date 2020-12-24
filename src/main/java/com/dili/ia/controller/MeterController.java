@@ -222,7 +222,10 @@ public class MeterController {
             List<Meter> meterList = meterService.listUnbindMetersByType(type, keyword);
 
             return BaseOutput.success().setData(meterList);
-        } catch (Exception e) {
+        } catch (BusinessException e) {
+            logger.info("查询表失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        }  catch (Exception e) {
             logger.info("服务器内部错误！", e);
             return BaseOutput.failure(e.getMessage()).setData(false);
         }
