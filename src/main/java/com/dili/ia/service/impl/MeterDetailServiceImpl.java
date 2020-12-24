@@ -314,7 +314,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
                 meterDetailDto.setSubmitter(userTicket.getRealName());
                 meterDetailDto.setSubmitTime(LocalDateTime.now());
 
-
                 if (this.updateSelective(meterDetailDto) == 0) {
                     logger.info("多人提交水电费单!");
                 }
@@ -762,9 +761,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
 
         printDataDto.setItem(meterDetailPrintDto);
-        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_PAY.getName());
+        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_PAY.getCode());
         if ( MeterTypeEnum.WATER_METER.getCode().equals(meterDetailInfo.getType()) ) {
-            printDataDto.setName(PrintTemplateEnum.WATER_PAY.getName());
+            printDataDto.setName(PrintTemplateEnum.WATER_PAY.getCode());
         }
 
         return printDataDto;

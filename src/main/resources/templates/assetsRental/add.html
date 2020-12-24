@@ -7,6 +7,7 @@
     }
 </style>
 <div class="container-fluid pb-5" id="app">
+    <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.assetsRental'/>">
     <div class="row row-cols-6">
         <div class="form-group col">
             <label for="name">预设名称<i class="red">*</i></label>
@@ -64,16 +65,16 @@
             <div class="form-group col">
                 <label for="engageCode">经营范围<i class="red">*</i></label>
                 <select id="engageCode" name="engageCode" class="form-control" required></select>
-                <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider" _value="${leaseOrder.engageCode!}" _queryParams='{dd_code:"engage"}'/>
+                <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.engageCode!}" _queryParams='{dd_code:"engage"}'/>
             </div>
             <div class="form-group col">
                 <label for="leaseTermCode">租赁期限<i class="red">*</i></label>
                 <select id="leaseTermCode" name="leaseTermCode" class="form-control" required></select>
-                <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${leaseOrder.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}'/>
+                <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}'/>
             </div>
             <div class="form-group col">
                 <label for="categoryId" _log>经营品类</label>
-                <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="categoryAutoCompleteOption"/>
+                <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="testAutoCompleteOption"/>
             </div>
             <div class="form-group col">
                 <label for="days" class="">租赁天数<i class="red">*</i></label>
@@ -99,4 +100,4 @@
 </div>
 
 </#bs4Body>
-<#assetsRental_saveJs />
+<#assetsRental_addJs/>

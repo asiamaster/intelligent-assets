@@ -8,6 +8,35 @@
     //行索引计数器
     let itemIndex = 0;
 
+    //品类搜索
+    //品类搜索自动完成
+    var testAutoCompleteOption = {
+        serviceUrl: '/stock/categoryCycle/search.action',
+        paramName : 'keyword',
+        displayFieldName : 'name',
+        showNoSuggestionNotice: true,
+        noSuggestionNotice: '无匹配结果',
+        transformResult: function (result) {
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '（' + dataItem.code + '）'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return false;
+            }
+        },
+        selectFn: function (suggestion) {
+            $("#cycle").val(suggestion.cycle);
+        }
+    }
+
     var app = new Vue({
         el: '#app',
         data() {
@@ -36,40 +65,6 @@
             };
         }
     })
-
-
-
-    var categoryAutoCompleteOption = {
-        width: '100%',
-        language: 'zh-CN',
-        minimumInputLength: 1,
-        maximumSelectionLength: 10,
-        ajax: {
-            type:'post',
-            contentType: 'application/json',
-            url: '/commonData/listCusCategory.action',
-            delay: 500,
-            data: function (params) {
-                return JSON.stringify({
-                    keyword: params.term
-                })
-            },
-            processResults: function (result) {
-                if(result.success){
-                    let data = result.data;
-                    return {
-                        results: $.map(data, function (dataItem) {
-                            dataItem.text = dataItem.name + (dataItem.cusName ? '(' + dataItem.cusName + ')' : '');
-                            return dataItem;
-                        })
-                    };
-                }else{
-                    bs4pop.alert(result.message, {type: 'error'});
-                    return false;
-                }
-            }
-        }
-    }
 
     function viewAssetsByNoTable(){
         let booth = [];
@@ -177,12 +172,39 @@
 
     // 提交保存
     function doUpdateAssetsRentalHandler(){
-        console.log('ddd')
         let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
             return false;
         }
-        let buildData = $.extend($("#saveForm").serializeObject(), {booth: app.boothChecked})
+        let buildData = JSON.stringify($.extend($("#saveForm").serializeObject()), {booth: app.boothChecked})
+        bui.loading.show('努力提交中，请稍候。。。');
+        $.ajax({
+            type: "POST",
+            url: "/assetsRental/update.action",
+            data: buildData,
+            dataType: "json",
+            success: function (ret) {
+                bui.loading.hide();
+                if(!ret.success){
+                    bs4pop.alert(ret.message, {type: 'error'});
+                }else{
+                    parent.closeDialog(parent.dia);
+                }
+            },
+            error: function (error) {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
+
+    // 提交保存
+    function doSaveAssetsRentalHandler(){
+        let validator = $('#saveForm').validate({ignore:''})
+        if (!validator.form()) {
+            return false;
+        }
+        let buildData = JSON.stringify($.extend($("#saveForm").serializeObject()), {booth: app.boothChecked})
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
@@ -204,7 +226,8 @@
         });
     }
 
-    $('#save').on('click', bui.util.debounce(viewAssetsByNoTable,1000,true));
+    $('#save').on('click', bui.util.debounce(doSaveAssetsRentalHandler,1000,true));
+    $('#update').on('click', bui.util.debounce(doUpdateAssetsRentalHandler,1000,true));
 
 </script>
 
