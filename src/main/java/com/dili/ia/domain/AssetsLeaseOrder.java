@@ -60,6 +60,10 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
     @Column(name = "`biz_type`")
     private String bizType;
 
+    //客户组织类型
+    @Column(name = "`organization_type`")
+    private String organizationType;
+
     //客户名称
     @Column(name = "`customer_name`")
     private String customerName;
@@ -379,6 +383,14 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
 
     public void setBizType(String bizType) {
         this.bizType = bizType;
+    }
+
+    public String getOrganizationType() {
+        return organizationType;
+    }
+
+    public void setOrganizationType(String organizationType) {
+        this.organizationType = organizationType;
     }
 
     public String getCustomerName() {

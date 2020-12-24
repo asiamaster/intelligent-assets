@@ -13,6 +13,7 @@
             $('#certificateNumber').val(suggestion.certificateNumber);
             $('#_certificateNumber').val(suggestion.certificateNumber);
             $('#customerCellphone').val(suggestion.contactsPhone);
+            $('#organizationType').val(suggestion.organizationType);
             $("#_certificateNumber,#customerCellphone").valid();
             calcTotalAmount(true);
         }
@@ -21,6 +22,7 @@
         selectFn: function (suggestion) {
             $('#customerName').val(suggestion.name);
             $('#customerId').val(suggestion.customerId);
+            $('#organizationType').val(suggestion.organizationType);
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#customerName,#customerCellphone").valid();
 

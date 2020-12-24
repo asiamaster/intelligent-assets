@@ -16,6 +16,8 @@ ALTER TABLE `dili_ia`.`assets_lease_order`
 ADD COLUMN `biz_type` varchar(120) NULL COMMENT '业务类型（数据字典值编码 1：摊位租赁 4：冷库租赁 5：公寓租赁）' AFTER `assets_type`;
 ALTER TABLE `dili_ia`.`assets_lease_order`
 ADD COLUMN `mch_id` bigint(20) NULL COMMENT '商户ID' AFTER `market_code`;
+ALTER TABLE `dili_ia`.`assets_lease_order`
+ADD COLUMN `organization_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '组织类型,个人/企业' AFTER `customer_name`;
 ALTER TABLE `dili_ia`.`assets_lease_order_item`
 ADD COLUMN `biz_type` varchar(120) NULL COMMENT '业务类型（数据字典值编码 1：摊位租赁 4：冷库租赁 5：公寓租赁）' AFTER `assets_type`;
 update `dili_ia`.`assets_lease_order` set biz_type = '1';
@@ -97,6 +99,13 @@ WHERE ali.first_district_id = dt.id;
 UPDATE `dili_ia`.assets_lease_order_item ali,`dili-basic-data`.district dt
 set ali.second_district_name = dt.name
 WHERE ali.second_district_id = dt.id;
+
+-- 处理同步客户组织类型数据
+UPDATE `dili_ia`.assets_lease_order alo,
+`dili-customer`.customer cus
+SET alo.organization_type = cus.organization_type
+WHERE
+	alo.customer_id = cus.id;
 
 -- 表管理
 CREATE TABLE `dili_ia`.`meter` (
