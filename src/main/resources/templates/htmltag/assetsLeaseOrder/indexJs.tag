@@ -820,6 +820,27 @@
         return businessChareItems;
     }
 
+    
+    function openContractHandler(){
+    	 let rows = _grid.bootstrapTable('getSelections');
+         if (null == rows || rows.length == 0) {
+             bs4pop.alert('请选中一条数据');
+             return;
+         }
+    	$.ajax({
+            url: "${contextPath}/leaseOrder/getPrintData.action?id="+rows[0].id,
+            type: "POST",
+    		dataType: "json",
+    		contentType: "application/json",
+            success : function(result) {
+            	
+            },
+            error : function() {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+    }
 
     /**
      * 附件查看/下载
@@ -1026,6 +1047,7 @@
         $('#btn_print').attr('disabled', false);
         $('#btn_upload').attr('disabled', false);
         $('#btn_download').attr('disabled', false);
+        $('#btn_contract').attr('disabled', false);
         //只要有审批流程实例id就可以查看流程图
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);

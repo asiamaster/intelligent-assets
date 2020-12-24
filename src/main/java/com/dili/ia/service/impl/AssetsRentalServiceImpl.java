@@ -6,6 +6,7 @@ import com.dili.customer.sdk.constants.MqConstant;
 import com.dili.ia.domain.AssetsRental;
 import com.dili.ia.domain.AssetsRentalItem;
 import com.dili.ia.domain.dto.AssetsRentalDto;
+import com.dili.ia.domain.dto.AssetsRentalItemDto;
 import com.dili.ia.domain.dto.AssetsRentalMchDistrictDto;
 import com.dili.ia.domain.dto.AssetsRentalMchDistrictListDto;
 import com.dili.ia.glossary.AssetsRentalStateEnum;
@@ -28,6 +29,7 @@ import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -147,10 +149,14 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
      * @date   2020/11/26
      */
     @Override
-    public void enableOrDisable(Long id) {
+    public boolean enableOrDisable(Long id) {
+        // 启用
+        boolean enable = true;
         AssetsRental assetsRental = this.get(id);
         if (assetsRental != null) {
             if (AssetsRentalStateEnum.ENABLE.getCode().equals(assetsRental.getState())) {
+                // 禁用
+                enable = false;
                 assetsRental.setState(AssetsRentalStateEnum.DISABLE.getCode());
             } else {
                 assetsRental.setState(AssetsRentalStateEnum.ENABLE.getCode());
@@ -162,21 +168,25 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         if (this.updateSelective(assetsRental) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
+
+        return enable;
     }
 
     /**
      * 根据摊位 id 查询相关的预设信息
      *
-     * @param  assetsId
+     * @param  rentalId
      * @return AssetsRentalDto
      * @date   2020/12/2
      */
     @Override
-    public AssetsRentalDto getRentalByAssetsId(Long assetsId) {
+    public AssetsRentalDto getRentalByAssetsId(Long rentalId) {
         AssetsRentalDto assetsRentalDto = new AssetsRentalDto();
-        assetsRentalDto.setAssetsId(assetsId);
-        assetsRentalDto.setState(AssetsRentalStateEnum.ENABLE.getCode());
-        return this.getActualDao().getRentalByRentalDto(assetsRentalDto);
+        AssetsRental assetsRental = this.get(rentalId);
+        BeanUtils.copyProperties(assetsRental, assetsRentalDto);
+        List<AssetsRentalItem> assetsRentalItemList = assetsRentalItemService.listRentalItemsByRentalId(rentalId);
+        assetsRentalDto.setAssetsRentalItemList(assetsRentalItemList);
+        return assetsRentalDto;
     }
 
     /**

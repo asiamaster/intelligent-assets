@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-02-14 10:18:23.
@@ -56,6 +58,8 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
     @SuppressWarnings("all")
     @Autowired
     RuntimeRpc runtimeRpc;
+    @Resource
+    BpmDefKeyConfig bpmDefKeyConfig;
 
 
     public CustomerAccount getCustomerAccountById(Long customerAccountId) {
@@ -174,7 +178,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
 //            refundOrder.setDistrictId(); //没有在业务单上发起，区域为空
             //根据退款单业务类型启动流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getRefundDefKey(refundOrder.getBizType()));
+            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(refundOrder.getBizType(), refundOrder.getMarketCode()));
             startProcessInstanceDto.setBusinessKey(refundOrder.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> outputP = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);

@@ -648,10 +648,10 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		StockIn stockIn = getStockInByCode(paymentOrder.getBusinessCode());
 		StockInPrintDto stockInPrintDto = new StockInPrintDto();
-		//TODO stockInPrintDto.set
+		// stockInPrintDto.set
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		stockInPrintDto.setBusinessType(BizTypeEnum.STOCKIN.getCode());
-		stockInPrintDto.setCardNo(order.getAccountNumber());
+		stockInPrintDto.setCardNo(order.getTradeCardNo());
 		stockInPrintDto.setCategoryName(stockIn.getCategoryName());
 		stockInPrintDto.setCustomerCellphone(stockIn.getCustomerCellphone());
 		stockInPrintDto.setCustomerName(stockIn.getCustomerName());
@@ -660,19 +660,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setReprint("2".equals(reprint) ? "(补打)" : "");
 		stockInPrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
 		stockInPrintDto.setSubmitter(stockIn.getSubmitter());
+		
+		stockInPrintDto.setSettlementOperator(order.getOperatorName());
 		stockInPrintDto.setReviewer("");
 		stockInPrintDto.setTotalAmount(String.valueOf(paymentOrder.getAmount()));
 		// 支付方式
-        String settleDetails = "";
-        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
-            // 园区卡支付
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
-                    "（" + order.getCustomerName() + "）】";
-        } else {
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
-                    + order.getNotes() + "】";
-        }
-        stockInPrintDto.setSettleWayDetails(settleDetails);
+        stockInPrintDto.setSettleWayDetails(SettleWayEnum.getNameByCode(order.getWay()));
 		//详情
         Long quantity = 0L;
         Long weight = 0L;
@@ -714,26 +707,17 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockInPrintDto stockInPrintDto = new StockInPrintDto();
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, refundOrder.getCode());
 		stockInPrintDto.setBusinessType(BizTypeEnum.STOCKIN.getCode());
-		stockInPrintDto.setCardNo(order.getAccountNumber());
+		stockInPrintDto.setCardNo(order.getTradeCardNo());
 		stockInPrintDto.setCategoryName(stockIn.getCategoryName());
 		stockInPrintDto.setCustomerCellphone(stockIn.getCustomerCellphone());
 		stockInPrintDto.setCustomerName(stockIn.getCustomerName());
 		stockInPrintDto.setDepartmentName(stockIn.getDepartmentName());
 		stockInPrintDto.setPrintTime(LocalDateTime.now());
 		stockInPrintDto.setReprint(reprint);
-		stockInPrintDto.setSubmitter(stockIn.getSubmitter());
+		stockInPrintDto.setSubmitter(refundOrder.getSubmitter());
 		stockInPrintDto.setReviewer("");
-		// 支付方式
-        String settleDetails = "";
-        if (SettleWayEnum.CARD.getCode() == order.getWay()) {
-            // 园区卡支付
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
-                    "（" + order.getCustomerName() + "）】";
-        } else {
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
-                    + order.getNotes() + "】";
-        }
-        stockInPrintDto.setSettleWayDetails(settleDetails);
+		stockInPrintDto.setSettlementOperator(order.getOperatorName());
+        stockInPrintDto.setSettleWayDetails(SettleWayEnum.getNameByCode(order.getWay()));
 		//详情
         Long quantity = 0L;
         Long weight = 0L;
@@ -763,7 +747,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 
 
 		PrintDataDto<StockInPrintDto> printDataDto = new PrintDataDto<>();
-		printDataDto.setName(PrintTemplateEnum.STOCKIN_ORDER.getCode());
+		printDataDto.setName(PrintTemplateEnum.STOCKIN_REFUND.getCode());
 		printDataDto.setItem(stockInPrintDto);
 		return printDataDto;	
 	}

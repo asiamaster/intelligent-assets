@@ -161,6 +161,19 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
         return assetsDTOList;
     }
 
+    /**
+     * 根据预设id查询预设的摊位信息
+     *
+     * @param  rentalId
+     * @return list
+     * @date   2020/12/24
+     */
+    @Override
+    public List<AssetsRentalItem> listRentalItemsByRentalId(Long rentalId) {
+
+        return this.getActualDao().listRentalItemsByRentalId(rentalId);
+    }
+
 
     /**
      * MQ 监听 修改摊位的信息（修改区域或者修改基础信息）

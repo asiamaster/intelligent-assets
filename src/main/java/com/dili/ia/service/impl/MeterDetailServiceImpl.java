@@ -314,7 +314,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
                 meterDetailDto.setSubmitter(userTicket.getRealName());
                 meterDetailDto.setSubmitTime(LocalDateTime.now());
 
-
                 if (this.updateSelective(meterDetailDto) == 0) {
                     logger.info("多人提交水电费单!");
                 }
@@ -747,7 +746,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         String settleDetails = "";
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() + "（" + order.getCustomerName() + "）】";
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getTradeCardNo() + "（" + order.getCustomerName() + "）】";
         } else {
             // 现金以及其他方式
             settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注：" + order.getNotes() + "】";
@@ -762,9 +761,9 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         meterDetailPrintDto.setSubmitter(paymentOrder.getCreator());
 
         printDataDto.setItem(meterDetailPrintDto);
-        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_PAY.getName());
+        printDataDto.setName(PrintTemplateEnum.ELECTRICITY_PAY.getCode());
         if ( MeterTypeEnum.WATER_METER.getCode().equals(meterDetailInfo.getType()) ) {
-            printDataDto.setName(PrintTemplateEnum.WATER_PAY.getName());
+            printDataDto.setName(PrintTemplateEnum.WATER_PAY.getCode());
         }
 
         return printDataDto;

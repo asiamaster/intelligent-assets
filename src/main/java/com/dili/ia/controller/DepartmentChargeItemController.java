@@ -1,6 +1,7 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.dto.DepartmentChargeItemDto;
+import com.dili.ia.glossary.MarketEnum;
 import com.dili.ia.provider.AuthDepartmentProvider;
 import com.dili.ia.service.DepartmentChargeItemService;
 import com.dili.ia.util.AssertUtils;
@@ -40,8 +41,6 @@ public class DepartmentChargeItemController {
 
     @Autowired
     DepartmentChargeItemService departmentChargeItemService;
-    @Autowired
-    private FirmRpc firmRpc;
 
     /**
      * 跳转到其它收费管理 - 部门与收费项绑定列表
@@ -83,14 +82,6 @@ public class DepartmentChargeItemController {
             modelMap.put("departmentChargeItem", itemDto);
         }
 
-//        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-//        List<Firm> data = firmRpc.getAllChildrenByParentId(userTicket.getFirmId()).getData();
-//        List<ValuePair<?>> buffer = new ArrayList<ValuePair<?>>();
-//        data.forEach(o->{
-//            buffer.add(new ValuePairImpl(o.getName(),o.getId()));
-//        });
-
-
         return "otherFee/addDepartment";
     }
 
@@ -107,7 +98,10 @@ public class DepartmentChargeItemController {
         try {
             // 参数校验
             AssertUtils.notNull(departmentChargeItemDto.getChargeItemId(), "收费项 id 不能为空！");
-            AssertUtils.notNull(departmentChargeItemDto.getMchId(), "商户 id 不能为空！");
+            if (MarketEnum.SY.getCode().equals(userTicket.getFirmCode())) {
+                // 沈阳用户组织必填
+                AssertUtils.notNull(departmentChargeItemDto.getMchId(), "商户 id 不能为空！");
+            }
 
             // 绑定操作
             departmentChargeItemService.addDepartmentChargeItems(departmentChargeItemDto, userTicket);

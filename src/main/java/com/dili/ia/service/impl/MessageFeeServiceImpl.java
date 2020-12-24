@@ -567,18 +567,19 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		printDto.setCustomerCellphone(messageFee.getCustomerCellphone());
 		printDto.setCustomerName(messageFee.getCustomerName());
 		printDto.setSettlementOperator(order.getOperatorName());
-		printDto.setSubmitter(messageFee.getSubmitorName());
-		printDto.setNotes(messageFee.getNotes());
+		printDto.setSubmitter(refundOrder.getSubmitter());
+		printDto.setNotes(refundOrder.getRefundReason());
 		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
-		// 支付方式
-        String settleDetails = "";
+		String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + refundOrder.getPayeeAmount();
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getAccountNumber() +
-                    "（" + order.getCustomerName() + "）】";
-        } else {
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
-                    + order.getNotes() + "】";
+            settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     园区卡号：" + order.getAccountNumber();
+        } else if (SettleWayEnum.CASH.getCode() == order.getWay()) {
+            // 现金
+            settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay());
+        } else if (SettleWayEnum.BANK.getCode() == order.getWay())  {
+            // 银行卡
+            settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "  开户行：" + order.getBankName() + "  银行卡号：" + order.getBankCardHolder();
         }
         printDto.setSettleWayDetails(settleDetails);
 		// 获取转抵信息

@@ -21,12 +21,15 @@
                     </div>
                 </div>
 
+                <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() == @com.dili.ia.glossary.MarketEnum.SY.getCode()){%>
                 <div class="form-group col-12">
                     <label for="mchId">所属组织<i class="red">*</i></label>
                     <div id="mch-group">
                         <#bradioGroupProvider _containerId="mch-group" _name="mch" _provider="mchProvider" _required="true"/>
                     </div>
                 </div>
+                <%}%>
+
             </div>
             <div class="modal-footer-wrap">
                 <div class="modal-footer">
