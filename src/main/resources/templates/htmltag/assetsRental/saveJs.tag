@@ -14,7 +14,7 @@
             const generateData = _ => {
                 const data = [{
                     key: 1,
-                    label: '备选项1备选项1备选项1备选项1备选项1备选项1备选项1备选项1备选项1备选项1备选项1备选项1备选项1备选项1备选项1备选项1'
+                    label: '备选项1'
                 },{
                     key: 2,
                     label: '备选项2'
@@ -71,13 +71,14 @@
         }
     }
 
-    function queryBoothDataHandler(){
+    function viewAssetsByNoTable(){
         let booth = [];
         $.ajax({
             type: "POST",
-            url: "/assetsRental/query.action",
-            data: $("#searchForm").serializeObject(),
+            url: "/assetsRentalItem/viewAssetsByNoTable.action",
+            data: JSON.stringify($("#searchForm").serializeObject()),
             dataType: "json",
+            contentType: "application/json",
             success: function (ret) {
                 if(ret.success){
                     booth = res.data;
@@ -203,7 +204,7 @@
         });
     }
 
-    $('#save').on('click', bui.util.debounce(doUpdateAssetsRentalHandler,1000,true));
+    $('#save').on('click', bui.util.debounce(viewAssetsByNoTable,1000,true));
 
 </script>
 

@@ -1,18 +1,15 @@
 package com.dili.ia.rpc;
 
+import com.alibaba.fastjson.JSON;
+import com.dili.ss.constant.ResultCode;
+import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.BusinessException;
+import com.dili.uid.sdk.rpc.feign.UidFeignRpc;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.alibaba.fastjson.JSON;
-import com.dili.ia.glossary.BizNumberTypeEnum;
-import com.dili.ia.service.impl.CustomerAccountServiceImpl;
-import com.dili.ss.constant.ResultCode;
-import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.exception.BusinessException;
 
 /**
  * <B>Description</B>
@@ -39,7 +36,7 @@ public class UidRpcResolver {
 	 * @throws
 	 */
 	public String bizNumber(String type){
-		BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(type);
+		BaseOutput<String> bizNumberOutput = uidFeignRpc.getBizNumber(type);
         if(!bizNumberOutput.isSuccess() || StringUtils.isEmpty(bizNumberOutput.getData())){
         	LOG.info("编号生成失败!" + type+";bizNumberOutput = "+JSON.toJSONString(bizNumberOutput));
             throw new BusinessException(ResultCode.APP_ERROR, "编号生成失败!");

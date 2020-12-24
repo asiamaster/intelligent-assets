@@ -1,5 +1,6 @@
 package com.dili.ia.controller;
 
+import com.dili.assets.sdk.dto.AssetsDTO;
 import com.dili.ia.domain.AssetsRentalItem;
 import com.dili.ia.domain.dto.AssetsRentalDto;
 import com.dili.ia.domain.dto.AssetsRentalItemDto;
@@ -83,15 +84,15 @@ public class AssetsRentalItemController {
     }
 
     /**
-     * 拉取所有摊位，过滤掉预设池已有的摊位，返回没有添加到预设池的摊位集合，用于预设
+     * 根据条件搜索摊位，过滤掉预设池已有的摊位，返回没有添加到预设池的摊位集合，用于预设
      *
-     * @param  assetsRentalItemDtoList
+     * @param  assetsRentalDto
      * @return BaseOutput
      * @date   2020/12/8
      */
     @RequestMapping(value="/viewAssetsByNoTable.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput viewAssetsByNoTable(@RequestBody List<AssetsRentalItemDto> assetsRentalItemDtoList) {
-        List<AssetsRentalItemDto> assetsRentalItemDtoInfoList = assetsRentalItemService.filterAssets(assetsRentalItemDtoList);
-        return BaseOutput.success();
+    public @ResponseBody BaseOutput viewAssetsByNoTable(@RequestBody AssetsRentalDto assetsRentalDto) {
+        List<AssetsDTO> assetsDTOList = assetsRentalItemService.filterAssets(assetsRentalDto);
+        return BaseOutput.success().setData(assetsDTOList);
     }
 }

@@ -150,7 +150,7 @@ public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         resultMap.put("printTemplateCode",reprint.getName());
         //根据要求拼装订单项
         resultMap.putAll(BeanMapUtil.beanToMap(reprint.getItem()));
-        return BaseOutput.success();
+        return BaseOutput.success().setData(resultMap);
     }
 
     /**

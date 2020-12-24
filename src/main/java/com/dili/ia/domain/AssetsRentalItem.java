@@ -70,6 +70,45 @@ public class AssetsRentalItem extends BaseDomain {
     private Integer version;
 
     /**
+     * 数量
+     */
+    private Double number;
+
+    /**
+     * 单位
+     */
+    private String unit;
+
+    /**
+     * 是否转角
+     */
+    private Integer corner;
+
+    public Double getNumber() {
+        return number;
+    }
+
+    public void setNumber(Double number) {
+        this.number = number;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public Integer getCorner() {
+        return corner;
+    }
+
+    public void setCorner(Integer corner) {
+        this.corner = corner;
+    }
+
+    /**
      * 获取资产出租预设ID
      *
      * @return stall_rent_preset_id - 资产出租预设ID
@@ -208,4 +247,5 @@ public class AssetsRentalItem extends BaseDomain {
     public void setVersion(Integer version) {
         this.version = version;
     }
+
 }

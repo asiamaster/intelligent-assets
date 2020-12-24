@@ -27,4 +27,12 @@ public interface BoutiqueFreeSetsService extends BaseService<BoutiqueFreeSets, L
      * @date   2020/8/11
      */
     void updateFeeSets(BoutiqueFreeSetsDto boutiqueFreeSetsDto);
+
+    /**
+     * 根据车型查询免费时长
+     *
+     * @param  carTypeName
+     * @date   2020/8/11
+     */
+    BoutiqueFreeSets getByCarTypeName(String carTypeName);
 }

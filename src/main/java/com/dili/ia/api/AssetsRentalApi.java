@@ -47,44 +47,44 @@ public class AssetsRentalApi {
     @Autowired
     private AssetsRentalItemService assetsRentalItemService;
 
-    /**
-     * 修改摊位的基础信息后，摊位出租预设也要改动对应的信息（修改一对多里的多的表中的字段值）
-     *
-     * @param  assetsRentalItemDto
-     * @return BaseOutput
-     * @date   2020/12/8
-     */
-    @BusinessLogger(content = "${code!}", operationType = "update", systemCode = "IA")
-    @RequestMapping(value = "/updateAssetsToRental", method = {RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput<Boolean> updateAssetsToRental(@RequestBody AssetsRentalItemDto assetsRentalItemDto) {
-        try {
-            assetsRentalItemService.updateAssetsToRental(assetsRentalItemDto);
-            return BaseOutput.success();
-        } catch (Exception e) {
-            LOG.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
-        }
-    }
-
-    /**
-     * 商户 - 区域绑定关系改变，剔除掉修改掉的区域下的所有摊位
-     *
-     * @param  districtId
-     * @return BaseOutput
-     * @date   2020/12/8
-     */
-    @BusinessLogger(content = "${code!}", operationType = "update", systemCode = "IA")
-    @RequestMapping(value = "/deleteAssetsByDistrictId ", method = {RequestMethod.POST})
-    public @ResponseBody
-    BaseOutput<Boolean> deleteAssetsByDistrictId(@RequestParam("districtId") Long districtId) {
-        try {
-            assetsRentalService.deleteAssetsByDistrictId(districtId);
-
-            return BaseOutput.success();
-        } catch (Exception e) {
-            LOG.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
-        }
-    }
+//    /**
+//     * 修改摊位的基础信息后，摊位出租预设也要改动对应的信息（修改一对多里的多的表中的字段值）
+//     *
+//     * @param  assetsRentalItemDto
+//     * @return BaseOutput
+//     * @date   2020/12/8
+//     */
+//    @BusinessLogger(content = "${code!}", operationType = "update", systemCode = "IA")
+//    @RequestMapping(value = "/updateAssetsToRental", method = {RequestMethod.POST, RequestMethod.GET })
+//    public @ResponseBody
+//    BaseOutput<Boolean> updateAssetsToRental(@RequestBody AssetsRentalItemDto assetsRentalItemDto) {
+//        try {
+//            assetsRentalItemService.updateAssetsToRental(assetsRentalItemDto);
+//            return BaseOutput.success();
+//        } catch (Exception e) {
+//            LOG.error("服务器内部错误！", e);
+//            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+//        }
+//    }
+//
+//    /**
+//     * 商户 - 区域绑定关系改变，剔除掉修改掉的区域下的所有摊位
+//     *
+//     * @param  districtId
+//     * @return BaseOutput
+//     * @date   2020/12/8
+//     */
+//    @BusinessLogger(content = "${code!}", operationType = "update", systemCode = "IA")
+//    @RequestMapping(value = "/deleteAssetsByDistrictId ", method = {RequestMethod.POST, RequestMethod.GET})
+//    public @ResponseBody
+//    BaseOutput<Boolean> deleteAssetsByDistrictId(@RequestParam("districtId") Long districtId) {
+//        try {
+//            assetsRentalService.deleteAssetsByDistrictId(districtId);
+//
+//            return BaseOutput.success();
+//        } catch (Exception e) {
+//            LOG.error("服务器内部错误！", e);
+//            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+//        }
+//    }
 }

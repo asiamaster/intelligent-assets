@@ -20,7 +20,7 @@ import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.DepositOrderMapper;
-import com.dili.ia.rpc.UidFeignRpc;
+import com.dili.uid.sdk.rpc.feign.UidFeignRpc;
 import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
@@ -226,7 +226,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     private String getBizNumber(String type){
-        BaseOutput<String> bizNumberOutput = uidFeignRpc.bizNumber(type);
+        BaseOutput<String> bizNumberOutput = uidFeignRpc.getBizNumber(type);
         if(!bizNumberOutput.isSuccess()){
             LOGGER.info("编号生成失败!" + bizNumberOutput.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "编号生成失败!");

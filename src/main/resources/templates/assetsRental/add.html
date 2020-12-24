@@ -1,6 +1,5 @@
 <#bs4Body>
 <#vueElm />
-<#assetsRental_district />
 
 <style>
     .el-transfer-panel {
@@ -22,24 +21,24 @@
        <form id="searchForm" role="form" style="width:40%" novalidate>
            <div class="row row-cols-2">
                <div class="form-group col">
-                   <label for="" class="">区域<i class="red">*</i></label>
-                   <#js_district firstDistrictID="8" secondDistrictID="43" ></#js_district>
+                   <label for="typeCode">区域<i class="red">*</i></label>
+                   <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
                </div>
                <div class="form-group col">
                    <label for="" class="">摊位编号<i class="red">*</i></label>
-                   <input id="" type="" class="form-control digits" maxlength="50" name="" />
+                   <input id="assetsName" type="" class="form-control digits" maxlength="50" name="assetsName" />
                </div>
                <div class="form-group col">
                    <label for="" class="">数量<i class="red">*</i></label>
                    <div class="input-group">
-                       <input id="" type="" class="form-control digits" name="" />
+                       <input id="startNumber" type="" class="form-control digits" name="startNumber" />
                        <span class="align-self-center">至</span>
-                       <input id="" type="" class="form-control digits" name="" />
+                       <input id="endNumber" type="" class="form-control digits" name="endNumber" />
                    </div>
                </div>
                <div class="col-auto align-self-center mt-3">
                    <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#searchForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
-                   <button type="button" class="btn btn-outline-primary" onclick="queryBoothDataHandler()"><i class="fa fa-search"></i> 查询</button>
+                   <button type="button" class="btn btn-outline-primary" onclick="viewAssetsByNoTable()"><i class="fa fa-search"></i> 查询</button>
                </div>
            </div>
            <hr>
@@ -63,19 +62,18 @@
         </div>
         <div class="row row-cols-6">
             <div class="form-group col">
-                <label for="type">经营范围<i class="red">*</i></label>
-                <select id="type"  name="type" class="form-control" required></select>
-                <#bcomboProvider _id="type" _provider="meterTypeProvider"/>
+                <label for="engageCode">经营范围<i class="red">*</i></label>
+                <select id="engageCode" name="engageCode" class="form-control" required></select>
+                <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider" _value="${leaseOrder.engageCode!}" _queryParams='{dd_code:"engage"}'/>
             </div>
             <div class="form-group col">
-                <label for="type">租赁期限<i class="red">*</i></label>
-                <select id="type"  name="type" class="form-control" required></select>
-                <#bcomboProvider _id="type" _provider="meterTypeProvider"/>
+                <label for="leaseTermCode">租赁期限<i class="red">*</i></label>
+                <select id="leaseTermCode" name="leaseTermCode" class="form-control" required></select>
+                <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${leaseOrder.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}'/>
             </div>
             <div class="form-group col">
-                <label tlog >经营品类</label>
-                <select id="customerNames" name="customerNames" class="form-control" required multiple></select>
-                <#bselect2 _id="customerNames" _mode="remote" _value="[2,4,8,55]" _option="" _optionVariable=""/>
+                <label for="categoryId" _log>经营品类</label>
+                <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="categoryAutoCompleteOption"/>
             </div>
             <div class="form-group col">
                 <label for="days" class="">租赁天数<i class="red">*</i></label>
