@@ -73,6 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 
 import java.math.BigDecimal;
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -144,6 +145,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     @Autowired
     private FirmRpc firmRpc;
 
+    @Resource
+    BpmDefKeyConfig bpmDefKeyConfig;
     @Autowired
     @Lazy
     private List<AssetsLeaseService> assetsLeaseServices;
@@ -192,7 +195,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
              * wm:启动租赁业务流程
              */
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getLeaseDefKey(dto.getBizType()));
+            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getLeaseBizDefKey(dto.getBizType(), dto.getMarketCode()));
             startProcessInstanceDto.setBusinessKey(bizNumberOutput.getData());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> processInstanceMappingBaseOutput = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
@@ -347,7 +350,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }else {
             //没有业务流程实例id，需要直接启动审批流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(BpmConstants.PK_RENTAL_APPROVAL_PROCESS);
+            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getLeaseApprovalDefKey(leaseOrder.getBizType(), leaseOrder.getMarketCode()));
             startProcessInstanceDto.setBusinessKey(leaseOrder.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             startProcessInstanceDto.setVariables(variables);
@@ -1143,7 +1146,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
             //根据退款单业务类型启动流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getRefundDefKey(refundOrderDto.getBizType()));
+            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(refundOrderDto.getBizType(), refundOrderDto.getMarketCode()));
             startProcessInstanceDto.setBusinessKey(refundOrderDto.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> output = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
@@ -1894,7 +1897,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
 		ContractDto contractDto = new ContractDto();
 		AssetsLeaseOrder leaseOrder = this.get(id);
-		// 合同市场获取,客户地址获取 
+		// 合同市场获取,客户地址获取
 		BaseOutput<CustomerExtendDto> output = customerRpc.get(leaseOrder.getCustomerId(), leaseOrder.getMarketId());
         if (!output.isSuccess()) {
             throw new BusinessException(ResultCode.DATA_ERROR, "客户接口调用异常 " + output.getMessage());
@@ -1907,7 +1910,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 		contractDto.setCertificateNo(leaseOrder.getCertificateNumber());
 		contractDto.setPhone(leaseOrder.getCustomerCellphone());
 		contractDto.setAssetsType(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getName());
-		
+
 		contractDto.setsTime(leaseOrder.getStartTime());
 		contractDto.seteTime(leaseOrder.getEndTime());
 		contractDto.setDays(String.valueOf(leaseOrder.getDays()));

@@ -67,6 +67,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,7 +123,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     private String settleViewUrl;
     @Value("${refundOrder.settlement.print.url}")
     private String settlerPrintUrl;
-
+    @Resource
+    private BpmDefKeyConfig bpmDefKeyConfig;
     @Autowired
     private UserResourceRedis userResourceRedis;
     @Autowired
@@ -658,7 +660,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         }else {
             //没有业务流程实例id，需要直接启动审批流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(BpmDefKeyConfig.getRefundDefKey(refundOrder.getBizType()));
+            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundApprovalDefKey(refundOrder.getBizType(), refundOrder.getMarketCode()));
             startProcessInstanceDto.setBusinessKey(refundOrder.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             startProcessInstanceDto.setVariables(variables);

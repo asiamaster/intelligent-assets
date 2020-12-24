@@ -19,8 +19,14 @@ import java.util.List;
 @Configuration
 public class BpmCacheConfig {
 
+    /**
+     * 租赁单事件缓存大小
+     */
     private Long leaseOrderEventCacheMaximumSize;
 
+    /**
+     * 退款单事件缓存大小
+     */
     private Long refundOrderEventCacheMaximumSize;
 
     /**
