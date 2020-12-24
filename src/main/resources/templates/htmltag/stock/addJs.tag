@@ -124,6 +124,8 @@ function buildFormData() {
 	formData.departmentName = departmentName;
 	//formData.categoryName = categoryName;
 	formData.type = type;
+    formData.origin = city.value.join(",");
+    formData.originPath = city.originName;
 	// 动态收费项
 	let businessChargeDtos = []
 	$('#saveForm').find('.chargeItem').each(function(){

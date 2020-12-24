@@ -1,6 +1,7 @@
 package com.dili.ia.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
@@ -18,6 +19,7 @@ import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.ia.cache.BpmDefKeyConfig;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.*;
+import com.dili.ia.domain.dto.printDto.ContractDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderMapper;
 import com.dili.uid.sdk.rpc.feign.UidFeignRpc;
@@ -1879,4 +1881,49 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
     }
 
+    @Override
+	public ContractDto getPrintData(Long id) {
+		ContractDto contractDto = new ContractDto();
+		AssetsLeaseOrder leaseOrder = this.get(id);
+		// 获取基本数据
+		contractDto.setPartyb(leaseOrder.getCustomerName());
+		contractDto.setAddress(leaseOrder.getCertificateNumber());
+		contractDto.setCertificateNo(leaseOrder.getCertificateNumber());
+		contractDto.setPhone(leaseOrder.getCustomerCellphone());
+		contractDto.setAssetsType(AssetsTypeEnum.getAssetsTypeEnum(leaseOrder.getAssetsType()).getName());
+		//TODO 面积
+		//contractDto.setArea(leaseOrder.geta);
+		contractDto.setsTime(leaseOrder.getStartTime());
+		contractDto.seteTime(leaseOrder.getEndTime());
+		contractDto.setDays(String.valueOf(leaseOrder.getDays()));
+		
+		
+		AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
+		condition.setLeaseOrderId(leaseOrder.getId());
+		List<String> items = new ArrayList<>();
+		List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
+		leaseOrderItems.stream().forEach(it -> {
+			items.add(String.format("【%s】【%s】【%s】", it.getFirstDistrictName(),it.getSecondDistrictName(),it.getAssetsName()));
+		});
+		// modelMap.put("leaseOrder", leaseOrder);
+		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryBusinessChargeItemMeta(
+				leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
+		List<AssetsLeaseOrderItemListDto> itmesAssetsLeaseOrderItemListDtos = assetsLeaseOrderItemService.leaseOrderItemListToDto(leaseOrderItems,
+				leaseOrder.getBizType(), chargeItemDtos);
+		List<String> feeItems = new ArrayList<>();
+		itmesAssetsLeaseOrderItemListDtos.stream().forEach(it -> {
+			List<BusinessChargeItem> charItem = it.getBusinessChargeItems();
+			StringBuilder str = new StringBuilder();
+			str.append(String.format("【%s】【%s】【%s】:", 
+					it.getFirstDistrictName(),it.getSecondDistrictName(),it.getAssetsName()
+					));
+			charItem.stream().forEach(it1 -> {
+				str.append(it1.getChargeItemName()).append(it1.getAmount()).append(";");
+			});
+			feeItems.add(str.toString());
+			
+		});
+		return contractDto;
+	}
+    
 }

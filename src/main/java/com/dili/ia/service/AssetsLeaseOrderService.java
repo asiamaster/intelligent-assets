@@ -5,6 +5,7 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.AssetsLeaseOrderListDto;
 import com.dili.ia.domain.dto.AssetsLeaseSubmitPaymentDto;
 import com.dili.ia.domain.dto.ApprovalParam;
+import com.dili.ia.domain.dto.printDto.ContractDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.LeaseRefundOrderDto;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
@@ -138,4 +139,10 @@ public interface AssetsLeaseOrderService extends BaseService<AssetsLeaseOrder, L
      * @return
      */
     BaseOutput<List<QueryFeeOutput>> batchQueryFeeWithoutShortcut(List<QueryFeeInput> queryFeeInputList);
+    
+    /**
+     * 获取合同打印数据
+     * @param id
+     */
+    ContractDto getPrintData(Long id);
 }
