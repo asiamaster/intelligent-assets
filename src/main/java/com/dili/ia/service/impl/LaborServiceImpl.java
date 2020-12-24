@@ -587,8 +587,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
             settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getTradeCardNo() +
                     "（" + order.getCustomerName() + "）】";
         } else {
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
-                    + order.getNotes() + "】";
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【流水号：" + (StringUtils.isEmpty(order.getSerialNumber())?"--":order.getSerialNumber()) + "  备注："
+                    + (StringUtils.isEmpty(order.getNotes())?"--":order.getNotes()) + "】";
         }
         laborPrintDto.setSettleWayDetails(settleDetails);
 		// 流水号

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -543,8 +544,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
             settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getTradeCardNo() +
                     "（" + order.getCustomerName() + "）】";
         } else {
-            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + order.getChargeDate() + "  流水号：" + order.getSerialNumber() + "  备注："
-                    + order.getNotes() + "】";
+            settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【流水号：" + (StringUtils.isEmpty(order.getSerialNumber())?"--":order.getSerialNumber()) + "  备注："
+                    + (StringUtils.isEmpty(order.getNotes())?"--":order.getNotes()) + "】";
         }
         messageFeePrint.setSettleWayDetails(settleDetails);
 		messageFeePrint.setSerialNumber(order.getSerialNumber());
