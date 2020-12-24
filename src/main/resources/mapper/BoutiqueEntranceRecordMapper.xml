@@ -14,6 +14,7 @@
     <result column="certificate_number" jdbcType="VARCHAR" property="certificateNumber" />
     <result column="plate" jdbcType="VARCHAR" property="plate" />
     <result column="car_type_id" jdbcType="BIGINT" property="carTypeId" />
+      <result column="car_type_name" jdbcType="VARCHAR" property="carTypeName" />
     <result column="department_id" jdbcType="BIGINT" property="departmentId" />
     <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
     <result column="enter_time" jdbcType="TIMESTAMP" property="enterTime" />
@@ -36,7 +37,7 @@
       WARNING - @mbg.generated
     -->
     id, create_time, modify_time, customer_id, customer_name, customer_cellphone, certificate_number, 
-    plate, car_type_id, department_id, department_name, enter_time, confirm_time, start_time, count_time,
+    plate, car_type_id, car_type_name, department_id, department_name, enter_time, confirm_time, start_time, count_time,
     leave_time, total_amount, state, operator_id, operator_name, cancel_time, bid, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -169,6 +170,9 @@
       </if>
       <if test="carTypeId != null">
         and car_type_id = #{carTypeId,jdbcType=BIGINT}
+      </if>
+      <if test="carTypeName != null">
+        and car_type_name = #{carTypeName,jdbcType=VARCHAR}
       </if>
       <if test="departmentId != null">
         and department_id = #{departmentId,jdbcType=BIGINT}
