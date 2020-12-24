@@ -42,7 +42,7 @@ public interface AssetsRentalService extends BaseService<AssetsRental, Long> {
      * @return
      * @date   2020/11/26
      */
-    void enableOrDisable(Long id);
+    boolean enableOrDisable(Long id);
 
     /**
      * 根据摊位 id 查询相关的预设信息

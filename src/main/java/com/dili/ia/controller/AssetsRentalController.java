@@ -5,6 +5,9 @@ import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.AssetsRentalDto;
 import com.dili.ia.service.AssetsRentalService;
 import com.dili.ia.util.AssertUtils;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.ia.util.LoggerUtil;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
@@ -94,15 +97,21 @@ public class AssetsRentalController {
      * @return BaseOutput
      * @date   2020/11/26
      */
+    @BusinessLogger(businessType = LogBizTypeConst.ASSETS_RENTAL_PRESET, content="${businessCode!}", operationType="add", systemCode = "IA")
     @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput add(@RequestBody AssetsRentalDto assetsRentalDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 校验参数，名称和摊位不能为空
             AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
-            AssertUtils.notNull(assetsRentalDto.getAssetsRentalItemList(), "预设名称不能为空");
+            AssertUtils.notNull(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
 
             AssetsRental assetsRental = assetsRentalService.addAssetsRental(assetsRentalDto, userTicket);
+
+            // 写业务日志
+            LoggerUtil.buildLoggerContext(assetsRental.getId(), null, userTicket.getId(), userTicket.getRealName(),
+                    userTicket.getFirmId(), "新增摊位出租预设信息。");
+
             return BaseOutput.success().setData(assetsRental);
         } catch (BusinessException e) {
             logger.info("新增资产出租预设失败：{}", e.getMessage());
@@ -113,6 +122,8 @@ public class AssetsRentalController {
         }
     }
 
+
+
     /**
      * 修改资产出租预设
      *
@@ -120,14 +131,22 @@ public class AssetsRentalController {
      * @return BaseOutput
      * @date   2020/11/26
      */
+    @BusinessLogger(businessType = LogBizTypeConst.ASSETS_RENTAL_PRESET, content="${businessCode!}", operationType="update", systemCode = "IA")
     @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody BaseOutput update(@RequestBody AssetsRentalDto assetsRentalDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         try {
             // 校验参数，名称和摊位不能为空
+            AssertUtils.notNull(assetsRentalDto.getId(), "预设主键不能为空");
             AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
-            AssertUtils.notNull(assetsRentalDto.getAssetsRentalItemList(), "预设名称不能为空");
+            AssertUtils.notNull(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
 
             AssetsRental assetsRental = assetsRentalService.updateAssetsRental(assetsRentalDto);
+
+            // 写业务日志
+            LoggerUtil.buildLoggerContext(assetsRental.getId(), null, userTicket.getId(), userTicket.getRealName(),
+                    userTicket.getFirmId(), "修改摊位出租预设信息。");
+
             return BaseOutput.success().setData(assetsRental);
         } catch (BusinessException e) {
             logger.info("修改资产出租预设失败：{}", e.getMessage());
@@ -145,10 +164,32 @@ public class AssetsRentalController {
      * @return BaseOutput
      * @date   2020/11/26
      */
+    @BusinessLogger(businessType = LogBizTypeConst.ASSETS_RENTAL_PRESET, content="${businessCode!}", operationType="update", systemCode = "IA")
     @RequestMapping(value="/enableOrDisable.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput enableOrDisable(@RequestBody Long id) {
-        assetsRentalService.enableOrDisable(id);
-        return BaseOutput.success();
+    public @ResponseBody BaseOutput enableOrDisable(@RequestParam("id") Long id) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        try {
+            AssertUtils.notNull(id, "预设主键不能为空");
+
+            boolean enable = assetsRentalService.enableOrDisable(id);
+
+            String enableStr = "禁用";
+            if (enable) {
+                enableStr = "启用";
+            }
+
+            // 写业务日志
+            LoggerUtil.buildLoggerContext(id, null, userTicket.getId(), userTicket.getRealName(),
+                    userTicket.getFirmId(), enableStr + "摊位出租预设。");
+
+            return BaseOutput.success();
+        } catch (BusinessException e) {
+            logger.info("修改资产出租预设状态失败：{}", e.getMessage());
+            return BaseOutput.failure(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            logger.error("服务器内部错误！", e);
+            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+        }
     }
 
     /**

@@ -5,6 +5,7 @@ import com.dili.ia.domain.AssetsRentalItem;
 import com.dili.ia.domain.dto.AssetsRentalDto;
 import com.dili.ia.domain.dto.AssetsRentalItemDto;
 import com.dili.ss.base.BaseService;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -52,4 +53,13 @@ public interface AssetsRentalItemService extends BaseService<AssetsRentalItem, L
      * @date   2020/12/8
      */
     List<AssetsDTO> filterAssets(AssetsRentalDto assetsRentalDto);
+
+    /**
+     * 根据预设id查询预设的摊位信息
+     *
+     * @param  rentalId
+     * @return list
+     * @date   2020/12/24
+     */
+    List<AssetsRentalItem> listRentalItemsByRentalId(Long rentalId);
 }

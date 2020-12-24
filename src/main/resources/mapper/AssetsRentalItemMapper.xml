@@ -149,4 +149,13 @@
         where
             ari.assets_id = #{assetsId}
     </select>
+
+    <select id="listRentalItemsByRentalId" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List" />
+        from
+            assets_rental_item
+        where
+            assets_rental_id = #{rentalId}
+    </select>
 </mapper>
