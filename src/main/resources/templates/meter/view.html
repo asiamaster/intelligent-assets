@@ -16,27 +16,7 @@
                 <#bcomboProvider _log="表类型" _id="type" _provider="meterTypeProvider" _value="${meter.type!}" />
             </div>
 
-            <div class="form-group col">
-                <label for="assetsType">类别<i class="red">*</i></label>
-                <select id="assetsType"  name="assetsType" class="form-control" disabled ></select>
-                <#bcomboProvider _log="类别" _id="assetsType" _provider="assetsTypeProvider" _value="${meter.assetsType!}" />
-            </div>
-
-            <div class="form-group col">
-                <label _log  for="thisAmount">表初始值<i class="red">*</i></label>
-                <input type="text" class="form-control" id="thisAmount" name="thisAmount" value="${meter.thisAmount!}" disabled />
-            </div>
-
-            <div class="form-group col">
-                <label for="assetsName">表地址<i class="red">*</i></label>
-                <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption" _required="true"  _value="${meter.assetsId!}" _text="${meter.assetsName!}"/>
-            </div>
-
-            <div class="form-group col">
-                <label _log for="price">单价<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="price" name="price" value="<#centToYuan value='${meter.price!}'/>" disabled />
-            </div>
-
+            <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() == @com.dili.ia.glossary.MarketEnum.SY.getCode()){%>
             <div class="form-group col">
                 <label for="">所属区域</label>
                 <div class="input-group">
@@ -47,6 +27,28 @@
                         <option value="${meter.secondDistrictId!}">${secondDistrictName!}</option>
                     </select>
                 </div>
+            </div>
+            <%}%>
+
+            <div class="form-group col">
+                <label for="assetsType">类别<i class="red">*</i></label>
+                <select id="assetsType"  name="assetsType" class="form-control" disabled ></select>
+                <#bcomboProvider _log="类别" _id="assetsType" _provider="assetsTypeProvider" _value="${meter.assetsType!}" />
+            </div>
+
+            <div class="form-group col">
+                <label for="assetsName">表地址<i class="red">*</i></label>
+                <input type="text" class="form-control" id="assetsName" name="assetsName" value="${meter.assetsName!}" disabled />
+            </div>
+
+            <div class="form-group col">
+                <label _log  for="thisAmount">当前指数<i class="red">*</i></label>
+                <input type="text" class="form-control" id="thisAmount" name="thisAmount" value="${meter.thisAmount!}" disabled />
+            </div>
+
+            <div class="form-group col">
+                <label _log for="price">单价<i class="red">*</i></label>
+                <input type="number" class="form-control floatReserve money" id="price" name="price" value="<#centToYuan value='${meter.price!}'/>" disabled />
             </div>
 
             <div class="form-group col">

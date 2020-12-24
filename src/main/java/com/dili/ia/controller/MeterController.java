@@ -2,6 +2,7 @@ package com.dili.ia.controller;
 
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.MeterDto;
+import com.dili.ia.glossary.MarketEnum;
 import com.dili.ia.service.MeterService;
 import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
@@ -143,6 +144,11 @@ public class MeterController {
             AssertUtils.notNull(meterDto.getThisAmount(), "表编号不能为空！");
             AssertUtils.notNull(meterDto.getAssetsType(), "表类别不能为空！");
             AssertUtils.notEmpty(meterDto.getNumber(), "表编号不能为空！");
+
+            if (MarketEnum.SY.getCode().equals(userTicket.getFirmCode())) {
+                // 沈阳需要添加区域，此时一级区域必填
+                AssertUtils.notNull(meterDto.getFirstDistrictId(), "一级区域不能为空！");
+            }
 
             // 新增
             Meter meter = meterService.addMeter(meterDto, userTicket);
