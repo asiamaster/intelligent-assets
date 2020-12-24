@@ -109,3 +109,15 @@ INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_mess
 
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-信息费单', 'hzsc_messageFee', 'HZSCXXF', 'yyyyMMdd', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_messageFee', 2020081200001, '杭州水产-信息费单', '1');
+
+
+
+-- 摊位出租预设表添加三个字段
+  ALTER TABLE `dili_ia`.`assets_rental_item`
+   ADD COLUMN `number` decimal(32,2) DEFAULT NULL COMMENT '数量',
+   ADD COLUMN `unit` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '单位',
+   ADD COLUMN `corner` tinyint(4) DEFAULT NULL COMMENT '是否转角';
+
+-- 精品黄楼停车冗余车型名称
+  ALTER TABLE `dili_ia`.`boutique_entrance_record`
+   ADD COLUMN `car_type_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '车型名称';
