@@ -164,6 +164,10 @@ function buildFormData() {
 	let formData = $('#saveForm').serializeObject();
 	formData.departmentName = departmentName;
 	//formData.categoryName = categoryName;
+	
+	formData.origin = city.value.join(",");
+    formData.originPath = city.originName;
+    
 	let stockDetails = [];
 	// 动态收费项
 	let businessChargeDtos = []

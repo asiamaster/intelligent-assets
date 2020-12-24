@@ -179,7 +179,8 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         }
 
         // 根据车型查询免费时长
-        BoutiqueFreeSets sets = boutiqueFreeSetsService.get(recordInfo.getCarTypeId());
+        String carTypeName = BoutiqueCarTypeEnum.getCarTypeEnumName(Integer.parseInt(recordInfo.getCarTypeId().toString()));
+        BoutiqueFreeSets sets = boutiqueFreeSetsService.getByCarTypeName(carTypeName);
         if (sets != null) {
             ZoneId zoneId = ZoneId.systemDefault();
             ZonedDateTime zdt = boutiqueEntranceRecord.getConfirmTime().atZone(zoneId);

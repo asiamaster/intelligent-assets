@@ -98,6 +98,8 @@ public class StockInDto {
      * 产地
      */
     private String origin;
+    
+    private String originPath;
 
     /**
      * 支付方式 1 现金，2 POS，3 刷卡
@@ -396,6 +398,14 @@ public class StockInDto {
 
 	public void setMchId(Long mchId) {
 		this.mchId = mchId;
+	}
+
+	public String getOriginPath() {
+		return originPath;
+	}
+
+	public void setOriginPath(String originPath) {
+		this.originPath = originPath;
 	}
 
 	

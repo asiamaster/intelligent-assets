@@ -113,10 +113,16 @@ public class StockIn extends BaseDomain {
     private String certificateNumber;
 
     /**
-     * 产地
+     * 产地城市id
      */
     @Column(name = "`origin`")
     private String origin;
+    
+    /**
+     * 产地
+     */
+    @Column(name = "`origin_path`")
+    private String originPath;
 
     /**
      * 过期时间
@@ -815,6 +821,14 @@ public class StockIn extends BaseDomain {
 
 	public void setMchId(Long mchId) {
 		this.mchId = mchId;
+	}
+
+	public String getOriginPath() {
+		return originPath;
+	}
+
+	public void setOriginPath(String originPath) {
+		this.originPath = originPath;
 	}
 	
 	
