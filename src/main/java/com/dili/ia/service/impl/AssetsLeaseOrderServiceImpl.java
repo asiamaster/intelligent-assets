@@ -1881,7 +1881,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
     }
 
-    @Autowired
+    @Override
 	public ContractDto getPrintData(Long id) {
 		ContractDto contractDto = new ContractDto();
 		AssetsLeaseOrder leaseOrder = this.get(id);
