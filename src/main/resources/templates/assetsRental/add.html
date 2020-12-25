@@ -5,6 +5,10 @@
     .el-transfer-panel {
         width: 40%;
     }
+    .booth-data-origin {
+        height: 300px;
+        overflow: auto;
+    }
 </style>
 <div class="container-fluid pb-5" id="app">
     <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.assetsRental'/>">
@@ -19,8 +23,8 @@
     </div>
 
    <div class="border p-3">
-       <form id="searchForm" role="form" style="width:40%" novalidate>
-           <div class="row row-cols-2">
+       <form id="searchForm" role="form" novalidate>
+           <div class="row row-cols-4">
                <div class="form-group col">
                    <label for="typeCode">区域<i class="red">*</i></label>
                    <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
@@ -44,17 +48,30 @@
            </div>
            <hr>
        </form>
-
-       <div class="row">
-           <div class="col-12">
-               <el-transfer v-model="boothChecked" :data="boothData"
-                            :props="{key: 'key',label: 'label'}"
-                            :titles="['待选摊位', '已选摊位']"
-               >
-                  <!-- <sapn class="text-center align-center w-100" slot="left-footer" >待选摊位</sapn>
-                   <sapn class="text-center w-100" slot="right-footer" >已选摊位</sapn>-->
-               </el-transfer>
+       <div class="row row-cols-3 boothwrap">
+           <div class="booth-data-origin col">
+               <div class="custom-control custom-checkbox">
+                   <input type="checkbox" class="custom-control-input" id="customCheck1">
+                   <label class="custom-control-label" for="customCheck1">全选</label>
+               </div>
            </div>
+           <div class="col">
+               <div><button type="button" class="btn btn-outline-primary" onclick="checkedBooth()"><i class="fa "></i> >> </button></div>
+               <div><button type="button" class="btn btn-outline-primary" onclick="cancelBooth()"><i class="fa "></i> << </button></div>
+           </div>
+           <div class="booth-checked col">
+
+           </div>
+      <!-- <el-transfer v-model="boothChecked" :data="boothData"
+                    :render-content="boothRenderFunc"
+                    @change="boothChange"
+                    @left-check-change="boothLeftCheck"
+                    :props="{key: 'id',label: 'secondAreaName'}"
+                    :titles="['待选摊位', '已选摊位']"
+       >
+          &lt;!&ndash; <sapn class="text-center align-center w-100" slot="left-footer" >待选摊位</sapn>
+           <sapn class="text-center w-100" slot="right-footer" >已选摊位</sapn>&ndash;&gt;
+       </el-transfer>-->
        </div>
    </div>
     <form id="saveForm" role="form" novalidate>
