@@ -23,6 +23,9 @@ import com.dili.ia.domain.dto.printDto.ContractDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderMapper;
 import com.dili.uid.sdk.rpc.feign.UidFeignRpc;
+
+import cn.hutool.core.convert.Convert;
+
 import com.dili.ia.service.*;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.SpringUtil;
@@ -1952,6 +1955,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
 			feeItems.add(str.toString());
 		});
+		contractDto.setAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
+		contractDto.setAmountCn(Convert.digitToChinese(new BigDecimal(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()))));
 		contractDto.setFeeItems(feeItems);
 		return contractDto;
 	}
