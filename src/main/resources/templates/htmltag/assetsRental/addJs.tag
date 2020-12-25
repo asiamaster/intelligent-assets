@@ -153,27 +153,35 @@
             }
         });
     }
-
+    // 我去整个了商户2，还是区域区分为 三产和广告位，属于不同的2个子商户
     var boothCheckedStr = '';
+    var boothCheckedData  = [];
     $(document).on('change', '.booth-data-origin .custom-control-input', function () {
         if($(this).is(':checked')){
             let id = $(this).attr('data-id');
             let name = $(this).attr('data-name');
+            let firstDistrictId = $(this).data('area') ;
+            let secondDistrictId = $(this).data('secondarea') ;
             let areaName = $(this).attr('data-area-name');
             let that = $(this);
+            debugger
+            if(firstDistrictId == 'undefined'){ firstDistrictId = ''}
+            if(secondDistrictId == 'undefined'){ secondDistrictId = ''}
             $.ajax({
                 type: "POST",
                 url: "/assetsRentalItem/getMchIdByDistrictId.action",
-                data: JSON.stringify({ assetsId: id}),
+                // data: JSON.stringify({ assetsId: id}),
+                data: JSON.stringify({ firstDistrictId, secondDistrictId }),
                 dataType: "json",
                 async: false,
                 contentType: "application/json",
                 success: function (res) {
                     if(res.success){
-                        // if(app.MerchantsId != res.data){
+                        debugger
+                        // if( == res.data){
                         // boothCheckedStr += that.parents('.custom-control')[0].outerHTML;
-                        // $('.booth-checked').append(that.parents('.custom-checkbox')[0].outerHTML)
-                        // that.parents('.custom-control').remove();
+                        $('.booth-checked').append(that.parents('.custom-checkbox')[0].outerHTML)
+                        that.parents('.custom-control').remove();
                         // boothCheckedStr += that.parents('.custom-control').remove();
 
                         // }
