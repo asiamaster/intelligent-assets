@@ -178,7 +178,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
 //            refundOrder.setDistrictId(); //没有在业务单上发起，区域为空
             //根据退款单业务类型启动流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(refundOrder.getBizType(), refundOrder.getMarketCode()));
+            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(refundOrder.getBizType(), userTicket.getFirmCode()));
             startProcessInstanceDto.setBusinessKey(refundOrder.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> outputP = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
