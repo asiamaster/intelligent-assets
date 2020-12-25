@@ -76,7 +76,7 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         if (CollectionUtils.isNotEmpty(assetsRentalList)) {
             throw new BusinessException(ResultCode.DATA_ERROR, "新增资产出租预设失败,资产名称已存在！");
         }
-        // TODO 区域和商户ID，批次未完成
+        // TODO 批次未完成
         // 根据区域ID查询商户ID
         Long mchId = mchAndDistrictService.getMchIdByDistrictId(assetsRentalDto.getFirstDistrictId(), assetsRentalDto.getSecondDistrictId());
         if (mchId == null) {
