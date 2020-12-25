@@ -13,6 +13,7 @@ import com.dili.ia.glossary.AssetsRentalStateEnum;
 import com.dili.ia.mapper.AssetsRentalMapper;
 import com.dili.ia.service.AssetsRentalItemService;
 import com.dili.ia.service.AssetsRentalService;
+import com.dili.ia.service.MchAndDistrictService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.exception.BusinessException;
@@ -52,7 +53,10 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
     }
 
     @Autowired
-    public AssetsRentalItemService assetsRentalItemService;
+    private AssetsRentalItemService assetsRentalItemService;
+
+    @Autowired
+    private MchAndDistrictService mchAndDistrictService;
 
     /**
      * 新增资产出租预设
@@ -73,6 +77,12 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "新增资产出租预设失败,资产名称已存在！");
         }
         // TODO 区域和商户ID，批次未完成
+        // 根据区域ID查询商户ID
+        Long mchId = mchAndDistrictService.getMchIdByDistrictId(assetsRentalDto.getFirstDistrictId(), assetsRentalDto.getSecondDistrictId());
+        if (mchId == null) {
+            mchId = userTicket.getFirmId();
+        }
+        assetsRentalDto.setMchId(mchId);
 
         assetsRentalDto.setVersion(0);
         assetsRentalDto.setState(AssetsRentalStateEnum.ENABLE.getCode());

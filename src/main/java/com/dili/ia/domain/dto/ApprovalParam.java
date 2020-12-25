@@ -22,6 +22,7 @@ public interface ApprovalParam extends TaskCenterParam {
 
     /**
      * 审批结果, 1:同意， 2:拒绝
+     * 参见:ApprovalResultEnum
      * @return
      */
     @NotNull(message = "审批结果不能为空")

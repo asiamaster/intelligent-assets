@@ -41,7 +41,7 @@ public interface AssetsRentalItemMapper extends MyMapper<AssetsRentalItem> {
      * @return assetsIds
      * @date   2020/12/7
      */
-    List<AssetsRentalItemDto> listAssetsItemsByAssetsIds(@Param("assetsIds")List<Long> assetsIds);
+    List<AssetsRentalItem> listAssetsItemsByAssetsIds(@Param("assetsIds")List<Long> assetsIds);
 
     /**
      * 修改摊位的信息

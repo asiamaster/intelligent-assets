@@ -5,17 +5,17 @@
 <div class="row">
     <div class="col-12">
         <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
-        <#resource code="addMeter">
+        <#resource code="addAssetsRental">
             <button id="btn_add" type="button" class="btn btn-primary" onclick="openInsertHandler()"><i class="fa fa-plus"></i> 新增</button>
         </#resource>
-        <#resource code="updateMeter">
+        <#resource code="updateAssetsRental">
             <button id="btn_update" type="button" class="btn btn-primary" onclick="openUpdateHandler()"><i class="fa fa-pencil-square-o"></i> 修改</button>
         </#resource>
-        <#resource code="copyMeter">
-            <button id="btn_view" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 启用</button>
+        <#resource code="enableAssetsRental">
+            <button id="btn_enable" type="button" class="btn btn-primary" onclick="openEnableHandler()"><i class="fa fa-eye"></i> 启用</button>
         </#resource>
-        <#resource code="copyMeter">
-            <button id="btn_view1" type="button" class="btn btn-primary" onclick="openViewHandler()"><i class="fa fa-eye"></i> 禁用</button>
+        <#resource code="enableAssetsRental">
+            <button id="btn_disable" type="button" class="btn btn-primary" onclick="openDisableHandler()"><i class="fa fa-eye"></i> 禁用</button>
         </#resource>
 </div>
 <table id="grid" data-toggle="table" data-title="资产出租预设列表" class="table" data-toolbar="#toolbar"
@@ -28,22 +28,22 @@
     <thead>
     <tr>
         <th data-radio="true"></th>
-        <th data-field="name" data-sortable="true" data-align="center" data-formatter="codeFormatter">
+        <th data-field="name" data-sortable="true" data-align="center">
             预设名称
         </th>
         <th data-field="" data-sortable="true" data-align="center" data-provider="">
             摊位对象
         </th>
-        <th data-field="engageName" data-sortable="true" data-align="center" data-provider="assetsTypeProvider">
+        <th data-field="engageName" data-sortable="true" data-align="center">
             经营范围
         </th>
         <th data-field="categoryName" data-sortable="true" data-align="center">
             经营品类
         </th>
-        <th data-field="leaseTermCode" data-sortable="true" data-align="center">
+        <th data-field="leaseTermName" data-sortable="true" data-align="center">
             租赁期限
         </th>
-        <th data-field="leaseDays" data-sortable="true" data-align="center" data-provider="moneyProvider">
+        <th data-field="leaseDays" data-sortable="true" data-align="center">
             租赁天数
         </th>
         <th data-field="startTime" data-sortable="true" data-align="center"  data-provider="dateProvider" >
@@ -52,7 +52,7 @@
         <th data-field="endTime" data-sortable="true" data-align="center"  data-provider="dateProvider" >
             结束日期
         </th>
-        <th data-field="state" data-sortable="true" data-align="center" >
+        <th data-field="state" data-sortable="true" data-align="center" data-provider="assetsRentalStateProvider">
             状态
         </th>
     </tr>
@@ -65,6 +65,5 @@
 
 
 </#bs4Body>
-
-<#assetsRental_indexJs />
+<#assetsRental_indexJs/>
 

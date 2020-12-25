@@ -15,7 +15,7 @@
                 %>
                 <tr>
                     <td style="padding-right: 20px;">${approvalProcess.assigneeName} </td>
-                    <td style="padding-right: 20px;">${approvalProcess.result == 1 ? "审批通过": approvalProcess.result == 0 ? "审批拒绝" : "提交审批"}</td>
+                    <td style="padding-right: 20px;">${approvalProcess.result == 1 ? "审批通过": approvalProcess.result == 2 ? "审批拒绝" : "提交审批"}</td>
                     <%if(approvalProcess.opinion != null){%>
                     <td style="padding-right: 20px;">${approvalProcess.opinion}</td>
                     <%}else{%>
