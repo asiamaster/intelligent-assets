@@ -36,6 +36,7 @@ public enum BizNumberTypeEnum {
     ELECTRICITY("electricity", "电费单"),
     // 通行证的证件类型,后续的小写补全直接是代码获取字段值
     PASSPORT_LICENSE_CODE("passport_", "通行证证件营运编号"),
+    ASSETS_RENTAL("assetsRental", "摊位出租预设批次号"),
     OTHER_FEE("otherFee", "其他收费"),
     OTHER_FEE_CHARGE_ITEM("charge_item", "其他收费的数据字典的键"),
     

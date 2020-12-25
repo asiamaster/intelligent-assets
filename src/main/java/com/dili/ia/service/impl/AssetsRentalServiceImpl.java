@@ -10,7 +10,9 @@ import com.dili.ia.domain.dto.AssetsRentalItemDto;
 import com.dili.ia.domain.dto.AssetsRentalMchDistrictDto;
 import com.dili.ia.domain.dto.AssetsRentalMchDistrictListDto;
 import com.dili.ia.glossary.AssetsRentalStateEnum;
+import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.mapper.AssetsRentalMapper;
+import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.AssetsRentalItemService;
 import com.dili.ia.service.AssetsRentalService;
 import com.dili.ia.service.MchAndDistrictService;
@@ -53,6 +55,9 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
     }
 
     @Autowired
+    private UidRpcResolver uidRpcResolver;
+
+    @Autowired
     private AssetsRentalItemService assetsRentalItemService;
 
     @Autowired
@@ -77,6 +82,10 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
             throw new BusinessException(ResultCode.DATA_ERROR, "新增资产出租预设失败,资产名称已存在！");
         }
         // TODO 批次未完成
+        // 批次号为生成的业务ID
+        String assetsRentalCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.ASSETS_RENTAL.getCode());
+        assetsRentalDto.setBatchId(assetsRentalCode);
+
         // 根据区域ID查询商户ID
         Long mchId = mchAndDistrictService.getMchIdByDistrictId(assetsRentalDto.getFirstDistrictId(), assetsRentalDto.getSecondDistrictId());
         if (mchId == null) {
