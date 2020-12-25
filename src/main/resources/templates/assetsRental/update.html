@@ -58,20 +58,20 @@
             <div class="form-group col">
                 <label for="engageCode">经营范围<i class="red">*</i></label>
                 <select id="engageCode" name="engageCode" class="form-control" required></select>
-                <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.engageCode!}" _queryParams='{dd_code:"engage"}'/>
+                <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.engageCode!}" _queryParams='{dd_code:"engage"}' _text="${assetsRental.engageName!}"/>
             </div>
             <div class="form-group col">
                 <label for="leaseTermCode">租赁期限<i class="red">*</i></label>
                 <select id="leaseTermCode" name="leaseTermCode" class="form-control" required></select>
-                <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}'/>
+                <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}' _text="${assetsRental.leaseTermName!}"/>
             </div>
             <div class="form-group col">
                 <label for="categoryId" _log>经营品类</label>
-                <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="testAutoCompleteOption" _value="${assetsRental.categoryName!}/>
+                <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="testAutoCompleteOption" _value="${assetsRental.categoryId!}" _text="${assetsRental.categoryName!}"/>
             </div>
             <div class="form-group col">
                 <label for="leaseDays" class="">租赁天数<i class="red">*</i></label>
-                <input type="number" id="leaseDays" class="form-control isNaturalNum" value="${assetsRental.leaseDays}" name="leaseDays"  />
+                <input type="number" id="leaseDays" class="form-control isNaturalNum" value="${assetsRental.leaseDays}" name="leaseDays"/>
             </div>
             <div class="form-group col">
                 <label for="startTime">开始日期</label>
