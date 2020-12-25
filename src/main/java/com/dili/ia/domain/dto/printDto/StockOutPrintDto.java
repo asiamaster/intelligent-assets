@@ -17,6 +17,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  */
 public class StockOutPrintDto {
 
+	private String customerName;
+		
 	private String stockOutCode;
 
 	private LocalDateTime stockOutDate;
@@ -130,6 +132,14 @@ public class StockOutPrintDto {
 
 	public void setBusinessType(String businessType) {
 		this.businessType = businessType;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
 	}
 
 }

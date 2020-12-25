@@ -526,7 +526,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		MessageFeePayPrintDto messageFeePrint = new MessageFeePayPrintDto();
 		messageFeePrint.setPrintTime(LocalDateTime.now());
 		messageFeePrint.setReprint("2".equals(reprint) ? "(补打)" : "");
-
+		messageFeePrint.setCode(orderCode);
 		messageFeePrint.setBusinessType(BizTypeEnum.MESSAGEFEE.getName());
 		messageFeePrint.setTotalAmount(MoneyUtils.centToYuan(messageFee.getAmount()));
 		messageFeePrint.setCustomerCellphone(messageFee.getCustomerCellphone());

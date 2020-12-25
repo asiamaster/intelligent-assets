@@ -103,6 +103,20 @@ function stockOut() {
 			if (ret.success) {
 				bs4pop.alert(ret.message, {type: 'success'});
 				queryDataHandler();
+				$.ajax({
+			        type:"POST",
+			        url:"/api/stockIn/queryPrintData/stock_out?orderCode="+ret.data.code,
+			        dataType:"json",
+			      
+			        success:function(result) {
+			            if (result.code === '200') {
+			                callbackObj.boothPrintPreview(JSON.stringify(result.data.item), result.data.name, 0);
+			            }
+			        },
+			        error:function() {
+
+			        }
+			    });
 			} else {
 				bs4pop.alert(ret.message, {
 					type: 'error'

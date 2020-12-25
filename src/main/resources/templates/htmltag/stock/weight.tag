@@ -107,7 +107,7 @@ function openWeightUpdateHandler(index) {
         title: '获取地磅读数',//对话框title
         content: bui.util.HTMLDecode(template("weighmanUpdate", {weightDetail})), //对话框内容，可以是 string、element，$object
         width: '80%',//宽度
-        height: '95%',//高度
+        height: '100%',//高度
         btns: [{label: '取消',className: 'btn-secondary',onClick(e){
 
             }

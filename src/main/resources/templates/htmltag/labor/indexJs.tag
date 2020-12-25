@@ -301,18 +301,17 @@
     		let rows = _grid.bootstrapTable('getSelections');
     		let selectedRow = rows[0];
     		let se = moment(selectedRow.startDate).format('YYYY/MM/DD')+"-"+moment(selectedRow.endDate).format('YYYY/MM/DD');
-    		selectedRow.se = se;
+    		selectedRow.validityTime = se;
+    		selectedRow.code = selectedRow.workCard;
     		dia = bs4pop.dialog({
     			title: '打印预览',//对话框title
     			content: bui.util.HTMLDecode(template('printView', {selectedRow})), //对话框内容，可以是 string、element，$object
     			width: '30%',//宽度
     			height: '90%',//高度
     			btns: [{label: '取消',className: 'btn btn-secondary',onClick(e){
-
     			}
     			}, {label: '打印',className: 'btn btn-primary',onClick(e){
-    				//
-    				// print()
+                    callbackObj.boothPrintPreview(JSON.stringify(selectedRow), "laborVest", 0);
     			}
     			}]
     		});
