@@ -334,6 +334,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_APPROVAL_EVENT);
             eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
             eventReceivedDto.setVariables(variables);
+            eventReceivedDto.setUserId(userTicket.getId().toString());
             BaseOutput<String> submitApprovalOutput = eventRpc.messageEventReceived(eventReceivedDto);
             if (!submitApprovalOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "审批子流程启动失败:" + submitApprovalOutput.getMessage());
@@ -370,6 +371,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         ApprovalParam approvalParam = DTOUtils.newInstance(ApprovalParam.class);
         approvalParam.setBusinessKey(leaseOrder.getCode());
         approvalParam.setProcessInstanceId(leaseOrder.getProcessInstanceId());
+        approvalParam.setResult(ApprovalResultEnum.SUBMIT.getCode());
         saveApprovalProcess(approvalParam, userTicket);
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE,BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName());

@@ -261,20 +261,20 @@ public class ApprovalProcess extends BaseDomain {
     }
 
     /**
-     * 获取审批结果, 1:同意， 2:拒绝
+     * 获取审批结果, 0: 提交, 1:同意， 2:拒绝
      *
-     * @return result - 审批结果, 1:同意， 2:拒绝
+     * @return result - 审批结果, 0: 提交, 1:同意， 2:拒绝
      */
-    @FieldDef(label="审批结果, 1:同意， 2:拒绝")
+    @FieldDef(label="审批结果, 0: 提交, 1:同意, 2:拒绝")
     @EditMode(editor = FieldEditor.Text, required = false)
     public Integer getResult() {
         return result;
     }
 
     /**
-     * 设置审批结果, 1:同意， 2:拒绝
+     * 设置审批结果, 0: 提交， 1:同意， 2:拒绝
      *
-     * @param result 审批结果, 1:同意， 2:拒绝
+     * @param result 审批结果, 0: 提交， 1:同意， 2:拒绝
      */
     public void setResult(Integer result) {
         this.result = result;
