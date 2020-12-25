@@ -89,10 +89,10 @@ INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_vest_gd', 2020081200001, '杭州水产-劳务干果业户大型电动车马甲号', '1');
 
 
-INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-冷库缴费单', 'hzsc_stockIn_paymentOrder', 'HZSCSI', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-冷库缴费单', 'hzsc_stockIn_paymentOrder', 'HZSCPOSI', 'yyyyMMdd', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_stockIn_paymentOrder', 2020081200001, '杭州水产-冷库缴费单', '1');
 
-INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务马甲缴费单', 'hzsc_laborVest_paymentOrder', 'HZSCMJ', 'yyyyMMdd', 4, '1');
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务马甲缴费单', 'hzsc_laborVest_paymentOrder', 'HZSCPOMJ', 'yyyyMMdd', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_laborVest_paymentOrder', 2020081200001, '杭州水产-劳务马甲缴费单', '1');
 
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-信息费缴费单', 'hzsc_messageFee_paymentOrder', 'HZSCPOXXF', 'yyyyMMdd', 4, '1');
@@ -128,4 +128,9 @@ ALTER TABLE `dili_ia`.`assets_rental` MODIFY COLUMN `batch_id` varchar(30) NULL 
 -- 摊位出租预设批次号
 INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-摊位出租预设批次号', 'hzsc_assetsRental', 'HZSCTWYS', 'yyyyMM', 4, '1');
 INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_assetsRental', 2020081200001, '杭州水产-摊位出租预设批次号', '1');
+
+-- 冷库入库添加城市中文名
+ALTER TABLE `dili_ia`.`stock_in` 
+ADD COLUMN `origin_path` varchar(100) NULL COMMENT '城市名称' AFTER `origin`;
+
 
