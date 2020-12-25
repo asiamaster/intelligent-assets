@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  * @author: WM
  * @time: 2020/11/20 16:26
  */
-@Component
+//@Component
 public class ScheduledTask {
 
     /**

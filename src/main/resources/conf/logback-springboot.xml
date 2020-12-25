@@ -29,12 +29,11 @@
             <pattern>%d %-5level [${LOG_NAME}-${build.profile.id}] [%t] [%c:%L] -| %msg%n</pattern>
         </encoder>
     </appender>
-    <!--        不打印心跳日志     -->
-    <logger name="io.seata.core" level="INFO"/>
-    <logger name="io.seata.integration" level="INFO"/>
 
     <!-- 开发环境 -->
     <springProfile name="dev">
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="com.dili.ia" level="DEBUG"/>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
 <!--            <appender-ref ref="FILE"/>-->
@@ -42,8 +41,11 @@
     </springProfile>
     <!-- 测试环境 -->
     <springProfile name="test">
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="com.dili.ia" level="INFO"/>
         <root level="INFO">
-            <appender-ref ref="FILE"/>
+            <appender-ref ref="CONSOLE"/>
+<!--            <appender-ref ref="FILE"/>-->
         </root>
     </springProfile>
     <!-- 灰度、生产环境 -->
