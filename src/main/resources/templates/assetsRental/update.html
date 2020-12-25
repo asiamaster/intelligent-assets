@@ -1,11 +1,4 @@
 <#bs4Body>
-<#vueElm />
-
-<style>
-    .el-transfer-panel {
-        width: 40%;
-    }
-</style>
 <div class="container-fluid pb-5" id="app">
     <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.assetsRental'/>">
     <div class="row row-cols-6">
@@ -77,8 +70,8 @@
                 <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="testAutoCompleteOption" _value="${assetsRental.categoryName!}/>
             </div>
             <div class="form-group col">
-                <label for="days" class="">租赁天数<i class="red">*</i></label>
-                <input type="number" id="days" class="form-control isNaturalNum" value="${assetsRental.days}" name="days"  />
+                <label for="leaseDays" class="">租赁天数<i class="red">*</i></label>
+                <input type="number" id="leaseDays" class="form-control isNaturalNum" value="${assetsRental.leaseDays}" name="leaseDays"  />
             </div>
             <div class="form-group col">
                 <label for="startTime">开始日期</label>

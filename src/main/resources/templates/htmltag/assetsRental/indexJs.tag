@@ -68,6 +68,26 @@
     }
 
     /**
+     打开修改窗口
+     */
+    function openUpdateHandler() {
+        //获取选中行的数据
+        let rows = _grid.bootstrapTable('getSelections');
+        if (null == rows || rows.length == 0) {
+            bs4pop.alert('请选中一条数据');
+            return;
+        }
+
+        dia = bs4pop.dialog({
+            title: '修改摊位出租预设',//对话框title
+            content: '${contextPath}/assetsRental/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
+            width: '800px',//宽度
+            height: '680px',//高度
+            isIframe: true,//默认是页面层，非iframe
+        });
+    }
+
+    /**
      启用
      */
     function openEnableHandler() {
@@ -153,7 +173,7 @@
         let isRelated = row.isRelated;
         $('#toolbar button').attr('disabled', true);
         $('#btn_add').attr('disabled', false);
-        $('#btn_view').attr('disabled', false);
+        $('#btn_update').attr('disabled', false);
         if (state == ${@com.dili.ia.glossary.AssetsRentalStateEnum.ENABLE.getCode()}){
             $('#btn_disable').attr('disabled', false);
         }  else if (state == ${@com.dili.ia.glossary.AssetsRentalStateEnum.DISABLE.getCode()}) {
