@@ -2,6 +2,7 @@ package com.dili.ia.service.impl;
 
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.MeterDto;
+import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.mapper.MeterMapper;
 import com.dili.ia.service.MchAndDistrictService;
 import com.dili.ia.service.MeterDetailService;
@@ -178,8 +179,8 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * @date   2020/12/18
      */
     @Override
-    public MeterDto getMeterDtoById(Long id) {
-        return this.getActualDao().getMeterDtoById(id);
+    public MeterDto getMeterDtoById(Long id, Integer state) {
+        return this.getActualDao().getMeterDtoById(id, state);
     }
 
 }

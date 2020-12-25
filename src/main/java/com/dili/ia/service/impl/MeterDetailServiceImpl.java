@@ -11,6 +11,7 @@ import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.CustomerMeterStateEnum;
 import com.dili.ia.glossary.MeterDetailStateEnum;
 import com.dili.ia.glossary.MeterTypeEnum;
 import com.dili.ia.glossary.PaymentOrderStateEnum;
@@ -318,8 +319,8 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
                     logger.info("多人提交水电费单!");
                 }
 
-                // 创建缴费单
-                MeterDto meterDto = meterService.getMeterDtoById(meterDetailDto.getMeterId());
+                // 创建缴费单，查询表用户和表的信息（表用户状态是启用的）
+                MeterDto meterDto = meterService.getMeterDtoById(meterDetailDto.getMeterId(), CustomerMeterStateEnum.CREATED.getCode());
                 BizTypeEnum bizTypeEnum = BizTypeEnum.ELECTRICITY;
                 if (MeterTypeEnum.WATER_METER.getCode().equals(meterDto.getType())) {
                     bizTypeEnum = BizTypeEnum.WATER;

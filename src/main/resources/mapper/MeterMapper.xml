@@ -187,6 +187,9 @@
             meter as m
           left join customer_meter as cm on m.id = cm.meter_id
         where
-          m.id = #{id}
+            m.id = #{id}
+        <if test="state != null">
+            and cm.state = #{state}
+        </if>
     </select>
 </mapper>

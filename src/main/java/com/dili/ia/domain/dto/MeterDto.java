@@ -22,6 +22,19 @@ public class MeterDto extends Meter {
      */
     private String certificateNumber;
 
+    /**
+     * 表用户状态
+     */
+    private Integer state;
+
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
     public String getCertificateNumber() {
         return certificateNumber;
     }
