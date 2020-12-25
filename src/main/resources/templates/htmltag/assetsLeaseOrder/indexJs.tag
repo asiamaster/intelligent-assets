@@ -833,7 +833,9 @@
     		dataType: "json",
     		contentType: "application/json",
             success : function(result) {
-            	
+            	// console.log(JSON.stringify(result.data));
+
+            	callbackObj.printPreview(JSON.stringify(result.data),1,"contract",0)
             },
             error : function() {
                 bui.loading.hide();
@@ -868,7 +870,6 @@
 	                        closeBtn: true,
 	                        backdrop : 'static',
 	                        width: '50%',
-	                        height : '40%',
 	                        btns: [{label: '取消',className: 'btn-secondary',onClick(e){
 
 	                        }
@@ -905,6 +906,25 @@
             bs4pop.alert('请选中一条数据');
             return;
         }
+     // 获取文件
+        $.ajax({
+            url: "${contextPath}/attachment/list.action?bizCode="+rows[0].code,
+            type: "POST",
+    		dataType: "json",
+    		contentType: "application/json",
+            success : function(result) {
+                if(result.success){
+                	upload.fileList = result.data;
+                }else{
+                   
+                }
+            },
+            error : function() {
+                bui.loading.hide();
+                bs4pop.alert('远程访问失败', {type: 'error'});
+            }
+        });
+        
         upload.selectRow = rows[0];
         //this.upload.fileList=[{'name':'232','url':'http://gateway.diligrp.com:8285/dili-dfs/file/view/e2015e3056624d79ab42531fca4bfd9e'}];
         $('#exampleModal').modal('show')
@@ -938,7 +958,6 @@
 	    		 this.fileList = [];
 	    	 },
 	    	 handleSucess(res,file,fileList){
-	    		 console.log("1");
 	    		 this.successIndex = this.successIndex+1;
 	    		 if(this.successIndex = fileList.length){
 	    			 console.log(fileList);
@@ -957,7 +976,6 @@
 							}
 							this.upList.push(upF);
 					}
-	    			  console.log(this.upList);
 	    			 // 文件关联
 	    			  let da = {
 	    		    			"attachments" : this.upList

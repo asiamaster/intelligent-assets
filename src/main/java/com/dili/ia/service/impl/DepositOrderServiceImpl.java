@@ -645,7 +645,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
 
             //根据退款单业务类型启动流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(depositRefundOrderDto.getBizType(), depositRefundOrderDto.getMarketCode()));
+            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(depositRefundOrderDto.getBizType(), userTicket.getFirmCode()));
             startProcessInstanceDto.setBusinessKey(depositRefundOrderDto.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> outputP = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);

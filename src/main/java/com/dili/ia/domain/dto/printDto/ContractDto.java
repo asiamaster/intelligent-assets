@@ -83,6 +83,7 @@ public class ContractDto {
 	 * 合同金额
 	 */
 	private String amount;
+	private String amountCn;
 
 	public String getPartya() {
 		return partya;
@@ -194,6 +195,14 @@ public class ContractDto {
 
 	public void setContractNo(String contractNo) {
 		this.contractNo = contractNo;
+	}
+
+	public String getAmountCn() {
+		return amountCn;
+	}
+
+	public void setAmountCn(String amountCn) {
+		this.amountCn = amountCn;
 	}
 
 }
