@@ -140,7 +140,6 @@
             contentType: "application/json",
             success: function (res) {
                 if(res.success){
-                    debugger
                     $.each(res.data, (index, item)=>{
                         $('.booth-data-origin').append('<div class="custom-control custom-checkbox"><input type="checkbox" class="custom-control-input" id="booth_'+ item.id +'" data-id="'+ item.id +'"  data-area="'+ item.area +'" data-area-name="'+ item.areaName +'" data-secondarea="'+ item.secondArea +'" ><label class="custom-control-label" for="booth_'+ item.id +'">' + item.name + ' 【' + item.areaName + '】' + item.id  + '</label></div>')
 
@@ -172,7 +171,6 @@
                 success: function (res) {
                     if(res.success){
                         // if(app.MerchantsId != res.data){
-                        debugger
                         // boothCheckedStr += that.parents('.custom-control')[0].outerHTML;
                         // $('.booth-checked').append(that.parents('.custom-checkbox')[0].outerHTML)
                         // that.parents('.custom-control').remove();

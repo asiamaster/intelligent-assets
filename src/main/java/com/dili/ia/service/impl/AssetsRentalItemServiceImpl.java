@@ -178,23 +178,12 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
     @Override
     public Long getMchIdByDistrictId(AssetsRentalDto assetsRentalDto) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-
-        AssetsQuery assetsQuery = new AssetsQuery();
-        assetsQuery.setMarketId(userTicket.getFirmId());
-        assetsQuery.setBusinessType(AssetsTypeEnum.BOOTH.getCode());
-        assetsQuery.setId(assetsRentalDto.getId());
-        List<AssetsDTO> assets = assetsRpc.searchAssets(assetsQuery).getData();
-        if (CollectionUtils.isNotEmpty(assets)) {
-            Long firstDistrictId = Long.valueOf(assets.get(0).getArea());
-            Long secondDistrictId = Long.valueOf(assets.get(0).getSecondArea());
-            // 根据区域ID查询商户ID
-            Long mchId = mchAndDistrictService.getMchIdByDistrictId(firstDistrictId, secondDistrictId);
-            if (mchId == null) {
-                mchId = userTicket.getFirmId();
-            }
-            return mchId;
+        // 根据区域ID查询商户ID
+        Long mchId = mchAndDistrictService.getMchIdByDistrictId(assetsRentalDto.getFirstDistrictId(), assetsRentalDto.getSecondDistrictId());
+        if (mchId == null) {
+            mchId = userTicket.getFirmId();
         }
-        return null;
+        return mchId;
     }
 
 
