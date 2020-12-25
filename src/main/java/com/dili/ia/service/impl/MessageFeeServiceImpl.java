@@ -571,7 +571,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		printDto.setSettlementOperator(order.getOperatorName());
 		printDto.setSubmitter(refundOrder.getSubmitter());
 		printDto.setNotes(refundOrder.getRefundReason());
-		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
+		printDto.setPayeeAmount(MoneyUtils.centToYuan(refundOrder.getPayeeAmount()));
 		String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + refundOrder.getPayeeAmount();
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
