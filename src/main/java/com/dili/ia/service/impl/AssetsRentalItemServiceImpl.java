@@ -133,13 +133,13 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
             for (AssetsDTO assetsDTO : assets) {
                 assetsIds.add(assetsDTO.getId());
             }
-            List<AssetsRentalItemDto> assetsRentalItemDtoInfoList = this.getActualDao().listAssetsItemsByAssetsIds(assetsIds);
+            List<AssetsRentalItem> assetsRentalItemDtoInfoList = this.getActualDao().listAssetsItemsByAssetsIds(assetsIds);
 
             // 预设池中摊位集合（同时属于预设池和条件搜索的集合）
             List<Long> assetsIdsInTable = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(assetsRentalItemDtoInfoList)) {
-                for (AssetsRentalItemDto assetsRentalItemDto : assetsRentalItemDtoInfoList) {
-                    assetsIdsInTable.add(assetsRentalItemDto.getAssetsId());
+                for (AssetsRentalItem assetsRentalItem : assetsRentalItemDtoInfoList) {
+                    assetsIdsInTable.add(assetsRentalItem.getAssetsId());
                 }
             }
 
