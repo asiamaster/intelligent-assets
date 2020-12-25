@@ -46,6 +46,15 @@
     }
 
     /**
+     * 查询处理
+     */
+    function queryDataHandler() {
+        currentSelectRowIndex = undefined;
+        $('#toolbar button').attr('disabled', false);
+        _grid.bootstrapTable('refresh');
+    }
+
+    /**
      打开新增窗口
      */
     function openInsertHandler() {
@@ -146,10 +155,9 @@
         $('#btn_add').attr('disabled', false);
         $('#btn_view').attr('disabled', false);
         if (state == ${@com.dili.ia.glossary.AssetsRentalStateEnum.ENABLE.getCode()}){
-            $('#btn_enable').attr('disabled', false);
-        }  else if (state == ${@com.dili.ia.glossary.AssetsRentalStateEnum.DISABLE.getCode()}) {
             $('#btn_disable').attr('disabled', false);
-
+        }  else if (state == ${@com.dili.ia.glossary.AssetsRentalStateEnum.DISABLE.getCode()}) {
+            $('#btn_enable').attr('disabled', false);
         }
     });
 
