@@ -303,6 +303,7 @@
             url: "/assetsRental/update.action",
             data: buildData,
             dataType: "json",
+            contentType: "application/json",
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
@@ -320,17 +321,20 @@
 
     // 提交保存
     function doSaveAssetsRentalHandler(){
+        debugger
         let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
             return false;
         }
-        let buildData = JSON.stringify($.extend($("#saveForm").serializeObject()), {assetsRentalItemList: app.boothChecked})
+        $("#nameHidden").val($("#name").val());
+        let buildData = JSON.stringify($('#saveForm').serializeObject(), {assetsRentalItemList: app.boothChecked})
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
             url: "/assetsRental/add.action",
             data: buildData,
             dataType: "json",
+            contentType: "application/json",
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
