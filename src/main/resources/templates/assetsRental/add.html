@@ -48,30 +48,25 @@
            </div>
            <hr>
        </form>
-       <div class="row row-cols-3 boothwrap">
-           <div class="booth-data-origin col">
-               <div class="custom-control custom-checkbox">
-                   <input type="checkbox" class="custom-control-input" id="customCheck1">
-                   <label class="custom-control-label" for="customCheck1">全选</label>
+       <div class="row boothwrap">
+           <div class="col-3  p-3 mr-5 border-right">
+               <h5 class="">待选摊位</h5>
+               <div class="booth-data-origin">
+                   <div class="custom-control custom-checkbox">
+                       <input type="checkbox" class="custom-control-input" id="checkAll">
+                       <label class="custom-control-label" for="checkAll">全选</label>
+                   </div>
+           </div>
+           </div>
+           <div class="col-3  p-3">
+               <h5 class="">已选摊位</h5>
+               <div class="booth-checked">
+                   <div class="custom-control custom-checkbox">
+                       <input type="checkbox" class="custom-control-input" id="checkedAll">
+                       <label class="custom-control-label" for="checkedAll">全选</label>
+                   </div>
                </div>
            </div>
-           <div class="col">
-               <div><button type="button" class="btn btn-outline-primary" onclick="checkedBooth()"><i class="fa "></i> >> </button></div>
-               <div><button type="button" class="btn btn-outline-primary" onclick="cancelBooth()"><i class="fa "></i> << </button></div>
-           </div>
-           <div class="booth-checked col">
-
-           </div>
-      <!-- <el-transfer v-model="boothChecked" :data="boothData"
-                    :render-content="boothRenderFunc"
-                    @change="boothChange"
-                    @left-check-change="boothLeftCheck"
-                    :props="{key: 'id',label: 'secondAreaName'}"
-                    :titles="['待选摊位', '已选摊位']"
-       >
-          &lt;!&ndash; <sapn class="text-center align-center w-100" slot="left-footer" >待选摊位</sapn>
-           <sapn class="text-center w-100" slot="right-footer" >已选摊位</sapn>&ndash;&gt;
-       </el-transfer>-->
        </div>
    </div>
     <form id="saveForm" role="form" novalidate>
