@@ -95,4 +95,17 @@ public class AssetsRentalItemController {
         List<AssetsDTO> assetsDTOList = assetsRentalItemService.filterAssets(assetsRentalDto);
         return BaseOutput.success().setData(assetsDTOList);
     }
+
+    /**
+     * 根据一级二级区域查询商户ID
+     *
+     * @param  assetsRentalDto
+     * @return BaseOutput
+     * @date   2020/12/25
+     */
+    @RequestMapping(value="/getMchIdByDistrictId.action", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody BaseOutput getMchIdByDistrictId(@RequestBody AssetsRentalDto assetsRentalDto) {
+        Long mchId = assetsRentalItemService.getMchIdByDistrictId(assetsRentalDto);
+        return BaseOutput.success().setData(mchId);
+    }
 }

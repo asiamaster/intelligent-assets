@@ -18,6 +18,7 @@ import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.mapper.AssetsRentalItemMapper;
 import com.dili.ia.service.AssetsRentalItemService;
 import com.dili.ia.service.AssetsRentalService;
+import com.dili.ia.service.MchAndDistrictService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -59,7 +60,7 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
     private AssetsRpc assetsRpc;
 
     @Autowired
-    private AssetsRentalService assetsRentalService;
+    private MchAndDistrictService mchAndDistrictService;
 
     /**
      * 根据关联主键删除对应的资产
@@ -170,8 +171,19 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
      */
     @Override
     public List<AssetsRentalItem> listRentalItemsByRentalId(Long rentalId) {
-
         return this.getActualDao().listRentalItemsByRentalId(rentalId);
+    }
+
+
+    @Override
+    public Long getMchIdByDistrictId(AssetsRentalDto assetsRentalDto) {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        // 根据区域ID查询商户ID
+        Long mchId = mchAndDistrictService.getMchIdByDistrictId(assetsRentalDto.getFirstDistrictId(), assetsRentalDto.getSecondDistrictId());
+        if (mchId == null) {
+            mchId = userTicket.getFirmId();
+        }
+        return mchId;
     }
 
 
