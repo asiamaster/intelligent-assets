@@ -45,7 +45,7 @@ public class MessageFeeRefundPrintDto {
 	// 收款人
 	private String payee;
 	// 收款金额
-	private Long payeeAmount;
+	private String payeeAmount;
 	// 退款方式
 	private String refundMethod;
 	// 开户行
@@ -137,10 +137,10 @@ public class MessageFeeRefundPrintDto {
 		this.payee = payee;
 	}
 	
-	public Long getPayeeAmount() {
+	public String getPayeeAmount() {
 		return payeeAmount;
 	}
-	public void setPayeeAmount(Long payeeAmount) {
+	public void setPayeeAmount(String payeeAmount) {
 		this.payeeAmount = payeeAmount;
 	}
 	public String getRefundMethod() {

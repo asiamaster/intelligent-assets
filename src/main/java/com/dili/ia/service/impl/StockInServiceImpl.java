@@ -652,8 +652,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		StockIn stockIn = getStockInByCode(paymentOrder.getBusinessCode());
 		StockInPrintDto stockInPrintDto = new StockInPrintDto();
-		// stockInPrintDto.set
+		stockInPrintDto.setStockInCode(orderCode);
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
+		//stockInPrintDto.setc
 		stockInPrintDto.setBusinessType(BizTypeEnum.STOCKIN.getCode());
 		stockInPrintDto.setCardNo(order.getTradeCardNo());
 		stockInPrintDto.setCategoryName(stockIn.getCategoryName());
@@ -711,6 +712,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockIn stockIn = getStockInByCode(refundOrder.getBusinessCode());
 		StockInPrintDto stockInPrintDto = new StockInPrintDto();
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, refundOrder.getCode());
+		stockInPrintDto.setStockInCode(refundOrder.getCode());
 		stockInPrintDto.setBusinessType(BizTypeEnum.STOCKIN.getCode());
 		stockInPrintDto.setCardNo(order.getTradeCardNo());
 		stockInPrintDto.setCategoryName(stockIn.getCategoryName());
