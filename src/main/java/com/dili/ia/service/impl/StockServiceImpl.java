@@ -160,12 +160,12 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 
 	@Override
 	@Transactional
-	public void stockOut(Long stockId, Long weight, Long quantity,String notes) {
+	public StockOut stockOut(Long stockId, Long weight, Long quantity,String notes) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		Stock stock = this.get(stockId);
 		stockDeduction(stock, 0L, quantity);
 		// 出库单
-		buildStockOut(stock, userTicket, notes, 0L, quantity);
+		return buildStockOut(stock, userTicket, notes, 0L, quantity);
 	}
 	
 	private void stockDeduction(Stock stock,Long weight, Long quantity){
@@ -189,7 +189,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		}
 	}
 	
-	public void buildStockOut(Stock stock,UserTicket userTicket,String notes,Long weight, Long quantity) {
+	public StockOut buildStockOut(Stock stock,UserTicket userTicket,String notes,Long weight, Long quantity) {
 		StockOut stockOut = new StockOut();
 		String code = uidRpcResolver.bizNumber(stock.getMarketCode()+"_"+BizNumberTypeEnum.STOCK_OUT.getCode());
 		stockOut.setCode(code);
@@ -203,6 +203,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		stockOutService.insertSelective(stockOut);
 		//出库流水记录
 		buildStockRecord(weight, quantity, code, stock,StockRecordTypeEnum.STOCK_OUT);
+		return stockOut;
 	}
 
 	@Override

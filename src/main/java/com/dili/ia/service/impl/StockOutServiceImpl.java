@@ -35,11 +35,15 @@ public class StockOutServiceImpl extends BaseServiceImpl<StockOut, Long> impleme
 		StockOut stockOut = getStockOut(orderCode);
 		StockOutPrintDto stockOutPrintDto = new StockOutPrintDto();
 		BeanUtil.copyProperties(stockOut, stockOutPrintDto);
+		stockOutPrintDto.setStockOutCode(orderCode);
+		//stockOutPrintDto.set
 		stockOutPrintDto.setDistrictName(stockOut.getDistrictName()+"-"+stockOut.getAssetsName());
 		stockOutPrintDto.setReprint(reprint);
 		stockOutPrintDto.setPrintTime(LocalDateTime.now());
 		stockOutPrintDto.setBusinessType(BizTypeEnum.STOCKOUT.getCode());
 		stockOutPrintDto.setSubmitter(stockOut.getCreator());
+		stockOutPrintDto.setNotes("备注:"+stockOut.getNotes());
+		stockOutPrintDto.setCustomerName(stockOut.getCustomerName());
 		PrintDataDto<StockOutPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setItem(stockOutPrintDto);
 		printDataDto.setName(PrintTemplateEnum.STOCK_OUT_ORDER.getCode());

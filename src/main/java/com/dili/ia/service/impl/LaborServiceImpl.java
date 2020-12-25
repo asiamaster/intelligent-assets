@@ -672,6 +672,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 			calcParams.put("laborType", laborDto.getLaborType());
 			calcParams.put("models", laborDto.getModels());
 			calcParams.put("day", day);
+			Map<String, Object> conditionParams = new HashMap<String, Object>();
+			conditionParams.put("models", laborDto.getModels());
+			queryFeeInput.setConditionParams(conditionParams);
 			queryFeeInput.setCalcParams(calcParams);
 			queryFeeInputs.add(queryFeeInput);
 		});
