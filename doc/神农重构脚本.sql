@@ -120,4 +120,12 @@ INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_mess
 
 -- 精品黄楼停车冗余车型名称
   ALTER TABLE `dili_ia`.`boutique_entrance_record`
-   ADD COLUMN `car_type_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '车型名称';
+   ADD COLUMN `car_type_name` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '车型名称';
+
+-- 摊位出租预设修改批次字段类型
+ALTER TABLE `dili_ia`.`assets_rental` MODIFY COLUMN `batch_id` varchar(30) NULL DEFAULT NULL COMMENT '一个批次的批次号' AFTER `id`;
+
+-- 摊位出租预设批次号
+INSERT INTO `biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-摊位出租预设批次号', 'hzsc_assetsRental', 'HZSCTWYS', 'yyyyMM', 4, '1');
+INSERT INTO `biz_number` (`type`, `value`, `memo`, `version`) VALUES ('hzsc_assetsRental', 2020081200001, '杭州水产-摊位出租预设批次号', '1');
+

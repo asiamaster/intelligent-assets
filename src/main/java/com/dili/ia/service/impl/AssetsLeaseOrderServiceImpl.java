@@ -1151,7 +1151,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
             //根据退款单业务类型启动流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(refundOrderDto.getBizType(), refundOrderDto.getMarketCode()));
+            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(refundOrderDto.getBizType(), userTicket.getFirmCode()));
             startProcessInstanceDto.setBusinessKey(refundOrderDto.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> output = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);

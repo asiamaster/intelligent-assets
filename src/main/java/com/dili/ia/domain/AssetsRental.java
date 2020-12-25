@@ -28,7 +28,7 @@ public class AssetsRental extends BaseDomain {
      * 一批资产属于一个批次的批次号
      */
     @Column(name = "`batch_id`")
-    private Long batchId;
+    private String batchId;
 
     /**
      * 创建时间
@@ -178,11 +178,11 @@ public class AssetsRental extends BaseDomain {
     @Column(name = "`version`")
     private Integer version;
 
-    public Long getBatchId() {
+    public String getBatchId() {
         return batchId;
     }
 
-    public void setBatchId(Long batchId) {
+    public void setBatchId(String batchId) {
         this.batchId = batchId;
     }
 

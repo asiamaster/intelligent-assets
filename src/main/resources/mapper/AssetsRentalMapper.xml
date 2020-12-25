@@ -6,7 +6,7 @@
       WARNING - @mbg.generated
     -->
     <id column="id" jdbcType="BIGINT" property="id" />
-      <result column="batch_id" jdbcType="BIGINT" property="batchId" />
+      <result column="batch_id" jdbcType="VARCHAR" property="batchId" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="name" jdbcType="VARCHAR" property="name" />
@@ -184,7 +184,7 @@
         where
             ar.state = #{state}
           and
-            ar.batch_id = #{batchId,jdbcType=BIGINT}
+            ar.batch_id = #{batchId,jdbcType=VARCHAR}
           and
             ar.mch_id = #{mchId,jdbcType=BIGINT}
           and
