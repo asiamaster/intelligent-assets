@@ -643,6 +643,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_APPROVAL_EVENT);
             eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
             eventReceivedDto.setVariables(variables);
+            eventReceivedDto.setUserId(userTicket.getId().toString());
             //发送消息通知流程
             BaseOutput<String> baseOutput = eventRpc.messageEventReceived(eventReceivedDto);
             if (!baseOutput.isSuccess()) {
@@ -682,6 +683,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         ApprovalParam approvalParam = DTOUtils.newInstance(ApprovalParam.class);
         approvalParam.setBusinessKey(refundOrder.getCode());
         approvalParam.setProcessInstanceId(refundOrder.getProcessInstanceId());
+        approvalParam.setResult(ApprovalResultEnum.SUBMIT.getCode());
         saveApprovalProcess(approvalParam, userTicket);
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, refundOrder.getCode());
