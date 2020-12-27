@@ -18,13 +18,16 @@
 	<select id="countCustomerStock" parameterType="com.dili.ia.domain.dto.StockQueryDto"
 		resultType="com.dili.ia.domain.dto.StockDto">
 		SELECT t.customer_cellphone AS customerCellphone,t.department_name AS departmentName,t.assets_name AS assetsName,t.district_name AS districtName,t.category_name AS categoryName,t.customer_name AS customerName,
+		assets_id AS assetsId,
+		category_id AS categoryId,
+		customer_id AS customerId,
 		t.inQuantity,
 		t.outQuantity,
 		t.cancelQuantity,
 		t.stockInDay ,
 		ssr.stock_quantity stockQuantity FROM (
 		SELECT
-		Max(sr.id) sid,s.customer_cellphone,s.department_name,s.assets_name,s.district_name,s.customer_name,s.category_name,
+		Max(sr.id) sid,s.customer_cellphone,s.department_name,s.assets_name,s.district_name,s.customer_name,s.category_name,s.assets_id,s.category_id,s.customer_id,
 		sum( IF ( sr.type = 1, sr.quantity, 0 ) ) AS inQuantity,		
 		sum( IF ( sr.type = 2, sr.quantity, 0 ) ) AS outQuantity,		
 		sum( IF ( sr.type = 3, sr.quantity, 0 ) ) AS cancelQuantity,
