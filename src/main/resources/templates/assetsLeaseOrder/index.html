@@ -151,10 +151,15 @@
                 <#resource code="boothLeasePrint" checkMenu="true">
                 <button id="btn_print" type="button" class="btn btn-primary" onclick="openPrintHandler()"><i class="fa fa-reply"></i>业务打印</button>
                 </#resource>
+                <#resource code="uploadAttachment" >
                 <button id="btn_upload" type="button" class="btn btn-primary" onclick="openAttachmentUpHandler()"  ><i class="fa fa-cloud-upload"></i>上传附件</button>
+                </#resource>
+                <#resource code="downloadAttachment" >
                 <button id="btn_download" type="button" class="btn btn-primary" onclick="openAttachmentDownHandler()"><i class="fa fa-cloud-download"></i>下载附件</button>
-                <button id="btn_contract" type="button" class="btn btn-primary" onclick="openContractHandler()"><i class="fa fa-cloud-download"></i>下载附件</button>
-               
+                </#resource>
+                <#resource code="printContract">
+                <button id="btn_contract" type="button" class="btn btn-primary" onclick="openContractHandler()"><i class="fa fa-print"></i>合同打印</button>
+               </#resource>
             </div>
             <table id="grid" data-toggle="table" data-title="租赁单列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="5"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
@@ -497,7 +502,7 @@
 <div class="row row-cols-12">
 	{{each attachments}}
 		<div class="form-group col-12">
-     	 <a download="xxx.xlsx" href="http://gateway.diligrp.com:8285/dili-dfs/file/download/e2015e3056624d79ab42531fca4bfd9e" >{{$value.name}}</a>
+     	 <a download="xxx.xlsx" href="{{$value.url}}" >{{$value.name}}</a>
 		</div>
 	{{/each}}
 </div>

@@ -184,6 +184,10 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             throw new BusinessException(ResultCode.DATA_ERROR, "该状态不是待确认，不能确认计费！");
         }
 
+        if (boutiqueEntranceRecord.getConfirmTime().isBefore(recordInfo.getEnterTime())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "确认时间不能早于进场时间！");
+        }
+
         // 根据车型查询免费时长
         BoutiqueFreeSets sets = boutiqueFreeSetsService.getByCarTypeName(recordInfo.getCarTypeName());
         if (sets != null) {

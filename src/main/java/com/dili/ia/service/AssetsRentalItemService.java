@@ -62,4 +62,13 @@ public interface AssetsRentalItemService extends BaseService<AssetsRentalItem, L
      * @date   2020/12/24
      */
     List<AssetsRentalItem> listRentalItemsByRentalId(Long rentalId);
+
+    /**
+     * 根据一级二级区域查询商户ID
+     *
+     * @param  assetsRentalDto
+     * @return BaseOutput
+     * @date   2020/12/25
+     */
+    Long getMchIdByDistrictId(AssetsRentalDto assetsRentalDto);
 }

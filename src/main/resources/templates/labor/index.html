@@ -171,15 +171,15 @@
 </#bs4Body>
 
 <#labor_indexJs />
-<#print />
+
 <script id="printView" type="text/html">
  		<div class="row row-cols-1" style="padding-left:10%;padding-right:10%">
  			<div class="form-group col">
-               <img height="200px" width="200px" src="http://ia.diligrp.com:8381/resources/bui/images/platform/sys-park.png"/>		
+               <img height="100px" width="100px" src="http://ia.diligrp.com:8381/resources/bui/images/platform/sys-park.png"/>		
             </div>
             <div class="form-group col">
                 <label >马甲号：</label>
-                <span class ="print">{{selectedRow.code}}</span>
+                <span class ="print">{{selectedRow.workCard}}</span>
             </div>
             <div class="form-group col">
                 <label >姓名：</label>
@@ -199,7 +199,7 @@
             </div>
 			<div class="form-group col">
                 <label >有效期：</label>
-                <span class ="print">{{selectedRow.se}}</span>
+                <span class ="print">{{selectedRow.validityTime}}</span>
             </div>
         </div>
 </script>

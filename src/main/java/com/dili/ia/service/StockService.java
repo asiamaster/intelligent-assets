@@ -5,6 +5,7 @@ import java.util.List;
 import com.dili.ia.domain.Stock;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
+import com.dili.ia.domain.StockOut;
 import com.dili.ia.domain.dto.StockDto;
 import com.dili.ia.domain.dto.StockQueryDto;
 import com.dili.ss.base.BaseService;
@@ -36,7 +37,7 @@ public interface StockService extends BaseService<Stock, Long> {
 	 * @param notes 备注
 	 * @throws
 	 */
-	void stockOut(Long stockId,Long weight,Long quantity,String notes);
+	StockOut stockOut(Long stockId,Long weight,Long quantity,String notes);
 	
 	/**
 	 * 

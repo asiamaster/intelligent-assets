@@ -118,7 +118,7 @@ public class StockController {
     @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "out", systemCode = "IA")
     public @ResponseBody BaseOutput stockOut(Long stockId,Long weight,Long quantity,String notes) {
     	try {
-        	stockService.stockOut(stockId, weight, quantity,notes);
+    		return BaseOutput.successData(stockService.stockOut(stockId, weight, quantity,notes));
     	}catch (BusinessException e) {
 			LOG.error("出库{}异常！",stockId, e);
 			return BaseOutput.failure(e.getCode(), e.getMessage());
@@ -127,7 +127,6 @@ public class StockController {
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
 		}
         //LoggerUtil.buildLoggerContext(id, String.valueOf(value), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
-        return BaseOutput.success("出库成功");
     }
     
 

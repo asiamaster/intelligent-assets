@@ -5,8 +5,8 @@
  	<!-- 详情列表查询 -->
   <sql id="Base_Column_List">
     sid.id, sid.create_time createTime, sid.modify_time modifyTime, sid.stock_in_code stockInCode, sid.code, sid.unit_weight, sid.check_operator_id, 
-    check_operator, pickup_number, weightman_id, assets_id, assets_code, sid.notes, district_id districtId,parent_district_id parentDistrictId,
-    district_name districtName, receivable, cope, sid.category_id, sid.category_name categoryName, sid.quantity, sid.weight, sid.amount,
+    check_operator, pickup_number, weightman_id, assets_id, assets_code, sid.notes, second_district_id districtId,first_district_id parentDistrictId,
+    second_district_name districtName, receivable, cope, sid.category_id, sid.category_name categoryName, sid.quantity, sid.weight, sid.amount,
     sid.market_id, sid.market_code, car_plate, car_type_public_code
   </sql>
   <select id="selectByContion" parameterType="com.dili.ia.domain.dto.StockInDetailQueryDto" resultType="map">
@@ -16,10 +16,10 @@
     from stock_in_detail as sid join stock_in as si on sid.stock_in_code = si.code
     <where>
             <if test="districtId != null">
-                and sid.district_id = #{districtId}
+                and sid.second_district_id = #{districtId}
             </if>
             <if test="parentDistrictId != null">
-                and sid.parent_district_id = #{parentDistrictId}
+                and sid.first_district_id = #{parentDistrictId}
             </if>
             <if test="assetsId != null">
                 and sid.assets_id = #{assetsId}

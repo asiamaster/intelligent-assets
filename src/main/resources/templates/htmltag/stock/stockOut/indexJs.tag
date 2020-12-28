@@ -74,7 +74,30 @@ function openViewHandler(code) {
 	   });
 	}
 
+/** 票据打印处理器 */
+function printHandler() {
+	 let rows = _grid.bootstrapTable('getSelections');
+     if (null == rows || rows.length == 0) {
+         bs4pop.alert('请选中一条数据');
+         return;
+     }
+    let code = rows[0].code;
+    window.printFinish = function() {}
+    $.ajax({
+        type:"POST",
+        url:"/api/stockIn/queryPrintData/stock_out?orderCode="+code,
+        dataType:"json",
+      
+        success:function(result) {
+            if (result.code === '200') {
+                callbackObj.boothPrintPreview(JSON.stringify(result.data.item), result.data.name, 0);
+            }
+        },
+        error:function() {
 
+        }
+    });
+}
 
 /*****************************************函数区 end**************************************/
 

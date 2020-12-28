@@ -36,57 +36,109 @@
             $("#cycle").val(suggestion.cycle);
         }
     }
-
-    var app = new Vue({
-        el: '#app',
-        data() {
-            const generateData = _ => {
-                const data = [{
-                    key: 1,
-                    label: '备选项1'
-                },{
-                    key: 2,
-                    label: '备选项2'
-                },{
-                    key: 3,
-                    label: '备选项3'
-                },{
-                    key: 4,
-                    label: '备选项4'
-                }];
-                return data;
-            };
-            return {
-                boothData: generateData(),
-                boothChecked: [1, 4],
-                renderFunc(h, option) {
-                    // return <span>{ option.key } - { option.label }</span>;
+    $.fn.serializeObject = function()
+    {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
                 }
-            };
-        }
-    })
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+
 
     function viewAssetsByNoTable(){
-        let booth = [];
         $.ajax({
             type: "POST",
             url: "/assetsRentalItem/viewAssetsByNoTable.action",
             data: JSON.stringify($("#searchForm").serializeObject()),
             dataType: "json",
+            async: false,
             contentType: "application/json",
-            success: function (ret) {
-                if(ret.success){
-                    booth = res.data;
+            success: function (res) {
+                if(res.success){
+                    $.each(res.data, (index, item)=>{
+                        $('.booth-data-origin').append('<div class="custom-control custom-checkbox"><input type="checkbox" class="custom-control-input" id="booth_'+ item.id +'" data-id="'+ item.id +'"  data-area="'+ item.area +'" data-area-name="'+ item.areaName +'" data-secondarea="'+ item.secondArea +'" ><label class="custom-control-label" for="booth_'+ item.id +'">' + item.name + ' 【' + item.areaName + '】' + item.id  + '</label></div>')
+
+                    })
                 } else {
-                    bs4pop.alert(ret.message, {type: 'error'});
+                    bs4pop.alert(res.message, {type: 'error'});
                 }
             },
             error: function (error) {
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
-        return booth;
     }
+    // 我去整个了商户2，还是区域区分为 三产和广告位，属于不同的2个子商户
+    var boothCheckedStr = '';
+    var boothCheckedData  = [];
+    var MerchantsId = '';
+    $(document).on('change', '.booth-data-origin .custom-control-input', function () {
+        if($(this).is(':checked')){
+            let id = $(this).attr('data-id');
+            let name = $(this).attr('data-name');
+            let firstDistrictId = $(this).data('area') ;
+            let secondDistrictId = $(this).data('secondarea') ;
+            let areaName = $(this).attr('data-area-name');
+            let that = $(this);
+            if(firstDistrictId == 'undefined'){ firstDistrictId = ''};
+            if(secondDistrictId == 'undefined'){ secondDistrictId = ''};
+            $.ajax({
+                type: "POST",
+                url: "/assetsRentalItem/getMchIdByDistrictId.action",
+                // data: JSON.stringify({ assetsId: id}),
+                data: JSON.stringify({ firstDistrictId, secondDistrictId }),
+                dataType: "json",
+                async: false,
+                contentType: "application/json",
+                success: function (res) {
+                    if(res.success){
+                        debugger
+                        // 传的值挺多的，id 换做 assets_id，name 换做 assets_name ，type换做 assets_type ，number，unit corner 6个字段
+                        if(!boothCheckedData.length){
+                            MerchantsId = res.data;
+                        }
+                        if( MerchantsId == res.data){
+                            boothCheckedData.push(id);
+                            $('.booth-checked').append(that.parents('.custom-checkbox')[0].outerHTML)
+                            that.parents('.custom-control').remove();
+                        } else {
+                            that.prop('checked', false)
+                            bs4pop.notice('不属于同一个商户', {position: 'topcenter', type: 'danger'});
+                        }
+                    } else {
+                        bs4pop.alert(res.message, {type: 'error'});
+                    }
+                },
+                error: function (error) {
+                    bs4pop.alert('远程访问失败', {type: 'error'});
+                }
+            });
+            // $('.booth-checked').append('<div class="custom-control custom-checkbox"><input type="checkbox" checked class="custom-control-input" id="booth_'+ id +'" data-id="'+ id +'"><label class="custom-control-label" for="booth_'+ id +'">' + name + ' 【' + areaName + '】' + id  + '</label></div>')
+        }
+    })
+
+    $(document).on('change', '.booth-checked .custom-control-input', function () {
+        if($(this).is(':checked')) {
+            let id = $(this).attr('data-id');
+            let name = $(this).attr('data-name');
+            let firstDistrictId = $(this).data('area');
+            let secondDistrictId = $(this).data('secondarea');
+            let areaName = $(this).attr('data-area-name');
+            let that = $(this);
+            $('.booth-data-origin').append(that.parents('.custom-checkbox')[0].outerHTML)
+            that.parents('.custom-control').remove();
+            boothCheckedData.splice(boothCheckedData.indexOf(id), 1)
+        }
+    })
 
     /**
     *---------------天数/开始/结束日期联动 start ---------------
@@ -176,13 +228,14 @@
         if (!validator.form()) {
             return false;
         }
-        let buildData = JSON.stringify($.extend($("#saveForm").serializeObject()), {booth: app.boothChecked})
+        let buildData = JSON.stringify({}, $.extend($("#saveForm").serializeObject()), {assetsRentalItemList: boothCheckedData})
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
             url: "/assetsRental/update.action",
             data: buildData,
             dataType: "json",
+            contentType: "application/json",
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){
@@ -204,13 +257,15 @@
         if (!validator.form()) {
             return false;
         }
-        let buildData = JSON.stringify($.extend($("#saveForm").serializeObject()), {booth: app.boothChecked})
+        $("#nameHidden").val($("#name").val());
+        let buildData = JSON.stringify($.extend({}, $('#saveForm').serializeObject(), {assetsRentalItemList: boothCheckedData}))
         bui.loading.show('努力提交中，请稍候。。。');
         $.ajax({
             type: "POST",
             url: "/assetsRental/add.action",
             data: buildData,
             dataType: "json",
+            contentType: "application/json",
             success: function (ret) {
                 bui.loading.hide();
                 if(!ret.success){

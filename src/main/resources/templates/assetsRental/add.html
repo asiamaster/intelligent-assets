@@ -5,6 +5,10 @@
     .el-transfer-panel {
         width: 40%;
     }
+    .booth-data-origin {
+        height: 300px;
+        overflow: auto;
+    }
 </style>
 <div class="container-fluid pb-5" id="app">
     <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.assetsRental'/>">
@@ -19,8 +23,8 @@
     </div>
 
    <div class="border p-3">
-       <form id="searchForm" role="form" style="width:40%" novalidate>
-           <div class="row row-cols-2">
+       <form id="searchForm" role="form" novalidate>
+           <div class="row row-cols-4">
                <div class="form-group col">
                    <label for="typeCode">区域<i class="red">*</i></label>
                    <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
@@ -44,20 +48,30 @@
            </div>
            <hr>
        </form>
-
-       <div class="row">
-           <div class="col-12">
-               <el-transfer v-model="boothChecked" :data="boothData"
-                            :props="{key: 'key',label: 'label'}"
-                            :titles="['待选摊位', '已选摊位']"
-               >
-                  <!-- <sapn class="text-center align-center w-100" slot="left-footer" >待选摊位</sapn>
-                   <sapn class="text-center w-100" slot="right-footer" >已选摊位</sapn>-->
-               </el-transfer>
+       <div class="row boothwrap">
+           <div class="col-3  p-3 mr-5 border-right">
+               <h5 class="">待选摊位</h5>
+               <div class="booth-data-origin">
+                   <div class="custom-control custom-checkbox">
+                       <input type="checkbox" class="custom-control-input" id="checkAll">
+                       <label class="custom-control-label" for="checkAll">全选</label>
+                   </div>
+           </div>
+           </div>
+           <div class="col-3  p-3">
+               <h5 class="">已选摊位</h5>
+               <div class="booth-checked">
+                   <div class="custom-control custom-checkbox">
+                       <input type="checkbox" class="custom-control-input" id="checkedAll">
+                       <label class="custom-control-label" for="checkedAll">全选</label>
+                   </div>
+               </div>
            </div>
        </div>
    </div>
     <form id="saveForm" role="form" novalidate>
+
+        <input type="hidden" id="nameHidden" name="name">
         <div class="breadcrumb" aria-expanded="true">
             设置预设信息
         </div>
@@ -77,8 +91,8 @@
                 <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="testAutoCompleteOption"/>
             </div>
             <div class="form-group col">
-                <label for="days" class="">租赁天数<i class="red">*</i></label>
-                <input type="number" id="days" class="form-control isNaturalNum" name=""  />
+                <label for="leaseDays" class="">租赁天数<i class="red">*</i></label>
+                <input type="number" id="leaseDays" class="form-control isNaturalNum" name="leaseDays"  />
             </div>
             <div class="form-group col">
                 <label for="startTime">开始日期</label>

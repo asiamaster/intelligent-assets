@@ -1,3 +1,10 @@
+<style>
+
+.el-cascader .el-input .el-input__inner {
+	height: 33.5px;
+}
+
+</style>
 <#bs4Body>
 <#vueElm />
 	<!--<a href="javascript:;" id="goCustomerRegister">无此客户，点击注册</a>-->
@@ -66,6 +73,7 @@
 				<div class="form-group col-3 el-city">
 					<label for="">产地:<i class="red">*</i></label>
 					
+					<div>
 					<el-cascader
 					 	v-model="value"
 						ref="cascaderAddr"
@@ -74,6 +82,7 @@
 					     @change="handleChange"
 					    clearable></el-cascader>
 					
+					</div>
 					 
 				</div>
 				<div class="form-group col-3">

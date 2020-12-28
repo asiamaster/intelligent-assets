@@ -202,6 +202,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     public List<CustomerMeterDto> listCustomerMetersByLikeName(Integer type, String keyword) {
         CustomerMeterDto customerMeterDto = new CustomerMeterDto();
         customerMeterDto.setType(type);
+        customerMeterDto.setState(CustomerMeterStateEnum.CREATED.getCode());
         if (StringUtils.isNotEmpty(keyword)) {
             customerMeterDto.setKeyword(keyword);
         }

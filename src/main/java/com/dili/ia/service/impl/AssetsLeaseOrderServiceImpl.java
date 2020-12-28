@@ -23,6 +23,9 @@ import com.dili.ia.domain.dto.printDto.ContractDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderMapper;
 import com.dili.uid.sdk.rpc.feign.UidFeignRpc;
+
+import cn.hutool.core.convert.Convert;
+
 import com.dili.ia.service.*;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.SpringUtil;
@@ -334,6 +337,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_APPROVAL_EVENT);
             eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
             eventReceivedDto.setVariables(variables);
+            eventReceivedDto.setUserId(userTicket.getId().toString());
             BaseOutput<String> submitApprovalOutput = eventRpc.messageEventReceived(eventReceivedDto);
             if (!submitApprovalOutput.isSuccess()) {
                 throw new BusinessException(ResultCode.DATA_ERROR, "审批子流程启动失败:" + submitApprovalOutput.getMessage());
@@ -370,6 +374,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         ApprovalParam approvalParam = DTOUtils.newInstance(ApprovalParam.class);
         approvalParam.setBusinessKey(leaseOrder.getCode());
         approvalParam.setProcessInstanceId(leaseOrder.getProcessInstanceId());
+        approvalParam.setResult(ApprovalResultEnum.SUBMIT.getCode());
         saveApprovalProcess(approvalParam, userTicket);
         //写业务日志
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE,BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName());
@@ -1146,7 +1151,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
             //根据退款单业务类型启动流程
             StartProcessInstanceDto startProcessInstanceDto = DTOUtils.newInstance(StartProcessInstanceDto.class);
-            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(refundOrderDto.getBizType(), refundOrderDto.getMarketCode()));
+            startProcessInstanceDto.setProcessDefinitionKey(bpmDefKeyConfig.getRefundBizDefKey(refundOrderDto.getBizType(), userTicket.getFirmCode()));
             startProcessInstanceDto.setBusinessKey(refundOrderDto.getCode());
             startProcessInstanceDto.setUserId(userTicket.getId().toString());
             BaseOutput<ProcessInstanceMapping> output = runtimeRpc.startProcessInstanceByKey(startProcessInstanceDto);
@@ -1950,6 +1955,8 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
 			feeItems.add(str.toString());
 		});
+		contractDto.setAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
+		contractDto.setAmountCn(Convert.digitToChinese(new BigDecimal(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()))));
 		contractDto.setFeeItems(feeItems);
 		return contractDto;
 	}

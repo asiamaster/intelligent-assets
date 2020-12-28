@@ -139,6 +139,12 @@
         修改 updateMessageFeeRefundOrder
         取消 cancelMessageFeeRefundOrder
 
+摊位出租预设 http://ia.diligrp.com:8381/assetsRental/index.html
+        新增 addAssetsRental (http://ia.diligrp.com:8381/assetsRental/add.html)
+        修改 updateAssetsRental (http://ia.diligrp.com:8381/assetsRental/update.html)
+        启用 enableAssetsRental
+        禁用 enableAssetsRental
+
 数据字典
     通行证车类型 passport_car_type
         微型面包车  1
@@ -181,4 +187,54 @@
         劳务马甲	labor_vest
         信息费		message_fee
         冷库入库	stock
+        摊位出租预设 assets_rental_perset
 
+
+
+
+***冷库入库/劳务马甲/信息费模块配置***
+
+nacos 配置
+	# 冷库如入库
+	stockIn.settlement.handler.url=http://ia.diligrp.com:8381/api/stockIn/settlementDealHandler
+	stockIn.settlement.view.url=http://ia.diligrp.com:8381/stockIn/view.html
+	stockIn.settlement.print.url=http://ia.diligrp.com:8381/api/stockIn/queryPrintData/payment
+	
+	# 劳务马甲
+	laborVest.settlement.handler.url=http://ia.diligrp.com:8381/api/labor/vest/settlementDealHandler
+	laborVest.settlement.view.url=http://ia.diligrp.com:8381/labor/vest/view.html
+	laborVest.settlement.print.url=http://ia.diligrp.com:8381/api/labor/vest/queryPrintData/payment
+	
+	# 信息费
+	messageFee.settlement.handler.url=http://ia.diligrp.com:8381/api/fee/message/settlementDealHandler
+	messageFee.settlement.view.url=http://ia.diligrp.com:8381/fee/message/view.html
+	messageFee.settlement.print.url=http://ia.diligrp.com:8381/api/fee/message/queryPrintData/payment
+
+
+收费项配置
+    冷库入库  入库费
+    劳务马甲  管理费
+    劳务马甲更名费  更名费
+    劳务马甲更型费  更型费
+    信息费 信息费
+计费规则预定义配置
+	冷库入库
+    	单位(指标类型：条件指标,匹配key:uom,值类型：整数,匹配1,2)
+  		品类(指标类型：条件指标,匹配key:categoryId,值类型：整数)
+   		重量(指标类型：计算指标,匹配key:weight,值类型：整数)
+  	 	存储日期(指标类型：计算指标,匹配key:day,值类型：整数)
+  		入库数量(指标类型：计算指标,匹配key:quantity,值类型：整数)
+	劳务马甲
+		车型(指标类型：条件指标,匹配key:models,值类型：整数,匹配列：code)
+		天数(指标类型：计算指标,匹配key:day,值类型：整数,匹配列：code)
+计费规则数据源配置
+     冷库入库-品类
+            数据URL：http://ia.diligrp.com:8381/stock/categoryCycle/getTree.action
+            查询URL：http://ia.diligrp.com:8381/stock/categoryCycle/getTree.action
+            列设置：
+                1.id ID 2.name 名称
+    劳务马甲-车型
+            数据URL：http://uap.diligrp.com/dataDictionaryApi/listDataDictionaryValueByDdCode.api?ddCode=labor_car_type
+            查询URL：http://uap.diligrp.com/dataDictionaryApi/listDataDictionaryValueByDdCode.api?ddCode=labor_car_type
+            列设置：
+                1.code code 2.name 名称

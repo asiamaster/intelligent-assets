@@ -50,17 +50,25 @@ function queryDataHandler() {
 	});
 }
 
+function codeFormatter(value,row,index) {
+    return '<a href="javascript:openViewHandler(\''+row.code+'\')">'+value+'</a>';
+}
+
 /**
 打开查看窗口
 */
-function openViewHandler(type) {
+function openViewHandler(code) {
 	//获取选中行的数据
-	let rows = _grid.bootstrapTable('getSelections');
-	if (null == rows || rows.length == 0) {
-		bs4pop.alert('请选中一条数据');
-		return false;
+	if(code == null){
+		let rows = _grid.bootstrapTable('getSelections');
+		if (null == rows || rows.length == 0) {
+			bs4pop.alert('请选中一条数据');
+			return false;
+		}
+		code = rows[0].code;
 	}
-	window.location.href = "${contextPath}/stock/stockOut/view.html?code=" + rows[0].code;
+	
+	window.location.href = "${contextPath}/stock/stockOut/view.html?code=" + code;
 }
 </script>
 </#bs4Body>

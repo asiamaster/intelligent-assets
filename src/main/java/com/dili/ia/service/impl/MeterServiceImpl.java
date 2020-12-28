@@ -178,8 +178,8 @@ public class MeterServiceImpl extends BaseServiceImpl<Meter, Long> implements Me
      * @date   2020/12/18
      */
     @Override
-    public MeterDto getMeterDtoById(Long id) {
-        return this.getActualDao().getMeterDtoById(id);
+    public MeterDto getMeterDtoById(Long id, Integer state) {
+        return this.getActualDao().getMeterDtoById(id, state);
     }
 
 }

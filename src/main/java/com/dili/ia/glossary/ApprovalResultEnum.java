@@ -1,25 +1,23 @@
 package com.dili.ia.glossary;
 
 /**
- * 审批状态
+ * 审批结果
  */
-public enum ApprovalStateEnum {
-    WAIT_SUBMIT_APPROVAL(1, "待提审批"),
-    IN_REVIEW(2, "审批中"),
-    APPROVED(3, "审批通过"),
-    APPROVAL_DENIED(4, "审批拒绝"),
-    ;
+public enum ApprovalResultEnum {
+    SUBMIT(0, "提交审批"),
+    AGREE(1, "同意"),
+    DENY(2, "拒绝");
 
 
     private String name;
     private Integer code ;
-    ApprovalStateEnum(Integer code, String name){
+    ApprovalResultEnum(Integer code, String name){
         this.code = code;
         this.name = name;
     }
 
-    public static ApprovalStateEnum getApprovalStateEnum(Integer code) {
-        for (ApprovalStateEnum anEnum : ApprovalStateEnum.values()) {
+    public static ApprovalResultEnum getApprovalStateEnum(Integer code) {
+        for (ApprovalResultEnum anEnum : ApprovalResultEnum.values()) {
             if (anEnum.getCode().equals(code)) {
                 return anEnum;
             }

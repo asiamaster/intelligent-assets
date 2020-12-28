@@ -61,5 +61,5 @@ public interface MeterService extends BaseService<Meter, Long> {
      * @return MeterDto
      * @date   2020/12/18
      */
-    MeterDto getMeterDtoById(Long meterId);
+    MeterDto getMeterDtoById(Long meterId, Integer state);
 }

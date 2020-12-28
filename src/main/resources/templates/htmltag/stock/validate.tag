@@ -64,7 +64,7 @@ let saveForm = {
 	    },
 	    focusCleanup: true
 };
-let validateSaveForm = $("#saveForm").validate(saveForm);
+//let validateSaveForm = $("#saveForm").validate(saveForm);
 //子表数据验证
 let saveFormDetail = {
 	    onkeyup: false,

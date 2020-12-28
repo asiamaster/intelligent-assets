@@ -86,7 +86,7 @@ public class AssetsRentalController {
      * @date   2020/11/26
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@RequestBody AssetsRental assetsRental) throws Exception {
+    public @ResponseBody String listPage(@ModelAttribute AssetsRental assetsRental) throws Exception {
         return assetsRentalService.listEasyuiPageByExample(assetsRental, true).toString();
     }
 

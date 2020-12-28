@@ -18,7 +18,7 @@ public enum PrintTemplateEnum {
     DEPOSIT_REFUND_ORDER("DepositRefundOrder", "保证金退款单"),
     STOCKIN_ORDER("stockIn_pay", "冷库入库缴费凭据"),
     STOCK_OUT_ORDER("stockout", "出库单"),
-    STOCKIN_REFUND ("stockIn_refund  ", "冷库退款"),
+    STOCKIN_REFUND ("stockIn_refund", "冷库退款"),
     WATER_PAY("water_pay", "水费交费"),
     ELECTRICITY_PAY("electricity_pay", "电费交费"),
     BOUTIQUE_PAY("boutique_pay", "精品停车交费"),
