@@ -351,15 +351,20 @@
         md.id = #{id}
   </select>
 
-    <select id="listMeterDetailByUnPayBusiness" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">
+    <select id="listMeterDetailByMeterIdAndState" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">
         SELECT DISTINCT
-            id
+            id, usage_time, meter_id
         FROM
             meter_detail
         WHERE
             meter_id = #{meterId}
         AND
-            state IN (#{status})
+            state IN
+            <foreach collection="status" item="item"  index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+         order by
+            usage_time
     </select>
 
     <select id="listByStateCreatedAndType" parameterType="com.dili.ia.domain.dto.MeterDetailDto" resultType="com.dili.ia.domain.dto.MeterDetailDto">

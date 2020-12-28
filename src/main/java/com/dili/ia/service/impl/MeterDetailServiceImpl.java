@@ -206,10 +206,17 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         }
 
         // 根据 meterId 查询是否有未缴费的业务单（已创建已提交）
-        List<MeterDetailDto> meterDetailDtoList = this.listMeterDetailByUnPayBusiness(meterDetailDto.getMeterId());
+        List<MeterDetailDto> meterDetailDtoList = this.listMeterDetailByNoPay(meterDetailDto.getMeterId());
         if (CollectionUtils.isNotEmpty(meterDetailDtoList)) {
             throw new BusinessException(ResultCode.DATA_ERROR, "该表存在未交费单据，无法保存！");
         }
+
+        // 根据 meterId 查询截止月份是否小于已缴费或者未交费的业务单最近的月份
+        List<MeterDetailDto> meterDetailDtoInfoList = this.listMeterDetailsByNoCancel(meterDetailDto.getMeterId());
+        if (CollectionUtils.isNotEmpty(meterDetailDtoInfoList) && meterDetailDto.getUsageTime().isBefore(meterDetailDtoInfoList.get(0).getUsageTime())) {
+            throw new BusinessException(ResultCode.DATA_ERROR, "截止月份在该表未取消的最新业务单的截止月份之前，请修改！");
+        }
+
 
         //在更新状态之前查询指数信息，不然可能会查询出当前数据(脏读)
         BaseOutput lastAmountReturn = this.getLastAmount(meterDetailDto.getMeterId());
@@ -248,6 +255,50 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
 
         return meterDetailDto;
     }
+
+
+    /**
+     * 已创建，已提交，已缴费三种状态，查询到水电费集合
+     */
+    private List<MeterDetailDto> listMeterDetailsByNoCancel(Long meterId) {
+        MeterDetailDto meterDetailDto = new MeterDetailDto();
+
+        // 已创建，已提交，已缴费三种状态，查询到最新的截止月份
+        int status[] = new int[3];
+        status[0] = MeterDetailStateEnum.CREATED.getCode();
+        status[1] = MeterDetailStateEnum.SUBMITED.getCode();
+        status[2] = MeterDetailStateEnum.PAID.getCode();
+
+        // 设置查询参数
+        meterDetailDto.setMeterId(meterId);
+        meterDetailDto.setStatus(status);
+
+        return this.getActualDao().listMeterDetailByMeterIdAndState(meterDetailDto);
+    }
+
+    /**
+     * 根据 meterId 查询是否有待缴费的业务单
+     *
+     * @param  meterId
+     * @return MeterDetailDtoList
+     * @date   2020/6/30
+     */
+    private List<MeterDetailDto> listMeterDetailByNoPay(Long meterId) {
+        MeterDetailDto meterDetailDto = new MeterDetailDto();
+
+        // 已创建和已提交状态为未缴费
+        int status[] = new int[2];
+        status[0] = MeterDetailStateEnum.CREATED.getCode();
+        status[1] = MeterDetailStateEnum.SUBMITED.getCode();
+
+        // 设置查询参数
+        meterDetailDto.setMeterId(meterId);
+        meterDetailDto.setStatus(status);
+
+        return this.getActualDao().listMeterDetailByMeterIdAndState(meterDetailDto);
+    }
+
+
 
     /**
      * 修改水电费业务单
@@ -820,27 +871,6 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         });
 
         return businessChargeItemList;
-    }
-
-    /**
-     * 根据 meterId 查询是否有待缴费的业务单
-     *
-     * @param  meterId
-     * @return MeterDetailDtoList
-     * @date   2020/6/30
-     */
-    private List<MeterDetailDto> listMeterDetailByUnPayBusiness(Long meterId) {
-        MeterDetailDto meterDetailDto = new MeterDetailDto();
-
-        // 已创建和已提交状态为未缴费
-        StringBuilder statusBuff = new StringBuilder();
-        statusBuff.append(MeterDetailStateEnum.CREATED.getCode()).append(",").append(MeterDetailStateEnum.SUBMITED.getCode()).append(",");
-
-        // 设置查询参数
-        meterDetailDto.setMeterId(meterId);
-        meterDetailDto.setStatus(statusBuff.toString());
-
-        return this.getActualDao().listMeterDetailByUnPayBusiness(meterDetailDto);
     }
 
     /**
