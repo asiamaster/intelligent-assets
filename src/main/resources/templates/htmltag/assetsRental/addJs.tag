@@ -154,6 +154,7 @@
             $('.booth-data-origin').append($('.booth-checked').html());
             $('.booth-checked div').remove();
             $(this).prop('checked', false);
+            boothCheckedData = [];
         }
     })
     /**
@@ -240,7 +241,7 @@
 
 
     // 提交保存
-    function doUpdateAssetsRentalHandler(){
+/*    function doUpdateAssetsRentalHandler(){
         let validator = $('#saveForm').validate({ignore:''})
         if (!validator.form()) {
             return false;
@@ -266,20 +267,27 @@
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
-    }
+    }*/
 
     // 提交保存
     function doSaveAssetsRentalHandler(){
         let validator = $('#saveForm').validate({ignore:''})
+        let url = '';
         if (!validator.form()) {
             return false;
         }
         $("#nameHidden").val($("#name").val());
         let buildData = JSON.stringify($.extend({}, $('#saveForm').serializeObject(), {assetsRentalItemList: boothCheckedData}))
         bui.loading.show('努力提交中，请稍候。。。');
+
+        if($('#id').val()){
+            url = "/assetsRental/update.action";
+        } else {
+            url = "/assetsRental/add.action";
+        }
         $.ajax({
             type: "POST",
-            url: "/assetsRental/add.action",
+            url: url,
             data: buildData,
             dataType: "json",
             contentType: "application/json",
@@ -299,7 +307,6 @@
     }
 
     $('#save').on('click', bui.util.debounce(doSaveAssetsRentalHandler,1000,true));
-    $('#update').on('click', bui.util.debounce(doUpdateAssetsRentalHandler,1000,true));
 
 </script>
 
