@@ -15,6 +15,15 @@ public enum CornerEnum {
         this.name = name;
     }
 
+    public static CornerEnum getCornerEnum(Integer code) {
+        for (CornerEnum anEnum : CornerEnum.values()) {
+            if (anEnum.getCode().equals(code)) {
+                return anEnum;
+            }
+        }
+        return null;
+    }
+
 
     public Integer getCode() {
         return code;

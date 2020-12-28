@@ -7,6 +7,7 @@ import com.dili.ia.domain.AssetsLeaseOrderItem;
 import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.CornerEnum;
 import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.service.AssetsLeaseOrderItemService;
@@ -111,7 +112,9 @@ public class LeaseOrderRefundOrderServiceImpl extends BaseServiceImpl<RefundOrde
         resultMap.put("number", String.valueOf(leaseOrderItem.getNumber()));
         resultMap.put("unitName", leaseOrderItem.getUnitName());
         resultMap.put("unitPrice", MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
-        resultMap.put("isCorner", leaseOrderItem.getIsCorner());
+        if (null != leaseOrderItem.getCorner()) {
+            resultMap.put("isCorner", CornerEnum.getCornerEnum(leaseOrderItem.getCorner()).getName());
+        }
         resultMap.put("paymentMonth", String.valueOf(leaseOrderItem.getPaymentMonth()));
         resultMap.put("discountAmount", MoneyUtils.centToYuan(leaseOrderItem.getDiscountAmount()));
 

@@ -91,8 +91,11 @@ public class AssetsLeaseOrderItem extends BaseDomain {
     @Column(name = "`leases_num`")
     private BigDecimal leasesNum;
 
-    @Column(name = "`is_corner`")
-    private String isCorner;
+    /**
+     * 1:是 2：否 冗余资产
+     */
+    @Column(name = "`corner`")
+    private Integer corner;
 
     @Column(name = "`unit_code`")
     private String unitCode;
@@ -347,12 +350,12 @@ public class AssetsLeaseOrderItem extends BaseDomain {
         this.leasesNum = leasesNum;
     }
 
-    public String getIsCorner() {
-        return isCorner;
+    public Integer getCorner() {
+        return corner;
     }
 
-    public void setIsCorner(String isCorner) {
-        this.isCorner = isCorner;
+    public void setCorner(Integer corner) {
+        this.corner = corner;
     }
 
     public String getUnitCode() {
