@@ -1,18 +1,8 @@
 package com.dili.ia.domain.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.MeterDetail;
-import com.dili.ss.domain.BaseDomain;
-import com.dili.ss.metadata.FieldEditor;
-import com.dili.ss.metadata.annotation.EditMode;
-import com.dili.ss.metadata.annotation.FieldDef;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Column;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -68,7 +58,7 @@ public class MeterDetailDto extends MeterDetail {
     /**
      * 状态数组
      */
-    private String status;
+    private int[] status;
 
     /**
      * 使用月份的第一天,用于查询
@@ -159,11 +149,11 @@ public class MeterDetailDto extends MeterDetail {
         this.balance = balance;
     }
 
-    public String getStatus() {
+    public int[] getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int[] status) {
         this.status = status;
     }
 

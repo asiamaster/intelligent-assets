@@ -67,7 +67,7 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
      * @return MeterDetailDtoList
      * @date   2020/7/10
      */
-    List<MeterDetailDto> listMeterDetailByUnPayBusiness(MeterDetailDto meterDetailDto);
+    List<MeterDetailDto> listMeterDetailByMeterIdAndState(MeterDetailDto meterDetailDto);
 
     /**
      * 查询所有未提交的水电费单

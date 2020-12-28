@@ -64,6 +64,7 @@
             contentType: "application/json",
             success: function (res) {
                 if(res.success){
+                    debugger
                     $.each(res.data, (index, item)=>{
                         $('.booth-data-origin').append('<div class="custom-control custom-checkbox"><input type="checkbox" class="custom-control-input" id="booth_'+ item.id +'" data-id="'+ item.id +'"  data-area="'+ item.area +'" data-area-name="'+ item.areaName +'" data-secondarea="'+ item.secondArea +'" ><label class="custom-control-label" for="booth_'+ item.id +'">' + item.name + ' 【' + item.areaName + '】' + item.id  + '</label></div>')
 
@@ -101,7 +102,6 @@
                 contentType: "application/json",
                 success: function (res) {
                     if(res.success){
-                        debugger
                         // 传的值挺多的，id 换做 assets_id，name 换做 assets_name ，type换做 assets_type ，number，unit corner 6个字段
                         if(!boothCheckedData.length){
                             MerchantsId = res.data;
@@ -139,10 +139,26 @@
             boothCheckedData.splice(boothCheckedData.indexOf(id), 1)
         }
     })
+    $(document).on('change', '#checkAll', function () {
+        if($(this).is(':checked')) {
+            debugger
+            $('.booth-checked').append($('.booth-data-origin').html());
+            $('.booth-data-origin div').remove();
+            $(this).prop('checked', false);
+        }
+    })
 
+    $(document).on('change', '#uncheckAll', function () {
+        if($(this).is(':checked')) {
+            debugger
+            $('.booth-data-origin').append($('.booth-checked').html());
+            $('.booth-checked div').remove();
+            $(this).prop('checked', false);
+        }
+    })
     /**
-    *---------------天数/开始/结束日期联动 start ---------------
-    **/
+     *---------------天数/开始/结束日期联动 start ---------------
+     **/
     laydate.render({
         elem: '#startTime',
         type: 'date',
@@ -221,6 +237,7 @@
     /**
      * ---------------天数/开始/结束日期联动 end ---------------
      * */
+
 
     // 提交保存
     function doUpdateAssetsRentalHandler(){

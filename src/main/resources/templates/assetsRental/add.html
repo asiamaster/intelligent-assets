@@ -15,56 +15,60 @@
     <div class="row row-cols-6">
         <div class="form-group col">
             <label for="name">预设名称<i class="red">*</i></label>
-            <input type="text" class="form-control" id="name" name="name" maxlength="20" required />
+            <input type="text" class="form-control" id="name" name="name" maxlength="20" value="${assetsRental.name}" required />
         </div>
     </div>
     <div class="breadcrumb" aria-expanded="true">
         选择预设对象
     </div>
 
-   <div class="border p-3">
-       <form id="searchForm" role="form" novalidate>
-           <div class="row row-cols-4">
-               <div class="form-group col">
-                   <label for="typeCode">区域<i class="red">*</i></label>
-                   <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
-               </div>
-               <div class="form-group col">
-                   <label for="" class="">摊位编号<i class="red">*</i></label>
-                   <input id="assetsName" type="" class="form-control digits" maxlength="50" name="assetsName" />
-               </div>
-               <div class="form-group col">
-                   <label for="" class="">数量<i class="red">*</i></label>
-                   <div class="input-group">
-                       <input id="startNumber" type="" class="form-control digits" name="startNumber" />
-                       <span class="align-self-center">至</span>
-                       <input id="endNumber" type="" class="form-control digits" name="endNumber" />
+   <div class="p-3">
+
+       <div class="row p-3 boothwrap">
+           <div class="col-4  p-3 mr-5 border">
+
+               <form id="searchForm" role="form" novalidate>
+                   <div class="row row-cols-2">
+                       <div class="form-group col">
+                           <label for="typeCode">区域<i class="red">*</i></label>
+                               <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
+                       </div>
+                       <div class="form-group col">
+                           <label for="" class="">摊位编号<i class="red">*</i></label>
+                           <input id="assetsName" type="" class="form-control digits" maxlength="50" name="assetsName" />
+                       </div>
+                       <div class="form-group col">
+                           <label for="" class="">数量<i class="red">*</i></label>
+                           <div class="input-group">
+                               <input id="startNumber" type="" class="form-control digits" name="startNumber" />
+                               <span class="align-self-center">至</span>
+                               <input id="endNumber" type="" class="form-control digits" name="endNumber" />
+                           </div>
+                       </div>
+                       <div class="col-auto align-self-center mt-3">
+                           <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#searchForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                           <button type="button" class="btn btn-outline-primary" onclick="viewAssetsByNoTable()"><i class="fa fa-search"></i> 查询</button>
+                       </div>
                    </div>
+               </form>
+                <hr>
+               <h5 class="mt-3">待选摊位</h5>
+               <div class="custom-control custom-checkbox">
+                   <input type="checkbox" class="custom-control-input" id="checkAll">
+                   <label class="custom-control-label" for="checkAll">全选</label>
                </div>
-               <div class="col-auto align-self-center mt-3">
-                   <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#searchForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
-                   <button type="button" class="btn btn-outline-primary" onclick="viewAssetsByNoTable()"><i class="fa fa-search"></i> 查询</button>
-               </div>
-           </div>
-           <hr>
-       </form>
-       <div class="row boothwrap">
-           <div class="col-3  p-3 mr-5 border-right">
-               <h5 class="">待选摊位</h5>
                <div class="booth-data-origin">
-                   <div class="custom-control custom-checkbox">
-                       <input type="checkbox" class="custom-control-input" id="checkAll">
-                       <label class="custom-control-label" for="checkAll">全选</label>
-                   </div>
+
+               </div>
            </div>
-           </div>
-           <div class="col-3  p-3">
+           <div class="col-4  p-3 border">
                <h5 class="">已选摊位</h5>
+               <div class="custom-control custom-checkbox">
+                   <input type="checkbox" class="custom-control-input" id="uncheckAll">
+                   <label class="custom-control-label" for="uncheckAll">全选</label>
+               </div>
                <div class="booth-checked">
-                   <div class="custom-control custom-checkbox">
-                       <input type="checkbox" class="custom-control-input" id="checkedAll">
-                       <label class="custom-control-label" for="checkedAll">全选</label>
-                   </div>
+
                </div>
            </div>
        </div>
@@ -79,29 +83,29 @@
             <div class="form-group col">
                 <label for="engageCode">经营范围<i class="red">*</i></label>
                 <select id="engageCode" name="engageCode" class="form-control" required></select>
-                <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.engageCode!}" _queryParams='{dd_code:"engage"}'/>
+                <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider"  _value="${assetsRental.engageCode!}" _queryParams='{dd_code:"engage"}' _text="${assetsRental.engageName!}"/>
             </div>
             <div class="form-group col">
                 <label for="leaseTermCode">租赁期限<i class="red">*</i></label>
                 <select id="leaseTermCode" name="leaseTermCode" class="form-control" required></select>
-                <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}'/>
+                <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}' _text="${assetsRental.leaseTermName!}"/>
             </div>
             <div class="form-group col">
                 <label for="categoryId" _log>经营品类</label>
-                <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="testAutoCompleteOption"/>
+                <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="testAutoCompleteOption" _value="${assetsRental.categoryId!}" _text="${assetsRental.categoryName!}"/>
             </div>
             <div class="form-group col">
                 <label for="leaseDays" class="">租赁天数<i class="red">*</i></label>
-                <input type="number" id="leaseDays" class="form-control isNaturalNum" name="leaseDays"  />
+                <input type="number" id="leaseDays" class="form-control isNaturalNum" name="leaseDays" value="${assetsRental.leaseDays}" />
             </div>
             <div class="form-group col">
                 <label for="startTime">开始日期</label>
-                <input type="text" id="startTime" name="" class="form-control" >
+                <input type="text" id="startTime" name="" class="form-control" value="${assetsRental.startTime}" >
             </div>
             <div class="form-group col">
                 <label for="endTime">结束日期</label>
 <!--                <input type="text" id="endTime" name="" class="form-control" readonly>-->
-                <input type="text" id="endTime" name="" class="form-control" >
+                <input type="text" id="endTime" name="" class="form-control" value="${assetsRental.endTime}" >
             </div>
         </div>
         <div class="modal-footer-wrap">
