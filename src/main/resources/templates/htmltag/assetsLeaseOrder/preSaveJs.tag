@@ -146,7 +146,8 @@
             $('#unitCode_' + index).val(suggestion.unit);
             $('#unitName_' + index).val(suggestion.unitName);
             $('#sku_' + index).val(suggestion.number + suggestion.unitName);
-            $('#isCorner_' + index).val(suggestion.cornerName);
+            $('#corner_' + index).val(suggestion.corner);
+            $('#cornerName_' + index).val(suggestion.cornerName);
             $('#firstDistrictId_' + index).val(suggestion.area);
             $('#firstDistrictName_' + index).val(suggestion.areaName);
             $('#secondDistrictId_' + index).val(suggestion.secondArea);

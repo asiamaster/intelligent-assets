@@ -173,7 +173,8 @@
                             <input _log="租赁数量" type="hidden" id="leasesNum_${itemLP.index}" name="leasesNum_${itemLP.index}" value="${item.leasesNum!}">
                         <% } %>
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
-                        <td style="padding: .25rem!important;"><input type="text" class="form-control" id="isCorner_${itemLP.index}" name="isCorner_${itemLP.index}" value="${item.isCorner!}" readonly uncheck/></td>
+                        <input type="hidden" id="corner_${itemLP.index}" name="corner_${itemLP.index}" value="${item.corner!}"/>
+                        <td style="padding: .25rem!important;"><input type="text" class="form-control" id="cornerName_${itemLP.index}" name="cornerName_${itemLP.index}" value="${@com.dili.ia.glossary.CornerEnum.getCornerEnum(item.corner).getName()}" readonly uncheck/></td>
                         <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_${itemLP.index}" name="unitPrice_${itemLP.index}" value="<#centToYuan value='${item.unitPrice!0}'/>" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01"></td>
                         <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_${itemLP.index}" name="paymentMonth_${itemLP.index}" value="${item.paymentMonth!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01"></td>
                         <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_${itemLP.index}" name="discountAmount_${itemLP.index}" value="<#centToYuan value='${item.discountAmount!0}'/>" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01"></td>
@@ -272,7 +273,8 @@
         <input _log="租赁数量" type="hidden" id="leasesNum_{{index}}" name="leasesNum_{{index}}" value="{{leasesNum}}">
         <% } %>
         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
-        <td style="padding: .25rem!important;"><input type="text" class="form-control" id="isCorner_{{index}}" name="isCorner_{{index}}" readonly uncheck/></td>
+        <input type="hidden" id="corner_{{index}}" name="corner_{{index}}"/>
+        <td style="padding: .25rem!important;"><input type="text" class="form-control" id="cornerName_{{index}}" name="cornerName_{{index}}" readonly uncheck/></td>
         <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_{{index}}" name="unitPrice_{{index}}" value="{{unitPrice}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01"></td>
         <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_{{index}}" name="paymentMonth_{{index}}" value="{{discountAmount}}" value="{{paymentMonth}}"  class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01"></td>
         <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_{{index}}" name="discountAmount_{{index}}" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01"></td>

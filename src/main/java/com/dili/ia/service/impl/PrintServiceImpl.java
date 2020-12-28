@@ -139,7 +139,9 @@ public class PrintServiceImpl implements PrintService {
         if (null != leaseOrderItem.getUnitPrice()) {
             leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
         }
-        leaseOrderItemPrintDto.setIsCorner(leaseOrderItem.getIsCorner());
+        if (null != leaseOrderItem.getCorner()) {
+            leaseOrderItemPrintDto.setIsCorner(CornerEnum.getCornerEnum(leaseOrderItem.getCorner()).getName());
+        }
         if (null != leaseOrderItem.getPaymentMonth()) {
             leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
         }
@@ -164,7 +166,9 @@ public class PrintServiceImpl implements PrintService {
         if (null != leaseOrderItem.getUnitPrice()) {
             leaseOrderItemPrintDto.setUnitPrice(MoneyUtils.centToYuan(leaseOrderItem.getUnitPrice()));
         }
-        leaseOrderItemPrintDto.setIsCorner(leaseOrderItem.getIsCorner());
+        if (null != leaseOrderItem.getCorner()) {
+            leaseOrderItemPrintDto.setIsCorner(CornerEnum.getCornerEnum(leaseOrderItem.getCorner()).getName());
+        }
         if (null != leaseOrderItem.getPaymentMonth()) {
             leaseOrderItemPrintDto.setPaymentMonth(leaseOrderItem.getPaymentMonth().toString());
         }
