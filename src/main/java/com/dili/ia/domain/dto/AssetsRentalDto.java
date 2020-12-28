@@ -61,6 +61,58 @@ public class AssetsRentalDto extends AssetsRental {
      */
     private Double endNumber;
 
+    /**
+     * 一级区域Id
+     */
+    private Long firstDistrictId;
+
+    /**
+     * 一级区域名称
+     */
+    private String firstDistrictName;
+
+    /**
+     * 二级区域Id
+     */
+    private Long secondDistrictId;
+
+    /**
+     * 二级区域名称
+     */
+    private String secondDistrictName;
+
+    public Long getFirstDistrictId() {
+        return firstDistrictId;
+    }
+
+    public void setFirstDistrictId(Long firstDistrictId) {
+        this.firstDistrictId = firstDistrictId;
+    }
+
+    public String getFirstDistrictName() {
+        return firstDistrictName;
+    }
+
+    public void setFirstDistrictName(String firstDistrictName) {
+        this.firstDistrictName = firstDistrictName;
+    }
+
+    public Long getSecondDistrictId() {
+        return secondDistrictId;
+    }
+
+    public void setSecondDistrictId(Long secondDistrictId) {
+        this.secondDistrictId = secondDistrictId;
+    }
+
+    public String getSecondDistrictName() {
+        return secondDistrictName;
+    }
+
+    public void setSecondDistrictName(String secondDistrictName) {
+        this.secondDistrictName = secondDistrictName;
+    }
+
     // 一个出租预设可能有多个摊位
     private List<AssetsRentalItem> assetsRentalItemList;
 

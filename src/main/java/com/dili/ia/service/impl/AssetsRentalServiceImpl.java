@@ -87,11 +87,9 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         assetsRentalDto.setBatchId(assetsRentalCode);
 
         // 根据区域ID查询商户ID
-        Long mchId = mchAndDistrictService.getMchIdByDistrictId(assetsRentalDto.getFirstDistrictId(), assetsRentalDto.getSecondDistrictId());
-        if (mchId == null) {
-            mchId = userTicket.getFirmId();
+        if (assetsRentalDto.getMchId() == null) {
+            assetsRentalDto.setMchId(userTicket.getFirmId());
         }
-        assetsRentalDto.setMchId(mchId);
 
         assetsRentalDto.setVersion(0);
         assetsRentalDto.setState(AssetsRentalStateEnum.ENABLE.getCode());
@@ -257,18 +255,6 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
     }
 
     /**
-     * 根据区域id删除对应的关联摊位
-     *
-     * @param
-     * @return
-     * @date   2020/12/8
-     */
-    @Override
-    public void deleteAssetsByDistrictId(Long districtId) throws Exception {
-        this.getActualDao().deleteAssetsByDistrictId(districtId);
-    }
-
-    /**
      * MQ 监听 商户区域关联改变
      */
     @RabbitListener(bindings = @QueueBinding(
@@ -290,15 +276,16 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
                     for (AssetsRental assetsRental : assetsRentalList) {
                         allAsssetRentalIds.add(assetsRental.getId());
                         // 查询出预设池中区域ID和商户ID，再和MQ消息中对比
+                        // todo 未完成
                         Long districtId = null;
                         Long mchId = assetsRental.getMchId();
-                        Long firstDistrictId = assetsRental.getFirstDistrictId();
-                        Long secondDistrictId = assetsRental.getSecondDistrictId();
-                        if (secondDistrictId != null) {
-                            districtId = secondDistrictId;
-                        } else if (secondDistrictId == null && firstDistrictId != null) {
-                            districtId = firstDistrictId;
-                        }
+//                        Long firstDistrictId = assetsRental.getFirstDistrictId();
+//                        Long secondDistrictId = assetsRental.getSecondDistrictId();
+//                        if (secondDistrictId != null) {
+//                            districtId = secondDistrictId;
+//                        } else if (secondDistrictId == null && firstDistrictId != null) {
+//                            districtId = firstDistrictId;
+//                        }
 
                         // 遍历商户-区域集合
                         for (AssetsRentalMchDistrictDto mchDistrictDto : mchDistrictDtoList) {

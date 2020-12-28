@@ -15,13 +15,18 @@
       <result column="number" jdbcType="DECIMAL" property="number" />
       <result column="unit" jdbcType="VARCHAR" property="unit" />
       <result column="corner" jdbcType="TINYINT" property="corner" />
+          <result column="first_district_id" jdbcType="BIGINT" property="firstDistrictId" />
+          <result column="first_district_name" jdbcType="VARCHAR" property="firstDistrictName" />
+          <result column="second_district_id" jdbcType="BIGINT" property="secondDistrictId" />
+          <result column="second_district_name" jdbcType="VARCHAR" property="secondDistrictName" />
     <result column="version" jdbcType="TINYINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbg.generated
     -->
-    id, assets_rental_id, create_time, modify_time, assets_id, assets_name, assets_type, number, unit, corner, version
+    id, assets_rental_id, create_time, modify_time, assets_id, assets_name, assets_type, number, unit, corner,
+      first_district_id, first_district_name, second_district_id, second_district_name, version
 
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -128,8 +133,6 @@
     <select id="getAssetsItemsByAssetsId" resultType="com.dili.ia.domain.dto.AssetsRentalItemDto">
         select
             ar.mch_id as mchId,
-            ar.first_district_id as firstDistrictId,
-            ar.second_district_id as secondDistrictId,
             ari.id,
             ari.assets_rental_id,
             ari.create_time,
@@ -140,6 +143,10 @@
             ari.number,
             ari.unit,
             ari.corner,
+            ari.first_district_id,
+            ari.first_district_name,
+            ari.second_district_id,
+            ari.second_district_name,
             ari.version
         from
             assets_rental as ar

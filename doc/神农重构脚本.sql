@@ -95,4 +95,16 @@ INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `
 ALTER TABLE `dili_ia`.`stock_in` 
 ADD COLUMN `origin_path` varchar(100) NULL COMMENT '城市名称' AFTER `origin`;
 
+-- 摊位出租预设摊位详情表添加区域字段
+alter table `dili_ia`.`assets_rental_item`
+ add COLUMN `first_district_id` bigint(20) DEFAULT NULL COMMENT '一级区域ID',
+ add COLUMN `first_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '一级区域名称',
+ add COLUMN `second_district_id` bigint(20) DEFAULT NULL COMMENT '二级区域ID',
+ add COLUMN `second_district_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '二级区域名称';
+
+-- 摊位出租预设摊位表删除区域字段
+alter table `dili_ia`.`assets_rental` drop COLUMN `first_district_id`;
+alter table `dili_ia`.`assets_rental` drop COLUMN `first_district_name`;
+alter table `dili_ia`.`assets_rental` drop COLUMN `second_district_id`;
+alter table `dili_ia`.`assets_rental` drop COLUMN `second_district_name`;
 

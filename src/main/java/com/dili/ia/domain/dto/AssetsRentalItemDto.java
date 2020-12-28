@@ -28,37 +28,11 @@ public class AssetsRentalItemDto extends AssetsRentalItem {
      */
     private Long mchId;
 
-    /**
-     * 一级区域Id
-     */
-    private Long firstDistrictId;
-
-    /**
-     * 二级区域Id
-     */
-    private Long secondDistrictId;
-
     public Long getMchId() {
         return mchId;
     }
 
     public void setMchId(Long mchId) {
         this.mchId = mchId;
-    }
-
-    public Long getFirstDistrictId() {
-        return firstDistrictId;
-    }
-
-    public void setFirstDistrictId(Long firstDistrictId) {
-        this.firstDistrictId = firstDistrictId;
-    }
-
-    public Long getSecondDistrictId() {
-        return secondDistrictId;
-    }
-
-    public void setSecondDistrictId(Long secondDistrictId) {
-        this.secondDistrictId = secondDistrictId;
     }
 }
