@@ -194,18 +194,29 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
     /**
      * 根据摊位 id 查询相关的预设信息
      *
-     * @param  rentalId
+     * @param  assetsId
      * @return AssetsRentalDto
      * @date   2020/12/2
      */
     @Override
-    public AssetsRentalDto getRentalByAssetsId(Long rentalId) {
+    public AssetsRentalDto getRentalByAssetsId(Long assetsId) {
         AssetsRentalDto assetsRentalDto = new AssetsRentalDto();
-        AssetsRental assetsRental = this.get(rentalId);
-        BeanUtils.copyProperties(assetsRental, assetsRentalDto);
-        List<AssetsRentalItem> assetsRentalItemList = assetsRentalItemService.listRentalItemsByRentalId(rentalId);
-        assetsRentalDto.setAssetsRentalItemList(assetsRentalItemList);
-        return assetsRentalDto;
+
+        // 根据摊位id查询启用的摊位出租预设
+        assetsRentalDto.setAssetsId(assetsId);
+        assetsRentalDto.setState(AssetsRentalStateEnum.ENABLE.getCode());
+        AssetsRentalDto assetsRentalDtoInfo = this.getActualDao().getRentalByRentalDto(assetsRentalDto);
+        if (assetsRentalDtoInfo == null) {
+            return null;
+        }
+
+        // 关联查询预设详情中关联的摊位信息
+        List<AssetsRentalItem> assetsRentalItemList = assetsRentalItemService.listRentalItemsByRentalId(assetsRentalDtoInfo.getId());
+        if (CollectionUtils.isNotEmpty(assetsRentalItemList)) {
+            assetsRentalDtoInfo.setAssetsRentalItemList(assetsRentalItemList);
+        }
+
+        return assetsRentalDtoInfo;
     }
 
     /**
