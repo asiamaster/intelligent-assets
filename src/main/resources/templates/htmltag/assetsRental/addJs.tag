@@ -11,7 +11,7 @@
     //品类搜索
     //品类搜索自动完成
     var testAutoCompleteOption = {
-        serviceUrl: '/stock/categoryCycle/search.action',
+        serviceUrl: '/stock/categoryCycle/searchV2.action',
         paramName : 'keyword',
         displayFieldName : 'name',
         showNoSuggestionNotice: true,
