@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -58,6 +59,9 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
 
     @Autowired
     private AssetsRpc assetsRpc;
+
+    @Autowired
+    private AssetsRentalService assetsRentalService;
 
     @Autowired
     private MchAndDistrictService mchAndDistrictService;
@@ -244,6 +248,70 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
         // 剔除预设池中的摊位
         if (isDeleteAssets) {
             this.getActualDao().delete(itemDtoInfo);
+        }
+    }
+
+    /**
+     * MQ 监听 商户区域关联改变
+     */
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "customer.info", autoDelete = "false"),
+            exchange = @Exchange(value = MqConstant.CUSTOMER_MQ_FANOUT_EXCHANGE, type = ExchangeTypes.FANOUT)
+    ))
+    public void processCustomerInfo(Channel channel, Message message) {
+        try {
+            String data = new String(message.getBody(), "UTF-8");
+            LOGGER.info("商户区域信息修改同步>>>>>" + data);
+            if (!StrUtil.isBlank(data)) {
+                // 新的商户-区域的一对多关系
+                AssetsRentalMchDistrictListDto mchDistrictListDto = JSONObject.parseObject(data, AssetsRentalMchDistrictListDto.class);
+                List<AssetsRentalMchDistrictDto> mchDistrictDtoList = mchDistrictListDto.getMchDistrictListDtoList();
+
+                // 全量联表查询预设 - 摊位详情表
+                List<AssetsRentalItemDto> itemDtoList = this.getActualDao().selectAllByTable();
+
+                List<Long> allAsssetsIds = new ArrayList<>();
+                List<Long> notDeleteAsssetsIds = new ArrayList<>();
+                HashSet<Long> allRentalIds = new HashSet<>();
+                HashSet<Long> notDeleteRentalIds = new HashSet<>();
+                if (mchDistrictListDto != null && CollectionUtils.isNotEmpty(mchDistrictDtoList) && CollectionUtils.isNotEmpty(itemDtoList)) {
+                    for (AssetsRentalItemDto assetsRentalItemDto : itemDtoList) {
+                        allAsssetsIds.add(assetsRentalItemDto.getId());
+                        allRentalIds.add(assetsRentalItemDto.getAssetsRentalId());
+                        // 查询摊位预设详情 摊位详情 的区域ID和商户ID，再和MQ消息中对比
+                        Long mchId = assetsRentalItemDto.getMchId();
+                        Long districtId = null;
+                        Long firstDistrictId = assetsRentalItemDto.getFirstDistrictId();
+                        Long secondDistrictId = assetsRentalItemDto.getSecondDistrictId();
+                        if (secondDistrictId != null) {
+                            districtId = secondDistrictId;
+                        } else if (secondDistrictId == null && firstDistrictId != null) {
+                            districtId = firstDistrictId;
+                        }
+
+                        // 遍历商户-区域集合
+                        for (AssetsRentalMchDistrictDto mchDistrictDto : mchDistrictDtoList) {
+                            Long mchIdNew = mchDistrictDto.getMchId();
+                            Long districtIdNew = mchDistrictDto.getDistrictId();
+                            if (mchIdNew.equals(mchId) && districtIdNew.equals(districtId)) {
+                                // 预设池中商户和区域未改变的数据
+                                notDeleteAsssetsIds.add(assetsRentalItemDto.getId());
+                                notDeleteRentalIds.add(assetsRentalItemDto.getAssetsRentalId());
+                            }
+                        }
+                    }
+
+                    // 批量删除预设-摊位详情表
+                    allAsssetsIds.removeAll(notDeleteAsssetsIds);
+                    this.delete(allAsssetsIds);
+
+                    // 批量删除预设表
+                    allRentalIds.remove(notDeleteRentalIds);
+                    assetsRentalService.delete(new ArrayList<>(allRentalIds));
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("商户区域信息修改失败", e);
         }
     }
 }

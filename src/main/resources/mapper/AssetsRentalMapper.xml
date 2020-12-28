@@ -130,10 +130,14 @@
             assets_rental_item as ari
           on
             ari.assets_rental_id = ar.id
-        where
-            ari.assets_id = #{assetsId,jdbcType=BIGINT}
-          and
-            ar.state = #{state}
+        <where>
+            <if test="assetsId != null">
+                and ari.assets_id = #{assetsId}
+            </if>
+            <if test="state != null">
+                and ar.state = #{state}
+            </if>
+        </where>
     </select>
 
     <select id="listRentalsByRentalDtoAndKeyWord" parameterType="com.dili.ia.domain.dto.AssetsRentalDto" resultType="com.dili.ia.domain.dto.AssetsRentalDto">
@@ -173,14 +177,21 @@
             assets_rental as ar
           on
             ari.assets_rental_id = ar.id
-        where
-            ar.state = #{state}
-          and
-            ar.batch_id = #{batchId,jdbcType=VARCHAR}
-          and
-            ar.mch_id = #{mchId,jdbcType=BIGINT}
-          and
-            ari.assets_name like concat('%',#{keyword},'%')
+        <where>
+            <if test="state != null">
+                and ar.state = #{state}
+            </if>
+            <if test="batchId != null">
+                and ar.batch_id = #{batchId,jdbcType=VARCHAR}
+            </if>
+            <if test="mchId != null">
+                and ar.mch_id = #{mchId,jdbcType=BIGINT}
+            </if>
+            <if test="keyword != null">
+                and ari.assets_name like concat('%',#{keyword},'%')
+            </if>
+        </where>
+
     </select>
 
     <select id="listByAssetsIds" resultType="com.dili.ia.domain.dto.AssetsRentalDto">
@@ -194,11 +205,14 @@
             assets_rental_item as ari
           on
             ari.assets_rental_id = ar.id
-        where
-            ari.assets_id in
-            <foreach collection="assetsIds" item="assetsId" index="index" open="(" close=")" separator=",">
-                #{assetsId}
-            </foreach>
+        <where>
+            <if test="assetsIds != null">
+                and ari.assets_id in
+                <foreach collection="assetsIds" item="assetsId" index="index" open="(" close=")" separator=",">
+                    #{assetsId}
+                </foreach>
+            </if>
+        </where>
     </select>
 
 </mapper>

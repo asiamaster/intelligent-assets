@@ -44,16 +44,7 @@ public interface AssetsRentalItemMapper extends MyMapper<AssetsRentalItem> {
     List<AssetsRentalItem> listAssetsItemsByAssetsIds(@Param("assetsIds")List<Long> assetsIds);
 
     /**
-     * 修改摊位的信息
-     *
-     * @param  assetsRentalItemDto
-     * @return
-     * @date   2020/12/8
-     */
-    void updateByAssetsId(AssetsRentalItemDto assetsRentalItemDto);
-
-    /**
-     * 根据摊位ID查询预设池中的预设摊位
+     * 根据 assetId 查询预设池中的摊位信息
      *
      * @param  assetId
      * @return AssetsRentalItemDto
@@ -62,11 +53,19 @@ public interface AssetsRentalItemMapper extends MyMapper<AssetsRentalItem> {
     AssetsRentalItemDto getAssetsItemsByAssetsId(@Param("assetsIds")Long assetId);
 
     /**
-     * 根据预设id查询预设的摊位信息
+     * 根据 rentalId 查询预设池中的摊位信息
      *
      * @param  rentalId
      * @return list
      * @date   2020/12/24
      */
     List<AssetsRentalItem> listRentalItemsByRentalId(@Param("rentalId") Long rentalId);
+
+    /**
+     *  全量查询摊位 详情-预设数据
+     *
+     * @return AssetsRentalItemDtoList
+     * @date   2020/12/28
+     */
+    List<AssetsRentalItemDto> selectAllByTable();
 }
