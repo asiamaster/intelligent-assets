@@ -1,8 +1,10 @@
 package com.dili.ia.controller;
 
 import com.dili.ia.domain.AssetsRental;
+import com.dili.ia.domain.AssetsRentalItem;
 import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.AssetsRentalDto;
+import com.dili.ia.service.AssetsRentalItemService;
 import com.dili.ia.service.AssetsRentalService;
 import com.dili.ia.util.AssertUtils;
 import com.dili.ia.util.LogBizTypeConst;
@@ -13,9 +15,11 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -37,6 +41,9 @@ public class AssetsRentalController {
 
     @Autowired
     AssetsRentalService assetsRentalService;
+
+    @Autowired
+    private AssetsRentalItemService assetsRentalItemService;
 
     /**
      * 跳转到assetsRental页面
@@ -72,8 +79,18 @@ public class AssetsRentalController {
     @RequestMapping(value="/update.html", method = RequestMethod.GET)
     public String update(ModelMap modelMap, Long id) {
         if (id != null) {
+            AssetsRentalDto assetsRentalDto = new AssetsRentalDto();
             AssetsRental assetsRental = assetsRentalService.get(id);
-            modelMap.put("assetsRental", assetsRental);
+            if (assetsRental != null) {
+                BeanUtils.copyProperties(assetsRental, assetsRentalDto);
+
+                // 关联查询预设详情中关联的摊位信息
+                List<AssetsRentalItem> assetsRentalItemList = assetsRentalItemService.listRentalItemsByRentalId(assetsRental.getId());
+                if (CollectionUtils.isNotEmpty(assetsRentalItemList)) {
+                    assetsRentalDto.setAssetsRentalItemList(assetsRentalItemList);
+                }
+                modelMap.put("assetsRental", assetsRentalDto);
+            }
         }
         return "assetsRental/add";
     }
