@@ -75,7 +75,7 @@ public class AssetsRentalController {
             AssetsRental assetsRental = assetsRentalService.get(id);
             modelMap.put("assetsRental", assetsRental);
         }
-        return "assetsRental/update";
+        return "assetsRental/add";
     }
 
     /**
