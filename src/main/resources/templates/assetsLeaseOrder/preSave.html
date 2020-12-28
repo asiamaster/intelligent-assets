@@ -174,7 +174,7 @@
                         <% } %>
                         <% if(assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
                         <input type="hidden" id="corner_${itemLP.index}" name="corner_${itemLP.index}" value="${item.corner!}"/>
-                        <td style="padding: .25rem!important;"><input type="text" class="form-control" id="cornerName_${itemLP.index}" name="cornerName_${itemLP.index}" value="${@com.dili.ia.glossary.CornerEnum.getCornerEnum(item.corner).getName()}" readonly uncheck/></td>
+                        <td style="padding: .25rem!important;"><input type="text" class="form-control" id="cornerName_${itemLP.index}" name="cornerName_${itemLP.index}" value="${isNotEmpty(item.corner)?@com.dili.ia.glossary.CornerEnum.getCornerEnum(item.corner).getName():''}" readonly uncheck/></td>
                         <td style="padding: .25rem!important;"><input _log="单价" type="number" id="unitPrice_${itemLP.index}" name="unitPrice_${itemLP.index}" value="<#centToYuan value='${item.unitPrice!0}'/>" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01"></td>
                         <td style="padding: .25rem!important;"><input _log="应交月数" type="number" id="paymentMonth_${itemLP.index}" name="paymentMonth_${itemLP.index}" value="${item.paymentMonth!}" class="form-control floatReserve" min="0.00" max="9999999.99" step="0.01"></td>
                         <td style="padding: .25rem!important;"><input _log="优惠金额" type="number" id="discountAmount_${itemLP.index}" name="discountAmount_${itemLP.index}" value="<#centToYuan value='${item.discountAmount!0}'/>" class="form-control money floatReserve" min="0.00" max="9999999.99" step="0.01"></td>

@@ -92,7 +92,7 @@
                             <td class="text-center align-middle" title="${item.assetsName!}">${item.assetsName!}</td>
                             <td class="text-center align-middle" >${item.number!}${item.unitName!}</td>
                             <% if(leaseOrder.assetsType == @com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()){%>
-                            <td class="text-center align-middle" >${@com.dili.ia.glossary.CornerEnum.getCornerEnum(item.corner).getName()}</td>
+                            <td class="text-center align-middle" >${isNotEmpty(item.corner)?@com.dili.ia.glossary.CornerEnum.getCornerEnum(item.corner).getName():''}</td>
                             <td class="text-center align-middle" ><#centToYuan value='${item.unitPrice!0}'/></td>
                             <td class="text-center align-middle" >${item.paymentMonth!}</td>
                             <td class="text-center align-middle" ><#centToYuan value='${item.discountAmount!0}'/></td>
