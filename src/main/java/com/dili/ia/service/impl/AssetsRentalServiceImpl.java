@@ -202,6 +202,9 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
     public AssetsRentalDto getRentalByAssetsId(Long rentalId) {
         AssetsRentalDto assetsRentalDto = new AssetsRentalDto();
         AssetsRental assetsRental = this.get(rentalId);
+        if (null == assetsRental) {
+            return null;
+        }
         BeanUtils.copyProperties(assetsRental, assetsRentalDto);
         List<AssetsRentalItem> assetsRentalItemList = assetsRentalItemService.listRentalItemsByRentalId(rentalId);
         assetsRentalDto.setAssetsRentalItemList(assetsRentalItemList);
