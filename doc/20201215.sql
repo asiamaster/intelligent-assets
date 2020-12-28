@@ -678,3 +678,16 @@ CREATE TABLE `dili_ia`.`labor`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `unique_index_code`(`code`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 57 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '劳务管理' ROW_FORMAT = Dynamic;
+
+--品类周期表
+CREATE TABLE `dili_ia`.`category_storage_cycle`  (
+  `id` bigint(20) UNSIGNED NOT NULL COMMENT '品类id',
+  `code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '品类code',
+  `module_label` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '模块标签',
+  `cycle` int(4) NULL DEFAULT NULL COMMENT '存储天数',
+  `notes` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `state` tinyint(4) NULL DEFAULT NULL COMMENT '1:启用,2禁用',
+  `market_id` bigint(20) NULL DEFAULT NULL,
+  `market_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
