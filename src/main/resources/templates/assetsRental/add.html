@@ -22,49 +22,53 @@
         选择预设对象
     </div>
 
-   <div class="border p-3">
-       <form id="searchForm" role="form" novalidate>
-           <div class="row row-cols-4">
-               <div class="form-group col">
-                   <label for="typeCode">区域<i class="red">*</i></label>
-                   <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
-               </div>
-               <div class="form-group col">
-                   <label for="" class="">摊位编号<i class="red">*</i></label>
-                   <input id="assetsName" type="" class="form-control digits" maxlength="50" name="assetsName" />
-               </div>
-               <div class="form-group col">
-                   <label for="" class="">数量<i class="red">*</i></label>
-                   <div class="input-group">
-                       <input id="startNumber" type="" class="form-control digits" name="startNumber" />
-                       <span class="align-self-center">至</span>
-                       <input id="endNumber" type="" class="form-control digits" name="endNumber" />
+   <div class="p-3">
+
+       <div class="row p-3 boothwrap">
+           <div class="col-4  p-3 mr-5 border">
+
+               <form id="searchForm" role="form" novalidate>
+                   <div class="row row-cols-2">
+                       <div class="form-group col">
+                           <label for="typeCode">区域<i class="red">*</i></label>
+                               <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
+                       </div>
+                       <div class="form-group col">
+                           <label for="" class="">摊位编号<i class="red">*</i></label>
+                           <input id="assetsName" type="" class="form-control digits" maxlength="50" name="assetsName" />
+                       </div>
+                       <div class="form-group col">
+                           <label for="" class="">数量<i class="red">*</i></label>
+                           <div class="input-group">
+                               <input id="startNumber" type="" class="form-control digits" name="startNumber" />
+                               <span class="align-self-center">至</span>
+                               <input id="endNumber" type="" class="form-control digits" name="endNumber" />
+                           </div>
+                       </div>
+                       <div class="col-auto align-self-center mt-3">
+                           <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#searchForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
+                           <button type="button" class="btn btn-outline-primary" onclick="viewAssetsByNoTable()"><i class="fa fa-search"></i> 查询</button>
+                       </div>
                    </div>
+               </form>
+                <hr>
+               <h5 class="mt-3">待选摊位</h5>
+               <div class="custom-control custom-checkbox">
+                   <input type="checkbox" class="custom-control-input" id="checkAll">
+                   <label class="custom-control-label" for="checkAll">全选</label>
                </div>
-               <div class="col-auto align-self-center mt-3">
-                   <button type="button" class="btn btn-outline-primary mr-2"onclick="javascript:$('#searchForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
-                   <button type="button" class="btn btn-outline-primary" onclick="viewAssetsByNoTable()"><i class="fa fa-search"></i> 查询</button>
-               </div>
-           </div>
-           <hr>
-       </form>
-       <div class="row boothwrap">
-           <div class="col-3  p-3 mr-5 border-right">
-               <h5 class="">待选摊位</h5>
                <div class="booth-data-origin">
-                   <div class="custom-control custom-checkbox">
-                       <input type="checkbox" class="custom-control-input" id="checkAll">
-                       <label class="custom-control-label" for="checkAll">全选</label>
-                   </div>
+
+               </div>
            </div>
-           </div>
-           <div class="col-3  p-3">
+           <div class="col-4  p-3 border">
                <h5 class="">已选摊位</h5>
+               <div class="custom-control custom-checkbox">
+                   <input type="checkbox" class="custom-control-input" id="uncheckAll">
+                   <label class="custom-control-label" for="uncheckAll">全选</label>
+               </div>
                <div class="booth-checked">
-                   <div class="custom-control custom-checkbox">
-                       <input type="checkbox" class="custom-control-input" id="checkedAll">
-                       <label class="custom-control-label" for="checkedAll">全选</label>
-                   </div>
+
                </div>
            </div>
        </div>
