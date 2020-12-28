@@ -75,7 +75,7 @@
             assets_rental_item
         <where>
             <if test="assetsRentalIdList != null">
-                and assets_rental_id in
+                assets_rental_id in
                 <foreach collection="assetsRentalIdList" item="assetsRentalId" index="index" open="(" close=")" separator=",">
                         #{assetsRentalId}
                 </foreach>
@@ -112,7 +112,7 @@
             assets_rental_item
         <where>
             <if test="assetsIds != null">
-                and assets_id in
+                assets_id in
                 <foreach collection="assetsIds" item="assetsId" index="index" open="(" close=")" separator=",">
                         #{assetsId}
                 </foreach>
@@ -146,7 +146,7 @@
           on ar.id = ari.assets_rental_id
         <where>
             <if test="assetsId != null">
-                and ari.assets_id = #{assetsId}
+                ari.assets_id = #{assetsId}
             </if>
         </where>
     </select>
@@ -158,7 +158,7 @@
             assets_rental_item
         <where>
             <if test="rentalId != null">
-                and assets_rental_id = #{rentalId}
+                assets_rental_id = #{rentalId}
             </if>
         </where>
     </select>

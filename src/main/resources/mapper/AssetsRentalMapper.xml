@@ -207,7 +207,7 @@
             ari.assets_rental_id = ar.id
         <where>
             <if test="assetsIds != null">
-                and ari.assets_id in
+                ari.assets_id in
                 <foreach collection="assetsIds" item="assetsId" index="index" open="(" close=")" separator=",">
                     #{assetsId}
                 </foreach>
