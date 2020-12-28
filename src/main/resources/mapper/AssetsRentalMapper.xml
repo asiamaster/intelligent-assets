@@ -133,9 +133,9 @@
             ari.assets_name as assetsName,
             ari.assets_type as assetsType
         from
-            assets_rental_item as ari
-          left join
             assets_rental as ar
+          left join
+            assets_rental_item as ari
           on
             ari.assets_rental_id = ar.id
         where
