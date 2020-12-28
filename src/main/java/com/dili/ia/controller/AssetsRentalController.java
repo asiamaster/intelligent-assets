@@ -121,7 +121,7 @@ public class AssetsRentalController {
         try {
             // 校验参数，名称和摊位不能为空
             AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
-            AssertUtils.notNull(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
+            AssertUtils.notEmpty(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
 
             AssetsRental assetsRental = assetsRentalService.addAssetsRental(assetsRentalDto, userTicket);
 
@@ -156,7 +156,7 @@ public class AssetsRentalController {
             // 校验参数，名称和摊位不能为空
             AssertUtils.notNull(assetsRentalDto.getId(), "预设主键不能为空");
             AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
-            AssertUtils.notNull(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
+            AssertUtils.notEmpty(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
 
             AssetsRental assetsRental = assetsRentalService.updateAssetsRental(assetsRentalDto);
 
