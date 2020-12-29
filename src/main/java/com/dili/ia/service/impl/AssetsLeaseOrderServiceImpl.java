@@ -1922,7 +1922,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
 		AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
 		condition.setLeaseOrderId(leaseOrder.getId());
-		List<String> items = new ArrayList<>();
+		List<Map<String, String>> items = new ArrayList<>();
 		List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
 		BigDecimal big = new BigDecimal(0);
 		StringBuilder unitName = new StringBuilder();
@@ -1931,7 +1931,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 			StringBuilder str = new StringBuilder();
 			str.append(String.format("【%s】【%s】【%s】", it.getFirstDistrictName(), it.getSecondDistrictName(),
 					it.getAssetsName())).append(" ").append(it.getNumber()).append(it.getUnitName());
-			items.add(str.toString());
+			Map<String, String> map = new HashMap<>();
+			map.put("position", str.toString());
+			items.add(map);
 			unitName.append(it.getUnitName());
 		});
 		// 面积
@@ -1941,8 +1943,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 				leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
 		List<AssetsLeaseOrderItemListDto> itmesAssetsLeaseOrderItemListDtos = assetsLeaseOrderItemService
 				.leaseOrderItemListToDto(leaseOrderItems, leaseOrder.getBizType(), chargeItemDtos);
-		System.err.println(JSON.toJSONString(itmesAssetsLeaseOrderItemListDtos));
-		List<String> feeItems = new ArrayList<>();
+		List<Map<String, String>> feeItems = new ArrayList<>();
 		itmesAssetsLeaseOrderItemListDtos.stream().forEach(it -> {
 			StringBuilder str = new StringBuilder();
 			str.append(String.format("【%s】【%s】【%s】:", it.getFirstDistrictName(), it.getSecondDistrictName(),
@@ -1952,8 +1953,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 						.append(";");
 				;
 			});
-
-			feeItems.add(str.toString());
+			Map<String, String> map = new HashMap<>();
+			map.put("feeList", str.toString());
+			feeItems.add(map);
 		});
 		contractDto.setAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
 		contractDto.setAmountCn(Convert.digitToChinese(new BigDecimal(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()))));

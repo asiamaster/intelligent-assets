@@ -54,6 +54,12 @@ INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `
 
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_dd', 'HZSCDD', 'yyyyMMdd', 4, '1');
 
+INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_jz', 'HZSCJZ', 'yyyyMMdd', 4, '1');
+
+INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_gx', 'HZSCGX', 'yyyyMMdd', 4, '1');
+
+INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_gd', 'HZSCGD', 'yyyyMMdd', 4, '1');
+
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务精品业户电动车及人力车马甲号', 'hzsc_vest_jz', 'HZSCJZ', 'yyyyMMdd', 4, '1');
 
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务干果业户小型电动车及人力车马甲号', 'hzsc_vest_gx', 'HZSCGX', 'yyyyMMdd', 4, '1');
