@@ -58,7 +58,7 @@ public class AssetsController {
 
         try {
             List<AssetsDTO> assets = assetsRpc.searchAssets(assetsQuery).getData();
-            if (isExcludeRental) {
+            if (isExcludeRental && CollectionUtils.isNotEmpty(assets)) {
                 List<Long> filterIds = assetsRentalService.filterAssetsIdsByTable(assets.stream().map(o -> o.getId()).collect(Collectors.toList()));
                 assets = assets.stream().filter(o -> !filterIds.contains(o.getId())).collect(Collectors.toList());
             }

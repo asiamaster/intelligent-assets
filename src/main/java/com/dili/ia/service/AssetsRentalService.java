@@ -80,13 +80,4 @@ public interface AssetsRentalService extends BaseService<AssetsRental, Long> {
      */
     List<AssetsRentalDto> listByAssetsIds(List<Long> assetsIds);
 
-    /**
-     * 根据区域id删除对应的关联摊位
-     *
-     * @param
-     * @return
-     * @date   2020/12/8
-     */
-    void deleteAssetsByDistrictId(Long districtId) throws Exception;
-
 }

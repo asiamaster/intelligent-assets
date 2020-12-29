@@ -26,10 +26,6 @@
         <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
       <result column="mch_id" jdbcType="BIGINT" property="mchId" />
       <result column="mch_name" jdbcType="VARCHAR" property="mchName" />
-      <result column="first_district_id" jdbcType="BIGINT" property="firstDistrictId" />
-      <result column="first_district_name" jdbcType="VARCHAR" property="firstDistrictName" />
-      <result column="second_district_id" jdbcType="BIGINT" property="secondDistrictId" />
-      <result column="second_district_name" jdbcType="VARCHAR" property="secondDistrictName" />
     <result column="version" jdbcType="TINYINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -38,7 +34,7 @@
     -->
     id, create_time, modify_time, name, engage_code, engage_name, category_id, category_name, 
     lease_term_code, lease_term_name, lease_days, start_time, end_time, state, creator_id,
-      creator, market_id, market_code, mch_id, mch_name, first_district_id, first_name, second_district_id, second_district_name, version
+      creator, market_id, market_code, mch_id, mch_name, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -124,18 +120,14 @@
             ar.market_code,
             ar.mch_id,
             ar.mch_name,
-            ar.first_district_id,
-            ar.first_district_name,
-            ar.second_district_id,
-            ar.second_district_name,
             ar.version,
             ari.assets_id as assetsId,
             ari.assets_name as assetsName,
             ari.assets_type as assetsType
         from
-            assets_rental_item as ari
-          left join
             assets_rental as ar
+          left join
+            assets_rental_item as ari
           on
             ari.assets_rental_id = ar.id
         where
@@ -167,14 +159,14 @@
             ar.market_code,
             ar.mch_id,
             ar.mch_name,
-            ar.first_district_id,
-            ar.first_district_name,
-            ar.second_district_id,
-            ar.second_district_name,
             ar.version,
             ari.assets_id as assetsId,
             ari.assets_name as assetsName,
-            ari.assets_type as assetsType
+            ari.assets_type as assetsType,
+            ari.first_district_id as firstDistrictId,
+            ari.first_district_name as firstDistrictName,
+            ari.second_district_id as secondDistrictId,
+            ari.second_district_name as secondDistrictName
         from
             assets_rental_item as ari
           left join
@@ -209,15 +201,4 @@
             </foreach>
     </select>
 
-    <delete id="deleteAssetsByDistrictId" parameterType="java.lang.Long">
-        delete ar,ari
-        from
-            assets_rental_item as ari
-        left join
-            assets_rental as ar
-        on
-            ari.assets_rental_id = ar.id
-        where
-            ar.first_district_id = #{districtId,jdbcType=BIGINT} or ar.first_district_id = #{districtId,jdbcType=BIGINT}
-    </delete>
 </mapper>

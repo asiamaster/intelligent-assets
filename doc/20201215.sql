@@ -22,6 +22,14 @@ ALTER TABLE `dili_ia`.`assets_lease_order_item`
 ADD COLUMN `biz_type` varchar(120) NULL COMMENT '业务类型（数据字典值编码 1：摊位租赁 4：冷库租赁 5：公寓租赁）' AFTER `assets_type`;
 update `dili_ia`.`assets_lease_order` set biz_type = '1';
 update `dili_ia`.`assets_lease_order_item` set biz_type = '1';
+ALTER TABLE `dili_ia`.`assets_lease_order_item`
+ADD COLUMN `corner` tinyint(4) NULL DEFAULT NULL COMMENT '是否转角 1:是 2：否 冗余资产' AFTER `leases_num`;
+UPDATE `dili_ia`.`assets_lease_order_item` SET corner = 1 WHERE is_corner = '是';
+UPDATE `dili_ia`.`assets_lease_order_item` SET corner = 2 WHERE is_corner = '否';
+ALTER TABLE `dili_ia`.`assets_lease_order_item`
+DROP COLUMN `is_corner`;
+
+
 /**添加区域ID及商户ID**/
 ALTER TABLE `dili_ia`.`payment_order`
 ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_code`,

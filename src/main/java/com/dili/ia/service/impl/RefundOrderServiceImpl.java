@@ -372,11 +372,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         //检查收款人客户状态
         checkCustomerState(refundOrder.getPayeeId(), userTicket.getFirmId());
 
-        //提交时验证该租赁退款单业务的用户是否有跳过审批的权限
-        if (refundOrder.getBizType().equals(BizTypeEnum.BOOTH_LEASE.getCode()) && !userResourceRedis.checkUserResourceRight(userTicket.getId(), "skipRefundApproval") && !ApprovalStateEnum.APPROVED.getCode().equals(refundOrder.getApprovalState())) {
-            LOG.info("退款单编号【{}】 未审批，不可以进行提交操作", refundOrder.getCode());
-            throw new BusinessException(ResultCode.DATA_ERROR, "退款单编号【" + refundOrder.getCode() + "】 未审批，不可以进行提交操作");
-        }
         return BaseOutput.success();
     }
 

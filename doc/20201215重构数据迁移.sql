@@ -17,7 +17,7 @@ WHERE
 		SELECT
 			MIN( po.id ) AS id
 		FROM
-			``dili_ia`.assets_lease_order` alo
+			`dili_ia`.assets_lease_order alo
 			INNER JOIN `dili_ia`.payment_order po ON alo.id = po.business_id
 		WHERE
 			alo.assets_type = 1
