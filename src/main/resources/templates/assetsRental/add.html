@@ -9,6 +9,10 @@
         height: 300px;
         overflow: auto;
     }
+    .booth-checked {
+        height: 640px;
+        overflow: auto;
+    }
 </style>
 <div class="container-fluid pb-5" id="app">
     <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.assetsRental'/>">
@@ -25,20 +29,19 @@
    <div class="p-3">
 
        <div class="row p-3 boothwrap">
-           <div class="col-4  p-3 mr-5 border">
-
+           <div class="col-5  p-3 mr-5 border">
                <form id="searchForm" role="form" novalidate>
                    <div class="row row-cols-2">
                        <div class="form-group col">
-                           <label for="typeCode">区域<i class="red">*</i></label>
+                           <label for="typeCode">区域</label>
                                <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
                        </div>
                        <div class="form-group col">
-                           <label for="" class="">摊位编号<i class="red">*</i></label>
+                           <label for="" class="">摊位编号</label>
                            <input id="assetsName" type="" class="form-control digits" maxlength="50" name="assetsName" />
                        </div>
                        <div class="form-group col">
-                           <label for="" class="">数量<i class="red">*</i></label>
+                           <label for="" class="">数量</label>
                            <div class="input-group">
                                <input id="startNumber" type="" class="form-control digits" name="startNumber" />
                                <span class="align-self-center">至</span>
@@ -61,6 +64,16 @@
 
                </div>
            </div>
+            <div class="col">
+                <div class="row align-items-center h-100" >
+                    <div class="col">
+                        <button type="button" class="btn btn-outline-dark" id="checkedBoothBtn">选定<i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-outline-dark" id="uncheckedBoothBtn"><i class="fa fa-chevron-left" aria-hidden="true"></i>移出</button>
+                    </div>
+                </div>
+            </div>
            <div class="col-5  p-3 border">
                <h5 class="">已选摊位</h5>
                <div class="custom-control custom-checkbox">
@@ -68,7 +81,15 @@
                    <label class="custom-control-label" for="uncheckAll">全选</label>
                </div>
                <div class="booth-checked">
-
+                   <% if(isNotEmpty(assetsRental.assetsRentalItemList)){
+                       for(data in assetsRental.assetsRentalItemList){
+                       %>
+                       <div class="custom-control custom-checkbox">
+                           <input type="checkbox" class="custom-control-input" id="${data.id!}" data-mch-id="" data-id="${data.id!}" data-name="${data.assetsName!}" data-first-area="${data.firstDistrictName!}" data-fitst-area-name="${data.firstDistrictName!}" data-second-area="${data.secondDistrictId!}" data-second-area-name="${data.secondDistrictName!}" data-type="${data.assetsType!}" data-number="${data.number!}" data-unit="${data.unit!}" data-corner="${data.corner!}">
+                           <label class="custom-control-label" for="${data.id!}">${data.assetsName!}</label>
+                       </div>
+                    <%}
+                   }%>
                </div>
            </div>
        </div>
@@ -118,4 +139,5 @@
 </div>
 
 </#bs4Body>
+<#assetsRental_boothCheckTmpl/>
 <#assetsRental_addJs/>
