@@ -2,7 +2,7 @@
     <select class="form-control" id="firstDistrictId" name="firstDistrictId" required>
         <option value="${firstDistrictId!}"></option>
     </select>
-    <select class="form-control" id="secondDistrictId" name="secondDistrictId" required>
+    <select class="form-control" id="secondDistrictId" name="secondDistrictId">
         <option value="${secondDistrictId!}"></option>
     </select>
 </div>
