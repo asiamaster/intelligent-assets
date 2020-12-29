@@ -155,7 +155,10 @@ function buildFormData() {
 		detail.assetsCode = assetsName;
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
-		detail.stockWeighmanRecordDto = weightItems.get(index);
+		// 组装司磅入库数据
+		let weightItem = weightItems.get(index);
+		weightItem.images = JSON.stringify(weightItem.images);
+		detail.stockWeighmanRecordDto = weightItem;
 		detail.mchId=mchId;
 		// 动态收费项
 		let itemBusinessChargeDtos = []

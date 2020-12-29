@@ -195,8 +195,9 @@ function buildFormData() {
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
 		let index = $(this).attr("id").split("_")[1];
-		console.log(weightItems.get(index));
-		detail.stockWeighmanRecordDto = weightItems.get(index);
+		let weightItem = weightItems.get(index);
+		weightItem.images = JSON.stringify(weightItem.images);
+		detail.stockWeighmanRecordDto = weightItem;
 		detail.mchId=mchId;
 		// 动态收费项
 		let itemBusinessChargeDtos = []

@@ -333,7 +333,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		List<StockInDetail> details = getStockInDetailsByStockCode(code);
 		// 司磅入库判断是否已回皮
 		if(stockIn.getType().equals(StockInTypeEnum.WEIGHT.getCode())) {
-			System.err.println("312323");
 			List<String> codeList = stockWeighmanRecordService.getNeedWeigh(details.stream().map(StockInDetail::getWeightmanId).collect(Collectors.toList()));
 			if(CollectionUtils.isNotEmpty(codeList)) {
 				throw new BusinessException(ResultCode.DATA_ERROR, String.format("子单%s待司磅", codeList.toString()));
@@ -405,7 +404,13 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			JSONObject jsonObject = (JSONObject) JSONObject.toJSON(item);
 			// 组装司磅入库信息
 			if (StockInTypeEnum.WEIGHT.getCode() == stockIn.getType()) {
-				jsonObject.put("stockWeighmanRecord", stockWeighmanRecordService.get(item.getWeightmanId()));
+				StockWeighmanRecord record = stockWeighmanRecordService.get(item.getWeightmanId());
+				JSONObject recordJson = new JSONObject();
+				if(record != null) {
+					recordJson = (JSONObject) JSON.toJSON(record);
+					recordJson.put("image",JSON.toJSON(record.getImages()));
+				}
+				jsonObject.put("stockWeighmanRecord", recordJson);
 			}
 			// 组装动态收费项
 			BusinessChargeItem condtion = new BusinessChargeItem();
@@ -779,7 +784,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			calcParams.put("quantity", stockInDto.getQuantity());
 			calcParams.put("weight", stockInDto.getWeight());
 			// calcParams.put("assetsId", stockInDto.getAssetsId());
-			calcParams.put("categoryId", stockInDto.getCategoryId());
 			Map<String, Object> conditionParams = new HashMap<String, Object>();
 			conditionParams.put("uom", stockInDto.getUom());
 			conditionParams.put("categoryId", stockInDto.getCategoryId());
@@ -787,7 +791,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			queryFeeInput.setCalcParams(calcParams);
 			queryFeeInputs.add(queryFeeInput);
 		});
-		System.err.println(JSON.toJSONString(queryFeeInputs));
 		BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
 		return batchQueryFee.getData();
 	}

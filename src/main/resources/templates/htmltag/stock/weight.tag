@@ -47,9 +47,23 @@
 
 
 $('.readWeight').on('click', function() {
-	/*if(typeof callbackObj == 'undefined'){
+	if(typeof callbackObj == 'undefined'){
         return;
-    }*/
+    }
+	// 重量类型 毛重1 皮重0
+	let obj = {
+			"weightType": 1,
+			"grossWeight":"",
+			"grossDateTime":"",
+			"tareWeight":"",
+			"tareDateTime":"",
+			"grossWeight":"",
+			"image1":"",
+			"image2":"",
+			"image3":"",
+			"image4":""
+	}
+	callbackObj.weighmanInput(JSON.stringify(obj));
 	// 判断是否已获取重量
 	/*var isWeight=$(this).parents(".sub-single").find("[self-suffix='is_weight']").val();
     if(isWeight=="1"){
@@ -59,14 +73,14 @@ $('.readWeight').on('click', function() {
         return;
     }*/
     //数据模拟
-	let weighman = $("input[name='weighman']:checked").val();
+	/*let weighman = $("input[name='weighman']:checked").val();
 	if(weighman == 1){
 		$("#grossWeight").val("1000");
 		$("#grossWeightDate").val("2020-07-06 12:34:44");
 	}else{
 		$("#tareWeight").val("100");
 		$("#tareWeightDate").val("2020-07-06 12:34:44");
-	}
+	}*/
     
     //获取司磅读数
     window.weightCallback=function(data){
@@ -101,29 +115,66 @@ function openWeightUpdateHandler(index) {
 	let weightDetail = weightItems.get(index+"")
 	if(weightDetail == null || weightDetail == ""){
 		weightDetail = {};
+		weightDetail.images= {
+				
+		};
 	}
-	let weightItem = $("#saveForm_"+index)
-    dia = bs4pop.dialog({
-        title: '获取地磅读数',//对话框title
-        content: bui.util.HTMLDecode(template("weighmanUpdate", {weightDetail})), //对话框内容，可以是 string、element，$object
-        width: '80%',//宽度
-        height: '100%',//高度
-        btns: [{label: '取消',className: 'btn-secondary',onClick(e){
-
-            }
-        }, {label: '确定',className: 'btn-primary',onClick(e){
-        	//通过map保存司磅记录,key为index,value为表单信息,方便前端页面组装数据
-        	let ob = $("#weighmanForm").serializeObject();
-        	weightItems.set(index+"",ob);
-        	if(strIsNotEmpty(ob.grossWeight) && strIsNotEmpty(ob.tareWeight)){
-        		weightItem.find("[name=weight]").val(ob.grossWeight-ob.tareWeight);
-        	}else{
-        		weightItem.find("[name=weight]").val(0);
-        	}
-        	//weightItem.find("[name=weight]").val($("#grossWeight").val());
-        	countNumber("weight");
-            }
-        }]
-    });
+	let weightType = 1;
+	if(weightDetail.grossWeight != null || weightDetail.grossWeight != ""){
+		weightType = 2;
+	}
+	// 重量类型 毛重1 皮重0
+	let obj = {
+			"weightType": weightType,
+			"grossWeight": weightDetail.grossWeight,
+			"grossDateTime": weightDetail.grossWeightDate,
+			"tareWeight": weightDetail.tareWeight,
+			"tareDateTime": weightDetail.tareWeightDate,
+			"image1":weightDetail.images.beforegross,
+			"image2":weightDetail.images.aftergross,
+			"image3":weightDetail.images.befortare,
+			"image4":weightDetail.images.aftertare
+	}
+	callbackObj.weighmanInput(JSON.stringify(obj));
+	
+	
 }
+
+
+
+$(function(){
+	//获取司磅读数
+	window.weightCallback=function(data){
+		let weightItem = $("#saveForm_"+index);
+		let weightDetail = weightItems.get(index+"")
+		if(weightDetail == null || weightDetail == ""){
+			weightDetail = {};
+		}
+		if(data.status == 0){
+	        return;
+	    }
+		weightDetail.grossWeight = data.grossWeight;
+		weightDetail.grossWeightDate = data.grossDateTime;
+		weightDetail.tareWeight = data.tareWeight;
+		weightDetail.tareWeightDate =  data.tareDateTime;
+		let images = {
+				"beforegross": data.image1,
+				"aftergross": data.image2,
+				"befortare": data.image3,
+				"aftertare": data.image4
+		};
+		weightDetail.images = images;
+		
+		//通过map保存司磅记录,key为index,value为表单信息,方便前端页面组装数据
+		weightItems.set(index+"",data);
+		if(strIsNotEmpty(data.grossWeight) && strIsNotEmpty(data.tareWeight)){
+			weightItem.find("[name=weight]").val(ob.grossWeight-ob.tareWeight);
+		}else{
+			weightItem.find("[name=weight]").val(0);
+		}
+		//weightItem.find("[name=weight]").val($("#grossWeight").val());
+		countNumber("weight");
+	}
+})
+
 </script>

@@ -1,10 +1,10 @@
 <script>
 //主表数据验证
 let saveForm = {
-	    onkeyup: false,
 	    rules: {
 	    	customerName: {
-	            required: true
+	            required: true,
+	            minlength: 1
 	        },
 	        customerCellphone: {
 	        	required: true,
@@ -61,10 +61,9 @@ let saveForm = {
 	        expireDate: {
 	        	required: "过期时间必填"
 	        }
-	    },
-	    focusCleanup: true
+	    }
 };
-//let validateSaveForm = $("#saveForm").validate(saveForm);
+let validateSaveForm = $("#saveForm").validate(saveForm);
 //子表数据验证
 let saveFormDetail = {
 	    onkeyup: false,
