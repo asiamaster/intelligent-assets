@@ -53,6 +53,7 @@ function getCost(){
 	detail.categoryId=$('#categoryId').val();
 	detail.quantity=$('#quantity').val();
 	detail.weight=$('#weight').val();
+	detail.type=type;
 	detail.uom=$('#uom').val();
 	if(type != 2){
 		detail.uom=1;

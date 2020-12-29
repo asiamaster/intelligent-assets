@@ -108,3 +108,7 @@ alter table `dili_ia`.`assets_rental` drop COLUMN `first_district_name`;
 alter table `dili_ia`.`assets_rental` drop COLUMN `second_district_id`;
 alter table `dili_ia`.`assets_rental` drop COLUMN `second_district_name`;
 
+ALTER TABLE `dili_ia`.`stock_weighman_record` 
+ADD COLUMN `image` varchar(255) NULL COMMENT '司磅图片地址' AFTER `market_code`;
+
+

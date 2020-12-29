@@ -787,6 +787,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			Map<String, Object> conditionParams = new HashMap<String, Object>();
 			conditionParams.put("uom", stockInDto.getUom());
 			conditionParams.put("categoryId", stockInDto.getCategoryId());
+			conditionParams.put("type", stockInDto.getType());
 			queryFeeInput.setConditionParams(conditionParams);
 			queryFeeInput.setCalcParams(calcParams);
 			queryFeeInputs.add(queryFeeInput);
