@@ -1,17 +1,8 @@
 package com.dili.ia.controller;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dili.assets.sdk.dto.CategoryDTO;
-import com.dili.assets.sdk.rpc.AssetsRpc;
-import com.dili.commons.glossary.EnabledStateEnum;
-import com.dili.ia.domain.dto.CategoryStorageCycleDto;
-import com.dili.ia.service.CategoryStorageCycleService;
-import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.ss.metadata.ValueProviderUtils;
-import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.session.SessionContext;
-import com.github.pagehelper.Page;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -24,9 +15,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.alibaba.fastjson.JSONObject;
+import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.dto.CusCategoryDTO;
+import com.dili.assets.sdk.dto.CusCategoryQuery;
+import com.dili.assets.sdk.rpc.AssetsRpc;
+import com.dili.commons.glossary.EnabledStateEnum;
+import com.dili.ia.domain.dto.CategoryStorageCycleDto;
+import com.dili.ia.domain.dto.CusCategoryQueryPage;
+import com.dili.ia.service.CategoryStorageCycleService;
+import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.metadata.ValueProviderUtils;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
+import com.github.pagehelper.Page;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -58,11 +61,11 @@ public class CategoryStorageCycleController {
      */
     @RequestMapping(value = "/getTree.action")
     @ResponseBody
-    public BaseOutput<List<CategoryDTO>> getTree(CategoryDTO input) {
+    public BaseOutput<List<CusCategoryDTO>> getTree(CusCategoryQuery input) {
         try {
     		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
     		input.setMarketId(userTicket.getFirmId());
-            return assetsRpc.list(input);
+            return assetsRpc.listCusCategory(input);
         } catch (Exception e) {
             return BaseOutput.failure(e.getMessage());
         }
@@ -75,7 +78,7 @@ public class CategoryStorageCycleController {
      * @return
      */
     @RequestMapping("/table.html")
-    public ModelAndView list(@ModelAttribute CategoryDTO input) {
+    public ModelAndView list(@ModelAttribute CusCategoryQueryPage input) {
     	Map<String, Object> result = new HashMap<>();
     	result.put("obj", categoryStorageCycleService.list(input));
         return new ModelAndView("stock/categoryCycle/table", result);
@@ -88,7 +91,7 @@ public class CategoryStorageCycleController {
      * @return
      */
     @RequestMapping("/table.action")
-    public @ResponseBody String listPage(@ModelAttribute CategoryDTO input) {
+    public @ResponseBody String listPage(@ModelAttribute CusCategoryQueryPage input) {
         Page<JSONObject> page = categoryStorageCycleService.list(input);
     	Map<String, String> map = input.getMetadata();
     	List<Map> result = null;
@@ -134,7 +137,7 @@ public class CategoryStorageCycleController {
     @RequestMapping(value = "/searchV2.action")
     public @ResponseBody BaseOutput<JSONObject> searchV2(String keyword) {
         try {
-        	CategoryDTO categoryDTO = new CategoryDTO();
+        	CusCategoryQuery categoryDTO = new CusCategoryQuery();
             categoryDTO.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
             categoryDTO.setState(EnabledStateEnum.ENABLED.getCode());
             categoryDTO.setKeyword(keyword);
@@ -142,7 +145,7 @@ public class CategoryStorageCycleController {
             	return BaseOutput.success().setData(null);
 			}
             //根据关键词查询品类
-            return BaseOutput.success().setData(assetsRpc.list(categoryDTO).getData());
+            return BaseOutput.success().setData(assetsRpc.listCusCategory(categoryDTO).getData());
         } catch (Exception e) {
         	LOG.error("获取品类周期失败",e.getMessage());
             return BaseOutput.failure(e.getMessage());
