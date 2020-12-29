@@ -63,9 +63,9 @@
         <%//只有摊位租赁退款单可以查看和审批流程
         if(bizType==@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()){%>
                 <#resource code="submitBoothLeaseRefundOrderApplication,submitLocationLeaseRefundOrderApplication,submitLodgingLeaseRefundOrderApplication">
-                    <button id="btn_approval" type="button" class="btn btn-primary submitApprovalEvent" onclick="submitRefundOrderApplication()"><i class="fa fa-paper-plane"></i> 提交审批</button>
-                </#resource>
+                <button id="btn_approval" type="button" class="btn btn-primary submitApprovalEvent" onclick="submitRefundOrderApplication()"><i class="fa fa-paper-plane"></i> 提交审批</button>
                 <button id="btn_showProgress" type="button" class="btn btn-primary" onclick="showProgress()"><i class="fa fa-paper-plane"></i>查看流程</button>
+                </#resource>
         <%}%>
                 <#resource code="withdrawBoothLeaseRefundOrder,withdrawLocationLeaseRefundOrder,withdrawLodgingLeaseRefundOrder,withdrawDepositRefundOrder,withdrawEarnestRefundOrder,withdrawOtherFeeRefundOrder,withdrawBoutiqueRefundOrder,withdrawPassportRefundOrder,withdrawMessageFeeRefundOrder,withdrawStockInRefundOrder,withdrawLaborVestRefundOrder" checkMenu="true">
                     <button id="btn_withdraw" type="button" class="btn btn-primary withdrawEvent" onclick="openWithdrawHandler()"><i class="fa fa-undo"></i> 撤回</button>

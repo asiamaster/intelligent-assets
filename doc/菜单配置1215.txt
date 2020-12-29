@@ -15,7 +15,7 @@
         续租 renewLocationLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/preSave.html)
         退款申请 refundApplyLocationLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/refundApply.html)
         停租 stopRentLocationLeaseOrder
-    冷库退款单 http://ia.diligrp.com:8381/refundOrder/1/index.html
+    冷库退款单 http://ia.diligrp.com:8381/refundOrder/4/index.html
         修改 updateLocationLeaseRefundOrder(内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
         提交 submitLocationLeaseRefundOrder
         撤回 withdrawLocationLeaseRefundOrder
@@ -34,7 +34,7 @@
         续租 renewLodgingLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/preSave.html)
         退款申请 refundApplyLodgingLeaseOrder(内部链接：http://ia.diligrp.com:8381/leaseOrder/refundApply.html)
         停租 stopRentLodgingLeaseOrder
-    公寓退款单 http://ia.diligrp.com:8381/refundOrder/1/index.html
+    公寓退款单 http://ia.diligrp.com:8381/refundOrder/5/index.html
         修改 updateLodgingLeaseRefundOrder(内部链接：http://ia.diligrp.com:8381/refundOrder/update.html)
         提交 submitLodgingLeaseRefundOrder
         撤回 withdrawLodgingLeaseRefundOrder
