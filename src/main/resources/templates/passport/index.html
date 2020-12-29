@@ -132,4 +132,40 @@
 </#bs4Body>
 
 <#passport_indexJs />
-<#print />
+
+
+<script id="printView" type="text/html">
+ 		<div class="row row-cols-1" style="padding-left:10%;padding-right:10%">
+ 			<div class="form-group col">
+               <img height="100px" width="100px" src="http://ia.diligrp.com:8381/resources/bui/images/platform/sys-park.png"/>		
+            </div>
+           
+            <div class="form-group col">
+                <label >姓名：</label>
+               	<span class ="print">{{selectedRow.customerName}}</span>
+            </div>
+			
+            <div class="form-group col">
+                <label >车牌号：</label>
+                <span class ="print">{{selectedRow.plate}}</span>
+            </div>
+ 			<div class="form-group col">
+                <label >证件号：</label>
+                <span class ="print">{{selectedRow.licenseNumber}}</span>
+            </div>
+ 			<div class="form-group col">
+                <label >部门：</label>
+                <span class ="print">{{selectedRow.departmentName}}</span>
+            </div>
+			<div class="form-group col">
+                <label >手机号：</label>
+                <span class ="print">{{selectedRow.customerCellphone}}</span>
+            </div>
+			<div class="form-group col">
+                <label >期限：</label>
+                <span class ="print">{{selectedRow.Timelimit}}</span>
+            </div>
+        </div>
+</script>
+
+

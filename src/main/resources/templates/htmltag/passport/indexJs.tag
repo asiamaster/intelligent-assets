@@ -272,6 +272,34 @@
         }
     }
 
+    /**
+     * 打印预览窗口
+     */
+    function openPassportPrintHandler() {
+    	if(isSelectRow()){
+    		//获取选中行的数据
+    		let rows = _grid.bootstrapTable('getSelections');
+    		let selectedRow = rows[0];
+    		let se = moment(selectedRow.startTime).format('YYYY/MM/DD')+"-"+moment(selectedRow.endTime).format('YYYY/MM/DD');
+    		selectedRow.Timelimit = se;
+    		//selectedRow.code = selectedRow.workCard;
+    		selectedRow.plate =selectedRow.carNumber
+    		dia = bs4pop.dialog({
+    			title: '打印预览',//对话框title
+    			content: bui.util.HTMLDecode(template('printView', {selectedRow})), //对话框内容，可以是 string、element，$object
+    			width: '30%',//宽度
+    			height: '90%',//高度
+    			btns: [{label: '取消',className: 'btn btn-secondary',onClick(e){
+    			}
+    			}, {label: '打印',className: 'btn btn-primary',onClick(e){
+                    callbackObj.boothPrintPreview(JSON.stringify(selectedRow), "passport_print", 0);
+    			}
+    			}]
+    		});
+    	}
+    }
+    
+    
 
     //选中行事件 -- 可操作按钮控制
     _grid.on('check.bs.table', function (e, row, $element) {
