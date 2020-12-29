@@ -532,14 +532,24 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
         //获取业务service,调用业务实现
         RefundOrderDispatcherService service = refundBiz.get(refundOrder.getBizType());
-        if(service!=null){
+        if(service != null){
             BaseOutput refundResult = service.refundSuccessHandler(settleOrder, refundOrder);
             if (!refundResult.isSuccess()){
                 LOG.info("退款成功后--回调业务返回失败！" + refundResult.getMessage());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款成功回调业务返回失败！" + refundResult.getMessage());
             }
         }
-
+        //如果有业务流程实例id，则通知流程结束
+        if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId())) {
+            //发送消息通知流程
+            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+            eventReceivedDto.setEventName(BpmEventConstants.SUBMITTED_RECEIVE_TASK);
+            eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
+            BaseOutput<String> baseOutput = eventRpc.signal(eventReceivedDto);
+            if (!baseOutput.isSuccess()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, "流程结束消息发送失败");
+            }
+        }
         return BaseOutput.success("退款成功！").setData(refundOrder);
     }
 
