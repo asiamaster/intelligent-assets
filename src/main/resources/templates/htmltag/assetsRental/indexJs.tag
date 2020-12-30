@@ -62,7 +62,7 @@
             title: '新增摊位出租预设',//对话框title
             content: '/assetsRental/add.html', //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
-            height: '680px',//高度
+            height: '80%',//高度
             isIframe: true,//默认是页面层，非iframe
         });
     }
@@ -82,7 +82,7 @@
             title: '修改摊位出租预设',//对话框title
             content: '${contextPath}/assetsRental/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
-            height: '680px',//高度
+            height: '80%',//高度
             isIframe: true,//默认是页面层，非iframe
         });
     }
