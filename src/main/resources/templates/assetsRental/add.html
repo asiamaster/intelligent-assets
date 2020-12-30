@@ -85,7 +85,7 @@
                        for(data in assetsRental.assetsRentalItemList){
                        %>
                        <div class="custom-control custom-checkbox">
-                           <input type="checkbox" class="custom-control-input" id="${data.id!}" data-mch-id="${assetsRental.mchId}" data-id="${data.id!}" data-name="${data.assetsName!}" data-first-area="${data.firstDistrictName!}" data-first-area-name="${data.firstDistrictName!}" data-second-area="${data.secondDistrictId!}" data-second-area-name="${data.secondDistrictName!}" data-type="${data.assetsType!}" data-number="${data.number!}" data-unit="${data.unit!}" data-corner="${data.corner!}">
+                           <input type="checkbox" class="custom-control-input" id="${data.id!}" data-mch-id="${assetsRental.mchId}" data-id="${data.id!}" data-name="${data.assetsName!}" data-first-area="${data.firstDistrictId!}" data-first-area-name="${data.firstDistrictName!}" data-second-area="${data.secondDistrictId!}" data-second-area-name="${data.secondDistrictName!}" data-type="${data.assetsType!}" data-number="${data.number!}" data-unit="${data.unit!}" data-corner="${data.corner!}">
                            <label class="custom-control-label" for="${data.id!}">${data.assetsName!}【${data.firstDistrictName!}】</label>
                        </div>
                     <%}
@@ -100,7 +100,7 @@
         <div class="breadcrumb" aria-expanded="true">
             设置预设信息
         </div>
-        <div class="row row-cols-6">
+        <div class="row row-cols-6" id="detailInfo">
             <div class="form-group col">
                 <label for="engageCode">经营范围</label>
                 <select id="engageCode" name="engageCode" class="form-control"></select>

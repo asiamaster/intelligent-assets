@@ -232,25 +232,32 @@
         let validator = $('#saveForm').validate({ignore:''})
         let url = '';
         let boothCheckedData = [];
-        if (!validator.form()) {
+
+       /* let detailInfo = $('#detailInfo .form-control').some(function(el, index){
+            debugger
+            return ($(el).val() != '')
+        });
+        console.log('detailInfo', detailInfo)
+        if (!validator.form() || !detailInfo) {
             return false;
-        }
+        }*/
+
         $("#nameHidden").val($("#name").val());
 
         // 构建已选摊位数据
         $.each($('.booth-checked .custom-control .custom-control-input'), function (index, item ) {
             
-            let assets_id = $(item).data('id');
-            let assets_name = $(item).data('name');
-            let area = $(item).data('first-area');
-            let areaName = $(item).data('first-area-name');
-            let secondArea = $(item).data('second-area');
-            let secondAreaName = $(item).data('second-area-name');
-            let type = $(item).data('type');
+            let assetsId = $(item).data('id');
+            let assetsName = $(item).data('name');
+            let firstDistrictId = $(item).data('first-area');
+            let firstDistrictName = $(item).data('first-area-name');
+            let secondDistrictId = $(item).data('second-area');
+            let secondDistrictName = $(item).data('second-area-name');
+            let assetsType = $(item).data('type');
             let number = $(item).data('number');
             let unit = $(item).data('unit');
             let corner = $(item).data('corner');
-            boothCheckedData.push({ assets_id, assets_name, area, areaName, secondArea, secondAreaName, type, number, unit, corner});
+            boothCheckedData.push({ assetsId, assetsName, firstDistrictId, firstDistrictName, secondDistrictId, secondDistrictName, assetsType, number, unit, corner});
         })
         console.log('boothCheckedData:',  boothCheckedData)
         let buildData = JSON.stringify($.extend({}, $('#saveForm').serializeObject(), {assetsRentalItemList: boothCheckedData, mchId: TheMerchantsId}));
