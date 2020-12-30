@@ -110,8 +110,11 @@ $('.readWeight').on('click', function() {
 </script>
 
 <script>
+
+let curIndex = 0;
 //修改子单打开司磅界面 回填数据
 function openWeightUpdateHandler(index) {
+	curIndex = index;
 	let weightDetail = weightItems.get(index+"")
 	if(weightDetail == null || weightDetail == ""){
 		weightDetail = {};
@@ -120,8 +123,8 @@ function openWeightUpdateHandler(index) {
 		};
 	}
 	let weightType = 1;
-	if(weightDetail.grossWeight != null || weightDetail.grossWeight != ""){
-		weightType = 2;
+	if(!isNull(weightDetail.grossWeight)){
+		weightType = 0;
 	}
 	// 重量类型 毛重1 皮重0
 	let obj = {
@@ -145,8 +148,8 @@ function openWeightUpdateHandler(index) {
 $(function(){
 	//获取司磅读数
 	window.weightCallback=function(data){
-		let weightItem = $("#saveForm_"+index);
-		let weightDetail = weightItems.get(index+"")
+		let weightItem = $("#saveForm_"+curIndex);
+		let weightDetail = weightItems.get(curIndex+"")
 		if(weightDetail == null || weightDetail == ""){
 			weightDetail = {};
 		}
@@ -166,9 +169,9 @@ $(function(){
 		weightDetail.images = images;
 		
 		//通过map保存司磅记录,key为index,value为表单信息,方便前端页面组装数据
-		weightItems.set(index+"",data);
+		weightItems.set(curIndex+"",weightDetail);
 		if(strIsNotEmpty(data.grossWeight) && strIsNotEmpty(data.tareWeight)){
-			weightItem.find("[name=weight]").val(ob.grossWeight-ob.tareWeight);
+			weightItem.find("[name=weight]").val(parseInt(weightDetail.grossWeight)-parseInt(weightDetail.tareWeight));
 		}else{
 			weightItem.find("[name=weight]").val(0);
 		}

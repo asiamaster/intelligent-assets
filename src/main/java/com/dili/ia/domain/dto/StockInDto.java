@@ -39,6 +39,11 @@ public class StockInDto {
     private Long mchId;
     
     /**
+     * 存储周期
+     */
+    private Long day;
+    
+    /**
      * 入库时间
      */
     private LocalDateTime stockInDate;
@@ -406,6 +411,14 @@ public class StockInDto {
 
 	public void setOriginPath(String originPath) {
 		this.originPath = originPath;
+	}
+
+	public Long getDay() {
+		return day;
+	}
+
+	public void setDay(Long day) {
+		this.day = day;
 	}
 
 	
