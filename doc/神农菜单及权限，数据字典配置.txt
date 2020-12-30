@@ -209,6 +209,17 @@ nacos 配置
 	messageFee.settlement.handler.url=http://ia.diligrp.com:8381/api/fee/message/settlementDealHandler
 	messageFee.settlement.view.url=http://ia.diligrp.com:8381/fee/message/view.html
 	messageFee.settlement.print.url=http://ia.diligrp.com:8381/api/fee/message/queryPrintData/payment
+	
+	#来源渠道
+	ia.source.channel.customerMeter=customerMeter
+	ia.source.channel.assetsRental=assetsRental
+	ia.source.channel.boutiqueFreeSets=boutiqueFreeSets
+	ia.source.channel.boutiqueEntranceRecord=boutiqueEntranceRecord
+	ia.source.channel.meter=meter
+	ia.source.channel.meterDetail=meterDetail
+	ia.source.channel.otherFee=otherFee
+	ia.source.channel.departmentChargeItem=departmentChargeItem
+	ia.source.channel.passport=passport
 
 
 收费项配置
