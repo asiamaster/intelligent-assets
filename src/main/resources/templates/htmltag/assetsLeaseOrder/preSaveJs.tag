@@ -87,17 +87,22 @@
     }
 
     //资产组件事件
-    var assetEvent = {
+    var assetEvent = [{
         eventName: 'select2:selecting',
         eventHandler: function (e) {
-            let bizType = $('#bizType').val();
             let suggestion = e.params.args.data;
-            let leaseOrderItems = buildLeaseOrderItems();
-            let index = getIndex($(this).attr('id'));
             if (!suggestion.marketId) {
                 bs4pop.notice('未指定业务入账组织，不能办理业务', {position: 'bottomleft', type: 'danger'});
                 return false;
             }
+        }
+    }, {
+        eventName: 'select2:select',
+        eventHandler: function (e) {
+            let bizType = $('#bizType').val();
+            let suggestion = e.params.data;
+            let leaseOrderItems = buildLeaseOrderItems();
+            let index = getIndex($(this).attr('id'));
 
             clearAssetsInputData(index);
             //摊位预设信息设置
@@ -159,7 +164,7 @@
                 assetsId: suggestion.id
             });
         }
-    }
+    }];
 
     //品类搜索自动完成
     var categoryAutoCompleteOption = {
@@ -488,8 +493,12 @@
                     let depositBalances = ret.data;
                     if(depositBalances.length > 0){
                         for (let depositBalance of depositBalances){
-                            let index = getIndex($("table input.assets[value='"+depositBalance.assetsId+"']").attr('id'));
-                            $('#depositBalance_'+index).val(Number(depositBalance.balance).centToYuan());
+                            $("table select[name^='assetsId']").filter(function () {
+                                return this.value == depositBalance.assetsId;
+                            }).each(function (i) {
+                                let index = getIndex(this.id);
+                                $('#depositBalance_'+index).val(Number(depositBalance.balance).centToYuan());
+                            });
                         }
                     }
                 }
@@ -516,12 +525,16 @@
                     let depositOrders = ret.data;
                     if(depositOrders.length > 0){
                         for (let depositOrder of depositOrders){
-                            let index = getIndex($("table input.assets[value='"+depositOrder.assetsId+"']").attr('id'));
-                            if(depositOrder.state != ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()}){
-                                $('#depositMakeUpAmount_' + index).val(Number(depositOrder.amount).centToYuan()).attr('readonly', true);
-                            }else{
-                                $('#depositMakeUpAmount_' + index).val(Number(depositOrder.amount).centToYuan());
-                            }
+                            $("table select[name^='assetsId']").filter(function () {
+                                return this.value == depositOrder.assetsId;
+                            }).each(function (i) {
+                                let index = getIndex(this.id);
+                                if(depositOrder.state != ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()}){
+                                    $('#depositMakeUpAmount_' + index).val(Number(depositOrder.amount).centToYuan()).attr('readonly', true);
+                                }else{
+                                    $('#depositMakeUpAmount_' + index).val(Number(depositOrder.amount).centToYuan());
+                                }
+                            });
                         }
                     }
                     calcTotalAmountAndDeposit();
