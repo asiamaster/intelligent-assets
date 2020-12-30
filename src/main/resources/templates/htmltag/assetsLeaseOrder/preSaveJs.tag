@@ -171,6 +171,7 @@
         width: '100%',
         language: 'zh-CN',
         maximumSelectionLength: 10,
+        multiple: true,
         ajax: {
             type:'get',
             url: '/assets/searchCategory.action',

@@ -101,7 +101,7 @@
                 <% if(assetsType != @com.dili.ia.glossary.AssetsTypeEnum.LODGING.getCode()){%>
                 <div class="form-group col">
                     <label for="categorys" _log>经营品类</label>
-                    <select id="categorys" name="categorys" multiple>
+                    <select id="categorys" name="categorys" class="form-control">
                         <%
                         if(isNotEmpty(leaseOrder.categoryId)){
                         var categoryIds = strutil.split (leaseOrder.categoryId,",");
@@ -161,7 +161,7 @@
                         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
                         <td style="padding: .25rem!important;">
                             <input type="hidden" id="assetsName_${itemLP.index}" name="assetsName_${itemLP.index}" value="${item.assetsName!}">
-                            <select id="assetsId_${itemLP.index}" name="assetsId_${itemLP.index}" _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" required>
+                            <select id="assetsId_${itemLP.index}" name="assetsId_${itemLP.index}" class="form-control" _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" required>
                                 <option value="${item.assetsId!}">${item.assetsName!}(${isEmpty(item.secondDistrictName)? item.firstDistrictName : item.firstDistrictName+'->'+item.secondDistrictName })</option>
                             </select>
                             <#bselect2 _id="assetsId_${itemLP.index}" _mode="remote" _optionVariable="assetAutoCompleteOption" _value="${item.assetsId!}" _eventVariable="assetEvent"/>
@@ -262,7 +262,7 @@
         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
             <input type="hidden" id="assetsName_{{index}}" name="assetsName_{{index}}">
-            <select id="assetsId_{{index}}" name="assetsId_{{index}}" _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" required>
+            <select id="assetsId_{{index}}" name="assetsId_{{index}}" class="form-control" _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" required>
             </select>
             <#bselect2 _escape="true" _id="assetsId_{{index}}" _mode="remote" _optionVariable="assetAutoCompleteOption" _eventVariable="assetEvent"/>
         </td>
