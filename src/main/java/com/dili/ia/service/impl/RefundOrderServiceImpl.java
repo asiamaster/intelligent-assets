@@ -525,6 +525,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
         refundOrder.setRefundOperatorId(settleOrder.getOperatorId());
         refundOrder.setRefundOperator(settleOrder.getOperatorName());
         refundOrder.setRefundType(settleOrder.getWay());
+        refundOrder.setBankCardNo(settleOrder.getAccountNumber());
+        refundOrder.setBank(settleOrder.getBankName());
         if (refundOrderService.updateSelective(refundOrder) == 0) {
             LOG.info("退款成功后--回调更新退款单状态记录数为0，多人操作，请重试！");
             throw new BusinessException(ResultCode.DATA_ERROR, "退款单多人操作，请重试！");
