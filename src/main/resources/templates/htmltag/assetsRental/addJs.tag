@@ -268,7 +268,7 @@
         $.map($('#categorys').select2('data'), function (item) {
             debugger
             categoryId.push(parseInt(item.id))
-            categoryName.push(item.name)
+            categoryName.push(item.text)
         });
 
         let buildData = JSON.stringify($.extend({}, $('#saveForm :not(#categorys)').serializeObject(), {categoryId: categoryId.join(), categoryName: categoryName.join()},  {assetsRentalItemList: boothCheckedData, mchId: TheMerchantsId}));
