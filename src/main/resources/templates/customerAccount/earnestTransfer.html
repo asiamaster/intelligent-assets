@@ -27,7 +27,13 @@
         </div>
 
         <div class="breadcrumb">
-            转入方 <a href="javascript:;" class="ml-2" id="getCustomer">刷卡获取</a>
+            转入方
+            <a href="javascript:;" class="ml-2" id="getCustomer">刷身份证</a>
+            <%
+            if (@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='sg') {
+            %>
+            <a href="javascript:;" class="ml-2" id="icReader">刷园区卡</a>
+            <% } %>
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#transferinInfo" aria-expanded="true" aria-controls="transferinInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
         <div id="transferinInfo" class="row row-cols-4 collapse show">
