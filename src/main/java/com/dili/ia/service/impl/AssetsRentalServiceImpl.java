@@ -1,5 +1,6 @@
 package com.dili.ia.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.customer.sdk.constants.MqConstant;
@@ -17,6 +18,7 @@ import com.dili.ia.service.AssetsRentalItemService;
 import com.dili.ia.service.AssetsRentalService;
 import com.dili.ia.service.MchAndDistrictService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.beetl.format.LocalDateTimeFormat;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
@@ -37,6 +39,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -141,15 +144,15 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         assetsRentalInfo.setVersion(assetsRentalInfo.getVersion() + 1);
 
         //修改操作
-        BeanUtils.copyProperties(assetsRentalInfo, assetsRental);
-        if (this.updateSelective(assetsRental) == 0) {
+        BeanUtils.copyProperties(assetsRentalDto,assetsRentalInfo);
+        if (this.updateSelective(assetsRentalInfo) == 0) {
             throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
         }
 
         // 修改到关联表
         List<AssetsRentalItem> assetsRentalItemList = assetsRentalDto.getAssetsRentalItemList();
         for (AssetsRentalItem assetsRentalItem : assetsRentalItemList) {
-            assetsRentalItem.setAssetsRentalId(assetsRental.getId());
+        	assetsRentalItem.setAssetsRentalId(assetsRentalInfo.getId());
             assetsRentalItem.setVersion(0);
         }
         assetsRentalItemService.deleteByRentalId(assetsRentalDto.getId());
