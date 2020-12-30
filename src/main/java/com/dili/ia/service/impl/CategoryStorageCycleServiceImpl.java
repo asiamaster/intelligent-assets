@@ -86,7 +86,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         input.setMarketId(userTicket.getFirmId());
         // keyword 不为空直接查询
-        if (StringUtils.isEmpty(input.getKeyword())) {
+        if (!StringUtils.isEmpty(input.getKeyword())) {
         	input.setParent(0L);
         }
         // 获取品类基础信息

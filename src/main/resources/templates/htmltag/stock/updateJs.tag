@@ -194,10 +194,12 @@ function buildFormData() {
 		detail.assetsCode = assetsName;
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
-		let index = $(this).attr("id").split("_")[1];
-		let weightItem = weightItems.get(index);
-		weightItem.images = JSON.stringify(weightItem.images);
-		detail.stockWeighmanRecordDto = weightItem;
+		if(type == 3){
+			let index = $(this).attr("id").split("_")[1];
+			let weightItem = weightItems.get(index);
+			weightItem.images = JSON.stringify(weightItem.images);
+			detail.stockWeighmanRecordDto = weightItem;
+		}
 		detail.mchId=mchId;
 		// 动态收费项
 		let itemBusinessChargeDtos = []

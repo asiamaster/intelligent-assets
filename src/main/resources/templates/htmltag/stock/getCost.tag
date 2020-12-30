@@ -38,6 +38,9 @@ $(document).on('change',"#uom", function() {
 //计算子单费用
 function countItemAmount(){
 	let uom = $("#uom").val();
+	if(type != 2){
+		uom=1;
+	}
 	let unitPrice = parseFloat($("#unitPrice").val());
 	$("#details").find("form").each(function() {
 		if(uom == 1){
@@ -55,6 +58,7 @@ function getCost(){
 	detail.weight=$('#weight').val();
 	detail.type=type;
 	detail.uom=$('#uom').val();
+	detail.day=$("#cycle").val();
 	if(type != 2){
 		detail.uom=1;
 	}

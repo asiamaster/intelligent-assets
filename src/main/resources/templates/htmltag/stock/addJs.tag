@@ -156,9 +156,11 @@ function buildFormData() {
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;
 		// 组装司磅入库数据
-		let weightItem = weightItems.get(index);
-		weightItem.images = JSON.stringify(weightItem.images);
-		detail.stockWeighmanRecordDto = weightItem;
+		if(type == 3){
+			let weightItem = weightItems.get(index);
+			weightItem.images = JSON.stringify(weightItem.images);
+			detail.stockWeighmanRecordDto = weightItem;
+		}
 		detail.mchId=mchId;
 		// 动态收费项
 		let itemBusinessChargeDtos = []
