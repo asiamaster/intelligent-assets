@@ -162,7 +162,7 @@
                         <td style="padding: .25rem!important;">
                             <input type="hidden" id="assetsName_${itemLP.index}" name="assetsName_${itemLP.index}" value="${item.assetsName!}">
                             <select id="assetsId_${itemLP.index}" name="assetsId_${itemLP.index}" _log="${@com.dili.ia.glossary.AssetsTypeEnum.getAssetsTypeEnum(assetsType).getName()}编号" required>
-                                <option value="${item.assetsId!}">${item.assetsName!}</option>
+                                <option value="${item.assetsId!}">${item.assetsName!}(${isEmpty(item.secondDistrictName)? item.firstDistrictName : item.firstDistrictName+'->'+item.secondDistrictName })</option>
                             </select>
                             <#bselect2 _id="assetsId_${itemLP.index}" _mode="remote" _optionVariable="assetAutoCompleteOption" _value="${item.assetsId!}" _eventVariable="assetEvent"/>
                         </td>
