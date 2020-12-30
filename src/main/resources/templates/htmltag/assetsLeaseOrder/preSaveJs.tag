@@ -765,21 +765,25 @@
                 $("table select[name^='assetsId']").filter(function () {
                     return this.value
                 }).parents("tr").find("input[isCharge]").attr('readonly', false);
-                if(!ret.success){
+                if (!ret.success) {
                     bs4pop.alert(ret.message, {type: 'error'});
-                }else{
+                } else {
                     let calcResult = ret.data;
                     for (let chargeItemResult of calcResult) {
-                        let chargeItemDataset = $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset;
+                        let index = getIndex(chargeItemResult.requestDataId);
+                        let chargeItemDataset = $('#chargeItem_' + chargeItemResult.requestDataId)[0].dataset;
                         if (chargeItemResult.success) {
                             let ruleAmount = Math.round(Number(chargeItemResult.totalFee).mul(100)).centToYuan();
-                            $('#chargeItem_'+chargeItemResult.requestDataId).val(ruleAmount);
+                            $('#chargeItem_' + chargeItemResult.requestDataId).val(ruleAmount);
                             chargeItemDataset['ruleId'] = chargeItemResult.ruleId;
                             chargeItemDataset['ruleName'] = chargeItemResult.ruleName;
                             chargeItemDataset['ruleAmount'] = ruleAmount;
                             calcTotalAmount(true);
                         } else {
-                            bs4pop.notice(chargeItemDataset['chargeItemName'] + ' ' + chargeItemResult.message, {position: 'bottomleft', type: 'danger'});
+                            bs4pop.notice($('#assetsId_' + index).select2('data')[0].text + chargeItemDataset['chargeItemName'] + ' ' + chargeItemResult.message, {
+                                position: 'bottomleft',
+                                type: 'danger'
+                            });
                         }
                     }
                 }
