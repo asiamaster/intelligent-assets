@@ -239,7 +239,7 @@
         let categoryId = [];
         let categoryName = [];
         let ell = $('#detailInfo .form-control');
-        let detailInfo = [$('#engageCode'), $('#leaseTermCode'), $('#days'), $('#startTime'), $('#startTime')].some(function(el, index){
+        let detailInfo = [$('#engageCode'), $('#leaseTermCode'), $('#days'), $('#startTime'), $('#startTime'), $('#categorys')].some(function(el, index){
             return ($(el).val() != '')
         });
 
@@ -247,6 +247,14 @@
         if (!validator.form() || !detailInfo) {
             return false;
         }
+
+        $.map($('#categorys').select2('data'), function (item) {
+            debugger
+            categoryId.push(parseInt(item.id))
+            categoryName.push(item.text)
+        });
+
+
 
         $("#nameHidden").val($("#name").val());
 
@@ -265,11 +273,7 @@
             let corner = $(item).data('corner');
             boothCheckedData.push({ assetsId, assetsName, firstDistrictId, firstDistrictName, secondDistrictId, secondDistrictName, assetsType, number, unit, corner});
         })
-        $.map($('#categorys').select2('data'), function (item) {
-            debugger
-            categoryId.push(parseInt(item.id))
-            categoryName.push(item.text)
-        });
+
 
         let buildData = JSON.stringify($.extend({}, $('#saveForm :not(#categorys)').serializeObject(), {categoryId: categoryId.join(), categoryName: categoryName.join()},  {assetsRentalItemList: boothCheckedData, mchId: TheMerchantsId}));
         bui.loading.show('努力提交中，请稍候。。。');
