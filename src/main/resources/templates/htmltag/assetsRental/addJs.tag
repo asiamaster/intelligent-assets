@@ -11,32 +11,36 @@
 
     //品类搜索
     //品类搜索自动完成
-    var testAutoCompleteOption = {
-        serviceUrl: '/stock/categoryCycle/searchV2.action',
-        paramName : 'keyword',
-        displayFieldName : 'name',
-        showNoSuggestionNotice: true,
-        noSuggestionNotice: '无匹配结果',
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
+    var categoryAutoCompleteOption = {
+        width: '100%',
+        language: 'zh-CN',
+        maximumSelectionLength: 10,
+        ajax: {
+            type:'get',
+            url: '/stock/categoryCycle/searchV2.action',
+            data: function (params) {
                 return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '（' + dataItem.code + '）'
-                            }
-                        );
-                    })
+                    keyword: params.term,
                 }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return false;
+            },
+            processResults: function (result) {
+                if(result.success){
+                    let data = result.data;
+                    return {
+                        results: $.map(data, function (dataItem) {
+                            dataItem.text = dataItem.name + (dataItem.cusName ? '(' + dataItem.cusName + ')' : '');
+                            return dataItem;
+                        })
+                    };
+                }else{
+                    bs4pop.alert(result.message, {type: 'error'});
+                    return;
+                }
             }
-        },
-        selectFn: function (suggestion) {
-            $("#cycle").val(suggestion.cycle);
         }
     }
+
+
     $.fn.serializeObject = function()
     {
         var o = {};
@@ -232,15 +236,25 @@
         let validator = $('#saveForm').validate({ignore:''})
         let url = '';
         let boothCheckedData = [];
-
-       /* let detailInfo = $('#detailInfo .form-control').some(function(el, index){
-            debugger
+        let categoryId = [];
+        let categoryName = [];
+        let ell = $('#detailInfo .form-control');
+        let detailInfo = [$('#engageCode'), $('#leaseTermCode'), $('#days'), $('#startTime'), $('#startTime'), $('#categorys')].some(function(el, index){
             return ($(el).val() != '')
         });
+
         console.log('detailInfo', detailInfo)
         if (!validator.form() || !detailInfo) {
             return false;
-        }*/
+        }
+
+        $.map($('#categorys').select2('data'), function (item) {
+            debugger
+            categoryId.push(parseInt(item.id))
+            categoryName.push(item.text)
+        });
+
+
 
         $("#nameHidden").val($("#name").val());
 
@@ -259,9 +273,11 @@
             let corner = $(item).data('corner');
             boothCheckedData.push({ assetsId, assetsName, firstDistrictId, firstDistrictName, secondDistrictId, secondDistrictName, assetsType, number, unit, corner});
         })
-        console.log('boothCheckedData:',  boothCheckedData)
-        let buildData = JSON.stringify($.extend({}, $('#saveForm').serializeObject(), {assetsRentalItemList: boothCheckedData, mchId: TheMerchantsId}));
+
+
+        let buildData = JSON.stringify($.extend({}, $('#saveForm :not(#categorys)').serializeObject(), {categoryId: categoryId.join(), categoryName: categoryName.join()},  {assetsRentalItemList: boothCheckedData, mchId: TheMerchantsId}));
         bui.loading.show('努力提交中，请稍候。。。');
+        console.log('buildData:',  buildData)
 
         if($('#id').val()){
             url = "/assetsRental/update.action";
