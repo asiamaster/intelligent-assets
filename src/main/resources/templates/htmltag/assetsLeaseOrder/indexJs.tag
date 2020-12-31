@@ -503,7 +503,7 @@
 
         dia = bs4pop.dialog({
             title: '续租',
-            content: '/leaseOrder/preSave.html?isRenew=1&id=' + rows[0].id + '&assetsType=' + rows[0].assetsType,
+            content: '/leaseOrder/preSave.html?isRenew=1&id=' + rows[0].id + '&bizType=' + rows[0].bizType,
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
