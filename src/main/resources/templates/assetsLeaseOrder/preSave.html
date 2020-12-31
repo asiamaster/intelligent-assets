@@ -9,8 +9,8 @@
             <input type="hidden" id="assetsType" name="assetsType" value="${assetsType!}">
             <input type="hidden" id="bizType" name="bizType" value="${bizType!}">
             <input type="hidden" id="marketId" name="marketId" value="${@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmId()}">
-            <input type="hidden" id="mchId" name="mchId" value="${mchId!}">
-            <input type="hidden" id="batchId" name="batchId" value="${batchId!}">
+            <input type="hidden" id="mchId" name="mchId" value="${leaseOrder.mchId!}">
+            <input type="hidden" id="batchId" name="batchId" value="${leaseOrder.batchId!}">
             <div class="breadcrumb" >
                 客户信息
                 <%
@@ -156,8 +156,6 @@
                         <input type="hidden" id="secondDistrictName_${itemLP.index}" name="secondDistrictName_${itemLP.index}" value="${item.secondDistrictName!}">
                         <input type="hidden" id="number_${itemLP.index}" name="number_${itemLP.index}" value="${item.number!}"/>
                         <input type="hidden" id="unitName_${itemLP.index}" name="unitName_${itemLP.index}" value="${item.unitName!}"/>
-                        <input type="hidden" id="mchId_${itemLP.index}" name="mchId_${itemLP.index}"/>
-                        <input type="hidden" id="batchId_${itemLP.index}" name="batchId_${itemLP.index}"/>
                         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
                         <td style="padding: .25rem!important;">
                             <input type="hidden" id="assetsName_${itemLP.index}" name="assetsName_${itemLP.index}" value="${item.assetsName!}">
@@ -257,8 +255,6 @@
         <input type="hidden" id="secondDistrictName_{{index}}" name="secondDistrictName_{{index}}" value="${item.secondDistrictName!}">
         <input type="hidden" id="number_{{index}}" name="number_{{index}}"/>
         <input type="hidden" id="unitName_{{index}}" name="unitName_{{index}}"/>
-        <input type="hidden" id="mchId_{{index}}" name="mchId_{{index}}"/>
-        <input type="hidden" id="batchId_{{index}}" name="batchId_{{index}}"/>
         <td class="text-center"><a href="javascript:;" class="item-del" style="padding: 8px 18px;"><i class="fa fa-minus-square fa-lg"></i></a></td>
         <td style="padding: .25rem!important;">
             <input type="hidden" id="assetsName_{{index}}" name="assetsName_{{index}}">

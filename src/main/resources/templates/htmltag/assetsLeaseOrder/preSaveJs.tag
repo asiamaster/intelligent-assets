@@ -111,7 +111,6 @@
                 if (bizType == ${@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()}) {
                     let rental = getRentalByAssetsId(suggestion.id);
                     if (rental) {
-                        $('#batchId_' + index).val(rental.batchId);
                         $('#batchId').val(rental.batchId);
                         rental.engageCode && $('#engageCode').val(rental.engageCode);
                         rental.leaseTermCode && $('#leaseTermCode').val(rental.leaseTermCode);
@@ -129,7 +128,6 @@
                             });
                         }
                     } else {
-                        $('#batchId_' + index).val('');
                         $('#batchId').val('');
                     }
                 }
@@ -142,7 +140,6 @@
                 $('#leasesNum_' + index).attr('max', rentBalance);
             }
 
-            $('#mchId_' + index).val(suggestion.marketId);
             $('#number_' + index).val(suggestion.number);
             if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
                 $('#leasesNum_' + index).val(suggestion.number);
