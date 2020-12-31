@@ -22,7 +22,7 @@ public interface AssetsLeaseService {
      * @param batchId
      * @return 最新商户
      */
-    Long checkAssets(List<Long> assetsIds, Long mchId , Long batchId);
+    Long checkAssets(List<Long> assetsIds, Long mchId , String batchId);
 
     /**
      * 冻结资产

@@ -272,7 +272,7 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
      * 批次ID
      */
     @Column(name = "`batch_id`")
-    private Long batchId;
+    private String batchId;
 
     /**
      * 乐观锁，版本号
@@ -729,11 +729,11 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
         this.mchId = mchId;
     }
 
-    public Long getBatchId() {
+    public String getBatchId() {
         return batchId;
     }
 
-    public void setBatchId(Long batchId) {
+    public void setBatchId(String batchId) {
         this.batchId = batchId;
     }
 

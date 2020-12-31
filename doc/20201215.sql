@@ -63,7 +63,7 @@ ALTER TABLE `dili_ia`.`business_charge_item`
 ADD COLUMN `rule_amount` bigint(20) NULL COMMENT '规则计算金额' AFTER `rule_name`;
 
 ALTER TABLE `dili_ia`.`assets_lease_order`
-ADD COLUMN `batch_id` bigint(20) NULL DEFAULT NULL COMMENT '批次号' AFTER `mch_id`;
+ADD COLUMN `batch_id` varchar(30) NULL DEFAULT NULL COMMENT '批次号' AFTER `mch_id`;
 
 ALTER TABLE `dili_ia`.`assets_lease_order_item`
 ADD COLUMN `first_district_id` bigint(20) NULL DEFAULT NULL COMMENT '一级区域ID' AFTER `stop_rent_state`,
