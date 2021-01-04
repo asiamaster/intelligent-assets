@@ -35,13 +35,13 @@
         <div class="row  row-cols-4 collapse show" >
             <div class="form-group col-6">
                 <label for="" _log>所属区域<i class="red">*</i></label>
-                <#js_district firstDistrictId="${earnestOrder.firstDistrictId!}" secondDistrictId="${earnestOrder.secondDistrictId!}"></#js_district>
+                <#js_district _firstDistrictName="firstDistrictId" _secondDistrictName="secondDistrictId" _firstDistrictId="${earnestOrder.firstDistrictId!}" _secondDistrictId="${earnestOrder.secondDistrictId!}"></#js_district>
             </div>
         </div>
         <%}%>
         <div class="row row-cols-4">
             <div id="boothInfo" class="collapse show col-6">
-                <input type="hidden" id="assetsType" value="${@com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()}">
+                <input type="hidden" id="assetsType" name="assetsType" value="${@com.dili.ia.glossary.AssetsTypeEnum.BOOTH.getCode()}">
                 <table class="table table-bordered table-hover table-striped" id="boothTable"  _logTable="摊位项">
                     <thead>
                     <tr>

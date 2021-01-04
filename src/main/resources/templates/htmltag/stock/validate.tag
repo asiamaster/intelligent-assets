@@ -1,10 +1,10 @@
 <script>
 //主表数据验证
 let saveForm = {
-	    onkeyup: false,
 	    rules: {
 	    	customerName: {
-	            required: true
+	            required: true,
+	            minlength: 1
 	        },
 	        customerCellphone: {
 	        	required: true,
@@ -61,17 +61,16 @@ let saveForm = {
 	        expireDate: {
 	        	required: "过期时间必填"
 	        }
-	    },
-	    focusCleanup: true
+	    }
 };
-//let validateSaveForm = $("#saveForm").validate(saveForm);
+let validateSaveForm = $("#saveForm").validate(saveForm);
 //子表数据验证
 let saveFormDetail = {
 	    onkeyup: false,
 	    rules: {
-	    	districtId: {
+	    	/*districtId: {
 	            required: true
-	        },
+	        },*/
 	        assetsId: {
 	        	required: true,
 	        },
@@ -101,9 +100,9 @@ let saveFormDetail = {
 	        }
 	    },
 	    messages: {
-	    	districtId: {
+	    	/*districtId: {
 	            required: "区域必填"
-	        },
+	        },*/
 	        assetsId: {
 	        	required:"冷库必填",
 	        },
@@ -142,6 +141,16 @@ function validateForm(){
 	}
 	for(let i=1;i<=itemIndex;i++){
 		if($("#saveForm_"+i).length > 0){
+			// 验证区域
+			let flag = false;
+			$("#saveForm_"+i).find('.districtId').each(function (){
+				if(!isNull($(this).val())){
+					flag = true;
+				}
+			})
+			if(!flag){
+				count++
+			}
 			if(!$("#saveForm_"+i).validate().form()){
 				count++
 			}  

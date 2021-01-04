@@ -9,6 +9,10 @@
         height: 300px;
         overflow: auto;
     }
+    .booth-checked {
+        height: 640px;
+        overflow: auto;
+    }
 </style>
 <div class="container-fluid pb-5" id="app">
     <input type="hidden" id="_sourceChannel" value="<#config name='ia.source.channel.assetsRental'/>">
@@ -25,24 +29,23 @@
    <div class="p-3">
 
        <div class="row p-3 boothwrap">
-           <div class="col-4  p-3 mr-5 border">
-
+           <div class="col-5  p-3 mr-5 border">
                <form id="searchForm" role="form" novalidate>
                    <div class="row row-cols-2">
                        <div class="form-group col">
-                           <label for="typeCode">区域<i class="red">*</i></label>
-                               <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
+                           <label for="firstDistrictId">区域</label>
+                           <#js_district _firstDistrictName="firstDistrictId" _secondDistrictName="secondDistrictId" _optionText="全部" ></#js_district>
                        </div>
                        <div class="form-group col">
-                           <label for="" class="">摊位编号<i class="red">*</i></label>
+                           <label for="" class="">摊位编号</label>
                            <input id="assetsName" type="" class="form-control digits" maxlength="50" name="assetsName" />
                        </div>
                        <div class="form-group col">
-                           <label for="" class="">数量<i class="red">*</i></label>
+                           <label for="" class="">数量</label>
                            <div class="input-group">
-                               <input id="startNumber" type="" class="form-control digits" name="startNumber" />
+                               <input id="startNumber" type="number" class="form-control digits" name="startNumber" />
                                <span class="align-self-center">至</span>
-                               <input id="endNumber" type="" class="form-control digits" name="endNumber" />
+                               <input id="endNumber" type="number" class="form-control digits" name="endNumber" />
                            </div>
                        </div>
                        <div class="col-auto align-self-center mt-3">
@@ -61,6 +64,16 @@
 
                </div>
            </div>
+            <div class="col">
+                <div class="row align-items-center h-100" >
+                    <div class="col">
+                        <button type="button" class="btn btn-outline-dark" id="checkedBoothBtn">选定<i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-outline-dark" id="uncheckedBoothBtn"><i class="fa fa-chevron-left" aria-hidden="true"></i>移出</button>
+                    </div>
+                </div>
+            </div>
            <div class="col-5  p-3 border">
                <h5 class="">已选摊位</h5>
                <div class="custom-control custom-checkbox">
@@ -68,7 +81,15 @@
                    <label class="custom-control-label" for="uncheckAll">全选</label>
                </div>
                <div class="booth-checked">
-
+                   <% if(isNotEmpty(assetsRental.assetsRentalItemList)){
+                       for(data in assetsRental.assetsRentalItemList){
+                       %>
+                       <div class="custom-control custom-checkbox">
+                           <input type="checkbox" class="custom-control-input" id="${data.id!}" data-mch-id="${assetsRental.mchId}" data-id="${data.id!}" data-name="${data.assetsName!}" data-first-area="${data.firstDistrictId!}" data-first-area-name="${data.firstDistrictName!}" data-second-area="${data.secondDistrictId!}" data-second-area-name="${data.secondDistrictName!}" data-type="${data.assetsType!}" data-number="${data.number!}" data-unit="${data.unit!}" data-corner="${data.corner!}">
+                           <label class="custom-control-label" for="${data.id!}">${data.assetsName!}【${data.firstDistrictName!}】</label>
+                       </div>
+                    <%}
+                   }%>
                </div>
            </div>
        </div>
@@ -79,33 +100,46 @@
         <div class="breadcrumb" aria-expanded="true">
             设置预设信息
         </div>
-        <div class="row row-cols-6">
+        <div class="row row-cols-6" id="detailInfo">
             <div class="form-group col">
-                <label for="engageCode">经营范围<i class="red">*</i></label>
-                <select id="engageCode" name="engageCode" class="form-control" required></select>
+                <label for="engageCode">经营范围</label>
+                <input type="hidden" id="engageName" name="engageName" value="${assetsRental.engageName!}">
+                <select id="engageCode" name="engageCode" class="form-control"></select>
                 <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider"  _value="${assetsRental.engageCode!}" _queryParams='{dd_code:"engage"}' _text="${assetsRental.engageName!}"/>
             </div>
             <div class="form-group col">
-                <label for="leaseTermCode">租赁期限<i class="red">*</i></label>
+                <label for="leaseTermCode">租赁期限</label>
+                <input type="hidden" id="leaseTermName" name="leaseTermName" value="${assetsRental.leaseTermName!}">
                 <select id="leaseTermCode" name="leaseTermCode" class="form-control" required></select>
                 <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}' _text="${assetsRental.leaseTermName!}"/>
             </div>
             <div class="form-group col">
-                <label for="categoryId" _log>经营品类</label>
-                <#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName" _displayDomainName="categoryName" _placeholder="" _validatorMethod="isSelected" _optionVariable="testAutoCompleteOption" _value="${assetsRental.categoryId!}" _text="${assetsRental.categoryName!}"/>
+                <label for="categorys" _log>经营品类</label>
+                <select id="categorys" name="categorys" multiple>
+                    <%
+                    if(isNotEmpty(assetsRental.categoryId)){
+                    var categoryIds = strutil.split (assetsRental.categoryId,",");
+                    var categoryNames = strutil.split (assetsRental.categoryName,",");
+                    for(cid in categoryIds){
+                    %>
+                    <option value="${cid}">${categoryNames[cidLP.index-1]}</option>
+                    <%  }} %>
+                </select>
+                <#bselect2 _id="categorys" _mode="remote" _optionVariable="categoryAutoCompleteOption" _value="[${assetsRental.categoryId!}]"/>
+
             </div>
             <div class="form-group col">
-                <label for="leaseDays" class="">租赁天数<i class="red">*</i></label>
+                <label for="leaseDays" class="">租赁天数</label>
                 <input type="number" id="days" class="form-control isNaturalNum" name="leaseDays" value="${assetsRental.leaseDays!}" min="1"/>
             </div>
             <div class="form-group col">
                 <label for="startTime">开始日期</label>
-                <input type="text" id="startTime" name="" class="form-control" value="${assetsRental.startTime!,localDateTimeFormat='yyyy-MM-dd'}" >
+                <input type="text" id="startTime" name="startTime" class="form-control" value="${assetsRental.startTime!,localDateTimeFormat='yyyy-MM-dd'}" >
             </div>
             <div class="form-group col">
                 <label for="endTime">结束日期</label>
 <!--                <input type="text" id="endTime" name="" class="form-control" readonly>-->
-                <input type="text" id="endTime" name="" class="form-control" value="${assetsRental.endTime!,localDateTimeFormat='yyyy-MM-dd'}" >
+                <input type="text" id="endTime" name="endTime" class="form-control" value="${assetsRental.endTime!,localDateTimeFormat='yyyy-MM-dd'}" >
             </div>
         </div>
         <div class="modal-footer-wrap">
@@ -118,4 +152,5 @@
 </div>
 
 </#bs4Body>
+<#assetsRental_boothCheckTmpl/>
 <#assetsRental_addJs/>

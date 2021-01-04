@@ -2,6 +2,7 @@ package com.dili.ia.domain.dto.printDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <B>Description</B>
@@ -57,7 +58,7 @@ public class ContractDto {
 	/**
 	 * 资产项目列表(租赁位置)
 	 */
-	private List<String> items;
+	private List<Map<String, String>>  items;
 	
 	/**
 	 * 开始时间
@@ -77,7 +78,7 @@ public class ContractDto {
 	/**
 	 * 资产收费列表(收费标准)
 	 */
-	private List<String> feeItems;
+	private List<Map<String, String>>  feeItems;
 	
 	/**
 	 * 合同金额
@@ -141,13 +142,7 @@ public class ContractDto {
 		this.area = area;
 	}
 
-	public List<String> getItems() {
-		return items;
-	}
-
-	public void setItems(List<String> items) {
-		this.items = items;
-	}
+	
 
 	public LocalDateTime getsTime() {
 		return sTime;
@@ -173,13 +168,6 @@ public class ContractDto {
 		this.days = days;
 	}
 
-	public List<String> getFeeItems() {
-		return feeItems;
-	}
-
-	public void setFeeItems(List<String> feeItems) {
-		this.feeItems = feeItems;
-	}
 
 	public String getAmount() {
 		return amount;
@@ -205,4 +193,22 @@ public class ContractDto {
 		this.amountCn = amountCn;
 	}
 
+	public List<Map<String, String>> getItems() {
+		return items;
+	}
+
+	public void setItems(List<Map<String, String>> items) {
+		this.items = items;
+	}
+
+	public List<Map<String, String>> getFeeItems() {
+		return feeItems;
+	}
+
+	public void setFeeItems(List<Map<String, String>> feeItems) {
+		this.feeItems = feeItems;
+	}
+
+	
+	
 }

@@ -62,7 +62,7 @@
             title: '新增摊位出租预设',//对话框title
             content: '/assetsRental/add.html', //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
-            height: '680px',//高度
+            height: '80%',//高度
             isIframe: true,//默认是页面层，非iframe
         });
     }
@@ -82,7 +82,7 @@
             title: '修改摊位出租预设',//对话框title
             content: '${contextPath}/assetsRental/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
             width: '80%',//宽度
-            height: '680px',//高度
+            height: '80%',//高度
             isIframe: true,//默认是页面层，非iframe
         });
     }
@@ -180,5 +180,43 @@
             $('#btn_enable').attr('disabled', false);
         }
     });
+    
+    /**
+     * 业务编号formatter
+     * @param value
+     * @param row
+     * @param index
+     * @returns {string}
+     */
+    function codeFormatter(value,row,index) {
+        return '<a href="javascript:openViewHandler(\''+row.id+'\')">查看</a>';
+    }
+     
+     /**
+      * 打开查看
+      * @param id
+      */
+     function openViewHandler(code) {
+     	//获取选中行的数据
+     	if(!code){
+ 	        let rows = _grid.bootstrapTable('getSelections');
+ 	        if (null == rows || rows.length == 0) {
+ 	            bs4pop.alert('请选中一条数据');
+ 	           
+ 	            return;
+ 	        }
+ 	        code = rows[0].code;
+     	}
+         dia = bs4pop.dialog({
+             title: '查看预设摊位',
+             content: '/assetsRental/getRentalItemByAssetsId.action?assetsId='+code,
+             isIframe : true,
+             closeBtn: true,
+             backdrop : 'static',
+             width: '80%',
+             height : '95%',
+             btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
+         });
+     } 
 
 </script>

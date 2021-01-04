@@ -55,7 +55,7 @@ public class StockWeighmanRecordDto {
      * 司磅照片  [{name:"beforegross",url:"/de/de/666.imag"},{name:"aftergross",url:"/de/de/666.imag"}
      * ,{name:"befortare",url:"/de/de/666.imag"},{name:"aftertare",url:"/de/de/666.imag"}]
      */
-    private String imags;
+    private String images;
 
     
     
@@ -131,13 +131,14 @@ public class StockWeighmanRecordDto {
 		this.tareOperatorName = tareOperatorName;
 	}
 
-	public String getImags() {
-		return imags;
+	public String getImages() {
+		return images;
 	}
 
-	public void setImags(String imags) {
-		this.imags = imags;
+	public void setImages(String images) {
+		this.images = images;
 	}
 
+	
     
 }

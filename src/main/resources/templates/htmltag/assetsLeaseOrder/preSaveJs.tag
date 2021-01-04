@@ -87,17 +87,22 @@
     }
 
     //资产组件事件
-    var assetEvent = {
+    var assetEvent = [{
         eventName: 'select2:selecting',
         eventHandler: function (e) {
-            let bizType = $('#bizType').val();
             let suggestion = e.params.args.data;
-            let leaseOrderItems = buildLeaseOrderItems();
-            let index = getIndex($(this).attr('id'));
             if (!suggestion.marketId) {
                 bs4pop.notice('未指定业务入账组织，不能办理业务', {position: 'bottomleft', type: 'danger'});
                 return false;
             }
+        }
+    }, {
+        eventName: 'select2:select',
+        eventHandler: function (e) {
+            let bizType = $('#bizType').val();
+            let suggestion = e.params.data;
+            let leaseOrderItems = buildLeaseOrderItems();
+            let index = getIndex($(this).attr('id'));
 
             clearAssetsInputData(index);
             //摊位预设信息设置
@@ -106,7 +111,6 @@
                 if (bizType == ${@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()}) {
                     let rental = getRentalByAssetsId(suggestion.id);
                     if (rental) {
-                        $('#batchId_' + index).val(rental.batchId);
                         $('#batchId').val(rental.batchId);
                         rental.engageCode && $('#engageCode').val(rental.engageCode);
                         rental.leaseTermCode && $('#leaseTermCode').val(rental.leaseTermCode);
@@ -124,7 +128,6 @@
                             });
                         }
                     } else {
-                        $('#batchId_' + index).val('');
                         $('#batchId').val('');
                     }
                 }
@@ -137,7 +140,6 @@
                 $('#leasesNum_' + index).attr('max', rentBalance);
             }
 
-            $('#mchId_' + index).val(suggestion.marketId);
             $('#number_' + index).val(suggestion.number);
             if (bizType != ${@com.dili.ia.glossary.BizTypeEnum.LOCATION_LEASE.getCode()}) {
                 $('#leasesNum_' + index).val(suggestion.number);
@@ -159,13 +161,14 @@
                 assetsId: suggestion.id
             });
         }
-    }
+    }];
 
     //品类搜索自动完成
     var categoryAutoCompleteOption = {
         width: '100%',
         language: 'zh-CN',
         maximumSelectionLength: 10,
+        multiple: true,
         ajax: {
             type:'get',
             url: '/assets/searchCategory.action',
@@ -488,8 +491,12 @@
                     let depositBalances = ret.data;
                     if(depositBalances.length > 0){
                         for (let depositBalance of depositBalances){
-                            let index = getIndex($("table input.assets[value='"+depositBalance.assetsId+"']").attr('id'));
-                            $('#depositBalance_'+index).val(Number(depositBalance.balance).centToYuan());
+                            $("table select[name^='assetsId']").filter(function () {
+                                return this.value == depositBalance.assetsId;
+                            }).each(function (i) {
+                                let index = getIndex(this.id);
+                                $('#depositBalance_'+index).val(Number(depositBalance.balance).centToYuan());
+                            });
                         }
                     }
                 }
@@ -516,12 +523,16 @@
                     let depositOrders = ret.data;
                     if(depositOrders.length > 0){
                         for (let depositOrder of depositOrders){
-                            let index = getIndex($("table input.assets[value='"+depositOrder.assetsId+"']").attr('id'));
-                            if(depositOrder.state != ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()}){
-                                $('#depositMakeUpAmount_' + index).val(Number(depositOrder.amount).centToYuan()).attr('readonly', true);
-                            }else{
-                                $('#depositMakeUpAmount_' + index).val(Number(depositOrder.amount).centToYuan());
-                            }
+                            $("table select[name^='assetsId']").filter(function () {
+                                return this.value == depositOrder.assetsId;
+                            }).each(function (i) {
+                                let index = getIndex(this.id);
+                                if(depositOrder.state != ${@com.dili.ia.glossary.DepositOrderStateEnum.CREATED.getCode()}){
+                                    $('#depositMakeUpAmount_' + index).val(Number(depositOrder.amount).centToYuan()).attr('readonly', true);
+                                }else{
+                                    $('#depositMakeUpAmount_' + index).val(Number(depositOrder.amount).centToYuan());
+                                }
+                            });
                         }
                     }
                     calcTotalAmountAndDeposit();
@@ -752,21 +763,25 @@
                 $("table select[name^='assetsId']").filter(function () {
                     return this.value
                 }).parents("tr").find("input[isCharge]").attr('readonly', false);
-                if(!ret.success){
+                if (!ret.success) {
                     bs4pop.alert(ret.message, {type: 'error'});
-                }else{
+                } else {
                     let calcResult = ret.data;
                     for (let chargeItemResult of calcResult) {
-                        let chargeItemDataset = $('#chargeItem_'+chargeItemResult.requestDataId)[0].dataset;
+                        let index = getIndex(chargeItemResult.requestDataId);
+                        let chargeItemDataset = $('#chargeItem_' + chargeItemResult.requestDataId)[0].dataset;
                         if (chargeItemResult.success) {
                             let ruleAmount = Math.round(Number(chargeItemResult.totalFee).mul(100)).centToYuan();
-                            $('#chargeItem_'+chargeItemResult.requestDataId).val(ruleAmount);
+                            $('#chargeItem_' + chargeItemResult.requestDataId).val(ruleAmount);
                             chargeItemDataset['ruleId'] = chargeItemResult.ruleId;
                             chargeItemDataset['ruleName'] = chargeItemResult.ruleName;
                             chargeItemDataset['ruleAmount'] = ruleAmount;
                             calcTotalAmount(true);
                         } else {
-                            bs4pop.notice(chargeItemDataset['chargeItemName'] + ' ' + chargeItemResult.message, {position: 'bottomleft', type: 'danger'});
+                            bs4pop.notice($('#assetsId_' + index).select2('data')[0].text + chargeItemDataset['chargeItemName'] + ' ' + chargeItemResult.message, {
+                                position: 'bottomleft',
+                                type: 'danger'
+                            });
                         }
                     }
                 }

@@ -54,6 +54,12 @@ INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `
 
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_dd', 'HZSCDD', 'yyyyMMdd', 4, '1');
 
+INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_jz', 'HZSCJZ', 'yyyyMMdd', 4, '1');
+
+INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_gx', 'HZSCGX', 'yyyyMMdd', 4, '1');
+
+INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_gd', 'HZSCGD', 'yyyyMMdd', 4, '1');
+
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务精品业户电动车及人力车马甲号', 'hzsc_vest_jz', 'HZSCJZ', 'yyyyMMdd', 4, '1');
 
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务干果业户小型电动车及人力车马甲号', 'hzsc_vest_gx', 'HZSCGX', 'yyyyMMdd', 4, '1');
@@ -91,9 +97,7 @@ ALTER TABLE `dili_ia`.`assets_rental` MODIFY COLUMN `batch_id` varchar(30) NULL 
 -- 摊位出租预设批次号
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-摊位出租预设批次号', 'hzsc_assetsRental', 'HZSCTWYS', 'yyyyMM', 4, '1');
 
--- 冷库入库添加城市中文名
-ALTER TABLE `dili_ia`.`stock_in` 
-ADD COLUMN `origin_path` varchar(100) NULL COMMENT '城市名称' AFTER `origin`;
+
 
 -- 摊位出租预设摊位详情表添加区域字段
 alter table `dili_ia`.`assets_rental_item`
@@ -107,4 +111,15 @@ alter table `dili_ia`.`assets_rental` drop COLUMN `first_district_id`;
 alter table `dili_ia`.`assets_rental` drop COLUMN `first_district_name`;
 alter table `dili_ia`.`assets_rental` drop COLUMN `second_district_id`;
 alter table `dili_ia`.`assets_rental` drop COLUMN `second_district_name`;
+
+-- 冷库入库添加城市中文名
+ALTER TABLE `dili_ia`.`stock_in` 
+ADD COLUMN `origin_path` varchar(100) NULL COMMENT '城市名称' AFTER `origin`;
+-- 冷库司磅入库地址
+ALTER TABLE `dili_ia`.`stock_weighman_record` 
+ADD COLUMN `image` varchar(255) NULL COMMENT '司磅图片地址' AFTER `market_code`;
+-- 冷库入库详情单添加商户
+ALTER TABLE `dili_ia`.`stock_in_detail`
+ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_id`
+
 

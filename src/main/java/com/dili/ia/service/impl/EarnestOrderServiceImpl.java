@@ -109,7 +109,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if(CollectionUtils.isNotEmpty(earnestOrder.getEarnestOrderdetails())){
             earnestOrder.getEarnestOrderdetails().forEach(o->{
                 //检查资产状态
-                checkAssetsState(o.getAssetsId());
+                AssetsDTO asDto = getAndCheckAssetsState(o.getAssetsId());
+                //检查摊位所属区域和页面选择区域是否一致
+                checkAssetsDistrict(asDto, earnestOrder.getFirstDistrictId(), earnestOrder.getSecondDistrictId());
             });
         }
         BaseOutput<Department> depOut = departmentRpc.get(earnestOrder.getDepartmentId());
@@ -198,16 +200,42 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
      * 检查资产状态
      * @param assetsId
      */
-    private void checkAssetsState(Long assetsId){
-        BaseOutput<AssetsDTO> output = assetsRpc.getAssetsById(assetsId);
+    private AssetsDTO getAndCheckAssetsState(Long assetsId){
+        BaseOutput<AssetsDTO> output = BaseOutput.failure();
+        try {
+            output = assetsRpc.getAssetsById(assetsId);
+        }catch (Exception e){
+            LOG.error("资产接口调用失败！ "+e.getMessage(),e);
+            throw new BusinessException(ResultCode.APP_ERROR, "资产接口调用失败！ ");
+        }
         if(!output.isSuccess()){
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位接口调用异常 "+output.getMessage());
+            throw new BusinessException(ResultCode.DATA_ERROR, "资产接口返回结果失败！ "+output.getMessage());
         }
         AssetsDTO assets = output.getData();
         if(null == assets){
-            throw new BusinessException(ResultCode.DATA_ERROR, "摊位不存在，请核实和修改后再保存");
+            throw new BusinessException(ResultCode.DATA_ERROR, "资产不存在，请核实和修改后再保存");
+        }
+        return assets;
+    }
+
+    private void checkAssetsDistrict(AssetsDTO asDto, Long firstDistrictId, Long secondDistrictId){
+        if (null != firstDistrictId){
+            if (asDto.getArea() != null && !Long.valueOf(asDto.getArea()).equals(firstDistrictId)){
+                LOG.error("资产所属区域已变更！ 资产一级区域ID={}，页面选择一级区域ID={}；", asDto.getArea(), firstDistrictId);
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更，请修改！");
+            }
+        }
+        if (null != secondDistrictId){
+            if (null == asDto.getSecondArea()){
+                LOG.error("资产所属区域已变更！ 资产二级区域ID={}，页面选择二级区域ID={}；", asDto.getSecondArea(), secondDistrictId);
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更，请修改！");
+            }else if (!Long.valueOf(asDto.getSecondArea()).equals(secondDistrictId)){
+                LOG.error("资产所属区域已变更！ 资产二级区域ID={}，页面选择二级区域ID={}；", asDto.getSecondArea(), secondDistrictId);
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更，请修改！");
+            }
         }
     }
+
     /**
      * 批量插入租赁单项
      *
@@ -256,11 +284,21 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         return;
     }
 
-    private EarnestOrder buildUpdateDto(EarnestOrder oldDTO, EarnestOrder dto){
+    private EarnestOrder buildUpdateDto(EarnestOrder oldDTO, EarnestOrderListDto dto){
         BaseOutput<Department> depOut = departmentRpc.get(dto.getDepartmentId());
         if(!depOut.isSuccess()){
             LOGGER.info("获取部门失败！" + depOut.getMessage());
             throw new BusinessException(ResultCode.DATA_ERROR, "获取部门失败！");
+        }
+        //检查客户状态
+        checkCustomerState(dto.getCustomerId(),oldDTO.getMarketId());
+        if(CollectionUtils.isNotEmpty(dto.getEarnestOrderdetails())){
+            dto.getEarnestOrderdetails().forEach(o->{
+                //检查资产状态
+                AssetsDTO asDto = getAndCheckAssetsState(o.getAssetsId());
+                //检查摊位所属区域和页面选择区域是否一致
+                checkAssetsDistrict(asDto, dto.getFirstDistrictId(), dto.getSecondDistrictId());
+            });
         }
         oldDTO.setDepartmentName(depOut.getData().getName());
         oldDTO.setCustomerId(dto.getCustomerId());
@@ -306,7 +344,9 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (CollectionUtils.isNotEmpty(detailList)){
             detailList.forEach(o->{
                 //检查资产状态
-                checkAssetsState(o.getAssetsId());
+                AssetsDTO asDto = getAndCheckAssetsState(o.getAssetsId());
+                //检查摊位所属区域和页面选择区域是否一致
+                checkAssetsDistrict(asDto, ea.getFirstDistrictId(), ea.getSecondDistrictId());
             });
         }
         if (!ea.getState().equals(EarnestOrderStateEnum.CREATED.getCode())){

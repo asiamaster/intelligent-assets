@@ -275,7 +275,7 @@ $(document).on('change', '.districtId', function() {
 });
 
 //商户id
-let mchId
+let mchId = '${stockIn.mchId!}';
 //冷库区域变更  对应子单的冷库更新
 $(document).on('change', '.assetsId', function() {
 	
@@ -326,7 +326,7 @@ function changeAssets(index,districtId,value,level){
                     if (array.length == 0) {
                     	$('#assetsId_'+index).html('<option value="" selected="">-- 请选择区域 --</option>');
                     } else {
-                    	var htmlConent = '<option value="" selected>-- 请选择 --</option>';
+                    	var htmlConent = '<option value="">-- 请选择 --</option>';
                     	let m; //获取商户id
                 		for (let item of array) {
                 			m = item.marketId;

@@ -144,7 +144,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         checkCustomerState(depositOrder.getCustomerId(),userTicket.getFirmId());
         //检查【摊位，公寓，冷库】状态
         if(depositOrder.getAssetsId() != null && (AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) ||  AssetsTypeEnum.LOCATION.getCode().equals(depositOrder.getAssetsType()) || AssetsTypeEnum.LODGING.getCode().equals(depositOrder.getAssetsType()))){
-            getAndCheckAssetsState(depositOrder.getAssetsId());
+            AssetsDTO asDto = getAndCheckAssetsState(depositOrder.getAssetsId());
+            //检查摊位所属区域和页面选择区域是否一致
+            checkAssetsDistrict(asDto, depositOrder.getFirstDistrictId(), depositOrder.getSecondDistrictId());
         }
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
         if(!depOut.isSuccess()){
@@ -242,14 +244,31 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return bizNumberOutput.getData();
     }
 
+    private void checkAssetsDistrict(AssetsDTO asDto, Long firstDistrictId, Long secondDistrictId){
+        if (null != firstDistrictId){
+            if (asDto.getArea() != null && !Long.valueOf(asDto.getArea()).equals(firstDistrictId)){
+                LOG.error("资产所属区域已变更！ 资产一级区域ID={}，页面选择一级区域ID={}；", asDto.getArea(), firstDistrictId);
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更，请修改！");
+            }
+        }
+        if (null != secondDistrictId){
+            if (null == asDto.getSecondArea()){
+                LOG.error("资产所属区域已变更！ 资产二级区域ID={}，页面选择二级区域ID={}；", asDto.getSecondArea(), secondDistrictId);
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更，请修改！");
+            }else if (!Long.valueOf(asDto.getSecondArea()).equals(secondDistrictId)){
+                LOG.error("资产所属区域已变更！ 资产二级区域ID={}，页面选择二级区域ID={}；", asDto.getSecondArea(), secondDistrictId);
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更，请修改！");
+            }
+        }
+    }
     /**
-     * 检查摊位状态
-     * @param boothId
+     * 检查资产状态
+     * @param assetsId
      */
-    private AssetsDTO getAndCheckAssetsState(Long boothId){
+    private AssetsDTO getAndCheckAssetsState(Long assetsId){
         BaseOutput<AssetsDTO> output = BaseOutput.failure();
         try {
-            output = assetsRpc.getAssetsById(boothId);
+            output = assetsRpc.getAssetsById(assetsId);
         }catch (Exception e){
             LOG.error("资产接口调用失败！ "+e.getMessage(),e);
             throw new BusinessException(ResultCode.APP_ERROR, "资产接口调用失败！ ");
@@ -302,7 +321,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         checkCustomerState(depositOrder.getCustomerId(),oldDTO.getMarketId());
         //检查【摊位，公寓，冷库】状态
         if(depositOrder.getAssetsId() != null && (AssetsTypeEnum.BOOTH.getCode().equals(depositOrder.getAssetsType()) ||  AssetsTypeEnum.LOCATION.getCode().equals(depositOrder.getAssetsType()) || AssetsTypeEnum.LODGING.getCode().equals(depositOrder.getAssetsType()))){
-            getAndCheckAssetsState(depositOrder.getAssetsId());
+            AssetsDTO asDto = getAndCheckAssetsState(depositOrder.getAssetsId());
+            //检查摊位所属区域和页面选择区域是否一致
+            checkAssetsDistrict(asDto, depositOrder.getFirstDistrictId(), depositOrder.getSecondDistrictId());
         }
         BaseOutput<Department> depOut = departmentRpc.get(depositOrder.getDepartmentId());
         if(!depOut.isSuccess()){
@@ -368,10 +389,9 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         checkCustomerState(de.getCustomerId(),de.getMarketId());
         //检查【摊位，公寓，冷库】状态
         if(de.getAssetsId() != null && (AssetsTypeEnum.BOOTH.getCode().equals(de.getAssetsType()) ||  AssetsTypeEnum.LOCATION.getCode().equals(de.getAssetsType()) || AssetsTypeEnum.LODGING.getCode().equals(de.getAssetsType()))){
-            AssetsDTO assetsDTO = getAndCheckAssetsState(de.getAssetsId());
-            // 资产上冗余了一级区域ID和二级区域ID
-            de.setFirstDistrictId(Long.valueOf(assetsDTO.getArea()));
-            de.setSecondDistrictId(assetsDTO.getSecondArea() == null? null:Long.valueOf(assetsDTO.getSecondArea()));
+            AssetsDTO asDto = getAndCheckAssetsState(de.getAssetsId());
+            //检查摊位所属区域和页面选择区域是否一致
+            checkAssetsDistrict(asDto, de.getFirstDistrictId(), de.getSecondDistrictId());
         }
         //检查是否可以进行提交付款
         checkSubmitPayment(id, amount, waitAmount, de);

@@ -87,6 +87,9 @@ public class StockWeighmanRecord extends BaseDomain {
     @Column(name = "`market_code`")
     private String marketCode;
 
+    @Column(name = "`images`")
+    private String images;
+    
     /**
      * 获取id
      *
@@ -346,4 +349,14 @@ public class StockWeighmanRecord extends BaseDomain {
     public void setMarketCode(String marketCode) {
         this.marketCode = marketCode;
     }
+
+	public String getImages() {
+		return images;
+	}
+
+	public void setImages(String images) {
+		this.images = images;
+	}
+    
+    
 }

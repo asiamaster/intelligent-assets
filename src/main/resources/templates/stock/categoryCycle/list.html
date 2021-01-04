@@ -4,9 +4,11 @@
 	type="text/css">
 <div class="main-container container-fluid">
 	<#bs4nav>
+	
 	<form id="queryForm" role="form">
 		<div class="row row-cols-4">
 			<input type="hidden" class="form-control" id="parent" name="parent" value="0" />
+		
 			<div class="form-group col">
 				<label for="category_status">状态</label> <select id="category_status"
 					class="form-control input-sm" name="state">
@@ -77,7 +79,7 @@
 							<th data-radio="true"></th>
 							<th data-field="name" data-sortable="true" data-align="center"
 								data-width-unit="%">品类名称</th>
-							<th data-field="code" data-sortable="true" data-align="center"
+							<th data-field="keycode" data-sortable="true" data-align="center"
 								data-sort-name="type">品类代码</th>
 							<th data-field="pingying" data-sortable="true"
 								data-align="center">拼音全写</th>
@@ -90,6 +92,10 @@
 							<th data-field="cycleState" data-sortable="true"
 								data-sort-name="cycleState" data-formatter="stateFormatter"
 								data-align="center">存储状态</th>
+							<th data-field="notes" data-sortable="true"
+								data-sort-name="notes" 
+								data-align="center">备注</th>
+								
 						</tr>
 					</thead>
 				</table>
@@ -335,14 +341,14 @@ function queryParams(params) {
         <div class="row row-cols-1 detail" id="detailInfo">
             <input type="hidden" class="form-control" name="id" value="{{selectedRow.id}}" required />
             <input type="hidden" class="form-control" name="path" value="{{selectedRow.path}}" required />
-            <input type="hidden" class="form-control" name="code" value="{{selectedRow.code}}" required />
+            <input type="hidden" class="form-control" name="code" value="{{selectedRow.keycode}}" required />
             <div class="form-group col">
                 <label for="" class="">品类名称：<i class="red">*</i></label> <input  class="form-control"
                   value="{{selectedRow.name}}" readonly required />
             </div>
             <div class="form-group col">
                 <label for="" class="">品类代码：<i class="red">*</i></label> <input  class="form-control"
-                  name="" value="{{selectedRow.code}}"  readonly required />
+                  name="" value="{{selectedRow.keycode}}"  readonly required />
             </div>
             <div class="form-group col">
                 <label for="">模块标签</label>

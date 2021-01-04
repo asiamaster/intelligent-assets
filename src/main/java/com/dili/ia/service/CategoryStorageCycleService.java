@@ -2,15 +2,11 @@ package com.dili.ia.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
-import org.springframework.web.bind.annotation.ModelAttribute;
-
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dili.assets.sdk.dto.CategoryDTO;
 import com.dili.ia.domain.CategoryStorageCycle;
 import com.dili.ia.domain.dto.CategoryStorageCycleDto;
+import com.dili.ia.domain.dto.CusCategoryQueryPage;
 import com.dili.ss.base.BaseService;
 import com.github.pagehelper.Page;
 
@@ -37,7 +33,7 @@ public interface CategoryStorageCycleService extends BaseService<CategoryStorage
 	 * @return
 	 * @throws
 	 */
-	Page<JSONObject> list(CategoryDTO input);
+	Page<JSONObject> list(CusCategoryQueryPage input);
 	
 	/**
 	 * 

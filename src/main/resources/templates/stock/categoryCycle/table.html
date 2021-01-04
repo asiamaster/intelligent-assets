@@ -39,6 +39,10 @@
         <th data-field="cycleState" data-sortable="true" data-sort-name="quantity" data-align="center">
             状态
         </th>
+           <th data-field="notes" data-sortable="true" data-sort-name="quantity" data-align="center">
+            备注
+        </th>
+        
     </tr>
     </thead>
 </table>
@@ -53,12 +57,13 @@
         <th scope="col">模块标签</th>
         <th scope="col">存储周期</th>
         <th scope="col">状态</th>
+        <th scope="col">备注</th>
     </tr>
     <% for(o in obj) { %>
     <tr data-name="${o.name!}">
         <td style="text-align: center"><input class="ck" type="radio" value="${o.id}" state="${o.cycleState}" name="ck"/></td>
         <td>${o.name!}</td>
-        <td>${o.code!}</td>
+        <td>${o.keycode!}</td>
         <td>${o.pingying!}</td>
         <td>${o.pyInitials!}</td>
         <td>${o.moduleLabel!}</td>
@@ -66,11 +71,11 @@
         <td>
             <% if(o.cycleState==1){ %>
             已启用
-            <% } %>
-            <% else if(o.cycleState==2){ %>
+            <% } else if(o.cycleState==2){ %>
             已禁用
             <% }%>
         </td>
+         <td>${o.notes!}</td>
     </tr>
     <% } %>
 </table>

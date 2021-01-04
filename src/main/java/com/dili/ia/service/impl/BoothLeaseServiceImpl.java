@@ -39,7 +39,7 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
     }
 
     @Override
-    public Long checkAssets(List<Long> assetsIds, Long mchId, Long batchId) {
+    public Long checkAssets(List<Long> assetsIds, Long mchId, String batchId) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "登录过期或未登录");

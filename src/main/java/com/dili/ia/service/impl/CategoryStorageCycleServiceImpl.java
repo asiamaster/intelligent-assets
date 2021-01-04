@@ -6,18 +6,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.dto.CusCategoryDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
 import com.dili.ia.domain.CategoryStorageCycle;
-import com.dili.ia.domain.dto.CategoryQuery;
 import com.dili.ia.domain.dto.CategoryStorageCycleDto;
+import com.dili.ia.domain.dto.CusCategoryQueryPage;
 import com.dili.ia.mapper.CategoryStorageCycleMapper;
 import com.dili.ia.service.CategoryStorageCycleService;
 import com.dili.ss.base.BaseServiceImpl;
@@ -51,12 +52,12 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
     	BeanUtil.copyProperties(dto, categoryStorageCycle);    
     	insert.add(categoryStorageCycle);
     	if(dto.getAllChildren() != null && dto.getAllChildren()) {
-    		CategoryQuery input = new CategoryQuery();
+    		CusCategoryQueryPage input = new CusCategoryQueryPage();
         	input.setMarketId(userTicket.getFirmId());
         	//input.setParent(dto.getId());
         	input.setQueryPath(dto.getPath());
         	//input.setState(1);
-        	List<CategoryDTO> list = assetsRpc.list(input).getData();
+        	List<CusCategoryDTO> list = assetsRpc.listCusCategory(input).getData();
         	list.forEach(item -> {
         		CategoryStorageCycle child = new CategoryStorageCycle(userTicket);
             	BeanUtil.copyProperties(item, child, CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));    	
@@ -64,6 +65,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
             	child.setCycle(dto.getCycle());
             	child.setModuleLabel(dto.getModuleLabel());
             	child.setState(dto.getState());
+            	child.setCode(item.getKeycode());
             	insert.add(child);
         	});
     	}
@@ -79,22 +81,26 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
 	}
 	
 	@Override
-	public Page<JSONObject> list(CategoryDTO input) {
-        List<CategoryDTO> results = new ArrayList<>();
+	public Page<JSONObject> list(CusCategoryQueryPage input) {
+        List<CusCategoryDTO> results = new ArrayList<>();
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         input.setMarketId(userTicket.getFirmId());
-        //获取品类基础信息
+        // keyword 不为空直接查询
+        if (!StringUtils.isEmpty(input.getKeyword())) {
+        	input.setParent(null);
+        }
+        // 获取品类基础信息
         if (input.getParent() != null && input.getParent() != 0) {
-            CategoryDTO c = assetsRpc.get(input.getParent()).getData();
+            CusCategoryDTO c = assetsRpc.getCusCategory(input.getParent()).getData();
             if (c.getState() != 3) {
                 results.add(c);
             }
         }
-        List<CategoryDTO> list = assetsRpc.list(input).getData();
+        List<CusCategoryDTO> list = assetsRpc.listCusCategory(input).getData();
         results.addAll(list);
-        //获取品类id
+        // 获取品类id
         List<Long> ids = new ArrayList<>();
-        Map<Long, CategoryDTO> mapCategory = new HashMap<>();
+        Map<Long, CusCategoryDTO> mapCategory = new HashMap<>();
         results.stream().forEach(item -> {
         	ids.add(item.getId());
         	mapCategory.put(item.getId(), item);
@@ -118,7 +124,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
         if(input.getState() != null) {
         	CollectionUtil.sub(categoryStorageCycles, (page-1)*row, page*row).stream().forEach(item -> {
             	JSONObject obj = (JSONObject) JSON.toJSON(item);
-            	CategoryDTO category = mapCategory.get(item.getId());
+            	CusCategoryDTO category = mapCategory.get(item.getId());
             	if(category != null) {
             		obj.put("name", category.getName());
                 	obj.put("pingying", category.getPingying());
@@ -162,7 +168,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
 
 	@Override
 	public List<JSONObject> searchCategory(String keyword) {
-		CategoryDTO categoryDTO = new CategoryDTO();
+		CusCategoryQueryPage categoryDTO = new CusCategoryQueryPage();
         categoryDTO.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
         categoryDTO.setState(EnabledStateEnum.ENABLED.getCode());
         if (null == keyword) {
@@ -171,9 +177,9 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
             categoryDTO.setKeyword(keyword);
         }
         //根据关键词查询品类
-        List<CategoryDTO> list = assetsRpc.list(categoryDTO).getData();
+        List<CusCategoryDTO> list = assetsRpc.listCusCategory(categoryDTO).getData();
         List<Long> ids = new ArrayList<>();
-        Map<Long, CategoryDTO> mapCategory = new HashMap<>();
+        Map<Long, CusCategoryDTO> mapCategory = new HashMap<>();
         list.stream().forEach(item -> {
         	ids.add(item.getId());
         	mapCategory.put(item.getId(), item);
@@ -187,7 +193,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
         if(CollectionUtil.isNotEmpty(categoryStorageCycles)) {
         	categoryStorageCycles.stream().forEach(item -> {
         		JSONObject obj = (JSONObject) JSON.toJSON(item);
-            	CategoryDTO category = mapCategory.get(item.getId());
+        		CusCategoryDTO category = mapCategory.get(item.getId());
             	if(category != null) {
             		obj.put("name", category.getName());
             		result.add(obj);

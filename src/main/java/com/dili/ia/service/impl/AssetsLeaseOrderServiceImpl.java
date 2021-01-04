@@ -217,6 +217,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             insertLeaseOrderItems(dto);
         } else {
             //租赁单修改
+            checkDepositOrderPayState(dto); //检查保证金单交费状态 （已交费的单子，不能修改）
             checkContractNo(dto.getId(), dto.getContractNo(), false);//合同编号验证重复
             AssetsLeaseOrder oldLeaseOrder = get(dto.getId());
             if (!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())
@@ -243,6 +244,27 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //保证金保存
         saveOrUpdateDepositOrders(dto);
         return BaseOutput.success().setData(dto);
+    }
+
+    /**
+     * 检查保证金单交费状态 （已交费的单子，不能修改）
+     *
+     * @param dto
+     */
+    public void checkDepositOrderPayState(AssetsLeaseOrderListDto dto) {
+        DepositOrderQuery depositOrderQuery = new DepositOrderQuery();
+        depositOrderQuery.setMarketId(dto.getMarketId());
+        depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
+        depositOrderQuery.setBusinessId(dto.getId());
+        depositOrderQuery.setBizType(dto.getBizType());
+        List<DepositOrder> depositOrders = depositOrderService.listByExample(depositOrderQuery);
+        if (CollectionUtils.isNotEmpty(depositOrders)) {
+            depositOrders.forEach(o -> {
+                if (!DepositPayStateEnum.UNPAID.getCode().equals(o.getPayState())) {
+                    throw new BusinessException(ResultCode.DATA_ERROR, "对应补交保证金已交费不能修改，请取消后重新录入");
+                }
+            });
+        }
     }
 
     /**
@@ -1280,17 +1302,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             LOG.info("释放关联保证金，让其单飞接口异常 【租赁单编号:{},资产编号:{}】", leaseOrder.getCode(),leaseOrderItem.getAssetsName());
             throw new BusinessException(ResultCode.DATA_ERROR, depositOutput.getMessage());
         }
-        //如果有业务流程实例id，则通知流程结束
-        if(StringUtils.isNotBlank(refundOrder.getBizProcessInstanceId())) {
-            //发送消息通知流程
-            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
-            eventReceivedDto.setEventName(BpmEventConstants.SUBMITTED_RECEIVE_TASK);
-            eventReceivedDto.setProcessInstanceId(refundOrder.getBizProcessInstanceId());
-            BaseOutput<String> baseOutput = eventRpc.signal(eventReceivedDto);
-            if (!baseOutput.isSuccess()) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "流程结束消息发送失败");
-            }
-        }
         //记录退款日志
         msgService.sendBusinessLog(recordRefundLog(refundOrder, leaseOrder));
         return BaseOutput.success();
@@ -1922,7 +1933,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
 		AssetsLeaseOrderItem condition = new AssetsLeaseOrderItem();
 		condition.setLeaseOrderId(leaseOrder.getId());
-		List<String> items = new ArrayList<>();
+		List<Map<String, String>> items = new ArrayList<>();
 		List<AssetsLeaseOrderItem> leaseOrderItems = assetsLeaseOrderItemService.list(condition);
 		BigDecimal big = new BigDecimal(0);
 		StringBuilder unitName = new StringBuilder();
@@ -1931,7 +1942,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 			StringBuilder str = new StringBuilder();
 			str.append(String.format("【%s】【%s】【%s】", it.getFirstDistrictName(), it.getSecondDistrictName(),
 					it.getAssetsName())).append(" ").append(it.getNumber()).append(it.getUnitName());
-			items.add(str.toString());
+			Map<String, String> map = new HashMap<>();
+			map.put("position", str.toString());
+			items.add(map);
 			unitName.append(it.getUnitName());
 		});
 		// 面积
@@ -1941,8 +1954,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 				leaseOrder.getBizType(), leaseOrderItems.stream().map(o -> o.getId()).collect(Collectors.toList()));
 		List<AssetsLeaseOrderItemListDto> itmesAssetsLeaseOrderItemListDtos = assetsLeaseOrderItemService
 				.leaseOrderItemListToDto(leaseOrderItems, leaseOrder.getBizType(), chargeItemDtos);
-		System.err.println(JSON.toJSONString(itmesAssetsLeaseOrderItemListDtos));
-		List<String> feeItems = new ArrayList<>();
+		List<Map<String, String>> feeItems = new ArrayList<>();
 		itmesAssetsLeaseOrderItemListDtos.stream().forEach(it -> {
 			StringBuilder str = new StringBuilder();
 			str.append(String.format("【%s】【%s】【%s】:", it.getFirstDistrictName(), it.getSecondDistrictName(),
@@ -1952,8 +1964,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 						.append(";");
 				;
 			});
-
-			feeItems.add(str.toString());
+			Map<String, String> map = new HashMap<>();
+			map.put("feeList", str.toString());
+			feeItems.add(map);
 		});
 		contractDto.setAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
 		contractDto.setAmountCn(Convert.digitToChinese(new BigDecimal(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()))));

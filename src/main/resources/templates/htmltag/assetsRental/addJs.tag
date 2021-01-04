@@ -7,35 +7,40 @@
      ***/
     //行索引计数器
     let itemIndex = 0;
+    var TheMerchantsId = $('.booth-checked .custom-control-input').data('mch-id');
 
     //品类搜索
     //品类搜索自动完成
-    var testAutoCompleteOption = {
-        serviceUrl: '/stock/categoryCycle/searchV2.action',
-        paramName : 'keyword',
-        displayFieldName : 'name',
-        showNoSuggestionNotice: true,
-        noSuggestionNotice: '无匹配结果',
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
+    var categoryAutoCompleteOption = {
+        width: '100%',
+        language: 'zh-CN',
+        maximumSelectionLength: 10,
+        ajax: {
+            type:'get',
+            url: '/stock/categoryCycle/searchV2.action',
+            data: function (params) {
                 return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '（' + dataItem.code + '）'
-                            }
-                        );
-                    })
+                    keyword: params.term,
                 }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return false;
+            },
+            processResults: function (result) {
+                if(result.success){
+                    let data = result.data;
+                    return {
+                        results: $.map(data, function (dataItem) {
+                            dataItem.text = dataItem.name + (dataItem.cusName ? '(' + dataItem.cusName + ')' : '');
+                            return dataItem;
+                        })
+                    };
+                }else{
+                    bs4pop.alert(result.message, {type: 'error'});
+                    return;
+                }
             }
-        },
-        selectFn: function (suggestion) {
-            $("#cycle").val(suggestion.cycle);
         }
     }
+
+
     $.fn.serializeObject = function()
     {
         var o = {};
@@ -53,110 +58,6 @@
         return o;
     };
 
-
-    function viewAssetsByNoTable(){
-        $.ajax({
-            type: "POST",
-            url: "/assetsRentalItem/viewAssetsByNoTable.action",
-            data: JSON.stringify($("#searchForm").serializeObject()),
-            dataType: "json",
-            async: false,
-            contentType: "application/json",
-            success: function (res) {
-                if(res.success){
-                    debugger
-                    $.each(res.data, (index, item)=>{
-                        $('.booth-data-origin').append('<div class="custom-control custom-checkbox"><input type="checkbox" class="custom-control-input" id="booth_'+ item.id +'" data-id="'+ item.id +'"  data-area="'+ item.area +'" data-area-name="'+ item.areaName +'" data-secondarea="'+ item.secondArea +'" ><label class="custom-control-label" for="booth_'+ item.id +'">' + item.name + ' 【' + item.areaName + '】' + item.id  + '</label></div>')
-
-                    })
-                } else {
-                    bs4pop.alert(res.message, {type: 'error'});
-                }
-            },
-            error: function (error) {
-                bs4pop.alert('远程访问失败', {type: 'error'});
-            }
-        });
-    }
-    // 我去整个了商户2，还是区域区分为 三产和广告位，属于不同的2个子商户
-    var boothCheckedStr = '';
-    var boothCheckedData  = [];
-    var MerchantsId = '';
-    $(document).on('change', '.booth-data-origin .custom-control-input', function () {
-        if($(this).is(':checked')){
-            let id = $(this).attr('data-id');
-            let name = $(this).attr('data-name');
-            let firstDistrictId = $(this).data('area') ;
-            let secondDistrictId = $(this).data('secondarea') ;
-            let areaName = $(this).attr('data-area-name');
-            let that = $(this);
-            if(firstDistrictId == 'undefined'){ firstDistrictId = ''};
-            if(secondDistrictId == 'undefined'){ secondDistrictId = ''};
-            $.ajax({
-                type: "POST",
-                url: "/assetsRentalItem/getMchIdByDistrictId.action",
-                // data: JSON.stringify({ assetsId: id}),
-                data: JSON.stringify({ firstDistrictId, secondDistrictId }),
-                dataType: "json",
-                async: false,
-                contentType: "application/json",
-                success: function (res) {
-                    if(res.success){
-                        // 传的值挺多的，id 换做 assets_id，name 换做 assets_name ，type换做 assets_type ，number，unit corner 6个字段
-                        if(!boothCheckedData.length){
-                            MerchantsId = res.data;
-                        }
-                        if( MerchantsId == res.data){
-                            boothCheckedData.push(id);
-                            $('.booth-checked').append(that.parents('.custom-checkbox')[0].outerHTML)
-                            that.parents('.custom-control').remove();
-                        } else {
-                            that.prop('checked', false)
-                            bs4pop.notice('不属于同一个商户', {position: 'topcenter', type: 'danger'});
-                        }
-                    } else {
-                        bs4pop.alert(res.message, {type: 'error'});
-                    }
-                },
-                error: function (error) {
-                    bs4pop.alert('远程访问失败', {type: 'error'});
-                }
-            });
-            // $('.booth-checked').append('<div class="custom-control custom-checkbox"><input type="checkbox" checked class="custom-control-input" id="booth_'+ id +'" data-id="'+ id +'"><label class="custom-control-label" for="booth_'+ id +'">' + name + ' 【' + areaName + '】' + id  + '</label></div>')
-        }
-    })
-
-    $(document).on('change', '.booth-checked .custom-control-input', function () {
-        if($(this).is(':checked')) {
-            let id = $(this).attr('data-id');
-            let name = $(this).attr('data-name');
-            let firstDistrictId = $(this).data('area');
-            let secondDistrictId = $(this).data('secondarea');
-            let areaName = $(this).attr('data-area-name');
-            let that = $(this);
-            $('.booth-data-origin').append(that.parents('.custom-checkbox')[0].outerHTML)
-            that.parents('.custom-control').remove();
-            boothCheckedData.splice(boothCheckedData.indexOf(id), 1)
-        }
-    })
-    $(document).on('change', '#checkAll', function () {
-        if($(this).is(':checked')) {
-            debugger
-            $('.booth-checked').append($('.booth-data-origin').html());
-            $('.booth-data-origin div').remove();
-            $(this).prop('checked', false);
-        }
-    })
-
-    $(document).on('change', '#uncheckAll', function () {
-        if($(this).is(':checked')) {
-            debugger
-            $('.booth-data-origin').append($('.booth-checked').html());
-            $('.booth-checked div').remove();
-            $(this).prop('checked', false);
-            boothCheckedData = [];
-        }
-    })
     /**
      *---------------天数/开始/结束日期联动 start ---------------
      **/
@@ -239,46 +140,154 @@
      * ---------------天数/开始/结束日期联动 end ---------------
      * */
 
-
-    // 提交保存
-/*    function doUpdateAssetsRentalHandler(){
-        let validator = $('#saveForm').validate({ignore:''})
-        if (!validator.form()) {
-            return false;
-        }
-        let buildData = JSON.stringify({}, $.extend($("#saveForm").serializeObject()), {assetsRentalItemList: boothCheckedData})
-        bui.loading.show('努力提交中，请稍候。。。');
+    // 通过区域等信息查询摊位
+    function viewAssetsByNoTable(){
+        $('.booth-data-origin').html('');
         $.ajax({
             type: "POST",
-            url: "/assetsRental/update.action",
-            data: buildData,
+            url: "/assetsRentalItem/viewAssetsByNoTable.action",
+            data: JSON.stringify($("#searchForm").serializeObject()),
             dataType: "json",
+            async: false,
             contentType: "application/json",
-            success: function (ret) {
-                bui.loading.hide();
-                if(!ret.success){
-                    bs4pop.alert(ret.message, {type: 'error'});
-                }else{
-                    parent.closeDialog(parent.dia);
+            success: function (res) {
+                if(res.success){
+                    $('.booth-data-origin').append(bui.util.HTMLDecode(template('boothCheckItem', {booth: res.data})));
+                } else {
+                    bs4pop.alert(res.message, {type: 'error'});
                 }
             },
             error: function (error) {
-                bui.loading.hide();
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         });
-    }*/
+    }
+
+    // 我去整个了商户2，还是区域区分为 三产和广告位，属于不同的2个子商户
+
+    // 勾选待选摊位时，需同属于一个商户下。
+    $(document).on('change', '.booth-data-origin .custom-control-input', function () {
+        let checkingLen = $('.booth-data-origin .custom-control-input:checked').length;
+        let checkedLen = $('.booth-checked .custom-control-input').length;
+
+        console.log('商户ID：', TheMerchantsId)
+
+        if(!checkedLen) {
+            if (!checkingLen) {
+                // 一个都没选中时，取消所有勾选时
+                TheMerchantsId = '';
+            } else if (checkingLen == 1) {
+                // 首个被选中时，商户id设为这个的商户id
+                TheMerchantsId = $(this).data('mch-id');
+            } else if ($(this).data('mch-id') != TheMerchantsId){
+                $(this).prop('checked', false)
+                bs4pop.notice('不属于同一个商户', {position: 'topcenter', type: 'danger'});
+            }
+        } else {
+            if ($(this).data('mch-id') != TheMerchantsId){
+                $(this).prop('checked', false)
+                bs4pop.notice('不属于同一个商户', {position: 'topcenter', type: 'danger'});
+            }
+        }
+        console.log('商户ID：', TheMerchantsId)
+    })
+
+    // 移动摊位
+    function moveBooth( origin , target){
+        let str = '';
+        $.each(origin.find('.custom-control-input:checked'), function (index, el) {
+            str += $(el).parents('.custom-control')[0].outerHTML;
+            $(el).parents('.custom-control').remove();
+        })
+        target.append(str);
+    }
+
+    // 选定勾选的待选摊位
+    $('#checkedBoothBtn').on('click', function () {
+        moveBooth( $('.booth-data-origin') , $('.booth-checked'));
+        $('#checkAll').prop('checked', false);
+    })
+
+    // 移出勾选的已选摊位
+    $('#uncheckedBoothBtn').on('click', function () {
+        moveBooth( $('.booth-checked') , $('.booth-data-origin'));
+        $('#uncheckAll').prop('checked', false);
+    })
+
+
+    // 待选摊位全选
+    $(document).on('change', '#checkAll', function () {
+        if($(this).is(':checked')) {
+            //未完成-----------------------等杨刚接口------------
+            let firstMchId = $('.booth-data-origin .custom-control:first-child .custom-control-input').data('mch-id')
+
+            $.each($('.booth-data-origin .custom-control .custom-control-input'), function (index, item) {
+                debugger
+                if($(item).data('mch-id') == firstMchId) {
+                    $(item).prop('checked', true);
+                }
+            })
+
+
+        }
+    })
+
+    // 已选摊位全选
+    $(document).on('change', '#uncheckAll', function () {
+        if($(this).is(':checked')) {
+            $('.booth-checked .custom-control-input').prop('checked', true);
+        } else {
+            $('.booth-checked .custom-control-input').prop('checked', false);
+        }
+    })
 
     // 提交保存
     function doSaveAssetsRentalHandler(){
         let validator = $('#saveForm').validate({ignore:''})
         let url = '';
-        if (!validator.form()) {
+        let boothCheckedData = [];
+        let categoryId = [];
+        let categoryName = [];
+        let ell = $('#detailInfo .form-control');
+        let detailInfo = [$('#engageCode'), $('#leaseTermCode'), $('#days'), $('#startTime'), $('#startTime'), $('#categorys')].some(function(el, index){
+            return ($(el).val() != '')
+        });
+
+        console.log('detailInfo', detailInfo)
+        if (!validator.form() || !detailInfo) {
             return false;
         }
+
+        $.map($('#categorys').select2('data'), function (item) {
+            categoryId.push(parseInt(item.id))
+            categoryName.push(item.text)
+        });
+
         $("#nameHidden").val($("#name").val());
-        let buildData = JSON.stringify($.extend({}, $('#saveForm').serializeObject(), {assetsRentalItemList: boothCheckedData}))
+        $("#engageName").val($('#engageCode').find("option:selected").text());
+        $("#leaseTermName").val($('#leaseTermCode').find("option:selected").text());
+
+        // 构建已选摊位数据
+        $.each($('.booth-checked .custom-control .custom-control-input'), function (index, item ) {
+            
+            let assetsId = $(item).data('id');
+            let assetsName = $(item).data('name');
+            let firstDistrictId = $(item).data('first-area');
+            let firstDistrictName = $(item).data('first-area-name');
+            let secondDistrictId = $(item).data('second-area');
+            let secondDistrictName = $(item).data('second-area-name');
+            let assetsType = $(item).data('type');
+            let number = $(item).data('number');
+            let unit = $(item).data('unit');
+            let corner = $(item).data('corner');
+            boothCheckedData.push({ assetsId, assetsName, firstDistrictId, firstDistrictName, secondDistrictId, secondDistrictName, assetsType, number, unit, corner});
+        })
+
+
+        let buildData = JSON.stringify($.extend({}, $('#saveForm :not(#categorys)').serializeObject(), {categoryId: categoryId.join(), categoryName: categoryName.join()},  {assetsRentalItemList: boothCheckedData, mchId: TheMerchantsId}));
+       debugger;
         bui.loading.show('努力提交中，请稍候。。。');
+        console.log('buildData:',  buildData)
 
         if($('#id').val()){
             url = "/assetsRental/update.action";

@@ -333,7 +333,6 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		List<StockInDetail> details = getStockInDetailsByStockCode(code);
 		// 司磅入库判断是否已回皮
 		if(stockIn.getType().equals(StockInTypeEnum.WEIGHT.getCode())) {
-			System.err.println("312323");
 			List<String> codeList = stockWeighmanRecordService.getNeedWeigh(details.stream().map(StockInDetail::getWeightmanId).collect(Collectors.toList()));
 			if(CollectionUtils.isNotEmpty(codeList)) {
 				throw new BusinessException(ResultCode.DATA_ERROR, String.format("子单%s待司磅", codeList.toString()));
@@ -405,7 +404,13 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			JSONObject jsonObject = (JSONObject) JSONObject.toJSON(item);
 			// 组装司磅入库信息
 			if (StockInTypeEnum.WEIGHT.getCode() == stockIn.getType()) {
-				jsonObject.put("stockWeighmanRecord", stockWeighmanRecordService.get(item.getWeightmanId()));
+				StockWeighmanRecord record = stockWeighmanRecordService.get(item.getWeightmanId());
+				JSONObject recordJson = new JSONObject();
+				if(record != null) {
+					recordJson = (JSONObject) JSON.toJSON(record);
+					recordJson.put("image",JSON.toJSON(record.getImages()));
+				}
+				jsonObject.put("stockWeighmanRecord", recordJson);
 			}
 			// 组装动态收费项
 			BusinessChargeItem condtion = new BusinessChargeItem();
@@ -686,14 +691,16 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			weight += detail.getWeight();
 			assetsCode.append(detail.getAssetsCode()).append(",");
 			carTypePublicName.append(detail.getCarTypePublicName()).append(",");
-			carPlate.append(detail.getCarPlate()).append(",");
+			if(!StringUtils.isEmpty(detail.getCarPlate())) {
+				carPlate.append(detail.getCarPlate()).append(",");
+			}
 			districtName.append(detail.getDistrictName()).append(",");
 		}
 		stockInPrintDto.setQuantity(String.valueOf(quantity));
 		stockInPrintDto.setWeight(String.valueOf(weight));
 		stockInPrintDto.setAssetsCode(assetsCode.substring(0, assetsCode.length()-1));
 		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
-		stockInPrintDto.setCarPlate(carPlate.substring(0, carPlate.length()-1));
+		stockInPrintDto.setCarPlate(StringUtils.isEmpty(carPlate)?"":carPlate.substring(0, carPlate.length()-1));
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
 		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
 		stockInPrintDto.setStockInType(StockInTypeEnum.getStockInTypeEnum(stockIn.getType()).getName());
@@ -743,14 +750,16 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			weight += detail.getWeight();
 			assetsCode.append(detail.getAssetsCode()).append(",");
 			carTypePublicName.append(detail.getCarTypePublicName()).append(",");
-			carPlate.append(detail.getCarPlate()).append(",");
+			if(!StringUtils.isEmpty(detail.getCarPlate())) {
+				carPlate.append(detail.getCarPlate()).append(",");
+			}
 			districtName.append(detail.getDistrictName()).append(",");
 		}
 		stockInPrintDto.setQuantity(String.valueOf(quantity));
 		stockInPrintDto.setWeight(String.valueOf(weight));
 		stockInPrintDto.setAssetsCode(assetsCode.substring(0, assetsCode.length()-1));
 		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
-		stockInPrintDto.setCarPlate(carPlate.substring(0, carPlate.length()-1));
+		stockInPrintDto.setCarPlate(StringUtils.isEmpty(carPlate)?"":carPlate.substring(0, carPlate.length()-1));
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
 		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
 		stockInPrintDto.setStockInType(StockInTypeEnum.getStockInTypeEnum(stockIn.getType()).getName());
@@ -769,7 +778,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	@Override
 	public List<QueryFeeOutput> getCost(StockInDto stockInDto) {
 		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-		List<QueryFeeInput> queryFeeInputs = new ArrayList<>();
+		//List<QueryFeeInput> queryFeeInputs = new ArrayList<>();
+		List<QueryFeeOutput> outsFeeOutputs = new ArrayList<>();
 		stockInDto.getBusinessChargeItems().forEach(itme -> {
 			QueryFeeInput queryFeeInput =new QueryFeeInput();
 			queryFeeInput.setMarketId(userTicket.getFirmId());
@@ -778,18 +788,26 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			Map<String, Object> calcParams = new HashMap<String, Object>();
 			calcParams.put("quantity", stockInDto.getQuantity());
 			calcParams.put("weight", stockInDto.getWeight());
-			// calcParams.put("assetsId", stockInDto.getAssetsId());
-			calcParams.put("categoryId", stockInDto.getCategoryId());
+			calcParams.put("day", stockInDto.getDay());
 			Map<String, Object> conditionParams = new HashMap<String, Object>();
 			conditionParams.put("uom", stockInDto.getUom());
 			conditionParams.put("categoryId", stockInDto.getCategoryId());
+			conditionParams.put("type", stockInDto.getType());
 			queryFeeInput.setConditionParams(conditionParams);
 			queryFeeInput.setCalcParams(calcParams);
-			queryFeeInputs.add(queryFeeInput);
+			//System.err.println(JSON.toJSONString(queryFeeInput));
+			BaseOutput<QueryFeeOutput> re = chargeRuleRpc.queryFee(queryFeeInput);
+			if(re.isSuccess()) {
+				outsFeeOutputs.add(re.getData());
+			}else {
+				LOG.error("计费规则失败:"+JSON.toJSONString(re));
+				throw new BusinessException(ResultCode.REMOTE_ERROR, JSON.toJSONString(re));
+			}
+			
+			//queryFeeInputs.add(queryFeeInput);
 		});
-		System.err.println(JSON.toJSONString(queryFeeInputs));
-		BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
-		return batchQueryFee.getData();
+		//BaseOutput<List<QueryFeeOutput>> batchQueryFee = chargeRuleRpc.batchQueryFee(queryFeeInputs);
+		return outsFeeOutputs;
 	}
 
 	@Override
