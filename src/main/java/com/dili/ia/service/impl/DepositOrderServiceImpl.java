@@ -242,14 +242,31 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         return bizNumberOutput.getData();
     }
 
+    private void checkAssetsDistrict(AssetsDTO asDto, Long firstDistrictId, Long secondDistrictId){
+        if (null != firstDistrictId){
+            if (asDto.getArea() != null && !Long.valueOf(asDto.getArea()).equals(firstDistrictId)){
+                LOG.error("资产所属区域已变更！ 资产一级区域ID={}，页面选择一级区域ID={}；", asDto.getArea(), firstDistrictId);
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更！ ");
+            }
+        }
+        if (null != secondDistrictId){
+            if (null == asDto.getSecondArea()){
+                LOG.error("资产所属区域已变更！ 资产二级区域ID={}，页面选择二级区域ID={}；", asDto.getSecondArea(), secondDistrictId);
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更！ ");
+            }else if (!Long.valueOf(asDto.getSecondArea()).equals(secondDistrictId)){
+                LOG.error("资产所属区域已变更！ 资产二级区域ID={}，页面选择二级区域ID={}；", asDto.getSecondArea(), secondDistrictId);
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更！ ");
+            }
+        }
+    }
     /**
-     * 检查摊位状态
-     * @param boothId
+     * 检查资产状态
+     * @param assetsId
      */
-    private AssetsDTO getAndCheckAssetsState(Long boothId){
+    private AssetsDTO getAndCheckAssetsState(Long assetsId){
         BaseOutput<AssetsDTO> output = BaseOutput.failure();
         try {
-            output = assetsRpc.getAssetsById(boothId);
+            output = assetsRpc.getAssetsById(assetsId);
         }catch (Exception e){
             LOG.error("资产接口调用失败！ "+e.getMessage(),e);
             throw new BusinessException(ResultCode.APP_ERROR, "资产接口调用失败！ ");
