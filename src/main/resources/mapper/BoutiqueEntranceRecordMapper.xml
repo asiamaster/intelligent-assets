@@ -134,11 +134,12 @@
         ber.certificate_number as certificateNumber
     from
         boutique_fee_order as bfo
-    left join boutique_entrance_record ber on ber.id = bfo.record_id
-    where
-    <if test="code != null">
-      bfo.code = #{code,jdbcType=VARCHAR}
-    </if>
+    left join boutique_entrance_record as ber on ber.id = bfo.record_id
+    <where>
+      <if test="code != null">
+        bfo.code = #{code,jdbcType=VARCHAR}
+      </if>
+    </where>
   </select>
 
   <select id="listBoutiques" parameterType="com.dili.ia.domain.dto.BoutiqueEntranceRecordDto" resultType="com.dili.ia.domain.dto.BoutiqueEntranceRecordDto">
@@ -177,7 +178,6 @@
       <if test="departmentId != null">
         and department_id = #{departmentId,jdbcType=BIGINT}
       </if>
-
     </where>
   </select>
 
@@ -186,7 +186,11 @@
             <include refid="Base_Column_List" />
         from
             boutique_entrance_record
-        where
+        <where>
+          <if test="bid != null">
             bid = #{bid}
+          </if>
+        </where>
     </select>
+
 </mapper>

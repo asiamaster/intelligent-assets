@@ -122,6 +122,9 @@ public class MeterController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute MeterDto meterDto) throws Exception {
+        // 列表数据要根据市场过滤
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        meterDto.setMarketId(userTicket.getFirmId());
         return meterService.listEasyuiPageByExample(meterDto, true).toString();
     }
 

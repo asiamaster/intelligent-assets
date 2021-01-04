@@ -186,9 +186,9 @@
         </if>
         <if test="keyword != null and keyword != ''">
           and (
-          license_number like concat('', #{keyword}, '%')
-          or car_number like concat('', #{keyword}, '%')
-          or customer_name like concat('', #{keyword}, '%')
+              license_number like concat('', #{keyword}, '%')
+              or car_number like concat('', #{keyword}, '%')
+              or customer_name like concat('', #{keyword}, '%')
           )
         </if>
     </where>

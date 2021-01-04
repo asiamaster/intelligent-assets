@@ -207,6 +207,9 @@ public class MeterDetailController {
     @RequestMapping(value = "/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
     String listPage(@ModelAttribute MeterDetailDto meterDetailDto, String meterType) throws Exception {
+        // 列表数据要根据市场过滤
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        meterDetailDto.setMarketId(userTicket.getFirmId());
         meterDetailDto.setType(Integer.valueOf(meterType));
         return meterDetailService.listMeterDetails(meterDetailDto, true).toString();
     }
