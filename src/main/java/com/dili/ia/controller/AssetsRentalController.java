@@ -226,6 +226,24 @@ public class AssetsRentalController {
             return BaseOutput.failure(e.getMessage());
         }
     }
+    
+    /**
+     * 根据摊位 id 查询资产出租预设摊位信息
+     * @param assetsId
+     * @return
+     */
+    @GetMapping(value="/getRentalItemByAssetsId.action")
+    public @ResponseBody BaseOutput<AssetsRentalDto> getRentalItemByAssetsId(Long assetsId){
+    	try {
+    		return BaseOutput.success().setData(assetsRentalItemService.listRentalItemsByRentalId(assetsId));
+    	} catch (BusinessException e) {
+    		logger.info("根据摊位 id 查询资产出租预设摊位信息异常！", e);
+    		return BaseOutput.failure(e.getMessage());
+    	} catch (Exception e) {
+    		logger.error("根据摊位 id 查询资产出租预设摊位信息异常！", e);
+    		return BaseOutput.failure(e.getMessage());
+    	}
+    }
 
     /**
      * 根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合
