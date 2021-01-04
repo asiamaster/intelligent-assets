@@ -407,6 +407,8 @@
         $('#paymentMonth_' + index).val('');
         $('#discountAmount_' + index).val('');
         $('#depositMakeUpAmount_' + index).val('');
+        $('#depositBalance_' + index).val(0.00);
+        $('#depositMakeUpAmount_' + index).val('');
         $("tr[data-index='" + index + "']").find("input[isCharge]").val('').attr('readonly', true);
     }
 
@@ -473,6 +475,8 @@
      * 初始化保证金相关金额
      */
     function initQueryAssetsDeposit() {
+        $("input[name^='depositBalance']").val(0.00);
+        $("input[name^='depositMakeUpAmount']").val('');
         let assetsIds = $("table select[name^='assetsId']").filter(function () {
             return this.value
         }).map(function () {

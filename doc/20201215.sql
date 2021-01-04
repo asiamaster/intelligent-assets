@@ -29,6 +29,9 @@ UPDATE `dili_ia`.`assets_lease_order_item` SET corner = 2 WHERE is_corner = '否
 ALTER TABLE `dili_ia`.`assets_lease_order_item`
 DROP COLUMN `is_corner`;
 
+/**添加缴费单待付金额字段，用于补打显示**/
+ALTER TABLE `dili_ia`.`payment_order`
+ADD COLUMN `wait_amount` bigint(20) DEFAULT '0' COMMENT '待付金额' AFTER `amount`;
 
 /**添加区域ID及商户ID**/
 ALTER TABLE `dili_ia`.`payment_order`

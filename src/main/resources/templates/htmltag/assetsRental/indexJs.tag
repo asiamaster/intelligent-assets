@@ -209,7 +209,7 @@
      	}
          dia = bs4pop.dialog({
              title: '查看预设摊位',
-             content: '/assetsRental/getRentalItemByAssetsId.action?assetsId='+code,
+             content: '/assetsRental/view.action?assetsId='+code,
              isIframe : true,
              closeBtn: true,
              backdrop : 'static',

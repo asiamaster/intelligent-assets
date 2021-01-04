@@ -454,6 +454,8 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         pb.setIsSettle(YesOrNoEnum.NO.getCode());
         pb.setMchId(depositOrder.getMchId());
         pb.setDistrictId(depositOrder.getSecondDistrictId() == null? depositOrder.getFirstDistrictId():depositOrder.getSecondDistrictId());
+        //缴费单待付金额字段--多次缴费的当前待付金额，用于补打票据显示
+        pb.setWaitAmount(depositOrder.getWaitAmount());
 
         return pb;
     }
@@ -870,7 +872,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         dePrintDto.setNotes(depositOrder.getNotes());
         dePrintDto.setAmount(MoneyUtils.centToYuan(paymentOrder.getAmount())); // 付款金额
         dePrintDto.setTotalAmount(MoneyUtils.centToYuan(depositOrder.getAmount())); // 业务单合计总金额
-        dePrintDto.setWaitAmount(MoneyUtils.centToYuan(depositOrder.getWaitAmount())); //待付款金额
+        dePrintDto.setWaitAmount(MoneyUtils.centToYuan(paymentOrder.getWaitAmount())); //待付款金额
         dePrintDto.setSubmitter(paymentOrder.getCreator());
         dePrintDto.setBizType(BizTypeEnum.DEPOSIT_ORDER.getName());
         dePrintDto.setTypeName(depositOrder.getTypeName());
