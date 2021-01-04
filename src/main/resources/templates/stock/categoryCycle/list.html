@@ -234,7 +234,7 @@ function queryParams(params) {
     			selectedRow
     		})), //对话框内容，可以是 string、element，$object
     		width: '40%', //宽度
-    		height: '90%', //高度
+    		height: '75%', //高度
     		btns: [{
     			label: '取消',
     			className: 'btn btn-secondary',
@@ -245,6 +245,10 @@ function queryParams(params) {
     			label: '确定',
     			className: 'btn btn-primary',
     			onClick(e) {
+    				let validator = $('#saveForm').validate({ignore:''})
+    		        if (!validator.form()) {
+    		            return false;
+    		        }
     				let formData = $('#saveForm').serializeObject();
     				$.ajax({
     					type: "POST",
@@ -283,6 +287,7 @@ function queryParams(params) {
     	}
     	let formData = {};
     	formData.id=selectedRow.id;
+    	formData.path=selectedRow.path;
     	formData.state=state;
     	formData.allChildren=true;
     	
@@ -335,10 +340,16 @@ function queryParams(params) {
     	$('.btn-update').attr('disabled', false);
     });
 
+    $.extend($.validator.messages, {
+
+        digits: "只能输入整数"
+
+    });
+    
 </script>
 <script id="stockOut" type="text/html">
 	<form id="saveForm" role="form" novalidate>
-        <div class="row row-cols-1 detail" id="detailInfo">
+        <div class="row row-cols-2 detail" id="detailInfo">
             <input type="hidden" class="form-control" name="id" value="{{selectedRow.id}}" required />
             <input type="hidden" class="form-control" name="path" value="{{selectedRow.path}}" required />
             <input type="hidden" class="form-control" name="code" value="{{selectedRow.keycode}}" required />
@@ -356,11 +367,12 @@ function queryParams(params) {
             </div>
 			<div class="form-group col">
                 <label for="">存储天数</label>
-                <input id="cycle" type="number" class="form-control" name="cycle" value="{{selectedRow.cycle}}"  range="0 9999999" />
+                <input id="cycle" type="number" class="form-control digits" name="cycle" value="{{selectedRow.cycle}}"  range="1 1000" required/>
             </div>
 			<div class="form-group col">
-                <input id="allChildren" type="checkbox" value="true" class="styled" name="allChildren" />
-				<label for="allChildren">存储天数同步该品类全部子类</label>
+			<label for="allChildren">存储天数同步该品类全部子类</label>
+                <input id="allChildren" type="checkbox" value="true" class="form-control styled" name="allChildren" />
+				
             </div>
 			<div class="form-group col">
                 <label for="">备注</label>
