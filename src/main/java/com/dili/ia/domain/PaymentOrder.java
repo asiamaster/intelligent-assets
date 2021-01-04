@@ -95,6 +95,11 @@ public class PaymentOrder extends BaseDomain implements Cloneable{
      */
     @Column(name = "`amount`")
     private Long amount;
+    /**
+     *缴费单待付金额字段--多次缴费当前待付金额
+     */
+    @Column(name = "`wait_amount`")
+    private Long waitAmount;
 
     /**
      * 创建人ID
@@ -362,6 +367,14 @@ public class PaymentOrder extends BaseDomain implements Cloneable{
      */
     public void setAmount(Long amount) {
         this.amount = amount;
+    }
+
+    public Long getWaitAmount() {
+        return waitAmount;
+    }
+
+    public void setWaitAmount(Long waitAmount) {
+        this.waitAmount = waitAmount;
     }
 
     /**
