@@ -222,16 +222,16 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         if (null != firstDistrictId){
             if (asDto.getArea() != null && !Long.valueOf(asDto.getArea()).equals(firstDistrictId)){
                 LOG.error("资产所属区域已变更！ 资产一级区域ID={}，页面选择一级区域ID={}；", asDto.getArea(), firstDistrictId);
-                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更！ ");
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更，请修改！");
             }
         }
         if (null != secondDistrictId){
             if (null == asDto.getSecondArea()){
                 LOG.error("资产所属区域已变更！ 资产二级区域ID={}，页面选择二级区域ID={}；", asDto.getSecondArea(), secondDistrictId);
-                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更！ ");
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更，请修改！");
             }else if (!Long.valueOf(asDto.getSecondArea()).equals(secondDistrictId)){
                 LOG.error("资产所属区域已变更！ 资产二级区域ID={}，页面选择二级区域ID={}；", asDto.getSecondArea(), secondDistrictId);
-                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更！ ");
+                throw new BusinessException(ResultCode.DATA_ERROR, "资产所属区域已变更，请修改！");
             }
         }
     }

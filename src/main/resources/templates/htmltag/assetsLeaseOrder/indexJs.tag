@@ -160,7 +160,7 @@
                     let depositOrders = ret.data;
                     if(depositOrders.length > 0){
                         for (let depositOrder of depositOrders){
-                            if (depositOrder.state == ${@com.dili.ia.glossary.DepositOrderStateEnum.PAID.getCode()}) {
+                            if (depositOrder.payState != ${@com.dili.ia.glossary.DepositPayStateEnum.UNPAID.getCode()}) {
                                 bs4pop.alert('对应补交保证金已交费不能修改，请取消后重新录入');
                                 return;
                             }
@@ -1066,6 +1066,9 @@
         $('#btn_upload').attr('disabled', false);
         $('#btn_download').attr('disabled', false);
         $('#btn_contract').attr('disabled', false);
+        if (row.state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()}) {
+            $('#btn_invalid').attr('disabled', false);
+        }
         //只要有审批流程实例id就可以查看流程图
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
