@@ -22,6 +22,7 @@ var city = new Vue({
     methods: {
     	 handleChange(value) {
   			var pathvalue = this.$refs.cascaderAddr.getCheckedNodes()[0];
+  			this.originName="";
   			if(pathvalue.parent != null){
   				if(pathvalue.parent.parent != null){
   	  				this.originName = this.originName+pathvalue.parent.parent.label+"/"
