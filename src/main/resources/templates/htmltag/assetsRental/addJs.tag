@@ -259,14 +259,13 @@
         }
 
         $.map($('#categorys').select2('data'), function (item) {
-            debugger
             categoryId.push(parseInt(item.id))
             categoryName.push(item.text)
         });
 
-
-
         $("#nameHidden").val($("#name").val());
+        $("#engageName").val($('#engageCode').find("option:selected").text());
+        $("#leaseTermName").val($('#leaseTermCode').find("option:selected").text());
 
         // 构建已选摊位数据
         $.each($('.booth-checked .custom-control .custom-control-input'), function (index, item ) {
@@ -286,6 +285,7 @@
 
 
         let buildData = JSON.stringify($.extend({}, $('#saveForm :not(#categorys)').serializeObject(), {categoryId: categoryId.join(), categoryName: categoryName.join()},  {assetsRentalItemList: boothCheckedData, mchId: TheMerchantsId}));
+       debugger;
         bui.loading.show('努力提交中，请稍候。。。');
         console.log('buildData:',  buildData)
 
