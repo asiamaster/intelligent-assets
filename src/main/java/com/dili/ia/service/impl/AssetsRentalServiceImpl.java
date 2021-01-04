@@ -91,7 +91,7 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
 
         // 根据区域ID查询商户ID
         if (assetsRentalDto.getMchId() == null) {
-            assetsRentalDto.setMchId(userTicket.getFirmId());
+            throw new BusinessException(ResultCode.DATA_ERROR, "未指定对应的入账组织，不能操作！");
         }
 
         assetsRentalDto.setVersion(0);

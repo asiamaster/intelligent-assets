@@ -104,6 +104,9 @@ public class AssetsRentalController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute AssetsRental assetsRental) throws Exception {
+        // 列表数据要根据市场过滤
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        assetsRental.setMarketId(userTicket.getFirmId());
         return assetsRentalService.listEasyuiPageByExample(assetsRental, true).toString();
     }
 
