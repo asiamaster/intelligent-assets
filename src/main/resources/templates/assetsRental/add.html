@@ -33,8 +33,8 @@
                <form id="searchForm" role="form" novalidate>
                    <div class="row row-cols-2">
                        <div class="form-group col">
-                           <label for="typeCode">区域</label>
-                               <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
+                           <label for="firstDistrictId">区域</label>
+                           <#js_district _firstDistrictName="firstDistrictId" _secondDistrictName="secondDistrictId" _optionText="全部" ></#js_district>
                        </div>
                        <div class="form-group col">
                            <label for="" class="">摊位编号</label>
@@ -43,9 +43,9 @@
                        <div class="form-group col">
                            <label for="" class="">数量</label>
                            <div class="input-group">
-                               <input id="startNumber" type="" class="form-control digits" name="startNumber" />
+                               <input id="startNumber" type="number" class="form-control digits" name="startNumber" />
                                <span class="align-self-center">至</span>
-                               <input id="endNumber" type="" class="form-control digits" name="endNumber" />
+                               <input id="endNumber" type="number" class="form-control digits" name="endNumber" />
                            </div>
                        </div>
                        <div class="col-auto align-self-center mt-3">

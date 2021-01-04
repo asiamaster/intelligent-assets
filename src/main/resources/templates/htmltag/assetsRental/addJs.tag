@@ -205,11 +205,13 @@
     // 选定勾选的待选摊位
     $('#checkedBoothBtn').on('click', function () {
         moveBooth( $('.booth-data-origin') , $('.booth-checked'));
+        $('#checkAll').prop('checked', false);
     })
 
     // 移出勾选的已选摊位
     $('#uncheckedBoothBtn').on('click', function () {
         moveBooth( $('.booth-checked') , $('.booth-data-origin'));
+        $('#uncheckAll').prop('checked', false);
     })
 
 
@@ -217,8 +219,16 @@
     $(document).on('change', '#checkAll', function () {
         if($(this).is(':checked')) {
             //未完成-----------------------等杨刚接口------------
-            let id = $('.booth-data-origin .custom-control:first-child').data('id');
-            let mchId = $('.booth-data-origin .custom-control:first-child').data('mch-id')
+            let firstMchId = $('.booth-data-origin .custom-control:first-child .custom-control-input').data('mch-id')
+
+            $.each($('.booth-data-origin .custom-control .custom-control-input'), function (index, item) {
+                debugger
+                if($(item).data('mch-id') == firstMchId) {
+                    $(item).prop('checked', true);
+                }
+            })
+
+
         }
     })
 
