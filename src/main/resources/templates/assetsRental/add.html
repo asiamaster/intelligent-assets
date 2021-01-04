@@ -103,11 +103,13 @@
         <div class="row row-cols-6" id="detailInfo">
             <div class="form-group col">
                 <label for="engageCode">经营范围</label>
+                <input type="hidden" id="engageName" name="engageName" value="${assetsRental.engageName!}">
                 <select id="engageCode" name="engageCode" class="form-control"></select>
                 <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider"  _value="${assetsRental.engageCode!}" _queryParams='{dd_code:"engage"}' _text="${assetsRental.engageName!}"/>
             </div>
             <div class="form-group col">
                 <label for="leaseTermCode">租赁期限</label>
+                <input type="hidden" id="leaseTermName" name="leaseTermName" value="${assetsRental.leaseTermName!}">
                 <select id="leaseTermCode" name="leaseTermCode" class="form-control" required></select>
                 <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}' _text="${assetsRental.leaseTermName!}"/>
             </div>
