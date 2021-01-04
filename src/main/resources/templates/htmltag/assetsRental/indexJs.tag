@@ -180,5 +180,43 @@
             $('#btn_enable').attr('disabled', false);
         }
     });
+    
+    /**
+     * 业务编号formatter
+     * @param value
+     * @param row
+     * @param index
+     * @returns {string}
+     */
+    function codeFormatter(value,row,index) {
+        return '<a href="javascript:openViewHandler(\''+row.id+'\')">查看</a>';
+    }
+     
+     /**
+      * 打开查看
+      * @param id
+      */
+     function openViewHandler(code) {
+     	//获取选中行的数据
+     	if(!code){
+ 	        let rows = _grid.bootstrapTable('getSelections');
+ 	        if (null == rows || rows.length == 0) {
+ 	            bs4pop.alert('请选中一条数据');
+ 	           
+ 	            return;
+ 	        }
+ 	        code = rows[0].code;
+     	}
+         dia = bs4pop.dialog({
+             title: '查看预设摊位',
+             content: '/assetsRental/getRentalItemByAssetsId.action?assetsId='+code,
+             isIframe : true,
+             closeBtn: true,
+             backdrop : 'static',
+             width: '80%',
+             height : '95%',
+             btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
+         });
+     } 
 
 </script>

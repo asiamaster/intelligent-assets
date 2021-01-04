@@ -6,6 +6,7 @@ import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.AssetsLeaseOrderItemListDto;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ia.glossary.CustomerMeterStateEnum;
+import com.dili.ia.glossary.MeterTypeEnum;
 import com.dili.ia.mapper.CustomerMeterMapper;
 import com.dili.ia.service.AssetsLeaseOrderItemService;
 import com.dili.ia.service.CustomerMeterService;
@@ -175,7 +176,7 @@ public class CustomerMeterServiceImpl extends BaseServiceImpl<CustomerMeter, Lon
     public CustomerMeterDto getBindInfoByMeterId(Long meterId) throws BusinessException {
         CustomerMeterDto customerMeterDto = new CustomerMeterDto();
 
-        CustomerMeter customerMeterInfo = this.getActualDao().getBindInfoByMeterId(meterId);
+        CustomerMeter customerMeterInfo = this.getActualDao().getBindInfoByMeterId(meterId, CustomerMeterStateEnum.CREATED.getCode());
         if (customerMeterInfo == null) {
             throw new BusinessException(ResultCode.DATA_ERROR, "表已被删除！");
         }

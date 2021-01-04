@@ -25,6 +25,11 @@ import com.dili.ss.domain.annotation.Operator;
 public class StockInDetailQueryDto extends BaseDomain{
 
 	/**
+	 * 根据库存,查看入库详情,需要查看状态为4,5,6,7的数据
+	 */
+	private Boolean isStockInDetails;
+	
+	/**
 	 * 入库详情编号
 	 */
 	private String stockInDetailCode;
@@ -207,6 +212,14 @@ public class StockInDetailQueryDto extends BaseDomain{
 
 	public void setDepIds(List<Long> depIds) {
 		this.depIds = depIds;
+	}
+
+	public Boolean getIsStockInDetails() {
+		return isStockInDetails;
+	}
+
+	public void setIsStockInDetails(Boolean isStockInDetails) {
+		this.isStockInDetails = isStockInDetails;
 	}
 
 	

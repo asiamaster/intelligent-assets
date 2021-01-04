@@ -84,15 +84,15 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
         if (CollectionUtils.isNotEmpty(assetsRentalList)) {
             throw new BusinessException(ResultCode.DATA_ERROR, "新增资产出租预设失败,资产名称已存在！");
         }
-        // TODO 批次未完成
+
         // 批次号为生成的业务ID
         String assetsRentalCode = uidRpcResolver.bizNumber(userTicket.getFirmCode() + "_" + BizNumberTypeEnum.ASSETS_RENTAL.getCode());
         assetsRentalDto.setBatchId(assetsRentalCode);
 
-        // 根据区域ID查询商户ID
-        if (assetsRentalDto.getMchId() == null) {
-            assetsRentalDto.setMchId(userTicket.getFirmId());
-        }
+//        // 根据区域ID查询商户ID
+//        if (assetsRentalDto.getMchId() == null) {
+//            throw new BusinessException(ResultCode.DATA_ERROR, "未指定对应的入账组织，不能操作！");
+//        }
 
         assetsRentalDto.setVersion(0);
         assetsRentalDto.setState(AssetsRentalStateEnum.ENABLE.getCode());
@@ -255,60 +255,5 @@ public class AssetsRentalServiceImpl extends BaseServiceImpl<AssetsRental, Long>
     @Override
     public List<AssetsRentalDto> listByAssetsIds(List<Long> assetsIds) {
         return this.getActualDao().listByAssetsIds(assetsIds);
-    }
-
-    /**
-     * MQ 监听 商户区域关联改变
-     */
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "customer.info", autoDelete = "false"),
-            exchange = @Exchange(value = MqConstant.CUSTOMER_MQ_FANOUT_EXCHANGE, type = ExchangeTypes.FANOUT)
-    ))
-    public void processCustomerInfo(Channel channel, Message message) {
-        try {
-            String data = new String(message.getBody(), "UTF-8");
-            LOGGER.info("商户区域信息修改同步>>>>>" + data);
-            if (!StrUtil.isBlank(data)) {
-                // 新的商户-区域的一对多关系
-                AssetsRentalMchDistrictListDto mchDistrictListDto = JSONObject.parseObject(data, AssetsRentalMchDistrictListDto.class);
-                List<AssetsRentalMchDistrictDto> mchDistrictDtoList = mchDistrictListDto.getMchDistrictListDtoList();
-                List<AssetsRental> assetsRentalList = this.getActualDao().selectAll();
-                List<Long> allAsssetRentalIds = new ArrayList<>();
-                List<Long> notAsssetRentalIds = new ArrayList<>();
-                if (mchDistrictListDto != null && CollectionUtils.isNotEmpty(mchDistrictDtoList) && CollectionUtils.isNotEmpty(assetsRentalList)) {
-                    for (AssetsRental assetsRental : assetsRentalList) {
-                        allAsssetRentalIds.add(assetsRental.getId());
-                        // 查询出预设池中区域ID和商户ID，再和MQ消息中对比
-                        // todo 未完成
-                        Long districtId = null;
-                        Long mchId = assetsRental.getMchId();
-//                        Long firstDistrictId = assetsRental.getFirstDistrictId();
-//                        Long secondDistrictId = assetsRental.getSecondDistrictId();
-//                        if (secondDistrictId != null) {
-//                            districtId = secondDistrictId;
-//                        } else if (secondDistrictId == null && firstDistrictId != null) {
-//                            districtId = firstDistrictId;
-//                        }
-
-                        // 遍历商户-区域集合
-                        for (AssetsRentalMchDistrictDto mchDistrictDto : mchDistrictDtoList) {
-                            Long mchIdNew = mchDistrictDto.getMchId();
-                            Long districtIdNew = mchDistrictDto.getDistrictId();
-                            if (mchIdNew.equals(mchId) && districtIdNew.equals(districtId)) {
-                                // 预设池中商户和区域未改变的数据
-                                notAsssetRentalIds.add(assetsRental.getId());
-                            }
-                        }
-                    }
-
-                    // 获取需要删除的ID，批量删除预设表和预设关联表
-                    allAsssetRentalIds.removeAll(notAsssetRentalIds);
-                    this.delete(allAsssetRentalIds);
-                    assetsRentalItemService.deleteByRentalIdList(allAsssetRentalIds);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error("商户区域信息修改失败", e);
-        }
     }
 }

@@ -1410,7 +1410,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositBalance.setMarketId(marketId);
         List<DepositBalance> dbList = depositBalanceService.listByExample(depositBalance);
         Integer record = CollectionUtils.isEmpty(dbList) ? 0 : dbList.size();
-        if (record != 1){
+        if (record > 1){//只能是0条，或者1条
             LOG.info("查询保证金余额账户异常！结果条数为：{}", record);
             return BaseOutput.failure("查询保证金余额账户异常！结果条数为：" + record);
         }

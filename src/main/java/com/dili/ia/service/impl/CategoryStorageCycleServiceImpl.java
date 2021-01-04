@@ -87,7 +87,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
         input.setMarketId(userTicket.getFirmId());
         // keyword 不为空直接查询
         if (!StringUtils.isEmpty(input.getKeyword())) {
-        	input.setParent(0L);
+        	input.setParent(null);
         }
         // 获取品类基础信息
         if (input.getParent() != null && input.getParent() != 0) {

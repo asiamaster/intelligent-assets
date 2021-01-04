@@ -134,10 +134,11 @@ public class DepositOrderController {
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
         }
+        Long refundOrderId = orderDto.getId();
         try {
             BaseOutput<RefundOrder> out = depositOrderService.saveOrUpdateRefundOrder(orderDto);
             if (out.isSuccess()) {
-                if(orderDto.getId() != null){
+                if(refundOrderId != null){
                     LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
                     LoggerContext.put("content", orderDto.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");

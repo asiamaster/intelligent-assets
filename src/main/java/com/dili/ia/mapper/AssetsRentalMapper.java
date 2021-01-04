@@ -16,7 +16,7 @@ import java.util.List;
 public interface AssetsRentalMapper extends MyMapper<AssetsRental> {
 
     /**
-     * 根据摊位 id 查询相关的预设信息
+     * 根据 assetId 和 预设状态为启用，查询相关的预设信息
      *
      * @param  assetsRentalDto
      * @return AssetsRentalDto
@@ -34,7 +34,7 @@ public interface AssetsRentalMapper extends MyMapper<AssetsRental> {
     List<AssetsRentalDto> listRentalsByRentalDtoAndKeyWord(AssetsRentalDto assetsRentalDto);
 
     /**
-     * 根据摊位 ids 批量查询
+     * 根据 assetsIds 批量查询摊位预设的 mchId 和 batchId
      *
      * @param  assetsIds
      * @return List

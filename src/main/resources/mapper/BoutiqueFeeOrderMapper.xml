@@ -105,7 +105,10 @@
         <include refid="Base_Column_List" />
     from
         boutique_fee_order
-    where
+    <where>
+      <if test="recordId != null">
         record_id = #{recordId,jdbcType=BIGINT}
+      </if>
+    </where>
   </select>
 </mapper>
