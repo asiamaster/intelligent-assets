@@ -1,5 +1,8 @@
 <script>
 
+//设置默认入库时间为当天
+$("#stockInDate").attr("value", moment().format('YYYY-MM-DD'));
+
 //子单索引计数器
 let itemIndex = 0;
 //入库类型
@@ -150,6 +153,12 @@ function buildFormData() {
 		let index = $(this).attr("id").split("_")[1];
 		let detail = $(this).serializeObject();
 		let districtName = $(this).find("[name=districtId]").find("option:selected").text();
+		// 只填入一级区域
+		if(isNull(detail.districtId)){
+			districtName = $(this).find("[name=parentDistrictId]").find("option:selected").text();
+			detail.districtId = detail.parentDistrictId;
+		}
+		
 		let assetsName = $(this).find("[name=assetsId]").find("option:selected").text();
 		detail.districtName = districtName;
 		detail.assetsCode = assetsName;

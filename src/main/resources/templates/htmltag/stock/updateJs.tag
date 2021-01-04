@@ -189,6 +189,11 @@ function buildFormData() {
 	$("#details").find("form").each(function() {
 		let detail = $(this).serializeObject();
 		let districtName = $(this).find("[name=districtId]").find("option:selected").text();
+		// 只填入一级区域
+		if(isNull(detail.districtId)){
+			districtName = $(this).find("[name=parentDistrictId]").find("option:selected").text();
+			detail.districtId = detail.parentDistrictId;
+		}
 		let assetsName = $(this).find("[name=assetsId]").find("option:selected").text();
 		detail.districtName = districtName;
 		detail.assetsCode = assetsName;

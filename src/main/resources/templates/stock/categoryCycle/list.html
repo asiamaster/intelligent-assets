@@ -341,14 +341,14 @@ function queryParams(params) {
         <div class="row row-cols-1 detail" id="detailInfo">
             <input type="hidden" class="form-control" name="id" value="{{selectedRow.id}}" required />
             <input type="hidden" class="form-control" name="path" value="{{selectedRow.path}}" required />
-            <input type="hidden" class="form-control" name="code" value="{{selectedRow.code}}" required />
+            <input type="hidden" class="form-control" name="code" value="{{selectedRow.keycode}}" required />
             <div class="form-group col">
                 <label for="" class="">品类名称：<i class="red">*</i></label> <input  class="form-control"
                   value="{{selectedRow.name}}" readonly required />
             </div>
             <div class="form-group col">
                 <label for="" class="">品类代码：<i class="red">*</i></label> <input  class="form-control"
-                  name="" value="{{selectedRow.code}}"  readonly required />
+                  name="" value="{{selectedRow.keycode}}"  readonly required />
             </div>
             <div class="form-group col">
                 <label for="">模块标签</label>
