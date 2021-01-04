@@ -36,8 +36,10 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -58,6 +60,9 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
 
     @Autowired
     private AssetsRpc assetsRpc;
+
+    @Autowired
+    private AssetsRentalService assetsRentalService;
 
     @Autowired
     private MchAndDistrictService mchAndDistrictService;
@@ -190,7 +195,7 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
     /**
      * MQ 监听 修改摊位的信息（修改区域或者修改基础信息）
      *
-     * @param  assetsRentalItemDto
+     * @param
      * @return
      * @date   2020/12/8
      */
@@ -198,52 +203,123 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
             value = @Queue(value = "customer.info", autoDelete = "false"),
             exchange = @Exchange(value = MqConstant.CUSTOMER_MQ_FANOUT_EXCHANGE, type = ExchangeTypes.FANOUT)
     ))
-    public void updateAssetsItemByAssets(AssetsRentalItemDto assetsRentalItemDto){
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        boolean isDeleteAssets = false;
-        Long assetId = 1L;
-
-        // 根据摊位ID查询预设池中的预设摊位，如果没有，则忽略
-        AssetsRentalItemDto itemDtoInfo = this.getActualDao().getAssetsItemsByAssetsId(assetId);
-        if (itemDtoInfo != null) {
-            // 先拿到摊位ID，查询基础信息
-            AssetsQuery assetsQuery = new AssetsQuery();
-            assetsQuery.setId(assetId);
-            assetsQuery.setMarketId(userTicket.getFirmId());
-            assetsQuery.setBusinessType(AssetsTypeEnum.BOOTH.getCode());
-            List<AssetsDTO> assets = assetsRpc.searchAssets(assetsQuery).getData();
-            if (CollectionUtils.isNotEmpty(assets)) {
-                AssetsDTO assetsDTO = assets.get(0);
-                Long districtId = Long.valueOf(assetsDTO.getArea());
-                if (itemDtoInfo.getFirstDistrictId().equals(districtId) || itemDtoInfo.getSecondDistrictId().equals(districtId)) {
-                    // 区域未改变，查询商户是否改变，根据摊位的区域ID查询商户ID
-                    BaseOutput<Long> mchOutput = areaMarketRpc.getMarketByArea(districtId);
-                    if (mchOutput.isSuccess()){
-                        Long mchId = mchOutput.getData();
-                        if (!itemDtoInfo.getMchId().equals(mchId) ) {
-                            // 商户改变，剔除预设池中的摊位
-                            isDeleteAssets = true;
+    public void updateAssetsItemByAssets(Channel channel, Message message){
+        try {
+            UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+            String data = new String(message.getBody(), "UTF-8");
+            LOGGER.info("摊位信息修改同步>>>>>" + data);
+            if (!StrUtil.isBlank(data)) {
+                boolean isDeleteAssets = false;
+                AssetsRentalItemDto assetsRentalItemDto = JSONObject.parseObject(data, AssetsRentalItemDto.class);
+                Long assetsId = assetsRentalItemDto.getAssetsId();
+                // 根据摊位ID查询预设池中的预设摊位，如果没有，则忽略
+                AssetsRentalItemDto itemDtoInfo = this.getActualDao().getAssetsItemsByAssetsId(assetsId);
+                if (itemDtoInfo != null) {
+                    // 先拿到摊位ID，查询基础信息
+                    AssetsQuery assetsQuery = new AssetsQuery();
+                    assetsQuery.setId(assetsId);
+                    assetsQuery.setMarketId(userTicket.getFirmId());
+                    assetsQuery.setBusinessType(AssetsTypeEnum.BOOTH.getCode());
+                    List<AssetsDTO> assets = assetsRpc.searchAssets(assetsQuery).getData();
+                    if (CollectionUtils.isNotEmpty(assets)) {
+                        AssetsDTO assetsDTO = assets.get(0);
+                        Long districtId = Long.valueOf(assetsDTO.getArea());
+                        if (itemDtoInfo.getFirstDistrictId().equals(districtId) || itemDtoInfo.getSecondDistrictId().equals(districtId)) {
+                            // 区域未改变，查询商户是否改变，根据摊位的区域ID查询商户ID
+                            BaseOutput<Long> mchOutput = areaMarketRpc.getMarketByArea(districtId);
+                            if (mchOutput.isSuccess()) {
+                                Long mchId = mchOutput.getData();
+                                if (!itemDtoInfo.getMchId().equals(mchId)) {
+                                    // 商户改变，剔除预设池中的摊位
+                                    isDeleteAssets = true;
+                                } else {
+                                    // 区域和商户都没有改变，则修改相关属性
+                                    itemDtoInfo.setModifyTime(LocalDateTime.now());
+                                    itemDtoInfo.setAssetsName(assetsDTO.getName());
+                                    itemDtoInfo.setAssetsType(assetsDTO.getType());
+                                    itemDtoInfo.setNumber(assetsDTO.getNumber());
+                                    itemDtoInfo.setUnit(assetsDTO.getUnit());
+                                    itemDtoInfo.setCorner(assetsDTO.getCorner());
+                                    this.getActualDao().updateByPrimaryKey(itemDtoInfo);
+                                }
+                            }
                         } else {
-                            // 区域和商户都没有改变，则修改相关属性
-                            itemDtoInfo.setModifyTime(LocalDateTime.now());
-                            itemDtoInfo.setAssetsName(assetsDTO.getName());
-                            itemDtoInfo.setAssetsType(assetsDTO.getType());
-                            itemDtoInfo.setNumber(assetsDTO.getNumber());
-                            itemDtoInfo.setUnit(assetsDTO.getUnit());
-                            itemDtoInfo.setCorner(assetsDTO.getCorner());
-                            this.getActualDao().updateByPrimaryKey(itemDtoInfo);
+                            // 区域改变，剔除预设池中的摊位
+                            isDeleteAssets = true;
                         }
                     }
-                } else {
-                    // 区域改变，剔除预设池中的摊位
-                    isDeleteAssets = true;
+                }
+                // 剔除预设池中的摊位
+                if (isDeleteAssets) {
+                    this.getActualDao().delete(itemDtoInfo);
                 }
             }
+        } catch (Exception e) {
+            LOGGER.error("商户区域信息修改失败", e);
         }
+    }
 
-        // 剔除预设池中的摊位
-        if (isDeleteAssets) {
-            this.getActualDao().delete(itemDtoInfo);
+    /**
+     * MQ 监听 商户区域关联改变
+     */
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "customer.info", autoDelete = "false"),
+            exchange = @Exchange(value = MqConstant.CUSTOMER_MQ_FANOUT_EXCHANGE, type = ExchangeTypes.FANOUT)
+    ))
+    public void processCustomerInfo(Channel channel, Message message) {
+        try {
+            String data = new String(message.getBody(), "UTF-8");
+            LOGGER.info("商户区域信息修改同步>>>>>" + data);
+            if (!StrUtil.isBlank(data)) {
+                // 新的商户-区域的一对多关系
+                AssetsRentalMchDistrictListDto mchDistrictListDto = JSONObject.parseObject(data, AssetsRentalMchDistrictListDto.class);
+                List<AssetsRentalMchDistrictDto> mchDistrictDtoList = mchDistrictListDto.getMchDistrictListDtoList();
+
+                // 全量联表查询预设 - 摊位详情表
+                List<AssetsRentalItemDto> itemDtoList = this.getActualDao().selectAllByTable();
+
+                List<Long> allAsssetsIds = new ArrayList<>();
+                List<Long> notDeleteAsssetsIds = new ArrayList<>();
+                HashSet<Long> allRentalIds = new HashSet<>();
+                HashSet<Long> notDeleteRentalIds = new HashSet<>();
+                if (mchDistrictListDto != null && CollectionUtils.isNotEmpty(mchDistrictDtoList) && CollectionUtils.isNotEmpty(itemDtoList)) {
+                    for (AssetsRentalItemDto assetsRentalItemDto : itemDtoList) {
+                        allAsssetsIds.add(assetsRentalItemDto.getId());
+                        allRentalIds.add(assetsRentalItemDto.getAssetsRentalId());
+                        // 查询摊位预设详情 摊位详情 的区域ID和商户ID，再和MQ消息中对比
+                        Long mchId = assetsRentalItemDto.getMchId();
+                        Long districtId = null;
+                        Long firstDistrictId = assetsRentalItemDto.getFirstDistrictId();
+                        Long secondDistrictId = assetsRentalItemDto.getSecondDistrictId();
+                        if (secondDistrictId != null) {
+                            districtId = secondDistrictId;
+                        } else if (secondDistrictId == null && firstDistrictId != null) {
+                            districtId = firstDistrictId;
+                        }
+
+                        // 遍历商户-区域集合
+                        for (AssetsRentalMchDistrictDto mchDistrictDto : mchDistrictDtoList) {
+                            Long mchIdNew = mchDistrictDto.getMchId();
+                            Long districtIdNew = mchDistrictDto.getDistrictId();
+                            if (mchIdNew.equals(mchId) && districtIdNew.equals(districtId)) {
+                                // 预设池中商户和区域未改变的数据
+                                notDeleteAsssetsIds.add(assetsRentalItemDto.getId());
+                                notDeleteRentalIds.add(assetsRentalItemDto.getAssetsRentalId());
+                            }
+                        }
+                    }
+
+                    // 批量删除预设-摊位详情表
+                    allAsssetsIds.removeAll(notDeleteAsssetsIds);
+                    this.delete(allAsssetsIds);
+
+                    // 批量删除预设表
+                    allRentalIds.remove(notDeleteRentalIds);
+                    assetsRentalService.delete(new ArrayList<>(allRentalIds));
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("商户区域信息修改失败", e);
         }
     }
 }

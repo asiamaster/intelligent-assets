@@ -61,7 +61,7 @@ public interface MeterDetailMapper extends MyMapper<MeterDetail> {
     MeterDetailDto getMeterDetailByCode(Long id);
 
     /**
-     * 根据 code 查询水电费业务单集合
+     * 根据 meterId 和 state[] 查询水电费业务单集合
      *
      * @param  meterDetailDto
      * @return MeterDetailDtoList

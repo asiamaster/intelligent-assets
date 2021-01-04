@@ -3,6 +3,7 @@ package com.dili.ia.mapper;
 import com.dili.ia.domain.CustomerMeter;
 import com.dili.ia.domain.dto.CustomerMeterDto;
 import com.dili.ss.base.MyMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -31,10 +32,11 @@ public interface CustomerMeterMapper extends MyMapper<CustomerMeter> {
      * 根据表主键 meterId 获取表绑定的用户信息
      *
      * @param  meterId
+     * @param  state
      * @return CustomerMeter
      * @date   2020/6/28
      */
-    CustomerMeter getBindInfoByMeterId(Long meterId);
+    CustomerMeter getBindInfoByMeterId(@Param("meterId") Long meterId, @Param("state") Integer state);
 
     /**
      * 根据表编号模糊查询表客户信息列表

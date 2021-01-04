@@ -51,6 +51,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
 		CategoryStorageCycle categoryStorageCycle = new CategoryStorageCycle(userTicket);
     	BeanUtil.copyProperties(dto, categoryStorageCycle);    
     	insert.add(categoryStorageCycle);
+    	//TODO 子类启用是否启用父类
     	if(dto.getAllChildren() != null && dto.getAllChildren()) {
     		CusCategoryQueryPage input = new CusCategoryQueryPage();
         	input.setMarketId(userTicket.getFirmId());
@@ -82,6 +83,8 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
 	
 	@Override
 	public Page<JSONObject> list(CusCategoryQueryPage input) {
+		Integer state = input.getState();
+		input.setState(null);
         List<CusCategoryDTO> results = new ArrayList<>();
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         input.setMarketId(userTicket.getFirmId());
@@ -108,7 +111,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
         //根据品类id获取存储周期
         Map<String, Object> queryMap = new HashMap();
         queryMap.put("ids", ids);
-        queryMap.put("state", input.getState());
+        queryMap.put("state", state);
         List<CategoryStorageCycle> categoryStorageCycles = getActualDao().selectCycleByIds(queryMap);
         Map<Long, CategoryStorageCycle> map = new HashMap<>();
         categoryStorageCycles.forEach(item ->{
@@ -121,7 +124,7 @@ public class CategoryStorageCycleServiceImpl extends BaseServiceImpl<CategorySto
         Integer page = input.getPage();
         Integer row = input.getRows();
         List<JSONObject> array = new ArrayList<>();
-        if(input.getState() != null) {
+        if(state != null) {
         	CollectionUtil.sub(categoryStorageCycles, (page-1)*row, page*row).stream().forEach(item -> {
             	JSONObject obj = (JSONObject) JSON.toJSON(item);
             	CusCategoryDTO category = mapCategory.get(item.getId());

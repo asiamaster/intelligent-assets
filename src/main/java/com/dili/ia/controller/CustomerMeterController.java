@@ -110,6 +110,9 @@ public class CustomerMeterController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute CustomerMeterDto customerMeterDto) throws Exception {
+        // 列表数据要根据市场过滤
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        customerMeterDto.setMarketId(userTicket.getFirmId());
         return customerMeterService.listCustomerMeters(customerMeterDto, true).toString();
     }
 

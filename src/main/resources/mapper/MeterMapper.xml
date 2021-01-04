@@ -128,23 +128,13 @@
                   AND m.id = cm.meter_id
                   AND m.type = #{type}
             )
-        AND m.type = #{type}
-      <if test="keyword != null">
-        and m.number like CONCAT('%',#{keyword,jdbcType=VARCHAR},'%' )
-      </if>
-
-    </select>
-
-    <select id="listMetersLikeNumber" parameterType="com.dili.ia.domain.dto.MeterDto" resultMap="BaseResultMap">
-        select
-            <include refid="Base_Column_List" />
-        from
-            meter
-        where
-            type = #{type,jdbcType=INTEGER}
-        <if test="keyword != null">
-          and number like CONCAT('%',#{keyword,jdbcType=VARCHAR},'%' )
+        <if test="type != null">
+            and m.type = #{type}
         </if>
+        <if test="keyword != null">
+            and m.number like CONCAT('%',#{keyword,jdbcType=VARCHAR},'%' )
+        </if>
+
     </select>
 
   <select id="getMeterByNumber" parameterType="java.lang.String" resultMap="BaseResultMap">

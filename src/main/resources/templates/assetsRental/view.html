@@ -1,0 +1,17 @@
+<#bs4Body>
+<div class="container-fluid pb-5">
+
+    ${itemList!}
+
+    <% if(isNotEmpty(itemList)){
+    for(item in itemList){
+    %>
+
+    <div class="">${item.firstDistrictName!} : ${item.assetsName!}</div>
+
+    <%}
+    }%>
+
+
+</div>
+</#bs4Body>

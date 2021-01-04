@@ -15,6 +15,8 @@
             $('#customerCellphone').val(suggestion.contactsPhone);
             $('#organizationType').val(suggestion.organizationType);
             $("#_certificateNumber,#customerCellphone").valid();
+
+            initQueryAssetsDeposit();
             calcTotalAmount(true);
         }
     });
@@ -26,6 +28,7 @@
             $('#customerCellphone').val(suggestion.contactsPhone);
             $("#customerName,#customerCellphone").valid();
 
+            initQueryAssetsDeposit();
             calcTotalAmount(true);
         }
     });
@@ -154,7 +157,9 @@
             $('#firstDistrictName_' + index).val(suggestion.areaName);
             $('#secondDistrictId_' + index).val(suggestion.secondArea);
             $('#secondDistrictName_' + index).val(suggestion.secondAreaName);
-            batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
+            $('#depositBalance_' + index).val(0.00);
+            $('#depositMakeUpAmount_' + index).val('');
+            $('#customerId').val() && batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
             $('#id').val() && batchQueryDepositOrder({
                 businessId: $('#id').val(),
                 bizType: bizType,
@@ -299,15 +304,7 @@
             }
         <% }%>
 
-        let assetsIds = $("table select[name^='assetsId']").filter(function () {
-            return this.value
-        }).map(function () {
-            return this.value
-        }).get();
-        if(assetsIds.length > 0){
-            batchQueryDepositBalance($('#assetsType').val(), $('#customerId').val(), assetsIds);
-            $('#id').val() && batchQueryDepositOrder({businessId: $('#id').val(), bizType: $('#bizType').val()});
-        }
+        initQueryAssetsDeposit();
         calcTotalAmount(true);
     });
     /******************************驱动执行区 end****************************/
@@ -471,6 +468,24 @@
             }
         });
         return rentBalance;
+    }
+
+
+    /**
+     * 初始化保证金相关金额
+     */
+    function initQueryAssetsDeposit() {
+        $("input[name^='depositBalance']").val(0.00);
+        $("input[name^='depositMakeUpAmount']").val('');
+        let assetsIds = $("table select[name^='assetsId']").filter(function () {
+            return this.value
+        }).map(function () {
+            return this.value
+        }).get();
+        if(assetsIds.length > 0){
+            batchQueryDepositBalance($('#assetsType').val(), $('#customerId').val(), assetsIds);
+            $('#id').val() && batchQueryDepositOrder({businessId: $('#id').val(), bizType: $('#bizType').val()});
+        }
     }
 
     /**

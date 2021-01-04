@@ -104,6 +104,9 @@ public class AssetsRentalController {
      */
     @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody String listPage(@ModelAttribute AssetsRental assetsRental) throws Exception {
+        // 列表数据要根据市场过滤
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        assetsRental.setMarketId(userTicket.getFirmId());
         return assetsRentalService.listEasyuiPageByExample(assetsRental, true).toString();
     }
 
@@ -122,6 +125,7 @@ public class AssetsRentalController {
             // 校验参数，名称和摊位不能为空
             AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
             AssertUtils.notEmpty(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
+            AssertUtils.notNull(assetsRentalDto.getMchId(), "未指定对应的入账组织，不能操作！");
 
             AssetsRental assetsRental = assetsRentalService.addAssetsRental(assetsRentalDto, userTicket);
 
