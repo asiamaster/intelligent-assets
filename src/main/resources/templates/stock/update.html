@@ -29,7 +29,7 @@
 						name="certificateNumber" value="${stockIn.certificateNumber!}" required readonly/>
 				</div>
 				<div class="form-group col-3">
-					<label for="">联系电话:<i class="red">*</i></label> <input type="text" class="form-control isMobile" id="customerCellphone"
+					<label for="">联系电话:<i class="red">*</i></label> <input type="text" class="form-control digits" minlength="11" maxlength="11" id="customerCellphone"
 					 name="customerCellphone" value="${stockIn.customerCellphone!}"  required />
 				</div>
 			</div>

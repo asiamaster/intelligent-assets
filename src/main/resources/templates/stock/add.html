@@ -28,7 +28,7 @@
 						name="certificateNumber" maxlength="30"  required />
 				</div>
 				<div class="form-group col">
-					<label for="">联系电话:<i class="red">*</i></label> <input type="text" class="form-control isMobile" id="customerCellphone"
+					<label for="">联系电话:<i class="red">*</i></label> <input type="text" class="form-control digits" minlength="11" maxlength="11" id="customerCellphone"
 					 name="customerCellphone" required />
 				</div>
 			</div>
@@ -52,7 +52,7 @@
 					 _required="true" />
             	</div>
 				<div class="form-group col el-city">
-					<label for="">产地:<i class="red">*</i></label>
+					<label for="">产地:</label>
 					
 					<div>
 					<el-cascader
