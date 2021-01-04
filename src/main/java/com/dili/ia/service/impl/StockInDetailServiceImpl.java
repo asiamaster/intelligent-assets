@@ -64,6 +64,9 @@ public class StockInDetailServiceImpl extends BaseServiceImpl<StockInDetail, Lon
 
 	@Override
 	public Page<Map<String, String>> selectByContion(StockInDetailQueryDto stockInDetailQueryDto) {
+		if(stockInDetailQueryDto.getIsStockInDetails()) {
+			stockInDetailQueryDto.setState(null);
+		}
 		Page<Map<String, String>> result = PageHelper.startPage(stockInDetailQueryDto.getPage(), stockInDetailQueryDto.getRows());
 		if(stockInDetailQueryDto.getExpireDay() != null) {
 			stockInDetailQueryDto.setExpireDate(LocalDate.now().plusDays(stockInDetailQueryDto.getExpireDay()));
