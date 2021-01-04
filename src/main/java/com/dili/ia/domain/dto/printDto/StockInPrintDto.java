@@ -8,6 +8,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class StockInPrintDto {
+	
+	// 结算单号
+	private String settleCode;
+	// 票据单号
+	private String billCode;
 	// 打印时间
 	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -288,6 +293,22 @@ public class StockInPrintDto {
 
 	public void setTotalAmountCn(String totalAmountCn) {
 		this.totalAmountCn = totalAmountCn;
+	}
+
+	public String getSettleCode() {
+		return settleCode;
+	}
+
+	public void setSettleCode(String settleCode) {
+		this.settleCode = settleCode;
+	}
+
+	public String getBillCode() {
+		return billCode;
+	}
+
+	public void setBillCode(String billCode) {
+		this.billCode = billCode;
 	}
 
 	

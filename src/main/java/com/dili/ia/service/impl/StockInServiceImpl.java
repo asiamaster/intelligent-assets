@@ -660,6 +660,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setStockInCode(orderCode);
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		//stockInPrintDto.setc
+		stockInPrintDto.setBillCode(stockIn.getCode());
+		stockInPrintDto.setSettleCode(order.getCode());
 		stockInPrintDto.setBusinessType(BizTypeEnum.STOCKIN.getCode());
 		stockInPrintDto.setCardNo(order.getTradeCardNo());
 		stockInPrintDto.setCategoryName(stockIn.getCategoryName());
@@ -677,7 +679,15 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setTotalAmount(MoneyUtils.centToYuan(paymentOrder.getAmount()));
 		stockInPrintDto.setTotalAmountCn(Convert.digitToChinese(new BigDecimal(MoneyUtils.centToYuan(paymentOrder.getAmount()))));
 		// 支付方式
-        stockInPrintDto.setPayWay(SettleWayEnum.getNameByCode(order.getWay()));
+		stockInPrintDto.setPayWay(SettleWayEnum.getNameByCode(order.getWay()));
+		// 判断代缴
+		if (SettleWayEnum.CARD.getCode() == order.getWay()) {
+			// 非入库单客户缴费,视为代缴
+			if (!order.getTradeCustomerId().equals(stockIn.getCustomerId())) {
+				stockInPrintDto.setCardNo(order.getTradeCardNo()+"(代缴)");
+				stockInPrintDto.setProxyPayer(order.getCustomerName());
+			}
+		}
 		//详情
         Long quantity = 0L;
         Long weight = 0L;
@@ -719,6 +729,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		StockIn stockIn = getStockInByCode(refundOrder.getBusinessCode());
 		StockInPrintDto stockInPrintDto = new StockInPrintDto();
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, refundOrder.getCode());
+		stockInPrintDto.setBillCode(stockIn.getCode());
+		stockInPrintDto.setSettleCode(order.getCode());
 		stockInPrintDto.setStockInCode(refundOrder.getCode());
 		stockInPrintDto.setBusinessType(BizTypeEnum.STOCKIN.getCode());
 		stockInPrintDto.setCardNo(order.getTradeCardNo());
