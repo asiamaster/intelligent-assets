@@ -131,10 +131,11 @@ public class CustomerAccountController {
         if (null == userTicket){
             return BaseOutput.failure("未登录！");
         }
+        Long refundOrderId = order.getId();
         try {
             BaseOutput<RefundOrder> out = customerAccountService.saveOrUpdateRefundOrder(order);
             if (out.isSuccess()) {
-                if(order.getId() != null){
+                if(refundOrderId != null){
                     LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE, LogBizTypeConst.REFUND_ORDER);
                     LoggerContext.put("content", order.getLogContent());
                     LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "edit");
