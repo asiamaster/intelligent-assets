@@ -691,14 +691,16 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			weight += detail.getWeight();
 			assetsCode.append(detail.getAssetsCode()).append(",");
 			carTypePublicName.append(detail.getCarTypePublicName()).append(",");
-			carPlate.append(detail.getCarPlate()).append(",");
+			if(!StringUtils.isEmpty(detail.getCarPlate())) {
+				carPlate.append(detail.getCarPlate()).append(",");
+			}
 			districtName.append(detail.getDistrictName()).append(",");
 		}
 		stockInPrintDto.setQuantity(String.valueOf(quantity));
 		stockInPrintDto.setWeight(String.valueOf(weight));
 		stockInPrintDto.setAssetsCode(assetsCode.substring(0, assetsCode.length()-1));
 		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
-		stockInPrintDto.setCarPlate(carPlate.substring(0, carPlate.length()-1));
+		stockInPrintDto.setCarPlate(StringUtils.isEmpty(carPlate)?"":carPlate.substring(0, carPlate.length()-1));
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
 		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
 		stockInPrintDto.setStockInType(StockInTypeEnum.getStockInTypeEnum(stockIn.getType()).getName());
@@ -748,14 +750,16 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			weight += detail.getWeight();
 			assetsCode.append(detail.getAssetsCode()).append(",");
 			carTypePublicName.append(detail.getCarTypePublicName()).append(",");
-			carPlate.append(detail.getCarPlate()).append(",");
+			if(!StringUtils.isEmpty(detail.getCarPlate())) {
+				carPlate.append(detail.getCarPlate()).append(",");
+			}
 			districtName.append(detail.getDistrictName()).append(",");
 		}
 		stockInPrintDto.setQuantity(String.valueOf(quantity));
 		stockInPrintDto.setWeight(String.valueOf(weight));
 		stockInPrintDto.setAssetsCode(assetsCode.substring(0, assetsCode.length()-1));
 		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
-		stockInPrintDto.setCarPlate(carPlate.substring(0, carPlate.length()-1));
+		stockInPrintDto.setCarPlate(StringUtils.isEmpty(carPlate)?"":carPlate.substring(0, carPlate.length()-1));
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
 		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
 		stockInPrintDto.setStockInType(StockInTypeEnum.getStockInTypeEnum(stockIn.getType()).getName());
