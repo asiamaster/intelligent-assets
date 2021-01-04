@@ -115,10 +115,13 @@
           me.type as type,
           me.assets_name as assetsName
       from
-        customer_meter as cm
-        left join meter as me on cm.meter_id = me.id
-      where
-        cm.id = #{id,jdbcType=BIGINT}
+          customer_meter as cm
+          left join meter as me on cm.meter_id = me.id
+      <where>
+          <if test="id != null">
+              cm.id = #{id,jdbcType=BIGINT}
+          </if>
+      </where>
     </select>
     <select id="listCustomerMeters" parameterType="com.dili.ia.domain.dto.CustomerMeterDto" resultType="com.dili.ia.domain.dto.CustomerMeterDto">
     select
@@ -164,7 +167,7 @@
     </where>
     </select>
 
-    <select id="getBindInfoByMeterId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="getBindInfoByMeterId" resultMap="BaseResultMap">
         SELECT
             id,
             customer_id,
@@ -175,9 +178,14 @@
             customer_name
         FROM
             customer_meter
-        WHERE
-            meter_id = #{meterId}
-            and state = 1
+        <where>
+            <if test="meterId != null">
+                and meter_id = #{meterId}
+            </if>
+            <if test="state != null">
+                and state = #{state}
+            </if>
+        </where>
     </select>
 
     <select id="listCustomerMetersByLikeName" parameterType="com.dili.ia.domain.dto.CustomerMeterDto" resultType="com.dili.ia.domain.dto.CustomerMeterDto">

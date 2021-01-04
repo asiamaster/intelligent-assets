@@ -73,11 +73,14 @@
         delete
         from
             assets_rental_item
-        where
-            assets_rental_id in
-            <foreach collection="assetsRentalIdList" item="assetsRentalId" index="index" open="(" close=")" separator=",">
-                #{assetsRentalId}
-            </foreach>
+        <where>
+            <if test="assetsRentalIdList != null">
+                assets_rental_id in
+                <foreach collection="assetsRentalIdList" item="assetsRentalId" index="index" open="(" close=")" separator=",">
+                        #{assetsRentalId}
+                </foreach>
+            </if>
+        </where>
     </delete>
 
     <select id="listRentalItemsByAssetsIds" resultType="long">
@@ -89,13 +92,17 @@
             assets_rental as ar
         on
             ari.assets_rental_id = ar.id
-        where
-            ar.state = #{state}
-          and
-            ari.assets_id in
-            <foreach collection="assetsIds" item="assetsId" index="index" open="(" close=")" separator=",">
-                #{assetsId}
-            </foreach>
+        <where>
+            <if test="state != null">
+                and ar.state = #{state}
+            </if>
+            <if test="assetsIds != null">
+                and ari.assets_id in
+                    <foreach collection="assetsIds" item="assetsId" index="index" open="(" close=")" separator=",">
+                            #{assetsId}
+                    </foreach>
+            </if>
+        </where>
     </select>
 
     <select id="listAssetsItemsByAssetsIds" resultMap="BaseResultMap">
@@ -103,32 +110,16 @@
             <include refid="Base_Column_List" />
         from
             assets_rental_item
-        where
-            assets_id in
-            <foreach collection="assetsIds" item="assetsId" index="index" open="(" close=")" separator=",">
-                #{assetsId}
-            </foreach>
+        <where>
+            <if test="assetsIds != null">
+                assets_id in
+                <foreach collection="assetsIds" item="assetsId" index="index" open="(" close=")" separator=",">
+                        #{assetsId}
+                </foreach>
+            </if>
+        </where>
     </select>
 
-    <update id="updateByAssetsId" parameterType="com.dili.ia.domain.AssetsRentalItem">
-        update assets_rental_item
-        <set>
-            <if test="modifyTime != null">
-                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="assetsId != null">
-                assets_id = #{assetsId,jdbcType=BIGINT},
-            </if>
-            <if test="assetsName != null">
-                assets_name = #{assetsName,jdbcType=VARCHAR},
-            </if>
-            <if test="assetsType != null">
-                assets_type = #{assetsType,jdbcType=BIT},
-            </if>
-        </set>
-        where
-            assets_id = #{assetsId}
-    </update>
 
     <select id="getAssetsItemsByAssetsId" resultType="com.dili.ia.domain.dto.AssetsRentalItemDto">
         select
@@ -153,8 +144,11 @@
           left join
             assets_rental_item as ari
           on ar.id = ari.assets_rental_id
-        where
-            ari.assets_id = #{assetsId}
+        <where>
+            <if test="assetsId != null">
+                ari.assets_id = #{assetsId}
+            </if>
+        </where>
     </select>
 
     <select id="listRentalItemsByRentalId" resultMap="BaseResultMap">
@@ -162,7 +156,36 @@
             <include refid="Base_Column_List" />
         from
             assets_rental_item
-        where
-            assets_rental_id = #{rentalId}
+        <where>
+            <if test="rentalId != null">
+                assets_rental_id = #{rentalId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAllByTable" resultType="com.dili.ia.domain.dto.AssetsRentalItemDto">
+        select
+            ar.mch_id as mchId,
+            ari.id,
+            ari.assets_rental_id,
+            ari.create_time,
+            ari.modify_time,
+            ari.assets_id,
+            ari.assets_name,
+            ari.assets_type,
+            ari.number,
+            ari.unit,
+            ari.corner,
+            ari.first_district_id,
+            ari.first_district_name,
+            ari.second_district_id,
+            ari.second_district_name,
+            ari.version
+        from
+            assets_rental_item as ari
+          left join
+            assets_rental as ar
+          on
+            ar.id = ari.assets_rental_id
     </select>
 </mapper>
