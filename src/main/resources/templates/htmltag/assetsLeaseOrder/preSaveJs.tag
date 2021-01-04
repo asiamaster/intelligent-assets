@@ -18,6 +18,7 @@
             $("#_certificateNumber,#customerCellphone").valid();
 
             //账户余额查询
+            initQueryAssetsDeposit();
             queryCustomerAccount();
             calcTotalAmount(true);
         }
@@ -30,6 +31,7 @@
             $("#customerName,#customerCellphone").valid();
 
             //账户余额查询
+            initQueryAssetsDeposit();
             queryCustomerAccount();
             calcTotalAmount(true);
         }
@@ -201,16 +203,7 @@
         //账户余额查询
         queryCustomerAccount();
 
-
-        let assetsIds = $("table input[name^='assetsId']").filter(function () {
-            return this.value
-        }).map(function () {
-            return this.value
-        }).get();
-        if(assetsIds.length > 0){
-            batchQueryDepositBalance($('#assetsType').val(), $('#customerId').val(), assetsIds);
-            $('#id').val() && batchQueryDepositOrder({businessId: $('#id').val(), bizType: $('#bizType').val()});
-        }
+        initQueryAssetsDeposit();
         calcTotalAmount(true);
     });
     /******************************驱动执行区 end****************************/
@@ -318,12 +311,27 @@
         $('#isCorner_'+index).val(suggestion.cornerName);
         $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
         $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
-        batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
+        $('#customerId').val() && batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
         $('#id').val() && batchQueryDepositOrder({
             businessId: $('#id').val(),
             bizType: $('#bizType').val(),
             assetsId: suggestion.id
         });
+    }
+
+    /**
+     * 初始化保证金相关金额
+     */
+    function initQueryAssetsDeposit() {
+        let assetsIds = $("table input[name^='assetsId']").filter(function () {
+            return this.value
+        }).map(function () {
+            return this.value
+        }).get();
+        if(assetsIds.length > 0){
+            batchQueryDepositBalance($('#assetsType').val(), $('#customerId').val(), assetsIds);
+            $('#id').val() && batchQueryDepositOrder({businessId: $('#id').val(), bizType: $('#bizType').val()});
+        }
     }
 
     /**
