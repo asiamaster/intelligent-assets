@@ -1,7 +1,12 @@
 <script>
 
+//设置默认入库时间为当天
+$("#stockInDate").attr("value", moment().format('YYYY-MM-DD'));
+
 //子单索引计数器
 let itemIndex = 0;
+//子单数量
+let itemCount = 0;
 //入库类型
 let type = ${type};
 //司磅入库相关消息
@@ -68,11 +73,13 @@ function adddetailItem() {
 	})))
 	changeDistrict(itemIndex,0,null,'one');
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
+	itemCount++;
+	canDel();
 }
 
 // 添加子单
 $('#adddetailItem').on('click', function() {
-	if (itemIndex < 11) {
+	if (itemCount < 11) {
 		adddetailItem();
 	} else {
 		bs4pop.notice('最多10个子单', {
@@ -89,7 +96,16 @@ $(document).on('click', '.item-del', function() {
 	countNumber("quantity");
 	countNumber("weight");
 	countNumber("amount");
+	itemCount--;
+	canDel();
 });
+function canDel(){
+	if(itemCount==1){
+		$('.item-del').attr("disabled","disabled");
+	}else{
+		$('.item-del').removeAttr("disabled");
+	}
+}
 
 //计算金额,重量,数量
 /*$(document).on('change', '.number_change', function() {
@@ -150,6 +166,12 @@ function buildFormData() {
 		let index = $(this).attr("id").split("_")[1];
 		let detail = $(this).serializeObject();
 		let districtName = $(this).find("[name=districtId]").find("option:selected").text();
+		// 只填入一级区域
+		if(isNull(detail.districtId)){
+			districtName = $(this).find("[name=parentDistrictId]").find("option:selected").text();
+			detail.districtId = detail.parentDistrictId;
+		}
+		
 		let assetsName = $(this).find("[name=assetsId]").find("option:selected").text();
 		detail.districtName = districtName;
 		detail.assetsCode = assetsName;
