@@ -372,11 +372,10 @@ function queryParams(params) {
 			<div class="form-group col">
 			<label for="allChildren">存储天数同步该品类全部子类</label>
                 <input id="allChildren" type="checkbox" value="true" class="form-control styled" name="allChildren" />
-				
             </div>
 			<div class="form-group col">
                 <label for="">备注</label>
-                <input id="notes" class="form-control" name="notes" value="{{selectedRow.notes}}" />
+				<textarea id="notes" class="form-control" name="notes" rows="2" maxlength="100" value="{{selectedRow.notes}}">{{selectedRow.notes}}</textarea>
                 <input id="state" type="hidden" class="form-control" name="state" value="1" />
 
             </div>
