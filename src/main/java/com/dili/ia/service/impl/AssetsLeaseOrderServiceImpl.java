@@ -217,6 +217,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             insertLeaseOrderItems(dto);
         } else {
             //租赁单修改
+            checkDepositOrderPayState(dto); //检查保证金单交费状态 （已交费的单子，不能修改）
             checkContractNo(dto.getId(), dto.getContractNo(), false);//合同编号验证重复
             AssetsLeaseOrder oldLeaseOrder = get(dto.getId());
             if (!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())
@@ -243,6 +244,27 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //保证金保存
         saveOrUpdateDepositOrders(dto);
         return BaseOutput.success().setData(dto);
+    }
+
+    /**
+     * 检查保证金单交费状态 （已交费的单子，不能修改）
+     *
+     * @param dto
+     */
+    public void checkDepositOrderPayState(AssetsLeaseOrderListDto dto) {
+        DepositOrderQuery depositOrderQuery = new DepositOrderQuery();
+        depositOrderQuery.setMarketId(dto.getMarketId());
+        depositOrderQuery.setStateNotEquals(DepositOrderStateEnum.CANCELD.getCode());
+        depositOrderQuery.setBusinessId(dto.getId());
+        depositOrderQuery.setBizType(dto.getBizType());
+        List<DepositOrder> depositOrders = depositOrderService.listByExample(depositOrderQuery);
+        if (CollectionUtils.isNotEmpty(depositOrders)) {
+            depositOrders.forEach(o -> {
+                if (!DepositPayStateEnum.UNPAID.getCode().equals(o.getPayState())) {
+                    throw new BusinessException(ResultCode.DATA_ERROR, "对应补交保证金已交费不能修改，请取消后重新录入");
+                }
+            });
+        }
     }
 
     /**
