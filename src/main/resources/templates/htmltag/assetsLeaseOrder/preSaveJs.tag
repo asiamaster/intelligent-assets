@@ -311,6 +311,8 @@
         $('#isCorner_'+index).val(suggestion.cornerName);
         $('#districtId_'+index).val(suggestion.secondArea?suggestion.secondArea : suggestion.area);
         $('#districtName_' + index).val(suggestion.secondAreaName ? suggestion.areaName + '->' + suggestion.secondAreaName : suggestion.areaName);
+        $('#depositBalance_' + index).val('');
+        $('#depositMakeUpAmount_' + index).val('');
         $('#customerId').val() && batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
         $('#id').val() && batchQueryDepositOrder({
             businessId: $('#id').val(),
@@ -323,6 +325,8 @@
      * 初始化保证金相关金额
      */
     function initQueryAssetsDeposit() {
+        $("input[name^='depositBalance']").val('');
+        $("input[name^='depositMakeUpAmount']").val('');
         let assetsIds = $("table input[name^='assetsId']").filter(function () {
             return this.value
         }).map(function () {
