@@ -33,8 +33,8 @@
                <form id="searchForm" role="form" novalidate>
                    <div class="row row-cols-2">
                        <div class="form-group col">
-                           <label for="typeCode">区域</label>
-                               <#js_district firstDistrictID="" secondDistrictID="" ></#js_district>
+                           <label for="firstDistrictId">区域</label>
+                           <#js_district _firstDistrictName="firstDistrictId" _secondDistrictName="secondDistrictId" _optionText="全部" ></#js_district>
                        </div>
                        <div class="form-group col">
                            <label for="" class="">摊位编号</label>
@@ -43,9 +43,9 @@
                        <div class="form-group col">
                            <label for="" class="">数量</label>
                            <div class="input-group">
-                               <input id="startNumber" type="" class="form-control digits" name="startNumber" />
+                               <input id="startNumber" type="number" class="form-control digits" name="startNumber" />
                                <span class="align-self-center">至</span>
-                               <input id="endNumber" type="" class="form-control digits" name="endNumber" />
+                               <input id="endNumber" type="number" class="form-control digits" name="endNumber" />
                            </div>
                        </div>
                        <div class="col-auto align-self-center mt-3">
@@ -103,11 +103,13 @@
         <div class="row row-cols-6" id="detailInfo">
             <div class="form-group col">
                 <label for="engageCode">经营范围</label>
+                <input type="hidden" id="engageName" name="engageName" value="${assetsRental.engageName!}">
                 <select id="engageCode" name="engageCode" class="form-control"></select>
                 <#bcomboProvider _log="经营范围" _id="engageCode" _provider="dataDictionaryValueProvider"  _value="${assetsRental.engageCode!}" _queryParams='{dd_code:"engage"}' _text="${assetsRental.engageName!}"/>
             </div>
             <div class="form-group col">
                 <label for="leaseTermCode">租赁期限</label>
+                <input type="hidden" id="leaseTermName" name="leaseTermName" value="${assetsRental.leaseTermName!}">
                 <select id="leaseTermCode" name="leaseTermCode" class="form-control" required></select>
                 <#bcomboProvider _log="租赁期限" _id="leaseTermCode" _provider="dataDictionaryValueProvider" _value="${assetsRental.leaseTermCode!}" _queryParams='{dd_code:"lease_term"}' _text="${assetsRental.leaseTermName!}"/>
             </div>

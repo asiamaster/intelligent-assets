@@ -205,11 +205,13 @@
     // 选定勾选的待选摊位
     $('#checkedBoothBtn').on('click', function () {
         moveBooth( $('.booth-data-origin') , $('.booth-checked'));
+        $('#checkAll').prop('checked', false);
     })
 
     // 移出勾选的已选摊位
     $('#uncheckedBoothBtn').on('click', function () {
         moveBooth( $('.booth-checked') , $('.booth-data-origin'));
+        $('#uncheckAll').prop('checked', false);
     })
 
 
@@ -217,8 +219,16 @@
     $(document).on('change', '#checkAll', function () {
         if($(this).is(':checked')) {
             //未完成-----------------------等杨刚接口------------
-            let id = $('.booth-data-origin .custom-control:first-child').data('id');
-            let mchId = $('.booth-data-origin .custom-control:first-child').data('mch-id')
+            let firstMchId = $('.booth-data-origin .custom-control:first-child .custom-control-input').data('mch-id')
+
+            $.each($('.booth-data-origin .custom-control .custom-control-input'), function (index, item) {
+                debugger
+                if($(item).data('mch-id') == firstMchId) {
+                    $(item).prop('checked', true);
+                }
+            })
+
+
         }
     })
 
@@ -249,14 +259,13 @@
         }
 
         $.map($('#categorys').select2('data'), function (item) {
-            debugger
             categoryId.push(parseInt(item.id))
             categoryName.push(item.text)
         });
 
-
-
         $("#nameHidden").val($("#name").val());
+        $("#engageName").val($('#engageCode').find("option:selected").text());
+        $("#leaseTermName").val($('#leaseTermCode').find("option:selected").text());
 
         // 构建已选摊位数据
         $.each($('.booth-checked .custom-control .custom-control-input'), function (index, item ) {
@@ -276,6 +285,7 @@
 
 
         let buildData = JSON.stringify($.extend({}, $('#saveForm :not(#categorys)').serializeObject(), {categoryId: categoryId.join(), categoryName: categoryName.join()},  {assetsRentalItemList: boothCheckedData, mchId: TheMerchantsId}));
+       debugger;
         bui.loading.show('努力提交中，请稍候。。。');
         console.log('buildData:',  buildData)
 
