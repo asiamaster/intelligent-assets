@@ -157,8 +157,6 @@
             $('#firstDistrictName_' + index).val(suggestion.areaName);
             $('#secondDistrictId_' + index).val(suggestion.secondArea);
             $('#secondDistrictName_' + index).val(suggestion.secondAreaName);
-            $('#depositBalance_' + index).val(0.00);
-            $('#depositMakeUpAmount_' + index).val('');
             $('#customerId').val() && batchQueryDepositBalance($('#assetsType').val(),$('#customerId').val(),[suggestion.id]);
             $('#id').val() && batchQueryDepositOrder({
                 businessId: $('#id').val(),
@@ -408,6 +406,8 @@
         $('#unitPrice_' + index).val('');
         $('#paymentMonth_' + index).val('');
         $('#discountAmount_' + index).val('');
+        $('#depositMakeUpAmount_' + index).val('');
+        $('#depositBalance_' + index).val(0.00);
         $('#depositMakeUpAmount_' + index).val('');
         $("tr[data-index='" + index + "']").find("input[isCharge]").val('').attr('readonly', true);
     }
