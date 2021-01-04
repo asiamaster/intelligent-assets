@@ -1,4 +1,8 @@
 <script>
+
+let unitPrice = 0;
+let totalAmount = 0;
+
 function isNull(value){
 	 if (value == null || value == "" || value == undefined) {
         return true;
@@ -41,15 +45,27 @@ function countItemAmount(){
 	if(type != 2){
 		uom=1;
 	}
-	let unitPrice = parseFloat($("#unitPrice").val());
-	$("#details").find("form").each(function() {
-		if(uom == 1){
-			$(this).find("[name=amount]").val(parseFloat($(this).find("[name=weight]").val())*unitPrice);
+	// 小数误差 例如 10/3 =3.333333
+	let detailsList = $("#details").find("form");
+	let lastAmount = totalAmount;
+	detailsList.each(function(i,item) {
+		let itemAmount = 0;
+		// 最后一条数据补齐四舍五入金额
+		if(i == (detailsList.length-1)){
+			itemAmount = lastAmount;
 		}else{
-			$(this).find("[name=amount]").val(parseFloat($(this).find("[name=quantity]").val())*unitPrice);
+			if(uom == 1){
+				itemAmount = new Number(parseFloat($(this).find("[name=weight]").val())*unitPrice).toFixed(2)
+			}else{
+				itemAmount = new Number(parseFloat($(this).find("[name=quantity]").val())*unitPrice).toFixed(2)
+			}
+			lastAmount = new Number(parseFloat(lastAmount)-parseFloat(itemAmount)).toFixed(2);
 		}
+		$(this).find("[name=amount]").val(itemAmount);
 	})
 }
+
+
 //获取费用
 function getCost(){
 	let detail = {};
@@ -87,20 +103,24 @@ function getCost(){
 					type: 'error'
 				});
 			} else {
+				totalAmount = 0;
 				for (let item of ret.data) {
 					let obj = $("#saveForm").find("[name=chargeItem_"+item.chargeItem+"]");
 					obj.val(item.totalFee);
+					totalAmount =  parseFloat(totalAmount) + parseFloat(item.totalFee);
 					//countNumber(obj.attr("name"));
 					countItemNumber(obj);
 				}
 				//计算单价
 				if(detail.uom == 1){
-					$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#weight").val()));
+					$("#unitPrice").val(new Number(parseFloat($("#amount").val())/parseFloat($("#weight").val())).toFixed(2));
+					unitPrice = parseFloat($("#amount").val())/parseFloat($("#weight").val())
 					if($("#weight").val() == 0){
 						$("#unitPrice").val(0);
 					}
 				}else{
-					$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#quantity").val()));
+					$("#unitPrice").val(new Number(parseFloat($("#amount").val())/parseFloat($("#quantity").val())).toFixed(2));
+					unitPrice = parseFloat($("#amount").val())/parseFloat($("#weight").val())
 					if($("#quantity").val() == 0){
 						$("#unitPrice").val(0);
 					}
