@@ -200,7 +200,7 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
 
 
     /**
-     * MQ 监听 修改摊位的信息（修改区域或者修改基础信息）
+     * MQ 监听 修改摊位的信息（修改区域或者修改基础信息）(资产变更)
      *
      * @param
      * @return
@@ -267,7 +267,7 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
     }
 
     /**
-     * MQ 监听 商户区域关联改变
+     * MQ 监听 商户区域关联改变（区域商户）
      */
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "customer.info", autoDelete = "false"),
