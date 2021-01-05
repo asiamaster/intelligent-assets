@@ -1,7 +1,10 @@
 <script >
 
     $(function () {
-        batchQueryDepositOrder({businessId:$('#leaseOrderId').val()});
+        batchQueryDepositOrder({
+            businessId: $('#leaseOrderId').val(),
+            isRelated: ${@com.dili.commons.glossary.YesOrNoEnum.YES.getCode()}
+        });
         loadDefaultAmount();
     });
 
