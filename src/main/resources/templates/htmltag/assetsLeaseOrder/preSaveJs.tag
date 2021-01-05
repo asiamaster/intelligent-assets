@@ -94,7 +94,7 @@
         eventName: 'select2:selecting',
         eventHandler: function (e) {
             let suggestion = e.params.args.data;
-            if (!suggestion.marketId) {
+            if (!suggestion.mchId) {
                 bs4pop.notice('未指定业务入账组织，不能办理业务', {position: 'bottomleft', type: 'danger'});
                 return false;
             }
@@ -110,7 +110,7 @@
             clearAssetsInputData(index);
             //摊位预设信息设置
             if (leaseOrderItems.length == 0 || (leaseOrderItems.length == 1 && leaseOrderItems[0].itemIndex == index)) {
-                $('#mchId').val(suggestion.marketId);
+                $('#mchId').val(suggestion.mchId);
                 if (bizType == ${@com.dili.ia.glossary.BizTypeEnum.BOOTH_LEASE.getCode()}) {
                     let rental = getRentalByAssetsId(suggestion.id);
                     if (rental) {
