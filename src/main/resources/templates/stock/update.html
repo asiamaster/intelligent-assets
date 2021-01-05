@@ -120,11 +120,11 @@
 		        <% } }%>
 		        <div class="form-group col">
 					<label for="stockInDate">入库日期:</label> <input type="text" id="stockInDate" name="stockInDate" class="form-control"
-					value="${stockIn.stockInDate!,localDateTimeFormat='yyyy-MM-dd'}" >
+					value="${stockIn.stockInDate!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" >
 				</div>
 				<div class="form-group col-3">
-					<label for="expireDate">到期日期:</label> <input type="text" id="expireDate" name="expireDate" class="form-control laydate layend"
-					value="${stockIn.expireDate!,localDateTimeFormat='yyyy-MM-dd'}"  readonly>
+					<label for="expireDate">到期日期:</label> <input type="text" id="expireDate" name="expireDate" class="form-control"
+					value="${stockIn.expireDate!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}"  readonly>
 				</div>
 				
 			</div>
