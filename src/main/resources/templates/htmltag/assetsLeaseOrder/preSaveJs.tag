@@ -161,7 +161,8 @@
             $('#id').val() && batchQueryDepositOrder({
                 businessId: $('#id').val(),
                 bizType: bizType,
-                assetsId: suggestion.id
+                assetsId: suggestion.id,
+                isRelated: ${@com.dili.commons.glossary.YesOrNoEnum.YES.getCode()}
             });
         }
     }];
@@ -484,7 +485,11 @@
         }).get();
         if(assetsIds.length > 0){
             batchQueryDepositBalance($('#assetsType').val(), $('#customerId').val(), assetsIds);
-            $('#id').val() && batchQueryDepositOrder({businessId: $('#id').val(), bizType: $('#bizType').val()});
+            $('#id').val() && batchQueryDepositOrder({
+                businessId: $('#id').val(),
+                bizType: $('#bizType').val(),
+                isRelated: ${@com.dili.commons.glossary.YesOrNoEnum.YES.getCode()}
+            });
         }
     }
 
@@ -498,7 +503,7 @@
         $.ajax({
             type: "post",
             url: "/leaseOrder/batchQueryDepositBalance.action",
-            data: JSON.stringify({assetsType,customerId,assetsIds}),
+            data: JSON.stringify({assetsType, customerId, assetsIds, mchId: $('#mchId').val()}),
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             success: function (ret) {

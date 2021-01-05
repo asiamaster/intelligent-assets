@@ -719,7 +719,7 @@ public class AssetsLeaseOrderController {
         if (userTicket == null) {
             throw new RuntimeException("未登录");
         }
-        return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds(),userTicket.getFirmId());
+        return depositOrderService.listDepositBalance(AssetsTypeEnum.getAssetsTypeEnum(batchDepositBalanceQueryDto.getAssetsType()).getBizType(), batchDepositBalanceQueryDto.getCustomerId(), batchDepositBalanceQueryDto.getAssetsIds(), userTicket.getFirmId(), batchDepositBalanceQueryDto.getMchId());
     }
 
     /**
@@ -798,9 +798,9 @@ public class AssetsLeaseOrderController {
     }
     
     /**
-     * 费用批量计算
+     * 获取合同数据
      *
-     * @param queryFeeInputList
+     * @param id
      * @return
      */
     @PostMapping(value = "/getPrintData.action")
