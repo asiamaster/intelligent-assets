@@ -250,3 +250,18 @@ nacos 配置
             查询URL：http://uap.diligrp.com/dataDictionaryApi/listDataDictionaryValueByDdCode.api?ddCode=labor_car_type
             列设置：
                 1.code code 2.name 名称
+任务调度中心
+	任务名:劳务马甲过期,生效任务     
+	分组:ia
+	cron:0 0/10 * * * ? *
+	url:http:ia.diligrp.com:8381/api/labor/vest/scanEffective
+	
+	任务名:信息费过期,生效任务     
+	分组:ia
+	cron:0 0/10 * * * ? *
+	url:http:ia.diligrp.com:8381/api/fee/message/scanEffective
+	
+	任务名:冷库入库过期任务
+	分组:ia
+	cron:0 0/10 * * * ? *
+	url:http:ia.diligrp.com:8381/api/stockIn/scanEffective
