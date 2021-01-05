@@ -227,6 +227,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
             dto.setWaitAmount(dto.getTotalAmount());
             SpringUtil.copyPropertiesIgnoreNull(dto, oldLeaseOrder);
+            oldLeaseOrder.setBatchId(dto.getBatchId());
             oldLeaseOrder.setContractNo(dto.getContractNo());
             oldLeaseOrder.setNotes(dto.getNotes());
             oldLeaseOrder.setCategoryId(dto.getCategoryId());
