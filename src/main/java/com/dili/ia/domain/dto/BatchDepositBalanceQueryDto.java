@@ -7,6 +7,7 @@ public class BatchDepositBalanceQueryDto {
     private Integer assetsType;
     private Long customerId;
     private List<Long> assetsIds;
+    private Long mchId;
 
     public String getBizType() {
         return bizType;
@@ -38,5 +39,13 @@ public class BatchDepositBalanceQueryDto {
 
     public void setAssetsIds(List<Long> assetsIds) {
         this.assetsIds = assetsIds;
+    }
+
+    public Long getMchId() {
+        return mchId;
+    }
+
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
     }
 }

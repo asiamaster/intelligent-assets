@@ -120,6 +120,11 @@ ALTER TABLE `dili_ia`.`stock_weighman_record`
 ADD COLUMN `image` varchar(255) NULL COMMENT '司磅图片地址' AFTER `market_code`;
 -- 冷库入库详情单添加商户
 ALTER TABLE `dili_ia`.`stock_in_detail`
-ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_id`
+ADD COLUMN `mch_id` bigint(20) DEFAULT NULL COMMENT '商户ID' AFTER `market_id`;
+
+-- 摊位出租预设，开始时间和结束时间默认为空而非当前时间
+ALTER TABLE `dili_ia`.`assets_rental`
+MODIFY COLUMN `start_time` datetime(0) NULL COMMENT '开始时间' AFTER `lease_days`,
+MODIFY COLUMN `end_time` datetime(0) NULL COMMENT '结束时间' AFTER `start_time`;
 
 

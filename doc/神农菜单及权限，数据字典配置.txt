@@ -115,6 +115,7 @@
         提交 submitOtherFee
         撤回 withdrawOtherFee
         取消 cancelOtherFee
+        新增收费项绑定 addDepartmentChargeItem      (内部链接：http://ia.diligrp.com:8381/departmentChargeItem/addDepartment.html)
         退款申请 refundApplyOtherFee (内部链接：http://ia.diligrp.com:8381/otherFee/refundApply.html)
 
     其他收费退款 http://ia.diligrp.com:8381/refundOrder/10/index.html
@@ -268,3 +269,9 @@ nacos 配置
 	cron:0 0/10 * * * ? *
 	同步/异步:异步
 	url:http:ia.diligrp.com:8381/api/stockIn/scanEffective
+
+    任务名:通行证过期,生效任务
+    分组:ia
+    cron:0 0/10 * * * ? *
+    同步/异步:异步
+    url:http:ia.diligrp.com:8381/api/passport/scanEffective

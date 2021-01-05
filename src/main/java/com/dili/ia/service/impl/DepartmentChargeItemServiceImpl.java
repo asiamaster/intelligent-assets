@@ -91,6 +91,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                         departmentChargeItem.setVersion(0);
                         departmentChargeItem.setChargeItemId(chargeItemId);
                         departmentChargeItem.setChargeItemName(chargeItemName);
+                        departmentChargeItem.setMarketId(chargeItemDto.getMarketId());
                         departmentChargeItem.setCreateTime(LocalDateTime.now());
                         departmentChargeItem.setModifyTime(LocalDateTime.now());
                         departmentChargeItemList.add(departmentChargeItem);
@@ -155,9 +156,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                 DepartmentChargeItem itemParam = new DepartmentChargeItem();
                 itemParam.setCreateTime(LocalDateTime.now());
                 itemParam.setModifyTime(LocalDateTime.now());
-                itemParam.setMarketId(userTicket.getFirmId());
                 itemParam.setCreator(userTicket.getRealName());
-                itemParam.setMarketCode(userTicket.getFirmCode());
                 itemParam.setChargeItemId(departmentChargeItemDto.getChargeItemId());
                 itemParam.setChargeItemName(itemList.get(0).getChargeItemName());
                 itemParam.setDepartmentId(departmentInfo.getDepartmentId());

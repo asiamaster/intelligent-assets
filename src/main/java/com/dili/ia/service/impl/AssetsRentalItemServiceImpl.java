@@ -273,7 +273,7 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
             value = @Queue(value = "area.update", autoDelete = "false" ),
             exchange = @Exchange(value = "exchange", type = ExchangeTypes.TOPIC)
     ))
-    public void processCustomerInfo(Channel channel, Message message) {
+    public void updateAssetsItemByArea(Channel channel, Message message) {
         try {
             String data = new String(message.getBody(), "UTF-8");
             LOGGER.info("商户区域信息修改同步>>>>>" + data);

@@ -1365,7 +1365,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     @Override
-    public BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds, Long marketId) {
+    public BaseOutput<List<DepositBalance>> listDepositBalance(String bizType, Long customerId, List<Long> assetsIds, Long marketId, Long mchId) {
         if (bizType == null){
             return BaseOutput.failure("参数bizType 不能为空！");
         }
@@ -1375,13 +1375,16 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         if (marketId == null){
             return BaseOutput.failure("参数marketId 不能为空！");
         }
+        if (mchId == null){
+            return BaseOutput.failure("参数mchId 不能为空！");
+        }
         if (CollectionUtils.isEmpty(assetsIds)){
             return BaseOutput.success();
         }
         List<DepositBalance> list = new ArrayList<>();
         try {
             assetsIds.stream().forEach(o -> {
-                BaseOutput<DepositBalance> out = this.queryDepositBalance(bizType, customerId, o, marketId);
+                BaseOutput<DepositBalance> out = this.queryDepositBalance(bizType, customerId, o, marketId, mchId);
                 if (!out.isSuccess()){
                     throw new BusinessException(ResultCode.DATA_ERROR, out.getMessage());
                 }
@@ -1401,7 +1404,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
      * 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称，市场ID
      * !!! 所有参数字段 有值的话 必填 ；
      * */
-    private BaseOutput<DepositBalance> queryDepositBalance(String bizType, Long customerId, Long assetsId, Long marketId){
+    private BaseOutput<DepositBalance> queryDepositBalance(String bizType, Long customerId, Long assetsId, Long marketId, Long mchId){
         AssetsTypeEnum atEnum = AssetsTypeEnum.getAssetsTypeEnumByBizType(bizType);
         // 保证金余额维度： 保证金类型，客户 ，资产类型，资产编号，资产名称,市场ID
         DepositBalance depositBalance = new DepositBalance();
@@ -1410,6 +1413,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         depositBalance.setAssetsId(assetsId);
         depositBalance.setCustomerId(customerId);
         depositBalance.setMarketId(marketId);
+        depositBalance.setMchId(mchId);
         List<DepositBalance> dbList = depositBalanceService.listByExample(depositBalance);
         Integer record = CollectionUtils.isEmpty(dbList) ? 0 : dbList.size();
         if (record > 1){//只能是0条，或者1条
