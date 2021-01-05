@@ -297,6 +297,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         settleOrderDto.setCustomerCertificate(record.getCertificateNumber());
         settleOrderDto.setAmount(feeOrder.getAmount());
         settleOrderDto.setMchId(record.getMchId());
+        settleOrderDto.setTrailerNumber(record.getPlate());
         settleOrderDto.setBusinessDepId(record.getDepartmentId());
         settleOrderDto.setBusinessDepName(departmentRpc.get(record.getDepartmentId()).getData().getName());
         settleOrderDto.setMarketId(feeOrder.getMarketId());
