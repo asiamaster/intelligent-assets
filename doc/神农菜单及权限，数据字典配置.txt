@@ -266,3 +266,8 @@ nacos 配置
 	分组:ia
 	cron:0 0/10 * * * ? *
 	url:http:ia.diligrp.com:8381/api/stockIn/scanEffective
+
+    任务名:通行证过期,生效任务
+    分组:ia
+    cron:0 0/10 * * * ? *
+    url:http:ia.diligrp.com:8381/api/passport/scanEffective
