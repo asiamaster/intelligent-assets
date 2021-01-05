@@ -3,6 +3,7 @@ package com.dili.ia.mapper;
 import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.dto.DepartmentChargeItemDto;
 import com.dili.ss.base.MyMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -39,9 +40,10 @@ public interface DepartmentChargeItemMapper extends MyMapper<DepartmentChargeIte
      * 根据 chargeItemId 分组获取集合
      * 
      * @param
+     * @param markId
      * @return List
      * @date   2020/8/24
      */
-    List<DepartmentChargeItem> listGroupByChargeItemId();
+    List<DepartmentChargeItem> listGroupByChargeItemId(@Param("marketId") Long markId);
 
 }

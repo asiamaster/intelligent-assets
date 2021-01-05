@@ -114,6 +114,8 @@
         <include refid="Base_Column_List" />
     from
         department_charge_item
+    where
+        market_id = #{marketId,jdbcType=BIGINT}
     group by
         charge_item_id
   </select>
