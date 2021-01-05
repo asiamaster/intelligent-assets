@@ -1,17 +1,12 @@
 <#bs4Body>
 <div class="container-fluid pb-5">
-
-    ${itemList!}
-
     <% if(isNotEmpty(itemList)){
-    for(item in itemList){
-    %>
-
-    <div class="">${item.firstDistrictName!} : ${item.assetsName!}</div>
-
-    <%}
-    }%>
-
-
+        for(districtItem in itemList){ %>
+        <div class="">${districtItem.firstDistrictName!} :
+            <% for(boothItem in districtItem.assetsList){ %>
+                ${boothItem.assetsName},
+            <% } %>
+        </div>
+    <%}}%>
 </div>
 </#bs4Body>
