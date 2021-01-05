@@ -207,8 +207,8 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
      * @date   2020/12/8
      */
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "customer.info", autoDelete = "false"),
-            exchange = @Exchange(value = MqConstant.CUSTOMER_MQ_FANOUT_EXCHANGE, type = ExchangeTypes.FANOUT)
+            value = @Queue(value = "assets.update", autoDelete = "false" ),
+            exchange = @Exchange(value = "exchange", type = ExchangeTypes.TOPIC)
     ))
     public void updateAssetsItemByAssets(Channel channel, Message message){
         try {
@@ -270,8 +270,8 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
      * MQ 监听 商户区域关联改变
      */
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "customer.info", autoDelete = "false"),
-            exchange = @Exchange(value = MqConstant.CUSTOMER_MQ_FANOUT_EXCHANGE, type = ExchangeTypes.FANOUT)
+            value = @Queue(value = "area.update", autoDelete = "false" ),
+            exchange = @Exchange(value = "exchange", type = ExchangeTypes.TOPIC)
     ))
     public void processCustomerInfo(Channel channel, Message message) {
         try {
