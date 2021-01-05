@@ -170,10 +170,11 @@
     // 通过区域等信息查询摊位
     function viewAssetsByNoTable(){
         $('.booth-data-origin').html('');
+        //！！！！！！！ isExcludeRental:false 只选择一级区域时要查询全部(含此一级下的全部二级区域)！！！！！！！
         $.ajax({
             type: "POST",
             url: "/assetsRentalItem/viewAssetsByNoTable.action",
-            data: JSON.stringify($("#searchForm").serializeObject()),
+            data: JSON.stringify($.extend({isExcludeRental: false},$("#searchForm").serializeObject())),
             dataType: "json",
             async: false,
             contentType: "application/json",
