@@ -44,15 +44,15 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="quantity" class="">入库件数:<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" value="{{stockDetail.quantity}}" class="form-control number_change"
-						 name="quantity" range="1 9999999" required />
+						 name="quantity" range="1 99999999" required />
 					</div>
 					<div class="form-group col-4">
 						<label for="weight" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" value="{{stockDetail.weight}}" class="form-control number_change get-cost"
-						 name="weight" range="0.01 9999999" required />
+						 name="weight" range="1 999999999" required />
 					</div>
 					<div class="form-group col-4">
 						<label for="weight" class="">入库金额:<i class="red">*</i></label> <input id="amount_{{index}}" type="number" value="{{stockDetail.amount}}" class="form-control number_change money"
-						 name="amount" range="0.01 9999999" required readonly />
+						 name="amount"  required readonly />
 					</div>
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->
@@ -118,16 +118,16 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库件数:<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
-						 name="quantity" value="{{stockDetail.quantity}}" range="1 9999999" required />
+						 name="quantity" value="{{stockDetail.quantity}}" range="1 99999999" required />
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
-						 name="weight" value="{{stockDetail.weight}}" range="0 9999999" required readonly/>
+						 name="weight" value="{{stockDetail.weight}}" range="1 999999999" required readonly/>
 						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库金额:<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
-						 name="amount" value="{{stockDetail.amount}}" range="0 9999999" required readonly/>
+						 name="amount" value="{{stockDetail.amount}}"  required readonly/>
 					</div>
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->
@@ -177,19 +177,19 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="quantity" class="">入库件数:<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change get-cost count-weight"
-						 name="quantity" range="1 9999999" value="{{stockDetail.quantity}}" required />
+						 name="quantity" range="1 99999999" value="{{stockDetail.quantity}}" required />
 					</div>
 					<div class="form-group col-4">
 						<label for="quantity" class="">单件重(公斤):<i class="red">*</i></label> <input id="unitWeight_{{index}}" type="number" class="form-control number_change count-weight"
-						 name="unitWeight" range="0.01 99999" value="{{stockDetail.unitWeight}}" required />
+						 name="unitWeight" range="0 99999" value="{{stockDetail.unitWeight}}" required />
 					</div>
 					<div class="form-group col-4">
 						<label for="weight" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change"
-						 name="weight" range="0.01 9999999" value="{{stockDetail.weight}}" required readonly />
+						 name="weight"  value="{{stockDetail.weight}}" required readonly />
 					</div>
 					<div class="form-group col-4">
 						<label for="weight" class="">入库金额:<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
-						 name="amount" range="0.01 9999999" value="{{stockDetail.amount}}" required readonly/>
+						 name="amount"  value="{{stockDetail.amount}}" required readonly/>
 					</div>
 					<chargeItems class="chargeItems">
 						<!--用于标签定位-->
@@ -223,12 +223,21 @@
 
 
 // 部门变动 冷库区变更
+//冷库区域变更  对应子单的冷库更新
+$(document).on('change', '#departmentId', function() {
+	
+});
 // index 第几个子单  parent 父级区域   value 默认值    level  区域等级(one/two)
 function changeDistrict(index,parent,value,level){
+	let departmentId = $('#departmentId').val();
+	let query = {
+			parentId: parent,
+			departmentId:departmentId
+	}
 	$.ajax({
 		type: "POST",
 		url: "/stock/stockIn/searchDistrict.action",
-		data: {parentId: parent},
+		data: query,
 		success: function (data) {
 			if (data.code == "200") {
 				var array = $.map(data.data, function (obj) {
@@ -239,7 +248,8 @@ function changeDistrict(index,parent,value,level){
 				if (array.length == 0) {
 					$('#districtId_one_'+index).attr('name','districtId');
 					$('#districtId_two_'+index).attr('name','districtId_two');
-
+					let htmlConent = '<option value="" selected="">--无--</option>';
+					$('#districtId_'+level+'_'+index).html(htmlConent);
 				} else {
 					//当index大于0 标记为新增详情,只触发当前index的更新
 					let htmlConent = '<option value="" selected="">-- 请选择--</option>';

@@ -68,10 +68,14 @@ function countItemAmount(){
 
 //获取费用
 function getCost(){
+	var reg= /^[0-9]*$/;
 	let detail = {};
 	detail.categoryId=$('#categoryId').val();
 	detail.quantity=$('#quantity').val();
 	detail.weight=$('#weight').val();
+	if(!reg.test(detail.quantity) || !reg.test(detail.weight)){
+		return;
+	}
 	detail.type=type;
 	detail.uom=$('#uom').val();
 	detail.day=$("#cycle").val();

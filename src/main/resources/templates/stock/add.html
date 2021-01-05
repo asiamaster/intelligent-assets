@@ -81,15 +81,15 @@
 				
 				<div class="form-group col">
 					<label for="quantity" class="">总件数:<i class="red">*</i></label> <input id="quantity" type="number" class="form-control"
-					 name="quantity" range="0 9999999"  required readonly />
+					 name="quantity"   required readonly />
 				</div>
 				<div class="form-group col">
 					<label for="weight" class="">总净重(公斤):<i class="red">*</i></label> <input id="weight" type="number" class="form-control"
-					 name="weight" range="0 9999999"  required readonly />
+					 name="weight"   required readonly />
 				</div>
 				<div class="form-group col">
 					<label for="amount" class="">入库总额(元):<i class="red">*</i></label> <input id="amount" type="number" class="form-control money"
-					 name="amount" range="0 9999999.99" required readonly />
+					 name="amount"  required readonly />
 				</div>
 				<%if(isNotEmpty(chargeItems) && chargeItems.~size>0){
 		        for(item in chargeItems){

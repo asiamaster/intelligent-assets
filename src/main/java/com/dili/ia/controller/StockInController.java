@@ -1,5 +1,6 @@
 package com.dili.ia.controller;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -36,6 +37,8 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
+
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -332,6 +335,7 @@ public class StockInController {
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
     		dto.setBusinessCode("lkrk");
+    		dto.setStatus(1);
     		baseOutput.setData(assetsRpc.listCarTypePublicByBusiness(dto).getData());
     	}catch (Exception e) {
 			LOG.error("获取异常！", e);
@@ -341,7 +345,7 @@ public class StockInController {
     }
     
     /**
-     * 获取司磅入库车型
+     * 获取区域
      * @Title searchCarType
      * @param name
      * @param code
@@ -351,7 +355,13 @@ public class StockInController {
     	BaseOutput baseOutput = BaseOutput.success();
     	try {
     		 input.setMarketId(SessionContext.getSessionContext().getUserTicket().getFirmId());
-    		 baseOutput.setData(assetsRpc.searchDistrict(input).getData());
+    		 BaseOutput<List<DistrictDTO>> reOutput = assetsRpc.searchDistrict(input);
+    		 if(reOutput.isSuccess() && CollectionUtil.isNotEmpty(reOutput.getData())) {
+        		 baseOutput.setData(reOutput.getData());
+    		 }else {
+    			 input.setDepartmentId(null);
+    			 baseOutput.setData(assetsRpc.searchDistrict(input).getData());
+    		 }
     	}catch (Exception e) {
 			LOG.error("获取异常！", e);
     		return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");

@@ -156,6 +156,10 @@ function validateForm(){
 			}  
 		}
 	}
+	if(isNull(mchId)){
+        bs4pop.alert("选择区域未绑定商户关系!", {type: 'error'});
+        return;
+	}
 	return count==0?true:false;
 }
 
