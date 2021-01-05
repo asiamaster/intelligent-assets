@@ -339,8 +339,8 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
      * @date   2020/12/8
      */
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "customer.info", autoDelete = "false"),
-            exchange = @Exchange(value = MqConstant.CUSTOMER_MQ_FANOUT_EXCHANGE, type = ExchangeTypes.FANOUT)
+            value = @Queue(value = "assets.delete", autoDelete = "false" ),
+            exchange = @Exchange(value = "exchange", type = ExchangeTypes.TOPIC)
     ))
     public void deleteAssetsByMQ(Channel channel, Message message){
         try {
