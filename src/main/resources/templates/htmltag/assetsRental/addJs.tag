@@ -84,6 +84,33 @@
         }
     });
 
+    $('#days').on('input', function () {
+        daysChangeHandler();
+    })
+
+    /**
+     * 天数改变处理Handler
+     * 三者相互联动；三者都有值情况，修改天数，变结束；修改开始或者结束，都变天数
+     * */
+    function daysChangeHandler(){
+        let days = $('#days').val();
+        let startTime = $('#startTime').val();
+        let endTime = $('#endTime').val();
+        if(days){
+            //天数变更优先计算结束日期
+            if(startTime){
+                $('#endTime').val(moment(startTime).add(days-1,"days").format("YYYY-MM-DD"));
+                $("#saveForm").validate().element($("#endTime"));
+                return false;
+            }
+
+            if(endTime){
+                $('#startTime').val(moment(endTime).subtract(days-1,"days").format("YYYY-MM-DD"));
+                $("#saveForm").validate().element($("#startTime"));
+                return false;
+            }
+        }
+    }
     /**
      * 开始日期值改变处理Handler
      * 三者相互联动；三者都有值情况，修改天数，变结束；修改开始或者结束，都变天数
@@ -253,8 +280,8 @@
             return ($(el).val() != '')
         });
 
-        console.log('detailInfo', detailInfo)
         if (!validator.form() || !detailInfo) {
+            bs4pop.alert('预设信息至少填写一个', {type: 'error'});
             return false;
         }
 
