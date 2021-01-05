@@ -262,7 +262,7 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("商户区域信息修改失败", e);
+            LOGGER.error("摊位信息修改失败", e);
         }
     }
 
