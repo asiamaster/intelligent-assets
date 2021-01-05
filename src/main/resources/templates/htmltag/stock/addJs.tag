@@ -1,7 +1,7 @@
 <script>
 
 //设置默认入库时间为当天
-$("#stockInDate").attr("value", moment().format('YYYY-MM-DD'));
+$("#stockInDate").attr("value", moment().format('YYYY-MM-DD HH:mm:ss'));
 
 //子单索引计数器
 let itemIndex = 0;
