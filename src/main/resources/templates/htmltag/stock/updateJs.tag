@@ -49,8 +49,14 @@ var categoryAutoCompleteOption = {
 		}}
 
 
+
+
 //初始化入库单信息
 $(function() {
+	//逆向计算存储天数
+	let st = moment('${stockIn.stockInDate!}');
+	let et = moment('${stockIn.expireDate!}');
+	$("#cycle").val(et.diff(st,'day'));
 	let uom = '${stockIn.uom!}';
 	$("#uom").val(uom);
 	/*if(uom == "1"){
@@ -177,7 +183,6 @@ function buildFormData() {
 	let formData = $('#saveForm').serializeObject();
 	formData.departmentName = departmentName;
 	//formData.categoryName = categoryName;
-	
 	formData.origin = city.value.join(",");
     formData.originPath = city.originName;
     

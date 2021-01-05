@@ -354,6 +354,7 @@ laydate.render({
 	elem: '#stockInDate',
 	theme: '#007bff',
 	trigger: 'click',
+	type:'datetime',
 	done: function(value, date){
 		//监听日期被切换
 		let days = $("#cycle").val();
@@ -366,7 +367,7 @@ function getCycle(stockInDate,days){
 	if(!strIsNotEmpty(stockInDate)|| !strIsNotEmpty(days)){
 		return;
 	}
-	$("#expireDate").val(moment(stockInDate).add(days-1,"days").format("YYYY-MM-DD"))
+	$("#expireDate").val(moment(stockInDate).add(days,"days").format("YYYY-MM-DD HH:mm:ss"))
 }
 
 $(document).on('change', '.count-weight', function() {
