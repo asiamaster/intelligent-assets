@@ -240,28 +240,32 @@ public class AssetsRentalController {
      */
     @GetMapping(value="/view.action")
     public String getRentalItemByAssetsId(ModelMap modelMap,Long assetsId){
-    	JSONObject obj = new JSONObject();
     	List<AssetsRentalItem> districtList = assetsRentalItemService.listItemsByRentalIdGroupByDistrict(assetsId);
+    	JSONArray disArry = new JSONArray();
     	if(!districtList.isEmpty()) {
     		for(AssetsRentalItem item:districtList) {
+    			JSONObject obj = new JSONObject();
+    			obj.put("firstDistrictId", item.getFirstDistrictId());
+    			obj.put("firstDistrictName", item.getFirstDistrictName());
     			AssetsRentalItem con = new AssetsRentalItem();
     			con.setAssetsRentalId(assetsId);
     			con.setFirstDistrictName(item.getFirstDistrictName());
     			List<AssetsRentalItem> items = assetsRentalItemService.list(con);
-    			JSONArray arry = new JSONArray();
+    			JSONArray itemArry = new JSONArray();
     			if(!items.isEmpty()) {
     				for(AssetsRentalItem oi:items) {
     					JSONObject itemObj = new JSONObject();
     					itemObj.put("assetsName", oi.getAssetsName());
     					itemObj.put("assetsId", oi.getAssetsId());
     					itemObj.put("id", oi.getId());
-    					arry.add(itemObj);
+    					itemArry.add(itemObj);
     				}
     			}
-    			obj.put(item.getFirstDistrictName(), arry);
+    			obj.put("assetsList", itemArry);
+    			disArry.add(obj);
     		}
     	}
-    	modelMap.addAttribute("itemList", obj);
+    	modelMap.addAttribute("itemList", disArry);
     	return "assetsRental/view";
     }
 
