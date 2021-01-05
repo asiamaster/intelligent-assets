@@ -162,6 +162,17 @@
             </if>
         </where>
     </select>
+    <select id="listItemsByRentalIdGroupByDistrict" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" />
+        from
+            assets_rental_item
+        <where>
+            <if test="rentalId != null">
+                assets_rental_id = #{rentalId}
+            </if>
+        </where>
+        group by first_district_name
+    </select>
 
     <select id="selectAllByTable" resultType="com.dili.ia.domain.dto.AssetsRentalItemDto">
         select

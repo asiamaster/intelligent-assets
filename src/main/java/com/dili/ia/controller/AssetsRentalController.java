@@ -1,5 +1,7 @@
 package com.dili.ia.controller;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.dili.ia.domain.AssetsRental;
 import com.dili.ia.domain.AssetsRentalItem;
 import com.dili.ia.domain.Meter;
@@ -28,244 +30,259 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * @author:       xiaosa
- * @date:         2020/11/25
- * @version:      农批业务系统重构
- * @description:  资产出租预设
+ * @author: xiaosa
+ * @date: 2020/11/25
+ * @version: 农批业务系统重构
+ * @description: 资产出租预设
  */
 @Controller
 @RequestMapping("/assetsRental")
 public class AssetsRentalController {
 
-    private final static Logger logger = LoggerFactory.getLogger(AssetsRentalController.class);
+	private final static Logger logger = LoggerFactory.getLogger(AssetsRentalController.class);
 
-    @Autowired
-    AssetsRentalService assetsRentalService;
+	@Autowired
+	AssetsRentalService assetsRentalService;
 
-    @Autowired
-    private AssetsRentalItemService assetsRentalItemService;
+	@Autowired
+	private AssetsRentalItemService assetsRentalItemService;
 
-    /**
-     * 跳转到assetsRental页面
-     *
-     * @param  modelMap
-     * @return String
-     * @date   2020/11/26
-     */
-    @RequestMapping(value="/index.html", method = RequestMethod.GET)
-    public String index(ModelMap modelMap) {
-        return "assetsRental/index";
-    }
+	/**
+	 * 跳转到assetsRental页面
+	 *
+	 * @param modelMap
+	 * @return String
+	 * @date 2020/11/26
+	 */
+	@RequestMapping(value = "/index.html", method = RequestMethod.GET)
+	public String index(ModelMap modelMap) {
+		return "assetsRental/index";
+	}
 
-    /**
-     * 跳转到新增页面
-     *
-     * @param  modelMap
-     * @return String
-     * @date   2020/11/26
-     */
-    @RequestMapping(value="/add.html", method = RequestMethod.GET)
-    public String add(ModelMap modelMap) {
-        return "assetsRental/add";
-    }
+	/**
+	 * 跳转到新增页面
+	 *
+	 * @param modelMap
+	 * @return String
+	 * @date 2020/11/26
+	 */
+	@RequestMapping(value = "/add.html", method = RequestMethod.GET)
+	public String add(ModelMap modelMap) {
+		return "assetsRental/add";
+	}
 
-    /**
-     * 跳转到修改页面
-     *
-     * @param  modelMap
-     * @return String
-     * @date   2020/11/26
-     */
-    @RequestMapping(value="/update.html", method = RequestMethod.GET)
-    public String update(ModelMap modelMap, Long id) {
-        if (id != null) {
-            AssetsRentalDto assetsRentalDto = new AssetsRentalDto();
-            AssetsRental assetsRental = assetsRentalService.get(id);
-            if (assetsRental != null) {
-                BeanUtils.copyProperties(assetsRental, assetsRentalDto);
+	/**
+	 * 跳转到修改页面
+	 *
+	 * @param modelMap
+	 * @return String
+	 * @date 2020/11/26
+	 */
+	@RequestMapping(value = "/update.html", method = RequestMethod.GET)
+	public String update(ModelMap modelMap, Long id) {
+		if (id != null) {
+			AssetsRentalDto assetsRentalDto = new AssetsRentalDto();
+			AssetsRental assetsRental = assetsRentalService.get(id);
+			if (assetsRental != null) {
+				BeanUtils.copyProperties(assetsRental, assetsRentalDto);
 
-                // 关联查询预设详情中关联的摊位信息
-                List<AssetsRentalItem> assetsRentalItemList = assetsRentalItemService.listRentalItemsByRentalId(assetsRental.getId());
-                if (CollectionUtils.isNotEmpty(assetsRentalItemList)) {
-                    assetsRentalDto.setAssetsRentalItemList(assetsRentalItemList);
-                }
-                modelMap.put("assetsRental", assetsRentalDto);
-            }
-        }
-        return "assetsRental/add";
-    }
+				// 关联查询预设详情中关联的摊位信息
+				List<AssetsRentalItem> assetsRentalItemList = assetsRentalItemService
+						.listRentalItemsByRentalId(assetsRental.getId());
+				if (CollectionUtils.isNotEmpty(assetsRentalItemList)) {
+					assetsRentalDto.setAssetsRentalItemList(assetsRentalItemList);
+				}
+				modelMap.put("assetsRental", assetsRentalDto);
+			}
+		}
+		return "assetsRental/add";
+	}
 
-    /**
-     * 查询资产出租预设的集合(分页)
-     *
-     * @param  assetsRental
-     * @return
-     * @date   2020/11/26
-     */
-    @RequestMapping(value="/listPage.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody String listPage(@ModelAttribute AssetsRental assetsRental) throws Exception {
-        // 列表数据要根据市场过滤
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        assetsRental.setMarketId(userTicket.getFirmId());
-        return assetsRentalService.listEasyuiPageByExample(assetsRental, true).toString();
-    }
+	/**
+	 * 查询资产出租预设的集合(分页)
+	 *
+	 * @param assetsRental
+	 * @return
+	 * @date 2020/11/26
+	 */
+	@RequestMapping(value = "/listPage.action", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String listPage(@ModelAttribute AssetsRental assetsRental) throws Exception {
+		// 列表数据要根据市场过滤
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		assetsRental.setMarketId(userTicket.getFirmId());
+		return assetsRentalService.listEasyuiPageByExample(assetsRental, true).toString();
+	}
 
-    /**
-     * 新增资产出租预设
-     *
-     * @param assetsRentalDto
-     * @return BaseOutput
-     * @date   2020/11/26
-     */
-    @BusinessLogger(businessType = LogBizTypeConst.ASSETS_RENTAL_PRESET, content="${businessCode!}", operationType="add", systemCode = "IA")
-    @RequestMapping(value="/add.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput add(@RequestBody AssetsRentalDto assetsRentalDto) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        try {
-            // 校验参数，名称和摊位不能为空
-            AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
-            AssertUtils.notEmpty(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
-            AssertUtils.notNull(assetsRentalDto.getMchId(), "未指定对应的入账组织，不能操作！");
+	/**
+	 * 新增资产出租预设
+	 *
+	 * @param assetsRentalDto
+	 * @return BaseOutput
+	 * @date 2020/11/26
+	 */
+	@BusinessLogger(businessType = LogBizTypeConst.ASSETS_RENTAL_PRESET, content = "${businessCode!}", operationType = "add", systemCode = "IA")
+	@RequestMapping(value = "/add.action", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody BaseOutput add(@RequestBody AssetsRentalDto assetsRentalDto) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		try {
+			// 校验参数，名称和摊位不能为空
+			AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
+			AssertUtils.notEmpty(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
+			AssertUtils.notNull(assetsRentalDto.getMchId(), "未指定对应的入账组织，不能操作！");
 
-            AssetsRental assetsRental = assetsRentalService.addAssetsRental(assetsRentalDto, userTicket);
+			AssetsRental assetsRental = assetsRentalService.addAssetsRental(assetsRentalDto, userTicket);
 
-            // 写业务日志
-            LoggerUtil.buildLoggerContext(assetsRental.getId(), null, userTicket.getId(), userTicket.getRealName(),
-                    userTicket.getFirmId(), "新增摊位出租预设信息。");
+			// 写业务日志
+			LoggerUtil.buildLoggerContext(assetsRental.getId(), null, userTicket.getId(), userTicket.getRealName(),
+					userTicket.getFirmId(), "新增摊位出租预设信息。");
 
-            return BaseOutput.success().setData(assetsRental);
-        } catch (BusinessException e) {
-            logger.info("新增资产出租预设失败：{}", e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage());
-        } catch (Exception e) {
-            logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
-        }
-    }
+			return BaseOutput.success().setData(assetsRental);
+		} catch (BusinessException e) {
+			logger.info("新增资产出租预设失败：{}", e.getMessage());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
+		} catch (Exception e) {
+			logger.error("服务器内部错误！", e);
+			return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+	}
 
+	/**
+	 * 修改资产出租预设
+	 *
+	 * @param assetsRentalDto
+	 * @return BaseOutput
+	 * @date 2020/11/26
+	 */
+	@BusinessLogger(businessType = LogBizTypeConst.ASSETS_RENTAL_PRESET, content = "${businessCode!}", operationType = "update", systemCode = "IA")
+	@RequestMapping(value = "/update.action", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody BaseOutput update(@RequestBody AssetsRentalDto assetsRentalDto) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		try {
+			// 校验参数，名称和摊位不能为空
+			AssertUtils.notNull(assetsRentalDto.getId(), "预设主键不能为空");
+			AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
+			AssertUtils.notEmpty(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
 
+			AssetsRental assetsRental = assetsRentalService.updateAssetsRental(assetsRentalDto);
 
-    /**
-     * 修改资产出租预设
-     *
-     * @param assetsRentalDto
-     * @return BaseOutput
-     * @date   2020/11/26
-     */
-    @BusinessLogger(businessType = LogBizTypeConst.ASSETS_RENTAL_PRESET, content="${businessCode!}", operationType="update", systemCode = "IA")
-    @RequestMapping(value="/update.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput update(@RequestBody AssetsRentalDto assetsRentalDto) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        try {
-            // 校验参数，名称和摊位不能为空
-            AssertUtils.notNull(assetsRentalDto.getId(), "预设主键不能为空");
-            AssertUtils.notEmpty(assetsRentalDto.getName(), "预设名称不能为空");
-            AssertUtils.notEmpty(assetsRentalDto.getAssetsRentalItemList(), "预设摊位不能为空");
+			// 写业务日志
+			LoggerUtil.buildLoggerContext(assetsRental.getId(), null, userTicket.getId(), userTicket.getRealName(),
+					userTicket.getFirmId(), "修改摊位出租预设信息。");
 
-            AssetsRental assetsRental = assetsRentalService.updateAssetsRental(assetsRentalDto);
+			return BaseOutput.success().setData(assetsRental);
+		} catch (BusinessException e) {
+			logger.info("修改资产出租预设失败：{}", e.getMessage());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
+		} catch (Exception e) {
+			logger.error("服务器内部错误！", e);
+			return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+	}
 
-            // 写业务日志
-            LoggerUtil.buildLoggerContext(assetsRental.getId(), null, userTicket.getId(), userTicket.getRealName(),
-                    userTicket.getFirmId(), "修改摊位出租预设信息。");
+	/**
+	 * 启用或者禁用
+	 *
+	 * @param id
+	 * @return BaseOutput
+	 * @date 2020/11/26
+	 */
+	@BusinessLogger(businessType = LogBizTypeConst.ASSETS_RENTAL_PRESET, content = "${businessCode!}", operationType = "update", systemCode = "IA")
+	@RequestMapping(value = "/enableOrDisable.action", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody BaseOutput enableOrDisable(@RequestParam("id") Long id) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+		try {
+			AssertUtils.notNull(id, "预设主键不能为空");
 
-            return BaseOutput.success().setData(assetsRental);
-        } catch (BusinessException e) {
-            logger.info("修改资产出租预设失败：{}", e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage());
-        } catch (Exception e) {
-            logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
-        }
-    }
+			boolean enable = assetsRentalService.enableOrDisable(id);
 
-    /**
-     * 启用或者禁用
-     *
-     * @param  id
-     * @return BaseOutput
-     * @date   2020/11/26
-     */
-    @BusinessLogger(businessType = LogBizTypeConst.ASSETS_RENTAL_PRESET, content="${businessCode!}", operationType="update", systemCode = "IA")
-    @RequestMapping(value="/enableOrDisable.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput enableOrDisable(@RequestParam("id") Long id) {
-        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
-        try {
-            AssertUtils.notNull(id, "预设主键不能为空");
+			String enableStr = "禁用";
+			if (enable) {
+				enableStr = "启用";
+			}
 
-            boolean enable = assetsRentalService.enableOrDisable(id);
+			// 写业务日志
+			LoggerUtil.buildLoggerContext(id, null, userTicket.getId(), userTicket.getRealName(),
+					userTicket.getFirmId(), enableStr + "摊位出租预设。");
 
-            String enableStr = "禁用";
-            if (enable) {
-                enableStr = "启用";
-            }
+			return BaseOutput.success();
+		} catch (BusinessException e) {
+			logger.info("修改资产出租预设状态失败：{}", e.getMessage());
+			return BaseOutput.failure(e.getCode(), e.getMessage());
+		} catch (Exception e) {
+			logger.error("服务器内部错误！", e);
+			return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
+		}
+	}
 
-            // 写业务日志
-            LoggerUtil.buildLoggerContext(id, null, userTicket.getId(), userTicket.getRealName(),
-                    userTicket.getFirmId(), enableStr + "摊位出租预设。");
+	/**
+	 * 根据摊位 id 查询相关的预设信息
+	 * 
+	 * @param assetsId
+	 * @return
+	 */
+	@GetMapping(value = "/getRentalByAssetsId.action")
+	public @ResponseBody BaseOutput<AssetsRentalDto> getRentalByAssetsId(Long assetsId) {
+		try {
+			return BaseOutput.success().setData(assetsRentalService.getRentalByAssetsId(assetsId));
+		} catch (BusinessException e) {
+			logger.info("根据摊位 id 查询相关的预设信息异常！", e);
+			return BaseOutput.failure(e.getMessage());
+		} catch (Exception e) {
+			logger.error("根据摊位 id 查询相关的预设信息异常！", e);
+			return BaseOutput.failure(e.getMessage());
+		}
+	}
 
-            return BaseOutput.success();
-        } catch (BusinessException e) {
-            logger.info("修改资产出租预设状态失败：{}", e.getMessage());
-            return BaseOutput.failure(e.getCode(), e.getMessage());
-        } catch (Exception e) {
-            logger.error("服务器内部错误！", e);
-            return BaseOutput.failure(ResultCode.APP_ERROR, "服务器内部错误");
-        }
-    }
-
-    /**
-     * 根据摊位 id 查询相关的预设信息
-     * @param assetsId
-     * @return
-     */
-    @GetMapping(value="/getRentalByAssetsId.action")
-    public @ResponseBody BaseOutput<AssetsRentalDto> getRentalByAssetsId(Long assetsId){
-        try {
-            return BaseOutput.success().setData(assetsRentalService.getRentalByAssetsId(assetsId));
-        } catch (BusinessException e) {
-            logger.info("根据摊位 id 查询相关的预设信息异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        } catch (Exception e) {
-            logger.error("根据摊位 id 查询相关的预设信息异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }
-    }
-    
-    /**
+	/**
      * 根据摊位 id 查询资产出租预设摊位信息
      * @param assetsId
      * @return
      */
-    @GetMapping(value="/getRentalItemByAssetsId.action")
-    public @ResponseBody BaseOutput<AssetsRentalDto> getRentalItemByAssetsId(Long assetsId){
-    	try {
-    		return BaseOutput.success().setData(assetsRentalItemService.listRentalItemsByRentalId(assetsId));
-    	} catch (BusinessException e) {
-    		logger.info("根据摊位 id 查询资产出租预设摊位信息异常！", e);
-    		return BaseOutput.failure(e.getMessage());
-    	} catch (Exception e) {
-    		logger.error("根据摊位 id 查询资产出租预设摊位信息异常！", e);
-    		return BaseOutput.failure(e.getMessage());
+    @GetMapping(value="/view.action")
+    public String getRentalItemByAssetsId(ModelMap modelMap,Long assetsId){
+    	JSONObject obj = new JSONObject();
+    	List<AssetsRentalItem> districtList = assetsRentalItemService.listItemsByRentalIdGroupByDistrict(assetsId);
+    	if(!districtList.isEmpty()) {
+    		for(AssetsRentalItem item:districtList) {
+    			AssetsRentalItem con = new AssetsRentalItem();
+    			con.setAssetsRentalId(assetsId);
+    			con.setFirstDistrictName(item.getFirstDistrictName());
+    			List<AssetsRentalItem> items = assetsRentalItemService.list(con);
+    			JSONArray arry = new JSONArray();
+    			if(!items.isEmpty()) {
+    				for(AssetsRentalItem oi:items) {
+    					JSONObject itemObj = new JSONObject();
+    					itemObj.put("assetsName", oi.getAssetsName());
+    					itemObj.put("assetsId", oi.getAssetsId());
+    					itemObj.put("id", oi.getId());
+    					arry.add(itemObj);
+    				}
+    			}
+    			obj.put(item.getFirstDistrictName(), arry);
+    		}
     	}
+    	modelMap.addAttribute("itemList", obj);
+    	return "assetsRental/view";
     }
 
-    /**
-     * 根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合
-     * @param assetsRentalDto
-     * @return
-     */
-    @GetMapping(value = "/listRentalsByRentalDtoAndKeyWord.action")
-    public @ResponseBody
-    BaseOutput<List<AssetsRentalDto>> listRentalsByRentalDtoAndKeyWord(AssetsRentalDto assetsRentalDto) {
-        try {
-            return BaseOutput.success().setData(assetsRentalService.listRentalsByRentalDtoAndKeyWord(assetsRentalDto));
-        } catch (BusinessException e) {
-            logger.info("根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        } catch (Exception e) {
-            logger.error("根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合异常！", e);
-            return BaseOutput.failure(e.getMessage());
-        }
-    }
+	/**
+	 * 根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合
+	 * 
+	 * @param assetsRentalDto
+	 * @return
+	 */
+	@GetMapping(value = "/listRentalsByRentalDtoAndKeyWord.action")
+	public @ResponseBody BaseOutput<List<AssetsRentalDto>> listRentalsByRentalDtoAndKeyWord(
+			AssetsRentalDto assetsRentalDto) {
+		try {
+			return BaseOutput.success().setData(assetsRentalService.listRentalsByRentalDtoAndKeyWord(assetsRentalDto));
+		} catch (BusinessException e) {
+			logger.info("根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合异常！", e);
+			return BaseOutput.failure(e.getMessage());
+		} catch (Exception e) {
+			logger.error("根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合异常！", e);
+			return BaseOutput.failure(e.getMessage());
+		}
+	}
 
 }

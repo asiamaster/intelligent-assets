@@ -455,7 +455,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         pb.setMchId(depositOrder.getMchId());
         pb.setDistrictId(depositOrder.getSecondDistrictId() == null? depositOrder.getFirstDistrictId():depositOrder.getSecondDistrictId());
         //缴费单待付金额字段--多次缴费的当前待付金额，用于补打票据显示
-        pb.setWaitAmount(depositOrder.getWaitAmount());
+        pb.setWaitAmount(depositOrder.getWaitAmount() - paidAmount);
 
         return pb;
     }

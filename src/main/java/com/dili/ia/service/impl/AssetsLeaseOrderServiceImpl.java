@@ -1395,6 +1395,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         //新增缴费单
         PaymentOrder paymentOrder = buildPaymentOrder(leaseOrder);
         paymentOrder.setAmount(amount);
+        paymentOrder.setWaitAmount(leaseOrder.getWaitAmount() - amount);
         paymentOrderService.insertSelective(paymentOrder);
 
         BaseOutput<SettleOrder> settlementOutput = settleOrderRpc.submit(buildSettleOrderDto(leaseOrder, paymentOrder, amount, buildSettleFeeItems(businessChargeItems)));

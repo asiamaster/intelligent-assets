@@ -95,7 +95,7 @@ public class PrintServiceImpl implements PrintService {
         leaseOrderPrintDto.setCategoryName(leaseOrder.getCategoryName());
         leaseOrderPrintDto.setNotes(leaseOrder.getNotes());
         leaseOrderPrintDto.setTotalAmount(MoneyUtils.centToYuan(leaseOrder.getTotalAmount()));
-        leaseOrderPrintDto.setWaitAmount(MoneyUtils.centToYuan(leaseOrder.getWaitAmount()));
+        leaseOrderPrintDto.setWaitAmount(MoneyUtils.centToYuan(paymentOrder.getWaitAmount()));
 
         //抵扣金额 结算查询
         BaseOutput<SettleOrder> output = settleOrderRpc.getByCode(paymentOrder.getSettlementCode());

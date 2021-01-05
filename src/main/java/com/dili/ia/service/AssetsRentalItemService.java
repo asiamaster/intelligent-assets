@@ -62,6 +62,14 @@ public interface AssetsRentalItemService extends BaseService<AssetsRentalItem, L
      * @date   2020/12/24
      */
     List<AssetsRentalItem> listRentalItemsByRentalId(Long rentalId);
+    /**
+     * 根据预设id查询预设的摊位信息-按一级区域分组
+     *
+     * @param  rentalId
+     * @return list
+     * @date   2020/12/24
+     */
+    List<AssetsRentalItem> listItemsByRentalIdGroupByDistrict(Long rentalId);
 
     /**
      * 根据一级二级区域查询商户ID

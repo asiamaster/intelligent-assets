@@ -178,7 +178,14 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
     public List<AssetsRentalItem> listRentalItemsByRentalId(Long rentalId) {
         return this.getActualDao().listRentalItemsByRentalId(rentalId);
     }
-
+    
+    /**
+     * 根据预设id查询预设的摊位信息-按一级区域分组
+     */
+    @Override
+	public List<AssetsRentalItem> listItemsByRentalIdGroupByDistrict(Long rentalId) {
+		return this.getActualDao().listItemsByRentalIdGroupByDistrict(rentalId);
+	}
 
     @Override
     public Long getMchIdByDistrictId(AssetsRentalDto assetsRentalDto) {
@@ -322,4 +329,5 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
             LOGGER.error("商户区域信息修改失败", e);
         }
     }
+
 }

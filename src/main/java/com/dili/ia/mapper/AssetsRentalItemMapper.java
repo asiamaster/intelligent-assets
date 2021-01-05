@@ -60,6 +60,15 @@ public interface AssetsRentalItemMapper extends MyMapper<AssetsRentalItem> {
      * @date   2020/12/24
      */
     List<AssetsRentalItem> listRentalItemsByRentalId(@Param("rentalId") Long rentalId);
+    
+    /**
+     * 根据预设id查询预设的摊位信息-按一级区域分组
+     *
+     * @param  rentalId
+     * @return list
+     * @date   2020/12/24
+     */
+    List<AssetsRentalItem> listItemsByRentalIdGroupByDistrict(@Param("rentalId") Long rentalId);
 
     /**
      *  全量查询摊位 详情-预设数据
