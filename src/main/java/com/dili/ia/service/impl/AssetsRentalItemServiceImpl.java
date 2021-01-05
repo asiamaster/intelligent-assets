@@ -330,4 +330,34 @@ public class AssetsRentalItemServiceImpl extends BaseServiceImpl<AssetsRentalIte
         }
     }
 
+
+    /**
+     * MQ 监听 删除摊位的信息(资产变更，删除摊位)
+     *
+     * @param
+     * @return
+     * @date   2020/12/8
+     */
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "customer.info", autoDelete = "false"),
+            exchange = @Exchange(value = MqConstant.CUSTOMER_MQ_FANOUT_EXCHANGE, type = ExchangeTypes.FANOUT)
+    ))
+    public void deleteAssetsByMQ(Channel channel, Message message){
+        try {
+            String data = new String(message.getBody(), "UTF-8");
+            LOGGER.info("摊位信息删除同步>>>>>" + data);
+            if (!StrUtil.isBlank(data)) {
+                AssetsRentalItemDto assetsRentalItemDto = JSONObject.parseObject(data, AssetsRentalItemDto.class);
+                Long assetsId = assetsRentalItemDto.getAssetsId();
+                // 根据摊位ID查询预设池中的预设摊位
+                AssetsRentalItemDto itemDtoInfo = this.getActualDao().getAssetsItemsByAssetsId(assetsId);
+                if (itemDtoInfo != null) {
+                    // 剔除预设池中的摊位
+                    this.getActualDao().delete(itemDtoInfo);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("预设摊位删除修改失败", e);
+        }
+    }
 }
