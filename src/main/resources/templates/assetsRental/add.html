@@ -86,7 +86,7 @@
                        %>
                        <div class="custom-control custom-checkbox">
                            <input type="checkbox" class="custom-control-input" id="${data.id!}" data-mch-id="${assetsRental.mchId}" data-id="${data.id!}" data-name="${data.assetsName!}" data-first-area="${data.firstDistrictId!}" data-first-area-name="${data.firstDistrictName!}" data-second-area="${data.secondDistrictId!}" data-second-area-name="${data.secondDistrictName!}" data-type="${data.assetsType!}" data-number="${data.number!}" data-unit="${data.unit!}" data-corner="${data.corner!}">
-                           <label class="custom-control-label" for="${data.id!}">${data.assetsName!}【${data.firstDistrictName!}】</label>
+                           <label class="custom-control-label" for="${data.id!}">${data.assetsName!}【${data.firstDistrictName!} <% if(isNotEmpty(data.secondDistrictName)){%> -> ${data.secondDistrictName!} <%}%> 】</label>
                        </div>
                     <%}
                    }%>
