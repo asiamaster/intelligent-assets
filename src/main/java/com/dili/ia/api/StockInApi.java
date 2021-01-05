@@ -102,7 +102,7 @@ public class StockInApi {
     /**
 	 * 
 	 * @Title scanEffective
-	 * @Description 定时任务扫描失效,待生效马甲单
+	 * @Description 定时任务扫描失效,冷库过期时间
 	 * @throws
 	 */
 	@RequestMapping(value = "/scanEffective", method = { RequestMethod.GET, RequestMethod.POST })
