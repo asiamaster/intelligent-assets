@@ -37,6 +37,15 @@ public class StockInQueryDto extends StockIn {
 	@Column(name = "`expire_date`")
 	@Operator(Operator.LITTLE_EQUAL_THAN)
 	private LocalDateTime expireEnd;
+	
+	@Column(name = "`stock_in_date`")
+	@Operator(Operator.GREAT_EQUAL_THAN)
+	private LocalDateTime stockInStart;
+	
+	@Column(name = "`stock_in_date`")
+	@Operator(Operator.LITTLE_EQUAL_THAN)
+	private LocalDateTime stockInEnd;
+	
 	@Column(name = "`customer_name`")
 	@Like
 	private String likeCustomerName;
@@ -91,6 +100,22 @@ public class StockInQueryDto extends StockIn {
 
 	public void setDepIds(List<Long> depIds) {
 		this.depIds = depIds;
+	}
+
+	public LocalDateTime getStockInStart() {
+		return stockInStart;
+	}
+
+	public void setStockInStart(LocalDateTime stockInStart) {
+		this.stockInStart = stockInStart;
+	}
+
+	public LocalDateTime getStockInEnd() {
+		return stockInEnd;
+	}
+
+	public void setStockInEnd(LocalDateTime stockInEnd) {
+		this.stockInEnd = stockInEnd;
 	}
 	
 	

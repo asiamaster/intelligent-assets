@@ -14,6 +14,7 @@ import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -204,10 +205,11 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
      */
     @Override
     public String listNoParam() {
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         DepartmentChargeItem departmentChargeItem = new DepartmentChargeItem();
-
+        departmentChargeItem.setMarketId(userTicket.getFirmId());
         List<DepartmentChargeItem> departmentChargeItemList = this.list(departmentChargeItem);
-        List<DepartmentChargeItem> chargeItemListByGroup = this.getActualDao().listGroupByChargeItemId();
+        List<DepartmentChargeItem> chargeItemListByGroup = this.getActualDao().listGroupByChargeItemId(userTicket.getFirmId());
         if (departmentChargeItemList != null && departmentChargeItemList.size() > 0) {
             // 将收费项id去重
             TreeSet ItemIdSet = new TreeSet();
