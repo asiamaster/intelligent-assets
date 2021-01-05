@@ -273,4 +273,5 @@ nacos 配置
     任务名:通行证过期,生效任务
     分组:ia
     cron:0 0/10 * * * ? *
+    同步/异步:异步
     url:http:ia.diligrp.com:8381/api/passport/scanEffective
