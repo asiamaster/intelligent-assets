@@ -1066,7 +1066,7 @@
         $('#btn_upload').attr('disabled', false);
         $('#btn_download').attr('disabled', false);
         $('#btn_contract').attr('disabled', false);
-        if (row.state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()}) {
+        if (row.state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()} || row.state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
             defaultBizProcess(row);
         }
         //只要有审批流程实例id就可以查看流程图
