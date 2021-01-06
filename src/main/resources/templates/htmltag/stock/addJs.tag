@@ -79,7 +79,7 @@ function adddetailItem() {
 
 // 添加子单
 $('#adddetailItem').on('click', function() {
-	if (itemCount < 11) {
+	if (itemCount < 10) {
 		adddetailItem();
 	} else {
 		bs4pop.notice('最多10个子单', {

@@ -118,13 +118,13 @@ function getCost(){
 				//计算单价
 				if(detail.uom == 1){
 					$("#unitPrice").val(new Number(parseFloat($("#amount").val())/parseFloat($("#weight").val())).toFixed(2));
-					unitPrice = parseFloat($("#amount").val())/parseFloat($("#weight").val())
+					unitPrice = new Number(parseFloat($("#amount").val())/parseFloat($("#weight").val())).toFixed(2);
 					if($("#weight").val() == 0){
 						$("#unitPrice").val(0);
 					}
 				}else{
 					$("#unitPrice").val(new Number(parseFloat($("#amount").val())/parseFloat($("#quantity").val())).toFixed(2));
-					unitPrice = parseFloat($("#amount").val())/parseFloat($("#weight").val())
+					unitPrice = new Number(parseFloat($("#amount").val())/parseFloat($("#quantity").val())).toFixed(2);
 					if($("#quantity").val() == 0){
 						$("#unitPrice").val(0);
 					}
