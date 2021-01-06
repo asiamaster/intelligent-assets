@@ -1,7 +1,7 @@
 <script>
 
 //设置默认入库时间为当天
-$("#stockInDate").attr("value", moment().format('YYYY-MM-DD HH:mm:ss'));
+$("#stockInDate").attr("value", moment().format('YYYY-MM-DD'));
 
 //子单索引计数器
 let itemIndex = 0;
@@ -142,6 +142,8 @@ function buildFormData() {
 	formData.type = type;
     formData.origin = city.value.join(",");
     formData.originPath = city.originName;
+    // 到期时间处理
+    formData.expireDate = formData.expireDate+" 23:59:59";
 	// 动态收费项
 	let businessChargeDtos = []
 	$('#saveForm').find('.chargeItem').each(function(){

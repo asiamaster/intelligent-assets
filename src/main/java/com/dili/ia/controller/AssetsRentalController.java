@@ -295,7 +295,7 @@ public class AssetsRentalController {
 		try {
 			BaseOutput<List<DataDictionaryValue>> unitBou = dataDictionaryRpc.listDataDictionaryValueByDdCode("unit");
 			Map<String, String> unitMap = new HashMap<String, String>();
-			if (unitBou.isSuccess()) {
+			if (unitBou.isSuccess() && !unitBou.getData().isEmpty()) {
 				List<DataDictionaryValue> unitList = unitBou.getData();
 				unitMap = unitList.stream().collect(
 						Collectors.toMap(DataDictionaryValue::getDdCode, DataDictionaryValue::getName, (v1, v2) -> v2));

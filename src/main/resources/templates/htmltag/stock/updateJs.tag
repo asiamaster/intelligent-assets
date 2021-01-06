@@ -56,7 +56,7 @@ $(function() {
 	//逆向计算存储天数
 	let st = moment('${stockIn.stockInDate!}');
 	let et = moment('${stockIn.expireDate!}');
-	$("#cycle").val(et.diff(st,'day'));
+	$("#cycle").val(et.diff(st,'day')+1);
 	let uom = '${stockIn.uom!}';
 	$("#uom").val(uom);
 	/*if(uom == "1"){
@@ -185,7 +185,8 @@ function buildFormData() {
 	//formData.categoryName = categoryName;
 	formData.origin = city.value.join(",");
     formData.originPath = city.originName;
-    
+    // 到期时间处理
+    formData.expireDate = formData.expireDate+" 23:59:59";
 	let stockDetails = [];
 	// 动态收费项
 	let businessChargeDtos = []
