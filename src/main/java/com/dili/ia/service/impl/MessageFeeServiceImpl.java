@@ -20,6 +20,7 @@ import com.dili.assets.sdk.rpc.TypeMarketRpc;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.MessageFee;
 import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.MessageFeeDto;
 import com.dili.ia.domain.dto.MessageFeeQuery;
@@ -43,6 +44,7 @@ import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.MessageFeeService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.RefundFeeItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.SettleOrderLinkUtils;
@@ -108,6 +110,9 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	
 	@Autowired
 	private MessageFeeRpc messageFeeRpc;
+	
+	@Autowired
+	private RefundFeeItemService refundFeeItemService;
 	
 	@Value("${settlement.app-id}")
 	private Long settlementAppId;
@@ -298,10 +303,29 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		// 获取结算单
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, messageFee.getPaymentOrderCode());
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, messageFee, order);
+		// 构建退款费用
+		refundFeeItemService.batchInsert(buildRefundFeeItem(refundInfoDto.getRefundFeeItems(), refundOrder.getId(),refundOrder.getCode()));
 		LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), "退款申请信息费单");
 
 	}
 
+	/**
+	 * 
+	 * @Title buildRefundFeeItem
+	 * @param businessChargeItems
+	 * @param businessId
+	 * @param businessCode
+	 */
+	private List<RefundFeeItem> buildRefundFeeItem(List<RefundFeeItem> businessChargeItems,Long businessId,String businessCode){
+		businessChargeItems.stream().forEach(item -> {
+			item.setRefundOrderId(businessId);
+			item.setRefundOrderCode(businessCode);
+			item.setAmount(item.getAmount());
+			item.setCreateTime(LocalDateTime.now());
+		});
+		return businessChargeItems;
+	}
+	
 	@Override
 	@Transactional
 	public void refundSuccessHandler(SettleOrder settleOrder, RefundOrder refundOrder) {

@@ -6,7 +6,7 @@
         <input type="hidden" name="departmentId" value="${labor.departmentId!}"/>
         <input type="hidden" name="departmentName" value="${labor.departmentName!}"/>
         <input type="hidden" name="customerId" value="${labor.customerId!}"/>
-        <div class="row row-cols-4">
+        <div class="row row-cols-3">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
                 <input type="text" class="form-control" id="customerName" name="customerName" value="${labor.customerName!}" readonly/>
@@ -20,15 +20,23 @@
                 <input type="text" class="form-control" id="customerCellphone" name="customerCellphone" value="${labor.customerCellphone!}" readonly/>
             </div>
         </div>
-        <div class="row row-cols-4">
-			
+        <div class="row row-cols-3">
+			<%if(isNotEmpty(labor.businessChargeItems) && labor.businessChargeItems.~size>0){
+		        for(item in labor.businessChargeItems){
+		        %>		        
+		        <div class="form-group col">
+					<label for="amount" class="">${item.chargeItemName!}<i class="red">*</i></label> <input id="chargeItem_${item.chargeItemId!}" type="number" class="form-control chargeItem money"
+					 name="chargeItem_${item.chargeItemId!}" item-id="${item.id!}" chargeItem-version="${item.version!}" chargeItem="${item.chargeItemName!}" value = "<#centToYuan value='${item.amount!}'/>" range="0 <#centToYuan value='${item.amount!}'/>"
+					 placeholder="可退总金额:<#centToYuan value='${item.amount!}'/>" required  />				
+		        </div>
+		        <% } }%>
             <div class="form-group col align-items-end">
                 <label for="totalRefundAmount" class="">退款金额<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount" placeholder="可退总金额:<#centToYuan value='${labor.amount!}'/>" range="0 <#centToYuan value='${labor.amount!}'/>"/>
+                <input readonly type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount" placeholder="可退总金额:<#centToYuan value='${labor.amount!}'/>" range="0 <#centToYuan value='${labor.amount!}'/>"/>
             </div>
         </div>
         <hr>
-        <div class="row row-cols-4">
+        <div class="row row-cols-3">
             <div class="form-group col">
                 <label for="payee">收款人<i class="red">*</i></label>
                 <#bautoCompleteProvider _hiddenDomainId="payeeId" _hiddenDomainName="payeeId" _displayDomainId="payee" _displayDomainName="payee" _validatorMethod="isSelected" _required="true" _optionVariable="customerNameAutoCompleteOption"/>
@@ -47,7 +55,7 @@
            
 
         </div>
-        <div id="bankInfo" class="row row-cols-4" style="display: none;">
+        <div id="bankInfo" class="row row-cols-3" style="display: none;">
             <div class="form-group col">
                 <label for="bank" class="">银行<i class="red">*</i></label>
                 <input type="text" class="form-control" id="bank"  name="bank" maxlength="50" required/>

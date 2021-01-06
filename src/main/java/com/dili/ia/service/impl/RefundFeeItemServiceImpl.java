@@ -25,4 +25,11 @@ public class RefundFeeItemServiceImpl extends BaseServiceImpl<RefundFeeItem, Lon
     public List<Map<String, String>> queryRefundFeeItem(List<Long> refundOrderIds, List<BusinessChargeItemDto> chargeItemDtos) {
         return getActualDao().queryRefundFeeItem(refundOrderIds, chargeItemDtos);
     }
+
+	@Override
+	public List<RefundFeeItem> getByBizCode(String bizCode) {
+		RefundFeeItem item = new RefundFeeItem();
+		item.setRefundOrderCode(bizCode);
+		return this.list(item);
+	}
 }

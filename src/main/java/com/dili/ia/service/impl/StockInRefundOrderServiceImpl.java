@@ -9,17 +9,13 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.StockIn;
-import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.PrintTemplateEnum;
 import com.dili.ia.glossary.StockInStateEnum;
-import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.RefundFeeItemService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.StockInService;
@@ -29,16 +25,11 @@ import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.BasePage;
-import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Sets;
-
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.json.JSONUtil;
 
 /**
  * <B>Description</B>
@@ -57,7 +48,7 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 	private StockInService stockInService;
 	
 	@Autowired
-	private BusinessChargeItemService businessChargeItemService;
+	private RefundFeeItemService refundFeeItemService;
 
 	@Override
 	public BaseOutput updateHandler(RefundOrder refundOrder) {
@@ -106,6 +97,10 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 		}
 		StockIn domain = new StockIn(userTicket);
 		updateState(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
+		// 删除退款项
+		RefundFeeItem item = new RefundFeeItem();
+		item.setRefundOrderCode(refundOrder.getCode());
+		refundFeeItemService.deleteByExample(item);
 		return BaseOutput.success();
 	}
 
@@ -140,17 +135,17 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 	
 	@Override
 	public List<SettleFeeItem> buildSettleFeeItem(RefundOrder refundOrder) {
-
 		List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
-		List<BusinessChargeItem> items = businessChargeItemService.getByBizCode(refundOrder.getBusinessCode());
-		for (BusinessChargeItem item : items) {
+		List<RefundFeeItem> items = refundFeeItemService.getByBizCode(refundOrder.getCode());
+		for (RefundFeeItem item : items) {
 			SettleFeeItem settleFeeItem = new SettleFeeItem();
 			settleFeeItem.setChargeItemId(item.getChargeItemId());
 			settleFeeItem.setChargeItemName(item.getChargeItemName());
-			settleFeeItem.setAmount(item.getPaymentAmount());
+			settleFeeItem.setAmount(item.getAmount());
 			settleFeeItemList.add(settleFeeItem);
 		}
 		return settleFeeItemList;
 
 	}
+	
 }
