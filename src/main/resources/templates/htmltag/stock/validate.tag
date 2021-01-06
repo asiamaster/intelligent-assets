@@ -156,7 +156,7 @@ function validateForm(){
 			}  
 		}
 	}
-	if(isNull(mchId)){
+	if(count==0 && isNull(mchId)){
         bs4pop.alert("选择区域未绑定商户关系!", {type: 'error'});
         return;
 	}
