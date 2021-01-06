@@ -188,7 +188,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
         if (null == dto.getId()) {
             //租赁单新增
-            checkContractNo(null, dto.getContractNo(), true);//合同编号验证重复
+            checkContractNo(null, dto.getContractNo(), true);//线下合同号验证重复
             BaseOutput<String> bizNumberOutput = uidFeignRpc.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(dto.getBizType()).getEnName() + "_" + BizNumberTypeEnum.LEASE_ORDER.getCode());
             if (!bizNumberOutput.isSuccess()) {
                 LOG.info("租赁单编号生成异常");
@@ -218,7 +218,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         } else {
             //租赁单修改
             checkDepositOrderPayState(dto); //检查保证金单交费状态 （已交费的单子，不能修改）
-            checkContractNo(dto.getId(), dto.getContractNo(), false);//合同编号验证重复
+            checkContractNo(dto.getId(), dto.getContractNo(), false);//线下合同号验证重复
             AssetsLeaseOrder oldLeaseOrder = get(dto.getId());
             if (!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())
                     || ApprovalStateEnum.APPROVED.getCode().equals(oldLeaseOrder.getApprovalState())
@@ -1730,7 +1730,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     }
 
     /**
-     * 合同编号验重
+     * 线下合同号验重
      *
      * @param leaseOrderId 待修改的租赁单Id
      * @param contractNo
@@ -1742,12 +1742,12 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             condition.setContractNo(contractNo);
             List<AssetsLeaseOrder> leaseOrders = list(condition);
             if (isAdd && CollectionUtils.isNotEmpty(leaseOrders)) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "合同编号不允许重复使用，请修改");
+                throw new BusinessException(ResultCode.DATA_ERROR, "线下合同号不允许重复使用，请修改");
             } else {
                 if (leaseOrders.size() == 1) {
                     AssetsLeaseOrder leaseOrder = leaseOrders.get(0);
                     if (!leaseOrder.getId().equals(leaseOrderId)) {
-                        throw new BusinessException(ResultCode.DATA_ERROR, "合同编号不允许重复使用，请修改");
+                        throw new BusinessException(ResultCode.DATA_ERROR, "线下合同号不允许重复使用，请修改");
                     }
                 }
             }

@@ -92,7 +92,7 @@ public class AssetsLeaseOrder extends BaseDomain implements IMybatisForceParams 
     @Column(name = "`days`")
     private Long days;
 
-    //合同编号
+    //线下合同号
     @Column(name = "`contract_no`")
     private String contractNo;
 
