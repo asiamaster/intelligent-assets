@@ -10,11 +10,7 @@ import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,6 +36,36 @@ public class AssetsRentalDto extends AssetsRental {
      * 资产类型 1：摊位 2：冷库
      */
     private Integer assetsType;
+
+    /**
+     * 是否转角
+     */
+    private Integer corner;
+
+    /**
+     * 转角名称
+     */
+    @Transient
+    private String cornerName;
+
+    /**
+     * 单位CODE
+     */
+    @Transient
+    private String unit;
+
+    /**
+     * 单位名称
+     */
+    @Transient
+    private String unitName;
+
+    /**
+     * 数量
+     */
+    @Transient
+    private Double number;
+
 
     /**
      * 摊位id集合
@@ -170,6 +196,46 @@ public class AssetsRentalDto extends AssetsRental {
 
     public void setAssetsType(Integer assetsType) {
         this.assetsType = assetsType;
+    }
+
+    public Integer getCorner() {
+        return corner;
+    }
+
+    public void setCorner(Integer corner) {
+        this.corner = corner;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
+    public String getCornerName() {
+        return cornerName;
+    }
+
+    public void setCornerName(String cornerName) {
+        this.cornerName = cornerName;
+    }
+
+    public Double getNumber() {
+        return number;
+    }
+
+    public void setNumber(Double number) {
+        this.number = number;
     }
 
     public List<Long> getAssetsIds() {

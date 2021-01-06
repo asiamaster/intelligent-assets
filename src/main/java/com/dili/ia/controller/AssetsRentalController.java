@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.dili.ss.dto.DTOUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -290,28 +291,30 @@ public class AssetsRentalController {
 	 * @return
 	 */
 	@GetMapping(value = "/listRentalsByRentalDtoAndKeyWord.action")
-	public @ResponseBody BaseOutput<List<AssetsRentalDto>> listRentalsByRentalDtoAndKeyWord(
+	public @ResponseBody
+	BaseOutput<List<AssetsRentalDto>> listRentalsByRentalDtoAndKeyWord(
 			AssetsRentalDto assetsRentalDto) {
 		try {
-			BaseOutput<List<DataDictionaryValue>> unitBou = dataDictionaryRpc.listDataDictionaryValueByDdCode("unit");
+			UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+			DataDictionaryValue dto = DTOUtils.newInstance(DataDictionaryValue.class);
+			dto.setDdCode("unit");
+			dto.setFirmId(userTicket.getFirmId());
+			BaseOutput<List<DataDictionaryValue>> unitBou = dataDictionaryRpc.listDataDictionaryValue(dto);
 			Map<String, String> unitMap = new HashMap<String, String>();
 			if (unitBou.isSuccess() && !unitBou.getData().isEmpty()) {
+
 				List<DataDictionaryValue> unitList = unitBou.getData();
 				unitMap = unitList.stream().collect(
-						Collectors.toMap(DataDictionaryValue::getDdCode, DataDictionaryValue::getName, (v1, v2) -> v2));
+						Collectors.toMap(DataDictionaryValue::getCode, DataDictionaryValue::getName, (v1, v2) -> v2));
 			}
 			List<AssetsRentalDto> list = assetsRentalService.listRentalsByRentalDtoAndKeyWord(assetsRentalDto);
 			if (!list.isEmpty()) {
-				for (AssetsRentalDto dto : list) {
-					if (!dto.getAssetsRentalItemList().isEmpty()) {
-						for (AssetsRentalItem item : dto.getAssetsRentalItemList()) {
-							if (unitMap.containsKey(item.getUnit())) {
-								item.setUnitName(unitMap.get(item.getUnit()));
-							}
-							if (item.getCorner() != null) {
-								item.setCornerName(CornerEnum.getCornerEnum(item.getCorner()).getName());
-							}
-						}
+				for (AssetsRentalDto item : list) {
+					if (unitMap.containsKey(item.getUnit())) {
+						item.setUnitName(unitMap.get(item.getUnit()));
+					}
+					if (item.getCorner() != null) {
+						item.setCornerName(CornerEnum.getCornerEnum(item.getCorner()).getName());
 					}
 				}
 			}

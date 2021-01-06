@@ -72,11 +72,13 @@ public class AssetsRentalItem extends BaseDomain {
     /**
      * 数量
      */
+    @Column(name = "`number`")
     private Double number;
 
     /**
      * 单位
      */
+    @Column(name = "`unit`")
     private String unit;
     
     /**
@@ -88,6 +90,7 @@ public class AssetsRentalItem extends BaseDomain {
     /**
      * 是否转角
      */
+    @Column(name = "`corner`")
     private Integer corner;
     
     /**
