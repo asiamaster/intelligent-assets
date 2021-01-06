@@ -81,7 +81,7 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
             }
         }
 
-        return assetsDTOS.get(0).getMarketId();
+        return assetsDTOS.get(0).getMchId();
     }
 
     @Override

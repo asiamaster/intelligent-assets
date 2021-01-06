@@ -60,7 +60,7 @@ public class LocationLeaseServiceImpl implements AssetsLeaseService {
             throw new BusinessException(ResultCode.DATA_ERROR, "合同中冷库分属不同组织，请修改后再操作");
         }
 
-        return assetsDTOS.get(0).getMarketId();
+        return assetsDTOS.get(0).getMchId();
     }
 
     @Override
