@@ -1,11 +1,31 @@
 package com.dili.ia.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.ia.domain.AssetsRental;
 import com.dili.ia.domain.AssetsRentalItem;
-import com.dili.ia.domain.Meter;
 import com.dili.ia.domain.dto.AssetsRentalDto;
+import com.dili.ia.glossary.CornerEnum;
 import com.dili.ia.service.AssetsRentalItemService;
 import com.dili.ia.service.AssetsRentalService;
 import com.dili.ia.util.AssertUtils;
@@ -15,19 +35,10 @@ import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.uap.sdk.domain.DataDictionaryValue;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.session.SessionContext;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.ibatis.annotations.Param;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * @author: xiaosa
@@ -46,6 +57,8 @@ public class AssetsRentalController {
 
 	@Autowired
 	private AssetsRentalItemService assetsRentalItemService;
+	@Autowired
+	private DataDictionaryRpc dataDictionaryRpc;
 
 	/**
 	 * 跳转到assetsRental页面
@@ -234,40 +247,41 @@ public class AssetsRentalController {
 	}
 
 	/**
-     * 根据摊位 id 查询资产出租预设摊位信息
-     * @param assetsId
-     * @return
-     */
-    @GetMapping(value="/view.action")
-    public String getRentalItemByAssetsId(ModelMap modelMap,Long assetsId){
-    	List<AssetsRentalItem> districtList = assetsRentalItemService.listItemsByRentalIdGroupByDistrict(assetsId);
-    	JSONArray disArry = new JSONArray();
-    	if(!districtList.isEmpty()) {
-    		for(AssetsRentalItem item:districtList) {
-    			JSONObject obj = new JSONObject();
-    			obj.put("firstDistrictId", item.getFirstDistrictId());
-    			obj.put("firstDistrictName", item.getFirstDistrictName());
-    			AssetsRentalItem con = new AssetsRentalItem();
-    			con.setAssetsRentalId(assetsId);
-    			con.setFirstDistrictName(item.getFirstDistrictName());
-    			List<AssetsRentalItem> items = assetsRentalItemService.list(con);
-    			JSONArray itemArry = new JSONArray();
-    			if(!items.isEmpty()) {
-    				for(AssetsRentalItem oi:items) {
-    					JSONObject itemObj = new JSONObject();
-    					itemObj.put("assetsName", oi.getAssetsName());
-    					itemObj.put("assetsId", oi.getAssetsId());
-    					itemObj.put("id", oi.getId());
-    					itemArry.add(itemObj);
-    				}
-    			}
-    			obj.put("assetsList", itemArry);
-    			disArry.add(obj);
-    		}
-    	}
-    	modelMap.addAttribute("itemList", disArry);
-    	return "assetsRental/view";
-    }
+	 * 根据摊位 id 查询资产出租预设摊位信息
+	 * 
+	 * @param assetsId
+	 * @return
+	 */
+	@GetMapping(value = "/view.action")
+	public String getRentalItemByAssetsId(ModelMap modelMap, Long assetsId) {
+		List<AssetsRentalItem> districtList = assetsRentalItemService.listItemsByRentalIdGroupByDistrict(assetsId);
+		JSONArray disArry = new JSONArray();
+		if (!districtList.isEmpty()) {
+			for (AssetsRentalItem item : districtList) {
+				JSONObject obj = new JSONObject();
+				obj.put("firstDistrictId", item.getFirstDistrictId());
+				obj.put("firstDistrictName", item.getFirstDistrictName());
+				AssetsRentalItem con = new AssetsRentalItem();
+				con.setAssetsRentalId(assetsId);
+				con.setFirstDistrictName(item.getFirstDistrictName());
+				List<AssetsRentalItem> items = assetsRentalItemService.list(con);
+				JSONArray itemArry = new JSONArray();
+				if (!items.isEmpty()) {
+					for (AssetsRentalItem oi : items) {
+						JSONObject itemObj = new JSONObject();
+						itemObj.put("assetsName", oi.getAssetsName());
+						itemObj.put("assetsId", oi.getAssetsId());
+						itemObj.put("id", oi.getId());
+						itemArry.add(itemObj);
+					}
+				}
+				obj.put("assetsList", itemArry);
+				disArry.add(obj);
+			}
+		}
+		modelMap.addAttribute("itemList", disArry);
+		return "assetsRental/view";
+	}
 
 	/**
 	 * 根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合
@@ -279,7 +293,29 @@ public class AssetsRentalController {
 	public @ResponseBody BaseOutput<List<AssetsRentalDto>> listRentalsByRentalDtoAndKeyWord(
 			AssetsRentalDto assetsRentalDto) {
 		try {
-			return BaseOutput.success().setData(assetsRentalService.listRentalsByRentalDtoAndKeyWord(assetsRentalDto));
+			BaseOutput<List<DataDictionaryValue>> unitBou = dataDictionaryRpc.listDataDictionaryValueByDdCode("unit");
+			Map<String, String> unitMap = new HashMap<String, String>();
+			if (unitBou.isSuccess()) {
+				List<DataDictionaryValue> unitList = unitBou.getData();
+				unitMap = unitList.stream().collect(
+						Collectors.toMap(DataDictionaryValue::getDdCode, DataDictionaryValue::getName, (v1, v2) -> v2));
+			}
+			List<AssetsRentalDto> list = assetsRentalService.listRentalsByRentalDtoAndKeyWord(assetsRentalDto);
+			if (!list.isEmpty()) {
+				for (AssetsRentalDto dto : list) {
+					if (!dto.getAssetsRentalItemList().isEmpty()) {
+						for (AssetsRentalItem item : dto.getAssetsRentalItemList()) {
+							if (unitMap.containsKey(item.getUnit())) {
+								item.setUnitName(unitMap.get(item.getUnit()));
+							}
+							if (item.getCorner() != null) {
+								item.setCornerName(CornerEnum.getCornerEnum(item.getCorner()).getName());
+							}
+						}
+					}
+				}
+			}
+			return BaseOutput.success().setData(list);
 		} catch (BusinessException e) {
 			logger.info("根据同一批次、同一商户、名称模糊查询摊位出租预设信息集合异常！", e);
 			return BaseOutput.failure(e.getMessage());

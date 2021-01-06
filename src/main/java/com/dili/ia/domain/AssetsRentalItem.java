@@ -78,11 +78,23 @@ public class AssetsRentalItem extends BaseDomain {
      * 单位
      */
     private String unit;
+    
+    /**
+     * 单位名称
+     */
+    @Transient
+    private String unitName;
 
     /**
      * 是否转角
      */
     private Integer corner;
+    
+    /**
+     * 转角名称
+     */
+    @Transient
+    private String cornerName;
 
     /**
      * 一级区域Id
@@ -303,5 +315,21 @@ public class AssetsRentalItem extends BaseDomain {
     public void setVersion(Integer version) {
         this.version = version;
     }
+
+	public String getUnitName() {
+		return unitName;
+	}
+
+	public void setUnitName(String unitName) {
+		this.unitName = unitName;
+	}
+
+	public String getCornerName() {
+		return cornerName;
+	}
+
+	public void setCornerName(String cornerName) {
+		this.cornerName = cornerName;
+	}
 
 }
