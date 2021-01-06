@@ -288,10 +288,14 @@ $(document).on('change', '.districtId', function() {
 let mchId = '${stockIn.mchId!}';
 //冷库区域变更  对应子单的冷库更新
 $(document).on('change', '.assetsId', function() {
-	
 	if(strIsNotEmpty($(this).val())){
 		let id = $(this).attr('id');
 		let index = id.split("_")[1];
+		if(strIsNotEmpty(mchId) && $('#mchid_'+index).val() != mchId){
+			bs4pop.alert("冷库不在同一区域!", {type: 'error'});
+			$(this).val("");
+			return;
+		}
 		mchId = $('#mchid_'+index).val();
 	}else{
 		// 判断是否清除 mchId
@@ -339,7 +343,7 @@ function changeAssets(index,districtId,value,level){
                     	var htmlConent = '<option value="">-- 请选择 --</option>';
                     	let m; //获取商户id
                 		for (let item of array) {
-                			m = item.marketId;
+                			m = item.mchId;
                 			if(item.id == value){
                     			htmlConent = htmlConent+'<option  value="'+item.id+'" selected>'+item.text+'</option>';
                 			}else{
