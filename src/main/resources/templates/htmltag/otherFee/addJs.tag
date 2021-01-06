@@ -41,7 +41,7 @@
                 return {
                     suggestions: $.map(data, function (dataItem) {
                         return $.extend(dataItem, {
-                                value: dataItem.name + '（' + dataItem.code + '）'
+                                value: dataItem.name + '（' + dataItem.keycode + '）'
                             }
                         );
                     })
