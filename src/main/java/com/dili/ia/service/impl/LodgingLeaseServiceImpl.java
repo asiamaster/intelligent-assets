@@ -62,7 +62,7 @@ public class LodgingLeaseServiceImpl implements AssetsLeaseService {
             throw new BusinessException(ResultCode.DATA_ERROR, "合同中公寓分属不同组织，请修改后再操作");
         }
 
-        return assetsDTOS.get(0).getMarketId();
+        return assetsDTOS.get(0).getMchId();
     }
 
 
