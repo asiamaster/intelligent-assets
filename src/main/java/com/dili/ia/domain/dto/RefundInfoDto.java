@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.dili.ia.domain.BusinessChargeItem;
+import com.dili.ia.domain.RefundFeeItem;
+
 /**
  * <B>Description</B> 本软件源代码版权归农丰时代及其团队所有,未经许可不得任意复制与传播 <B>农丰时代科技有限公司</B>
  *
@@ -72,6 +75,11 @@ public class RefundInfoDto {
 	 * 银行卡号
 	 */
 	private String bankCardNo;
+	
+	/**
+	 * 退款费用项
+	 */
+	private List<RefundFeeItem> refundFeeItems;
 
 
 	public String getPayeeCellphone() {
@@ -169,6 +177,16 @@ public class RefundInfoDto {
 	public void setBankCardNo(String bankCardNo) {
 		this.bankCardNo = bankCardNo;
 	}
+
+	public List<RefundFeeItem> getRefundFeeItems() {
+		return refundFeeItems;
+	}
+
+	public void setRefundFeeItems(List<RefundFeeItem> refundFeeItems) {
+		this.refundFeeItems = refundFeeItems;
+	}
+
+	
 	
 	
 

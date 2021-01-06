@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.dili.ia.domain.BusinessChargeItem;
+import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.LaborDto;
 import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
@@ -18,6 +19,7 @@ import com.dili.ia.domain.dto.printDto.StockInPrintDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.LaborService;
+import com.dili.ia.service.RefundFeeItemService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.settlement.domain.SettleFeeItem;
@@ -45,7 +47,7 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 	private LaborService laborService;
 	
 	@Autowired
-	private BusinessChargeItemService businessChargeItemService;
+	private RefundFeeItemService refundFeeItemService;
 	
 	@Override
 	public BaseOutput updateHandler(RefundOrder refundOrder) {
@@ -79,6 +81,10 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 	@Override
 	public BaseOutput cancelHandler(RefundOrder refundOrder) {
 		laborService.cancleRefund(refundOrder);
+		//删除退款项
+		RefundFeeItem item = new RefundFeeItem();
+		item.setRefundOrderCode(refundOrder.getCode());
+		refundFeeItemService.deleteByExample(item);
 		return BaseOutput.success();
 	}
 
@@ -103,12 +109,12 @@ public class LaborRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Lo
 	public List<SettleFeeItem> buildSettleFeeItem(RefundOrder refundOrder) {
 
 		List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
-		List<BusinessChargeItem> items = businessChargeItemService.getByBizCode(refundOrder.getBusinessCode());
-		for (BusinessChargeItem item : items) {
+		List<RefundFeeItem> items = refundFeeItemService.getByBizCode(refundOrder.getCode());
+		for (RefundFeeItem item : items) {
 			SettleFeeItem settleFeeItem = new SettleFeeItem();
 			settleFeeItem.setChargeItemId(item.getChargeItemId());
 			settleFeeItem.setChargeItemName(item.getChargeItemName());
-			settleFeeItem.setAmount(item.getPaymentAmount());
+			settleFeeItem.setAmount(item.getAmount());
 			settleFeeItemList.add(settleFeeItem);
 		}
 		return settleFeeItemList;

@@ -25,13 +25,13 @@
 					</div>
 					<div class="form-group col-4">
 						
-						<label for="">区域:</label>
+						<label for="">区域:<i class="red">*</i></label>
 		                <div class="input-group">
-		                    <select class="form-control districtId" id="districtId_one_{{index}}" name="districtId_one" required>
+		                    <select class="form-control districtId districtId_one" id="districtId_one_{{index}}" name="districtId_one" required>
 
 		                    </select>
 		                    <select class="form-control districtId" id="districtId_two_{{index}}" name="districtId_two">
-		                        <option value="">-- 全部 --</option>
+		                        <option value="">-- 请选择上级区域 --</option>
 		                    </select>
 		                </div>
 					</div>
@@ -40,6 +40,7 @@
 						<select id="assetsId_{{index}}" name="assetsId" class="form-control assetsId"  required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
+						<input type="hidden" id="mchid_{{index}}" >
 						
 					</div>
 					<div class="form-group col-4">
@@ -100,13 +101,13 @@
 					</div>
 					
 					<div class="form-group col-4">
-					<label for="">区域:</label>
+					<label for="">区域:<i class="red">*</i></label>
 	                <div class="input-group">
-	                    <select class="form-control districtId" id="districtId_one_{{index}}" name="districtId_one" required>
+	                    <select class="form-control districtId districtId_one" id="districtId_one_{{index}}" name="districtId_one" required>
 
 	                    </select>
 	                    <select class="form-control districtId" id="districtId_two_{{index}}" name="districtId_two">
-	                        <option value="">-- 全部 --</option>
+	                        <option value="">-- 请选择上级区域 --</option>
 	                    </select>
 	                </div>
 					</div>
@@ -115,6 +116,8 @@
 						<select id="assetsId_{{index}}" name="assetsId" class="form-control" required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
+						<input type="hidden" id="mchid_{{index}}" >
+
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库件数:<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
@@ -159,13 +162,13 @@
 
 					<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
 					<div class="form-group col-4">
-					<label for="">区域:</label>
+					<label for="">区域:<i class="red">*</i></label>
 	                <div class="input-group">
-	                    <select class="form-control districtId" id="districtId_one_{{index}}" name="districtId_one" required>
+	                    <select class="form-control districtId districtId_one" id="districtId_one_{{index}}" name="districtId_one" required>
 
 	                    </select>
 	                    <select class="form-control districtId" id="districtId_two_{{index}}" name="districtId_two" >
-	                        <option value="">-- 全部 --</option>
+	                        <option value="">-- 请选择上级区域 --</option>
 	                    </select>
 	                </div>
 					</div>
@@ -174,6 +177,8 @@
 						<select id="assetsId_{{index}}" name="assetsId" class="form-control assetsId" required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
+						<input type="hidden" id="mchid_{{index}}" >
+
 					</div>
 					<div class="form-group col-4">
 						<label for="quantity" class="">入库件数:<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change get-cost count-weight"
@@ -222,9 +227,43 @@
 
 
 
-// 部门变动 冷库区变更
-//冷库区域变更  对应子单的冷库更新
+// 部门变动 冷库区域变更
 $(document).on('change', '#departmentId', function() {
+	$('.districtId').val("");
+	$('.districtId').html('<option value="" selected="">--请选择上级区域--</option>');
+	$('.assetsId').val("");
+	$('.assetsId').html('<option value="" selected="">--请选择区域--</option>');
+	let data = [];
+	// 根据部门获取区域
+	$.ajax({
+		type: "POST",
+		url: "/stock/stockIn/searchDistrict.action",
+		data: {
+			parentId: 0,
+			departmentId:$('#departmentId').val()},
+		success: function (data) {
+			if (data.code == "200") {
+				var array = $.map(data.data, function (obj) {
+					obj.text = obj.text || obj.name;
+					return obj;
+				});
+				$("#details").find(".districtId_one").each(function(){
+					if (array.length == 0) {
+						let htmlConent = '<option value="" selected="">--无--</option>';
+						$('#districtId_one_'+index).html(htmlConent);
+					}else{
+						//当index大于0 标记为新增详情,只触发当前index的更新
+						let index = $(this).attr('id').split("_")[2];
+						let htmlConent = '<option value="" selected="">--请选择--</option>';
+						for (let item of array) {
+							htmlConent+='<option merchantid="'+item.marketId+'" value="'+item.id+'" >'+item.name+'</option>'
+						}
+						$('#districtId_one_'+index).html(htmlConent);
+					}
+				})
+			}
+		}
+	});
 	
 });
 // index 第几个子单  parent 父级区域   value 默认值    level  区域等级(one/two)
@@ -244,7 +283,6 @@ function changeDistrict(index,parent,value,level){
 					obj.text = obj.text || obj.name;
 					return obj;
 				});
-				
 				if (array.length == 0) {
 					$('#districtId_one_'+index).attr('name','districtId');
 					$('#districtId_two_'+index).attr('name','districtId_two');
@@ -288,29 +326,35 @@ $(document).on('change', '.districtId', function() {
 let mchId = '${stockIn.mchId!}';
 //冷库区域变更  对应子单的冷库更新
 $(document).on('change', '.assetsId', function() {
+	// 判断是否清除 mchId 逻辑 判断选择了几个冷库,当全部冷库清空,商户id重置
+	let count = 0;
+	$('.assetsId').each(function(){
+		if(strIsNotEmpty($(this).val())){
+			count++;
+		}
+	})
+	// 解决选择 数据清空问题
+	if(!strIsNotEmpty($(this).val())){
+		if(count == 0){
+			mchId ="";
+		}
+	}else{
+		if(count == 1){
+			mchId ="";
+		}
+	}
+	
+	
 	if(strIsNotEmpty($(this).val())){
 		let id = $(this).attr('id');
 		let index = id.split("_")[1];
 		if(strIsNotEmpty(mchId) && $('#mchid_'+index).val() != mchId){
-			bs4pop.alert("冷库不在同一区域!", {type: 'error'});
+			bs4pop.alert("所选冷库不属于同一商户,请重新选择区域!", {type: 'error'});
 			$(this).val("");
 			return;
 		}
 		mchId = $('#mchid_'+index).val();
-	}else{
-		// 判断是否清除 mchId
-		let count = 0;
-		$('.assetsId').each(function(){
-			if(strIsNotEmpty($(this).val())){
-				count++;
-			}
-		})
-		if(count == 0){
-			mchId ="";
-		}
-		console.log("mchId:"+mchId);
 	}
-	
 });
 
 function changeAssets(index,districtId,value,level){
@@ -318,13 +362,13 @@ function changeAssets(index,districtId,value,level){
     	let param = {};
     	if(level == 1){
     		param = {firstDistrictId: districtId,
-                	assetsType:2,
-                	mchId:mchId
+                	assetsType:2
+                	//mchId:mchId
                 }
     	}else {
     		param = {secondDistrictId: districtId,
-                	assetsType:2,
-                	mchId:mchId
+                	assetsType:2
+                	//mchId:mchId
                 }
     	}
         $.ajax({
@@ -351,7 +395,7 @@ function changeAssets(index,districtId,value,level){
                 			}
                 		}
                 		$('#assetsId_'+index).html(htmlConent);
-                		$('#assetsId_'+index).after('<input type="hidden" id="mchid_'+index+'" value ="'+m+'">');
+                		$('#mchid_'+index).val(m);
                     }
                 }
             }

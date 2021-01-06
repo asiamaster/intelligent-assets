@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.PaymentOrder;
+import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.Stock;
 import com.dili.ia.domain.StockIn;
@@ -49,6 +50,7 @@ import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.RefundFeeItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.service.StockInDetailService;
 import com.dili.ia.service.StockInService;
@@ -114,6 +116,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	@Autowired
 	private BusinessChargeItemService businessChargeItemService;
+	
+	@Autowired
+	private RefundFeeItemService refundFeeItemService;
 
 	@SuppressWarnings("all")
 	@Autowired
@@ -496,12 +501,31 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		StockIn domain = new StockIn(userTicket);
 		updateStockIn(domain, stockIn.getCode(), stockIn.getVersion(), StockInStateEnum.SUBMITTED_REFUND);
+		
 		// 获取结算单
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, stockIn.getCode());
 		RefundOrder refundOrder = buildRefundOrderDto(userTicket, refundInfoDto, stockIn,order);
-		
+		// 构建退款费用
+		refundFeeItemService.batchInsert(buildRefundFeeItem(refundInfoDto.getRefundFeeItems(), refundOrder.getId(),refundOrder.getCode()));
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 
+	}
+	
+	/**
+	 * 
+	 * @Title buildRefundFeeItem
+	 * @param businessChargeItems
+	 * @param businessId
+	 * @param businessCode
+	 */
+	private List<RefundFeeItem> buildRefundFeeItem(List<RefundFeeItem> businessChargeItems,Long businessId,String businessCode){
+		businessChargeItems.stream().forEach(item -> {
+			item.setRefundOrderId(businessId);
+			item.setRefundOrderCode(businessCode);
+			item.setAmount(item.getAmount());
+			item.setCreateTime(LocalDateTime.now());
+		});
+		return businessChargeItems;
 	}
 	
 	@Override

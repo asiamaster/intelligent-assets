@@ -1,5 +1,25 @@
 package com.dili.ia.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.domain.TaskMapping;
@@ -15,16 +35,26 @@ import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
 import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.ia.cache.BpmDefKeyConfig;
 import com.dili.ia.domain.ApprovalProcess;
+import com.dili.ia.domain.BusinessChargeItem;
+import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.account.AccountInfo;
 import com.dili.ia.domain.dto.ApprovalParam;
+import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.RefundOrderPrintDto;
-import com.dili.ia.glossary.*;
+import com.dili.ia.glossary.ApprovalResultEnum;
+import com.dili.ia.glossary.ApprovalStateEnum;
+import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.BpmEventConstants;
+import com.dili.ia.glossary.EarnestOrderStateEnum;
+import com.dili.ia.glossary.RefundOrderStateEnum;
 import com.dili.ia.mapper.AssetsLeaseOrderItemMapper;
 import com.dili.ia.mapper.RefundOrderMapper;
 import com.dili.ia.service.AccountService;
 import com.dili.ia.service.ApprovalProcessService;
+import com.dili.ia.service.BusinessChargeItemService;
+import com.dili.ia.service.RefundFeeItemService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.BeanMapUtil;
@@ -56,23 +86,9 @@ import com.dili.uap.sdk.exception.NotLoginException;
 import com.dili.uap.sdk.redis.UserResourceRedis;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
-import io.seata.spring.annotation.GlobalTransactional;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import cn.hutool.core.collection.CollectionUtil;
+import io.seata.spring.annotation.GlobalTransactional;
 
 /**
  * <B>Description</B>
@@ -129,6 +145,13 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     private UserResourceRedis userResourceRedis;
     @Autowired
     private AccountService accountService;
+    
+    @Autowired
+    private BusinessChargeItemService businessChargeItemService;
+    
+    @Autowired
+	private RefundFeeItemService refundFeeItemService;
+    
     @Autowired @Lazy
     private List<RefundOrderDispatcherService> refundBizTypes;
     private Map<String,RefundOrderDispatcherService> refundBiz = new HashMap<>();
@@ -886,7 +909,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
 	@Override
-	public void doUpdatedHandlerV1(RefundOrder refundOrder) {
+	public void doUpdatedHandlerV1(RefundOrderDto refundOrder) {
 		RefundOrder refundOrderDto = get(refundOrder.getId());
         SpringUtil.copyPropertiesIgnoreNull(refundOrder, refundOrderDto);
         //获取业务service,调用业务实现
@@ -899,6 +922,33 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
             }
             
         }
+        if(CollectionUtil.isNotEmpty(refundOrder.getRefundFeeItems())) {
+    		List<RefundFeeItem> refundFeeItems = refundOrder.getRefundFeeItems();
+    		refundFeeItemService.batchUpdateSelective(refundFeeItems);
+        }
         doUpdatedHandler(refundOrderDto);
 	}
+	
+	
+	@Override
+	public List<JSONObject> getBizFeeItems(RefundOrder refundOrder){
+		// 获取缴费金额
+		List<BusinessChargeItem> businessItems = businessChargeItemService.getByBizCode(refundOrder.getBusinessCode());
+		// 获取退款金额
+		List<RefundFeeItem> refundItems = refundFeeItemService.getByBizCode(refundOrder.getCode());
+		// 组装数据
+		List<JSONObject> result = new ArrayList<JSONObject>();
+		refundItems.stream().forEach(it -> {
+			JSONObject json = (JSONObject) JSON.toJSON(it);
+			// 获取可退总额
+			for (BusinessChargeItem item : businessItems) {
+				if(item.getChargeItemId().equals(it.getChargeItemId())) {
+					json.put("totalAmount", item.getAmount());
+				}
+			}
+			result.add(json);
+		});
+		return result;
+	};
+	
 }

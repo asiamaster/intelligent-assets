@@ -1066,12 +1066,14 @@
         $('#btn_upload').attr('disabled', false);
         $('#btn_download').attr('disabled', false);
         $('#btn_contract').attr('disabled', false);
-        if (row.state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()} || row.state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
-            defaultBizProcess(row);
-        }
         //只要有审批流程实例id就可以查看流程图
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
+        }
+        //因为已到期和已停租不在流程中管理，这里需要单独处理
+        if (row.state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()} || row.state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
+            defaultBizProcess(row);
+            return;
         }
         if(row.bizProcessInstanceId){
             var url = "${contextPath}/leaseOrder/listEventName.action";
@@ -1093,6 +1095,13 @@
                         if(approvalState  == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
                             $('#btn_withdraw').attr('disabled', true);
                         }
+                        //待审批和审批拒绝状态时，必须有跳过审批权限才能直接提交审批
+                        if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}
+                        || approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVAL_DENIED.getCode()}){
+                            <#resource code="skipAssetsLeaseApproval">
+                            $('#btn_submit').attr('disabled', false);
+                            </#resource>
+                        }
                     } else {
                         bs4pop.alert(output.result, {type: 'error'});
                     }
@@ -1105,8 +1114,6 @@
         }else{
             defaultBizProcess(row);
         }
-
-
     });
 
     /**

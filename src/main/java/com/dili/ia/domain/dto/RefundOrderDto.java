@@ -1,11 +1,13 @@
 package com.dili.ia.domain.dto;
 
+import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ss.domain.annotation.Like;
 import com.dili.ss.domain.annotation.Operator;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -21,6 +23,11 @@ public class RefundOrderDto extends RefundOrder {
     @Operator(Operator.LITTLE_EQUAL_THAN)
     private LocalDateTime createdEnd;
 
+    /**
+	 * 退款费用项
+	 */
+	private List<RefundFeeItem> refundFeeItems;
+    
     /**
      * 昵称模糊查询
      * @return
@@ -52,4 +59,14 @@ public class RefundOrderDto extends RefundOrder {
     public void setLikeCustomerName(String likeCustomerName) {
         this.likeCustomerName = likeCustomerName;
     }
+
+	public List<RefundFeeItem> getRefundFeeItems() {
+		return refundFeeItems;
+	}
+
+	public void setRefundFeeItems(List<RefundFeeItem> refundFeeItems) {
+		this.refundFeeItems = refundFeeItems;
+	}
+    
+    
 }
