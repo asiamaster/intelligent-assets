@@ -157,6 +157,7 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
                 itemParam.setCreateTime(LocalDateTime.now());
                 itemParam.setModifyTime(LocalDateTime.now());
                 itemParam.setCreator(userTicket.getRealName());
+                itemParam.setMarketId(userTicket.getFirmId());
                 itemParam.setChargeItemId(departmentChargeItemDto.getChargeItemId());
                 itemParam.setChargeItemName(itemList.get(0).getChargeItemName());
                 itemParam.setDepartmentId(departmentInfo.getDepartmentId());

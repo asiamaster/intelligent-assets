@@ -188,7 +188,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
         if (null == dto.getId()) {
             //租赁单新增
-            checkContractNo(null, dto.getContractNo(), true);//合同编号验证重复
+            checkContractNo(null, dto.getContractNo(), true);//线下合同号验证重复
             BaseOutput<String> bizNumberOutput = uidFeignRpc.getBizNumber(userTicket.getFirmCode() + "_" + BizTypeEnum.getBizTypeEnum(dto.getBizType()).getEnName() + "_" + BizNumberTypeEnum.LEASE_ORDER.getCode());
             if (!bizNumberOutput.isSuccess()) {
                 LOG.info("租赁单编号生成异常");
@@ -218,7 +218,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         } else {
             //租赁单修改
             checkDepositOrderPayState(dto); //检查保证金单交费状态 （已交费的单子，不能修改）
-            checkContractNo(dto.getId(), dto.getContractNo(), false);//合同编号验证重复
+            checkContractNo(dto.getId(), dto.getContractNo(), false);//线下合同号验证重复
             AssetsLeaseOrder oldLeaseOrder = get(dto.getId());
             if (!LeaseOrderStateEnum.CREATED.getCode().equals(oldLeaseOrder.getState())
                     || ApprovalStateEnum.APPROVED.getCode().equals(oldLeaseOrder.getApprovalState())
@@ -533,7 +533,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
         LoggerContext.put("logContent", approvalParam.getOpinion());
         //提交审批任务(现在不需要根据区域名称来判断流程)
-//        completeTask(approvalParam.getTaskId(), "false", getLevel1DistrictName(districtId));
         completeTask(approvalParam.getTaskId(), "false");
     }
 
@@ -1092,6 +1091,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      * 租赁单到期处理
      *
      * @param o
+     *
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -1321,31 +1321,9 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             return BaseOutput.failure("多人操作，请稍后重试");
         }
 
-        LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE,BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE,BizTypeEnum.getBizTypeEnum(oldLeaseOrder.getBizType()).getEnName());
         LoggerUtil.buildLoggerContext(oldLeaseOrder.getId(), oldLeaseOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success();
-    }
-
-    /**
-     * 获取一级区域名称,用于流程判断
-     *
-     * @return
-     */
-    public String getLevel1DistrictName(Long districtId) {
-        BaseOutput<DistrictDTO> districtOutput = assetsRpc.getDistrictById(districtId);
-        if (!districtOutput.isSuccess()) {
-            throw new AppException(ResultCode.DATA_ERROR, districtOutput.getMessage());
-        }
-        //构建一级区域名称，用于流程流转
-        if (districtOutput.getData().getParentId() == 0L || "0".equals(districtOutput.getData().getParentId())) {
-            return districtOutput.getData().getName();
-        } else {
-            BaseOutput<DistrictDTO> parentDistrictOutput = assetsRpc.getDistrictById(districtOutput.getData().getParentId());
-            if (!parentDistrictOutput.isSuccess()) {
-                throw new AppException(ResultCode.DATA_ERROR, parentDistrictOutput.getMessage());
-            }
-            return parentDistrictOutput.getData().getName();
-        }
     }
 
     @Override
@@ -1730,7 +1708,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
     }
 
     /**
-     * 合同编号验重
+     * 线下合同号验重
      *
      * @param leaseOrderId 待修改的租赁单Id
      * @param contractNo
@@ -1742,12 +1720,12 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             condition.setContractNo(contractNo);
             List<AssetsLeaseOrder> leaseOrders = list(condition);
             if (isAdd && CollectionUtils.isNotEmpty(leaseOrders)) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "合同编号不允许重复使用，请修改");
+                throw new BusinessException(ResultCode.DATA_ERROR, "线下合同号不允许重复使用，请修改");
             } else {
                 if (leaseOrders.size() == 1) {
                     AssetsLeaseOrder leaseOrder = leaseOrders.get(0);
                     if (!leaseOrder.getId().equals(leaseOrderId)) {
-                        throw new BusinessException(ResultCode.DATA_ERROR, "合同编号不允许重复使用，请修改");
+                        throw new BusinessException(ResultCode.DATA_ERROR, "线下合同号不允许重复使用，请修改");
                     }
                 }
             }

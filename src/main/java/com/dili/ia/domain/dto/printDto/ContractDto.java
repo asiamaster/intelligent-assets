@@ -16,7 +16,7 @@ import java.util.Map;
 public class ContractDto {
 	
 	/**
-	 * 合同编号
+	 * 线下合同号
 	 */
 	private String contractNo;
 	
