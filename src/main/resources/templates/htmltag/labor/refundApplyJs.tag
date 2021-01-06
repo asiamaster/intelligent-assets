@@ -67,35 +67,17 @@ $(function () {
  */
 function buildFormData(){
 	let formData = $("input:not(table input),textarea,select").serializeObject();
-	
+	let refundFeeItems = [];
 	$("form").find(".chargeItem").each(function(){
 		let businessCharge = {};
+		businessCharge.chargeItemName=$(this).attr("chargeItem");
 		businessCharge.amount=parseInt($(this).val())*100;
-		businessCharge.id=$(this).attr("item-id");
-		businessCharge.version=$(this).attr("chargeItem-version");
+		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
 		if (businessCharge != {}) {
-			//businessChargeDtos.push(businessCharge);
+			refundFeeItems.push(businessCharge);
 		}
 	})
-	
-	let transferDeductionItems = [];
-
-	$("#transferTable tbody").find("tr").each(function(){
-		let transferDeductionItem = {};
-		$(this).find("input").each(function(t,el){
-			if(!this.value){
-				return false;
-			}
-			let fieldName = $(this).attr("name").split('_')[0];
-			transferDeductionItem[fieldName] = $(this).hasClass('money')? Number($(this).val()).mul(100) : $(this).val();
-		});
-		if (Object.keys(transferDeductionItem).length > 0) {
-			transferDeductionItems.push(transferDeductionItem);
-		}
-	});
-
-	// 构建退款参数
-	formData.transferDeductionItems = transferDeductionItems;
+	formData.refundFeeItems = refundFeeItems;
 	bui.util.yuanToCentForMoneyEl(formData);
 	return JSON.stringify(formData);
 }
@@ -108,10 +90,13 @@ function calcTotalRefundAmount(){
 	$("form").find(".chargeItem").each(function() {
 		total = parseInt(total) + parseInt($(this).val());
 		$('#totalRefundAmount').val((total.mul(100)).centToYuan());
+	    $('[name="payeeAmount"]').val((total.mul(100)).centToYuan());
 	});
 }
 
-
+$(document).on('input', '.chargeItem', function(){
+	calcTotalRefundAmount();
+})
 
 //费用联动
 $(document).on('input', '[name="totalRefundAmount"]', function(){

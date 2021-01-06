@@ -1,7 +1,11 @@
 package com.dili.ia.service;
 
+import java.util.List;
+
+import com.alibaba.fastjson.JSONObject;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.ApprovalParam;
+import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseService;
@@ -85,5 +89,13 @@ public interface RefundOrderService extends BaseService<RefundOrder, Long> {
      * @param refundOrder 退款单
      * @return BaseOutput
      * */
-    void doUpdatedHandlerV1(RefundOrder refundOrder);
+    void doUpdatedHandlerV1(RefundOrderDto refundOrder);
+    
+	/**
+	 * 
+	 * 获取退款单费用项信息
+	 * @Title getBizFeeItems
+	 * @param refundOrder
+	 */
+	List<JSONObject> getBizFeeItems(RefundOrder refundOrder);
 }

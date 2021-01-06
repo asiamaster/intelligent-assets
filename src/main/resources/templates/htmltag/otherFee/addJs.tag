@@ -20,11 +20,11 @@
         $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
         $('#assetsName-error').remove();
         $('#assetsNameInput').attr('name', '');
-        if($(this).val() == 1 ) {
+        // if($(this).val() == 1 ) {
             $('#assetsName').show();
-        } else {
-            $('#assetsNameInput').attr('name', 'assetsName').show();
-        }
+        // } else {
+        //     $('#assetsNameInput').attr('name', 'assetsName').show();
+        // }
     })
 
     //品类搜索

@@ -440,8 +440,14 @@ public class RefundOrderController {
                     || refundOrder.getBizType().equals(BizTypeEnum.LOCATION_LEASE.getCode())
                     || refundOrder.getBizType().equals(BizTypeEnum.LODGING_LEASE.getCode())) {
                 return "forward:/leaseOrder/refundApply.html?refundOrderId=" + id + "&leaseOrderItemId=" + refundOrder.getBusinessItemId();
+            } else if (refundOrder.getBizType().equals(BizTypeEnum.LABOR_VEST.getCode())
+                    || refundOrder.getBizType().equals(BizTypeEnum.MESSAGEFEE.getCode())
+                    || refundOrder.getBizType().equals(BizTypeEnum.STOCKIN.getCode())) {
+            	//获取业务数据
+                modelMap.put("businessChargeItems", refundOrderService.getBizFeeItems(refundOrder));
+                return "refundOrder/updateView/refundApplyCommon";
             }
-
+            
         }
         return "refundOrder/updateView/refundApply";
     }
@@ -452,6 +458,17 @@ public class RefundOrderController {
      */
     @PostMapping(value="/doUpdate.action")
     public @ResponseBody BaseOutput doUpdate(RefundOrderDto dto) {
+    	refundOrderService.doUpdatedHandlerV1(dto);
+		return BaseOutput.success("退款单修改成功!");
+    	
+    }
+    
+    /**
+     * 修改退款单
+     * @Title doUpdate
+     */
+    @PostMapping(value="/doUpdateV1.action")
+    public @ResponseBody BaseOutput doUpdateV1(@RequestBody RefundOrderDto dto) {
     	refundOrderService.doUpdatedHandlerV1(dto);
 		return BaseOutput.success("退款单修改成功!");
     	

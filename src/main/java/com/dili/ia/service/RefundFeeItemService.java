@@ -21,4 +21,11 @@ public interface RefundFeeItemService extends BaseService<RefundFeeItem, Long> {
      * @return
      */
     List<Map<String, String>> queryRefundFeeItem(List<Long> refundOrderIds, List<BusinessChargeItemDto> chargeItemDtos);
+    
+    /**
+     * 根据退款单号获取 退款费用详情
+     * @Title getByBizCode
+     * @param bizCode
+     */
+    List<RefundFeeItem> getByBizCode(String bizCode);
 }
