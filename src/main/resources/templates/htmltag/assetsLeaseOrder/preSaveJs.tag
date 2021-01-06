@@ -171,6 +171,7 @@
     var categoryAutoCompleteOption = {
         width: '100%',
         language: 'zh-CN',
+        minimumInputLength: 1,
         maximumSelectionLength: 10,
         multiple: true,
         ajax: {
