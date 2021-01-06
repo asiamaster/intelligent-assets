@@ -244,6 +244,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
     @Override
     @Transactional
+    @GlobalTransactional
     public void submitForApproval(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
