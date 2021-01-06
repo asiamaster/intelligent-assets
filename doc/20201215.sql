@@ -16,11 +16,6 @@ ALTER TABLE `dili_ia`.`assets_lease_order`
 ADD COLUMN `biz_type` varchar(120) NULL COMMENT '业务类型（数据字典值编码 1：摊位租赁 4：冷库租赁 5：公寓租赁）' AFTER `assets_type`;
 ALTER TABLE `dili_ia`.`assets_lease_order`
 ADD COLUMN `mch_id` bigint(20) NULL COMMENT '商户ID' AFTER `market_code`;
--- 处理线上老数据商户字段
-UPDATE dili_ia.assets_lease_order set mch_id = market_id WHERE mch_id IS NULL;
-UPDATE dili_ia.payment_order set mch_id = market_id WHERE mch_id IS NULL;
-UPDATE dili_ia.refund_order set mch_id = market_id WHERE mch_id IS NULL;
-
 UPDATE dili_ia.assets_lease_order set mch_id = market_id WHERE mch_id IS NULL;
 ALTER TABLE `dili_ia`.`assets_lease_order`
 ADD COLUMN `organization_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '组织类型,个人/企业' AFTER `customer_name`;
@@ -86,6 +81,11 @@ DROP COLUMN state,
 DROP COLUMN payee_customer_account_id,
 DROP COLUMN payer_transaction_details_code,
 DROP COLUMN payee_transaction_code;
+
+-- 处理线上老数据商户字段
+UPDATE dili_ia.assets_lease_order set mch_id = market_id WHERE mch_id IS NULL;
+UPDATE dili_ia.payment_order set mch_id = market_id WHERE mch_id IS NULL;
+UPDATE dili_ia.refund_order set mch_id = market_id WHERE mch_id IS NULL;
 
 -- 处理租赁单区域老数据
 UPDATE `dili_ia`.assets_lease_order_item ali ,`dili-basic-data`.district dt
