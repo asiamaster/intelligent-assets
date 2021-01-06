@@ -533,7 +533,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, userTicket.getFirmId());
         LoggerContext.put("logContent", approvalParam.getOpinion());
         //提交审批任务(现在不需要根据区域名称来判断流程)
-//        completeTask(approvalParam.getTaskId(), "false", getLevel1DistrictName(districtId));
         completeTask(approvalParam.getTaskId(), "false");
     }
 
@@ -1092,6 +1091,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
      * 租赁单到期处理
      *
      * @param o
+     *
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -1324,28 +1324,6 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_TYPE,BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getEnName());
         LoggerUtil.buildLoggerContext(oldLeaseOrder.getId(), oldLeaseOrder.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
         return BaseOutput.success();
-    }
-
-    /**
-     * 获取一级区域名称,用于流程判断
-     *
-     * @return
-     */
-    public String getLevel1DistrictName(Long districtId) {
-        BaseOutput<DistrictDTO> districtOutput = assetsRpc.getDistrictById(districtId);
-        if (!districtOutput.isSuccess()) {
-            throw new AppException(ResultCode.DATA_ERROR, districtOutput.getMessage());
-        }
-        //构建一级区域名称，用于流程流转
-        if (districtOutput.getData().getParentId() == 0L || "0".equals(districtOutput.getData().getParentId())) {
-            return districtOutput.getData().getName();
-        } else {
-            BaseOutput<DistrictDTO> parentDistrictOutput = assetsRpc.getDistrictById(districtOutput.getData().getParentId());
-            if (!parentDistrictOutput.isSuccess()) {
-                throw new AppException(ResultCode.DATA_ERROR, parentDistrictOutput.getMessage());
-            }
-            return parentDistrictOutput.getData().getName();
-        }
     }
 
     @Override
