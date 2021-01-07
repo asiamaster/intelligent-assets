@@ -139,7 +139,7 @@
 
     $('#departmentId').on('change', function () {
         let departmentId = $(this).val();
-        $('#chargeItemId option').remove();
+        $('#chargeItemId').html('<option value="" selected="">-- 请选择 --</option>');
         $('#chargeItemName').val('')
         $.ajax({
             type: 'get',
