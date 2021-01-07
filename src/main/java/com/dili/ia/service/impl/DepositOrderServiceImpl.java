@@ -1297,6 +1297,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional
     @Override
     public BaseOutput batchCancelDepositOrder(String bizType, Long businessId) {
         // 已创建 和 已提交 需要取消单子， 已交费 需要解除关联关系， 其它状态就抛出异常
@@ -1314,12 +1315,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
                     this.cancelDepositOrder(o);
                 }else if (o.getState().equals(DepositOrderStateEnum.SUBMITTED.getCode())){
                     //先撤回，然后取消
-                    BaseOutput<DepositOrder> out = this.withdrawDepositOrder(o.getId());
-                    if (!out.isSuccess()){
-                        LOG.error("取消保证金，撤回已提交保证金失败：{}", out.getMessage());
-                        throw new BusinessException(ResultCode.APP_ERROR, "取消保证金，撤回已提交保证金失败！");
-                    }
-                    this.cancelDepositOrder(o);
+                    this.withdrawAndCancelDepositOrder(o.getId());
                 }else {
                     //其它状态，还是关联保证金单的话，直接解除关联关系
                     o.setIsRelated(YesOrNoEnum.NO.getCode());
@@ -1349,6 +1345,34 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
             }
         }
         return BaseOutput.success();
+    }
+
+
+    private BaseOutput<DepositOrder> withdrawAndCancelDepositOrder(Long depositOrderId) {
+        //改状态，删除缴费单，通知撤回结算中心缴费单
+        DepositOrder depositOrder = this.get(depositOrderId);
+        if (null == depositOrder || !depositOrder.getState().equals(DepositOrderStateEnum.SUBMITTED.getCode())){
+            throw new BusinessException(ResultCode.DATA_ERROR, "撤回失败，状态已变更！");
+        }
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
+        if (null == userTicket){
+            throw new BusinessException(ResultCode.NOT_AUTH_ERROR, "未登录！");
+        }
+        depositOrder.setWithdrawOperatorId(userTicket.getId());
+        depositOrder.setWithdrawOperator(userTicket.getRealName());
+        depositOrder.setCancelerId(userTicket.getId());
+        depositOrder.setCanceler(userTicket.getRealName());
+        depositOrder.setState(DepositOrderStateEnum.CANCELD.getCode());
+        //取消解除关联操作关系
+        depositOrder.setIsRelated(YesOrNoEnum.NO.getCode());
+        if (this.updateSelective(depositOrder) == 0) {
+            LOG.info("撤回保证金【修改保证金单状态】失败,乐观锁生效。【保证金单ID：】" + depositOrderId);
+            throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
+        }
+
+        PaymentOrder pb = this.findPaymentOrder(userTicket.getFirmId(),PaymentOrderStateEnum.NOT_PAID.getCode(), depositOrder.getId(), depositOrder.getCode()).stream().findFirst().orElse(null);
+        withdrawPaymentOrder(pb);
+        return BaseOutput.success().setData(depositOrder);
     }
 
     public void cancelDepositOrder(DepositOrder depositOrder) {

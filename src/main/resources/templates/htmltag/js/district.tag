@@ -1,8 +1,8 @@
 <div class="input-group" data-option-text="${_optionText!}">
-    <select class="form-control" id="firstDistrictId" name="${_firstDistrictName!}" required>
+    <select class="form-control" id="firstDistrictId" name="${_firstDistrictName!}" <%if(isNotEmpty(_isRequiredFirst) && _isRequiredFirst == "true"){%> required <%}%> >
         <option value="${_firstDistrictId!}"></option>
     </select>
-    <select class="form-control" id="secondDistrictId" name="${_secondDistrictName!}" >
+    <select class="form-control" id="secondDistrictId" name="${_secondDistrictName!}" <%if(isNotEmpty(_isRequiredSecond) && _isRequiredSecond == "true"){%> required <%}%> >
         <option value="${_secondDistrictId!}"></option>
     </select>
 </div>

@@ -939,8 +939,8 @@
 	        	fileList :[],
 	        	upList:[],
 	        	successIndex : 0,
-	        	uploadurl : "http://gateway.diligrp.com:8285/dili-dfs/file/upload?accessToken=1d4e977ad7504808a892664123914e96.ibOsv54WR96-bIQT88L6uA",
-	        	downloadUrl : "http://gateway.diligrp.com:8285/dili-dfs/file/download",
+	        	uploadurl : "<#config name='gateway.path'/>/dili-dfs/file/upload?accessToken=<#config name='dfs.accessToken'/>",
+	        	downloadUrl : "<#config name='gateway.path'/>/dili-dfs/file/download",
 	        	selectRow :{}
 	        }
 	    },
@@ -949,10 +949,20 @@
 	    	     this.$refs.upload.submit();
 	    	 },
 	    	 handleRemove(file, fileList) {
-	    	     console.log(file, fileList);
+	    	     //console.log(file, fileList);
 	    	 },
 	    	 handlePreview(file) {
-	    	     console.log(file);
+	    	     //console.log(file);
+	    	 },
+	    	 handChange(file, fileList){
+	    		 console.log(file);
+	    		 let isLt2M = file.size / 1024 / 1024 < 2;
+	    		 if(!isLt2M){
+	    			 fileList.splice(fileList.length-1,1);
+	    			 //this.handleRemove(file, fileList);
+	    			 bs4pop.alert('文件大小超过2M', {type: 'error'});
+	    		 }
+	    		
 	    	 },
 	    	 removeList(){
 	    		 this.fileList = [];
@@ -960,8 +970,6 @@
 	    	 handleSucess(res,file,fileList){
 	    		 this.successIndex = this.successIndex+1;
 	    		 if(this.successIndex = fileList.length){
-	    			 console.log(fileList);
-	    			 console.log("上传完成");
 	    			 for (var i = 0; i < fileList.length; i++) {
 		    				let f = fileList[i];
 		    				let upF = {};
@@ -1073,7 +1081,7 @@
             $("#btn_showProgress").attr('disabled', false);
         }
         //因为已到期和已停租不在流程中管理，这里需要单独处理
-        if (row.state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()} || row.state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
+        if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
             defaultBizProcess(row);
             return;
         }
@@ -1131,7 +1139,7 @@
         let state = row.$_state;
         //审批状态
         let approvalState = row.$_approvalState;
-        if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CREATED.getCode()}) {
+        if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CREATED.getCode()}) {//已创建
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
@@ -1160,16 +1168,16 @@
                     $('#btn_submit').attr('disabled', false);
             </#resource>
             }
-        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.INVALIDATED.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.INVALIDATED.getCode()}) {//已取消、已作废
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
-        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.SUBMITTED.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.SUBMITTED.getCode()}) {//已提交
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_cancel').attr('disabled', false);
-            if(row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){
+            if(row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){//未交清
                 $('#btn_submit').attr('disabled', false);
             }
             //审批通过后，只有待审批和审批拒绝的订单可以撤回
@@ -1177,25 +1185,26 @@
                 $('#btn_withdraw').attr('disabled', false);
             }
         } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
-            || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}) {
+            || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}) {//未生效、已生效
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
             $('#btn_supplement').attr('disabled', false);
             $('#btn_renew').attr('disabled', false);
-            if (row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}) {
+            if (row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}) {//待申请
                 $('#btn_invalid').attr('disabled', false);
             }
             //未开票才显示开票按钮
             if(row.$_isInvoice != 1){
                 $('#btn_invoice').attr('disabled', false);
             }
+            //未交清、已退款、退款中 启用提交
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
                 $('#btn_submit').attr('disabled', false);
             }
-        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {
+        } else if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}) {//已停租
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
             $('#btn_add').attr('disabled', false);
@@ -1204,11 +1213,15 @@
             if(row.$_isInvoice != 1){
                 $('#btn_invoice').attr('disabled', false);
             }
+
+            //未交清、已退款、退款中 启用提交
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
                 $('#btn_submit').attr('disabled', false);
             }
+
+            //未发起退款 启用作废
             if (row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()}) {
                 $('#btn_invalid').attr('disabled', false);
             }
@@ -1225,6 +1238,8 @@
             if(row.$_isInvoice != 1){
                 $('#btn_invoice').attr('disabled', false);
             }
+
+            //未交清、已退款、退款中 启用提交
             if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {

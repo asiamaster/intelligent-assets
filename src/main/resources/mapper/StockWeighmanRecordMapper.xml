@@ -13,7 +13,7 @@
     <foreach collection="list" item="id" open="(" close=")" separator=",">
     	#{id}
     </foreach>
-    and (gross_weight is null or tare_weight is null);
+    and (gross_weight is null or tare_weight is null or tare_weight = 0);
   </select>
   
  

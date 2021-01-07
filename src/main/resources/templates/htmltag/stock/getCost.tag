@@ -3,6 +3,11 @@
 let unitPrice = 0;
 let totalAmount = 0;
 
+function setValue(obj,value){
+	obj.val(value);
+	obj.attr('value',value);
+}
+
 function isNull(value){
 	 if (value == null || value == "" || value == undefined) {
         return true;
@@ -23,7 +28,7 @@ function countNumber(name){
 	$("#details").find("form").find("[name="+name+"]").each(function() {
 		total = parseFloat(total) + parseFloat($(this).val());
 	});
-	$("#saveForm").find("[name="+name+"]").val(total);
+	setValue($("#saveForm").find("[name="+name+"]"),total)
 	getCost();
 }
 function countItemNumber(obj){
@@ -31,7 +36,8 @@ function countItemNumber(obj){
 	obj.closest("form").find(".amount-item").each(function(){
 		total = parseFloat(total) + parseFloat($(this).val()==""?0:$(this).val());
 	})
-	obj.closest("form").find("[name=amount]").val(total);
+	setValue(obj.closest("form").find("[name=amount]"),total)
+
 	//countNumber("amount")
 }
 
@@ -61,7 +67,8 @@ function countItemAmount(){
 			}
 			lastAmount = new Number(parseFloat(lastAmount)-parseFloat(itemAmount)).toFixed(2);
 		}
-		$(this).find("[name=amount]").val(itemAmount);
+		setValue($(this).find("[name=amount]"),itemAmount)
+
 	})
 }
 
@@ -83,6 +90,10 @@ function getCost(){
 		detail.uom=1;
 	}
 	if(isNull(detail.categoryId) || (detail.uom == 1 && isNull(detail.weight)) || (detail.uom == 2 && isNull(detail.quantity))){
+		return;
+	}
+	// 司磅入库特殊处理,未获取到净重不计算
+	if(type == 3 && detail.weight == 0){
 		return;
 	}
 	// 动态收费项
@@ -110,26 +121,26 @@ function getCost(){
 				totalAmount = 0;
 				for (let item of ret.data) {
 					let obj = $("#saveForm").find("[name=chargeItem_"+item.chargeItem+"]");
-					obj.val(item.totalFee);
+					setValue(obj,item.totalFee);
+
 					totalAmount =  parseFloat(totalAmount) + parseFloat(item.totalFee);
 					//countNumber(obj.attr("name"));
 					countItemNumber(obj);
 				}
 				//计算单价
 				if(detail.uom == 1){
-					$("#unitPrice").val(new Number(parseFloat($("#amount").val())/parseFloat($("#weight").val())).toFixed(2));
 					unitPrice = new Number(parseFloat($("#amount").val())/parseFloat($("#weight").val())).toFixed(2);
+					setValue($("#unitPrice"),unitPrice);
 					if($("#weight").val() == 0){
 						$("#unitPrice").val(0);
 					}
 				}else{
-					$("#unitPrice").val(new Number(parseFloat($("#amount").val())/parseFloat($("#quantity").val())).toFixed(2));
 					unitPrice = new Number(parseFloat($("#amount").val())/parseFloat($("#quantity").val())).toFixed(2);
+					setValue($("#unitPrice"),unitPrice);
 					if($("#quantity").val() == 0){
 						$("#unitPrice").val(0);
 					}
 				}
-				
 				countItemAmount();
 			}
 		},

@@ -10,6 +10,11 @@
 <script id="detailInfo1" type="text/html">
 	<form id="saveForm_{{index}}" role="form" class="detailInfo" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
+		
+			<div class="form-group col-4 itmedetail-code">
+			<label for="">子单号:</label> <input readonly type="text" class="form-control"  value="{{stockDetail.code}}" />
+			</div>
+
 					<div class="form-group col-4">
 						<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
 						<label for="">接车单号:</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}" maxlength="50" />
@@ -84,8 +89,11 @@
 <script id="detailInfo3" type="text/html">
 	<form id="saveForm_{{index}}" role="form" class="detailInfo" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
-					
+	<div class="form-group col-4 itmedetail-code">
+	<label for="">子单号:</label> <input readonly type="text" class="form-control"  value="{{stockDetail.code}}" />
+	</div>
 					<div class="form-group col-4">
+					
 					<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
 
 					<label for="">接车单号:</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}"  maxlength="50"/>
@@ -113,7 +121,7 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号:<i class="red">*</i></label>
-						<select id="assetsId_{{index}}" name="assetsId" class="form-control" required> 
+						<select id="assetsId_{{index}}" name="assetsId" class="form-control assetsId" required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
 						<input type="hidden" id="mchid_{{index}}" >
@@ -121,12 +129,15 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库件数:<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
-						 name="quantity" value="{{stockDetail.quantity}}" range="1 99999999" required />
+						 name="quantity" value="{{stockDetail.quantity}}" range="0 99999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
-						 name="weight" value="{{stockDetail.weight}}" range="1 999999999" required readonly/>
-						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
+					<label for="" class="">货物净重(公斤):<i class="red">*</i></label> 
+						<div class="input-group">
+							<input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
+							 name="weight" value="{{stockDetail.weight}}" range="0 999999999" required readonly/>
+							 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
+						</div>
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库金额:<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
@@ -145,8 +156,13 @@
 						</div>
 				        <% } }%>*/
 				        -->
+					<div class="form-group col-4">
+						<label for="checkOperatorId">查件员:<i class="red">*</i></label>
+						<select id="checkOperatorId" name="checkOperatorId" class="form-control" required></select>
+						<#bcomboProvider _id="checkOperatorId" _provider="userDepProvider" _value="{{stockDetail.checkOperatorId}}" _queryParams='{dd_code:"${userTicket.departmentId}", required:false}' _escape="true" />
+					</div>
 					<div class="form-group col-8">
-					    <label for="">备注:</label>
+					    <label for="notes">备注:</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" value="{{stockDetail.notes}}" maxlength="200">{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
@@ -161,6 +177,9 @@
 	<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
 
 					<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
+					<div class="form-group col-4 itmedetail-code">
+					<label for="">子单号:</label> <input readonly type="text" class="form-control"  value="{{stockDetail.code}}" />
+					</div>
 					<div class="form-group col-4">
 					<label for="">区域:<i class="red">*</i></label>
 	                <div class="input-group">
@@ -343,17 +362,21 @@ $(document).on('change', '.assetsId', function() {
 			mchId ="";
 		}
 	}
-	
-	
+	console.log(mchId);
 	if(strIsNotEmpty($(this).val())){
 		let id = $(this).attr('id');
 		let index = id.split("_")[1];
-		if(strIsNotEmpty(mchId) && $('#mchid_'+index).val() != mchId){
+		let currentM = $(this).find("option:selected").attr('mchid');
+		if(!strIsNotEmpty(currentM)){
+			bs4pop.alert("所选冷库未绑定商户!", {type: 'error'});
+		}
+		if(strIsNotEmpty(mchId) && currentM != mchId){
 			bs4pop.alert("所选冷库不属于同一商户,请重新选择区域!", {type: 'error'});
 			$(this).val("");
 			return;
 		}
-		mchId = $('#mchid_'+index).val();
+		mchId = currentM;
+		console.log(mchId);
 	}
 });
 
@@ -385,17 +408,15 @@ function changeAssets(index,districtId,value,level){
                     	$('#assetsId_'+index).html('<option value="" selected="">-- 请选择区域 --</option>');
                     } else {
                     	var htmlConent = '<option value="">-- 请选择 --</option>';
-                    	let m; //获取商户id
+                    	
                 		for (let item of array) {
-                			m = item.mchId;
                 			if(item.id == value){
-                    			htmlConent = htmlConent+'<option  value="'+item.id+'" selected>'+item.text+'</option>';
+                    			htmlConent = htmlConent+'<option mchid="'+item.mchId+'" value="'+item.id+'" selected>'+item.text+'</option>';
                 			}else{
-                    			htmlConent = htmlConent+'<option  value="'+item.id+'" >'+item.text+'</option>';
+                    			htmlConent = htmlConent+'<option mchid="'+item.mchId+'" value="'+item.id+'" >'+item.text+'</option>';
                 			}
                 		}
                 		$('#assetsId_'+index).html(htmlConent);
-                		$('#mchid_'+index).val(m);
                     }
                 }
             }

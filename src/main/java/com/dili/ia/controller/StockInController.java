@@ -75,6 +75,7 @@ public class StockInController {
 		List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
 				queryBusinessChargeItemConfig(userTicket.getFirmId(), BizTypeEnum.STOCKIN.getCode(), YesOrNoEnum.YES.getCode());
         modelMap.put("chargeItems", chargeItemDtos);
+        modelMap.put("userTicket", userTicket);
         return "stock/add";
     }
     
@@ -126,6 +127,7 @@ public class StockInController {
     	List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.
 				queryBusinessChargeItemConfig(userTicket.getFirmId(), BizTypeEnum.STOCKIN.getCode(), YesOrNoEnum.YES.getCode());
     	modelMap.put("chargeItems", chargeItemDtos);
+        modelMap.put("userTicket", userTicket);
         return "stock/update";
     }
     

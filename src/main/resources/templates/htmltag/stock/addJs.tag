@@ -16,7 +16,6 @@ $(function() {
 	adddetailItem();
 });
 
-
 //获取table Index
 function getIndex(str) {
 	return str.split('_')[1];
@@ -138,6 +137,7 @@ function buildFormData() {
 	//let categoryName = $('#categoryId').find("option:selected").text();
 	let formData = $('#saveForm').serializeObject();
 	formData.departmentName = departmentName;
+	formData.checkOperator = $('#checkOperatorId').find("option:selected").text();
 	//formData.categoryName = categoryName;
 	formData.type = type;
     formData.origin = city.value.join(",");
@@ -151,7 +151,7 @@ function buildFormData() {
 		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
 		businessCharge.chargeItemName=$(this).attr("chargeItem");
 		if($(this).val()){
-			businessCharge.amount=parseInt($(this).val())*100;
+			businessCharge.amount=parseFloat($(this).val())*100;
 		}else{
 			businessCharge.amount=0;
 		}
@@ -182,7 +182,7 @@ function buildFormData() {
 		// 组装司磅入库数据
 		if(type == 3){
 			let weightItem = weightItems.get(index);
-			weightItem.images = JSON.stringify(weightItem.images);
+			//weightItem.images = weightItem.images;
 			detail.stockWeighmanRecordDto = weightItem;
 		}
 		detail.mchId=mchId;
@@ -192,7 +192,7 @@ function buildFormData() {
 			let itemBusinessCharge = {};
 			itemBusinessCharge.chargeItemId=$(this).attr("name").split("_")[1];
 			itemBusinessCharge.chargeItemName=$(this).attr("chargeItem");
-			itemBusinessCharge.amount=parseInt($(this).val())*100;
+			itemBusinessCharge.amount=parseFloat($(this).val())*100;
 			if (itemBusinessCharge != {}) {
 				itemBusinessChargeDtos.push(itemBusinessCharge);
 			}
@@ -212,6 +212,8 @@ function buildFormData() {
 
 // 提交保存
 function doAddStockInHandler() {
+	//buildFormData();
+	//return;
 	//司磅入库参数验证问题
 	if(!validateForm()){
 		return;
