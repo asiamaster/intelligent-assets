@@ -834,7 +834,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				outsFeeOutputs.add(re.getData());
 			}else {
 				LOG.error("计费规则失败:"+JSON.toJSONString(re));
-				throw new BusinessException(ResultCode.REMOTE_ERROR, JSON.toJSONString(re));
+				throw new BusinessException(ResultCode.REMOTE_ERROR, "计费规则获取失败");
 			}
 			
 			//queryFeeInputs.add(queryFeeInput);
