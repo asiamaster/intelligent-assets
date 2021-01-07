@@ -1098,9 +1098,9 @@
                         //待审批和审批拒绝状态时，必须有跳过审批权限才能直接提交审批
                         if(approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.WAIT_SUBMIT_APPROVAL.getCode()}
                         || approvalState == ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVAL_DENIED.getCode()}){
-                            <#resource code="skipAssetsLeaseApproval">
-                            $('#btn_submit').attr('disabled', false);
-                            </#resource>
+                            <%if(!hasResource("skipAssetsLeaseApproval")){ %>
+                            $('#btn_submit').attr('disabled', true);
+                            <%}%>
                         }
                     } else {
                         bs4pop.alert(output.result, {type: 'error'});
