@@ -137,6 +137,7 @@ function buildFormData() {
 	//let categoryName = $('#categoryId').find("option:selected").text();
 	let formData = $('#saveForm').serializeObject();
 	formData.departmentName = departmentName;
+	formData.checkOperator = $('#checkOperatorId').find("option:selected").text();
 	//formData.categoryName = categoryName;
 	formData.type = type;
     formData.origin = city.value.join(",");
