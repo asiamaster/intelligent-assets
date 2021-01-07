@@ -11,8 +11,18 @@ import java.util.List;
  * @description:  通行证
  */
 public class DepartmentChargeItemDto extends DepartmentChargeItem {
+	
+	String[] departmentIds;
 
-    /**
+	public String[] getDepartmentIds() {
+		return departmentIds;
+	}
+
+	public void setDepartmentIds(String[] departmentIds) {
+		this.departmentIds = departmentIds;
+	}
+
+	/**
      * 绑定为一对多关系
      */
     List<DepartmentByOtherFeeDto> departmentList ;
