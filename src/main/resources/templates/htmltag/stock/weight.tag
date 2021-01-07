@@ -108,9 +108,11 @@ $(function(){
 		//通过map保存司磅记录,key为index,value为表单信息,方便前端页面组装数据
 		weightItems.set(curIndex+"",weightDetail);
 		if(strIsNotEmpty(data.grossWeight) && strIsNotEmpty(data.tareWeight)){
-			weightItem.find("[name=weight]").val(parseInt(weightDetail.grossWeight)-parseInt(weightDetail.tareWeight));
+			//weightItem.find("[name=weight]").val(parseInt(weightDetail.grossWeight)-parseInt(weightDetail.tareWeight));
+			setValue(weightItem.find("[name=weight]"),new Number(parseInt(weightDetail.grossWeight)-parseInt(weightDetail.tareWeight)))
 		}else{
 			weightItem.find("[name=weight]").val(0);
+			$(".money").val(0);
 		}
 		//weightItem.find("[name=weight]").val($("#grossWeight").val());
 		countNumber("weight");

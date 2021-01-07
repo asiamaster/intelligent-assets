@@ -158,7 +158,7 @@
 				        -->
 					<div class="form-group col-4">
 						<label for="checkOperatorId">查件员:<i class="red">*</i></label>
-						<select id="checkOperatorId" name="checkOperatorId" class="form-control"></select>
+						<select id="checkOperatorId" name="checkOperatorId" class="form-control" required></select>
 						<#bcomboProvider _id="checkOperatorId" _provider="userDepProvider" _value="{{stockDetail.checkOperatorId}}" _queryParams='{dd_code:"${userTicket.departmentId}", required:false}' _escape="true" />
 					</div>
 					<div class="form-group col-8">
