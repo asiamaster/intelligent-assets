@@ -132,9 +132,12 @@
 						 name="quantity" value="{{stockDetail.quantity}}" range="0 99999999" required />
 					</div>
 					<div class="form-group col-4">
-						<label for="" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
-						 name="weight" value="{{stockDetail.weight}}" range="0 999999999" required readonly/>
-						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
+					<label for="" class="">货物净重(公斤):<i class="red">*</i></label> 
+						<div class="input-group">
+							<input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
+							 name="weight" value="{{stockDetail.weight}}" range="0 999999999" required readonly/>
+							 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
+						</div>
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库金额:<i class="red">*</i></label> <input id="amount_{{index}}" type="number" class="form-control number_change money"
@@ -153,8 +156,13 @@
 						</div>
 				        <% } }%>*/
 				        -->
+					<div class="form-group col-4">
+						<label for="checkOperatorId">查件员:<i class="red">*</i></label>
+						<select id="checkOperatorId" name="checkOperatorId" class="form-control"></select>
+						<#bcomboProvider _id="checkOperatorId" _provider="userDepProvider" _value="{{stockDetail.checkOperatorId}}" _queryParams='{dd_code:"${userTicket.departmentId}", required:false}' _escape="true" />
+					</div>
 					<div class="form-group col-8">
-					    <label for="">备注:</label>
+					    <label for="notes">备注:</label>
 					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" value="{{stockDetail.notes}}" maxlength="200">{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
