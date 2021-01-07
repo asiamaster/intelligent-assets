@@ -362,16 +362,21 @@ $(document).on('change', '.assetsId', function() {
 			mchId ="";
 		}
 	}
-	
+	console.log(mchId);
 	if(strIsNotEmpty($(this).val())){
 		let id = $(this).attr('id');
 		let index = id.split("_")[1];
-		if(strIsNotEmpty(mchId) && $('#mchid_'+index).val() != mchId){
+		let currentM = $(this).find("option:selected").attr('mchid');
+		if(!strIsNotEmpty(currentM)){
+			bs4pop.alert("所选冷库未绑定商户!", {type: 'error'});
+		}
+		if(strIsNotEmpty(mchId) && currentM != mchId){
 			bs4pop.alert("所选冷库不属于同一商户,请重新选择区域!", {type: 'error'});
 			$(this).val("");
 			return;
 		}
-		mchId = $('#mchid_'+index).val();
+		mchId = currentM;
+		console.log(mchId);
 	}
 });
 
@@ -403,17 +408,15 @@ function changeAssets(index,districtId,value,level){
                     	$('#assetsId_'+index).html('<option value="" selected="">-- 请选择区域 --</option>');
                     } else {
                     	var htmlConent = '<option value="">-- 请选择 --</option>';
-                    	let m; //获取商户id
+                    	
                 		for (let item of array) {
-                			m = item.mchId;
                 			if(item.id == value){
-                    			htmlConent = htmlConent+'<option  value="'+item.id+'" selected>'+item.text+'</option>';
+                    			htmlConent = htmlConent+'<option mchid="'+item.mchId+'" value="'+item.id+'" selected>'+item.text+'</option>';
                 			}else{
-                    			htmlConent = htmlConent+'<option  value="'+item.id+'" >'+item.text+'</option>';
+                    			htmlConent = htmlConent+'<option mchid="'+item.mchId+'" value="'+item.id+'" >'+item.text+'</option>';
                 			}
                 		}
                 		$('#assetsId_'+index).html(htmlConent);
-                		$('#mchid_'+index).val(m);
                     }
                 }
             }
