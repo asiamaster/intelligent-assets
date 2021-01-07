@@ -89,7 +89,7 @@ public class AssetsController {
             return assetsRpc.getRentBalance(input);
         } catch (Exception e) {
             LOG.error("冷库可租数量查询异常",e);
-            return BaseOutput.success();
+            return BaseOutput.failure();
         }
 
     }

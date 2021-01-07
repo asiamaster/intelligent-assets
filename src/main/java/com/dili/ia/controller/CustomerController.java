@@ -2,8 +2,10 @@ package com.dili.ia.controller;
 
 import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
 import com.dili.customer.sdk.domain.dto.CustomerQueryInput;
+import com.dili.customer.sdk.domain.dto.CustomerSimpleExtendDto;
 import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.PageOutput;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,10 +38,11 @@ public class CustomerController {
      * @throws CloneNotSupportedException
      */
     @RequestMapping(value="/listNormal.action", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody BaseOutput<List<CustomerExtendDto>> listNormal(String likeName, String certificateNumberMatch, String certificateNumber, String keyword) throws CloneNotSupportedException {
+    public @ResponseBody
+    PageOutput<List<CustomerSimpleExtendDto>> listNormal(String likeName, String certificateNumberMatch, String certificateNumber, String keyword) throws CloneNotSupportedException {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
-            return BaseOutput.failure("未登录");
+            return PageOutput.failure("未登录");
         }
         CustomerQueryInput customerQuery = new CustomerQueryInput();
         if(StringUtils.isNotBlank(likeName)){
@@ -51,7 +55,12 @@ public class CustomerController {
             customerQuery.setKeyword(keyword);
         }
         customerQuery.setMarketId(userTicket.getFirmId());
-        return BaseOutput.success().setData(customerRpc.listSimpleNormalPage(customerQuery).getData());
+        try {
+            return customerRpc.listSimpleNormalPage(customerQuery);
+        } catch (Exception e) {
+            return PageOutput.failure("服务器异常");
+        }
+
     }
     
     /**
