@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.ia.service.StockInService;
 import com.dili.ia.service.StockOutService;
+import com.dili.ia.util.LogBizTypeConst;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
@@ -45,7 +46,7 @@ public class StockInApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "IA")
+    @BusinessLogger(businessType= LogBizTypeConst.STOCK, content="${code!}", operationType="pay", systemCode = "IA")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{
@@ -65,7 +66,7 @@ public class StockInApi {
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "IA")
+    //@BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "IA")
     @RequestMapping(value="/queryPrintData/payment", method = {RequestMethod.POST,RequestMethod.GET})
     public @ResponseBody BaseOutput<PrintDataDto<StockInPrintDto>> queryPaymentPrintData(String orderCode, String reprint){
         try{
@@ -80,11 +81,11 @@ public class StockInApi {
     }
     
     /**
-     * 冷库结算票据打印
+     * 冷库出库票据打印
      * @param settleOrder
      * @return
      */
-    @BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "IA")
+    //@BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "IA")
     @RequestMapping(value="/queryPrintData/stock_out", method = {RequestMethod.POST,RequestMethod.GET})
     public @ResponseBody BaseOutput<PrintDataDto<StockOutPrintDto>> queryStockOutPrintData(String orderCode, String reprint){
         try{

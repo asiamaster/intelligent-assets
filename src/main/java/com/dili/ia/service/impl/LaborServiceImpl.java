@@ -434,6 +434,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 			Labor laborDomain = new Labor();
 			update(laborDomain, reLabor.getCode(), reLabor.getVersion(), LaborStateEnum.REMODEL);
 		}
+        LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
+
 	}
 	
 	private String buildVestCode(String firmCode,String models) {

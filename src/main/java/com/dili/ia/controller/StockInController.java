@@ -274,7 +274,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "refund", systemCode = "IA")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "", operationType = "refundApply", systemCode = "IA")
     public @ResponseBody BaseOutput refund(@RequestBody @Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
     	try {
     		stockInService.refund(refundInfoDto);

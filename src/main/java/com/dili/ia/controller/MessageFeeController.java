@@ -235,7 +235,7 @@ public class MessageFeeController {
      * @return BaseOutput
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "", operationType = "refund", systemCode = "IA")
+    @BusinessLogger(businessType = LogBizTypeConst.MESSAGE_FEE, content = "", operationType = "refundApply", systemCode = "IA")
     public @ResponseBody BaseOutput refund(@RequestBody @Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
     	try {
     		messageFeeService.refund(refundInfoDto);

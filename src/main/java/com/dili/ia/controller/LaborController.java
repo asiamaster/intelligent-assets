@@ -314,7 +314,7 @@ public class LaborController {
      * @return BaseOutput
      */
     @RequestMapping(value="/refund.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "refund", systemCode = "IA")
+    @BusinessLogger(businessType = LogBizTypeConst.LABOR_VEST, content = "", operationType = "refundApply", systemCode = "IA")
     public @ResponseBody BaseOutput refund(@RequestBody @Validated RefundInfoDto refundInfoDto) {	        //throw new BusinessException("2000", "errorCode");
     	try {
     		laborService.refund(refundInfoDto);

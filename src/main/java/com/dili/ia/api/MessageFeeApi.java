@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.ia.domain.dto.printDto.LaborPayPrintDto;
-import com.dili.ia.domain.dto.printDto.LaborRefundPrintDto;
-import com.dili.ia.domain.dto.printDto.MessageFeePayPrintDto;
-import com.dili.ia.domain.dto.printDto.MessageFeeRefundPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.service.MessageFeeService;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
@@ -42,7 +41,7 @@ public class MessageFeeApi {
      * @param settleOrder
      * @return
      */
-    //@BusinessLogger(businessType="stock_in", content="${code!}", operationType="pay", systemCode = "IA")
+    @BusinessLogger(businessType=LogBizTypeConst.MESSAGE_FEE, content="${code!}", operationType="pay", systemCode = "IA")
     @RequestMapping(value="/settlementDealHandler", method = {RequestMethod.POST})
     public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder){
         try{

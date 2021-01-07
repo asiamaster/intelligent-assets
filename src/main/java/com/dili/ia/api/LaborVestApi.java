@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.ia.service.LaborService;
+import com.dili.ia.util.LogBizTypeConst;
+import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
@@ -39,6 +41,7 @@ public class LaborVestApi {
 	 * @param settleOrder
 	 * @return
 	 */
+    @BusinessLogger(businessType= LogBizTypeConst.LABOR_VEST, content="${code!}", operationType="pay", systemCode = "IA")
 	@RequestMapping(value = "/settlementDealHandler", method = {RequestMethod.POST })
 	public @ResponseBody BaseOutput<Boolean> settlementDealHandler(@RequestBody SettleOrder settleOrder) {
 		try {

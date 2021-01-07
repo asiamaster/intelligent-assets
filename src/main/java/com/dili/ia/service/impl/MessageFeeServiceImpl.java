@@ -388,6 +388,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		} catch (Exception e) {
             LOG.error("【白名单推送】接口调用异常!");
 		}
+        LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
+
 	}
 	
 	@Override
