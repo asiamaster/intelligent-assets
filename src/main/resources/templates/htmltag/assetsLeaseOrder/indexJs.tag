@@ -1065,6 +1065,8 @@
         let state = row.$_state;
         //审批状态
         let approvalState = row.$_approvalState;
+        //缴费状态
+        let payState = row["$_payState"];
         //先禁用所有按键
         $('#toolbar button').attr('disabled', true);
         //允许新增和查看按钮
@@ -1109,6 +1111,12 @@
                             <%if(!hasResource("skipAssetsLeaseApproval")){ %>
                             $('#btn_submit').attr('disabled', true);
                             <%}%>
+                        }
+                        //未生效和已生效状态，如果未交清，可以再次提交付款
+                        if((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
+                        || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
+                        && payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){
+                            $('#btn_submit').attr('disabled', true);
                         }
                     } else {
                         bs4pop.alert(output.result, {type: 'error'});
