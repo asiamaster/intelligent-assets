@@ -67,7 +67,8 @@
         dia = bs4pop.dialog({
             title: '新增其他收费',//对话框title
             content: '${contextPath}/otherFee/add.html', //对话框内容，可以是 string、element，$object
-            width: '800px',//宽度
+            backdrop: 'static',
+            width: '80%',//宽度
             height: '680px',//高度
             isIframe: true,//默认是页面层，非iframe
         });
@@ -87,7 +88,8 @@
         dia = bs4pop.dialog({
             title: '修改其他收费',//对话框title
             content: '${contextPath}/otherFee/update.html?id='+rows[0].id, //对话框内容，可以是 string、element，$object
-            width: '800px',//宽度
+            backdrop: 'static',
+            width: '80%',//宽度
             height: '680px',//高度
             isIframe: true,//默认是页面层，非iframe
         });
@@ -115,7 +117,7 @@
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
-            width: '800px',
+            width: '80%',//宽度
             height : '600px',
             btns: [{label: '关闭', className: 'btn-secondary', onClick(e) {}}]
         });
@@ -137,7 +139,7 @@
      */
     function openSubmitHandler() {
         if(isSelectRow()){
-            bs4pop.confirm('提交后该信息不可更改，并且可进行缴费，确认提交？', {}, function (sure) {
+            bs4pop.confirm('提交后该信息不可更改，并且可进行缴费，确认提交？', { backdrop: 'static'}, function (sure) {
                 if(sure){
                     bui.util.debounce(function () {
                         bui.loading.show('努力提交中，请稍候。。。');
@@ -175,7 +177,7 @@
      */
     function openWithdrawHandler() {
         if(isSelectRow()){
-            bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', {}, function (sure) {
+            bs4pop.confirm('撤回之后该业务单可继续修改，但不能交费，如需继续交费可以再次提交。确定撤回？', {backdrop : 'static'}, function (sure) {
                 if(sure){
                     bui.loading.show('努力提交中，请稍候。。。');
                     //获取选中行的数据
@@ -210,7 +212,7 @@
      */
     function openCancelHandler() {
         if(isSelectRow()){
-            bs4pop.confirm('确定取消该业务单？', {}, function (sure) {
+            bs4pop.confirm('确定取消该业务单？', {backdrop : 'static'}, function (sure) {
                 if(sure){
                     bui.loading.show('努力提交中，请稍候。。。');
                     //获取选中行的数据
@@ -254,7 +256,7 @@
             isIframe : true,
             closeBtn: true,
             backdrop : 'static',
-            width: '95%',
+            width: '80%',
             height : '95%',
             btns: []
         });
