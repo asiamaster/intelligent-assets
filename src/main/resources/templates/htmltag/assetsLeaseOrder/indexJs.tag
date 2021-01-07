@@ -939,8 +939,8 @@
 	        	fileList :[],
 	        	upList:[],
 	        	successIndex : 0,
-	        	uploadurl : "http://gateway.diligrp.com:8285/dili-dfs/file/upload?accessToken=1d4e977ad7504808a892664123914e96.ibOsv54WR96-bIQT88L6uA",
-	        	downloadUrl : "http://gateway.diligrp.com:8285/dili-dfs/file/download",
+	        	uploadurl : "<#config name='gateway.path'/>/dili-dfs/file/upload?accessToken=<#config name='dfs.accessToken'/>",
+	        	downloadUrl : "<#config name='gateway.path'/>/dili-dfs/file/download",
 	        	selectRow :{}
 	        }
 	    },
@@ -949,10 +949,20 @@
 	    	     this.$refs.upload.submit();
 	    	 },
 	    	 handleRemove(file, fileList) {
-	    	     console.log(file, fileList);
+	    	     //console.log(file, fileList);
 	    	 },
 	    	 handlePreview(file) {
-	    	     console.log(file);
+	    	     //console.log(file);
+	    	 },
+	    	 handChange(file, fileList){
+	    		 console.log(file);
+	    		 let isLt2M = file.size / 1024 / 1024 < 2;
+	    		 if(!isLt2M){
+	    			 fileList.splice(fileList.length-1,1);
+	    			 //this.handleRemove(file, fileList);
+	    			 bs4pop.alert('文件大小超过2M', {type: 'error'});
+	    		 }
+	    		
 	    	 },
 	    	 removeList(){
 	    		 this.fileList = [];
@@ -960,8 +970,6 @@
 	    	 handleSucess(res,file,fileList){
 	    		 this.successIndex = this.successIndex+1;
 	    		 if(this.successIndex = fileList.length){
-	    			 console.log(fileList);
-	    			 console.log("上传完成");
 	    			 for (var i = 0; i < fileList.length; i++) {
 		    				let f = fileList[i];
 		    				let upF = {};

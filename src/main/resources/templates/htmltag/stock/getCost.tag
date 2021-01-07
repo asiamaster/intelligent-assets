@@ -92,7 +92,7 @@ function getCost(){
 	if(isNull(detail.categoryId) || (detail.uom == 1 && isNull(detail.weight)) || (detail.uom == 2 && isNull(detail.quantity))){
 		return;
 	}
-	// 司磅入库特殊处理
+	// 司磅入库特殊处理,未获取到净重不计算
 	if(type == 3 && detail.weight == 0){
 		return;
 	}
@@ -141,7 +141,6 @@ function getCost(){
 						$("#unitPrice").val(0);
 					}
 				}
-				
 				countItemAmount();
 			}
 		},
