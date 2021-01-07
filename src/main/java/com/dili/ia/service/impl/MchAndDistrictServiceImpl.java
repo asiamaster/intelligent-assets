@@ -36,11 +36,11 @@ public class MchAndDistrictServiceImpl implements MchAndDistrictService {
     public Long getMchIdByDistrictId(Long firstDistrictId, Long secondDistrictId) {
         Long districtId = null;
         Long mchId = null;
-        if (firstDistrictId != null) {
-            districtId = firstDistrictId;
-        }
-        if (firstDistrictId == null && secondDistrictId != null) {
+        if (secondDistrictId != null) {
             districtId = secondDistrictId;
+        }
+        if (secondDistrictId == null && firstDistrictId != null) {
+            districtId = firstDistrictId;
         }
         if (districtId != null) {
             //@TODO 为空抛异常，现在基础数据有问题，暂时注释掉代码，后期打开
