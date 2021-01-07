@@ -96,7 +96,7 @@ public class OtherFeeController {
         try {
             //日志查询
             BusinessLogQueryInput businessLogQueryInput = new BusinessLogQueryInput();
-            businessLogQueryInput.setBusinessId(id);
+            businessLogQueryInput.setBusinessCode(otherFee.getCode());
             businessLogQueryInput.setBusinessType(LogBizTypeConst.OTHER_FEE);
             BaseOutput<List<BusinessLog>> businessLogOutput = businessLogRpc.list(businessLogQueryInput);
             if (businessLogOutput.isSuccess()) {
