@@ -63,10 +63,8 @@ import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
-import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.dto.SettleOrderDto;
 import com.dili.settlement.enums.EnableEnum;
-import com.dili.settlement.enums.LinkTypeEnum;
 import com.dili.settlement.enums.SettleStateEnum;
 import com.dili.settlement.enums.SettleTypeEnum;
 import com.dili.settlement.enums.SettleWayEnum;
@@ -83,7 +81,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.math.Money;
 import io.seata.spring.annotation.GlobalTransactional;
 
 /**
@@ -313,7 +310,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		buildStockDetail(addDetailDtos, stockIn);
 		// 修改入库单信息
 		StockIn domain = new StockIn(userTicket);
-		BeanUtil.copyProperties(stockInDto, domain, CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));
+		BeanUtil.copyProperties(stockInDto, domain, CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true).setIgnoreProperties("operatorId","operatorName"));
 		domain.setWeight(stockIn.getWeight() + totalWeight);
 		domain.setQuantity(stockIn.getQuantity() + totalQuantity);
 		domain.setAmount(stockIn.getAmount() + totalMoney);
@@ -413,7 +410,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				JSONObject recordJson = new JSONObject();
 				if(record != null) {
 					recordJson = (JSONObject) JSON.toJSON(record);
-					recordJson.put("image",JSON.toJSON(record.getImages()));
+					recordJson.put("image",record.getImages());
 				}
 				jsonObject.put("stockWeighmanRecord", recordJson);
 			}
@@ -595,7 +592,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			SettleFeeItem settleFeeItem = new SettleFeeItem();
 			settleFeeItem.setChargeItemId(item.getChargeItemId());
 			settleFeeItem.setChargeItemName(item.getChargeItemName());
-			settleFeeItem.setAmount(item.getPaymentAmount());
+			settleFeeItem.setAmount(item.getAmount());
 			settleFeeItemList.add(settleFeeItem);
 		}
 		settleOrderInfoDto.setSettleFeeItemList(settleFeeItemList);

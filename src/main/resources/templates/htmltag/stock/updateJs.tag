@@ -64,7 +64,10 @@ $(function() {
 	}else{
 		$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#quantity").val()));
 	}*/
-	let stockInDetails = JSON.parse('${stockIn.jsonStockInDetailDtos!}');
+	let str = '${stockIn.jsonStockInDetailDtos!}'.replace(/"{/g,'{').replace(/}"/g,'}');
+
+
+	let stockInDetails = JSON.parse(str);
 	for (let stockDetail of stockInDetails) {
 		stockDetail.departmentId=${stockIn.departmentId!};
 		initDetailItem(stockDetail);
@@ -194,7 +197,7 @@ function buildFormData() {
 		let businessCharge = {};
 		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
 		businessCharge.chargeItemName=$(this).attr("chargeItem");
-		businessCharge.amount=parseInt($(this).val())*100;
+		businessCharge.amount=parseFloat($(this).val())*100;
 		if($(this).attr("item-id") != ""){
 			businessCharge.id=$(this).attr("item-id");
 			businessCharge.version=$(this).attr("chargeItem-version");
@@ -231,7 +234,7 @@ function buildFormData() {
 			let itemBusinessCharge = {};
 			itemBusinessCharge.chargeItemId=$(this).attr("name").split("_")[1];
 			itemBusinessCharge.chargeItemName=$(this).attr("chargeItem");
-			itemBusinessCharge.amount=parseInt($(this).val())*100;
+			itemBusinessCharge.amount=parseFloat($(this).val())*100;
 			if($(this).attr("item-id") != ""){
 				itemBusinessCharge.id=$(this).attr("item-id");
 				itemBusinessCharge.version=$(this).attr("chargeItem-version");

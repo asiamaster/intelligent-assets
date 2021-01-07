@@ -43,69 +43,6 @@
 			</div>
 			</div>
 </form>	
-<script>
-
-
-$('.readWeight').on('click', function() {
-	if(typeof callbackObj == 'undefined'){
-        return;
-    }
-	// 重量类型 毛重1 皮重0
-	let obj = {
-			"weightType": 1,
-			"grossWeight":"",
-			"grossDateTime":"",
-			"tareWeight":"",
-			"tareDateTime":"",
-			"grossWeight":"",
-			"image1":"",
-			"image2":"",
-			"image3":"",
-			"image4":""
-	}
-	callbackObj.weighmanInput(JSON.stringify(obj));
-	// 判断是否已获取重量
-	/*var isWeight=$(this).parents(".sub-single").find("[self-suffix='is_weight']").val();
-    if(isWeight=="1"){
-    	bs4pop.alert("已读取过重量信息", {
-			type: 'error'
-		});
-        return;
-    }*/
-    //数据模拟
-	/*let weighman = $("input[name='weighman']:checked").val();
-	if(weighman == 1){
-		$("#grossWeight").val("1000");
-		$("#grossWeightDate").val("2020-07-06 12:34:44");
-	}else{
-		$("#tareWeight").val("100");
-		$("#tareWeightDate").val("2020-07-06 12:34:44");
-	}*/
-    
-    //获取司磅读数
-    window.weightCallback=function(data){
-    	if(data.status==-1){
-            return;
-        }
-    	if(data.weightType==1){
-    		$(".grossWeight").val(data.grossWeight);
-    		$(".grossWeightDate").val(data.grossWeightDate);
-    		$(".weightPic1").val(data.image1);
-    		$(".weightPic2").val(data.image2);
-    		/**
-    	     * 司磅照片  [{name:"beforegross",url:"/de/de/666.imag"},{name:"aftergross",url:"/de/de/666.imag"}
-    	     * ,{name:"befortare",url:"/de/de/666.imag"},{name:"aftertare",url:"/de/de/666.imag"}]
-    	     */
-            
-        }else{
-        	$(".tareWeight").val(data.tareWeight);
-    		$(".tareWeightDate").val(data.tareWeightDate);
-    		$(".weightPic3").val(data.image3);
-    		$(".weightPic4").val(data.image4);
-        }
-    }
-})
-</script>
 
 </script>
 

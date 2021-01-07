@@ -10,6 +10,11 @@
 <script id="detailInfo1" type="text/html">
 	<form id="saveForm_{{index}}" role="form" class="detailInfo" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
+		
+			<div class="form-group col-4 itmedetail-code">
+			<label for="">子单号:</label> <input readonly type="text" class="form-control"  value="{{stockDetail.code}}" />
+			</div>
+
 					<div class="form-group col-4">
 						<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
 						<label for="">接车单号:</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}" maxlength="50" />
@@ -84,8 +89,11 @@
 <script id="detailInfo3" type="text/html">
 	<form id="saveForm_{{index}}" role="form" class="detailInfo" novalidate>
 	<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
-					
+	<div class="form-group col-4 itmedetail-code">
+	<label for="">子单号:</label> <input readonly type="text" class="form-control"  value="{{stockDetail.code}}" />
+	</div>
 					<div class="form-group col-4">
+					
 					<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
 
 					<label for="">接车单号:</label> <input type="text" class="form-control" id="pickupNumber_{{index}}" name="pickupNumber" value="{{stockDetail.pickupNumber}}"  maxlength="50"/>
@@ -113,7 +121,7 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="">冷库编号:<i class="red">*</i></label>
-						<select id="assetsId_{{index}}" name="assetsId" class="form-control" required> 
+						<select id="assetsId_{{index}}" name="assetsId" class="form-control assetsId" required> 
 						<option value="" selected="">-- 请选择区域 --</option>
 						</select>
 						<input type="hidden" id="mchid_{{index}}" >
@@ -121,11 +129,11 @@
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">入库件数:<i class="red">*</i></label> <input id="quantity_{{index}}" type="number" class="form-control number_change"
-						 name="quantity" value="{{stockDetail.quantity}}" range="1 99999999" required />
+						 name="quantity" value="{{stockDetail.quantity}}" range="0 99999999" required />
 					</div>
 					<div class="form-group col-4">
 						<label for="" class="">货物净重(公斤):<i class="red">*</i></label> <input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
-						 name="weight" value="{{stockDetail.weight}}" range="1 999999999" required readonly/>
+						 name="weight" value="{{stockDetail.weight}}" range="0 999999999" required readonly/>
 						 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
 					</div>
 					<div class="form-group col-4">
@@ -161,6 +169,9 @@
 	<input type="hidden"  id="code_{{index}}" name="code" value="{{stockDetail.code}}" required  />
 
 					<div class="row row-cols-12 detail" id="detailInfo_{{index}}">
+					<div class="form-group col-4 itmedetail-code">
+					<label for="">子单号:</label> <input readonly type="text" class="form-control"  value="{{stockDetail.code}}" />
+					</div>
 					<div class="form-group col-4">
 					<label for="">区域:<i class="red">*</i></label>
 	                <div class="input-group">
@@ -343,7 +354,6 @@ $(document).on('change', '.assetsId', function() {
 			mchId ="";
 		}
 	}
-	
 	
 	if(strIsNotEmpty($(this).val())){
 		let id = $(this).attr('id');

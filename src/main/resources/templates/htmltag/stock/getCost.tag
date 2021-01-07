@@ -85,6 +85,11 @@ function getCost(){
 	if(isNull(detail.categoryId) || (detail.uom == 1 && isNull(detail.weight)) || (detail.uom == 2 && isNull(detail.quantity))){
 		return;
 	}
+	// 司磅入库特殊处理
+	if(detail.weight == 0){
+		$(".money").val(0);
+		return;
+	}
 	// 动态收费项
 	let itemBusinessChargeDtos = []
 	$("#saveForm").find('.chargeItem').each(function(){
@@ -110,7 +115,7 @@ function getCost(){
 				totalAmount = 0;
 				for (let item of ret.data) {
 					let obj = $("#saveForm").find("[name=chargeItem_"+item.chargeItem+"]");
-					obj.val(item.totalFee);
+					obj.attr('value',item.totalFee);
 					totalAmount =  parseFloat(totalAmount) + parseFloat(item.totalFee);
 					//countNumber(obj.attr("name"));
 					countItemNumber(obj);
