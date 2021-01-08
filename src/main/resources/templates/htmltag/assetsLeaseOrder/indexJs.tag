@@ -1080,7 +1080,7 @@
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
         }
-        //因为已到期和已停租不在流程中管理，这里需要单独处理
+        //因为已到期/已停租/已取消/作废不在流程中管理，这里需要单独处理
         if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}
         || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.INVALIDATED.getCode()}) {
             defaultBizProcess(row);
