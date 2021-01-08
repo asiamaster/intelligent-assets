@@ -1,9 +1,10 @@
 package com.dili.ia.service.impl;
 
+import cn.hutool.core.convert.Convert;
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
-import com.dili.assets.sdk.dto.DistrictDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
+import com.dili.bpmc.sdk.domain.ExecutionMapping;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.domain.TaskMapping;
 import com.dili.bpmc.sdk.dto.EventReceivedDto;
@@ -22,10 +23,6 @@ import com.dili.ia.domain.dto.*;
 import com.dili.ia.domain.dto.printDto.ContractDto;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderMapper;
-import com.dili.uid.sdk.rpc.feign.UidFeignRpc;
-
-import cn.hutool.core.convert.Convert;
-
 import com.dili.ia.service.*;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.SpringUtil;
@@ -61,6 +58,7 @@ import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.rpc.FirmRpc;
 import com.dili.uap.sdk.session.SessionContext;
+import com.dili.uid.sdk.rpc.feign.UidFeignRpc;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,9 +72,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-
-import java.math.BigDecimal;
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -1027,17 +1024,32 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 //        }
         //wm: 触发java接收任务流程事件
         if (StringUtils.isNotBlank(leaseOrder.getBizProcessInstanceId())) {
-            HashMap<String, Object> param = new HashMap<>();
-            //根据订单状态流转到未生效4、已生效5或已到期8
-            param.put("leaseOrderState", leaseOrder.getState());
-            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
-            eventReceivedDto.setEventName(BpmEventConstants.SUBMITTED_RECEIVE_TASK);
-            eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
-            eventReceivedDto.setVariables(param);
-            BaseOutput<String> output = eventRpc.signal(eventReceivedDto);
-            if (!output.isSuccess()) {
+            BaseOutput<List<ExecutionMapping>> listBaseOutput = runtimeRpc.listExecution(leaseOrder.getBizProcessInstanceId());
+            if(!listBaseOutput.isSuccess()){
                 LOG.info("确认付款事件异常 【租赁单编号:{}】", leaseOrder.getCode());
-                throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                throw new BusinessException(ResultCode.DATA_ERROR, listBaseOutput.getMessage());
+            }
+            List<ExecutionMapping> executionMappings = listBaseOutput.getData();
+            for (ExecutionMapping executionMapping : executionMappings) {
+                if(executionMapping.getActivityId() == null){
+                    continue;
+                }
+                //当进行中的任务是提交状态，触发Java接收任务
+                if(executionMapping.getActivityId().equals(BpmEventConstants.SUBMITTED_RECEIVE_TASK)){
+                    HashMap<String, Object> param = new HashMap<>();
+                    //根据订单状态流转到未生效4、已生效5或已到期8
+                    param.put("leaseOrderState", leaseOrder.getState());
+                    EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+                    eventReceivedDto.setEventName(BpmEventConstants.SUBMITTED_RECEIVE_TASK);
+                    eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
+                    eventReceivedDto.setVariables(param);
+                    BaseOutput<String> output = eventRpc.signal(eventReceivedDto);
+                    if (!output.isSuccess()) {
+                        LOG.info("确认付款事件异常 【租赁单编号:{}】", leaseOrder.getCode());
+                        throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                    }
+                    break;
+                }
             }
         }
         msgService.sendBusinessLog(recordPayLog(settleOrder, leaseOrder));
