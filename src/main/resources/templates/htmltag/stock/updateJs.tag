@@ -124,7 +124,7 @@ function initDetailItem(stockDetail) {
 
 // 添加子单
 $('#adddetailItem').on('click', function() {
-	if (itemIndex < 11) {
+	if (itemCount < 10) {
 		adddetailItem();
 	} else {
 		bs4pop.notice('最多10个子单', {
@@ -137,20 +137,28 @@ $('#adddetailItem').on('click', function() {
 
 //删除行事件 （删除子单）
 $(document).on('click', '.item-del', function() {
-	let detail = $(this).closest('form').serializeObject();
-	if(detail.code != ""){
-		detail.categoryId = $('#categoryId').val();
-		detail.delete = true;
-		bui.util.yuanToCentForMoneyEl(detail);
-		removeDetails.push(detail);
-	}
-	$(this).closest('.detailInfo').remove();
-	countNumber("quantity");
-	countNumber("weight");
-	countNumber("amount");
-	itemCount--;
-	canDel();
+	let obj = $(this);
+	bs4pop.confirm('确定删除子业务单？', {}, function (sure) {
+		if(sure){
+			let detail = obj.closest('form').serializeObject();
+			if(detail.code != ""){
+				detail.categoryId = $('#categoryId').val();
+				detail.delete = true;
+				bui.util.yuanToCentForMoneyEl(detail);
+				removeDetails.push(detail);
+			}
+			obj.closest('.detailInfo').remove();
+			countNumber("quantity");
+			countNumber("weight");
+			countNumber("amount");
+			itemCount--;
+			canDel();
+		}
+	})
 });
+
+//删除行事件 （删除子单）
+$(document).on('click', '.item-del', function() {});
 
 function canDel(){
 	if(itemCount==1){

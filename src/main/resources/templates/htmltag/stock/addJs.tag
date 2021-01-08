@@ -91,12 +91,17 @@ $('#adddetailItem').on('click', function() {
 
 //删除行事件 （删除子单）
 $(document).on('click', '.item-del', function() {
-	$(this).closest('.detailInfo').remove();
-	countNumber("quantity");
-	countNumber("weight");
-	countNumber("amount");
-	itemCount--;
-	canDel();
+	let obj = $(this);
+	bs4pop.confirm('确定删除子业务单？', {}, function (sure) {
+		if(sure){
+			obj.closest('.detailInfo').remove();
+			countNumber("quantity");
+			countNumber("weight");
+			countNumber("amount");
+			itemCount--;
+			canDel();
+		}
+	})
 });
 function canDel(){
 	if(itemCount==1){
