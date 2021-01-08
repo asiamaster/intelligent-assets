@@ -1080,7 +1080,7 @@
         if(row.processInstanceId) {
             $("#btn_showProgress").attr('disabled', false);
         }
-        //因为已到期和已停租不在流程中管理，这里需要单独处理
+        //因为已到期/已停租/已取消/作废不在流程中管理，这里需要单独处理
         if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EXPIRED.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.RENTED_OUT.getCode()}
         || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.CANCELD.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.INVALIDATED.getCode()}) {
             defaultBizProcess(row);
@@ -1116,11 +1116,11 @@
                         //未生效和已生效状态
                         if(state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
                         || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}){
-                            //未交清、已退款、退款中 可以再次提交付款
-                            if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
+                            //非未交清、已退款、退款中  不能再次提交付款
+                            if (!(row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
                                 && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
-                                && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
-                                $('#btn_submit').attr('disabled', false);
+                                && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()})) {
+                                $('#btn_submit').attr('disabled', true);
                             }
                             //未开票才显示开票按钮
                             if(row.$_isInvoice == 1){

@@ -45,7 +45,7 @@ public class StockInDetailDto {
 	/**
 	 * 接车单号
 	 */
-	@Size(max = 30,message = "接车单号太长")
+	@Size(max = 50,message = "接车单号太长")
 	private String pickupNumber;
 
 	/**

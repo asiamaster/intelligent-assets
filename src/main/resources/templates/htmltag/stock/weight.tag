@@ -98,8 +98,8 @@ $(function(){
 		weightDetail.tareWeight = data.tareWeight;
 		weightDetail.tareWeightDate =  data.tareDateTime;
 		let images = {
-				"beforegross": data.image1,
-				"aftergross": data.image2,
+				"beforegross":  data.image1,
+				"aftergross":  data.image2,
 				"befortare": data.image3,
 				"aftertare": data.image4
 		};
@@ -113,6 +113,10 @@ $(function(){
 		}else{
 			weightItem.find("[name=weight]").val(0);
 			$(".money").val(0);
+		}
+		if(strIsNotEmpty(data.grossWeight) || strIsNotEmpty(data.tareWeight)){
+			weightItem.find('.weight').attr('disabled',"true");
+			weightItem.find('.weight').text('已过磅');
 		}
 		//weightItem.find("[name=weight]").val($("#grossWeight").val());
 		countNumber("weight");
