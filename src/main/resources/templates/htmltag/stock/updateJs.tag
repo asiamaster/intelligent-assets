@@ -70,6 +70,7 @@ $(function() {
 		stockDetail.departmentId=${stockIn.departmentId!};
 		initDetailItem(stockDetail);
 	}
+	canDel();
 });
 
 
