@@ -1117,7 +1117,7 @@
                         if((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
                         || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
                         && payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){
-                            $('#btn_submit').attr('disabled', true);
+                            $('#btn_submit').attr('disabled', false);
                         }
                     } else {
                         bs4pop.alert(output.result, {type: 'error'});
