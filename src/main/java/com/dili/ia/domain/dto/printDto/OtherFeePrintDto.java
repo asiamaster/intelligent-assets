@@ -1,9 +1,10 @@
 package com.dili.ia.domain.dto.printDto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDateTime;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * @author:       xiaosa
@@ -29,7 +30,9 @@ public class OtherFeePrintDto {
     private String reprint;
     // 业务编号
     private String code;
-    //业务类型
+    // 结算单号
+    private String orderCode;
+	//业务类型
     private String businessType;
     //客户名称
     private String customerName;
@@ -89,6 +92,14 @@ public class OtherFeePrintDto {
     public void setCode(String code) {
         this.code = code;
     }
+    
+    public String getOrderCode() {
+ 		return orderCode;
+ 	}
+
+ 	public void setOrderCode(String orderCode) {
+ 		this.orderCode = orderCode;
+ 	}
 
     public String getBusinessType() {
         return businessType;

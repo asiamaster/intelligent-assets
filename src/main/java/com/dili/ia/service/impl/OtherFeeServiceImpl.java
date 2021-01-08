@@ -601,6 +601,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
         otherFeePrintDto.setPrintTime(LocalDateTime.now());
         otherFeePrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         otherFeePrintDto.setCode(otherFeeInfo.getCode());
+        otherFeePrintDto.setOrderCode(orderCode);
         otherFeePrintDto.setCustomerName(otherFeeInfo.getCustomerName());
         otherFeePrintDto.setCustomerCellphone(otherFeeInfo.getCustomerCellphone());
         otherFeePrintDto.setAmount(MoneyUtils.centToYuan(otherFeeInfo.getAmount()));
