@@ -69,6 +69,8 @@ public class StockInDetailQueryDto extends BaseDomain{
 	private Long departmentId;
 	
 	private Long marketId;
+	
+	private Long firstDistrictId;
 
 	/*private String orderByColumn;
 	
@@ -220,6 +222,14 @@ public class StockInDetailQueryDto extends BaseDomain{
 
 	public void setIsStockInDetails(Boolean isStockInDetails) {
 		this.isStockInDetails = isStockInDetails;
+	}
+
+	public Long getFirstDistrictId() {
+		return firstDistrictId;
+	}
+
+	public void setFirstDistrictId(Long firstDistrictId) {
+		this.firstDistrictId = firstDistrictId;
 	}
 
 	
