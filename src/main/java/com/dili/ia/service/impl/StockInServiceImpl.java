@@ -338,7 +338,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		if(stockIn.getType().equals(StockInTypeEnum.WEIGHT.getCode())) {
 			List<String> codeList = stockWeighmanRecordService.getNeedWeigh(details.stream().map(StockInDetail::getWeightmanId).collect(Collectors.toList()));
 			if(CollectionUtils.isNotEmpty(codeList)) {
-				throw new BusinessException(ResultCode.DATA_ERROR, String.format("子单%s待司磅", codeList.toString()));
+				throw new BusinessException(ResultCode.DATA_ERROR, String.format("子单%s待回皮", codeList.toString()));
 			}
 		}
 		// 创建收费单费用收取
