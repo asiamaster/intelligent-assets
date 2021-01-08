@@ -36,7 +36,9 @@
                 </div>
                 <div class="form-group col">
                     <label for="chargeItemId">收费项目<i class="red">*</i></label>
-                    <select id="chargeItemId"  name="chargeItemId" class="form-control" required></select>
+                    <select id="chargeItemId"  name="chargeItemId" class="form-control" required>
+                        <option value="" selected="">-- 请选择 --</option>
+                    </select>
                 </div>
 
                 <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() == @com.dili.ia.glossary.MarketEnum.SY.getCode()){%>

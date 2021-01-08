@@ -1113,11 +1113,19 @@
                             $('#btn_submit').attr('disabled', true);
                             <%}%>
                         }
-                        //未生效和已生效状态，如果未交清，可以再次提交付款
-                        if((state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
-                        || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()})
-                        && payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}){
-                            $('#btn_submit').attr('disabled', true);
+                        //未生效和已生效状态
+                        if(state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()}
+                        || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}){
+                            //未交清、已退款、退款中 可以再次提交付款
+                            if (row.$_payState == ${@com.dili.ia.glossary.PayStateEnum.NOT_PAID.getCode()}
+                                && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDED.getCode()}
+                                && row.$_refundState != ${@com.dili.ia.glossary.LeaseRefundStateEnum.REFUNDING.getCode()}) {
+                                $('#btn_submit').attr('disabled', false);
+                            }
+                            //未开票才显示开票按钮
+                            if(row.$_isInvoice == 1){
+                                $('#btn_invoice').attr('disabled', true);
+                            }
                         }
                     } else {
                         bs4pop.alert(output.result, {type: 'error'});

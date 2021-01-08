@@ -117,9 +117,11 @@ public class DepartmentChargeItemServiceImpl extends BaseServiceImpl<DepartmentC
 
 		List<DepartmentChargeItem> itemList = this.getActualDao().listChargeByChargeItemId(chargeItemId);
 		if (itemList != null && itemList.size() > 0) {
-			String[] ids = new String[itemList.size()];
+			String ids = "";
 			for (int i = 0 ;i<itemList.size();i++) {
-				ids[i]=itemList.get(i).getDepartmentId().toString();
+				ids= ids +itemList.get(i).getDepartmentId();
+				if(i != itemList.size()-1)
+					ids= ids +",";
 			}
 			BeanUtils.copyProperties(itemList.get(0), departmentChargeItemDto);
 			departmentChargeItemDto.setDepartmentIds(ids);

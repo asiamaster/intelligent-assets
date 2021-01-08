@@ -17,7 +17,7 @@
                         <label class="custom-control-label" for="checkAll">全选</label>
                     </div>
                     <div id="department-group">
-                        <#bcheckboxGroupProvider _containerId="department-group" _name="department" _provider="authDepartmentProvider" _required="true"/>
+                        <#bcheckboxGroupProvider _containerId="department-group" _name="department" _provider="authDepartmentProvider" _required="true" _value="[${departmentChargeItem.departmentIds!}]"/>
                     </div>
                 </div>
 
@@ -25,7 +25,7 @@
                 <div class="form-group col-12">
                     <label for="mchId">所属组织<i class="red">*</i></label>
                     <div id="mch-group">
-                        <#bradioGroupProvider _containerId="mch-group" _name="mchId" _provider="mchProvider" _required="true"/>
+                        <#bradioGroupProvider _containerId="mch-group" _name="mchId" _provider="mchProvider" _required="true" _value="${departmentChargeItem.mchId!}"/>
                     </div>
                 </div>
                 <%}%>

@@ -40,12 +40,14 @@ var city = new Vue({
                   success: function (ret) {
                 	  that.options = ret.data.childs;
                 	  //销地城市
-                	  let city2 = '${stockIn.origin!}'.split(',');
-                	  let c2 = [];
-                	  for (var i = 0; i < city2.length; i++) {
-                		  c2.push(parseInt(city2[i]));
+                	  if('${stockIn.origin!}' != ''){
+                		  let city2 = '${stockIn.origin!}'.split(',');
+                    	  let c2 = [];
+                    	  for (var i = 0; i < city2.length; i++) {
+                    		  c2.push(parseInt(city2[i]));
+                    	  }
+                    	  that.value = c2;  
                 	  }
-                	  that.value = c2; 
                   },
                   error: function (error) {
                      

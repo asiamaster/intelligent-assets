@@ -65,8 +65,6 @@ $(function() {
 		$("#unitPrice").val(parseFloat($("#amount").val())/parseFloat($("#quantity").val()));
 	}*/
 	let str = '${stockIn.jsonStockInDetailDtos!}'.replace(/"{/g,'{').replace(/}"/g,'}');
-
-
 	let stockInDetails = JSON.parse(str);
 	for (let stockDetail of stockInDetails) {
 		stockDetail.departmentId=${stockIn.departmentId!};
@@ -110,9 +108,15 @@ function initDetailItem(stockDetail) {
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).attr("chargeItem-version",chargeItem.version);
 	}
 	weightItems.set(itemIndex+"",stockDetail.stockWeighmanRecord);
+	// 子单数据加载对应区域列表
 	changeDistrict(itemIndex,0,stockDetail.parentDistrictId,'one');
-	changeDistrict(itemIndex,stockDetail.parentDistrictId,stockDetail.districtId,'two');
-	changeAssets(itemIndex,stockDetail.districtId,stockDetail.assetsId);
+	changeDistrict(itemIndex,stockDetail.parentDistrictId,
+			stockDetail.parentDistrictId==stockDetail.districtId?"":stockDetail.districtId,'two');
+	if(stockDetail.parentDistrictId == stockDetail.districtId){
+		changeAssets(itemIndex,stockDetail.districtId,stockDetail.assetsId,1);
+	}else{
+		changeAssets(itemIndex,stockDetail.districtId,stockDetail.assetsId,2);
+	}
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 	itemCount++;
 }
@@ -225,7 +229,7 @@ function buildFormData() {
 		if(type == 3){
 			let index = $(this).attr("id").split("_")[1];
 			let weightItem = weightItems.get(index);
-			weightItem.images = JSON.stringify(weightItem.images);
+			//weightItem.images = weightItem.images;
 			detail.stockWeighmanRecordDto = weightItem;
 		}
 		detail.mchId=mchId;
