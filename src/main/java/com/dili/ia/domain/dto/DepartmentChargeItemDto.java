@@ -12,13 +12,13 @@ import java.util.List;
  */
 public class DepartmentChargeItemDto extends DepartmentChargeItem {
 	
-	String[] departmentIds;
+	String departmentIds;
 
-	public String[] getDepartmentIds() {
+	public String getDepartmentIds() {
 		return departmentIds;
 	}
 
-	public void setDepartmentIds(String[] departmentIds) {
+	public void setDepartmentIds(String departmentIds) {
 		this.departmentIds = departmentIds;
 	}
 

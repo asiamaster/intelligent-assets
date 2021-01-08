@@ -25,7 +25,7 @@
       WARNING - @mbg.generated
     -->
     id, create_time, modify_time, department_id, department_name, charge_item_id, charge_item_name, 
-    creator_id, creator, market_id, market_code, version
+    creator_id, creator, market_id, market_code,mch_id,mch_name, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
