@@ -50,21 +50,15 @@ INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `
 
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务马甲单', 'hzsc_laborVest', 'HSSCMJ', 'yyyyMMdd', 4, '1');
 
-INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务人力马甲号', 'hzsc_vest_rl', 'HZSCRL', 'yyyyMMdd', 4, '1');
-
-INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_dd', 'HZSCDD', 'yyyyMMdd', 4, '1');
-
-INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_jz', 'HZSCJZ', 'yyyyMMdd', 4, '1');
-
-INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_gx', 'HZSCGX', 'yyyyMMdd', 4, '1');
-
-INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动马甲号', 'hzsc_vest_gd', 'HZSCGD', 'yyyyMMdd', 4, '1');
-
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务精品业户电动车及人力车马甲号', 'hzsc_vest_jz', 'HZSCJZ', 'yyyyMMdd', 4, '1');
 
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务干果业户小型电动车及人力车马甲号', 'hzsc_vest_gx', 'HZSCGX', 'yyyyMMdd', 4, '1');
 
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务干果业户大型电动车马甲号', 'hzsc_vest_gd', 'HZSCGD', 'yyyyMMdd', 4, '1');
+
+INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务电动车马甲号', 'hzsc_vest_dd', 'HZSCDD', 'yyyyMMdd', 4, '1');
+
+INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务人力车马甲号', 'hzsc_vest_rl', 'HZSCRL', 'yyyyMMdd', 4, '1');
 
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-冷库缴费单', 'hzsc_stockIn_paymentOrder', 'HZSCPOSI', 'yyyyMMdd', 4, '1');
 
@@ -127,4 +121,15 @@ ALTER TABLE `dili_ia`.`assets_rental`
 MODIFY COLUMN `start_time` datetime(0) NULL COMMENT '开始时间' AFTER `lease_days`,
 MODIFY COLUMN `end_time` datetime(0) NULL COMMENT '结束时间' AFTER `start_time`;
 
+-- 冷库入库备注
+ALTER TABLE `dili_ia`.`stock_in_detail` 
+MODIFY COLUMN `notes` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注' AFTER `assets_code`;
 
+-- 司磅图片记录
+ALTER TABLE `dili_ia`.`stock_weighman_record` 
+CHANGE COLUMN `image` `images` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '司磅图片地址' AFTER `market_code`;
+
+-- 冷库字段长度调节
+ALTER TABLE `dili_ia`.`stock_in_detail` 
+MODIFY COLUMN `pickup_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '接车单号' AFTER `check_operator`,
+MODIFY COLUMN `car_plate` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '车牌号' AFTER `market_code`;
