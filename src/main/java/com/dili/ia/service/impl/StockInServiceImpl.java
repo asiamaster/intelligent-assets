@@ -243,6 +243,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		if(stockWeighmanRecordDto.getGrossWeight() !=null && stockWeighmanRecordDto.getTareWeight() != null) {
 			stockWeighmanRecord.setNewWeight(stockWeighmanRecordDto.getGrossWeight()-stockWeighmanRecordDto.getTareWeight());
 		}
+		stockWeighmanRecord.setImages(JSON.toJSONString(stockWeighmanRecordDto.getImages()));
 		stockWeighmanRecord.setMarketId(detail.getMarketId());
 		stockWeighmanRecord.setMarketCode(detail.getMarketCode());
 		return stockWeighmanRecord;
@@ -410,7 +411,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				JSONObject recordJson = new JSONObject();
 				if(record != null) {
 					recordJson = (JSONObject) JSON.toJSON(record);
-					recordJson.put("image",record.getImages());
+					recordJson.put("image",JSON.parse(record.getImages()));
 				}
 				jsonObject.put("stockWeighmanRecord", recordJson);
 			}

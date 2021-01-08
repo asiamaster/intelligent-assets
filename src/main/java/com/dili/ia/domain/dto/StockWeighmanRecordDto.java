@@ -3,6 +3,8 @@ package com.dili.ia.domain.dto;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import com.alibaba.fastjson.JSONObject;
+
 
 /**
  * <B>Description</B>
@@ -55,7 +57,7 @@ public class StockWeighmanRecordDto {
      * 司磅照片  [{name:"beforegross",url:"/de/de/666.imag"},{name:"aftergross",url:"/de/de/666.imag"}
      * ,{name:"befortare",url:"/de/de/666.imag"},{name:"aftertare",url:"/de/de/666.imag"}]
      */
-    private String images;
+    private JSONObject images;
 
     
     
@@ -131,11 +133,11 @@ public class StockWeighmanRecordDto {
 		this.tareOperatorName = tareOperatorName;
 	}
 
-	public String getImages() {
+	public JSONObject getImages() {
 		return images;
 	}
 
-	public void setImages(String images) {
+	public void setImages(JSONObject images) {
 		this.images = images;
 	}
 

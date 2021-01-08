@@ -136,7 +136,7 @@
 						<div class="input-group">
 							<input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
 							 name="weight" value="{{stockDetail.weight}}" range="0 999999999" required readonly/>
-							 <button type="button" class="btn btn-secondary px-5" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
+							 <button type="button" class="btn btn-secondary px-5 weight" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
 						</div>
 					</div>
 					<div class="form-group col-4">
@@ -337,7 +337,12 @@ $(document).on('change', '.districtId', function() {
 		changeDistrict(index,$(this).val(),null,'two');
 		changeAssets(index,$(this).val(),null,1);
 	}else{
-		changeAssets(index,$(this).val(),null,2);
+		// 二级区域值为空,则查询一级区域冷库
+		if(!strIsNotEmpty($(this).val())){
+			changeAssets(index,$(this).prev().val(),null,1);
+		}else{
+			changeAssets(index,$(this).val(),null,2);
+		}
 	}
 });
 
