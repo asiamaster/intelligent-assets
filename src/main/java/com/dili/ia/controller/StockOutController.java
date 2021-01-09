@@ -1,14 +1,5 @@
 package com.dili.ia.controller;
 
-import com.dili.ia.domain.StockOut;
-import com.dili.ia.domain.dto.StockOutQuery;
-import com.dili.ia.service.DataAuthService;
-import com.dili.ia.service.StockOutService;
-import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
-import com.dili.uap.sdk.domain.UserTicket;
-import com.dili.uap.sdk.session.SessionContext;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -20,6 +11,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.dili.ia.domain.dto.StockOutQuery;
+import com.dili.ia.service.DataAuthService;
+import com.dili.ia.service.StockOutService;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 
 /**
  * 由MyBatis Generator工具自动生成
