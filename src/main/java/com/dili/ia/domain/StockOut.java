@@ -163,6 +163,18 @@ public class StockOut extends BaseDomain {
     public void setId(Long id) {
         this.id = id;
     }
+    
+    /**
+     * 一级区域
+     */
+    @Column(name = "`first_district_id`")
+   	private Long firstDistrictId;
+    
+    /**
+     * 一级区域
+     */
+    @Column(name = "`first_district_name`")
+   	private Long firstDistrictName;
 
     /**
      * 获取创建时间
@@ -558,6 +570,22 @@ public class StockOut extends BaseDomain {
 
 	public void setMchId(Long mchId) {
 		this.mchId = mchId;
+	}
+
+	public Long getFirstDistrictId() {
+		return firstDistrictId;
+	}
+
+	public void setFirstDistrictId(Long firstDistrictId) {
+		this.firstDistrictId = firstDistrictId;
+	}
+
+	public Long getFirstDistrictName() {
+		return firstDistrictName;
+	}
+
+	public void setFirstDistrictName(Long firstDistrictName) {
+		this.firstDistrictName = firstDistrictName;
 	}
     
     

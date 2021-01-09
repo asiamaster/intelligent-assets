@@ -82,7 +82,7 @@ function adddetailItem() {
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo' + type, {
 		index: ++itemIndex,stockDetail
 	})))
-	changeDistrict(itemIndex,0,null,'one');
+	changeDistrict(itemIndex,'0',null,'one');
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 	itemCount++;
 	canDel();
@@ -110,7 +110,7 @@ function initDetailItem(stockDetail) {
 	}
 	weightItems.set(itemIndex+"",stockDetail.stockWeighmanRecord);
 	// 子单数据加载对应区域列表
-	changeDistrict(itemIndex,0,stockDetail.parentDistrictId,'one');
+	changeDistrict(itemIndex,'0',stockDetail.parentDistrictId,'one');
 	changeDistrict(itemIndex,stockDetail.parentDistrictId,
 			stockDetail.parentDistrictId==stockDetail.districtId?"":stockDetail.districtId,'two');
 	if(stockDetail.parentDistrictId == stockDetail.districtId){
@@ -230,8 +230,10 @@ function buildFormData() {
 			districtName = $(this).find("[name=parentDistrictId]").find("option:selected").text();
 			detail.districtId = detail.parentDistrictId;
 		}
+		
 		let assetsName = $(this).find("[name=assetsId]").find("option:selected").text();
 		detail.districtName = districtName;
+		detail.parentDistrictName = $(this).find("[name=parentDistrictId]").find("option:selected").text();
 		detail.assetsCode = assetsName;
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;

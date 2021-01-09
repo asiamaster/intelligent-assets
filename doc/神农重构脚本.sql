@@ -133,3 +133,16 @@ CHANGE COLUMN `image` `images` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb
 ALTER TABLE `dili_ia`.`stock_in_detail` 
 MODIFY COLUMN `pickup_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '接车单号' AFTER `check_operator`,
 MODIFY COLUMN `car_plate` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '车牌号' AFTER `market_code`;
+
+-- 冷库库存记录表添加一级区域
+ALTER TABLE `dili_ia`.`stock` 
+ADD COLUMN `first_district_id` varchar(20) NULL COMMENT '一级区域' AFTER `id`,
+ADD COLUMN `first_district_name` varchar(40) NULL COMMENT '一级区域名称' AFTER `first_district_id`;
+
+-- 出库记录表添加一级区域
+ALTER TABLE `dili_ia`.`stock_out` 
+ADD COLUMN `first_district_id` varchar(20) NULL COMMENT '一级区域' AFTER `department_name`,
+ADD COLUMN `first_district_name` varchar(40) NULL COMMENT '一级区域名称' AFTER `first_district_id`;
+
+ALTER TABLE `dili_ia`.`stock_in_detail` 
+ADD COLUMN `first_district_name` varchar(40) NULL COMMENT '父级区域名称' AFTER `first_district_id`;

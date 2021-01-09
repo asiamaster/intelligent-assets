@@ -39,6 +39,9 @@
 		from stock as s
 		left join stock_record as sr on sr.stock_id = s.id
 		<where>
+			<if test="firstDistrictId != null">
+				and s.first_district_id = #{firstDistrictId}
+			</if>
 			<if test="districtId != null">
 				and s.district_id = #{districtId}
 			</if>

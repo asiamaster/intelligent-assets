@@ -70,7 +70,7 @@ function adddetailItem() {
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo'+type, {
 		index: ++itemIndex,departmentId,stockDetail
 	})))
-	changeDistrict(itemIndex,0,null,'one');
+	changeDistrict(itemIndex,'0',null,'one');
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 	itemCount++;
 	canDel();
@@ -180,6 +180,7 @@ function buildFormData() {
 		}
 		
 		let assetsName = $(this).find("[name=assetsId]").find("option:selected").text();
+		detail.parentDistrictName = $(this).find("[name=parentDistrictId]").find("option:selected").text();
 		detail.districtName = districtName;
 		detail.assetsCode = assetsName;
 		detail.categoryId = formData.categoryId;

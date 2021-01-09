@@ -74,6 +74,8 @@ public class StockInDetailDto {
 	
 	private Long parentDistrictId;
 
+	private String parentDistrictName;
+	
 	private String districtName;
 	
 	/**
@@ -376,6 +378,14 @@ public class StockInDetailDto {
 
 	public void setMchId(Long mchId) {
 		this.mchId = mchId;
+	}
+
+	public String getParentDistrictName() {
+		return parentDistrictName;
+	}
+
+	public void setParentDistrictName(String parentDistrictName) {
+		this.parentDistrictName = parentDistrictName;
 	}
 
 	
