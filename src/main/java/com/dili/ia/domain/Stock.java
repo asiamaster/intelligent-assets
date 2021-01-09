@@ -28,7 +28,7 @@ public class Stock extends BaseDomain {
      * 一级区域
      */
     @Column(name = "`first_district_name`")
-   	private Long firstDistrictName;
+   	private String firstDistrictName;
     
     /**
      * 区域id
@@ -379,11 +379,11 @@ public class Stock extends BaseDomain {
 		this.firstDistrictId = firstDistrictId;
 	}
 
-	public Long getFirstDistrictName() {
+	public String getFirstDistrictName() {
 		return firstDistrictName;
 	}
 
-	public void setFirstDistrictName(Long firstDistrictName) {
+	public void setFirstDistrictName(String firstDistrictName) {
 		this.firstDistrictName = firstDistrictName;
 	}
 	
