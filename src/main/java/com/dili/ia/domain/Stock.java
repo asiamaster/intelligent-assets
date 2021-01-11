@@ -19,6 +19,18 @@ public class Stock extends BaseDomain {
     private Long id;
 
     /**
+     * 一级区域
+     */
+    @Column(name = "`first_district_id`")
+   	private Long firstDistrictId;
+
+    /**
+     * 一级区域
+     */
+    @Column(name = "`first_district_name`")
+   	private String firstDistrictName;
+    
+    /**
      * 区域id
      */
     @Column(name = "`district_id`")
@@ -358,5 +370,23 @@ public class Stock extends BaseDomain {
 	public void setCustomerCellphone(String customerCellphone) {
 		this.customerCellphone = customerCellphone;
 	}
+
+	public Long getFirstDistrictId() {
+		return firstDistrictId;
+	}
+
+	public void setFirstDistrictId(Long firstDistrictId) {
+		this.firstDistrictId = firstDistrictId;
+	}
+
+	public String getFirstDistrictName() {
+		return firstDistrictName;
+	}
+
+	public void setFirstDistrictName(String firstDistrictName) {
+		this.firstDistrictName = firstDistrictName;
+	}
+	
+	
     
 }

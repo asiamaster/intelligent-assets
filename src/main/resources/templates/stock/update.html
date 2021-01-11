@@ -15,18 +15,17 @@
 				客户信息 
 			</div>
 			<div class="row row-cols-4 collapse show" id="customerInfo">
-				<div class="form-group col-3">
+				<div class="form-group col">
 					<label for="customerName">客户名称:<i class="red">*</i></label>
-					<input type="hidden" class="" id="customerId"
-					 name="customerId" value="${stockIn.customerId!}" readonly required />
-				
-					<input type="text" class="form-control" id="customerName"
-					 name="customerName" value="${stockIn.customerName!}" readonly required />
+					<#bautoCompleteProvider _hiddenDomainId="customerId" _hiddenDomainName="customerId" _displayDomainId="customerName"
+					 _displayDomainName="customerName" _placeholder="" _validatorMethod="isSelected" _optionVariable="customerNameAutoCompleteOption"
+					 _value="${stockIn.customerId!}" _text="${stockIn.customerName!}" _required="true" />
 				</div>
 				<div class="form-group col">
-					<label for="_certificateNumber">证件号码:<i class="red">*</i></label> <input
-						type="text" class="form-control" id="certificateNumber"
-						name="certificateNumber" value="${stockIn.certificateNumber!}" required readonly/>
+					<label for="_certificateNumber">证件号码:<i class="red">*</i></label>
+					<#bautoCompleteProvider _log="证件号码" _value="${stockIn.certificateNumber!}" _text="${stockIn.certificateNumber!}" _hiddenDomainId="certificateNumber" 
+					_hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" 
+					_displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected" _required="true" _optionVariable="certificateNumberAutoCompleteOption"/>
 				</div>
 				<div class="form-group col-3">
 					<label for="">联系电话:<i class="red">*</i></label> <input type="text" class="form-control digits" minlength="11" maxlength="11" id="customerCellphone"
@@ -66,7 +65,7 @@
 					<input type="hidden" id="cycle" name="cycle" >
 					
 					<#bautoCompleteProvider _hiddenDomainId="categoryId" _hiddenDomainName="categoryId" _displayDomainId="categoryName"
-					 _displayDomainName="categoryName" _placeholder="" _optionVariable="categoryAutoCompleteOption"
+					 _displayDomainName="categoryName" _placeholder="" _optionVariable="categoryAutoCompleteOption" _validatorMethod="isSelected"
 					 _required="true" _value="${stockIn.categoryId!}" _text="${stockIn.categoryName!}" />
 				</div>
 				

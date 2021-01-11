@@ -635,13 +635,21 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
 
         //wm: 触发流程消息事件
         if (StringUtils.isNotBlank(leaseOrder.getBizProcessInstanceId())) {
-            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
-            eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_EVENT);
-            eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
-            BaseOutput<String> output = eventRpc.messageEventReceived(eventReceivedDto);
-            if (!output.isSuccess()) {
-                LOG.info("提交付款订单边界事件异常 【租赁单编号:{}】", leaseOrder.getCode());
-                throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+            //查询进行中的流程，当前流程已结束，则不触发边界消息事件
+            BaseOutput<List<ExecutionMapping>> listBaseOutput = runtimeRpc.listExecution(leaseOrder.getBizProcessInstanceId());
+            if(!listBaseOutput.isSuccess()){
+                LOG.info("确认付款事件异常 【租赁单编号:{}】", leaseOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, listBaseOutput.getMessage());
+            }
+            if(CollectionUtils.isNotEmpty(listBaseOutput.getData())) {
+                EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+                eventReceivedDto.setEventName(BpmEventConstants.SUBMIT_EVENT);
+                eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
+                BaseOutput<String> output = eventRpc.messageEventReceived(eventReceivedDto);
+                if (!output.isSuccess()) {
+                    LOG.info("提交付款订单边界事件异常 【租赁单编号:{}】", leaseOrder.getCode());
+                    throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                }
             }
         }
 
@@ -1030,25 +1038,27 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 throw new BusinessException(ResultCode.DATA_ERROR, listBaseOutput.getMessage());
             }
             List<ExecutionMapping> executionMappings = listBaseOutput.getData();
-            for (ExecutionMapping executionMapping : executionMappings) {
-                if(executionMapping.getActivityId() == null){
-                    continue;
-                }
-                //当进行中的任务是提交状态，触发Java接收任务
-                if(executionMapping.getActivityId().equals(BpmEventConstants.SUBMITTED_RECEIVE_TASK)){
-                    HashMap<String, Object> param = new HashMap<>();
-                    //根据订单状态流转到未生效4、已生效5或已到期8
-                    param.put("leaseOrderState", leaseOrder.getState());
-                    EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
-                    eventReceivedDto.setEventName(BpmEventConstants.SUBMITTED_RECEIVE_TASK);
-                    eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
-                    eventReceivedDto.setVariables(param);
-                    BaseOutput<String> output = eventRpc.signal(eventReceivedDto);
-                    if (!output.isSuccess()) {
-                        LOG.info("确认付款事件异常 【租赁单编号:{}】", leaseOrder.getCode());
-                        throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+            if(CollectionUtils.isNotEmpty(executionMappings)) {
+                for (ExecutionMapping executionMapping : executionMappings) {
+                    if (executionMapping.getActivityId() == null) {
+                        continue;
                     }
-                    break;
+                    //当进行中的任务是提交状态，触发Java接收任务
+                    if (executionMapping.getActivityId().equals(BpmEventConstants.SUBMITTED_RECEIVE_TASK)) {
+                        HashMap<String, Object> param = new HashMap<>();
+                        //根据订单状态流转到未生效4、已生效5或已到期8
+                        param.put("leaseOrderState", leaseOrder.getState());
+                        EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+                        eventReceivedDto.setEventName(BpmEventConstants.SUBMITTED_RECEIVE_TASK);
+                        eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
+                        eventReceivedDto.setVariables(param);
+                        BaseOutput<String> output = eventRpc.signal(eventReceivedDto);
+                        if (!output.isSuccess()) {
+                            LOG.info("确认付款事件异常 【租赁单编号:{}】", leaseOrder.getCode());
+                            throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                        }
+                        break;
+                    }
                 }
             }
         }

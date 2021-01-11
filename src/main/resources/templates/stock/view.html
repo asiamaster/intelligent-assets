@@ -6,17 +6,17 @@
 			</div>
 			<div class="row row-cols-4 collapse show" id="customerInfo">
 				<div class="form-group col">
-					<label for="customerName">客户名称<i class="red">*</i></label>
+					<label for="customerName">客户名称 </label>
 					<input  type="text" class="form-control  "
 					 name="customerName" value="${stockIn.customerName!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="_certificateNumber">证件号码<i class="red">*</i></label>
+					<label for="_certificateNumber">证件号码 </label>
 					<input  type="text" class="form-control  "
 					 name="customerName" value="${stockIn.certificateNumber!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">联系电话<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">联系电话 </label> <input  type="text" class="form-control  "
 					 name="customerCellphone" value="${stockIn.customerCellphone!}" readonly />
 				</div>
 			</div>
@@ -26,56 +26,56 @@
 			</div>
 			<div class="row row-cols-4 collapse show" id="baseInfo">
 				<div class="form-group col">
-					<label for="">入库单号<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">入库单号 </label> <input  type="text" class="form-control  "
 					 name="code" value="${stockIn.code!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">入库类型<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">入库类型 </label> <input  type="text" class="form-control  "
 					 name="type" value="${@com.dili.ia.glossary.StockInTypeEnum.getStockInTypeEnum(stockIn.type).getName()}"  readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">操作员<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">操作员 </label> <input  type="text" class="form-control  "
 					 name="operatorName" value="${stockIn.operatorName!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">所属部门<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">所属部门 </label> <input  type="text" class="form-control  "
 					 name="departmentName" value="${stockIn.departmentName!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">货物品类<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">货物品类 </label> <input  type="text" class="form-control  "
 					 name="categoryName" value="${stockIn.categoryName!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">产地<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">产地 </label> <input  type="text" class="form-control  "
 					 name="origin" value="${stockIn.originPath!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">总件数<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">总件数 </label> <input  type="text" class="form-control  "
 					 name="quantity" value="${stockIn.quantity!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">总净重(公斤)<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">总净重(公斤) </label> <input  type="text" class="form-control  "
 					 name="weight" value="${stockIn.weight!}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">入库总额(元)<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">入库总额(元) </label> <input  type="text" class="form-control  "
 					 name="amount" value="<#centToYuan value='${stockIn.amount!}'/>" readonly />
 				</div>
 				<%
                 if(stockIn.businessChargeItems.~size>0){
                 for(item in stockIn.businessChargeItems){%>
               	 <div class="form-group col">
-					<label for="amount" class="">${item.chargeItemName!}<i class="red">*</i></label> <input id="chargeItem_${item.id!}" type="number" class="form-control chargeItem"
+					<label for="amount" class="">${item.chargeItemName!} </label> <input id="chargeItem_${item.id!}" type="number" class="form-control chargeItem"
 					 name="chargeItem_${item.id!}"  value="<#centToYuan value='${item.amount!}'/>" range="0 9999999.99" required readonly />				
 		        </div>
                 <% } } %>
 				
 				<div class="form-group col">
-					<label for="">入库日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
+					<label for="">入库日期 </label> <input id="expireDate" type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.stockInDate!,localDateTimeFormat='yyyy-MM-dd'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">到期日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
+					<label for="">到期日期 </label> <input id="expireDate" type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.expireDate!,localDateTimeFormat='yyyy-MM-dd'}" readonly />
 				</div>
 			</div>
@@ -85,23 +85,23 @@
 			</div>
 			<div class="row row-cols-4 collapse show" id="payInfo">
 				<div class="form-group col">
-					<label for="">结算单号<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">结算单号 </label> <input  type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.settleOrder.code!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">缴费日期<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">缴费日期 </label> <input  type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.settleOrder.operateTime!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">缴费金额<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">缴费金额 </label> <input  type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.settleOrder.amount!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">卡号<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">卡号 </label> <input  type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.settleOrder.accountNumber!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">收费员<i class="red">*</i></label> <input  type="text" class="form-control  "
+					<label for="">收费员 </label> <input  type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.settleOrder.operatorName!'--'}" readonly />
 				</div>
 				

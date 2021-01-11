@@ -221,7 +221,16 @@ nacos 配置
 	ia.source.channel.otherFee=otherFee
 	ia.source.channel.departmentChargeItem=departmentChargeItem
 	ia.source.channel.passport=passport
+	#来源渠道--冷库入库
+	ia.source.channel.stock_in=stock_in
+	#来源渠道--信息费
+	ia.source.channel.messageFee=messageFee
+	#来源渠道--劳务马甲
+	ia.source.channel.labor_vest=labor_vest
 
+	#文件上传
+	gateway.path=http://gateway.diligrp.com:8285
+	dfs.accessToken=123
 
 收费项配置
     冷库入库  入库费
@@ -275,3 +284,8 @@ nacos 配置
     cron:0 0/10 * * * ? *
     同步/异步:异步
     url:http:ia.diligrp.com:8381/api/passport/scanEffective
+    
+    
+uploadAttachment 附件上传
+downloadAttachment 附件下载
+printContract 合同预览

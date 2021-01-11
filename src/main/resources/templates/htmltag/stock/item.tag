@@ -76,7 +76,7 @@
 				    -->
 					<div class="form-group col-8">
 					    <label for="notes">备注:</label>
-					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="200" value="{{stockDetail.notes}}">{{stockDetail.notes}}</textarea>
+					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="3" maxlength="200" value="{{stockDetail.notes}}">{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
@@ -158,12 +158,12 @@
 				        -->
 					<div class="form-group col-4">
 						<label for="checkOperatorId">查件员:<i class="red">*</i></label>
-						<select id="checkOperatorId" name="checkOperatorId" class="form-control" required></select>
-						<#bcomboProvider _id="checkOperatorId" _provider="userDepProvider" _value="{{stockDetail.checkOperatorId}}" _queryParams='{dd_code:"${userTicket.departmentId}", required:false}' _escape="true" />
+						<select id="checkOperatorId_{{index}}" name="checkOperatorId" class="form-control" required></select>
+						<#bcomboProvider _id="checkOperatorId_{{index}}" _provider="userDepProvider" _value="{{stockDetail.checkOperatorId}}" _queryParams='{dd_code:"${userTicket.departmentId}", required:false}' _escape="true" />
 					</div>
 					<div class="form-group col-8">
 					    <label for="notes">备注:</label>
-					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" value="{{stockDetail.notes}}" maxlength="200">{{stockDetail.notes}}</textarea>
+					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="3" value="{{stockDetail.notes}}" maxlength="200">{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
@@ -230,7 +230,7 @@
 				        -->
 					<div class="form-group col-8">
 					    <label for="notes">备注:</label>
-					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="1" maxlength="200" >{{stockDetail.notes}}</textarea>
+					    <textarea id="notes_{{index}}" class="form-control" name="notes" rows="3" maxlength="200" >{{stockDetail.notes}}</textarea>
 					</div>
 					<div class="form-group col-4">
 					    <button type="button" class="btn btn-secondary px-5 item-del">删除</button>
@@ -287,6 +287,10 @@ $(document).on('change', '#departmentId', function() {
 });
 // index 第几个子单  parent 父级区域   value 默认值    level  区域等级(one/two)
 function changeDistrict(index,parent,value,level){
+	if(!strIsNotEmpty(parent)){
+		$('#districtId_'+level+'_'+index).html('<option value="" selected="">-- 请选择上级区域--</option>');
+		return;
+	}
 	let departmentId = $('#departmentId').val();
 	let query = {
 			parentId: parent,

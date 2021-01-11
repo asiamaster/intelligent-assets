@@ -18,8 +18,8 @@
             <if test="districtId != null">
                 and sid.second_district_id = #{districtId}
             </if>
-            <if test="parentDistrictId != null">
-                and sid.first_district_id = #{parentDistrictId}
+            <if test="firstDistrictId != null">
+                and sid.first_district_id = #{firstDistrictId}
             </if>
             <if test="assetsId != null">
                 and sid.assets_id = #{assetsId}

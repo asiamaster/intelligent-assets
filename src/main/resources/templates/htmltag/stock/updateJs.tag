@@ -70,6 +70,7 @@ $(function() {
 		stockDetail.departmentId=${stockIn.departmentId!};
 		initDetailItem(stockDetail);
 	}
+	canDel();
 });
 
 
@@ -81,7 +82,7 @@ function adddetailItem() {
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo' + type, {
 		index: ++itemIndex,stockDetail
 	})))
-	changeDistrict(itemIndex,0,null,'one');
+	changeDistrict(itemIndex,'0',null,'one');
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 	itemCount++;
 	canDel();
@@ -109,7 +110,7 @@ function initDetailItem(stockDetail) {
 	}
 	weightItems.set(itemIndex+"",stockDetail.stockWeighmanRecord);
 	// 子单数据加载对应区域列表
-	changeDistrict(itemIndex,0,stockDetail.parentDistrictId,'one');
+	changeDistrict(itemIndex,'0',stockDetail.parentDistrictId,'one');
 	changeDistrict(itemIndex,stockDetail.parentDistrictId,
 			stockDetail.parentDistrictId==stockDetail.districtId?"":stockDetail.districtId,'two');
 	if(stockDetail.parentDistrictId == stockDetail.districtId){
@@ -123,7 +124,7 @@ function initDetailItem(stockDetail) {
 
 // 添加子单
 $('#adddetailItem').on('click', function() {
-	if (itemIndex < 11) {
+	if (itemCount < 10) {
 		adddetailItem();
 	} else {
 		bs4pop.notice('最多10个子单', {
@@ -136,20 +137,28 @@ $('#adddetailItem').on('click', function() {
 
 //删除行事件 （删除子单）
 $(document).on('click', '.item-del', function() {
-	let detail = $(this).closest('form').serializeObject();
-	if(detail.code != ""){
-		detail.categoryId = $('#categoryId').val();
-		detail.delete = true;
-		bui.util.yuanToCentForMoneyEl(detail);
-		removeDetails.push(detail);
-	}
-	$(this).closest('.detailInfo').remove();
-	countNumber("quantity");
-	countNumber("weight");
-	countNumber("amount");
-	itemCount--;
-	canDel();
+	let obj = $(this);
+	bs4pop.confirm('确定删除子业务单？', {}, function (sure) {
+		if(sure){
+			let detail = obj.closest('form').serializeObject();
+			if(detail.code != ""){
+				detail.categoryId = $('#categoryId').val();
+				detail.delete = true;
+				bui.util.yuanToCentForMoneyEl(detail);
+				removeDetails.push(detail);
+			}
+			obj.closest('.detailInfo').remove();
+			countNumber("quantity");
+			countNumber("weight");
+			countNumber("amount");
+			itemCount--;
+			canDel();
+		}
+	})
 });
+
+//删除行事件 （删除子单）
+$(document).on('click', '.item-del', function() {});
 
 function canDel(){
 	if(itemCount==1){
@@ -221,8 +230,10 @@ function buildFormData() {
 			districtName = $(this).find("[name=parentDistrictId]").find("option:selected").text();
 			detail.districtId = detail.parentDistrictId;
 		}
+		
 		let assetsName = $(this).find("[name=assetsId]").find("option:selected").text();
 		detail.districtName = districtName;
+		detail.parentDistrictName = $(this).find("[name=parentDistrictId]").find("option:selected").text();
 		detail.assetsCode = assetsName;
 		detail.categoryId = formData.categoryId;
 		detail.categoryName = formData.categoryName;

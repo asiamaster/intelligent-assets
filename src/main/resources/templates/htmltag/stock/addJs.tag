@@ -70,7 +70,7 @@ function adddetailItem() {
 	$('#details').append(bui.util.HTMLDecode(template('detailInfo'+type, {
 		index: ++itemIndex,departmentId,stockDetail
 	})))
-	changeDistrict(itemIndex,0,null,'one');
+	changeDistrict(itemIndex,'0',null,'one');
 	let validate = $("#saveForm_"+itemIndex).validate(saveFormDetail);
 	itemCount++;
 	canDel();
@@ -91,12 +91,17 @@ $('#adddetailItem').on('click', function() {
 
 //删除行事件 （删除子单）
 $(document).on('click', '.item-del', function() {
-	$(this).closest('.detailInfo').remove();
-	countNumber("quantity");
-	countNumber("weight");
-	countNumber("amount");
-	itemCount--;
-	canDel();
+	let obj = $(this);
+	bs4pop.confirm('确定删除子业务单？', {}, function (sure) {
+		if(sure){
+			obj.closest('.detailInfo').remove();
+			countNumber("quantity");
+			countNumber("weight");
+			countNumber("amount");
+			itemCount--;
+			canDel();
+		}
+	})
 });
 function canDel(){
 	if(itemCount==1){
@@ -175,6 +180,7 @@ function buildFormData() {
 		}
 		
 		let assetsName = $(this).find("[name=assetsId]").find("option:selected").text();
+		detail.parentDistrictName = $(this).find("[name=parentDistrictId]").find("option:selected").text();
 		detail.districtName = districtName;
 		detail.assetsCode = assetsName;
 		detail.categoryId = formData.categoryId;
