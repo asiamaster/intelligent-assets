@@ -79,11 +79,11 @@
             <#refundInfo customerName="${leaseOrder.customerName!}" customerId="${leaseOrder.customerId!}" certificateNumber="${leaseOrder.certificateNumber!}"></#refundInfo>
         </div>
 
-        <div class="breadcrumb">
+        <div class="breadcrumb" style="display: none;">
             转抵信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#transferInfo" aria-expanded="true" aria-controls="transferInfo">展开 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
         </div>
-        <div id="transferInfo" ${isNotEmpty(transferDeductionItems) && transferDeductionItems.~size > 0?'':'class="collapse"'}>
+        <div id="transferInfo" style="display: none;" ${isNotEmpty(transferDeductionItems) && transferDeductionItems.~size > 0?'':'class="collapse"'}>
             <table class="table table-bordered table-hover table-striped" id="transferTable" _logTable="转抵项">
                 <thead>
                 <tr>
