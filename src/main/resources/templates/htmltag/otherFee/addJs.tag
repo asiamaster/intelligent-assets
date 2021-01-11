@@ -27,7 +27,6 @@
         // }
     })
 
-    //品类搜索
     //品类搜索自动完成
     var categoryAutoCompleteOption = {
         serviceUrl: '/stock/categoryCycle/searchV2.action',
@@ -53,7 +52,8 @@
         },
         selectFn: function (suggestion) {
             $("#cycle").val(suggestion.cycle);
-        }}
+        }
+    }
 
     let assetsType = $('[name="assetsType"]').val();
     let firstDistrictId = $('[name="firstDistrictId"]').val();
@@ -160,6 +160,11 @@
     })
     $('#chargeItemId').on('change',  function () {
         $('#chargeItemName').val($(this.data('chargeItemName')))
+    })
+
+    $('#firstDistrictId, #secondDistrictId').change(function () {
+        let id  = $(this).attr('id');
+        valueDistrictName($('#'+id));
     })
 
     $('#save').on('click', bui.util.debounce(doAddOtherFeeHandler,1000,true));

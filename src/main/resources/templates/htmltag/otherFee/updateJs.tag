@@ -77,11 +77,11 @@
     });
 
     $('#assetsType').on('change', function(){
+        $('#assetsName-error').remove();
         $('#assetsId, #assetsName, #assetsNameInput').val('');
         $('#assetsName, #assetsNameInput').removeClass('d-block');
-        $('#assetsName-error').remove();
         $('#assetsNameInput').attr('name', '');
-        if($(this).val() == 1 ) {
+        if($(this).val() != 100 ) {
             $('#assetsName').addClass('d-block');
         } else {
             $('#assetsNameInput').attr('name', 'assetsName').addClass('d-block');
@@ -111,6 +111,33 @@
         selectFn: function (suggestion) {
             $('#assetsName').val(suggestion.name);
             $('#assetsId').val(suggestion.id);
+        }
+    }
+    //品类搜索自动完成
+    var categoryAutoCompleteOption = {
+        serviceUrl: '/stock/categoryCycle/searchV2.action',
+        paramName : 'keyword',
+        displayFieldName : 'name',
+        showNoSuggestionNotice: true,
+        noSuggestionNotice: '无匹配结果',
+        transformResult: function (result) {
+            if(result.success){
+                let data = result.data;
+                return {
+                    suggestions: $.map(data, function (dataItem) {
+                        return $.extend(dataItem, {
+                                value: dataItem.name + '（' + dataItem.keycode + '）'
+                            }
+                        );
+                    })
+                }
+            }else{
+                bs4pop.alert(result.message, {type: 'error'});
+                return false;
+            }
+        },
+        selectFn: function (suggestion) {
+            $("#cycle").val(suggestion.cycle);
         }
     }
 
@@ -187,6 +214,11 @@
     })
     $('#chargeItemId').on('change',  function () {
         $('#chargeItemName').val($(this.data('chargeItemName')))
+    })
+
+    $('#firstDistrictId, #secondDistrictId').change(function () {
+        let id  = $(this).attr('id');
+        valueDistrictName($('#'+id));
     })
 
     $('#save').on('click', bui.util.debounce(doAddOtherFeeHandler,1000,true));
