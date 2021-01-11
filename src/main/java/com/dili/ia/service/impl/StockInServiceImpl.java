@@ -427,7 +427,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		// 结算单信息
 		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()
 				&& stockIn.getState() != StockInStateEnum.CANCELLED.getCode()) {
-			stockInDto.setSettleOrder(settlementRpcResolver.get(settlementAppId, stockIn.getCode()));
+			stockInDto.setSettleOrder(settlementRpcResolver.get(settlementAppId, stockIn.getPaymentOrderCode()));
 		}
 		BusinessChargeItem condtion = new BusinessChargeItem();
 		condtion.setBusinessCode(stockInDto.getCode());
@@ -727,7 +727,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			quantity += detail.getQuantity();
 			weight += detail.getWeight();
 			assetsCode.append(detail.getAssetsCode()).append(",");
-			carTypePublicName.append(detail.getCarTypePublicName()).append(",");
+			if(!StringUtils.isEmpty(detail.getCarTypePublicName())) {
+				carTypePublicName.append(detail.getCarTypePublicName()).append(",");
+			}
 			if(!StringUtils.isEmpty(detail.getCarPlate())) {
 				carPlate.append(detail.getCarPlate()).append(",");
 			}
@@ -736,7 +738,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setQuantity(String.valueOf(quantity));
 		stockInPrintDto.setWeight(String.valueOf(weight));
 		stockInPrintDto.setAssetsCode(assetsCode.substring(0, assetsCode.length()-1));
-		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
+		stockInPrintDto.setCarTypePublicCode(StringUtils.isEmpty(carTypePublicName)?"":carTypePublicName.substring(0, carTypePublicName.length()-1));
 		stockInPrintDto.setCarPlate(StringUtils.isEmpty(carPlate)?"":carPlate.substring(0, carPlate.length()-1));
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
 		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
@@ -788,7 +790,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			quantity += detail.getQuantity();
 			weight += detail.getWeight();
 			assetsCode.append(detail.getAssetsCode()).append(",");
-			carTypePublicName.append(detail.getCarTypePublicName()).append(",");
+			if(!StringUtils.isEmpty(detail.getCarTypePublicName())) {
+				carTypePublicName.append(detail.getCarTypePublicName()).append(",");
+			}
 			if(!StringUtils.isEmpty(detail.getCarPlate())) {
 				carPlate.append(detail.getCarPlate()).append(",");
 			}
@@ -797,7 +801,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setQuantity(String.valueOf(quantity));
 		stockInPrintDto.setWeight(String.valueOf(weight));
 		stockInPrintDto.setAssetsCode(assetsCode.substring(0, assetsCode.length()-1));
-		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
+		stockInPrintDto.setCarTypePublicCode(StringUtils.isEmpty(carTypePublicName)?"":carTypePublicName.substring(0, carTypePublicName.length()-1));
 		stockInPrintDto.setCarPlate(StringUtils.isEmpty(carPlate)?"":carPlate.substring(0, carPlate.length()-1));
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
 		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
