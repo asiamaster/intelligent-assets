@@ -72,6 +72,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -412,6 +413,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				if(record != null) {
 					recordJson = (JSONObject) JSON.toJSON(record);
 					recordJson.put("image",JSON.parse(record.getImages()));
+					if(record.getGrossWeightDate() != null) {
+						recordJson.put("grossWeightDate",DateUtils.format(record.getGrossWeightDate(), "yyyy-MM-dd HH:mm:ss"));
+					}
+					if(record.getTareWeightDate() != null) {
+						recordJson.put("tareWeightDate",DateUtils.format(record.getTareWeightDate(), "yyyy-MM-dd HH:mm:ss"));
+					}
 				}
 				jsonObject.put("stockWeighmanRecord", recordJson);
 			}
