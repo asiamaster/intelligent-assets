@@ -110,7 +110,7 @@ function initDetailItem(stockDetail) {
 	}
 	weightItems.set(itemIndex+"",stockDetail.stockWeighmanRecord);
 	// 子单数据加载对应区域列表
-	changeDistrict(itemIndex,'0',stockDetail.parentDistrictId,'one');
+	changeDistrict(itemIndex,'0',stockDetail.parentDistrictId,'one','${stockIn.departmentId!}');
 	changeDistrict(itemIndex,stockDetail.parentDistrictId,
 			stockDetail.parentDistrictId==stockDetail.districtId?"":stockDetail.districtId,'two');
 	if(stockDetail.parentDistrictId == stockDetail.districtId){

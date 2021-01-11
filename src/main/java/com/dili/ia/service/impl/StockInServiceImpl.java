@@ -664,10 +664,15 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		domain.setPayDate(LocalDateTime.now());
 		domain.setTollman(settleOrder.getOperatorName());
 		domain.setTollmanId(settleOrder.getOperatorId());
-		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		// 入库 库存
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
 		stockService.inStock(stockInDetails, stockIn);
+		// 判断是否过期
+		if(stockIn.getExpireDate().isBefore(LocalDateTime.now())) {
+			updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.EXPIRE);
+		}else {
+			updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
+		}
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
 	}
 

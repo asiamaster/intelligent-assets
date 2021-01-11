@@ -286,12 +286,14 @@ $(document).on('change', '#departmentId', function() {
 	
 });
 // index 第几个子单  parent 父级区域   value 默认值    level  区域等级(one/two)
-function changeDistrict(index,parent,value,level){
+function changeDistrict(index,parent,value,level,departmentId){
 	if(!strIsNotEmpty(parent)){
 		$('#districtId_'+level+'_'+index).html('<option value="" selected="">-- 请选择上级区域--</option>');
 		return;
 	}
-	let departmentId = $('#departmentId').val();
+	if(!strIsNotEmpty(departmentId)){
+		departmentId = $('#departmentId').val();
+	}
 	let query = {
 			parentId: parent,
 			departmentId:departmentId
