@@ -34,6 +34,10 @@
     <result column="withdraw_operator" jdbcType="VARCHAR" property="withdrawOperator" />
     <result column="canceler_id" jdbcType="BIGINT" property="cancelerId" />
     <result column="canceler" jdbcType="VARCHAR" property="canceler" />
+    <result column="submitter_id" jdbcType="BIGINT" property="submitterId" />
+    <result column="submitter" jdbcType="VARCHAR" property="submitter" />
+    <result column="refund_id" jdbcType="BIGINT" property="refundId" />
+    <result column="refunder" jdbcType="VARCHAR" property="refunder" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="market_code" jdbcType="VARCHAR" property="marketCode" />
       <result column="mch_id" jdbcType="BIGINT" property="mchId" />
@@ -52,7 +56,8 @@
     customer_cellphone, department_id, department_name, charge_item_id, charge_item_name, 
     assets_type, assets_id, assets_name, start_time, end_time, category_id, category_name, 
     amount, refund_amount, notes, state, creator_id, creator, withdraw_operator_id, withdraw_operator, 
-    canceler_id, canceler, market_id, market_code, mch_id, mch_name, first_district_id, first_district_name, second_district_id, second_district_name, version
+    canceler_id, canceler, submitter_id, submitter, refund_id, refunder, market_id, market_code, mch_id,
+     mch_name, first_district_id, first_district_name, second_district_id, second_district_name, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -152,6 +157,18 @@
       </if>
       <if test="canceler != null">
         canceler = #{canceler,jdbcType=VARCHAR},
+      </if>
+      <if test="submitterId != null">
+        submitter_id = #{submitterId,jdbcType=BIGINT},
+      </if>
+      <if test="submitter != null">
+        submitter = #{submitter,jdbcType=VARCHAR},
+      </if>
+      <if test="refundId != null">
+        refund_id = #{refundId,jdbcType=BIGINT},
+      </if>
+      <if test="refunder != null">
+        refunder = #{refunder,jdbcType=VARCHAR},
       </if>
       <if test="marketId != null">
         market_id = #{marketId,jdbcType=BIGINT},
