@@ -10,38 +10,6 @@
     initSwipeIdCard({
         id:'getCustomer',
     });
-    var boothAutoCompleteOption = {
-        paramName: 'keyword',
-        displayFieldName: 'name',
-        serviceUrl: '/assets/searchAssets.action',
-        onSearchStart: function (params) {
-            params['assetsType'] = $('[name="assetsType"]').val();
-            params['firstDistrictId'] = $('[name="firstDistrictId"]').val();
-            params['secondDistrictId'] = $('[name="secondDistrictId"]').val();
-            return params;
-        },
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
-                return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '(' + (dataItem.secondAreaName? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
-                            }
-                        );
-                    })
-                }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return;
-            }
-        },
-        selectFn: function (suggestion) {
-            $('#assetsName').val(suggestion.name);
-            $('#assetsId').val(suggestion.id);
-        }
-    }
-
     /**
      * 摊位选择事件Handler
      * */
@@ -49,26 +17,12 @@
     $(function () {
         registerMsg();
         $('#assetsId, #assetsName, #assetsNameInput').hide();
-        debugger
         if(${otherFee.departmentId!}){
             getChargeItem(${otherFee.departmentId!});
             $('#chargeItemId').val(${otherFee.chargeItemId!});
         }
 
     });
-
-    $('#assetsType').on('change', function(){
-        $('#assetsName-error').remove();
-        $('#assetsId, #assetsName, #assetsNameInput').val('');
-        $('#assetsName, #assetsNameInput').removeClass('d-block');
-        $('#assetsNameInput').attr('name', '');
-        if($(this).val() != 100 ) {
-            $('#assetsName').addClass('d-block');
-        } else {
-            $('#assetsNameInput').attr('name', 'assetsName').addClass('d-block');
-        }
-    })
-
 
     //品类搜索自动完成
     var categoryAutoCompleteOption = {
@@ -177,12 +131,6 @@
     })
     $('#chargeItemId').on('change',  function () {
         $('#chargeItemName').val($(this.data('chargeItemName')))
-    })
-
-    $('#firstDistrictId, #secondDistrictId').change(function () {
-        let id  = $(this).attr('id');
-        $('#assetsType').val();
-        valueDistrictName($('#'+id));
     })
 
     $('#save').on('click', bui.util.debounce(doAddOtherFeeHandler,1000,true));
