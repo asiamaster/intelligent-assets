@@ -1,10 +1,5 @@
 <script>
-        //行索引计数器
-    let itemIndex = 0;
 
-    $(function () {
-        registerMsg();
-   });
     //初始化刷卡
     initSwipeIdCard({
         id:'getCustomer',
@@ -55,9 +50,6 @@
         }
     }
 
-    let assetsType = $('[name="assetsType"]').val();
-    let firstDistrictId = $('[name="firstDistrictId"]').val();
-    let secondDistrictId = $('[name="secondDistrictId"]').val();
     var boothAutoCompleteOption = {
         paramName: 'keyword',
         displayFieldName: 'name',
@@ -164,6 +156,7 @@
 
     $('#firstDistrictId, #secondDistrictId').change(function () {
         let id  = $(this).attr('id');
+        $('#assetsType').val();
         valueDistrictName($('#'+id));
     })
 
