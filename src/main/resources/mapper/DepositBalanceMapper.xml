@@ -114,6 +114,9 @@
     <if test="typeCode != null and typeCode != ''">
       AND type_code=#{typeCode}
     </if>
+    <if test="assetsType != null and assetsType != ''">
+      AND assets_type=#{assetsType}
+    </if>
     <if test="assetsName != null and assetsName != ''">
       AND assets_name=#{assetsName}
     </if>
