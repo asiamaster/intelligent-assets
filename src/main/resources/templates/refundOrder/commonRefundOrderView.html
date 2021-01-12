@@ -6,7 +6,7 @@
             基本信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div id="baseInfo" class="row row-cols-4 collapse show">
+        <div id="baseInfo" class="row row-cols-4 collapse show" id="baseInfo">
             <div class="form-group col">
                 <label for="" class="">退款单编号</label>
                 <input type="text" class="form-control" value="${refundOrder.code!}" disabled />
@@ -39,9 +39,9 @@
 
         <div class="breadcrumb">
             退款详情
-            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo1" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-4 collapse show" id="baseInfo">
+        <div class="row row-cols-4 collapse show" id="baseInfo1">
             <div class="form-group col">
                 <label >收款人<i class="red">*</i></label>
                 <input type="text" class="form-control" value="${refundOrder.payee!}" disabled />
@@ -54,13 +54,14 @@
                 <label  class="" _log>金额<i class="red">*</i></label>
                 <input type="text" class="form-control" value="<#centToYuan value='${refundOrder.payeeAmount!0}'/>" disabled />
             </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-6">
+             <div class="form-group col-6">
                 <label for="refundReason" _log>退款原因<i class="red">*</i></label>
                 <textarea class="form-control" id="refundReason" name="refundReason" rows="2" maxlength="100" readonly>${refundOrder.refundReason!}</textarea>
             </div>
         </div>
+       <!--  <div class="row">
+           
+        </div> -->
 
         <%if(isNotEmpty(logs) && logs.~size>0){ %>
             <div class="breadcrumb">

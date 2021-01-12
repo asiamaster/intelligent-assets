@@ -459,7 +459,7 @@
         } else if (state == ${@com.dili.ia.glossary.RefundOrderStateEnum.SUBMITTED.getCode()}) {
             $('#toolbar button').attr('disabled', true);
             $('#btn_view').attr('disabled', false);
-            $('#btn_cancel').attr('disabled', false);
+            //$('#btn_cancel').attr('disabled', false);
             //审批通过后，只有待审批和审批拒绝的订单可以撤回
             if(approvalState != ${@com.dili.ia.glossary.ApprovalStateEnum.APPROVED.getCode()}){
                 $('#btn_withdraw').attr('disabled', false);

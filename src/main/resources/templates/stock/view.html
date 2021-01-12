@@ -103,8 +103,17 @@
 					 name="expireDate" value="${stockIn.settleOrder.operateTime!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">缴费金额 </label> <input  type="text" class="form-control  "
-					 name="expireDate" value="${stockIn.settleOrder.amount!'--'}" readonly />
+				<label for="">缴费金额 </label> 
+				<%if(stockIn.settleOrder == null || stockIn.settleOrder.amount == ''){%>
+				<input  type="text" class="form-control  "
+					 name="expireDate" value="--" readonly />
+				<%
+				}else{
+				%>
+				<input  type="text" class="form-control  "
+					 name="expireDate" value="<#centToYuan value='${stockIn.settleOrder.amount!}'/>" readonly />
+				<%}%>
+					
 				</div>
 				<div class="form-group col">
 					<label for="">卡号 </label> <input  type="text" class="form-control  "
